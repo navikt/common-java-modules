@@ -37,21 +37,15 @@ public class Watermarker implements Transformer<byte[], byte[]> {
     private static final BaseColor BORDER_COLOR = RED;
     private static final float BORDER_WIDTH = 1f;
     private static final int FONT_SIZE = 6;
+    public static final String LINE_1_HEADER = "Fødselsnummer: ";
+    public static final String LINE_2_HEADER = "Sendt elektronisk: ";
 
     private final String linje1;
     private final String linje2;
 
     public Watermarker(String fodselsnummer) {
-        this.linje1 = getLine1Header() + formatertDato();
-        this.linje2 = getLine2Header() + fodselsnummer;
-    }
-
-    public String getLine2Header() {
-        return "Fødselsnummer: ";
-    }
-
-    public String getLine1Header() {
-        return "Sendt elektronisk: ";
+        this.linje1 = LINE_1_HEADER + formatertDato();
+        this.linje2 = LINE_2_HEADER + fodselsnummer;
     }
 
     @Override

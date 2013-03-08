@@ -39,8 +39,8 @@ public class WatermarkerTest {
         for (int i = 1; i <= reader.getNumberOfPages(); i++) {
             strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
             String pageText = strategy.getResultantText();
-            assertThat(pageText, containsString(watermarker.getLine1Header()));
-            assertThat(pageText, containsString(watermarker.getLine2Header()));
+            assertThat(pageText, containsString(watermarker.LINE_1_HEADER));
+            assertThat(pageText, containsString(watermarker.LINE_2_HEADER));
         }
 
         String directory = WatermarkerTest.class.getResource("/WatermarkerFiles").getPath();
