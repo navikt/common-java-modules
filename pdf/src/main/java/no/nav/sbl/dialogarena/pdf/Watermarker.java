@@ -42,8 +42,16 @@ public class Watermarker implements Transformer<byte[], byte[]> {
     private final String linje2;
 
     public Watermarker(String fodselsnummer) {
-        this.linje1 = "Sendt elektronisk: " + formatertDato();
-        this.linje2 = "Fødselsnummer: " + fodselsnummer;
+        this.linje1 = getLine1Header() + formatertDato();
+        this.linje2 = getLine2Header() + fodselsnummer;
+    }
+
+    public String getLine2Header() {
+        return "Fødselsnummer: ";
+    }
+
+    public String getLine1Header() {
+        return "Sendt elektronisk: ";
     }
 
     @Override
