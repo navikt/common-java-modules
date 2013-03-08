@@ -64,6 +64,11 @@
                 <artifactId>itextpdf</artifactId>
                 <version>5.3.5-MOD</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.pdfbox</groupId>
+                <artifactId>pdfbox</artifactId>
+                <version>1.7.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <scm>
