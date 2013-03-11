@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static javax.imageio.ImageIO.write;
-
 
 public final class PdfToImageList implements Transformer<byte[], List<byte[]>> {
 

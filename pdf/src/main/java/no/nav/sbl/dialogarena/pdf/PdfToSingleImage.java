@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.pdf;
 
-import com.itextpdf.text.pdf.PdfReader;
 import no.nav.sbl.dialogarena.detect.IsImage;
 import org.apache.commons.collections15.Transformer;
 import org.icepdf.core.exceptions.PDFException;
@@ -10,10 +9,7 @@ import org.icepdf.core.pobjects.Page;
 import org.icepdf.core.util.GraphicsRenderingHints;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import static javax.imageio.ImageIO.write;
 
 
 public final class PdfToSingleImage implements Transformer<byte[], byte[]> {
