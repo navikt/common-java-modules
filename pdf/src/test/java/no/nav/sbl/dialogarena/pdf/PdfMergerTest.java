@@ -60,5 +60,6 @@ public class PdfMergerTest {
 
         assertThat(mergedPdf.exists(), is(true));
         assertThat(mergedPdf.isFile(), is(true));
+        fos.close();
     }
 }

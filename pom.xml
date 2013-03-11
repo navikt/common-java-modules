@@ -65,14 +65,14 @@
                 <version>5.3.5-MOD</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.pdfbox</groupId>
-                <artifactId>pdfbox</artifactId>
-                <version>1.7.1</version>
-            </dependency>
-            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.icepdf</groupId>
+                <artifactId>icepdf-core</artifactId>
+                <version>4.3.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

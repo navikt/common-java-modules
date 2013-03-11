@@ -1,9 +1,7 @@
 package no.nav.sbl.dialogarena.pdf;
 
+import com.itextpdf.text.pdf.PdfReader;
 import org.apache.commons.collections15.Transformer;
-import org.apache.pdfbox.pdmodel.PDDocument;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 
@@ -13,7 +11,7 @@ public class Functions {
         @Override
         public Integer transform(byte[] pdfdata) {
             try {
-                return PDDocument.load(new ByteArrayInputStream(pdfdata)).getNumberOfPages();
+                return new PdfReader(pdfdata).getNumberOfPages();
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
