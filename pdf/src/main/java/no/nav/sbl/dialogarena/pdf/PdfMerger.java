@@ -8,12 +8,11 @@ import org.apache.commons.collections15.Transformer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 
-public class PdfMerger implements Transformer<List<byte[]>, byte[]> {
+public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
 
     @Override
-    public byte[] transform(List<byte[]> pages) {
+    public byte[] transform(Iterable<byte[]> pages) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfConcatenate merger = null;
         try {
