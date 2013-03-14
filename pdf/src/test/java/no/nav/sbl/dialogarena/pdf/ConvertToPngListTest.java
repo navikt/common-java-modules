@@ -19,14 +19,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
-public class KonverterAlleSiderTilPngTest {
+public class ConvertToPngListTest {
 
     @Test
-    public void konverterPdfTilPng() throws IOException {
+    public void convertPdfToPng() throws IOException {
         byte[] pdf = getBytesFromFile("/PdfToImageFiles/pdf-file.pdf");
         assertThat(pdf, match(new IsPdf()));
 
-        List<byte[]> pngs = new KonverterAlleSiderTilPng().transform(pdf);
+        List<byte[]> pngs = new ConvertToPngList().transform(pdf);
         assertThat(pngs, hasSize(6));
 
         for (byte [] png : pngs) {
@@ -34,7 +34,7 @@ public class KonverterAlleSiderTilPngTest {
         }
 
         try {
-            String myDirectoryPath = KonverterAlleSiderTilPngTest.class.getResource("/PdfToImageFiles").getPath() + "/multiple-pdf-files-converted";
+            String myDirectoryPath = ConvertToPngListTest.class.getResource("/PdfToImageFiles").getPath() + "/multiple-pdf-files-converted";
             File myDirectory = new File(myDirectoryPath);
             FileUtils.deleteDirectory(myDirectory);
             myDirectory.mkdir();
@@ -50,14 +50,14 @@ public class KonverterAlleSiderTilPngTest {
 //        TODO: Lag test som sjekker at bildene ligger i riktig rekkefølge etter at de er convertet fra en pdf-fil med flere sider
 //    @Test
 //    public void imagesInRightOrder() throws IOException {
-//        String myDirectory = KonverterAlleSiderTilPngTest.class.getResource("/PdfToImageFiles").getPath();
+//        String myDirectory = ConvertToPngListTest.class.getResource("/PdfToImageFiles").getPath();
 //        String pdfFile =  "/PdfToImageFiles/pdf-file.pdf";
 //        String tempPdfFile = pdfFile.substring(0,pdfFile.indexOf(".pdf")) + "-temp.pdf";
 //        String temp = myDirectory +
 //                tempPdfFile.substring(tempPdfFile.indexOf("pdf-file-temp.pdf"), tempPdfFile.indexOf(".pdf"));
 //
 //        PdfReader reader = new PdfReader(pdfFile);
-//        List<byte[]> bytesMultiplePdfPages = new KonverterAlleSiderTilPng().transform(getBytesFromFile(pdfFile));
+//        List<byte[]> bytesMultiplePdfPages = new ConvertToPngList().transform(getBytesFromFile(pdfFile));
 //        assertThat(bytesMultiplePdfPages.size(), is(reader.getNumberOfPages()));
 //        for (int i = 0; i < bytesMultiplePdfPages.size(); i++) {
 //            Document document = new Document(reader.getPageSizeWithRotation(1));
@@ -77,27 +77,27 @@ public class KonverterAlleSiderTilPngTest {
 //            document.close();
 //            writer.close();
 //
-//            byte[] bytesSinglePdfPage = new KonverterForsideTilPng().transform(getBytesFromFile(tempPdfFile));
+//            byte[] bytesSinglePdfPage = new ConvertToPng().transform(getBytesFromFile(tempPdfFile));
 //            assertThat(bytesMultiplePdfPages.get(i), Matchers.is(bytesSinglePdfPage));
 //        }
 //
 //    }
 
     @Test
-    public void konverterJpgTilPng() throws IOException {
+    public void convertJpgToPng() throws IOException {
         byte[] jpg = getBytesFromFile("/PdfToImageFiles/jpeg-file.jpeg");
 
         assertThat(jpg, match(new IsJpg()));
-        List<byte[]> png = new KonverterAlleSiderTilPng().transform(jpg);
+        List<byte[]> png = new ConvertToPngList().transform(jpg);
         assertThat(png.get(0), match(new IsPng()));
     }
 
     @Test
-    public void ikkeKonverterPng() throws IOException {
+    public void dontChangePng() throws IOException {
         byte[] png = getBytesFromFile("/PdfToImageFiles/png-file.png");
 
         assertThat(png, match(new IsPng()));
-        List<byte[]> newPng = new KonverterAlleSiderTilPng().transform(png);
+        List<byte[]> newPng = new ConvertToPngList().transform(png);
         assertThat(newPng.get(0), match(new IsPng()));
         assertThat(png, is(newPng.get(0)));
 

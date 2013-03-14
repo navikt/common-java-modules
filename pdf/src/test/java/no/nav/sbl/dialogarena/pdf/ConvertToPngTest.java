@@ -15,17 +15,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class KonverterForsideTilPngTest {
+public class ConvertToPngTest {
 
     @Test
-    public void konverterPdfTilPng() throws IOException {
+    public void convertPdfToPng() throws IOException {
         byte[] pdf = getBytesFromFile("/PdfToImageFiles/pdf-file.pdf");
         assertThat(pdf, match(new IsPdf()));
 
-        byte[] png = new KonverterForsideTilPng().transform(pdf);
+        byte[] png = new ConvertToPng().transform(pdf);
         assertThat(png, match(new IsPng()));
 
-        String directory = KonverterForsideTilPngTest.class.getResource("/PdfToImageFiles").getPath();
+        String directory = ConvertToPngTest.class.getResource("/PdfToImageFiles").getPath();
         File convertedPdf = new File(directory + "/" + "pdf-file-converted.png");
 
         FileOutputStream fos = new FileOutputStream(convertedPdf);
@@ -36,20 +36,20 @@ public class KonverterForsideTilPngTest {
     }
 
     @Test
-    public void konverterJpgTilPng() throws IOException {
+    public void convertJpgToPng() throws IOException {
         byte[] jpg = getBytesFromFile("/PdfToImageFiles/jpeg-file.jpeg");
 
         assertThat(jpg, match(new IsJpg()));
-        byte[] png = new KonverterForsideTilPng().transform(jpg);
+        byte[] png = new ConvertToPng().transform(jpg);
         assertThat(png, match(new IsPng()));
     }
 
     @Test
-    public void ikkeKonverterPng() throws IOException {
+    public void dontChangePng() throws IOException {
         byte[] png = getBytesFromFile("/PdfToImageFiles/png-file.png");
 
         assertThat(png, match(new IsPng()));
-        byte[] newPng = new KonverterForsideTilPng().transform(png);
+        byte[] newPng = new ConvertToPng().transform(png);
         assertThat(newPng, match(new IsPng()));
         assertThat(png, is(newPng));
 

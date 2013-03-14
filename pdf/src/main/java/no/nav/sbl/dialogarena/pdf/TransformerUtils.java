@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class TransformerUtils {
-    /*Grupperer funksjoner som brukes i KonverterForsideTilPng og KonverterAlleSiderTilPng slik at det ikke er duplisert kode*/
+    /*Grupperer funksjoner som brukes i ConvertToPng og ConvertToPngList slik at det ikke er duplisert kode*/
     public static Document setupDocumentFromBytes(byte[] bytes) {
         Document document = new Document();
         try {
