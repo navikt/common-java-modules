@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public final class PdfToImageList implements Transformer<byte[], List<byte[]>> {
+public final class KonverterAlleSiderTilPng implements Transformer<byte[], List<byte[]>> {
 
     @Override
     public List<byte[]> transform(byte[] bytes) {

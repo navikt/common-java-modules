@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 
-public final class PdfToSingleImage implements Transformer<byte[], byte[]> {
+public final class KonverterForsideTilPng implements Transformer<byte[], byte[]> {
 
     @Override
     public byte[] transform(byte[] bytes) {

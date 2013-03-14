@@ -15,17 +15,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-public class PdfToSingleImageTest {
+public class KonverterForsideTilPngTest {
 
     @Test
-    public void convertsPdfToPng() throws IOException {
+    public void konverterPdfTilPng() throws IOException {
         byte[] pdf = getBytesFromFile("/PdfToImageFiles/pdf-file.pdf");
         assertThat(pdf, match(new IsPdf()));
 
-        byte[] png = new PdfToSingleImage().transform(pdf);
+        byte[] png = new KonverterForsideTilPng().transform(pdf);
         assertThat(png, match(new IsPng()));
 
-        String directory = PdfToSingleImageTest.class.getResource("/PdfToImageFiles").getPath();
+        String directory = KonverterForsideTilPngTest.class.getResource("/PdfToImageFiles").getPath();
         File convertedPdf = new File(directory + "/" + "pdf-file-converted.png");
 
         FileOutputStream fos = new FileOutputStream(convertedPdf);
@@ -36,21 +36,20 @@ public class PdfToSingleImageTest {
     }
 
     @Test
-    public void doesNothingWithJpg() throws IOException {
+    public void konverterJpgTilPng() throws IOException {
         byte[] jpg = getBytesFromFile("/PdfToImageFiles/jpeg-file.jpeg");
 
         assertThat(jpg, match(new IsJpg()));
-        byte[] newJpg = new PdfToSingleImage().transform(jpg);
-        assertThat(newJpg, match(new IsJpg()));
-        assertThat(newJpg, is(jpg));
+        byte[] png = new KonverterForsideTilPng().transform(jpg);
+        assertThat(png, match(new IsPng()));
     }
 
     @Test
-    public void doesNothingWithPng() throws IOException {
+    public void ikkeKonverterPng() throws IOException {
         byte[] png = getBytesFromFile("/PdfToImageFiles/png-file.png");
 
         assertThat(png, match(new IsPng()));
-        byte[] newPng = new PdfToSingleImage().transform(png);
+        byte[] newPng = new KonverterForsideTilPng().transform(png);
         assertThat(newPng, match(new IsPng()));
         assertThat(png, is(newPng));
 
