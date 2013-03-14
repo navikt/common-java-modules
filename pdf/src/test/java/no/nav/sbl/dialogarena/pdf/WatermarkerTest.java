@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.getBytesFromFile;
+import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.writeBytesToFile;
 import static no.nav.sbl.dialogarena.test.match.Matchers.match;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -43,13 +44,6 @@ public class WatermarkerTest {
             assertThat(pageText, containsString(watermarker.LINE_2_HEADER));
         }
 
-        String directory = WatermarkerTest.class.getResource("/WatermarkerFiles").getPath();
-        File stampedPdf = new File(directory + "/" + INPUT_PDF + "-vannmerket.pdf");
-
-        FileOutputStream fos = new FileOutputStream(stampedPdf);
-        fos.write(watermarkedBytes);
-        assertTrue(stampedPdf.exists());
-        assertTrue(stampedPdf.isFile());
-        fos.close();
+        writeBytesToFile(watermarkedBytes, "/WatermarkerFiles", INPUT_PDF + "-vannmerket.pdf");
     }
 }

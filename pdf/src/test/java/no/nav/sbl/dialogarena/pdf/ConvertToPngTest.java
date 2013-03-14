@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.getBytesFromFile;
+import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.writeBytesToFile;
 import static no.nav.sbl.dialogarena.test.match.Matchers.match;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -25,14 +26,7 @@ public class ConvertToPngTest {
         byte[] png = new ConvertToPng().transform(pdf);
         assertThat(png, match(new IsPng()));
 
-        String directory = ConvertToPngTest.class.getResource("/PdfToImageFiles").getPath();
-        File convertedPdf = new File(directory + "/" + "pdf-file-converted.png");
-
-        FileOutputStream fos = new FileOutputStream(convertedPdf);
-        fos.write(png);
-        assertTrue(convertedPdf.exists());
-        assertTrue(convertedPdf.isFile());
-        fos.close();
+        writeBytesToFile(png, "/PdfToImageFiles", "pdf-file-converted.png");
     }
 
     @Test
@@ -52,7 +46,5 @@ public class ConvertToPngTest {
         byte[] newPng = new ConvertToPng().transform(png);
         assertThat(newPng, match(new IsPng()));
         assertThat(png, is(newPng));
-
-
     }
 }

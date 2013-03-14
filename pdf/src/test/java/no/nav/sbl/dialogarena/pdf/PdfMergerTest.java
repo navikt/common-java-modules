@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.getBytesFromFile;
+import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.writeBytesToFile;
 import static no.nav.sbl.dialogarena.test.match.Matchers.match;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -40,26 +41,13 @@ public class PdfMergerTest {
             PdfReader reader = new PdfReader(dokument);
             inputPages += reader.getNumberOfPages();
         }
-        byte[] merged = new PdfMerger().transform(dokumenter);
-        PdfReader reader = new PdfReader(merged);
+        byte[] mergedBytes = new PdfMerger().transform(dokumenter);
+        PdfReader reader = new PdfReader(mergedBytes);
         int outputPages = reader.getNumberOfPages();
         assertThat(inputPages, is(outputPages));
-    }
-
-    @Test
-    public void skalMergeToSider() throws IOException {
-        byte[] mergedBytes = new PdfMerger().transform(dokumenter);
 
         assertThat(mergedBytes, match(new IsPdf()));
 
-        String directory = PdfMergerTest.class.getResource("/PdfMergerFiles").getPath();
-        File mergedPdf = new File(directory + "/skjema_sammenslått.pdf");
-
-        FileOutputStream fos = new FileOutputStream(mergedPdf);
-        fos.write(mergedBytes);
-
-        assertThat(mergedPdf.exists(), is(true));
-        assertThat(mergedPdf.isFile(), is(true));
-        fos.close();
+        writeBytesToFile(mergedBytes, "/PdfMergerFiles", "/skjema_sammenslått.pdf");
     }
 }
