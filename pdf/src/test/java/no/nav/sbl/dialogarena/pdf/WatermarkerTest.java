@@ -7,8 +7,6 @@ import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.getBytesFromFile;
@@ -17,7 +15,6 @@ import static no.nav.sbl.dialogarena.test.match.Matchers.match;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class WatermarkerTest {
 
@@ -40,8 +37,8 @@ public class WatermarkerTest {
         for (int i = 1; i <= reader.getNumberOfPages(); i++) {
             strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
             String pageText = strategy.getResultantText();
-            assertThat(pageText, containsString(watermarker.LINE_1_HEADER));
-            assertThat(pageText, containsString(watermarker.LINE_2_HEADER));
+            assertThat(pageText, containsString(Watermarker.LINE_1_HEADER));
+            assertThat(pageText, containsString(Watermarker.LINE_2_HEADER));
         }
 
         writeBytesToFile(watermarkedBytes, "/WatermarkerFiles", INPUT_PDF + "-vannmerket.pdf");

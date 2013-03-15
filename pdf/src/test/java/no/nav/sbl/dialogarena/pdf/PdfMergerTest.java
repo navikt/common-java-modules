@@ -5,8 +5,6 @@ import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
