@@ -40,7 +40,7 @@ public class ImageScaler {
         BufferedImage scaledImage;
         try {
             scaledImage = Scalr.resize(ImageIO.read(bais), (int) frameDimension.getWidth(), (int) frameDimension.getHeight());
-            ImageIO.write(scaledImage, "jpg", baos);
+            ImageIO.write(scaledImage, "png", baos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
