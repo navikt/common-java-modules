@@ -41,6 +41,7 @@ public final class ConvertToPngList implements Transformer<byte[], List<byte[]>>
                 images.add(new PngToByteArray().transform(image));
 
             }
+            document.dispose();
             return images;
         }
 

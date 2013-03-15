@@ -57,6 +57,10 @@
             <groupId>org.icepdf</groupId>
             <artifactId>icepdf-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.imgscalr</groupId>
+            <artifactId>imgscalr-lib</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
