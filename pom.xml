@@ -79,6 +79,12 @@
                 <artifactId>imgscalr-lib</artifactId>
                 <version>4.2</version>
             </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>1.0.9</version>
+                <scope>runtime</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <scm>
