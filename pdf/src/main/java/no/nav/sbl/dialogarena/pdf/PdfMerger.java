@@ -21,6 +21,7 @@ public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfConcatenate merger = null;
         long start = System.currentTimeMillis();
+        int numberOfMergedDocuments = 0;
         try {
             merger = new PdfConcatenate(outputStream);
             for (byte[] page : pages) {
@@ -29,13 +30,14 @@ public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
                 }
                 PdfReader reader = new PdfReader(page);
                 merger.addPages(reader);
+                numberOfMergedDocuments++;
             }
 
         } catch (IOException | DocumentException e) {
             throw new RuntimeException(e);
         } finally {
             double elapsedTime = (double) (System.currentTimeMillis() - start) / 1000.0;
-            logger.debug("Merget {} pdf-dokumenter på {} sekunder", ((Collection<?>)pages).size(), elapsedTime);
+            logger.debug("Merget {} pdf-dokumenter på {} sekunder", numberOfMergedDocuments, elapsedTime);
             if (merger != null) {
                 merger.close();
             }
