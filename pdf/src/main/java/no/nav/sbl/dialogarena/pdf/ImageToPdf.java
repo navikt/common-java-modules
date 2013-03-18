@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class ImageToPdf implements Transformer<byte[], byte[]> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PdfMerger.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImageToPdf.class);
 
     @Override
     public byte[] transform(byte[] bytes) {

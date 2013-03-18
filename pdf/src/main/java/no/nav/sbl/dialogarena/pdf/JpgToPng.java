@@ -13,7 +13,7 @@ import java.io.IOException;
 public class JpgToPng implements Transformer<byte[], byte[]> {
     /*Konverterer jpeg til png*/
 
-    private static final Logger logger = LoggerFactory.getLogger(PdfMerger.class);
+    private static final Logger logger = LoggerFactory.getLogger(JpgToPng.class);
     @Override
     public byte[] transform(byte[] bytes) {
         long start = System.currentTimeMillis();

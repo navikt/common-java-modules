@@ -12,7 +12,7 @@ import static javax.imageio.ImageIO.write;
 
 public final class PngToByteArray implements Transformer<BufferedImage, byte[]> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PdfMerger.class);
+    private static final Logger logger = LoggerFactory.getLogger(PngToByteArray.class);
 
     @Override
     public byte[] transform(BufferedImage bufferedImage) {
