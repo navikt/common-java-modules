@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collection;
 
 public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
 
@@ -36,7 +35,7 @@ public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
         } catch (IOException | DocumentException e) {
             throw new RuntimeException(e);
         } finally {
-            double elapsedTime = (double) (System.currentTimeMillis() - start) / 1000.0;
+            double elapsedTime = (System.currentTimeMillis() - start) / 1000.0;
             logger.debug("Merget {} pdf-dokumenter på {} sekunder", numberOfMergedDocuments, elapsedTime);
             if (merger != null) {
                 merger.close();
