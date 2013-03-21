@@ -48,4 +48,16 @@ public class PdfMergerTest {
 
         writeBytesToFile(mergedBytes, "/PdfMergerFiles", "/skjema_sammenslått.pdf");
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void skalKasteExceptionForUlovligeFiler() throws IOException {
+        List<byte[]> filer = new ArrayList<>();
+
+        byte[] pdf = getBytesFromFile("/PdfMergerFiles/skjema1_side3.pdf");
+        byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
+        filer.add(pdf);
+        filer.add(txt);
+
+        byte[] merged = new PdfMerger().transform(filer);
+    }
 }

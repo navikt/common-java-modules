@@ -44,4 +44,10 @@ public class ConvertToPngTest {
         assertThat(newPng, match(new IsPng()));
         assertThat(png, is(newPng));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void kastExceptionPaaUlovligFiltype() throws IOException {
+        byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
+        byte[] png = new ConvertToPng().transform(txt);
+    }
 }

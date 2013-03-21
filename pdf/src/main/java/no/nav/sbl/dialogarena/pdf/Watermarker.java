@@ -8,6 +8,7 @@ import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfGState;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
+import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.apache.commons.collections15.Transformer;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +24,12 @@ import static com.itextpdf.text.pdf.BaseFont.HELVETICA;
 import static com.itextpdf.text.pdf.BaseFont.WINANSI;
 import static com.itextpdf.text.pdf.PdfContentByte.ALIGN_LEFT;
 import static java.lang.Math.max;
+
+/**
+ * Vannmerker PDF
+ *
+ * For flersidig PDF legges vannmerket på samtlige sider.
+ */
 
 public class Watermarker implements Transformer<byte[], byte[]> {
 
@@ -50,6 +57,10 @@ public class Watermarker implements Transformer<byte[], byte[]> {
 
     @Override
     public byte[] transform(byte[] bytes) {
+        if (!(new IsPdf().evaluate(bytes))) {
+            throw new IllegalArgumentException("Kan kun vannmerke PDF-filer.");
+        }
+
         byte[] watermarkedPdf;
         try {
             PdfReader originalReader = new PdfReader(bytes);

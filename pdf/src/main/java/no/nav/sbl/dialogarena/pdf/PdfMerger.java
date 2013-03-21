@@ -11,6 +11,10 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/**
+ * Slår sammen flere PDF-filer til én enkelt PDF.
+ */
+
 public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
 
     private static final Logger logger = LoggerFactory.getLogger(PdfMerger.class);
@@ -36,7 +40,7 @@ public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
             throw new RuntimeException(e);
         } finally {
             double elapsedTime = (System.currentTimeMillis() - start) / 1000.0;
-            logger.debug("Merget {} pdf-dokumenter på {} sekunder", numberOfMergedDocuments, elapsedTime);
+            logger.debug("Merget {} PDF-dokumenter på {} sekunder", numberOfMergedDocuments, elapsedTime);
             if (merger != null) {
                 merger.close();
             }

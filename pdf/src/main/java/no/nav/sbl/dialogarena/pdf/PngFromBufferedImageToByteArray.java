@@ -10,23 +10,23 @@ import java.io.IOException;
 
 import static javax.imageio.ImageIO.write;
 
-public final class PngToByteArray implements Transformer<BufferedImage, byte[]> {
+class PngFromBufferedImageToByteArray implements Transformer<BufferedImage, byte[]> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PngToByteArray.class);
+    private static final Logger logger = LoggerFactory.getLogger(PngFromBufferedImageToByteArray.class);
 
     @Override
     public byte[] transform(BufferedImage bufferedImage) {
         long start = System.currentTimeMillis();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            write(bufferedImage, "png", bos);
+            write(bufferedImage, "png", baos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         bufferedImage.flush();
-        byte[] bytes = bos.toByteArray();
-        double elapsedTime = (double)(System.currentTimeMillis() - start) / 1000.0;
-        logger.debug("Konverterte et png-bilde til byte[] på {} sekunder", elapsedTime);
+        byte[] bytes = baos.toByteArray();
+        double elapsedTime = (double) (System.currentTimeMillis() - start) / 1000.0;
+        logger.debug("Konverterte et PNG-bilde fra BufferedImage til byte[] på {} sekunder", elapsedTime);
         return bytes;
     }
 }

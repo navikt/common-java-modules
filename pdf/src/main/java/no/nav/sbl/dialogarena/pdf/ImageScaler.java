@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.pdf;
 
-
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -10,8 +9,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/**
+ * Funksjoner for skalering av bilder
+ */
+
 public class ImageScaler {
-    /*Funksjoner for skalering av bilder*/
 
     public static byte[] cropImageToFillFrame(byte[] imageBytes, Dimension frameDimension) {
         BufferedImage image;
@@ -30,7 +32,7 @@ public class ImageScaler {
         } else {
             croppedImage = image.getSubimage(0, 0, Math.round(image.getWidth() * (widthZoom / heightZoom)), image.getHeight());
         }
-        byte[] croppedImageBytes = new PngToByteArray().transform(croppedImage);
+        byte[] croppedImageBytes = new PngFromBufferedImageToByteArray().transform(croppedImage);
         return fitImageInsideFrame(croppedImageBytes, frameDimension);
     }
 

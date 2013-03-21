@@ -4,6 +4,9 @@ import com.itextpdf.text.pdf.PdfReader;
 import org.apache.commons.collections15.Transformer;
 import java.io.IOException;
 
+/**
+ * Statiske funksjoner for operasjoner på PDFer, inkl henting av antall sider
+ */
 
 public class Functions {
 
@@ -16,6 +19,5 @@ public class Functions {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
-
     };
 }

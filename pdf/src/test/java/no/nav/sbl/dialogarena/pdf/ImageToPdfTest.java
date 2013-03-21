@@ -47,4 +47,10 @@ public class ImageToPdfTest {
 
         writeBytesToFile(pdfBytes, IMAGE_DIR, "skjema1_side2_fra_jpg.pdf");
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void kastExceptionPaaUlovligFiltype() throws IOException {
+        byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
+        byte[] pdf = new ImageToPdf().transform(txt);
+    }
 }

@@ -11,6 +11,11 @@ import java.awt.image.BufferedImage;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.getPageImageFromDocument;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes;
 
+/**
+ * Konvertererer PDF- og JPG-filer til én PNG
+ *
+ * For flersidig PDF blir kun forsiden konvertert til PNG og returnert.
+ */
 
 public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
@@ -26,10 +31,10 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             BufferedImage image = getPageImageFromDocument(document, 0);
 
             document.dispose();
-            return new PngToByteArray().transform(image);
+            return new PngFromBufferedImageToByteArray().transform(image);
 
         } else {
-            throw new IllegalArgumentException("Støtter bare png, jpeg og pdf");
+            throw new IllegalArgumentException("Kan kun konvertere PDF, JPG og PNG til PNG.");
         }
     }
 }

@@ -47,41 +47,6 @@ public class ConvertToPngListTest {
             throw new RuntimeException(e);
         }
     }
-//        TODO: Lag test som sjekker at bildene ligger i riktig rekkefølge etter at de er convertet fra en pdf-fil med flere sider
-//    @Test
-//    public void imagesInRightOrder() throws IOException {
-//        String myDirectory = ConvertToPngListTest.class.getResource("/PdfToImageFiles").getPath();
-//        String pdfFile =  "/PdfToImageFiles/pdf-file.pdf";
-//        String tempPdfFile = pdfFile.substring(0,pdfFile.indexOf(".pdf")) + "-temp.pdf";
-//        String temp = myDirectory +
-//                tempPdfFile.substring(tempPdfFile.indexOf("pdf-file-temp.pdf"), tempPdfFile.indexOf(".pdf"));
-//
-//        PdfReader reader = new PdfReader(pdfFile);
-//        List<byte[]> bytesMultiplePdfPages = new ConvertToPngList().transform(getBytesFromFile(pdfFile));
-//        assertThat(bytesMultiplePdfPages.size(), is(reader.getNumberOfPages()));
-//        for (int i = 0; i < bytesMultiplePdfPages.size(); i++) {
-//            Document document = new Document(reader.getPageSizeWithRotation(1));
-//            PdfCopy writer = null;
-//            try {
-//                writer = new PdfCopy(document, new FileOutputStream(temp));
-//            } catch (DocumentException e) {
-//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//            }
-//            document.open();
-//            PdfImportedPage page = writer.getImportedPage(reader,i+1);
-//            try {
-//                writer.addPage(page);
-//            } catch (BadPdfFormatException e) {
-//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-//            }
-//            document.close();
-//            writer.close();
-//
-//            byte[] bytesSinglePdfPage = new ConvertToPng().transform(getBytesFromFile(tempPdfFile));
-//            assertThat(bytesMultiplePdfPages.get(i), Matchers.is(bytesSinglePdfPage));
-//        }
-//
-//    }
 
     @Test
     public void convertJpgToPng() throws IOException {
@@ -100,7 +65,11 @@ public class ConvertToPngListTest {
         List<byte[]> newPng = new ConvertToPngList().transform(png);
         assertThat(newPng.get(0), match(new IsPng()));
         assertThat(png, is(newPng.get(0)));
+    }
 
-
+    @Test(expected = IllegalArgumentException.class)
+    public void kastExceptionPaaUlovligFiltype() throws IOException {
+        byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
+        List<byte[]> png = new ConvertToPngList().transform(txt);
     }
 }
