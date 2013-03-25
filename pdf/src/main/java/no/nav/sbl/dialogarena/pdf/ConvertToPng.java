@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static no.nav.sbl.dialogarena.pdf.ImageScaler.cropImage;
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.getPageImageFromDocument;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes;
@@ -39,12 +40,13 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            scaledImage = cropImage(scaledImage, frameDimension);
             return new PngFromBufferedImageToByteArray().transform(scaledImage);
         } else if (new IsPdf().evaluate(bytes)) {
             Document document = setupDocumentFromBytes(bytes);
 
             BufferedImage image = getPageImageFromDocument(document, 0, frameDimension);
-
+            image = cropImage(image, frameDimension);
             document.dispose();
             return new PngFromBufferedImageToByteArray().transform(image);
 

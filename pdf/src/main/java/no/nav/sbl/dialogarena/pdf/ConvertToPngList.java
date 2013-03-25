@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static no.nav.sbl.dialogarena.pdf.ImageScaler.cropImage;
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.getPageImageFromDocument;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes;
@@ -41,6 +42,7 @@ public final class ConvertToPngList implements Transformer<byte[], List<byte[]>>
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            scaledImage = cropImage(scaledImage, frameDimension);
             List<byte[]> list = new ArrayList<>();
             list.add(new PngFromBufferedImageToByteArray().transform(scaledImage));
             return list;
@@ -49,6 +51,7 @@ public final class ConvertToPngList implements Transformer<byte[], List<byte[]>>
             List<byte[]> images = new ArrayList<>();
             for(int i = 0; i < document.getNumberOfPages(); i++) {
                 BufferedImage image = getPageImageFromDocument(document, i, frameDimension);
+                image = cropImage(image, frameDimension);
                 images.add(new PngFromBufferedImageToByteArray().transform(image));
             }
             document.dispose();

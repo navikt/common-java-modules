@@ -50,11 +50,25 @@ public class ImageScaler {
     }
 
     public static BufferedImage scaleImage(BufferedImage image, Dimension frameDimension) {
-        return Scalr.resize(image, (int) frameDimension.getWidth(), (int) frameDimension.getHeight());
+        double widthZoom = frameDimension.getWidth() / image.getWidth();
+        double heightZoom = frameDimension.getHeight() / image.getHeight();
+        Dimension dimension = new Dimension();
+        if (widthZoom < heightZoom) {
+            dimension.setSize(heightZoom * image.getWidth(), heightZoom * image.getHeight());
+        } else {
+            dimension.setSize(widthZoom * image.getWidth(), widthZoom * image.getHeight());
+        }
+        return Scalr.resize(image, (int) dimension.getWidth(), (int) dimension.getHeight());
     }
 
     public static float getScalingFactor(Dimension pageDimension, Dimension frameDimension) {
-        return (float) Math.min(frameDimension.getWidth() / pageDimension.getWidth(),
+        return (float) Math.max(frameDimension.getWidth() / pageDimension.getWidth(),
                 frameDimension.getHeight() / pageDimension.getHeight());
+    }
+
+    public static BufferedImage cropImage(BufferedImage image, Dimension frameDimension) {
+        int width = Math.min(image.getWidth(), (int) Math.round(frameDimension.getWidth()));
+        int height = Math.min(image.getHeight(), (int) Math.round(frameDimension.getHeight()));
+        return image.getSubimage(0, 0, width, height);
     }
 }

@@ -26,8 +26,7 @@ class TransformerUtils {
 
     public static BufferedImage getPageImageFromDocument(Document document, int pageNumber, Dimension frameDimension) {
         PDimension pageDimension = document.getPageDimension(pageNumber, 0f);
-        Math.round(pageDimension.getWidth());
-        float scale = getScalingFactor(new Dimension(Math.round(pageDimension.getWidth()), Math.round(pageDimension.getHeight())), frameDimension);
+        float scale = getScalingFactor(new Dimension((int) Math.ceil(pageDimension.getWidth()), (int) Math.ceil(pageDimension.getHeight())), frameDimension);
         return (BufferedImage) document.getPageImage(pageNumber, GraphicsRenderingHints.SCREEN,
                 Page.BOUNDARY_CROPBOX, 0f, scale);
     }
