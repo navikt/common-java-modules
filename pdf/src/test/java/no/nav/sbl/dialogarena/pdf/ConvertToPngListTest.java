@@ -6,6 +6,7 @@ import no.nav.sbl.dialogarena.detect.IsPng;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
+import java.awt.Dimension;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +16,6 @@ import java.util.List;
 
 import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.getBytesFromFile;
 import static no.nav.sbl.dialogarena.test.match.Matchers.match;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 
@@ -26,7 +26,7 @@ public class ConvertToPngListTest {
         byte[] pdf = getBytesFromFile("/PdfToImageFiles/pdf-file.pdf");
         assertThat(pdf, match(new IsPdf()));
 
-        List<byte[]> pngs = new ConvertToPngList().transform(pdf);
+        List<byte[]> pngs = new ConvertToPngList(new Dimension(100, 150)).transform(pdf);
         assertThat(pngs, hasSize(6));
 
         for (byte [] png : pngs) {
@@ -53,7 +53,7 @@ public class ConvertToPngListTest {
         byte[] jpg = getBytesFromFile("/PdfToImageFiles/jpeg-file.jpeg");
 
         assertThat(jpg, match(new IsJpg()));
-        List<byte[]> png = new ConvertToPngList().transform(jpg);
+        List<byte[]> png = new ConvertToPngList(new Dimension(100, 150)).transform(jpg);
         assertThat(png.get(0), match(new IsPng()));
     }
 
@@ -62,14 +62,13 @@ public class ConvertToPngListTest {
         byte[] png = getBytesFromFile("/PdfToImageFiles/png-file.png");
 
         assertThat(png, match(new IsPng()));
-        List<byte[]> newPng = new ConvertToPngList().transform(png);
+        List<byte[]> newPng = new ConvertToPngList(new Dimension(100, 150)).transform(png);
         assertThat(newPng.get(0), match(new IsPng()));
-        assertThat(png, is(newPng.get(0)));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void kastExceptionPaaUlovligFiltype() throws IOException {
         byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
-        List<byte[]> png = new ConvertToPngList().transform(txt);
+        List<byte[]> png = new ConvertToPngList(new Dimension(100, 150)).transform(txt);
     }
 }

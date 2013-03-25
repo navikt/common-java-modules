@@ -48,4 +48,13 @@ public class ImageScaler {
         }
         return baos.toByteArray();
     }
+
+    public static BufferedImage scaleImage(BufferedImage image, Dimension frameDimension) {
+        return Scalr.resize(image, (int) frameDimension.getWidth(), (int) frameDimension.getHeight());
+    }
+
+    public static float getScalingFactor(Dimension pageDimension, Dimension frameDimension) {
+        return (float) Math.min(frameDimension.getWidth() / pageDimension.getWidth(),
+                frameDimension.getHeight() / pageDimension.getHeight());
+    }
 }

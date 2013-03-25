@@ -1,16 +1,19 @@
 package no.nav.sbl.dialogarena.pdf;
 
-import no.nav.sbl.dialogarena.detect.IsJpg;
+import no.nav.sbl.dialogarena.detect.IsImage;
 import no.nav.sbl.dialogarena.detect.IsPdf;
-import no.nav.sbl.dialogarena.detect.IsPng;
 import org.apache.commons.collections15.Transformer;
 import org.icepdf.core.pobjects.Document;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.getPageImageFromDocument;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes;
 
@@ -22,21 +25,30 @@ import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes
 
 public final class ConvertToPngList implements Transformer<byte[], List<byte[]>> {
 
+    public Dimension frameDimension;
+
+    public ConvertToPngList(Dimension frameDimension) {
+        this.frameDimension = frameDimension;
+    }
+
     @Override
     public List<byte[]> transform(byte[] bytes) {
-        if (new IsPng().evaluate(bytes)) {
+        if (new IsImage().evaluate(bytes)) {
+            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+            BufferedImage scaledImage;
+            try {
+                scaledImage = scaleImage(ImageIO.read(bais), frameDimension);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             List<byte[]> list = new ArrayList<>();
-            list.add(bytes);
-            return list;
-        } else if (new IsJpg().evaluate(bytes)) {
-            List<byte[]> list = new ArrayList<>();
-            list.add(new JpgToPng().transform(bytes));
+            list.add(new PngFromBufferedImageToByteArray().transform(scaledImage));
             return list;
         } else if (new IsPdf().evaluate(bytes)) {
             Document document = setupDocumentFromBytes(bytes);
             List<byte[]> images = new ArrayList<>();
             for(int i = 0; i < document.getNumberOfPages(); i++) {
-                BufferedImage image = getPageImageFromDocument(document, i);
+                BufferedImage image = getPageImageFromDocument(document, i, frameDimension);
                 images.add(new PngFromBufferedImageToByteArray().transform(image));
             }
             document.dispose();
