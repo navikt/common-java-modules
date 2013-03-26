@@ -50,14 +50,9 @@ public class ImageScaler {
     }
 
     public static BufferedImage scaleImage(BufferedImage image, Dimension frameDimension) {
-        double widthZoom = frameDimension.getWidth() / image.getWidth();
-        double heightZoom = frameDimension.getHeight() / image.getHeight();
+        double scalingFactor = Math.max(frameDimension.getWidth() / image.getWidth(), frameDimension.getHeight() / image.getHeight());
         Dimension dimension = new Dimension();
-        if (widthZoom < heightZoom) {
-            dimension.setSize(heightZoom * image.getWidth(), heightZoom * image.getHeight());
-        } else {
-            dimension.setSize(widthZoom * image.getWidth(), widthZoom * image.getHeight());
-        }
+        dimension.setSize(scalingFactor * image.getWidth(), scalingFactor * image.getHeight());
         return Scalr.resize(image, (int) dimension.getWidth(), (int) dimension.getHeight());
     }
 
