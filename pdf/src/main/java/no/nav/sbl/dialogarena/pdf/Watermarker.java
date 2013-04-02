@@ -44,8 +44,8 @@ public class Watermarker implements Transformer<byte[], byte[]> {
     private static final BaseColor BORDER_COLOR = RED;
     private static final float BORDER_WIDTH = 1f;
     private static final int FONT_SIZE = 6;
-    public static final String LINE_1_HEADER = "Fødselsnummer: ";
-    public static final String LINE_2_HEADER = "Sendt elektronisk: ";
+    public static final String LINE_1_HEADER = "Sendt elektronisk: ";
+    public static final String LINE_2_HEADER = "Fødselsnummer: ";
 
     private final String linje1;
     private final String linje2;
