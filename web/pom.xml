@@ -12,6 +12,13 @@
     <name>${project.artifactId}</name>
 
     <dependencies>
+    	<!-- Third party dependencies -->
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-core</artifactId>
+		</dependency>
+
+		<!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
