@@ -11,6 +11,7 @@
         <module>test</module>
         <module>pdf</module>
         <module>detect</module>
+        <module>web</module>		
     </modules>
     <name>Dialogarena - Common</name>
     <groupId>no.nav.sbl.dialogarena</groupId>
