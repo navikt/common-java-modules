@@ -5,11 +5,8 @@ import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.apache.commons.collections15.Transformer;
 import org.icepdf.core.pobjects.Document;
 
-import javax.imageio.ImageIO;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.cropImage;
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
@@ -33,18 +30,11 @@ public final class ConvertToPngIcePdf implements Transformer<byte[], byte[]> {
     @Override
     public byte[] transform(byte[] bytes) {
         if (new IsImage().evaluate(bytes)) {
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            BufferedImage scaledImage;
-            try {
-                scaledImage = scaleImage(ImageIO.read(bais), frameDimension);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            BufferedImage scaledImage = scaleImage(bytes, frameDimension);
             scaledImage = cropImage(scaledImage, frameDimension);
             return new PngFromBufferedImageToByteArray().transform(scaledImage);
         } else if (new IsPdf().evaluate(bytes)) {
             Document document = setupDocumentFromBytes(bytes);
-
             BufferedImage image = getScaledPageImageFromDocument(document, 0, frameDimension);
             image = cropImage(image, frameDimension);
             document.dispose();

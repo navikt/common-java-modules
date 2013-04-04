@@ -2,6 +2,7 @@ package no.nav.sbl.dialogarena.pdf;
 
 import com.itextpdf.text.pdf.PdfReader;
 import org.apache.commons.collections15.Transformer;
+
 import java.io.IOException;
 
 /**

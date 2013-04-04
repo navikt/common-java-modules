@@ -1,6 +1,8 @@
 package no.nav.sbl.dialogarena.pdf;
 
 import org.imgscalr.Scalr;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.Dimension;
@@ -14,6 +16,8 @@ import java.io.IOException;
  */
 
 public class ImageScaler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ImageScaler.class);
 
     public static byte[] cropImageToFillFrame(byte[] imageBytes, Dimension frameDimension) {
         BufferedImage image;
@@ -49,7 +53,19 @@ public class ImageScaler {
         return baos.toByteArray();
     }
 
-    public static BufferedImage scaleImage(BufferedImage image, Dimension frameDimension) {
+    public static BufferedImage scaleImage(byte[] imageBytes, Dimension frameDimension) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
+        BufferedImage image;
+        try {
+            image = ImageIO.read(bais);
+        } catch (IOException e) {
+            logger.error("Kunne ikke lese bytes som bilde under skalering.");
+            throw new RuntimeException(e);
+        }
+        return scaleImage(image, frameDimension);
+    }
+
+    public static BufferedImage scaleImage(BufferedImage image, Dimension frameDimension)  {
         double scalingFactor = Math.max(frameDimension.getWidth() / image.getWidth(), frameDimension.getHeight() / image.getHeight());
         Dimension dimension = new Dimension();
         dimension.setSize(scalingFactor * image.getWidth(), scalingFactor * image.getHeight());

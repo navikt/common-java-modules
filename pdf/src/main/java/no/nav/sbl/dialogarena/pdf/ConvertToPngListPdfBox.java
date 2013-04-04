@@ -4,15 +4,10 @@ import no.nav.sbl.dialogarena.detect.IsImage;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.apache.commons.collections15.Transformer;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.cropImage;
@@ -32,13 +27,7 @@ public final class ConvertToPngListPdfBox implements Transformer<byte[], List<by
     @Override
     public List<byte[]> transform(byte[] bytes) {
         if (new IsImage().evaluate(bytes)) {
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            BufferedImage scaledImage;
-            try {
-                scaledImage = scaleImage(ImageIO.read(bais), frameDimension);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            BufferedImage scaledImage = scaleImage(bytes, frameDimension);
             scaledImage = cropImage(scaledImage, frameDimension);
             java.util.List<byte[]> list = new ArrayList<>();
             list.add(new PngFromBufferedImageToByteArray().transform(scaledImage));

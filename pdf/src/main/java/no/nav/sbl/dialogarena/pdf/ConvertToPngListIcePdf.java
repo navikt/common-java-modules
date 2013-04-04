@@ -5,11 +5,8 @@ import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.apache.commons.collections15.Transformer;
 import org.icepdf.core.pobjects.Document;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,13 +32,7 @@ public final class ConvertToPngListIcePdf implements Transformer<byte[], List<by
     @Override
     public List<byte[]> transform(byte[] bytes) {
         if (new IsImage().evaluate(bytes)) {
-            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            BufferedImage scaledImage;
-            try {
-                scaledImage = scaleImage(ImageIO.read(bais), frameDimension);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            BufferedImage scaledImage = scaleImage(bytes, frameDimension);
             scaledImage = cropImage(scaledImage, frameDimension);
             List<byte[]> list = new ArrayList<>();
             list.add(new PngFromBufferedImageToByteArray().transform(scaledImage));
