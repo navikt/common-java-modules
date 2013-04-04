@@ -1,6 +1,7 @@
 package no.nav.sbl.dialogarena.pdf;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.icepdf.core.exceptions.PDFException;
 import org.icepdf.core.exceptions.PDFSecurityException;
 import org.icepdf.core.pobjects.Document;
@@ -16,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.getScalingFactor;
+import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
 
 class TransformerUtils {
 
@@ -32,7 +34,7 @@ class TransformerUtils {
             }
         }
 
-        public static BufferedImage getPageImageFromDocument(Document document, int pageNumber, Dimension frameDimension) {
+        public static BufferedImage getScaledPageImageFromDocument(Document document, int pageNumber, Dimension frameDimension) {
             PDimension pageDimension = document.getPageDimension(pageNumber, 0f);
             float scale = getScalingFactor(new Dimension((int) Math.ceil(pageDimension.getWidth()), (int) Math.ceil(pageDimension.getHeight())), frameDimension);
             return (BufferedImage) document.getPageImage(pageNumber, GraphicsRenderingHints.SCREEN,
@@ -49,6 +51,19 @@ class TransformerUtils {
                 logger.error("Kunne ikke opprette PDF fra byte array med PDFBox.", e);
                 throw new RuntimeException(e);
             }
+        }
+
+        public static BufferedImage getScaledPageImageFromDocument(PDDocument document, int pageNumber, Dimension frameDimension) {
+            BufferedImage image;
+            try {
+                PDPage page = (PDPage) document.getDocumentCatalog().getAllPages().get(pageNumber);
+                image = page.convertToImage();
+            } catch (IOException e) {
+                logger.error("Kunne ikke opprette PDF", e);
+                throw new RuntimeException(e);
+            }
+
+            return scaleImage(image, frameDimension);
         }
 
     }

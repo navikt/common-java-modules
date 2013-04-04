@@ -15,7 +15,7 @@ import java.util.List;
 
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.cropImage;
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
-import static no.nav.sbl.dialogarena.pdf.TransformerUtils.IcePdfUtils.getPageImageFromDocument;
+import static no.nav.sbl.dialogarena.pdf.TransformerUtils.IcePdfUtils.getScaledPageImageFromDocument;
 import static no.nav.sbl.dialogarena.pdf.TransformerUtils.IcePdfUtils.setupDocumentFromBytes;
 
 /**
@@ -24,10 +24,12 @@ import static no.nav.sbl.dialogarena.pdf.TransformerUtils.IcePdfUtils.setupDocum
  * For JPG vil resultatet alltid være en liste med kun ett element.
  */
 
-public final class ConvertToPngListIcePdf extends ConvertToPngList {
+public final class ConvertToPngListIcePdf implements Transformer<byte[], List<byte[]>> {
+
+    public Dimension frameDimension;
 
     public ConvertToPngListIcePdf(Dimension frameDimension) {
-        super(frameDimension);
+        this.frameDimension = frameDimension;
     }
 
     @Override
@@ -48,7 +50,7 @@ public final class ConvertToPngListIcePdf extends ConvertToPngList {
             Document document = setupDocumentFromBytes(bytes);
             List<byte[]> images = new ArrayList<>();
             for(int i = 0; i < document.getNumberOfPages(); i++) {
-                BufferedImage image = getPageImageFromDocument(document, i, frameDimension);
+                BufferedImage image = getScaledPageImageFromDocument(document, i, frameDimension);
                 image = cropImage(image, frameDimension);
                 images.add(new PngFromBufferedImageToByteArray().transform(image));
             }
