@@ -15,8 +15,8 @@ import java.util.List;
 
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.cropImage;
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
-import static no.nav.sbl.dialogarena.pdf.TransformerUtils.getPageImageFromDocument;
-import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes;
+import static no.nav.sbl.dialogarena.pdf.TransformerUtils.IcePdfUtils.getPageImageFromDocument;
+import static no.nav.sbl.dialogarena.pdf.TransformerUtils.IcePdfUtils.setupDocumentFromBytes;
 
 /**
  * Konvertererer PDF- og JPG-filer til liste av PNGer
