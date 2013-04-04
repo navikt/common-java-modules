@@ -20,8 +20,8 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ConvertToPngTest {
-    private static final Logger logger = LoggerFactory.getLogger(ConvertToPngTest.class);
+public class ConvertToPngPdfBoxTest {
+    private static final Logger logger = LoggerFactory.getLogger(ConvertToPngPdfBoxTest.class);
 
     @Test
     public void convertPdfToPng() throws IOException {
@@ -29,8 +29,8 @@ public class ConvertToPngTest {
         Dimension frameDimension = new Dimension(100, 150);
         assertThat(pdf, match(new IsPdf()));
         long start = System.currentTimeMillis();
-        byte[] png = new ConvertToPng(frameDimension).transform(pdf);
-        logger.debug("ConvertToPng tok {} ms", System.currentTimeMillis() - start);
+        byte[] png = new ConvertToPngPdfBox(frameDimension).transform(pdf);
+        logger.debug("ConvertToPngPdfBox tok {} ms", System.currentTimeMillis() - start);
         assertThat(png, match(new IsPng()));
 
         ByteArrayInputStream bais = new ByteArrayInputStream(png);
@@ -47,7 +47,7 @@ public class ConvertToPngTest {
         Dimension frameDimension = new Dimension(150, 150);
 
         assertThat(jpg, match(new IsJpg()));
-        byte[] png = new ConvertToPng(frameDimension).transform(jpg);
+        byte[] png = new ConvertToPngPdfBox(frameDimension).transform(jpg);
         assertThat(png, match(new IsPng()));
 
         ByteArrayInputStream bais = new ByteArrayInputStream(png);
@@ -64,7 +64,7 @@ public class ConvertToPngTest {
         Dimension frameDimension = new Dimension(300, 100);
 
         assertThat(png, match(new IsPng()));
-        byte[] newPng = new ConvertToPng(frameDimension).transform(png);
+        byte[] newPng = new ConvertToPngPdfBox(frameDimension).transform(png);
         assertThat(newPng, match(new IsPng()));
 
         ByteArrayInputStream bais = new ByteArrayInputStream(newPng);
@@ -79,6 +79,6 @@ public class ConvertToPngTest {
     public void kastExceptionPaaUlovligFiltype() throws IOException {
         byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
         Dimension frameDimension = new Dimension(100, 150);
-        byte[] png = new ConvertToPng(frameDimension).transform(txt);
+        byte[] png = new ConvertToPngPdfBox(frameDimension).transform(txt);
     }
 }

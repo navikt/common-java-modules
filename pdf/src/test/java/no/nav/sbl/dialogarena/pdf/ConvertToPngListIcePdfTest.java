@@ -5,6 +5,8 @@ import no.nav.sbl.dialogarena.detect.IsPdf;
 import no.nav.sbl.dialogarena.detect.IsPng;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.Dimension;
@@ -24,7 +26,9 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ConvertToPngListTest {
+public class ConvertToPngListIcePdfTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConvertToPngIcePdfTest.class);
 
     @Test
     public void convertPdfToPng() throws IOException {
@@ -32,7 +36,10 @@ public class ConvertToPngListTest {
         assertThat(pdf, match(new IsPdf()));
         Dimension frameDimension = new Dimension(100, 150);
 
-        List<byte[]> pngs = new ConvertToPngList(frameDimension).transform(pdf);
+        long start = System.currentTimeMillis();
+        List<byte[]> pngs = new ConvertToPngListIcePdf(frameDimension).transform(pdf);
+        logger.debug("ConvertToPngListIcePdf tok {} ms", System.currentTimeMillis() - start);
+
         assertThat(pngs, hasSize(6));
 
         for (byte [] png : pngs) {
@@ -44,7 +51,7 @@ public class ConvertToPngListTest {
         }
 
         try {
-            String myDirectoryPath = ConvertToPngListTest.class.getResource("/PdfToImageFiles").getPath() + "/multiple-pdf-files-converted";
+            String myDirectoryPath = ConvertToPngListIcePdfTest.class.getResource("/PdfToImageFiles").getPath() + "/multiple-pdf-files-converted";
             File myDirectory = new File(myDirectoryPath);
             FileUtils.deleteDirectory(myDirectory);
             myDirectory.mkdir();
@@ -64,7 +71,7 @@ public class ConvertToPngListTest {
         Dimension frameDimension = new Dimension(100, 150);
 
         assertThat(jpg, match(new IsJpg()));
-        List<byte[]> png = new ConvertToPngList(frameDimension).transform(jpg);
+        List<byte[]> png = new ConvertToPngListIcePdf(frameDimension).transform(jpg);
         assertThat(png.get(0), match(new IsPng()));
         ByteArrayInputStream bais = new ByteArrayInputStream(png.get(0));
         BufferedImage image = ImageIO.read(bais);
@@ -77,7 +84,7 @@ public class ConvertToPngListTest {
         byte[] png = getBytesFromFile("/PdfToImageFiles/png-file.png");
         Dimension frameDimension = new Dimension(100, 150);
         assertThat(png, match(new IsPng()));
-        List<byte[]> newPng = new ConvertToPngList(frameDimension).transform(png);
+        List<byte[]> newPng = new ConvertToPngListIcePdf(frameDimension).transform(png);
         assertThat(newPng.get(0), match(new IsPng()));
         ByteArrayInputStream bais = new ByteArrayInputStream(newPng.get(0));
         BufferedImage image = ImageIO.read(bais);
@@ -89,6 +96,6 @@ public class ConvertToPngListTest {
     public void kastExceptionPaaUlovligFiltype() throws IOException {
         byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
         Dimension frameDimension = new Dimension(100, 150);
-        List<byte[]> png = new ConvertToPngList(frameDimension).transform(txt);
+        List<byte[]> png = new ConvertToPngListIcePdf(frameDimension).transform(txt);
     }
 }
