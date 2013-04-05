@@ -10,6 +10,7 @@ public class InnstillingerPanel extends Panel {
         super(id);
 
         add(
+                new Label("skriftstorrelse_content", new StringResourceModel("skriftstorrelse.content.label", this, null).getString()),
                 new Label("skriftstorrelse", new StringResourceModel("skriftstorrelse.label", this, null)),
                 new Label("hoykontrast", new StringResourceModel("hoykontrast.label", this, null))
                 );
