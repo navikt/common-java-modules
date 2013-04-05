@@ -8,8 +8,11 @@ import javax.imageio.ImageIO;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.round;
 
 /**
  * Funksjoner for skalering av bilder
@@ -17,43 +20,11 @@ import java.io.IOException;
 
 public class ImageScaler {
 
+    public enum ScaleMode { SCALE_TO_FIT_INSIDE_BOX, CROP_TO_FILL_ENTIRE_BOX }
+
     private static final Logger logger = LoggerFactory.getLogger(ImageScaler.class);
 
-    public static byte[] cropImageToFillFrame(byte[] imageBytes, Dimension frameDimension) {
-        BufferedImage image;
-        try {
-            image = ImageIO.read(new ByteArrayInputStream(imageBytes));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        BufferedImage croppedImage;
-
-        float widthZoom = (float) frameDimension.getWidth() / image.getWidth();
-        float heightZoom = (float) frameDimension.getHeight() / image.getHeight();
-        if (widthZoom > heightZoom) {
-            croppedImage = image.getSubimage(0, 0, image.getWidth(), Math.round(image.getHeight() * (heightZoom / widthZoom)));
-        } else {
-            croppedImage = image.getSubimage(0, 0, Math.round(image.getWidth() * (widthZoom / heightZoom)), image.getHeight());
-        }
-        byte[] croppedImageBytes = new PngFromBufferedImageToByteArray().transform(croppedImage);
-        return fitImageInsideFrame(croppedImageBytes, frameDimension);
-    }
-
-    public static byte[] fitImageInsideFrame(byte[] imageBytes, Dimension frameDimension) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        BufferedImage scaledImage;
-        try {
-            scaledImage = Scalr.resize(ImageIO.read(bais), (int) frameDimension.getWidth(), (int) frameDimension.getHeight());
-            ImageIO.write(scaledImage, "png", baos);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return baos.toByteArray();
-    }
-
-    public static BufferedImage scaleImage(byte[] imageBytes, Dimension frameDimension) {
+    public static BufferedImage scaleImage(byte[] imageBytes, Dimension boundingBox, ScaleMode scaleMode) {
         ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
         BufferedImage image;
         try {
@@ -62,24 +33,33 @@ public class ImageScaler {
             logger.error("Kunne ikke lese bytes som bilde under skalering.");
             throw new RuntimeException(e);
         }
-        return scaleImage(image, frameDimension);
+        return scaleImage(image, boundingBox, scaleMode);
     }
 
-    public static BufferedImage scaleImage(BufferedImage image, Dimension frameDimension)  {
-        double scalingFactor = Math.max(frameDimension.getWidth() / image.getWidth(), frameDimension.getHeight() / image.getHeight());
-        Dimension dimension = new Dimension();
-        dimension.setSize(scalingFactor * image.getWidth(), scalingFactor * image.getHeight());
-        return Scalr.resize(image, (int) dimension.getWidth(), (int) dimension.getHeight());
+    public static BufferedImage scaleImage(BufferedImage image, Dimension boundingBox, ScaleMode scaleMode)  {
+        double scaleFactorWidth = boundingBox.getWidth() / image.getWidth();
+        double scaleFactorHeight = boundingBox.getHeight() / image.getHeight();
+
+        double scalingFactor;
+        if (scaleMode == ScaleMode.SCALE_TO_FIT_INSIDE_BOX) {
+            scalingFactor = min(scaleFactorWidth, scaleFactorHeight);
+        } else {
+            scalingFactor = max(scaleFactorWidth, scaleFactorHeight);
+        }
+
+        BufferedImage scaledImage = Scalr.resize(image, (int) (scalingFactor * image.getWidth()), (int) (scalingFactor * image.getHeight()));
+
+        if (scaleMode == ScaleMode.CROP_TO_FILL_ENTIRE_BOX) {
+            return cropImage(scaledImage, boundingBox);
+        } else {
+            return scaledImage;
+        }
     }
 
-    public static float getScalingFactor(Dimension pageDimension, Dimension frameDimension) {
-        return (float) Math.max(frameDimension.getWidth() / pageDimension.getWidth(),
-                frameDimension.getHeight() / pageDimension.getHeight());
-    }
-
-    public static BufferedImage cropImage(BufferedImage image, Dimension frameDimension) {
-        int width = Math.min(image.getWidth(), (int) Math.round(frameDimension.getWidth()));
-        int height = Math.min(image.getHeight(), (int) Math.round(frameDimension.getHeight()));
+    public static BufferedImage cropImage(BufferedImage image, Dimension boundingBox) {
+        int width = min(image.getWidth(), (int) round(boundingBox.getWidth()));
+        int height = min(image.getHeight(), (int) round(boundingBox.getHeight()));
+        // TODO Sentrer
         return image.getSubimage(0, 0, width, height);
     }
 }

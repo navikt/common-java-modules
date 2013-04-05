@@ -15,24 +15,24 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static no.nav.sbl.dialogarena.pdf.ImageScaler.ScaleMode.SCALE_TO_FIT_INSIDE_BOX;
+import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.fitsInside;
 import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.getBytesFromFile;
 import static no.nav.sbl.dialogarena.pdf.PdfTestUtils.writeBytesToFile;
 import static no.nav.sbl.dialogarena.test.match.Matchers.match;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ConvertToPngTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ConvertToPngTest.class);
 
-    private static Dimension frameDimension;
+    private static Dimension boundingBox;
     private Transformer<byte[], byte[]> transformer;
 
     @Before
     public void setup() {
-        frameDimension = new Dimension(100, 150);
-        transformer = new ConvertToPng(frameDimension);
+        boundingBox = new Dimension(100, 150);
+        transformer = new ConvertToPng(boundingBox, SCALE_TO_FIT_INSIDE_BOX);
     }
 
     @Test
@@ -46,8 +46,8 @@ public class ConvertToPngTest {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(png);
         BufferedImage image = ImageIO.read(bais);
-        assertThat((double) image.getWidth(), is(closeTo(frameDimension.getWidth(), 1.0)));
-        assertThat((double) image.getHeight(), is(closeTo(frameDimension.getHeight(), 1.0)));
+
+        assertThat(image, fitsInside(boundingBox));
 
         writeBytesToFile(png, "/PdfToImageFiles", "pdf-file-converted.png");
     }
@@ -62,8 +62,8 @@ public class ConvertToPngTest {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(png);
         BufferedImage image = ImageIO.read(bais);
-        assertThat((double) image.getWidth(), is(closeTo(frameDimension.getWidth(), 1.0)));
-        assertThat((double) image.getHeight(), is(closeTo(frameDimension.getHeight(), 1.0)));
+
+        assertThat(image, fitsInside(boundingBox));
 
         writeBytesToFile(png, "/PdfToImageFiles", "jpeg-file-converted.jpeg");
     }
@@ -78,8 +78,8 @@ public class ConvertToPngTest {
 
         ByteArrayInputStream bais = new ByteArrayInputStream(newPng);
         BufferedImage image = ImageIO.read(bais);
-        assertThat((double) image.getWidth(), is(closeTo(frameDimension.getWidth(), 1.0)));
-        assertThat((double) image.getHeight(), is(closeTo(frameDimension.getHeight(), 1.0)));
+
+        assertThat(image, fitsInside(boundingBox));
 
         writeBytesToFile(newPng, "/PdfToImageFiles", "png-file-converted.png");
     }
