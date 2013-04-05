@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.web.pages;
 
+import no.nav.sbl.dialogarena.common.web.components.footer.FooterPanel;
 import no.nav.sbl.dialogarena.common.web.components.header.InnstillingerPanel;
 import no.nav.sbl.dialogarena.common.web.components.header.NavigasjonPanel;
 
@@ -10,6 +11,7 @@ public class ShowcasePage extends WebPage {
     public ShowcasePage() {
         add(new InnstillingerPanel("innstillinger"));
         add(new NavigasjonPanel("navigasjon"));
+        add(new FooterPanel("footer"));
     }
 
 }
