@@ -43,19 +43,16 @@
 		<dependency>
 			<groupId>no.nav.modig</groupId>
 			<artifactId>modig-lang</artifactId>
-			<version>0.3.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>no.nav.modig</groupId>
 			<artifactId>modig-fitnesse</artifactId>
-			<version>0.3.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>no.nav.sbl.felles</groupId>
 			<artifactId>nav-sbl-felles-commons-jetty</artifactId>
-			<version>3.26</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
