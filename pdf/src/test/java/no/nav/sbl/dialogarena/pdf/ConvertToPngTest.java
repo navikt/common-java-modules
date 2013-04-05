@@ -4,6 +4,7 @@ import no.nav.sbl.dialogarena.detect.IsJpg;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import no.nav.sbl.dialogarena.detect.IsPng;
 import org.apache.commons.collections15.Transformer;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,53 +25,18 @@ import static org.junit.Assert.assertThat;
 public class ConvertToPngTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ConvertToPngTest.class);
-    private static Dimension frameDimension = new Dimension(100, 150);
 
-    private Transformer<byte[], byte[]> icePdf = new ConvertToPngIcePdf(frameDimension);
-    private Transformer<byte[], byte[]> pdfBox = new ConvertToPngPdfBox(frameDimension);
+    private static Dimension frameDimension;
+    private Transformer<byte[], byte[]> transformer;
 
-    @Test
-    public void konvertererPdfTilPngMedIcePdf() throws IOException {
-        konvertererPdfTilPng(icePdf);
-    }
-    
-    @Test
-    public void konvertererJpgTilPngMedIcePdf() throws IOException {
-        konvertererJpgTilPng(icePdf);
+    @Before
+    public void setup() {
+        frameDimension = new Dimension(100, 150);
+        transformer = new ConvertToPng(frameDimension);
     }
 
     @Test
-    public void skalererPngUtenAaKonvertereMedIcePdf() throws IOException {
-        skalererPngUtenAaKonvertere(icePdf);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void kasterExceptionPaaUlovligFiltypeMedIcePdf() throws IOException {
-        kasterExceptionPaaUlovligFiltype(icePdf);
-    }
-
-    @Test
-    public void konvertererPdfTilPngMedPdfBox() throws IOException {
-        konvertererPdfTilPng(pdfBox);
-    }
-
-    @Test
-    public void konvertererJpgTilPngMedPdfBox() throws IOException {
-        konvertererJpgTilPng(pdfBox);
-    }
-
-    @Test
-    public void skalererPngUtenAaKonvertereMedPdfBox() throws IOException {
-        skalererPngUtenAaKonvertere(pdfBox);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void kasterExceptionPaaUlovligFiltypeMedPdfBox() throws IOException {
-        kasterExceptionPaaUlovligFiltype(pdfBox);
-    }
-    
-
-    private void konvertererPdfTilPng(Transformer<byte[], byte[]> transformer) throws IOException {
+    public void konvertererPdfTilPng() throws IOException {
         byte[] pdf = getBytesFromFile("/PdfToImageFiles/pdf-file.pdf");
         assertThat(pdf, match(new IsPdf()));
         long start = System.currentTimeMillis();
@@ -86,7 +52,8 @@ public class ConvertToPngTest {
         writeBytesToFile(png, "/PdfToImageFiles", "pdf-file-converted.png");
     }
 
-    private void konvertererJpgTilPng(Transformer<byte[], byte[]> transformer) throws IOException {
+    @Test
+    public void konvertererJpgTilPng() throws IOException {
         byte[] jpg = getBytesFromFile("/PdfToImageFiles/jpeg-file.jpeg");
 
         assertThat(jpg, match(new IsJpg()));
@@ -101,7 +68,8 @@ public class ConvertToPngTest {
         writeBytesToFile(png, "/PdfToImageFiles", "jpeg-file-converted.jpeg");
     }
 
-    private void skalererPngUtenAaKonvertere(Transformer<byte[], byte[]> transformer) throws IOException {
+    @Test
+    public void skalererPngUtenAaKonvertere() throws IOException {
         byte[] png = getBytesFromFile("/PdfToImageFiles/png-file.png");
 
         assertThat(png, match(new IsPng()));
@@ -116,7 +84,8 @@ public class ConvertToPngTest {
         writeBytesToFile(newPng, "/PdfToImageFiles", "png-file-converted.png");
     }
 
-    private void kasterExceptionPaaUlovligFiltype(Transformer<byte[], byte[]> transformer) throws IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void kasterExceptionPaaUlovligFiltype() throws IOException {
         byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
         byte[] png = transformer.transform(txt);
     }

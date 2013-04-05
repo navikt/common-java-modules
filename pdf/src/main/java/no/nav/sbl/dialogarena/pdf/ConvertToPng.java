@@ -10,15 +10,15 @@ import java.awt.image.BufferedImage;
 
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.cropImage;
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
-import static no.nav.sbl.dialogarena.pdf.TransformerUtils.PdfBoxUtils.getScaledPageImageFromDocument;
-import static no.nav.sbl.dialogarena.pdf.TransformerUtils.PdfBoxUtils.setupDocumentFromBytes;
+import static no.nav.sbl.dialogarena.pdf.TransformerUtils.getScaledPageImageFromDocument;
+import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes;
 
 
-public final class ConvertToPngPdfBox implements Transformer<byte[], byte[]> {
+public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
     public Dimension frameDimension;
 
-    public ConvertToPngPdfBox(Dimension frameDimension) {
+    public ConvertToPng(Dimension frameDimension) {
         this.frameDimension = frameDimension;
     }
 

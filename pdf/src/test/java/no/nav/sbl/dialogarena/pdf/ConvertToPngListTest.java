@@ -5,6 +5,7 @@ import no.nav.sbl.dialogarena.detect.IsPdf;
 import no.nav.sbl.dialogarena.detect.IsPng;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,54 +30,19 @@ import static org.junit.Assert.assertThat;
 
 public class ConvertToPngListTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConvertToPngListIcePdf.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConvertToPngListTest.class);
 
-    private static Dimension frameDimension = new Dimension(100, 150);
+    private static Dimension frameDimension;
+    private Transformer<byte[], List<byte[]>> transformer;
 
-    private Transformer<byte[], List<byte[]>> icePdf = new ConvertToPngListIcePdf(frameDimension);
-    private Transformer<byte[], List<byte[]>> pdfBox = new ConvertToPngListPdfBox(frameDimension);
-
-    @Test
-    public void konvertererPdfTilPngMedIcePdf() throws IOException {
-        konvertererPdfTilPngListe(icePdf);
+    @Before
+    public void setup() {
+        frameDimension = new Dimension(100, 150);
+        transformer = new ConvertToPngList(frameDimension);
     }
 
     @Test
-    public void konvertererJpgTilPngMedIcePdf() throws IOException {
-        konvertererJpgTilPng(icePdf);
-    }
-
-    @Test
-    public void skalererPngUtenAaKonvertereMedIcePdf() throws IOException {
-        skalererPngUtenAaKonvertere(icePdf);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void kasterExceptionPaaUlovligFiltypeMedIcePdf() throws IOException {
-        kasterExceptionPaaUlovligFiltype(icePdf);
-    }
-
-    @Test
-    public void konvertererPdfTilPngMedPdfBox() throws IOException {
-        konvertererPdfTilPngListe(pdfBox);
-    }
-
-    @Test
-    public void konvertererJpgTilPngMedPdfBox() throws IOException {
-        konvertererJpgTilPng(pdfBox);
-    }
-
-    @Test
-    public void skalererPngUtenAaKonvertereMedPdfBox() throws IOException {
-        skalererPngUtenAaKonvertere(pdfBox);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void kasterExceptionPaaUlovligFiltypeMedPdfBox() throws IOException {
-        kasterExceptionPaaUlovligFiltype(pdfBox);
-    }
-
-    private void konvertererPdfTilPngListe(Transformer<byte[], List<byte[]>> transformer) throws IOException {
+    public void konvertererPdfTilPngListe() throws IOException {
         byte[] pdf = getBytesFromFile("/PdfToImageFiles/pdf-file.pdf");
         assertThat(pdf, match(new IsPdf()));
 
@@ -109,9 +75,9 @@ public class ConvertToPngListTest {
         }
     }
 
-    private void konvertererJpgTilPng(Transformer<byte[], List<byte[]>> transformer) throws IOException {
+    @Test
+    public void konvertererJpgTilPng() throws IOException {
         byte[] jpg = getBytesFromFile("/PdfToImageFiles/jpeg-file.jpeg");
-        Dimension frameDimension = new Dimension(100, 150);
 
         assertThat(jpg, match(new IsJpg()));
         List<byte[]> png = transformer.transform(jpg);
@@ -122,11 +88,11 @@ public class ConvertToPngListTest {
         assertThat((double) image.getHeight(), is(closeTo(frameDimension.getHeight(), 1.0)));
     }
 
-    private void skalererPngUtenAaKonvertere(Transformer<byte[], List<byte[]>> transformer) throws IOException {
+    @Test
+    public void skalererPngUtenAaKonvertere() throws IOException {
         byte[] png = getBytesFromFile("/PdfToImageFiles/png-file.png");
-        Dimension frameDimension = new Dimension(100, 150);
         assertThat(png, match(new IsPng()));
-        List<byte[]> newPng = new ConvertToPngListIcePdf(frameDimension).transform(png);
+        List<byte[]> newPng = transformer.transform(png);
         assertThat(newPng.get(0), match(new IsPng()));
         ByteArrayInputStream bais = new ByteArrayInputStream(newPng.get(0));
         BufferedImage image = ImageIO.read(bais);
@@ -134,9 +100,9 @@ public class ConvertToPngListTest {
         assertThat((double) image.getHeight(), is(closeTo(frameDimension.getHeight(), 1.0)));
     }
 
-    private void kasterExceptionPaaUlovligFiltype(Transformer<byte[], List<byte[]>> transformer) throws IOException {
+    @Test(expected = IllegalArgumentException.class)
+    public void kasterExceptionPaaUlovligFiltype() throws IOException {
         byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
-        Dimension frameDimension = new Dimension(100, 150);
-        List<byte[]> png = new ConvertToPngListIcePdf(frameDimension).transform(txt);
+        List<byte[]> png = transformer.transform(txt);
     }
 }

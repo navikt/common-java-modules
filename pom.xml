@@ -89,11 +89,6 @@
                 <version>1.7.2</version>
             </dependency>
             <dependency>
-                <groupId>org.icepdf</groupId>
-                <artifactId>icepdf-core</artifactId>
-                <version>4.3.3</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
                 <version>1.8.0</version>
