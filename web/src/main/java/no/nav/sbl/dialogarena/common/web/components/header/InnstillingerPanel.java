@@ -7,7 +7,7 @@ public class InnstillingerPanel extends Panel {
 
     public InnstillingerPanel(String id) {
         super(id);
-        add(new Label("label", "innstillinger"));
+        add(new Label("label", "{innstillinger}"));
     }
 
 }
