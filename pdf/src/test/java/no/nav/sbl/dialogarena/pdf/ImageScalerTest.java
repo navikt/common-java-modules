@@ -28,7 +28,7 @@ public class ImageScalerTest {
 
     @Before
     public void setup() throws IOException {
-        byte[] bytes = getBytesFromFile(IMAGE_DIR + "/portrait.png");
+        byte[] bytes = getBytesFromFile(IMAGE_DIR + "/landscape.png");
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         image = ImageIO.read(bais);
         boundingBox = new Dimension(100, 150);

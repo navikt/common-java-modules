@@ -57,9 +57,15 @@ public class ImageScaler {
     }
 
     public static BufferedImage cropImage(BufferedImage image, Dimension boundingBox) {
-        int width = min(image.getWidth(), (int) round(boundingBox.getWidth()));
-        int height = min(image.getHeight(), (int) round(boundingBox.getHeight()));
-        // TODO Sentrer
-        return image.getSubimage(0, 0, width, height);
+        if (boundingBox.getWidth() > image.getWidth() || boundingBox.getHeight() > image.getHeight()) {
+            throw new IllegalArgumentException("Bildet må være minst like stort som boksen.");
+        }
+        int newWidth = (int) round(boundingBox.getWidth());
+        int newHeight =  (int) round(boundingBox.getHeight());
+
+        int widthDelta = image.getWidth() - newWidth;
+        int heightDelta = image.getHeight() - newHeight;
+
+        return image.getSubimage(widthDelta/2, heightDelta/2, newWidth, newHeight);
     }
 }
