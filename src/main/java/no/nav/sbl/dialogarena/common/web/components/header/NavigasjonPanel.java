@@ -7,7 +7,7 @@ public class NavigasjonPanel extends Panel {
 
     public NavigasjonPanel(String id) {
         super(id);
-        add(new Label("label", "navigasjon"));
+        add(new Label("label", "{navigasjon}"));
     }
 
 }
