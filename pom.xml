@@ -18,6 +18,10 @@
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>no.nav.modig</groupId>
+			<artifactId>modig-frontend-wicket</artifactId>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
