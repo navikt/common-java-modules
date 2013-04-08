@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.web.pages;
+package no.nav.sbl.dialogarena.common.web.showcase;
 
 import no.nav.sbl.dialogarena.common.footer.FooterPanel;
 import no.nav.sbl.dialogarena.common.web.components.header.InnstillingerPanel;

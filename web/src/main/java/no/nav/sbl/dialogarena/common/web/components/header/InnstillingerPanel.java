@@ -2,7 +2,7 @@ package no.nav.sbl.dialogarena.common.web.components.header;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.ResourceModel;
 
 public class InnstillingerPanel extends Panel {
 
@@ -10,9 +10,9 @@ public class InnstillingerPanel extends Panel {
         super(id);
 
         add(
-                new Label("skriftstorrelse_content", new StringResourceModel("skriftstorrelse.content.label", this, null).getString()),
-                new Label("skriftstorrelse", new StringResourceModel("skriftstorrelse.label", this, null)),
-                new Label("hoykontrast", new StringResourceModel("hoykontrast.label", this, null))
+                new Label("skriftstorrelse_content", new ResourceModel("skriftstorrelse.content.label")),
+                new Label("skriftstorrelse", new ResourceModel("skriftstorrelse.label")),
+                new Label("hoykontrast", new ResourceModel("hoykontrast.label"))
                 );
 
     }

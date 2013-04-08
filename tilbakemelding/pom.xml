@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>no.nav.sbl.dialogarena</groupId>
-    <artifactId>tilbakemelding</artifactId>
+    <artifactId>common-tilbakemelding</artifactId>
     <name>${project.artifactId}</name>
 
     <dependencies>
@@ -41,7 +41,7 @@
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

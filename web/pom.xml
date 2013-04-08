@@ -30,6 +30,11 @@
         </dependency>
 
 		<!-- Test dependencies -->
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>common-test</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -45,21 +50,22 @@
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 		<dependency>
 			<groupId>no.nav.modig</groupId>
 			<artifactId>modig-lang</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>no.nav.modig</groupId>
-			<artifactId>modig-fitnesse</artifactId>
-			<scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.9</version>
+            <scope>test</scope>
+        </dependency>
 		<dependency>
 			<groupId>no.nav.sbl.felles</groupId>
 			<artifactId>nav-sbl-felles-commons-jetty</artifactId>
