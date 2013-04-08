@@ -12,8 +12,7 @@ public class InnstillingerPanel extends Panel {
         add(
                 new Label("skriftstorrelse_content", new StringResourceModel("skriftstorrelse.content.label", this, null).getString()),
                 new Label("skriftstorrelse", new StringResourceModel("skriftstorrelse.label", this, null)),
-                new Label("hoykontrast", new StringResourceModel("hoykontrast.label", this, null)),
-                new Label("innlogging", new StringResourceModel("innlogging.nav.label", this, null))
+                new Label("hoykontrast", new StringResourceModel("hoykontrast.label", this, null))
                 );
 
     }
