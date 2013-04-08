@@ -91,6 +91,7 @@ public class ModigCryptoMapper implements IRequestMapper {
         String urlAsString = url.toString();
         return urlAsString.endsWith(".js") ||
                 urlAsString.endsWith(".css") ||
+                urlAsString.endsWith(".gif") ||
                 urlAsString.endsWith(".png");
     }
 
