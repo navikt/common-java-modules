@@ -10,6 +10,7 @@
         <module>time</module>
         <module>test</module>
         <module>pdf</module>
+        <module>tilbakemelding</module>
         <module>detect</module>
         <module>web</module>
         <module>footer</module>
