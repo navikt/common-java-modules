@@ -13,7 +13,7 @@
         <module>tilbakemelding</module>
         <module>detect</module>
         <module>web</module>
-        <!--<module>jetty</module>-->
+        <module>jetty</module>
         <module>footer</module>
     </modules>
     <name>Dialogarena - Common</name>
@@ -24,6 +24,7 @@
 
     <properties>
         <wicket.version>6.6.0</wicket.version>
+        <jetty.version>9.0.0.v20130308</jetty.version>
     </properties>
 
     <dependencyManagement>
@@ -156,6 +157,18 @@
                 <artifactId>wicket-request</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
     <scm>
