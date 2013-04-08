@@ -1,12 +1,11 @@
-package no.nav.sbl.dialogarena.common.web;
+package no.nav.sbl.dialogarena.common.web.showcase;
 
-import static no.nav.modig.frontend.FrontendModules.ALL;
 import no.nav.modig.frontend.FrontendConfigurator;
 import no.nav.modig.frontend.MetaTag;
-import no.nav.sbl.dialogarena.common.web.pages.ShowcasePage;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.protocol.http.WebApplication;
+
+import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_CORE;
 
 public class ShowcaseApplication extends WebApplication {
 
@@ -20,7 +19,7 @@ public class ShowcaseApplication extends WebApplication {
         super.init();
 
         new FrontendConfigurator()
-                .withModules(ALL)
+                .withModules(BOOTSTRAP_CORE)
                 .addMetas(MetaTag.CHARSET_UTF8, MetaTag.VIEWPORT_SCALE_1, MetaTag.XUA_IE_EDGE)
                 .withResourcePacking(this.usesDeploymentConfig())
                 .configure(this);
