@@ -12,6 +12,7 @@
         <module>pdf</module>
         <module>detect</module>
         <module>web</module>
+        <module>footer</module>
     </modules>
     <name>Dialogarena - Common</name>
     <groupId>no.nav.sbl.dialogarena</groupId>

@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.web.components.footer;
+package no.nav.sbl.dialogarena.common.footer;
 
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;

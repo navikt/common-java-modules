@@ -23,6 +23,12 @@
 			<artifactId>modig-frontend-wicket</artifactId>
 		</dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>common-footer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
