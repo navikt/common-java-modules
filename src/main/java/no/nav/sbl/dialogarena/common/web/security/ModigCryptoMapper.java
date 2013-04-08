@@ -69,7 +69,7 @@ public class ModigCryptoMapper implements IRequestMapper {
 
         Url url = request.getUrl();
         if (!isStylingUrl(url)) {
-            url = decryptUrl(request, request.getUrl());
+            url = decryptUrl(request, url);
         }
 
         if (url == null) {
