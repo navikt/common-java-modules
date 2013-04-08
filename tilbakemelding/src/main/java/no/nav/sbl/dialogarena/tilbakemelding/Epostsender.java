@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.tilbakemelding;
 
-import java.util.Properties;
 
 
 public class Epostsender {
