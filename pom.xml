@@ -7,13 +7,13 @@
         <version>1.5.1</version>
     </parent>
     <modules>
+        <module>jetty</module>
         <module>time</module>
         <module>test</module>
         <module>pdf</module>
         <module>tilbakemelding</module>
         <module>detect</module>
         <module>web</module>
-        <module>jetty</module>
         <module>footer</module>
     </modules>
     <name>Dialogarena - Common</name>
@@ -135,18 +135,6 @@
 				<version>0.4.0</version>
 				<scope>test</scope>
 			</dependency>
-			<dependency>
-				<groupId>no.nav.sbl.felles</groupId>
-				<artifactId>nav-sbl-felles-commons-jetty</artifactId>
-				<version>3.26</version>
-				<scope>test</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>org.mortbay.jetty</groupId>
-						<artifactId>servlet-api</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-util</artifactId>
@@ -168,7 +156,6 @@
                 <artifactId>jetty-webapp</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
     <scm>

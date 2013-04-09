@@ -12,12 +12,14 @@
 	<name>${project.artifactId}</name>
 
 	<dependencies>
-		<!-- Third party dependencies -->
-		<dependency>
+
+
+        <!-- Third party dependencies -->
+        <dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-core</artifactId>
 		</dependency>
-		<dependency>
+        <dependency>
 			<groupId>no.nav.modig</groupId>
 			<artifactId>modig-frontend-wicket</artifactId>
 		</dependency>
@@ -28,7 +30,19 @@
             <version>${project.version}</version>
         </dependency>
 
-		<!-- Test dependencies -->
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>common-jetty</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                    <artifactId>javax.servlet</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>common-test</artifactId>
@@ -65,17 +79,6 @@
             <version>1.0.9</version>
             <scope>test</scope>
         </dependency>
-		<dependency>
-			<groupId>no.nav.sbl.felles</groupId>
-			<artifactId>nav-sbl-felles-commons-jetty</artifactId>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.mortbay.jetty</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>

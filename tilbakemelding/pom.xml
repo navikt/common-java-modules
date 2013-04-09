@@ -53,17 +53,6 @@
             <artifactId>modig-fitnesse</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>no.nav.sbl.felles</groupId>
-            <artifactId>nav-sbl-felles-commons-jetty</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mortbay.jetty</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 
 </project>
