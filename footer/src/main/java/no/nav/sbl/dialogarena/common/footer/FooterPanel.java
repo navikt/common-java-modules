@@ -3,17 +3,18 @@ package no.nav.sbl.dialogarena.common.footer;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
 public class FooterPanel extends Panel {
     public FooterPanel(String id) {
         super(id);
         add(
-            new ExternalLink("kontakt", new Model<String>("#"), new Model<String>("Kontakt oss")),
-            new ExternalLink("personvern", new Model<String>("#"), new Model<String>("Personvern og sikkerhet")),
-            new ExternalLink("feil", new Model<String>("#"), new Model<String>("Feil og mangler i nav.no")),
-            new ExternalLink("tilgjengelighet", new Model<String>("#"), new Model<String>("Tilgjengelighet")),
-            new ExternalLink("nyheter", new Model<String>("#"), new Model<String>("Nyheter som RSS")),
-            new ExternalLink("nettstedskart", new Model<String>("#"), new Model<String>("Nettstedskart"))
+            new ExternalLink("kontakt", new Model<String>("#"), new StringResourceModel("footer.link.kontakt_oss", null)),
+            new ExternalLink("personvern", new Model<String>("#"), new StringResourceModel("footer.link.personvern_og_sikkerhet", null)),
+            new ExternalLink("feil", new Model<String>("#"), new StringResourceModel("footer.link.feil_og_mangler", null)),
+            new ExternalLink("tilgjengelighet", new Model<String>("#"), new StringResourceModel("footer.link.tilgjengelighet", null)),
+            new ExternalLink("nyheter", new Model<String>("#"), new StringResourceModel("footer.link.nyheter_om_rss", null)),
+            new ExternalLink("nettstedskart", new Model<String>("#"), new StringResourceModel("footer.link.nettstedskart", null))
         );
     }
 }

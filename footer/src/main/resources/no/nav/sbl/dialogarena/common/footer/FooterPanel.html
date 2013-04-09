@@ -3,7 +3,7 @@
 <wicket:panel>
     <footer class="navbar navbar-fixed-bottom">
         <div class="navbar-inner">
-            <h1>NAV</h1>
+            <h1><wicket:message key="footer.heading">[[NAV]]</wicket:message></h1>
             <ul class="nav">
                 <li><a href="#" wicket:id="kontakt"> [1]</a></li>
                 <li><a href="#" wicket:id="personvern"> [2]</a></li>
@@ -12,7 +12,7 @@
                 <li><a href="#" wicket:id="nyheter"> [5]</a></li>
                 <li><a href="#" wicket:id="nettstedskart"> [6]</a></li>
             </ul>
-            <div>&copy 2013 Arbeids- og velferdsetaten</div>
+            <wicket:message key="footer.copyright">[[&copy 2013 Arbeids- og velferdsetaten]]</wicket:message>
         </div>
     </footer>
 </wicket:panel>
