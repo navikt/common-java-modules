@@ -51,6 +51,6 @@ public class ImageToPdfTest {
     @Test(expected = IllegalArgumentException.class)
     public void kastExceptionPaaUlovligFiltype() throws IOException {
         byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
-        byte[] pdf = new ImageToPdf().transform(txt);
+        new ImageToPdf().transform(txt);
     }
 }

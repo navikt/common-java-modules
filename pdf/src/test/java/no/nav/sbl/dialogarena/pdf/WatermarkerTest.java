@@ -47,6 +47,6 @@ public class WatermarkerTest {
     @Test(expected =  IllegalArgumentException.class)
     public void kasterExceptionForUlovligFil() throws IOException {
         byte[] png = getBytesFromFile("/ImageToPdfFiles/skjema1_side1.png");
-        byte[] vannmerket = new Watermarker("123123").transform(png);
+        new Watermarker("123123").transform(png);
     }
 }

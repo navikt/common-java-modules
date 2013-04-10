@@ -87,6 +87,6 @@ public class ConvertToPngTest {
     @Test(expected = IllegalArgumentException.class)
     public void kasterExceptionPaaUlovligFiltype() throws IOException {
         byte[] txt = getBytesFromFile("/PdfToImageFiles/illegal-file.txt");
-        byte[] png = transformer.transform(txt);
+        transformer.transform(txt);
     }
 }

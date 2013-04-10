@@ -58,6 +58,6 @@ public class PdfMergerTest {
         filer.add(pdf);
         filer.add(txt);
 
-        byte[] merged = new PdfMerger().transform(filer);
+        new PdfMerger().transform(filer);
     }
 }
