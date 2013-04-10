@@ -7,7 +7,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -18,7 +18,7 @@ import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes
 
 /**
  * Konverterer PDF og JPG til PNG
- *
+ * <p/>
  * Om PDFen er flersidig blir kun forsiden konvertert til PNG.
  * Det returnerte bildet blir skalert og eventuelt croppet, i henhold
  * til konstruktørparameterne.
@@ -42,15 +42,17 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             return new PngFromBufferedImageToByteArray().transform(scaledImage);
         } else if (new IsPdf().evaluate(bytes)) {
             PDDocument document = setupDocumentFromBytes(bytes);
-            BufferedImage image = getPageImageFromDocument(document, 0);
-            image = scaleImage(image, boundingBox, scaleMode);
             try {
-                document.close();
-            } catch (IOException e) {
-                logger.error("Kunne ikke lukke PDF-dokument med PDFBox.");
-                throw new RuntimeException(e);
+                BufferedImage image = getPageImageFromDocument(document, 0);
+                image = scaleImage(image, boundingBox, scaleMode);
+                return new PngFromBufferedImageToByteArray().transform(image);
+            } finally {
+                try {
+                    document.close();
+                } catch (IOException e) {
+                    logger.warn("Kunne ikke lukke PDF-dokument med PDFBox." + e, e);
+                }
             }
-            return new PngFromBufferedImageToByteArray().transform(image);
         } else {
             throw new IllegalArgumentException("Kan kun konvertere PDF, JPG og PNG til PNG.");
         }

@@ -15,8 +15,8 @@ class TransformerUtils {
     private static final Logger logger = LoggerFactory.getLogger(TransformerUtils.class);
 
     public static PDDocument setupDocumentFromBytes(byte[] bytes) {
-        try {
-            return PDDocument.load(new ByteArrayInputStream(bytes));
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
+            return PDDocument.load(inputStream);
         } catch (IOException e) {
             logger.error("Kunne ikke opprette PDF-dokument fra byte array med PDFBox.", e);
             throw new RuntimeException(e);

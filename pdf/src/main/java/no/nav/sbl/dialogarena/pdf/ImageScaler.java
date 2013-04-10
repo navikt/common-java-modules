@@ -5,14 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static java.lang.Math.round;
+import static java.lang.Math.*;
 
 /**
  * Funksjoner for skalering av bilder
@@ -20,23 +18,22 @@ import static java.lang.Math.round;
 
 public class ImageScaler {
 
-    public enum ScaleMode { SCALE_TO_FIT_INSIDE_BOX, CROP_TO_FILL_ENTIRE_BOX }
+    public enum ScaleMode {SCALE_TO_FIT_INSIDE_BOX, CROP_TO_FILL_ENTIRE_BOX}
 
     private static final Logger logger = LoggerFactory.getLogger(ImageScaler.class);
 
     public static BufferedImage scaleImage(byte[] imageBytes, Dimension boundingBox, ScaleMode scaleMode) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
-        BufferedImage image;
-        try {
-            image = ImageIO.read(bais);
+
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes)) {
+            BufferedImage image = ImageIO.read(bais);
+            return scaleImage(image, boundingBox, scaleMode);
         } catch (IOException e) {
             logger.error("Kunne ikke lese bytes som bilde under skalering.");
             throw new RuntimeException(e);
         }
-        return scaleImage(image, boundingBox, scaleMode);
     }
 
-    public static BufferedImage scaleImage(BufferedImage image, Dimension boundingBox, ScaleMode scaleMode)  {
+    public static BufferedImage scaleImage(BufferedImage image, Dimension boundingBox, ScaleMode scaleMode) {
         double scaleFactorWidth = boundingBox.getWidth() / image.getWidth();
         double scaleFactorHeight = boundingBox.getHeight() / image.getHeight();
 
@@ -61,11 +58,11 @@ public class ImageScaler {
             throw new IllegalArgumentException("Bildet må være minst like stort som boksen.");
         }
         int newWidth = (int) round(boundingBox.getWidth());
-        int newHeight =  (int) round(boundingBox.getHeight());
+        int newHeight = (int) round(boundingBox.getHeight());
 
         int widthDelta = image.getWidth() - newWidth;
         int heightDelta = image.getHeight() - newHeight;
 
-        return image.getSubimage(widthDelta/2, heightDelta/2, newWidth, newHeight);
+        return image.getSubimage(widthDelta / 2, heightDelta / 2, newWidth, newHeight);
     }
 }
