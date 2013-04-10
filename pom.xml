@@ -23,10 +23,19 @@
 			<groupId>no.nav.modig</groupId>
 			<artifactId>modig-frontend-wicket</artifactId>
 		</dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>common-footer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>common-innstillinger</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>common-navigasjon</artifactId>
             <version>${project.version}</version>
         </dependency>
 
