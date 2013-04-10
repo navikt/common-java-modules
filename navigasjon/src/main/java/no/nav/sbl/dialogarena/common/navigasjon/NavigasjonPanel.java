@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.web.components.header;
+package no.nav.sbl.dialogarena.common.navigasjon;
 
 import org.apache.wicket.markup.html.panel.Panel;
 

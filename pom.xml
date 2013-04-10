@@ -15,6 +15,8 @@
         <module>detect</module>
         <module>web</module>
         <module>footer</module>
+		<module>navigasjon</module>
+		<module>innstillinger</module>
     </modules>
     <name>Dialogarena - Common</name>
     <groupId>no.nav.sbl.dialogarena</groupId>

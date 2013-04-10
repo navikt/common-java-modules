@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.web.components.header;
+package no.nav.sbl.dialogarena.common.innstillinger;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
