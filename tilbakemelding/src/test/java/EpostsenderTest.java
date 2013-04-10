@@ -1,4 +1,5 @@
 import no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding.Epostsender;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,6 +27,7 @@ public class EpostsenderTest {
     private Epostsender epostsender;
 
 
+    @Ignore
     @Test
     public void skalSendeEpost() throws MessagingException, IOException {
         Wiser smtpServer = new Wiser();
