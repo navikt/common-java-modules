@@ -9,6 +9,7 @@ import com.itextpdf.text.pdf.PdfGState;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import no.nav.sbl.dialogarena.detect.IsPdf;
+import no.nav.sbl.dialogarena.time.Clock;
 import org.apache.commons.collections15.Transformer;
 
 import java.io.ByteArrayOutputStream;
@@ -49,8 +50,10 @@ public class Watermarker implements Transformer<byte[], byte[]> {
 
     private final String linje1;
     private final String linje2;
+    private final Clock clock;
 
-    public Watermarker(String fodselsnummer) {
+    public Watermarker(String fodselsnummer, Clock clock) {
+        this.clock = clock;
         this.linje1 = LINE_1_HEADER + formatertDato();
         this.linje2 = LINE_2_HEADER + fodselsnummer;
     }
@@ -129,7 +132,7 @@ public class Watermarker implements Transformer<byte[], byte[]> {
 
     private String formatertDato() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.YYYY', kl. 'HH:mm:ss");
-        return simpleDateFormat.format(new Date());
+        return simpleDateFormat.format(clock.now().toDate());
     }
 
     private Rectangle watermarkFrame(float pageWidth, float pageHeigth, float lineWidth) {

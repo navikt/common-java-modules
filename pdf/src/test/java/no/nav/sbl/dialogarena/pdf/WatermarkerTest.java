@@ -5,6 +5,9 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 import no.nav.sbl.dialogarena.detect.IsPdf;
+import no.nav.sbl.dialogarena.time.FreezedClock;
+import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -21,11 +24,20 @@ public class WatermarkerTest {
     private static final String MOCK_FODSELSNUMMER = "112233 12345";
     private static final String INPUT_PDF = "skjema";
 
+    private final DateTime time = new DateTime(2013, 3, 18, 14, 30, 30);
+
+    private FreezedClock clock = new FreezedClock();
+
+    @Before
+    public void initClock() {
+        clock.set(time);
+    }
+
     @Test
     public void vannmerkerPdf() throws IOException {
     	byte[] fileBytes = getBytesFromFile("/WatermarkerFiles/" + INPUT_PDF + ".pdf");
 
-        Watermarker watermarker = new Watermarker(MOCK_FODSELSNUMMER);
+        Watermarker watermarker = new Watermarker(MOCK_FODSELSNUMMER, clock);
         byte[] watermarkedBytes = watermarker.transform(fileBytes);
         assertThat(watermarkedBytes, match(new IsPdf()));
         assertThat(watermarkedBytes, not(fileBytes));
@@ -39,6 +51,8 @@ public class WatermarkerTest {
             String pageText = strategy.getResultantText();
             assertThat(pageText, containsString(Watermarker.LINE_1_HEADER));
             assertThat(pageText, containsString(Watermarker.LINE_2_HEADER));
+            assertThat(pageText, containsString(MOCK_FODSELSNUMMER));
+            assertThat(pageText, containsString("18.03.2013, kl. 14:30:30"));
         }
 
         writeBytesToFile(watermarkedBytes, "/WatermarkerFiles", INPUT_PDF + "-vannmerket.pdf");
@@ -47,6 +61,6 @@ public class WatermarkerTest {
     @Test(expected =  IllegalArgumentException.class)
     public void kasterExceptionForUlovligFil() throws IOException {
         byte[] png = getBytesFromFile("/ImageToPdfFiles/skjema1_side1.png");
-        new Watermarker("123123").transform(png);
+        new Watermarker("123123", clock).transform(png);
     }
 }
