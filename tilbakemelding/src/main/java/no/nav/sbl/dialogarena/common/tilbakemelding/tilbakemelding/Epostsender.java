@@ -1,7 +1,6 @@
 package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
 
 
-import org.jsoup.Jsoup;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 

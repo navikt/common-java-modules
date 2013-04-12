@@ -1,7 +1,4 @@
-import no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding.EpostCleaner;
 import no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding.Epostsender;
-import org.jsoup.Jsoup;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -10,10 +7,10 @@ import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import javax.inject.Inject;
-import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+
 import java.io.IOException;
 import java.util.List;
 
