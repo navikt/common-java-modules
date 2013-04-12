@@ -2,7 +2,6 @@ package no.nav.sbl.dialogarena.common.web;
 
 import no.nav.modig.frontend.FrontendConfigurator;
 import no.nav.modig.frontend.MetaTag;
-import org.apache.wicket.Page;
 import org.apache.wicket.application.ComponentInstantiationListenerCollection;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;

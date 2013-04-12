@@ -7,7 +7,6 @@ import static no.nav.modig.lang.collections.FactoryUtils.gotKeypress;
 import static no.nav.modig.lang.collections.RunnableUtils.first;
 import static no.nav.modig.lang.collections.RunnableUtils.waitFor;
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
-import static no.nav.sbl.dialogarena.test.path.FilesAndDirs.TEST_WEBAPP_SOURCE;
 import static no.nav.sbl.dialogarena.test.path.FilesAndDirs.WEBAPP_SOURCE;
 
 public final class StartJetty {
