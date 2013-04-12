@@ -6,11 +6,6 @@ import no.nav.sbl.dialogarena.common.navigasjon.NavigasjonPanel;
 import no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding.TilbakemeldingPanel;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-
-import javax.inject.Inject;
 
 public class ShowcasePage extends WebPage {
 
