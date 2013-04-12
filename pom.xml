@@ -35,7 +35,7 @@
             <dependency>
                 <groupId>no.nav.modig</groupId>
                 <artifactId>modig-lang</artifactId>
-                <version>0.4.0</version>
+                <version>0.4.1</version>
             </dependency>
 
             <dependency>
@@ -242,6 +242,20 @@
 
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+					<configuration>
+						<argLine>-Djava.net.preferIPv4Stack=true -Dfile.encoding=${project.build.sourceEncoding}</argLine>
+					</configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
     <scm>
         <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/trunk</developerConnection>
         <url>https://versjonskontroll.adeo.no/wsvn/nav-sbl/dialogarena/common/trunk</url>

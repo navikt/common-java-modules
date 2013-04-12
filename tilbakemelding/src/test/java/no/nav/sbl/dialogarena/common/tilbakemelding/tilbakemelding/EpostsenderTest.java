@@ -1,4 +1,4 @@
-import no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding.Epostsender;
+package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,12 +26,15 @@ public class EpostsenderTest {
     @Inject
     private Epostsender epostsender;
 
+    @Inject
+    private Integer smtpPort;
+
 
     @Test
     public void skalSendeEpost() throws MessagingException, IOException {
         Wiser smtpServer = new Wiser();
         smtpServer.setHostname("127.0.0.1");
-        smtpServer.setPort(25);
+        smtpServer.setPort(smtpPort);
         smtpServer.start();
 
         String innhold = "innhold";
