@@ -9,7 +9,7 @@ import java.io.IOException;
  * Statiske funksjoner for operasjoner på PDFer, inkl henting av antall sider
  */
 
-public class Functions {
+public class PdfFunctions {
 
     public static final Transformer<byte[], Integer> PDF_SIDEANTALL = new Transformer<byte[], Integer>() {
         @Override

@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-public class WatermarkerTest {
+public class PdfWatermarkerTest {
 
     private static final String MOCK_FODSELSNUMMER = "112233 12345";
     private static final String INPUT_PDF = "skjema";
@@ -27,6 +27,7 @@ public class WatermarkerTest {
     private final DateTime time = new DateTime(2013, 3, 18, 14, 30, 30);
 
     private FreezedClock clock = new FreezedClock();
+    private final PdfWatermarker watermarker = new PdfWatermarker(clock);
 
     @Before
     public void initClock() {
@@ -37,8 +38,7 @@ public class WatermarkerTest {
     public void vannmerkerPdf() throws IOException {
     	byte[] fileBytes = getBytesFromFile("/WatermarkerFiles/" + INPUT_PDF + ".pdf");
 
-        Watermarker watermarker = new Watermarker(MOCK_FODSELSNUMMER, clock);
-        byte[] watermarkedBytes = watermarker.transform(fileBytes);
+        byte[] watermarkedBytes = watermarker.forIdent(MOCK_FODSELSNUMMER).transform(fileBytes);
         assertThat(watermarkedBytes, match(new IsPdf()));
         assertThat(watermarkedBytes, not(fileBytes));
 
@@ -49,8 +49,8 @@ public class WatermarkerTest {
         for (int i = 1; i <= reader.getNumberOfPages(); i++) {
             strategy = parser.processContent(i, new SimpleTextExtractionStrategy());
             String pageText = strategy.getResultantText();
-            assertThat(pageText, containsString(Watermarker.LINE_1_HEADER));
-            assertThat(pageText, containsString(Watermarker.LINE_2_HEADER));
+            assertThat(pageText, containsString(PdfWatermarker.LINE_1_HEADER));
+            assertThat(pageText, containsString(PdfWatermarker.LINE_2_HEADER));
             assertThat(pageText, containsString(MOCK_FODSELSNUMMER));
             assertThat(pageText, containsString("18.03.2013, kl. 14:30:30"));
         }
@@ -61,6 +61,6 @@ public class WatermarkerTest {
     @Test(expected =  IllegalArgumentException.class)
     public void kasterExceptionForUlovligFil() throws IOException {
         byte[] png = getBytesFromFile("/ImageToPdfFiles/skjema1_side1.png");
-        new Watermarker("123123", clock).transform(png);
+        watermarker.forIdent("123123").transform(png);
     }
 }

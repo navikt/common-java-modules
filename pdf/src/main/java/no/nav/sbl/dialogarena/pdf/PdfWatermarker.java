@@ -15,7 +15,6 @@ import org.apache.commons.collections15.Transformer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static com.itextpdf.text.BaseColor.BLACK;
 import static com.itextpdf.text.BaseColor.RED;
@@ -31,8 +30,10 @@ import static java.lang.Math.max;
  *
  * For flersidig PDF legges vannmerket på samtlige sider.
  */
+public class PdfWatermarker {
 
-public class Watermarker implements Transformer<byte[], byte[]> {
+    public static final String LINE_1_HEADER = "Sendt elektronisk: ";
+    public static final String LINE_2_HEADER = "Fødselsnummer: ";
 
     private static final int MARGIN = 5;
     private static final int PADDING_X = 5;
@@ -45,38 +46,39 @@ public class Watermarker implements Transformer<byte[], byte[]> {
     private static final BaseColor BORDER_COLOR = RED;
     private static final float BORDER_WIDTH = 1f;
     private static final int FONT_SIZE = 6;
-    public static final String LINE_1_HEADER = "Sendt elektronisk: ";
-    public static final String LINE_2_HEADER = "Fødselsnummer: ";
 
-    private final String linje1;
-    private final String linje2;
     private final Clock clock;
 
-    public Watermarker(String fodselsnummer, Clock clock) {
+    public PdfWatermarker(Clock clock) {
         this.clock = clock;
-        this.linje1 = LINE_1_HEADER + formatertDato();
-        this.linje2 = LINE_2_HEADER + fodselsnummer;
     }
 
-    @Override
-    public byte[] transform(byte[] bytes) {
+    public Transformer<byte[], byte[]> forIdent(String ident) {
+        return new WatermarkerForIdent(ident);
+    }
+
+    public byte[] applyOn(byte[] bytes, String ident) {
         if (!(new IsPdf().evaluate(bytes))) {
             throw new IllegalArgumentException("Kan kun vannmerke PDF-filer.");
         }
 
+        String linje1 = LINE_1_HEADER + formatertDato();
+        String linje2 = LINE_2_HEADER + ident;
+
         byte[] watermarkedPdf;
         try {
             PdfReader originalReader = new PdfReader(bytes);
-            byte[] rectangleStampedPdf = stampRectangleOnPdf(originalReader);
+            byte[] rectangleStampedPdf = stampRectangleOnPdf(originalReader, linje1, linje2);
             PdfReader rectangleReader = new PdfReader(rectangleStampedPdf);
-            watermarkedPdf = stampTextOnPdf(rectangleReader);
+            watermarkedPdf = stampTextOnPdf(rectangleReader, linje1, linje2);
         } catch (DocumentException | IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage(), e);
         }
         return watermarkedPdf;
     }
 
-    private byte[] stampRectangleOnPdf(PdfReader reader) throws IOException, DocumentException {
+
+    private byte[] stampRectangleOnPdf(PdfReader reader, String linje1, String linje2) throws IOException, DocumentException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfStamper stamper = new PdfStamper(reader, byteArrayOutputStream);
 
@@ -101,7 +103,7 @@ public class Watermarker implements Transformer<byte[], byte[]> {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private byte[] stampTextOnPdf(PdfReader reader) throws IOException, DocumentException {
+    private byte[] stampTextOnPdf(PdfReader reader, String linje1, String linje2) throws IOException, DocumentException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfStamper stamper = new PdfStamper(reader, byteArrayOutputStream);
 
@@ -122,8 +124,8 @@ public class Watermarker implements Transformer<byte[], byte[]> {
             float linje2Y = linje1Y - FONT_SIZE - LINE_SPACING;
 
             textContent.beginText();
-            textContent.showTextAligned(ALIGN_LEFT, this.linje1, textX, linje1Y, 0);
-            textContent.showTextAligned(ALIGN_LEFT, this.linje2, textX, linje2Y, 0);
+            textContent.showTextAligned(ALIGN_LEFT, linje1, textX, linje1Y, 0);
+            textContent.showTextAligned(ALIGN_LEFT, linje2, textX, linje2Y, 0);
             textContent.endText();
         }
         stamper.close();
@@ -151,6 +153,21 @@ public class Watermarker implements Transformer<byte[], byte[]> {
 
     private BaseFont createFont() throws DocumentException, IOException {
         return BaseFont.createFont(HELVETICA, WINANSI, EMBEDDED);
+    }
+
+
+
+    private class WatermarkerForIdent implements Transformer<byte[], byte[]> {
+        private final String ident;
+
+        public WatermarkerForIdent(String ident) {
+            this.ident = ident;
+        }
+
+        @Override
+        public byte[] transform(byte[] bytes) {
+            return PdfWatermarker.this.applyOn(bytes, ident);
+        }
     }
 }
 
