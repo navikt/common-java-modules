@@ -9,7 +9,7 @@ public class TilbakemeldingTestContext {
 
     @Bean
     public Epostsender epostSender(){
-        Epostsender epostsender = new Epostsender("127.0.0.1",25);
+        Epostsender epostsender = new Epostsender("127.0.0.1",25, "test", "tilbakemeldinger@nav.no");
         return epostsender;
 
     }

@@ -1,4 +1,6 @@
+import no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding.EpostCleaner;
 import no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding.Epostsender;
+import org.jsoup.Jsoup;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +10,7 @@ import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import javax.inject.Inject;
+import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -27,7 +30,6 @@ public class EpostsenderTest {
     private Epostsender epostsender;
 
 
-    @Ignore
     @Test
     public void skalSendeEpost() throws MessagingException, IOException {
         Wiser smtpServer = new Wiser();
@@ -35,23 +37,19 @@ public class EpostsenderTest {
         smtpServer.setPort(25);
         smtpServer.start();
 
-        String avsender = "tilbakemeldinger@nav.no";
-        String mottaker = "tilbakemeldinger@nav.no";
-        String emne = "emne";
         String innhold = "innhold";
-
-        epostsender.sendEpost(avsender, mottaker, emne, innhold);
+        epostsender.sendEpost(innhold);
 
         List<WiserMessage> messages = smtpServer.getMessages();
-
         assertThat(messages.size(), is(1));
         MimeMessage mimeMessage = messages.get(0).getMimeMessage();
-        assertThat(messages.get(0).getEnvelopeReceiver(), is(mottaker));
-        assertThat(messages.get(0).getEnvelopeSender(), is(avsender));
+        assertThat(messages.get(0).getEnvelopeReceiver(), is(epostsender.getEpostadresse()));
+        assertThat(messages.get(0).getEnvelopeSender(), is(epostsender.getEpostadresse()));
         assertThat(mimeMessage.getContent(), instanceOf(MimeMultipart.class));
-        assertThat(mimeMessage.getSubject(), is(emne));
-
+        assertThat(mimeMessage.getSubject(), is(epostsender.getApplikasjonsnavn()));
         smtpServer.stop();
     }
+
+
 
 }

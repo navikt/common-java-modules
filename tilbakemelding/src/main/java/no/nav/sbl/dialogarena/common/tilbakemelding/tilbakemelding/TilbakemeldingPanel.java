@@ -16,7 +16,7 @@ public class TilbakemeldingPanel extends Panel {
         final Link<?> actionLink = new Link<Void>("actionLink") {
             @Override
             public void onClick() {
-                epostsender.sendEpost("avsender", "mottaker", "emne", "innhold");
+                epostsender.sendEpost("tilbakemelding");
             }
         };
 
