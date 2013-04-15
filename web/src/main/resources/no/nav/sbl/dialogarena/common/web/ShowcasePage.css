@@ -1,0 +1,29 @@
+.oppfordring {
+	float: none;
+	margin: 48px auto 50px;
+	background: #B7B1A9;
+	color: white;
+	text-align: center;
+	padding: 20px;
+}
+
+.oppfordring h1 {
+	font-size: 17px;
+	text-transform: uppercase;
+}
+
+h1,h2 {
+	font-family: Modus, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 600;
+	line-height: 1.2em;
+}
+
+.nav-collapse.collapse {
+	text-align: center;
+	height: 0;
+}
+
+.container {
+	margin-right: auto;
+	margin-left: auto;
+}

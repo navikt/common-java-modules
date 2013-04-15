@@ -1,18 +1,23 @@
 <html xmlns:wicket="http://wicket.apache.org" lang="no">
+<head>
 <title>common-web : showcase</title>
-<head></head>
-<body>
-	<div class="span12">
-		<h2>common-web : showcase</h2>
-		<h4>panel : innstillinger</h4>
-		<div wicket:id="innstillinger">[]</div>
-		<h4>panel : navigasjon</h4>
-		<div wicket:id="navigasjon">[]</div>
-		<h4>panel : footer</h4>
-		<div wicket:id="footer">[]</div>
-        <h4>panel : tilbakemelding</h4>
-        <div wicket:id="tilbakemelding">[]</div>
-
-    </div>
+</head>
+<body style="margin: 10px">
+	<table style="width: 1200px; height: 800px">
+		<tr>
+			<td style="height: 100px" colspan="100%"><h3>common-web : showcase</h3></td>
+		</tr>
+		<tr>
+			<td style="width: 200px; vertical-align: top">
+				<ul>
+					<li><a href="#" wicket:id="innstillinger">innstillinger</a></li>
+					<li><a href="#" wicket:id="navigasjon">navigasjon</a></li>
+					<li><a href="#" wicket:id="footer">footer</a></li>
+<!-- 					<li><a href="#" wicket:id="tilbakemelding">tilbakemelding</a></li> -->
+				</ul>
+			</td>
+			<td><iframe wicket:id="iframe" style="width: 100%; height: 100%" src="#">[]</iframe></td>
+		</tr>
+	</table>
 </body>
 </html>
