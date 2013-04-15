@@ -3,6 +3,8 @@ package no.nav.sbl.dialogarena.common.web;
 import no.nav.sbl.dialogarena.common.footer.FooterPanel;
 import no.nav.sbl.dialogarena.common.innstillinger.InnstillingerPanel;
 import no.nav.sbl.dialogarena.common.navigasjon.NavigasjonPanel;
+import no.nav.sbl.dialogarena.common.tilbakemelding.service.TilbakemeldingService;
+import no.nav.sbl.dialogarena.common.tilbakemelding.web.TilbakemeldingContainer;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -10,8 +12,12 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.InlineFrame;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ShowcasePage extends WebPage {
+
+    @SpringBean
+    public TilbakemeldingService tilbakemeldingService;
 
     private ContentPage contentPage = new ContentPage();
     private InlineFrame inlineFrame = new InlineFrame("iframe", contentPage);
@@ -26,8 +32,8 @@ public class ShowcasePage extends WebPage {
         addShowcaseComponent(
                 new InnstillingerPanel("innstillinger"),
                 new NavigasjonPanel("navigasjon"),
-                new FooterPanel("footer"));
-//                new TilbakemeldingContainer("tilbakemelding"));
+                new FooterPanel("footer"),
+                new TilbakemeldingContainer("tilbakemelding", tilbakemeldingService));
     }
 
     private void addShowcaseComponent(Component... components) {
@@ -39,6 +45,7 @@ public class ShowcasePage extends WebPage {
     private void addShowcaseComponent(Component component) {
         contentPage.add(component);
         component.setVisible(false);
+        component.setOutputMarkupPlaceholderTag(true);
         add(new SimpleAjaxLink(component.getId()));
     }
 

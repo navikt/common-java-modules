@@ -11,7 +11,7 @@ import static no.nav.sbl.dialogarena.test.path.FilesAndDirs.WEBAPP_SOURCE;
 
 public final class StartJetty {
 
-    public static final int PORT = 8080;
+    public static final int PORT = 8081;
 
     public static void main(String[] args) throws Exception {
         Jetty jetty = usingWar(WEBAPP_SOURCE).at("common").port(PORT).buildJetty();
