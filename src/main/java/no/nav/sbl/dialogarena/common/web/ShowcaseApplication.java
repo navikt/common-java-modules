@@ -5,6 +5,7 @@ import no.nav.modig.frontend.MetaTag;
 import org.apache.wicket.application.ComponentInstantiationListenerCollection;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +34,7 @@ public class ShowcaseApplication extends WebApplication {
                 .withModules(UNDERSCORE, BOOTSTRAP_CORE, BOOTSTRAP_NAVIGATION, BOOTSTRAP_BUTTON, BOOTSTRAP_TOOLTIP, BOOTSTRAP_LABELS_AND_BADGES)
                 .addMetas(MetaTag.CHARSET_UTF8, MetaTag.VIEWPORT_SCALE_1, MetaTag.XUA_IE_EDGE)
                 .withResourcePacking(this.usesDeploymentConfig())
+                .addCss(new CssResourceReference(ShowcasePage.class, "ShowcasePage.css"))
                 .configure(this);
 
         setSpringComponentInjector();
