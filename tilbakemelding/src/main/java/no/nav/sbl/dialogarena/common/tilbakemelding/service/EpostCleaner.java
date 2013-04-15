@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
+package no.nav.sbl.dialogarena.common.tilbakemelding.service;
 
 
 import org.jsoup.Jsoup;

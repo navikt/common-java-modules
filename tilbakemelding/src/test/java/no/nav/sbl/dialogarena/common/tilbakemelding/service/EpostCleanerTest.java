@@ -1,4 +1,6 @@
-package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
+package no.nav.sbl.dialogarena.common.tilbakemelding.service;
+import no.nav.sbl.dialogarena.common.tilbakemelding.service.EpostCleaner;
+
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

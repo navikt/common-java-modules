@@ -32,4 +32,8 @@ public class ContentPage extends WebPage {
         }
     }
 
+    public Component getComponent(String id) {
+        return components.get(id);
+    }
+
 }

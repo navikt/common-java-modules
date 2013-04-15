@@ -1,4 +1,5 @@
-package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
+package no.nav.sbl.dialogarena.common.tilbakemelding.service;
+
 
 
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,7 +13,7 @@ import javax.mail.internet.MimeMessage;
 /*
 * Epostsender som sender tilbakemeldinger til en epostadresse
 */
-public class Epostsender {
+public class Epostsender implements TilbakemeldingService {
 
     private String applikasjonsnavn;
     private String epostadresse;
@@ -31,7 +32,7 @@ public class Epostsender {
         this.epostadresse = epostadresse;
     }
 
-    public void sendEpost(String tilbakemelding) {
+    public void sendTilbakemelding(String tilbakemelding) {
         try {
 
             String tilbakemelding_renset = EpostCleaner.cleanbody(tilbakemelding);

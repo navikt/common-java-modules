@@ -1,4 +1,18 @@
-package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
+package no.nav.sbl.dialogarena.common.tilbakemelding.service;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+
+import no.nav.sbl.dialogarena.common.tilbakemelding.service.Epostsender;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -6,18 +20,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
-
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
-import java.io.IOException;
-import java.util.List;
-
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 
 /*
@@ -33,7 +35,6 @@ public class EpostsenderIntegrationTest {
     @Inject
     private Integer smtpPort;
 
-
     @Ignore
     @Test
     public void skalSendeEpost() throws MessagingException, IOException {
@@ -43,7 +44,7 @@ public class EpostsenderIntegrationTest {
         smtpServer.start();
 
         String innhold = "innhold";
-        epostsender.sendEpost(innhold);
+        epostsender.sendTilbakemelding(innhold);
 
         List<WiserMessage> messages = smtpServer.getMessages();
         assertThat(messages.size(), is(1));
