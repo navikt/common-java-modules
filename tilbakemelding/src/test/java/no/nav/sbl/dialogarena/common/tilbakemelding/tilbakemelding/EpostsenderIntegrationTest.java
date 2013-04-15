@@ -1,4 +1,5 @@
 package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,9 +20,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 
+/*
+* Kjører ikke på byggeserver grunnet smtp-testserveren derfor satt til ignore.
+*/
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {TilbakemeldingTestContext.class})
-public class EpostsenderTest {
+public class EpostsenderIntegrationTest {
 
     @Inject
     private Epostsender epostsender;
@@ -30,6 +34,7 @@ public class EpostsenderTest {
     private Integer smtpPort;
 
 
+    @Ignore
     @Test
     public void skalSendeEpost() throws MessagingException, IOException {
         Wiser smtpServer = new Wiser();

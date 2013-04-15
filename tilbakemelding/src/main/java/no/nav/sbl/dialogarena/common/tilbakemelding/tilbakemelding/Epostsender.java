@@ -1,6 +1,7 @@
 package no.nav.sbl.dialogarena.common.tilbakemelding.tilbakemelding;
 
 
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
@@ -15,7 +16,7 @@ public class Epostsender {
 
     private String applikasjonsnavn;
     private String epostadresse;
-    private JavaMailSenderImpl mailSender;
+    private JavaMailSender mailSender;
 
 
     public Epostsender() {
@@ -33,14 +34,14 @@ public class Epostsender {
     public void sendEpost(String tilbakemelding) {
         try {
 
-            String cleaned_tilbakemelding = EpostCleaner.cleanbody(tilbakemelding);
+            String tilbakemelding_renset = EpostCleaner.cleanbody(tilbakemelding);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
             mimeMessageHelper.setTo(epostadresse);
             mimeMessageHelper.setFrom(epostadresse);
             mimeMessageHelper.setSubject(applikasjonsnavn);
-            mimeMessageHelper.setText(cleaned_tilbakemelding);
+            mimeMessageHelper.setText(tilbakemelding_renset);
             mailSender.send(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException(e);
