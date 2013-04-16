@@ -1,19 +1,27 @@
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org" lang="no">
 <wicket:panel>
-    <footer class="navbar navbar-fixed-bottom">
-        <div class="navbar-inner">
-            <h1><wicket:message key="footer.heading">[[NAV]]</wicket:message></h1>
-            <ul class="nav">
-                <li><a href="#" wicket:id="kontakt"> [1]</a></li>
-                <li><a href="#" wicket:id="personvern"> [2]</a></li>
-                <li><a href="#" wicket:id="feil"> [3]</a></li>
-                <li><a href="#" wicket:id="tilgjengelighet"> [4]</a></li>
-                <li><a href="#" wicket:id="nyheter"> [5]</a></li>
-                <li><a href="#" wicket:id="nettstedskart"> [6]</a></li>
-            </ul>
-            <wicket:message key="footer.copyright">[[&copy 2013 Arbeids- og velferdsetaten]]</wicket:message>
-        </div>
-    </footer>
+	<footer class="footer-utvidet">
+		<div class="navbar navbar-inverse navbar-fixed-bottom">
+			<div class="navbar-inner">
+				<div class="container">
+					<p class="name under clearfix">
+						<wicket:message key="footer.heading">[[NAV]]</wicket:message>
+					</p>
+					<ul class="fotlenker">
+						<li><a href="#" wicket:id="kontakt"> [1]</a></li>
+						<li><a href="#" wicket:id="personvern"> [2]</a></li>
+						<li><a href="#" wicket:id="feil"> [3]</a></li>
+						<li><a href="#" wicket:id="tilgjengelighet"> [4]</a></li>
+						<li><a href="#" wicket:id="nyheter"> [5]</a></li>
+						<li><a href="#" wicket:id="nettstedskart"> [6]</a></li>
+					</ul>
+					<p class="copy">
+						<wicket:message key="footer.copyright">[[&copy 2013 Arbeids- og velferdsetaten]]</wicket:message>
+					</p>
+				</div>
+			</div>
+		</div>
+	</footer>
 </wicket:panel>
 </html>
