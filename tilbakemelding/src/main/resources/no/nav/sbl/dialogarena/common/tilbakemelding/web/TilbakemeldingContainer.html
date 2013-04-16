@@ -1,27 +1,27 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <wicket:panel>
-	<div data-toggle="collapse">
+	<div data-collapse>
 		<div wicket:id="panel-tilbakemelding">
 			<section class="oppfordring span4" onclick="$('.collapse').collapse('show');">
 				<h1 wicket:id="label-tilbakemelding-header">[]</h1>
 				<p wicket:id="label-tilbakemelding-content">[]</p>
 				<div class="arrow-down"></div>
 			</section>
-			<div class="collapse" style="margin-top: -105px">
-				<div wicket:id="panel-tilbakemelding-expanded" id="tilbakemelding-expanded-style">
-					<section>
-						<h1 wicket:id="label-tilbakemelding-expanded-header">[]</h1>
-						<p wicket:id="label-tilbakemelding-expanded-content">[]</p>
-						<form wicket:id="form-tilbakemelding">
-							<section>
-								<h1 wicket:id="form-tilbakemelding-header">[]</h1>
-								<p><input type="text" wicket:id="form-tilbakemelding-input" /></p>
-								<p><input class="btn btn-primary" type="submit" wicket:id="form-tilbakemelding-submit" /></p>
-								<p><a href="#" wicket:id="form-tilbakemelding-abort" onclick="$('.collapse').collapse('hide');">[]</a></p>
-							</section>
-						</form>
-					</section>
-				</div>
+		</div>
+		<div class="collapse" style="margin-top: -105px">
+			<div wicket:id="panel-tilbakemelding-expanded" id="tilbakemelding-expanded-style">
+				<section>
+					<h1 wicket:id="label-tilbakemelding-expanded-header">[]</h1>
+					<p wicket:id="label-tilbakemelding-expanded-content">[]</p>
+					<form wicket:id="form-tilbakemelding">
+						<section>
+							<h1 wicket:id="form-tilbakemelding-header">[]</h1>
+							<p><input type="text" wicket:id="form-tilbakemelding-input" /></p>
+							<p><input class="btn btn-primary" type="submit" wicket:id="form-tilbakemelding-submit" /></p>
+							<p><a href="#" wicket:id="form-tilbakemelding-abort" onclick="$('.collapse').collapse('hide');">[]</a></p>
+						</section>
+					</form>
+				</section>
 			</div>
 		</div>
 	</div>

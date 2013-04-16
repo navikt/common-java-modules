@@ -33,7 +33,7 @@ public class ShowcasePage extends WebPage {
                 new InnstillingerPanel("innstillinger"),
                 new NavigasjonPanel("navigasjon"),
                 new FooterPanel("footer"),
-                new TilbakemeldingContainer("tilbakemelding", tilbakemeldingService));
+                new TilbakemeldingContainer("tilbakemelding", "Din profil", tilbakemeldingService));
     }
 
     private void addShowcaseComponent(Component... components) {
