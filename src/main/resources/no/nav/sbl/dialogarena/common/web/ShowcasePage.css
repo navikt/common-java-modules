@@ -40,6 +40,10 @@ h1,h2 {
 	z-index: -1;
 }
 
+#tilbakemelding-collapse {
+	margin-top: -105px;
+}
+
 #tilbakemelding-expanded-style h1 {
 	font-size: 20px;
 }
