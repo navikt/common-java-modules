@@ -37,7 +37,7 @@ h1,h2 {
 	padding: 20px;
 	padding-top: 80px;
 	margin-top: 0px;
-	z-index:-1;
+	z-index: -1;
 }
 
 #tilbakemelding-expanded-style h1 {
@@ -50,3 +50,57 @@ h1,h2 {
 	vertical-align: top;
 }
 
+/* Footer-ting */
+[class*="footer"] .navbar-inner ul.fotlenker {
+	display: inline-block;
+	margin: 0 auto;
+}
+
+[class*="footer"] .navbar-inner ul.fotlenker li {
+	float: left;
+	list-style-type: none;
+}
+
+[class*="footer"] .navbar-inner ul.fotlenker li a {
+	color: #DDD;
+}
+
+.navbar-fixed-bottom .container {
+	text-align: center;
+}
+
+[class*="footer"] .navbar-inner ul.fotlenker li:first-child a::before {
+	content: '';
+}
+
+[class*="footer"] .navbar-inner ul.fotlenker li a::before {
+	content: '\2022 ';
+	color: #999;
+	padding: 10px;
+}
+
+[class*="footer"] .navbar-inner p.name {
+	margin: 30px auto 20px;
+	color: #999;
+	position: relative;
+	text-align: center;
+	width: 30px;
+	padding-bottom: 8px;
+}
+
+.under {
+	background-image: url(/img/under-dark.png);
+	background-repeat: no-repeat;
+	background-position: bottom center;
+	padding-bottom: 12px;
+	margin-bottom: 12px !important;
+}
+
+[class*="footer"] .navbar-inner {
+	padding-bottom: 20px;
+}
+
+[class*="footer"] .navbar-inner p.copy {
+	color: #999;
+	margin-top: 10px;
+}
