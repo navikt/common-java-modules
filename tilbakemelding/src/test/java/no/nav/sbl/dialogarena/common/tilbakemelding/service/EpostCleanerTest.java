@@ -1,15 +1,10 @@
 package no.nav.sbl.dialogarena.common.tilbakemelding.service;
-import no.nav.sbl.dialogarena.common.tilbakemelding.service.EpostCleaner;
-
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-
-
 public class EpostCleanerTest {
-
 
     @Test
     public void shouldRemoveIllegalCharacters() {
@@ -19,6 +14,5 @@ public class EpostCleanerTest {
         assertThat(string1cleaned, is("test"));
 
     }
-
 
 }

@@ -1,17 +1,4 @@
 package no.nav.sbl.dialogarena.common.tilbakemelding.service;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.io.IOException;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
-import no.nav.sbl.dialogarena.common.tilbakemelding.service.Epostsender;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -21,6 +8,16 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
+import javax.inject.Inject;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.io.IOException;
+import java.util.List;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 /*
 * Kjører ikke på byggeserver grunnet smtp-testserveren derfor satt til ignore.
@@ -55,7 +52,5 @@ public class EpostsenderIntegrationTest {
         assertThat(mimeMessage.getSubject(), is(epostsender.getApplikasjonsnavn()));
         smtpServer.stop();
     }
-
-
 
 }
