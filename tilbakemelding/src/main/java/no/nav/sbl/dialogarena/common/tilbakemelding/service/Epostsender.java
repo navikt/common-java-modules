@@ -17,8 +17,6 @@ public class Epostsender implements TilbakemeldingService {
     private String epostadresse;
     private JavaMailSender mailSender;
 
-    public Epostsender() {}
-
     public Epostsender(String host, int port, String applikasjonsnavn, String epostadresse) {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setHost(host);
