@@ -1,30 +1,46 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <wicket:panel>
-	<div data-collapse>
-		<div wicket:id="panel-tilbakemelding">
-			<section class="oppfordring span4" onclick="$('.collapse').collapse('show');">
-				<h1 wicket:id="label-tilbakemelding-header">[]</h1>
-				<p wicket:id="label-tilbakemelding-content">[]</p>
-				<div class="arrow-down"></div>
-			</section>
-		</div>
-		<div class="collapse" id="tilbakemelding-collapse">
-			<div wicket:id="panel-tilbakemelding-expanded" id="tilbakemelding-expanded-style">
-				<section>
-					<h1 wicket:id="label-tilbakemelding-expanded-header">[]</h1>
-					<p wicket:id="label-tilbakemelding-expanded-content">[]</p>
-					<form wicket:id="form-tilbakemelding">
-						<section>
-							<h1 wicket:id="form-tilbakemelding-header">[]</h1>
-							<p><input type="text" wicket:id="form-tilbakemelding-input" /></p>
-							<p><input class="btn btn-primary" type="submit" wicket:id="form-tilbakemelding-submit" /></p>
-							<p><a href="#" wicket:id="form-tilbakemelding-abort" onclick="$('.collapse').collapse('hide');">[]</a></p>
-						</section>
-					</form>
-				</section>
-			</div>
-		</div>
+<div class="container-tilbakemelding">
+	<div wicket:id="panel-tilbakemelding">
+		<section class="oppfordring span4 collapsed">
+			<a href="#" wicket:id="link-close" class="close">x</a>
+			<h1 wicket:id="label-tilbakemelding-header">[]</h1>
+			<p wicket:id="label-tilbakemelding-content">[]</p>
+			<div class="arrow-down"></div>
+		</section>
 	</div>
+	<div wicket:id="panel-tilbakemelding-expanded" class="expanded">
+		<section>
+			<h1 wicket:id="label-tilbakemelding-expanded-header">[]</h1>
+			<p wicket:id="label-tilbakemelding-expanded-content">[]</p>
+			<form wicket:id="form-tilbakemelding">
+				<section>
+					<h1 wicket:id="form-tilbakemelding-header">[]</h1>
+					<p><textarea wicket:id="form-tilbakemelding-input"></textarea></p>
+					<p><input class="btn btn-primary hide-expanded-quick" type="submit" wicket:id="form-tilbakemelding-submit" /></p>
+					<p><a href="#" wicket:id="form-tilbakemelding-abort" class="hide-expanded">[]</a></p>
+				</section>
+			</form>
+		</section>
+	</div>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		setupJqueryHandlers();
+	});
+
+	setupJqueryHandlers = function(){
+		$('.collapsed').click(function() {
+			$('.expanded').slideDown(500);
+		});
+		$('.hide-expanded').click(function() {
+			$('.expanded').slideUp(500);
+		});
+		$('.hide-expanded-quick').click(function() {
+			$('.expanded').slideUp(0);
+		});
+	};
+	</script>
+</div>
 </wicket:panel>
 </html>
 
