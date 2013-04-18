@@ -250,10 +250,39 @@
                     <artifactId>maven-surefire-plugin</artifactId>
 					<configuration>
 						<argLine>-Djava.net.preferIPv4Stack=true -Dfile.encoding=${project.build.sourceEncoding}</argLine>
-					</configuration>
+                        <environmentVariables>
+                            <JAVA_TOOL_OPTIONS>${jacoco.agent.argLine}</JAVA_TOOL_OPTIONS>
+                        </environmentVariables>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.6.2.201302030002</version>
+                <executions>
+                    <execution>
+                        <id>jacoco-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacoco.agent.argLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
     </build>
 
     <scm>
