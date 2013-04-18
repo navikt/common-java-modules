@@ -2,11 +2,11 @@ package no.nav.sbl.dialogarena.common.innstillinger;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
-public class IndrePanelInnstillinger extends Panel {
+public class IndrePanelInnstillinger extends WebMarkupContainer {
 
     public IndrePanelInnstillinger() {
         super("innstillinger-panel-outer-div");
