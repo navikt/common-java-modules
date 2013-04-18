@@ -1,19 +1,20 @@
 package no.nav.sbl.dialogarena.common.web.security;
 
-import java.util.List;
-
 import org.apache.wicket.Application;
-import org.apache.wicket.core.request.handler.RequestSettingRequestHandler;
+import org.apache.wicket.request.IRequestCycle;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.IRequestMapper;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Url;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.util.IProvider;
 import org.apache.wicket.util.crypt.ICrypt;
 import org.apache.wicket.util.lang.Args;
 import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 
 public class ModigCryptoMapper implements IRequestMapper {
@@ -93,6 +94,25 @@ public class ModigCryptoMapper implements IRequestMapper {
                 urlAsString.endsWith(".css") ||
                 urlAsString.endsWith(".gif") ||
                 urlAsString.endsWith(".png");
+    }
+
+    private static class RequestSettingRequestHandler implements IRequestHandler {
+        private Request request;
+        private final IRequestHandler wrappedHandler;
+
+        public RequestSettingRequestHandler(Request request, IRequestHandler wrappedHandler) {
+            this.request = request;
+            this.wrappedHandler = wrappedHandler;
+        }
+
+        public void respond(IRequestCycle requestCycle) {
+            RequestCycle.get().setRequest(request);
+            wrappedHandler.respond(requestCycle);
+        }
+
+        public void detach(IRequestCycle requestCycle) {
+            wrappedHandler.detach(requestCycle);
+        }
     }
 
     /**
