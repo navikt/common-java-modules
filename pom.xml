@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
@@ -15,8 +16,8 @@
         <module>detect</module>
         <module>web</module>
         <module>footer</module>
-		<module>navigasjon</module>
-		<module>innstillinger</module>
+        <module>navigasjon</module>
+        <module>innstillinger</module>
     </modules>
     <name>Dialogarena - Common</name>
     <groupId>no.nav.sbl.dialogarena</groupId>
@@ -134,17 +135,17 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-core</artifactId>
-				<version>${wicket.version}</version>
-			</dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-core</artifactId>
+                <version>${wicket.version}</version>
+            </dependency>
 
-			<dependency>
-				<groupId>no.nav.modig</groupId>
-				<artifactId>modig-fitnesse</artifactId>
-				<version>0.4.0</version>
-				<scope>test</scope>
-			</dependency>
+            <dependency>
+                <groupId>no.nav.modig</groupId>
+                <artifactId>modig-fitnesse</artifactId>
+                <version>0.4.0</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.wicket</groupId>
                 <artifactId>wicket-util</artifactId>
@@ -248,8 +249,9 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-					<configuration>
-						<argLine>-Djava.net.preferIPv4Stack=true -Dfile.encoding=${project.build.sourceEncoding}</argLine>
+                    <configuration>
+                        <argLine>-Djava.net.preferIPv4Stack=true -Dfile.encoding=${project.build.sourceEncoding}
+                        </argLine>
                         <environmentVariables>
                             <JAVA_TOOL_OPTIONS>${jacoco.agent.argLine}</JAVA_TOOL_OPTIONS>
                         </environmentVariables>
@@ -281,12 +283,25 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
     </build>
 
     <scm>
-        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/trunk</developerConnection>
+        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/trunk
+        </developerConnection>
         <url>https://versjonskontroll.adeo.no/wsvn/nav-sbl/dialogarena/common/trunk</url>
     </scm>
 
