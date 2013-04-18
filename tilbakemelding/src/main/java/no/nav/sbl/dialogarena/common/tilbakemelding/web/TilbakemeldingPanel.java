@@ -10,7 +10,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-class TilbakemeldingPanel extends WebMarkupContainer {
+public class TilbakemeldingPanel extends WebMarkupContainer {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,7 +33,10 @@ class TilbakemeldingPanel extends WebMarkupContainer {
             }
         };
 
-        add(header, content, close);
+        add(
+                header,
+                content,
+                close);
     }
 
     public void success(boolean success) {

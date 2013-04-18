@@ -14,7 +14,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class TilbakemeldingExpandedPanel extends WebMarkupContainer {
+public class TilbakemeldingExpandedPanel extends WebMarkupContainer {
 
     private static final long serialVersionUID = 1L;
 

@@ -10,10 +10,11 @@ public class TilbakemeldingContainer extends Panel {
         super(id);
 
         final TilbakemeldingPanel tilbakemelding = new TilbakemeldingPanel("panel-tilbakemelding", applikasjonsnavn);
-        final TilbakemeldingExpandedPanel tilbakemeldingExpanded = new TilbakemeldingExpandedPanel(
-                "panel-tilbakemelding-expanded", service, tilbakemelding);
+        final TilbakemeldingExpandedPanel tilbakemeldingExpanded = new TilbakemeldingExpandedPanel("panel-tilbakemelding-expanded", service, tilbakemelding);
 
-        add(tilbakemelding, tilbakemeldingExpanded);
+        add(
+                tilbakemelding,
+                tilbakemeldingExpanded);
     }
 
 }
