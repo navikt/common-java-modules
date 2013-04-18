@@ -14,7 +14,6 @@ public class FooterPanel extends Panel {
             new ExternalLink("personvern", new Model<>("#"), new StringResourceModel("footer.link.personvern_og_sikkerhet", null)),
             new ExternalLink("feil", new Model<>("#"), new StringResourceModel("footer.link.feil_og_mangler", null)),
             new ExternalLink("tilgjengelighet", new Model<>("#"), new StringResourceModel("footer.link.tilgjengelighet", null)),
-            new ExternalLink("nyheter", new Model<>("#"), new StringResourceModel("footer.link.nyheter_om_rss", null)),
             new ExternalLink("nettstedskart", new Model<>("#"), new StringResourceModel("footer.link.nettstedskart", null))
         );
     }
