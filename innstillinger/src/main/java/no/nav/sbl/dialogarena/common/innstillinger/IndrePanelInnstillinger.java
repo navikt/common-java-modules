@@ -10,12 +10,12 @@ public class IndrePanelInnstillinger extends WebMarkupContainer {
 
     public IndrePanelInnstillinger() {
         super("innstillinger-panel-outer-div");
+        Component hoykontrast = new Label("hoykontrast", new ResourceModel("hoykontrast.label"));
         Component skriftstorrelse = new Label("skriftstorrelse", new ResourceModel("skriftstorrelse.label"))
                 .add(AttributeAppender.append("title", new ResourceModel("skriftstorrelse.content.label")));
-        Component hoykontrast = new Label("hoykontrast", new ResourceModel("hoykontrast.label"));
 
         add(
-                skriftstorrelse,
-                hoykontrast);
+                hoykontrast,
+                skriftstorrelse);
     }
 }
