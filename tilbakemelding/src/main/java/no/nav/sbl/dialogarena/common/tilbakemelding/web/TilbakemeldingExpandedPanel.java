@@ -39,7 +39,7 @@ public class TilbakemeldingExpandedPanel extends WebMarkupContainer {
         public TilbakemeldingForm(String id, IModel<String> tilbakemelding) {
             super(id, tilbakemelding);
 
-            AjaxButton ajaxButton = new AjaxButton("form-tilbakemelding-submit", this) {
+            AjaxButton ajaxButton = new AjaxButton("form-tilbakemelding-submit", new ResourceModel("form.tilbakemelding.submit"), this) {
 
                 @Override
                 protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
