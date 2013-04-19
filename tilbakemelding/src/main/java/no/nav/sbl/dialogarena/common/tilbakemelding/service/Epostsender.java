@@ -9,6 +9,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import static no.nav.sbl.dialogarena.common.tilbakemelding.service.EpostCleaner.cleanbody;
+
 /*
 * Epostsender som sender tilbakemeldinger til en epostadresse
 */
@@ -39,11 +41,10 @@ public class Epostsender implements TilbakemeldingService {
     }
 
     private void instantiateAndPopulateMimeMessageHelper(MimeMessage mimeMessage, String tilbakemelding) throws MessagingException {
-        String tilbakemelding_renset = EpostCleaner.cleanbody(tilbakemelding);
         mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(epostadresse));
         mimeMessage.addFrom(new InternetAddress[] { new InternetAddress(epostadresse)});
         mimeMessage.setSubject(applikasjonsnavn, "UTF-8");
-        mimeMessage.setText(tilbakemelding_renset, "UTF-8");
+        mimeMessage.setText(cleanbody(tilbakemelding), "UTF-8");
     }
 
     public String getApplikasjonsnavn() {
