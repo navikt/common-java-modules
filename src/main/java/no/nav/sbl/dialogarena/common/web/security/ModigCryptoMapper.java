@@ -68,21 +68,24 @@ public class ModigCryptoMapper implements IRequestMapper {
     @Override
     public IRequestHandler mapRequest(final Request request) {
 
-        Url url = decryptUrl(request, request.getUrl());
-
-        if (url == null) {
-            return wrappedMapper.mapRequest(request);
+        Url url = request.getUrl();
+        if (!isStylingUrl(url)) {
+            url = decryptUrl(request, url);
         }
 
         Request decryptedRequest = request.cloneWithUrl(url);
+        if (url == null) {
+            IRequestHandler handler = wrappedMapper.mapRequest(request);
+            return new RequestSettingRequestHandler(decryptedRequest, handler);
+        }
 
         IRequestHandler handler = wrappedMapper.mapRequest(decryptedRequest);
 
-        if (handler == null) {
-            return null;
+        if (handler != null) {
+            handler = new RequestSettingRequestHandler(decryptedRequest, handler);
         }
 
-        return new RequestSettingRequestHandler(decryptedRequest, handler);
+        return handler;
     }
 
     private boolean isStylingUrl(Url url) {
