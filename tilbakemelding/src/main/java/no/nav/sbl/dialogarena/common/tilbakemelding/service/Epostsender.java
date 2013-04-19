@@ -3,9 +3,10 @@ package no.nav.sbl.dialogarena.common.tilbakemelding.service;
 import no.nav.modig.core.exception.SystemException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
 
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 /*
@@ -30,6 +31,7 @@ public class Epostsender implements TilbakemeldingService {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             instantiateAndPopulateMimeMessageHelper(mimeMessage, tilbakemelding);
+            System.setProperty("mail.mime.charset", "utf8");
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             throw new SystemException("messagingexception", e);
@@ -38,11 +40,10 @@ public class Epostsender implements TilbakemeldingService {
 
     private void instantiateAndPopulateMimeMessageHelper(MimeMessage mimeMessage, String tilbakemelding) throws MessagingException {
         String tilbakemelding_renset = EpostCleaner.cleanbody(tilbakemelding);
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-        mimeMessageHelper.setTo(epostadresse);
-        mimeMessageHelper.setFrom(epostadresse);
-        mimeMessageHelper.setSubject(applikasjonsnavn);
-        mimeMessageHelper.setText(tilbakemelding_renset);
+        mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(epostadresse));
+        mimeMessage.addFrom(new InternetAddress[] { new InternetAddress(epostadresse)});
+        mimeMessage.setSubject(applikasjonsnavn, "UTF-8");
+        mimeMessage.setText(tilbakemelding_renset, "UTF-8");
     }
 
     public String getApplikasjonsnavn() {
