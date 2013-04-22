@@ -31,7 +31,7 @@ public class ShowcasePage extends WebPage {
 
         addShowcaseComponent(
                 new InnstillingerPanel("innstillinger"),
-                new NavigasjonPanel("navigasjon"),
+                new NavigasjonPanel("navigasjon", "www.nav.no"),
                 new FooterPanel("footer"),
                 new TilbakemeldingContainer("tilbakemelding", "Din profil", tilbakemeldingService));
     }
