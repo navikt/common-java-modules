@@ -4,6 +4,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableInstant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Freezed clock. Used in test to be able to control the time of the system.
@@ -14,14 +16,24 @@ import org.joda.time.ReadableInstant;
  */
 public class FreezedClock implements Clock {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FreezedClock.class);
+
     private volatile DateTime freezedTime;
+
+    public FreezedClock() {
+        LOG.warn("Using freezed clock instead of system clock! This is only appropriate for testing. " +
+        		 "If that is the case, this warning can be disregarded.");
+    }
 
     @Override
     public DateTime now() {
         if (freezedTime != null) {
             return freezedTime;
         }
-        throw new IllegalStateException("Not initialized! Set the time using " + getClass().getSimpleName() + ".set(..)");
+        throw new IllegalStateException(
+                FreezedClock.class.getSimpleName() + " not initialized! Set the time using " + getClass().getSimpleName() + ".set(..). " +
+                "If this happens outside of testing in production or production-like environment, " +
+                "you have an error in your Spring configuration, and you must ensure that your application uses SystemClock instead.");
     }
 
     /**
