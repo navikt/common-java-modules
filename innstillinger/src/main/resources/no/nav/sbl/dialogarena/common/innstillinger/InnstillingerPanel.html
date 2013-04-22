@@ -1,17 +1,20 @@
 <html xmlns:wicket="http://wicket.apache.org" lang="no">
 <wicket:panel>
-<div wicket:id="innstillinger-panel-outer-div" class="navbar navbar-inverse navbar-fixed-top innstillinger">
+<div class="navbar navbar-inverse navbar-fixed-top innstillinger">
 	<div class="navbar-inner">
 		<div class="container">
 			<div class="nav-collapse collapse navbar-responsive-collapse">
 				<ul class="nav">
-					<li><a href="#" wicket:id="hoykontrast">[]</a></li>
-					<li><a href="#" wicket:id="skriftstorrelse" id="skriftstorrelse" rel="tooltip">[]</a></li>
-					<script>
-					$(function() {
-						$('#skriftstorrelse').tooltip({trigger: 'click', placement: 'bottom'})
-					});
-					</script>
+					<li>
+						<a href="#" wicket:message="title:skriftstorrelse.content.label" id="link-skriftstorrelse" rel="tooltip">
+							<wicket:message key="skriftstorrelse.label">[]</wicket:message>
+						</a>
+					</li>
+					<li>
+						<a href="#">
+							<wicket:message key="hoykontrast.label">[]</wicket:message>
+						</a>
+					</li>
 				</ul>
 			</div>
 		</div>

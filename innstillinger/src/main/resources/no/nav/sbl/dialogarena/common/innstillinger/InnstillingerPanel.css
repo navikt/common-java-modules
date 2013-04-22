@@ -1,0 +1,9 @@
+.innlogget .innstillinger .navbar-inner {
+	background-color: #C30000;
+	background-image: none;
+	border-color: transparent;
+}
+
+.innlogget .innstillinger .navbar-inner a {
+	color: white;
+}
