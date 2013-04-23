@@ -39,7 +39,8 @@ public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
         } catch (IOException | DocumentException e) {
             throw new RuntimeException(e);
         } finally {
-            double elapsedTime = (System.currentTimeMillis() - start) / 1000.0;
+            final double tusen = 1000.0;
+            double elapsedTime = (System.currentTimeMillis() - start) / tusen;
             LOGGER.debug("Merget {} PDF-dokumenter på {} sekunder", numberOfMergedDocuments, elapsedTime);
             if (merger != null) {
                 merger.close();

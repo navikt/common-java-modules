@@ -6,6 +6,7 @@ import org.apache.tika.Tika;
 
 public class IsPng implements Predicate<byte[]> {
     public boolean evaluate(byte[] bytes) {
-        return new Tika().detect(ArrayUtils.subarray(bytes.clone(), 0, 2048)).equalsIgnoreCase("image/png");
+        final int endIndexExclusive = 2048;
+        return new Tika().detect(ArrayUtils.subarray(bytes.clone(), 0, endIndexExclusive)).equalsIgnoreCase("image/png");
     }
 }
