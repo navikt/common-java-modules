@@ -9,8 +9,8 @@ import com.itextpdf.text.pdf.PdfGState;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import no.nav.sbl.dialogarena.detect.IsPdf;
-import no.nav.sbl.dialogarena.time.Clock;
 import org.apache.commons.collections15.Transformer;
+import org.joda.time.DateTime;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,11 +47,6 @@ public class PdfWatermarker {
     private static final float BORDER_WIDTH = 1f;
     private static final int FONT_SIZE = 6;
 
-    private final Clock clock;
-
-    public PdfWatermarker(Clock clock) {
-        this.clock = clock;
-    }
 
     public final Transformer<byte[], byte[]> forIdent(String ident) {
         return new WatermarkerForIdent(ident);
@@ -134,7 +129,7 @@ public class PdfWatermarker {
 
     private String formatertDato() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.YYYY', kl. 'HH:mm:ss");
-        return simpleDateFormat.format(clock.now().toDate());
+        return simpleDateFormat.format(DateTime.now().toDate());
     }
 
     private Rectangle watermarkFrame(float pageWidth, float pageHeigth, float lineWidth) {

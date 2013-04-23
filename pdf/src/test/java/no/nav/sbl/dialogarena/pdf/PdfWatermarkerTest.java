@@ -5,8 +5,8 @@ import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 import no.nav.sbl.dialogarena.detect.IsPdf;
-import no.nav.sbl.dialogarena.time.FreezedClock;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,12 +26,11 @@ public class PdfWatermarkerTest {
 
     private final DateTime time = new DateTime(2013, 3, 18, 14, 30, 30);
 
-    private FreezedClock clock = new FreezedClock();
-    private final PdfWatermarker watermarker = new PdfWatermarker(clock);
+    private final PdfWatermarker watermarker = new PdfWatermarker();
 
     @Before
     public void initClock() {
-        clock.set(time);
+        DateTimeUtils.setCurrentMillisFixed(time.getMillis());
     }
 
     @Test
