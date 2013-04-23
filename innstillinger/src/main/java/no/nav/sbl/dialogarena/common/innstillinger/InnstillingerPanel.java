@@ -7,7 +7,7 @@ import org.apache.wicket.markup.head.CssContentHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptContentHeaderItem;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
 
@@ -34,10 +34,11 @@ public class InnstillingerPanel extends Panel {
         response.render(CssContentHeaderItem.forReference(INNSTILLINGER_PANEL_CSS));
     }
 
-    private class IsInnlogget extends Model<Boolean> {
+    private class IsInnlogget extends AbstractReadOnlyModel<Boolean> {
 
-        public IsInnlogget() {
-            super(SecurityContext.getCurrent().getPrincipal() == null ? false : true);
+        @Override
+        public Boolean getObject() {
+            return SecurityContext.getCurrent().getPrincipal() == null ? false : true;
         }
 
     }
