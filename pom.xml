@@ -8,7 +8,6 @@
     </parent>
     <modules>
         <module>jetty</module>
-        <module>time</module>
         <module>test</module>
         <module>pdf</module>
         <module>tilbakemelding</module>
