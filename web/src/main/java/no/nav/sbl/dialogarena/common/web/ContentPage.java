@@ -1,11 +1,11 @@
 package no.nav.sbl.dialogarena.common.web;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ContentPage extends WebPage {
 
@@ -23,7 +23,7 @@ public class ContentPage extends WebPage {
         return super.add(childs);
     }
 
-    public void changeVisibility(String id) {
+    public final void changeVisibility(String id) {
         Component component = components.get(id);
         if (component.isVisible()) {
             component.setVisible(false);
@@ -32,7 +32,7 @@ public class ContentPage extends WebPage {
         }
     }
 
-    public Component getComponent(String id) {
+    public final Component getComponent(String id) {
         return components.get(id);
     }
 
