@@ -29,7 +29,7 @@ public class Epostsender implements TilbakemeldingService {
         this.epostadresse = epostadresse;
     }
 
-    public void sendTilbakemelding(String tilbakemelding) {
+    public final void sendTilbakemelding(String tilbakemelding) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             instantiateAndPopulateMimeMessageHelper(mimeMessage, tilbakemelding);
@@ -47,11 +47,11 @@ public class Epostsender implements TilbakemeldingService {
         mimeMessage.setText(cleanbody(tilbakemelding), "UTF-8");
     }
 
-    public String getApplikasjonsnavn() {
+    public final String getApplikasjonsnavn() {
         return applikasjonsnavn;
     }
 
-    public String getEpostadresse() {
+    public final String getEpostadresse() {
         return epostadresse;
     }
 

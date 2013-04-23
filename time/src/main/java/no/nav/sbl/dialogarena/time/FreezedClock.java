@@ -25,7 +25,7 @@ public class FreezedClock implements Clock {
     }
 
     @Override
-    public DateTime now() {
+    public final DateTime now() {
         if (freezedTime != null) {
             return freezedTime;
         }
@@ -38,7 +38,7 @@ public class FreezedClock implements Clock {
     /**
      * Explicitly sets which time to return from {@link #now()}.
      */
-    public void set(ReadableInstant instant) {
+    public final void set(ReadableInstant instant) {
         this.freezedTime = new DateTime(instant);
     }
 
@@ -49,7 +49,7 @@ public class FreezedClock implements Clock {
      *
      * @param duration The duration to increment the clock.
      */
-    public void tick(Duration duration) {
+    public final void tick(Duration duration) {
         freezedTime = freezedTime.plus(duration);
     }
 }
