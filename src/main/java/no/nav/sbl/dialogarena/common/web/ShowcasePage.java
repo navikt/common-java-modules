@@ -5,7 +5,6 @@ import no.nav.sbl.dialogarena.common.innstillinger.InnstillingerPanel;
 import no.nav.sbl.dialogarena.common.navigasjon.NavigasjonPanel;
 import no.nav.sbl.dialogarena.common.tilbakemelding.service.TilbakemeldingService;
 import no.nav.sbl.dialogarena.common.tilbakemelding.web.TilbakemeldingContainer;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -17,7 +16,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class ShowcasePage extends WebPage {
 
     @SpringBean
-    public TilbakemeldingService tilbakemeldingService;
+    private TilbakemeldingService tilbakemeldingService;
 
     private ContentPage contentPage = new ContentPage();
     private InlineFrame inlineFrame = new InlineFrame("iframe", contentPage);
