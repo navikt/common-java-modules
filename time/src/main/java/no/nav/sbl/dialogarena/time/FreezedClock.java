@@ -2,16 +2,15 @@ package no.nav.sbl.dialogarena.time;
 
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.joda.time.LocalDateTime;
 import org.joda.time.ReadableInstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Freezed clock. Used in test to be able to control the time of the system.
- * This implementation <em>requires</em> a call to {@link #set(LocalDateTime)}
+ * This implementation <em>requires</em> a call to {@link #set(ReadableInstant)}
  * before {@link #now()} can be used to retrieve the time. During testing,
- * {@link #set(LocalDateTime)} or {@link #tick(Duration)} can be used to
+ * {@link #set(ReadableInstant)} or {@link #tick(Duration)} can be used to
  * simulate time progression.
  */
 public class FreezedClock implements Clock {
@@ -53,5 +52,4 @@ public class FreezedClock implements Clock {
     public void tick(Duration duration) {
         freezedTime = freezedTime.plus(duration);
     }
-
 }
