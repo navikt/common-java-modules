@@ -12,6 +12,16 @@
 
     <dependencies>
         <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-wicket</artifactId>
+            <version>0.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-security-core</artifactId>
+            <version>0.4.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-core</artifactId>
         </dependency>
