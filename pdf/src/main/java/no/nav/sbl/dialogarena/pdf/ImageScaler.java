@@ -20,7 +20,7 @@ public class ImageScaler {
 
     public enum ScaleMode {SCALE_TO_FIT_INSIDE_BOX, CROP_TO_FILL_ENTIRE_BOX}
 
-    private static final Logger logger = LoggerFactory.getLogger(ImageScaler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageScaler.class);
 
     public static BufferedImage scaleImage(byte[] imageBytes, Dimension boundingBox, ScaleMode scaleMode) {
 
@@ -28,7 +28,7 @@ public class ImageScaler {
             BufferedImage image = ImageIO.read(bais);
             return scaleImage(image, boundingBox, scaleMode);
         } catch (IOException e) {
-            logger.error("Kunne ikke lese bytes som bilde under skalering.");
+            LOGGER.error("Kunne ikke lese bytes som bilde under skalering.");
             throw new RuntimeException(e);
         }
     }
