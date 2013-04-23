@@ -44,12 +44,12 @@ public class ModigCryptoMapper implements IRequestMapper {
     }
 
     @Override
-    public int getCompatibilityScore(final Request request) {
+    public final int getCompatibilityScore(final Request request) {
         return wrappedMapper.getCompatibilityScore(request);
     }
 
     @Override
-    public Url mapHandler(final IRequestHandler requestHandler) {
+    public final Url mapHandler(final IRequestHandler requestHandler) {
         final Url url = wrappedMapper.mapHandler(requestHandler);
 
         if (url == null) {
@@ -65,7 +65,7 @@ public class ModigCryptoMapper implements IRequestMapper {
     }
 
     @Override
-    public IRequestHandler mapRequest(final Request request) {
+    public final IRequestHandler mapRequest(final Request request) {
 
         Url url = request.getUrl();
         if (!isStylingUrl(url)) {

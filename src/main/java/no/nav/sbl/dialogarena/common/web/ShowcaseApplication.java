@@ -1,15 +1,7 @@
 package no.nav.sbl.dialogarena.common.web;
 
-import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_ACCORDION;
-import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_BUTTON;
-import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_CORE;
-import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_LABELS_AND_BADGES;
-import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_NAVIGATION;
-import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_TOOLTIP;
-import static no.nav.modig.frontend.FrontendModules.UNDERSCORE;
 import no.nav.modig.frontend.FrontendConfigurator;
 import no.nav.modig.frontend.MetaTag;
-
 import org.apache.wicket.application.ComponentInstantiationListenerCollection;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -17,6 +9,14 @@ import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
+import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_ACCORDION;
+import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_BUTTON;
+import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_CORE;
+import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_LABELS_AND_BADGES;
+import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_NAVIGATION;
+import static no.nav.modig.frontend.FrontendModules.BOOTSTRAP_TOOLTIP;
+import static no.nav.modig.frontend.FrontendModules.UNDERSCORE;
 
 public class ShowcaseApplication extends WebApplication {
 
@@ -29,7 +29,7 @@ public class ShowcaseApplication extends WebApplication {
     }
 
     @Override
-    protected void init() {
+    protected final void init() {
         super.init();
         new FrontendConfigurator()
                 .withModules(UNDERSCORE, BOOTSTRAP_CORE, BOOTSTRAP_NAVIGATION, BOOTSTRAP_BUTTON, BOOTSTRAP_TOOLTIP, BOOTSTRAP_LABELS_AND_BADGES, BOOTSTRAP_ACCORDION)
@@ -42,7 +42,7 @@ public class ShowcaseApplication extends WebApplication {
     }
 
 
-    protected void setSpringComponentInjector() {
+    protected final void setSpringComponentInjector() {
         ComponentInstantiationListenerCollection listeners = getComponentInstantiationListeners();
         listeners.add(new SpringComponentInjector(this, applicationContext));
     }
