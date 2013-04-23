@@ -251,8 +251,7 @@ public class ModigCryptoMapper implements IRequestMapper {
             int hash = 97;
 
             for (char c : str.toCharArray()) {
-                int i = c;
-                hash = 47 * hash + i;
+                hash = 47 * hash + c;
             }
 
             return hash;

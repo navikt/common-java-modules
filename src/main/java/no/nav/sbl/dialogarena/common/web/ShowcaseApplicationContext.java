@@ -17,7 +17,8 @@ public class ShowcaseApplicationContext {
 
     @Bean
     public TilbakemeldingService tilbakemeldingService() {
-        return new Epostsender("127.0.0.1", 25, "showcase", "showcase@nav.no");
+        final int port = 25;
+        return new Epostsender("127.0.0.1", port, "showcase", "showcase@nav.no");
     }
 
 }
