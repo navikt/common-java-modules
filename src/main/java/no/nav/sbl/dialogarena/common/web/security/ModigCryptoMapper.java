@@ -17,7 +17,7 @@ import java.util.List;
 
 
 public class ModigCryptoMapper implements IRequestMapper {
-    private static final Logger log = LoggerFactory.getLogger(ModigCryptoMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModigCryptoMapper.class);
 
     private final IRequestMapper wrappedMapper;
     private final IProvider<ICrypt> cryptProvider;
@@ -194,7 +194,7 @@ public class ModigCryptoMapper implements IRequestMapper {
             // WICKET-4923 additional parameters
             url.getQueryParameters().addAll(encryptedUrl.getQueryParameters());
         } catch (Exception e) {
-            log.error("Error decrypting URL", e);
+            LOGGER.error("Error decrypting URL", e);
             url = null;
         }
 
