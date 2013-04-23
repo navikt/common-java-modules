@@ -12,13 +12,13 @@ import java.io.IOException;
 
 class TransformerUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(TransformerUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransformerUtils.class);
 
     public static PDDocument setupDocumentFromBytes(byte[] bytes) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
             return PDDocument.load(inputStream);
         } catch (IOException e) {
-            logger.error("Kunne ikke opprette PDF-dokument fra byte array med PDFBox.", e);
+            LOGGER.error("Kunne ikke opprette PDF-dokument fra byte array med PDFBox.", e);
             throw new RuntimeException(e);
         }
     }
@@ -29,7 +29,7 @@ class TransformerUtils {
             PDPage page = (PDPage) document.getDocumentCatalog().getAllPages().get(pageNumber);
             image = page.convertToImage();
         } catch (IOException e) {
-            logger.error("Kunne ikke hente ut PDF-side fra PDF-dokument med PDFBox.", e);
+            LOGGER.error("Kunne ikke hente ut PDF-side fra PDF-dokument med PDFBox.", e);
             throw new RuntimeException(e);
         }
         return image;

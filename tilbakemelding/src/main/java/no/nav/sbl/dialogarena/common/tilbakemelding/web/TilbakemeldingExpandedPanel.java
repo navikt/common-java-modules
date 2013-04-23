@@ -31,7 +31,7 @@ public class TilbakemeldingExpandedPanel extends WebMarkupContainer {
         add(
                 new Label("label-tilbakemelding-expanded-header", new ResourceModel("label.tilbakemelding.expanded.header")),
                 new Label("label-tilbakemelding-expanded-content", new ResourceModel("label.tilbakemelding.expanded.content")),
-                new TilbakemeldingForm("form-tilbakemelding", Model.of(new String())));
+                new TilbakemeldingForm("form-tilbakemelding", Model.of("")));
     }
 
     private class TilbakemeldingForm extends Form<String> {

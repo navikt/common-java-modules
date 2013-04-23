@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PdfMerger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PdfMerger.class);
 
     @Override
     public byte[] transform(Iterable<byte[]> pages) {
@@ -40,7 +40,7 @@ public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
             throw new RuntimeException(e);
         } finally {
             double elapsedTime = (System.currentTimeMillis() - start) / 1000.0;
-            logger.debug("Merget {} PDF-dokumenter på {} sekunder", numberOfMergedDocuments, elapsedTime);
+            LOGGER.debug("Merget {} PDF-dokumenter på {} sekunder", numberOfMergedDocuments, elapsedTime);
             if (merger != null) {
                 merger.close();
             }

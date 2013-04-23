@@ -21,7 +21,7 @@ import java.io.IOException;
 
 public class ImageToPdf implements Transformer<byte[], byte[]> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ImageToPdf.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageToPdf.class);
 
     @Override
     public byte[] transform(byte[] bytes) {
@@ -46,7 +46,7 @@ public class ImageToPdf implements Transformer<byte[], byte[]> {
             document.close();
             double elapsedTime = (double)(System.currentTimeMillis() - start) / 1000.0;
             pdfBytes = outputStream.toByteArray();
-            logger.debug("Konverterte et bilde til PDF på {} sekunder", elapsedTime);
+            LOGGER.debug("Konverterte et bilde til PDF på {} sekunder", elapsedTime);
             return pdfBytes;
         } else {
             throw new IllegalArgumentException("Kan kun konvertere JPG, PNG og PDF til PDF.");

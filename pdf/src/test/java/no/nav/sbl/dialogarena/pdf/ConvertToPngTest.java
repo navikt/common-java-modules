@@ -24,7 +24,7 @@ import static org.junit.Assert.assertThat;
 
 public class ConvertToPngTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConvertToPngTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertToPngTest.class);
 
     private static Dimension boundingBox;
     private Transformer<byte[], byte[]> transformer;
@@ -41,7 +41,7 @@ public class ConvertToPngTest {
         assertThat(pdf, match(new IsPdf()));
         long start = System.currentTimeMillis();
         byte[] png = transformer.transform(pdf);
-        logger.debug("{} tok {} ms", transformer.getClass(), System.currentTimeMillis() - start);
+        LOGGER.debug("{} tok {} ms", transformer.getClass(), System.currentTimeMillis() - start);
         assertThat(png, match(new IsPng()));
 
         ByteArrayInputStream bais = new ByteArrayInputStream(png);

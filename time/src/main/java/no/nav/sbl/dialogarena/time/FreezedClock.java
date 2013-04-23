@@ -22,7 +22,7 @@ public class FreezedClock implements Clock {
 
     public FreezedClock() {
         LOG.warn("Using freezed clock instead of system clock! This is only appropriate for testing. " +
-        		 "If that is the case, this warning can be disregarded.");
+                "If that is the case, this warning can be disregarded.");
     }
 
     @Override
@@ -32,8 +32,8 @@ public class FreezedClock implements Clock {
         }
         throw new IllegalStateException(
                 FreezedClock.class.getSimpleName() + " not initialized! Set the time using " + getClass().getSimpleName() + ".set(..). " +
-                "If this happens outside of testing in production or production-like environment, " +
-                "you have an error in your Spring configuration, and you must ensure that your application uses SystemClock instead.");
+                        "If this happens outside of testing in production or production-like environment, " +
+                        "you have an error in your Spring configuration, and you must ensure that your application uses SystemClock instead.");
     }
 
     /**

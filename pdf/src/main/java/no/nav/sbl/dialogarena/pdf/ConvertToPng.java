@@ -25,7 +25,7 @@ import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes
  */
 public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConvertToPng.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertToPng.class);
 
     private final Dimension boundingBox;
     private final ScaleMode scaleMode;
@@ -50,7 +50,7 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
                 try {
                     document.close();
                 } catch (IOException e) {
-                    logger.warn("Kunne ikke lukke PDF-dokument med PDFBox." + e, e);
+                    LOGGER.warn("Kunne ikke lukke PDF-dokument med PDFBox." + e, e);
                 }
             }
         } else {
