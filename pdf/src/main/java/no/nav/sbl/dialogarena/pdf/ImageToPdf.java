@@ -44,7 +44,7 @@ public class ImageToPdf implements Transformer<byte[], byte[]> {
                 throw new RuntimeException(e);
             }
             document.close();
-            double tusen = 1000.0;
+            final double tusen = 1000.0;
             double elapsedTime = (double)(System.currentTimeMillis() - start) / tusen;
             pdfBytes = outputStream.toByteArray();
             LOGGER.debug("Konverterte et bilde til PDF på {} sekunder", elapsedTime);
