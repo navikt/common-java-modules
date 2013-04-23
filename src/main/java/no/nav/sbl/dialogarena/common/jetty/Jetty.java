@@ -45,22 +45,22 @@ public final class Jetty {
         private WebAppContext context;
 
 
-        public JettyBuilder war(File warPath) {
+        public final JettyBuilder war(File warPath) {
             this.war = warPath;
             return this;
         }
 
-        public JettyBuilder at(String ctxPath) {
+        public final JettyBuilder at(String ctxPath) {
             this.contextPath = ctxPath;
             return this;
         }
 
-        public JettyBuilder port(int jettyPort) {
+        public final JettyBuilder port(int jettyPort) {
             this.port = jettyPort;
             return this;
         }
 
-        public Jetty buildJetty() {
+        public final Jetty buildJetty() {
             try {
                 if (context == null) {
                     context = new WebAppContext();
