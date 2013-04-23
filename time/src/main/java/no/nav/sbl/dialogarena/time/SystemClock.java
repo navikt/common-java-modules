@@ -8,8 +8,7 @@ import org.joda.time.DateTime;
 public class SystemClock implements Clock {
 
     @Override
-    public DateTime now() {
+    public final DateTime now() {
         return DateTime.now();
     }
-
 }

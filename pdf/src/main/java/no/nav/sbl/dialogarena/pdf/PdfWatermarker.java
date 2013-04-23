@@ -53,11 +53,11 @@ public class PdfWatermarker {
         this.clock = clock;
     }
 
-    public Transformer<byte[], byte[]> forIdent(String ident) {
+    public final Transformer<byte[], byte[]> forIdent(String ident) {
         return new WatermarkerForIdent(ident);
     }
 
-    public byte[] applyOn(byte[] bytes, String ident) {
+    public final byte[] applyOn(byte[] bytes, String ident) {
         if (!(new IsPdf().evaluate(bytes))) {
             throw new IllegalArgumentException("Kan kun vannmerke PDF-filer.");
         }

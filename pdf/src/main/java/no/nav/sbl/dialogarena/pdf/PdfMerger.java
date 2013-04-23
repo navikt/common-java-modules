@@ -20,7 +20,7 @@ public class PdfMerger implements Transformer<Iterable<byte[]>, byte[]> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfMerger.class);
 
     @Override
-    public byte[] transform(Iterable<byte[]> pages) {
+    public final byte[] transform(Iterable<byte[]> pages) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfConcatenate merger = null;
         long start = System.currentTimeMillis();

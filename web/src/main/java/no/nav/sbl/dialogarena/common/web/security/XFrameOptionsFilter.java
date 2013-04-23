@@ -39,7 +39,7 @@ public class XFrameOptionsFilter implements Filter {
     private String option = DEFAULT_OPTION;
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public final void init(FilterConfig filterConfig) throws ServletException {
         String option = filterConfig.getInitParameter(OPTION_INIT_PARAMETER_NAME);
         if (option != null && !option.isEmpty()) {
 
@@ -52,7 +52,7 @@ public class XFrameOptionsFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public final void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         httpServletResponse.setHeader(X_FRAME_OPTIONS_HEADER_NAME, this.option);
         chain.doFilter(request, httpServletResponse);

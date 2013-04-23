@@ -29,15 +29,14 @@ public class InnstillingerPanel extends Panel {
         add(new AttributeAppender("class", isInnloggetModel));
     }
 
-    public InnstillingerPanel setInnlogget(boolean isInnlogget) {
+    public final InnstillingerPanel setInnlogget(boolean isInnlogget) {
         isInnloggetModel.setObject(isInnlogget ? INNLOGGET_STYLE : IKKE_INNLOGGET_STYLE);
         return this;
     }
 
     @Override
-    public void renderHead(IHeaderResponse response) {
+    public final void renderHead(IHeaderResponse response) {
         response.render(JavaScriptContentHeaderItem.forReference(INNSTILLINGER_PANEL_JS));
         response.render(CssContentHeaderItem.forReference(INNSTILLINGER_PANEL_CSS));
     }
-
 }
