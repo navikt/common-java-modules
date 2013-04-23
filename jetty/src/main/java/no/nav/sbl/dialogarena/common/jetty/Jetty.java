@@ -86,11 +86,11 @@ public final class Jetty {
     }
 
 
-    public final int port;
-    public final String warPath;
-    public final Server server;
-    public final String contextPath;
-    public final WebAppContext context;
+    private final int port;
+    private final String warPath;
+    private final Server server;
+    private final String contextPath;
+    private final WebAppContext context;
 
     public final Runnable stop = new Runnable() {
         @Override
