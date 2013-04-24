@@ -14,6 +14,8 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import java.util.HashMap;
+
 public class ShowcasePage extends WebPage {
 
     @SpringBean
@@ -37,7 +39,7 @@ public class ShowcasePage extends WebPage {
                     }
                 }),
                 new NavigasjonPanel("navigasjon", "www.nav.no"),
-                new FooterPanel("footer"),
+                new FooterPanel("footer", new HashMap<String, String>()),
                 new TilbakemeldingContainer("tilbakemelding", "Din profil", tilbakemeldingService));
     }
 
