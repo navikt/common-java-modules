@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.web.security;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Application;
 import org.apache.wicket.core.request.handler.RequestSettingRequestHandler;
 import org.apache.wicket.request.IRequestHandler;
@@ -89,10 +90,7 @@ public class ModigCryptoMapper implements IRequestMapper {
 
     private boolean isStylingUrl(Url url) {
         String urlAsString = url.toString();
-        return urlAsString.endsWith(".js") ||
-                urlAsString.endsWith(".css") ||
-                urlAsString.endsWith(".gif") ||
-                urlAsString.endsWith(".png");
+        return StringUtils.endsWithAny(urlAsString, new String[] {".js", ".css", ".gif", ".png"});
     }
 
     /**
