@@ -23,6 +23,10 @@
             <artifactId>modig-frontend-wicket</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>common-footer</artifactId>
             <version>${project.version}</version>

@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Configuration;
 public class ShowcaseApplicationContext {
 
     @Bean
-    public final WebApplication myApp() {
+    public WebApplication myApp() {
         return new ShowcaseApplication();
     }
 
     @Bean
-    public final TilbakemeldingService tilbakemeldingService() {
+    public TilbakemeldingService tilbakemeldingService() {
         final int port = 25;
         return new Epostsender("127.0.0.1", port, "showcase", "showcase@nav.no");
     }

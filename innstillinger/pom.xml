@@ -14,7 +14,6 @@
         <dependency>
             <groupId>no.nav.modig</groupId>
             <artifactId>modig-wicket</artifactId>
-            <version>0.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>

@@ -25,11 +25,7 @@ public class ContentPage extends WebPage {
 
     public final void changeVisibility(String id) {
         Component component = components.get(id);
-        if (component.isVisible()) {
-            component.setVisible(false);
-        } else {
-            component.setVisible(true);
-        }
+        component.setVisible(!component.isVisible());
     }
 
     public final Component getComponent(String id) {

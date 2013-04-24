@@ -36,7 +36,11 @@
                 <artifactId>modig-lang</artifactId>
                 <version>0.4.2</version>
             </dependency>
-
+	        <dependency>
+	            <groupId>no.nav.modig</groupId>
+	            <artifactId>modig-wicket</artifactId>
+	            <version>0.4.1</version>
+	        </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
