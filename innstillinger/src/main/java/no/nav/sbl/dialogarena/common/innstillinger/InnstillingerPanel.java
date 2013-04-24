@@ -5,6 +5,7 @@ import static no.nav.modig.wicket.conditional.ConditionalUtils.hasCssClassIf;
 import org.apache.wicket.markup.head.CssContentHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptContentHeaderItem;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.request.resource.CssResourceReference;
@@ -24,7 +25,7 @@ public class InnstillingerPanel extends Panel {
         super(id);
         setOutputMarkupId(true);
 
-        add(hasCssClassIf(INNLOGGET_CSS_CLASS, isInnlogget));
+        add(new WebMarkupContainer("innstillinger-container").add(hasCssClassIf(INNLOGGET_CSS_CLASS, isInnlogget)));
     }
 
     @Override
