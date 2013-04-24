@@ -1,7 +1,6 @@
 package no.nav.sbl.dialogarena.common.innstillinger;
 
 import static no.nav.modig.wicket.conditional.ConditionalUtils.hasCssClassIf;
-import no.nav.modig.core.context.SecurityContext;
 
 import org.apache.wicket.markup.head.CssContentHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -21,26 +20,17 @@ public class InnstillingerPanel extends Panel {
 
     private static final String INNLOGGET_CSS_CLASS = "innlogget";
 
-    public InnstillingerPanel(String id) {
+    public InnstillingerPanel(String id, AbstractReadOnlyModel<Boolean> isInnlogget) {
         super(id);
         setOutputMarkupId(true);
 
-        add(hasCssClassIf(INNLOGGET_CSS_CLASS, new IsInnlogget()));
+        add(hasCssClassIf(INNLOGGET_CSS_CLASS, isInnlogget));
     }
 
     @Override
     public void renderHead(IHeaderResponse response) {
         response.render(JavaScriptContentHeaderItem.forReference(INNSTILLINGER_PANEL_JS));
         response.render(CssContentHeaderItem.forReference(INNSTILLINGER_PANEL_CSS));
-    }
-
-    private class IsInnlogget extends AbstractReadOnlyModel<Boolean> {
-
-        @Override
-        public Boolean getObject() {
-            return SecurityContext.getCurrent().getPrincipal() == null ? false : true;
-        }
-
     }
 
 }
