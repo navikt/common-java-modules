@@ -10,6 +10,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.InlineFrame;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -29,7 +30,12 @@ public class ShowcasePage extends WebPage {
         add(inlineFrame);
 
         addShowcaseComponent(
-                new InnstillingerPanel("innstillinger"),
+                new InnstillingerPanel("innstillinger", new AbstractReadOnlyModel<Boolean>() {
+                    @Override
+                    public Boolean getObject() {
+                        return false;
+                    }
+                }),
                 new NavigasjonPanel("navigasjon", "www.nav.no"),
                 new FooterPanel("footer"),
                 new TilbakemeldingContainer("tilbakemelding", "Din profil", tilbakemeldingService));
