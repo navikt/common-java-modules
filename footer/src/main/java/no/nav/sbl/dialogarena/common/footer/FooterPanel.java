@@ -1,18 +1,20 @@
 package no.nav.sbl.dialogarena.common.footer;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import no.nav.modig.wicket.conditional.ConditionalUtils;
-
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.Model;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static no.nav.modig.wicket.conditional.ConditionalUtils.visibleIf;
+import static no.nav.modig.wicket.model.ModelUtils.either;
+import static no.nav.modig.wicket.model.ModelUtils.not;
 
 /**
  * Felleskomponent som bl.a. brukes på forside i inngangsporten.
@@ -58,10 +60,9 @@ public class FooterPanel extends Panel {
 
         @Override
         protected void populateItem(ListItem<FooterLink> item) {
-            item.add(item.getModelObject());
-            item.add(ConditionalUtils.visibleIf(Model.of(item.getModelObject().isVisibleWhenInnlogget() || !isInnlogget.getObject())));
+            FooterLink footerLink = item.getModelObject();
+            item.add(footerLink);
+            item.add(visibleIf(either(footerLink.isVisibleWhenInnlogget()).or(not(isInnlogget))));
         }
-
     }
-
 }
