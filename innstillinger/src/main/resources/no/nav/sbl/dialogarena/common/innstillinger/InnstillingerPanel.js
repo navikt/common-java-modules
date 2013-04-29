@@ -1,8 +1,9 @@
 $(document).ready(function() {
 
 	$('#link-skriftstorrelse').tooltip({
-		trigger : 'click',
-		placement : 'bottom'
+		trigger : 'hover',
+		placement : 'bottom',
+		html : true
 	});
 
 });

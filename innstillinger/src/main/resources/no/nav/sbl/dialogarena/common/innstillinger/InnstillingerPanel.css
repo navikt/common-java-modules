@@ -7,3 +7,16 @@
 .innlogget.innstillinger .navbar-inner a {
 	color: white;
 }
+
+.skriftstorrelse .smaller {
+	font-size: 8pt;
+}
+
+.skriftstorrelse .bigger {
+	font-size: 14pt;
+}
+
+.skriftstorrelse .tooltip {
+	font-size: 22pt;
+}
+
