@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.web.security;
 
-import no.nav.sbl.dialogarena.common.web.security.XFrameOptionsFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
