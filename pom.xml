@@ -34,15 +34,13 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.0.11</version>
+                <version>1.0.12</version>
             </dependency>
-
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.2</version>
             </dependency>
-
             <dependency>
                 <groupId>net.sourceforge.collections</groupId>
                 <artifactId>collections-generic</artifactId>
@@ -58,7 +56,6 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.4</version>
             </dependency>
-
             <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-library</artifactId>
@@ -102,11 +99,10 @@
                 <artifactId>imgscalr-lib</artifactId>
                 <version>4.2</version>
             </dependency>
-
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
-                <version>3.1-b08</version>
+                <version>3.1-b09</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -124,7 +120,6 @@
                 <artifactId>wicket-request</artifactId>
                 <version>${wicket.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-server</artifactId>
