@@ -6,7 +6,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.FragmentConfiguration;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.TagLibConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -43,6 +42,7 @@ public final class Jetty {
         private String contextPath;
         private int port = 35000;
         private WebAppContext context;
+        private File overridewebXmlFile;
 
 
         public final JettyBuilder war(File warPath) {
@@ -60,6 +60,11 @@ public final class Jetty {
             return this;
         }
 
+        public final JettyBuilder overrideWebXml(File overrideWebXmlFile) {
+            this.overridewebXmlFile = overrideWebXmlFile;
+            return this;
+        }
+
         public final Jetty buildJetty() {
             try {
                 if (context == null) {
@@ -69,7 +74,7 @@ public final class Jetty {
                 if (isBlank(contextPath)) {
                     contextPath = getBaseName(warPath);
                 }
-                return new Jetty(port, contextPath, warPath, context);
+                return new Jetty(port, contextPath, warPath, context, overridewebXmlFile);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -87,6 +92,7 @@ public final class Jetty {
 
 
     private final int port;
+    private final File overrideWebXmlFile;
     private final String warPath;
     private final Server server;
     private final String contextPath;
@@ -105,19 +111,18 @@ public final class Jetty {
         }
     };
 
-    private static final String[] CONFIGURATION_CLASSES = {
 
+    private static final String[] CONFIGURATION_CLASSES = {
             MetaInfConfiguration.class.getName(),
             WebInfConfiguration.class.getName(),
             FragmentConfiguration.class.getName(),
             WebXmlConfiguration.class.getName(),
-            TagLibConfiguration.class.getName(),
             JettyWebXmlConfiguration.class.getName(),
-
     };
 
-    private Jetty(int port, String contextPath, String warPath, WebAppContext context) {
+    private Jetty(int port, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile) {
         this.warPath = warPath;
+        this.overrideWebXmlFile = overrideWebXmlFile;
 
         this.port = port;
         this.contextPath = (contextPath.startsWith("/") ? "" : "/") + contextPath;
@@ -132,11 +137,14 @@ public final class Jetty {
         if (isNotBlank(warPath)) {
             webAppContext.setWar(warPath);
         }
+        if (overrideWebXmlFile != null) {
+            webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
+        }
 
         webAppContext.setConfigurationClasses(CONFIGURATION_CLASSES);
-        @SuppressWarnings("unchecked")
         Map<String, String> initParams = webAppContext.getInitParams();
         initParams.put("useFileMappedBuffer", "false");
+        initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         return webAppContext;
     }
 
@@ -146,8 +154,6 @@ public final class Jetty {
         connector.setSoLingerTime(-1);
         connector.setPort(port);
         jetty.setConnectors(new Connector[]{connector});
-        // Forhindre url rewriting av sessionid
-        context.setInitParameter("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none");
         context.setServer(jetty);
         jetty.setHandler(context);
         return jetty;
