@@ -29,10 +29,12 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
     private final Dimension boundingBox;
     private final ScaleMode scaleMode;
+    private final Integer side;
 
-    public ConvertToPng(Dimension boundingBox, ScaleMode mode) {
+    public ConvertToPng(Dimension boundingBox, ScaleMode mode, Integer side) {
         this.boundingBox = boundingBox;
         this.scaleMode = mode;
+        this.side = side;
     }
 
     @Override
@@ -43,7 +45,7 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
         } else if (new IsPdf().evaluate(bytes)) {
             PDDocument document = setupDocumentFromBytes(bytes);
             try {
-                BufferedImage image = getPageImageFromDocument(document, 0);
+                BufferedImage image = getPageImageFromDocument(document, side);
                 image = scaleImage(image, boundingBox, scaleMode);
                 return new PngFromBufferedImageToByteArray().transform(image);
             } finally {
