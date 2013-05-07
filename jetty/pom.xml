@@ -3,7 +3,7 @@
     <parent>
         <artifactId>common</artifactId>
         <groupId>no.nav.sbl.dialogarena</groupId>
-        <version>1.0.10-SNAPSHOT</version>
+        <version>1.0.10</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,4 +31,9 @@
             <artifactId>jetty-webapp</artifactId>
         </dependency>
     </dependencies>
+
+  <scm>
+    <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-1.0.10/common-jetty</developerConnection>
+    <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-1.0.10/common-jetty</url>
+  </scm>
 </project>

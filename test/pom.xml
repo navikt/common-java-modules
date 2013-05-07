@@ -4,7 +4,7 @@
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
         <artifactId>common</artifactId>
-        <version>1.0.10-SNAPSHOT</version>
+        <version>1.0.10</version>
     </parent>
 
     <groupId>no.nav.sbl.dialogarena</groupId>
@@ -22,4 +22,9 @@
         </dependency>
     </dependencies>
 
+
+  <scm>
+    <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-1.0.10/common-test</developerConnection>
+    <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-1.0.10/common-test</url>
+  </scm>
 </project>

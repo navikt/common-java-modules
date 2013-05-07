@@ -15,7 +15,7 @@
     </modules>
     <name>Dialogarena - Common</name>
     <artifactId>common</artifactId>
-    <version>1.0.11-SNAPSHOT</version>
+    <version>1.0.10</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -152,8 +152,8 @@
     </build>
 
     <scm>
-        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/trunk</developerConnection>
-        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/trunk</url>
+        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-1.0.10</developerConnection>
+        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-1.0.10</url>
     </scm>
 
 </project>
