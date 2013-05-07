@@ -31,6 +31,10 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
     private final ScaleMode scaleMode;
     private final Integer side;
 
+    public ConvertToPng(Dimension boundingBox, ScaleMode mode) {
+        this(boundingBox, mode, 0);
+    }
+
     public ConvertToPng(Dimension boundingBox, ScaleMode mode, Integer side) {
         this.boundingBox = boundingBox;
         this.scaleMode = mode;
