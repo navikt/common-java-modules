@@ -4,7 +4,7 @@
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
         <artifactId>common</artifactId>
-        <version>1.0.11-SNAPSHOT</version>
+        <version>1.0.11</version>
     </parent>
 
     <artifactId>common-web</artifactId>
