@@ -57,7 +57,7 @@ public class ModigCryptoMapper implements IRequestMapper {
             return null;
         }
 
-        if (isStylingUrl(url)) {
+        if (isExcludePath(url)) {
             return url;
         } else {
             return encryptUrl(url);
@@ -69,7 +69,7 @@ public class ModigCryptoMapper implements IRequestMapper {
     public final IRequestHandler mapRequest(final Request request) {
 
         Url url = request.getUrl();
-        if (!isStylingUrl(url)) {
+        if (!isExcludePath(url)) {
             url = decryptUrl(request, url);
         }
 
@@ -88,9 +88,9 @@ public class ModigCryptoMapper implements IRequestMapper {
         return handler;
     }
 
-    private boolean isStylingUrl(Url url) {
+    private boolean isExcludePath(Url url) {
         String urlAsString = url.toString();
-        return StringUtils.endsWithAny(urlAsString, new String[] {".js", ".css", ".gif", ".png"});
+        return StringUtils.endsWithAny(urlAsString, new String[] {".js", ".css", ".gif", ".png", "selftest"});
     }
 
     /**
