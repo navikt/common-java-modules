@@ -10,7 +10,7 @@
 
     <name>Dialogarena - common-parent</name>
     <artifactId>common-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -167,8 +167,8 @@
     </build>
 
     <scm>
-        <developerConnection>scm:svn:${svn.url}/trunk</developerConnection>
-        <url>${svn.url}/trunk</url>
+        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-parent/1.0.0-common-parent</developerConnection>
+        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-parent/1.0.0-common-parent</url>
     </scm>
 
 </project>
