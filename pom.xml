@@ -1,11 +1,18 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
         <artifactId>dialogarena</artifactId>
         <version>1.5.2</version>
     </parent>
+
+    <name>Dialogarena - Common</name>
+    <artifactId>common</artifactId>
+    <version>1.0.13-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
     <modules>
         <module>parent</module>
         <module>jetty</module>
@@ -14,10 +21,5 @@
         <module>detect</module>
         <module>web</module>
     </modules>
-    <name>Dialogarena - Common</name>
-    <artifactId>common</artifactId>
-    <version>1.0.13-SNAPSHOT</version>
-    <packaging>pom</packaging>
-
 
 </project>
