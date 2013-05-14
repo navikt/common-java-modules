@@ -167,8 +167,8 @@
     </build>
 
     <scm>
-        <developerConnection>scm:svn:${svn.url}/trunk</developerConnection>
-        <url>${svn.url}/trunk</url>
+        <developerConnection>scm:svn:${svn.url}/trunk/parent</developerConnection>
+        <url>${svn.url}/trunk/parent</url>
     </scm>
 
 </project>
