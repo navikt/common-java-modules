@@ -20,6 +20,7 @@
         <module>pdf</module>
         <module>detect</module>
         <module>web</module>
+        <module>lokalt-kodeverk</module>
     </modules>
 
 </project>

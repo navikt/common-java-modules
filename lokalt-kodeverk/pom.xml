@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>no.nav.sbl.dialogarena</groupId>
+        <artifactId>common-parent</artifactId>
+        <version>1.0.1</version>
+        <relativePath>../parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>common-lokalt-kodeverk</artifactId>
+    <version>1.0.14-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
+
+    <dependencies>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <scm>
+        <developerConnection>scm:svn:${svn.url}/trunk/lokalt-kodeverk</developerConnection>
+        <url>${svn.url}/trunk/lokalt-kodeverk</url>
+    </scm>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <usedDependencies>
+                                <!--<usedDependency>org.springframework:spring-web</usedDependency>-->
+                                <!--<usedDependency>no.nav.sbl.dialogarena:common-web</usedDependency>-->
+                                <!--<usedDependency>org.apache.httpcomponents:httpcore</usedDependency>-->
+                            </usedDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
