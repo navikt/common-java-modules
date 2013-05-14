@@ -1,5 +1,7 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
+import org.eclipse.jetty.jaas.JAASLoginService;
+import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -140,6 +142,12 @@ public final class Jetty {
         if (overrideWebXmlFile != null) {
             webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
         }
+
+        SecurityHandler securityHandler = webAppContext.getSecurityHandler();
+        JAASLoginService jaasLoginService = new JAASLoginService("OpenAM Realm");
+        jaasLoginService.setLoginModuleName("openam");
+        securityHandler.setLoginService(jaasLoginService);
+        securityHandler.setRealmName("OpenAM Realm");
 
         webAppContext.setConfigurationClasses(CONFIGURATION_CLASSES);
         Map<String, String> initParams = webAppContext.getInitParams();
