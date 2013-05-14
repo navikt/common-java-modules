@@ -18,12 +18,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>common-detect</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.13</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>common-test</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.13</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
