@@ -3,8 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
-        <artifactId>common</artifactId>
+        <artifactId>common-parent</artifactId>
         <version>1.0.13-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
     <groupId>no.nav.sbl.dialogarena</groupId>
@@ -25,4 +26,8 @@
             <artifactId>tika-core</artifactId>
         </dependency>
     </dependencies>
+     <scm>
+        <developerConnection>scm:svn:${svn.url}/trunk/detect</developerConnection>
+        <url>${svn.url}/trunk/detect</url>
+    </scm>
 </project>

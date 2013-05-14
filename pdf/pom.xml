@@ -4,8 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
-        <artifactId>common</artifactId>
+        <artifactId>common-parent</artifactId>
         <version>1.0.13-SNAPSHOT</version>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
     <groupId>no.nav.sbl.dialogarena</groupId>
@@ -72,4 +73,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <scm>
+        <developerConnection>scm:svn:${svn.url}/trunk/pdf</developerConnection>
+        <url>${svn.url}/trunk/pdf</url>
+    </scm>
 </project>
