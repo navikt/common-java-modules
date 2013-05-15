@@ -26,7 +26,6 @@ import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes
 public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConvertToPng.class);
-
     private final Dimension boundingBox;
     private final ScaleMode scaleMode;
     private final Integer side;
