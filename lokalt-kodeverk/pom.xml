@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
@@ -9,7 +10,7 @@
     </parent>
 
     <artifactId>common-lokalt-kodeverk</artifactId>
-    <version>1.0.14</version>
+    <version>1.0.14-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <properties>
@@ -89,8 +90,8 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-lokalt-kodeverk/1.0.14-common-lokalt-kodeverk</developerConnection>
-        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-lokalt-kodeverk/1.0.14-common-lokalt-kodeverk</url>
+        <developerConnection>scm:svn:${svn.url}/trunk/lokalt-kodeverk</developerConnection>
+        <url>${svn.url}/trunk/lokalt-kodeverk</url>
     </scm>
     <build>
         <plugins>
