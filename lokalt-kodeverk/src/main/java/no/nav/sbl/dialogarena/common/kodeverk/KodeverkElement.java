@@ -6,11 +6,9 @@ import java.util.Map;
 
 class KodeverkElement {
 
-    private final String skjemaNummer;
     private final Map<Kodeverk.Nokkel, String> koder;
 
-    KodeverkElement(String skjemaNummer, String gosysId, String tema, String beskrivelseNoekkel, String tittel, String url) {
-        this.skjemaNummer = skjemaNummer;
+    KodeverkElement(String gosysId, String tema, String beskrivelseNoekkel, String tittel, String url) {
         koder = new HashMap<>();
         koder.put(Kodeverk.Nokkel.BESKRIVELSE, beskrivelseNoekkel);
         koder.put(Kodeverk.Nokkel.GOSYS_ID, gosysId);

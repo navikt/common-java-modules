@@ -26,7 +26,7 @@ public class JsonKodeverk extends BaseKodeverk {
 
             for (JsonNode node : kodeverkArray) {
                 db.put(getFieldValue(node, "skjemaNummer"),
-                        new KodeverkElement(getFieldValue(node, "skjemaNummer"),
+                        new KodeverkElement(
                                 getFieldValue(node, "gosysId"),
                                 getFieldValue(node, "tema"),
                                 getFieldValue(node, "beskrivelseNokkel"),
@@ -41,13 +41,10 @@ public class JsonKodeverk extends BaseKodeverk {
     }
 
     private String getFieldValue(JsonNode node, String fieldName) {
-        try {
+        if (node.has(fieldName)) {
             return node.get(fieldName).asText();
-        } catch (NullPointerException e) {
-            throw new ApplicationException("Mangler felt " + fieldName + " i json", e);
+        } else {
+            throw new ApplicationException("Mangler felt " + fieldName + " i json");
         }
-
-
     }
-
 }
