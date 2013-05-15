@@ -1,5 +1,76 @@
 {
     "kodeverk": [
-
+        {
+            "skjemaNummer": "kodeForDagpenger",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Søknad om dagpenger"
+        },
+        {
+            "skjemaNummer": "kodeForPermitteringsvarsel",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Permitteringsvarsel"
+        },
+        {
+            "skjemaNummer": "kodeForArbeidsavtale",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Arbeidsavtale"
+        },
+        {
+            "skjemaNummer": "kodeForForeldrepenger",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Søknad om foreldrepenger"
+        },
+        {
+            "skjemaNummer": "kodeForInntektsopplysninger",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Inntektsopplysninger"
+        },
+        {
+            "skjemaNummer": "kodeForKontantstoette",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Søknad om kontantstøtte"
+        },
+        {
+            "skjemaNummer": "kodeForOvergangsstoenad",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Stønad om Overgangsstønad"
+        },
+        {
+            "skjemaNummer": "kodeForAvtaleOmDeltBosted",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Avtale om delt bosted"
+        },
+        {
+            "skjemaNummer": "kodeAnnet",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelse": "beskrivelse",
+            "url": "url",
+            "tittel": "Annet: "
+        }
     ]
 }

@@ -69,4 +69,10 @@ public class JsonKodeverkTest {
         kodeverk.getKode("unknown", Nokkel.URL);
     }
 
+    @Test
+    public void shouldRecognizeEgendefKode(){
+        assertThat(kodeverk.erEgendefinert(Kodeverk.ANNET),is(true));
+        assertThat(kodeverk.erEgendefinert("hei"),is(false));
+    }
+
 }

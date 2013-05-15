@@ -29,7 +29,7 @@ public class JsonKodeverk extends BaseKodeverk {
                         new KodeverkElement(
                                 getFieldValue(node, "gosysId"),
                                 getFieldValue(node, "tema"),
-                                getFieldValue(node, "beskrivelseNokkel"),
+                                getFieldValue(node, "beskrivelse"),
                                 getFieldValue(node, "tittel"),
                                 getFieldValue(node, "url")));
             }
