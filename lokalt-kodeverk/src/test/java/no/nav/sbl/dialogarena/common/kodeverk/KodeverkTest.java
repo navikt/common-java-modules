@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.internal.util.reflection.Whitebox.setInternalState;
 
-public class DefaultKodeverkTest {
+public class KodeverkTest {
 
     private Kodeverk kodeverk;
 
