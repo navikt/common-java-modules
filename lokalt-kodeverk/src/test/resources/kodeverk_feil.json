@@ -1,0 +1,19 @@
+{
+    "kodeverk": [
+        {
+            "skjemaNummer": "nummer1",
+            "tema": "tema1",
+            "beskrivelseNokkel": "beskrivelse1",
+            "url": "enonicUrl1",
+            "tittel": "tittel1"
+        },
+        {
+            "skjemaNummer": "nummer2",
+            "gosysId": "gosysId2",
+            "tema": "tema2",
+            "beskrivelseNokkel": "beskrivelse2",
+            "url": "enonicUrl2",
+            "tittel": "tittel2"
+        }
+    ]
+}

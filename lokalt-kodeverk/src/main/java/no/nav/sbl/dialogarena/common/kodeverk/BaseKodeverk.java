@@ -6,25 +6,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class DefaultKodeverk implements Kodeverk {
-    private Map<String, KodeverkElement> db = new HashMap<>();
+/**
+ * Baseklasse for implemntasjon av kodeverk-interface
+ */
+public abstract class BaseKodeverk implements Kodeverk {
+    protected Map<String, KodeverkElement> db = new HashMap<>();
 
     @Override
     public String getKode(String skjemaId, Nokkel nokkel) {
         if (db.containsKey(skjemaId)) {
             KodeverkElement kodeverkElement = db.get(skjemaId);
-            switch (nokkel) {
-                case BESKRIVELSE:
-                    return kodeverkElement.getBeskrivelseNoekkel();
-                case GOSYS_ID:
-                    return kodeverkElement.getGosysId();
-                case TEMA:
-                    return kodeverkElement.getTema();
-                case TITTEL:
-                    return kodeverkElement.getTittel();
-                case URL:
-                    return kodeverkElement.getUrl();
-            }
+            return kodeverkElement.getKoderMap().get(nokkel);
         }
         throw new ApplicationException("Fant ikke kodeverk : " + skjemaId);
     }

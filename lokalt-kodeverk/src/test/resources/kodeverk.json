@@ -1,0 +1,12 @@
+{
+    "kodeverk": [
+        {
+            "skjemaNummer": "test",
+            "gosysId": "gosysId",
+            "tema": "tema",
+            "beskrivelseNokkel": "beskrivelse",
+            "url": "url",
+            "tittel": "tittel"
+        }
+    ]
+}
