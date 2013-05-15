@@ -19,6 +19,13 @@ public interface Kodeverk {
     String getKode(String skjemaId, Nokkel nokkel);
 
     /**
+     * Behagelighetsfunksjon for å hente tittel-del av kodeverk
+     * @param skjemaId SkjemaId
+     * @return tittel
+     */
+    String getTittel(String skjemaId) ;
+
+    /**
      * Henter ut alle nøkkel-verdier for en kode-verdi.
      * Kaster ApplicationException hvis kode ikke finnes.
      *
@@ -32,7 +39,7 @@ public interface Kodeverk {
      * @param skjemaId SkjemaId
      * @return true hvis skjemaId er ANNET, ellers false
      */
-    boolean erEgendefinert(String skjemaId);
+    boolean isEgendefinert(String skjemaId);
 
     /**
      * Nøkkelverider som det finnes kodeverk for.

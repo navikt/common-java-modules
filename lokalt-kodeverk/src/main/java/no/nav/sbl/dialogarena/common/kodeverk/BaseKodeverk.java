@@ -13,8 +13,13 @@ abstract class BaseKodeverk implements Kodeverk {
     protected final Map<String, KodeverkElement> db = new HashMap<>();
 
     @Override
-    public boolean erEgendefinert(String skjemaId) {
+    public boolean isEgendefinert(String skjemaId) {
         return ANNET.equals(skjemaId);
+    }
+
+    @Override
+    public String getTittel(String skjemaId) {
+        return getKode(skjemaId, Nokkel.TITTEL);
     }
 
     @Override

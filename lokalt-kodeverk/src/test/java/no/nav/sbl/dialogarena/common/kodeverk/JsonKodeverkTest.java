@@ -71,8 +71,13 @@ public class JsonKodeverkTest {
 
     @Test
     public void shouldRecognizeEgendefKode(){
-        assertThat(kodeverk.erEgendefinert(Kodeverk.ANNET),is(true));
-        assertThat(kodeverk.erEgendefinert("hei"),is(false));
+        assertThat(kodeverk.isEgendefinert(Kodeverk.ANNET),is(true));
+        assertThat(kodeverk.isEgendefinert("hei"),is(false));
+    }
+
+    @Test
+    public void shouldGetTittel() {
+        assertThat(kodeverk.getTittel("test"), equalTo("tittel"));
     }
 
 }
