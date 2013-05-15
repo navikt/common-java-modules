@@ -5,20 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static java.lang.Math.*;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.lang.Math.round;
 
 /**
  * Funksjoner for skalering av bilder
  */
 
 public class ImageScaler {
-
-    public enum ScaleMode {SCALE_TO_FIT_INSIDE_BOX, CROP_TO_FILL_ENTIRE_BOX}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageScaler.class);
 
@@ -65,4 +65,6 @@ public class ImageScaler {
 
         return image.getSubimage(widthDelta / 2, heightDelta / 2, newWidth, newHeight);
     }
+
+    public enum ScaleMode {SCALE_TO_FIT_INSIDE_BOX, CROP_TO_FILL_ENTIRE_BOX}
 }

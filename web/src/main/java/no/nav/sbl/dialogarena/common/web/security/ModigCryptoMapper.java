@@ -246,13 +246,13 @@ public class ModigCryptoMapper implements IRequestMapper {
         }
 
         private int hashString(final String str) {
-            int hash = 97;
+            int lokalHash = 97;
 
             for (char c : str.toCharArray()) {
-                hash = 47 * hash + c;
+                lokalHash = 47 * lokalHash + c;
             }
 
-            return hash;
+            return lokalHash;
         }
     }
 }

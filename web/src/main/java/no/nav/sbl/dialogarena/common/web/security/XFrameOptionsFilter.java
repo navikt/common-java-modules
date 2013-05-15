@@ -40,13 +40,13 @@ public class XFrameOptionsFilter implements Filter {
 
     @Override
     public final void init(FilterConfig filterConfig) throws ServletException {
-        String option = filterConfig.getInitParameter(OPTION_INIT_PARAMETER_NAME);
-        if (option != null && !option.isEmpty()) {
+        String initOption = filterConfig.getInitParameter(OPTION_INIT_PARAMETER_NAME);
+        if (initOption != null && !initOption.isEmpty()) {
 
-            if (availableOptions.contains(option)) {
-                this.option = option;
+            if (availableOptions.contains(initOption)) {
+                this.option = initOption;
             } else {
-                throw new IllegalArgumentException("Init parameter option with value " + option + " is illegal.");
+                throw new IllegalArgumentException("Init parameter option with value " + initOption + " is illegal.");
             }
         }
     }
