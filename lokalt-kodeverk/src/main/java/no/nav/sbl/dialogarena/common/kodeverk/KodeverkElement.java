@@ -6,8 +6,8 @@ import java.util.Map;
 
 class KodeverkElement {
 
-    private String skjemaNummer;
-    private Map<Kodeverk.Nokkel, String> koder;
+    private final String skjemaNummer;
+    private final Map<Kodeverk.Nokkel, String> koder;
 
     KodeverkElement(String skjemaNummer, String gosysId, String tema, String beskrivelseNoekkel, String tittel, String url) {
         this.skjemaNummer = skjemaNummer;

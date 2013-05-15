@@ -19,7 +19,7 @@ public class JsonKodeverk extends BaseKodeverk {
 
     public JsonKodeverk(InputStream json) {
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = null;
+        JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(json);
             ArrayNode kodeverkArray = (ArrayNode) jsonNode.get("kodeverk");

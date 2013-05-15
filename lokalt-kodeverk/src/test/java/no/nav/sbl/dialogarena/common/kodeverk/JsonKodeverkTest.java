@@ -29,6 +29,12 @@ public class JsonKodeverkTest {
     }
 
     @Test
+    public void shouldReadEmptyFile() throws IOException {
+        InputStream resourceAsStream = getClass().getResourceAsStream("/kodeverk_tom.json");
+        new JsonKodeverk(resourceAsStream);
+    }
+
+    @Test
     public void canGetExistingKodeverkByField() {
         assertThat(kodeverk.getKode("test", Nokkel.BESKRIVELSE), is(equalTo("beskrivelse")));
         assertThat(kodeverk.getKode("test", Nokkel.GOSYS_ID), is(equalTo("gosysId")));
