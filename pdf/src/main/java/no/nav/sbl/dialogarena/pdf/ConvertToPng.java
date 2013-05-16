@@ -36,6 +36,7 @@ import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromBytes
 public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConvertToPng.class);
+    public static final int TIMEOUT_PAA_GENERERING = 4000;
     private static final boolean GS_EXISTS;
 
     static {
@@ -45,15 +46,16 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             cmdLine.addArgument("--version");
             exitCode = new DefaultExecutor().execute(cmdLine);
         } catch (IOException e) {
-            LOGGER.info("Could not find ghostscript");
+            LOGGER.info("[PDF] Could not find ghostscript");
         }
         GS_EXISTS = exitCode == 0;
         if (GS_EXISTS) {
-            LOGGER.debug("Bruker GhostScript som rendring-motor for thumbnails");
+            LOGGER.info("[PDF] Bruker GhostScript som rendring-motor for thumbnails");
         } else {
-            LOGGER.warn("Fant ikke GhostScript. Bruker PdfBox som rendring-motor for thumbnails");
+            LOGGER.warn("[PDF] Fant ikke GhostScript. Bruker PdfBox som rendring-motor for thumbnails");
         }
     }
+
 
     private final Dimension boundingBox;
 
@@ -113,7 +115,7 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
         @Override
         public byte[] transform(byte[] bytes) {
-            ExecuteWatchdog watchdog = new ExecuteWatchdog(2000);
+            ExecuteWatchdog watchdog = new ExecuteWatchdog(TIMEOUT_PAA_GENERERING);
             try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
                  ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
@@ -131,11 +133,14 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
                 return out.toByteArray();
             } catch (ExecuteException e) {
                 if (watchdog.killedProcess()) {
+                    LOGGER.info("[PDF] Timet ut mens en lagde preview.");
                     throw new RuntimeException("Prosessen brukte for lang tid", e);
                 } else {
+                    LOGGER.info("[PDF] Noe gikk galt i GhostScript under generering av preview. ", e);
                     throw new RuntimeException("Noe annet gikk galt: " + e, e);
                 }
             } catch (IOException e) {
+                LOGGER.info("[PDF] Noe gikk galt i GhostScript under generering av preview. ", e);
                 throw new RuntimeException("Feil ved preview-generering", e);
             }
         }
@@ -144,7 +149,7 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             Map<String, String> substMap = new HashMap<>();
             substMap.put("width", "" + boundingBox.width);
             substMap.put("height", "" + boundingBox.height);
-            substMap.put("page", "" + 1);
+            substMap.put("page", "" + side);
             return substMap;
         }
 
