@@ -65,7 +65,7 @@
             "tittel": "Avtale om delt bosted"
         },
         {
-            "skjemaNummer": "kodeAnnet",
+            "skjemaNummer": "kodeForEgetVedlegg",
             "gosysId": "gosysId",
             "tema": "tema",
             "beskrivelse": "beskrivelse",
