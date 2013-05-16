@@ -90,7 +90,7 @@ public class ModigCryptoMapper implements IRequestMapper {
 
     private boolean isExcludePath(Url url) {
         String urlAsString = url.toString();
-        return StringUtils.endsWithAny(urlAsString, new String[] {".js", ".css", ".gif", ".png", "selftest"});
+        return StringUtils.endsWithAny(urlAsString, new String[] {".js", ".css", ".gif", ".png", ".svg", "selftest"});
     }
 
     /**
