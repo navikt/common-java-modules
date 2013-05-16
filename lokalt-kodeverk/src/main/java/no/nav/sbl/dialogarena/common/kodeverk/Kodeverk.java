@@ -6,7 +6,7 @@ import java.util.Map;
  * Tilbyr uthenting av lokalt kodeverk.
  */
 public interface Kodeverk {
-    String ANNET = "kodeAnnet";
+    String ANNET = "kodeForEgetVedlegg";
 
     /**
      * Henter verdi basert på kode-verdi og nøkkel.
