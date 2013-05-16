@@ -2,10 +2,10 @@
     "Skjemaer": [
         {
             "Skjemanummer": "nummer1",
+            "GosysId": "gosysId1",
             "Tema": "tema1",
             "Beskrivelse": "beskrivelse1",
             "Url": "enonicUrl1",
-            "Tittel": "tittel1"
         },
         {
             "Skjemanummer": "nummer2",
