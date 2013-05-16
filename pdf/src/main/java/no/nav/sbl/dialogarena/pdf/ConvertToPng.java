@@ -125,7 +125,7 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
                 DefaultExecutor executor = new DefaultExecutor();
 
-                executor.setStreamHandler(new PumpStreamHandler(out, System.err, bis));
+                executor.setStreamHandler(new PumpStreamHandler(out, System.out, bis));
                 executor.setWatchdog(watchdog);
 
                 executor.execute(cmdLine);
@@ -149,7 +149,7 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             Map<String, String> substMap = new HashMap<>();
             substMap.put("width", "" + boundingBox.width);
             substMap.put("height", "" + boundingBox.height);
-            substMap.put("page", "" + side);
+            substMap.put("page", "" + side + 1);
             return substMap;
         }
 
