@@ -1,76 +1,76 @@
 {
-    "kodeverk": [
+    "Skjemaer": [
         {
-            "skjemaNummer": "kodeForDagpenger",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Søknad om dagpenger"
+            "Skjemanummer ": "kodeForDagpenger",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Søknad om dagpenger"
         },
         {
-            "skjemaNummer": "kodeForPermitteringsvarsel",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Permitteringsvarsel"
+            "Skjemanummer ": "kodeForPermitteringsvarsel",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Permitteringsvarsel"
         },
         {
-            "skjemaNummer": "kodeForArbeidsavtale",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Arbeidsavtale"
+            "Skjemanummer ": "kodeForArbeidsavtale",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Arbeidsavtale"
         },
         {
-            "skjemaNummer": "kodeForForeldrepenger",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Søknad om foreldrepenger"
+            "Skjemanummer ": "kodeForForeldrepenger",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Søknad om foreldrepenger"
         },
         {
-            "skjemaNummer": "kodeForInntektsopplysninger",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Inntektsopplysninger"
+            "Skjemanummer ": "kodeForInntektsopplysninger",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Inntektsopplysninger"
         },
         {
-            "skjemaNummer": "kodeForKontantstoette",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Søknad om kontantstøtte"
+            "Skjemanummer ": "kodeForKontantstoette",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Søknad om kontantstøtte"
         },
         {
-            "skjemaNummer": "kodeForOvergangsstoenad",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Stønad om Overgangsstønad"
+            "Skjemanummer ": "kodeForOvergangsstoenad",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Stønad om Overgangsstønad"
         },
         {
-            "skjemaNummer": "kodeForAvtaleOmDeltBosted",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Avtale om delt bosted"
+            "Skjemanummer ": "kodeForAvtaleOmDeltBosted",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Avtale om delt bosted"
         },
         {
-            "skjemaNummer": "kodeForEgetVedlegg",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "Annet: "
+            "Skjemanummer ": "kodeAnnet",
+            "Gosysid": "Gosysid",
+            "Tema": "Tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "Annet: "
         }
     ]
 }

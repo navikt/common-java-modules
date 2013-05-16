@@ -22,16 +22,16 @@ public class JsonKodeverk extends BaseKodeverk {
         JsonNode jsonNode;
         try {
             jsonNode = objectMapper.readTree(json);
-            ArrayNode kodeverkArray = (ArrayNode) jsonNode.get("kodeverk");
+            ArrayNode kodeverkArray = (ArrayNode) jsonNode.get("Skjemaer");
 
             for (JsonNode node : kodeverkArray) {
-                db.put(getFieldValue(node, "skjemaNummer"),
+                db.put(getFieldValue(node, "Skjemanummer"),
                         new KodeverkElement(
-                                getFieldValue(node, "gosysId"),
-                                getFieldValue(node, "tema"),
-                                getFieldValue(node, "beskrivelse"),
-                                getFieldValue(node, "tittel"),
-                                getFieldValue(node, "url")));
+                                getOptionalFieldValue(node, "GosysId"),
+                                getFieldValue(node, "Tema"),
+                                getFieldValue(node, "Beskrivelse"),
+                                getFieldValue(node, "Tittel"),
+                                getOptionalFieldValue(node, "Url")));
             }
         } catch (IOException e) {
             LOGGER.error("Klarte ikke å parse kodeverk-info", e);
@@ -45,6 +45,14 @@ public class JsonKodeverk extends BaseKodeverk {
             return node.get(fieldName).asText();
         } else {
             throw new ApplicationException("Mangler felt " + fieldName + " i json");
+        }
+    }
+
+    private String getOptionalFieldValue(JsonNode node, String fieldName) {
+        if (node.has(fieldName)) {
+            return node.get(fieldName).asText();
+        } else {
+            return "";
         }
     }
 }

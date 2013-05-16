@@ -1,12 +1,12 @@
 {
-    "kodeverk": [
+    "Skjemaer": [
         {
-            "skjemaNummer": "test",
-            "gosysId": "gosysId",
-            "tema": "tema",
-            "beskrivelse": "beskrivelse",
-            "url": "url",
-            "tittel": "tittel"
+            "Skjemanummer": "test",
+            "GosysId": "gosysId",
+            "Tema": "tema",
+            "Beskrivelse": "beskrivelse",
+            "Url": "url",
+            "Tittel": "tittel"
         }
     ]
 }

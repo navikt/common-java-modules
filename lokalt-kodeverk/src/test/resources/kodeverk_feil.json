@@ -1,19 +1,19 @@
 {
-    "kodeverk": [
+    "Skjemaer": [
         {
-            "skjemaNummer": "nummer1",
-            "tema": "tema1",
-            "beskrivelse": "beskrivelse1",
-            "url": "enonicUrl1",
-            "tittel": "tittel1"
+            "Skjemanummer": "nummer1",
+            "Tema": "tema1",
+            "Beskrivelse": "beskrivelse1",
+            "Url": "enonicUrl1",
+            "Tittel": "tittel1"
         },
         {
-            "skjemaNummer": "nummer2",
-            "gosysId": "gosysId2",
-            "tema": "tema2",
-            "beskrivelse": "beskrivelse2",
-            "url": "enonicUrl2",
-            "tittel": "tittel2"
+            "Skjemanummer": "nummer2",
+            "GosysId": "gosysId2",
+            "Tema": "tema2",
+            "Beskrivelse": "beskrivelse2",
+            "Url": "enonicUrl2",
+            "Tittel": "tittel2"
         }
     ]
 }
