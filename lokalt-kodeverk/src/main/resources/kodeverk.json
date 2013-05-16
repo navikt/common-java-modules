@@ -1,7 +1,7 @@
 {
     "Skjemaer": [
         {
-            "Skjemanummer ": "kodeForDagpenger",
+            "Skjemanummer": "kodeForDagpenger",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -9,7 +9,7 @@
             "Tittel": "Søknad om dagpenger"
         },
         {
-            "Skjemanummer ": "kodeForPermitteringsvarsel",
+            "Skjemanummer": "kodeForPermitteringsvarsel",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -17,7 +17,7 @@
             "Tittel": "Permitteringsvarsel"
         },
         {
-            "Skjemanummer ": "kodeForArbeidsavtale",
+            "Skjemanummer": "kodeForArbeidsavtale",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -25,7 +25,7 @@
             "Tittel": "Arbeidsavtale"
         },
         {
-            "Skjemanummer ": "kodeForForeldrepenger",
+            "Skjemanummer": "kodeForForeldrepenger",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -33,7 +33,7 @@
             "Tittel": "Søknad om foreldrepenger"
         },
         {
-            "Skjemanummer ": "kodeForInntektsopplysninger",
+            "Skjemanummer": "kodeForInntektsopplysninger",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -41,7 +41,7 @@
             "Tittel": "Inntektsopplysninger"
         },
         {
-            "Skjemanummer ": "kodeForKontantstoette",
+            "Skjemanummer": "kodeForKontantstoette",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -49,7 +49,7 @@
             "Tittel": "Søknad om kontantstøtte"
         },
         {
-            "Skjemanummer ": "kodeForOvergangsstoenad",
+            "Skjemanummer": "kodeForOvergangsstoenad",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -57,7 +57,7 @@
             "Tittel": "Stønad om Overgangsstønad"
         },
         {
-            "Skjemanummer ": "kodeForAvtaleOmDeltBosted",
+            "Skjemanummer": "kodeForAvtaleOmDeltBosted",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",
@@ -65,7 +65,7 @@
             "Tittel": "Avtale om delt bosted"
         },
         {
-            "Skjemanummer ": "kodeForEgetVedlegg",
+            "Skjemanummer": "kodeForEgetVedlegg",
             "Gosysid": "Gosysid",
             "Tema": "Tema",
             "Beskrivelse": "beskrivelse",

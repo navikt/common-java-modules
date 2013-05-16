@@ -44,7 +44,8 @@ public class JsonKodeverk extends BaseKodeverk {
         if (node.has(fieldName)) {
             return node.get(fieldName).asText();
         } else {
-            throw new ApplicationException("Mangler felt " + fieldName + " i json");
+            LOGGER.error("Mangler obligatorisk felt {} i kodeverket (json)", fieldName);
+            throw new ApplicationException("Mangler felt " + fieldName + " i kodeverket json");
         }
     }
 
