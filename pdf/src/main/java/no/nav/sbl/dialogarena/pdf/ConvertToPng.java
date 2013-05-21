@@ -17,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,15 +40,15 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
     public static final int TIMEOUT_PAA_GENERERING = 4000;
     private static final boolean GS_EXISTS;
 
+    public static final File TMP_DIR = new File(System.getProperty("java.io.tmpdir"));
+
     static {
         int exitCode = -1;
-        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         try {
             CommandLine cmdLine = new CommandLine(decideGSCommand());
             cmdLine.addArgument("--version");
-            PumpStreamHandler psh = new PumpStreamHandler(stdout);
             DefaultExecutor executor = new DefaultExecutor();
-            executor.setStreamHandler(psh);
+            executor.setWorkingDirectory(TMP_DIR);
             exitCode = executor.execute(cmdLine);
         } catch (IOException e) {
             LOGGER.warn("[PDF] Could not find ghostscript");
@@ -58,7 +59,6 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             LOGGER.info("[PDF] Bruker GhostScript som rendring-motor for thumbnails");
         } else {
             LOGGER.warn("[PDF] Fant ikke GhostScript. Bruker PdfBox som rendring-motor for thumbnails (exitcode: {})", exitCode);
-            LOGGER.warn("[PDF] Output: <{}>", stdout.toString());
         }
     }
 
@@ -130,6 +130,7 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
                 cmdLine.setSubstitutionMap(genererThumbnailProperties());
 
                 DefaultExecutor executor = new DefaultExecutor();
+                executor.setWorkingDirectory(TMP_DIR);
 
                 executor.setStreamHandler(new PumpStreamHandler(out, System.err, bis));
                 executor.setWatchdog(watchdog);
