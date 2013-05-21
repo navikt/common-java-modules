@@ -70,4 +70,16 @@ public class ImageScalerTest {
         assertThat(croppedImage.getWidth(), is((int) frame.getWidth()));
         assertThat(croppedImage.getHeight(), is((int) frame.getHeight()));
     }
+    
+
+    @Test(expected=IllegalArgumentException.class)
+    public void imageCanNotBeSmallerThanBox() throws IOException {
+    	byte[] bytes = getBytesFromFile("/ImageScalerFiles/landscape.png");
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        BufferedImage landscapeImage = ImageIO.read(bais);
+        int height = landscapeImage.getHeight() + 10;
+        int width = landscapeImage.getWidth() + 10;
+        Dimension frame = new Dimension(width, height);
+        BufferedImage image = cropImage(landscapeImage, frame);
+    }
 }
