@@ -28,7 +28,8 @@ abstract class BaseKodeverk implements Kodeverk {
             KodeverkElement kodeverkElement = db.get(skjemaId);
             return kodeverkElement.getKoderMap().get(nokkel);
         }
-        throw new ApplicationException("Fant ikke kodeverk : " + skjemaId);
+        handleError(skjemaId);
+        return null;
     }
 
     @Override
@@ -36,6 +37,12 @@ abstract class BaseKodeverk implements Kodeverk {
         if (db.containsKey(skjemaId)) {
             return db.get(skjemaId).getKoderMap();
         }
+        handleError(skjemaId);
+        return null;
+    }
+
+    private void handleError(String skjemaId) {
         throw new ApplicationException("Fant ikke kodeverk : " + skjemaId);
     }
 }
+

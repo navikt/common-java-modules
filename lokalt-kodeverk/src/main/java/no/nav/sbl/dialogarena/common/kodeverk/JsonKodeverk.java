@@ -28,8 +28,8 @@ public class JsonKodeverk extends BaseKodeverk {
                 db.put(getFieldValue(node, "Skjemanummer"),
                         new KodeverkElement(
                                 getOptionalFieldValue(node, "GosysId"),
-                                getFieldValue(node, "Tema"),
-                                getFieldValue(node, "Beskrivelse"),
+                                getOptionalFieldValue(node, "Tema"),
+                                getOptionalFieldValue(node, "Beskrivelse"),
                                 getFieldValue(node, "Tittel"),
                                 getOptionalFieldValue(node, "Url")));
             }
