@@ -41,18 +41,24 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
 
     static {
         int exitCode = -1;
+        ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         try {
             CommandLine cmdLine = new CommandLine(decideGSCommand());
             cmdLine.addArgument("--version");
-            exitCode = new DefaultExecutor().execute(cmdLine);
+            PumpStreamHandler psh = new PumpStreamHandler(stdout);
+            DefaultExecutor executor = new DefaultExecutor();
+            executor.setStreamHandler(psh);
+            exitCode = executor.execute(cmdLine);
         } catch (IOException e) {
-            LOGGER.info("[PDF] Could not find ghostscript");
+            LOGGER.warn("[PDF] Could not find ghostscript");
+            LOGGER.warn("[PDF] " + e, e);
         }
-        GS_EXISTS = exitCode == 0;
+        GS_EXISTS = (exitCode == 0);
         if (GS_EXISTS) {
             LOGGER.info("[PDF] Bruker GhostScript som rendring-motor for thumbnails");
         } else {
-            LOGGER.warn("[PDF] Fant ikke GhostScript. Bruker PdfBox som rendring-motor for thumbnails");
+            LOGGER.warn("[PDF] Fant ikke GhostScript. Bruker PdfBox som rendring-motor for thumbnails (exitcode: {})", exitCode);
+            LOGGER.warn("[PDF] Output: <{}>", stdout.toString());
         }
     }
 
