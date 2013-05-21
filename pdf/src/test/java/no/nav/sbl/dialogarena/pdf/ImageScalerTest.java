@@ -80,6 +80,6 @@ public class ImageScalerTest {
         int height = landscapeImage.getHeight() + 10;
         int width = landscapeImage.getWidth() + 10;
         Dimension frame = new Dimension(width, height);
-        BufferedImage image = cropImage(landscapeImage, frame);
+        cropImage(landscapeImage, frame);
     }
 }
