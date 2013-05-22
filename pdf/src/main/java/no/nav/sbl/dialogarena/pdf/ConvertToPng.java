@@ -4,7 +4,7 @@ import no.nav.sbl.dialogarena.detect.IsImage;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.apache.commons.collections15.Transformer;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 
