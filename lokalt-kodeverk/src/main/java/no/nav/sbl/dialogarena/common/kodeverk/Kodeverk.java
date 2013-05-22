@@ -6,7 +6,8 @@ import java.util.Map;
  * Tilbyr uthenting av lokalt kodeverk.
  */
 public interface Kodeverk {
-    String ANNET = "kodeForEgetVedlegg";
+    String ANNET = "NAV 30-02.06";
+    /* ?? */
 
     /**
      * Henter verdi basert på kode-verdi og nøkkel.

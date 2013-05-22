@@ -7,7 +7,7 @@ import java.util.Map;
 
 
 /**
- * Baseklasse for implemntasjon av kodeverk-interface
+ * Baseklasse for implementasjon av kodeverk-interface
  */
 abstract class BaseKodeverk implements Kodeverk {
     protected final Map<String, KodeverkElement> db = new HashMap<>();
