@@ -9,7 +9,6 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-pdf</artifactId>
     <version>1.0.15-SNAPSHOT</version>
     <name>${project.artifactId}</name>

@@ -8,7 +8,6 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-detect</artifactId>
     <name>${project.artifactId}</name>
     <version>1.0.15-SNAPSHOT</version>
