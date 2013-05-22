@@ -3,10 +3,8 @@ package no.nav.sbl.dialogarena.pdf;
 import no.nav.sbl.dialogarena.detect.IsImage;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.apache.commons.collections15.Transformer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 
@@ -21,10 +19,6 @@ import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
  * til konstruktørparameterne.
  */
 public final class ConvertToPng implements Transformer<byte[], byte[]> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertToPng.class);
-
-
     private final Dimension boundingBox;
 
     private final ScaleMode scaleMode;
@@ -51,5 +45,4 @@ public final class ConvertToPng implements Transformer<byte[], byte[]> {
             throw new IllegalArgumentException("Kan kun konvertere PDF, JPG og PNG til PNG.");
         }
     }
-
 }
