@@ -27,7 +27,7 @@
             <artifactId>tika-core</artifactId>
         </dependency>
     </dependencies>
-     <scm>
+    <scm>
         <developerConnection>scm:svn:${svn.url}/trunk/detect</developerConnection>
         <url>${svn.url}/trunk/detect</url>
     </scm>

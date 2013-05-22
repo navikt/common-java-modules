@@ -1,16 +1,15 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
         <artifactId>common-parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.13</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>common-lokalt-kodeverk</artifactId>
-    <version>1.0.14-SNAPSHOT</version>
+    <version>1.0.13</version>
     <name>${project.artifactId}</name>
 
     <properties>
@@ -90,8 +89,8 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:svn:${svn.url}/trunk/lokalt-kodeverk</developerConnection>
-        <url>${svn.url}/trunk/lokalt-kodeverk</url>
+        <developerConnection>scm:svn:${svn.url}/tags/common-1.0.13/lokalt-kodeverk</developerConnection>
+        <url>${svn.url}/tags/common-1.0.13/lokalt-kodeverk</url>
     </scm>
     <build>
         <plugins>
