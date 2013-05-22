@@ -135,7 +135,7 @@ public class PdfToPng implements Transformer<InputStream, byte[]> {
             LOGGER.warn("[PDF] " + e, e);
         }
         boolean exists = (exitCode == 0);
-        if (GS_EXISTS) {
+        if (exists) {
             LOGGER.info("[PDF] Bruker GhostScript som rendring-motor for thumbnails");
         } else {
             LOGGER.warn("[PDF] Fant ikke GhostScript. Bruker PdfBox som rendring-motor for thumbnails (exitcode: {})", exitCode);

@@ -19,8 +19,8 @@ import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
  * til konstruktørparameterne.
  */
 public final class ConvertToPng implements Transformer<byte[], byte[]> {
-    private final Dimension boundingBox;
 
+    private final Dimension boundingBox;
     private final ScaleMode scaleMode;
     private final Integer side;
 
