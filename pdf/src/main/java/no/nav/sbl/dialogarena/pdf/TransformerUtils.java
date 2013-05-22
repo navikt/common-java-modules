@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 
 class TransformerUtils {
@@ -20,6 +21,21 @@ class TransformerUtils {
         } catch (IOException e) {
             LOGGER.error("Kunne ikke opprette PDF-dokument fra byte array med PDFBox.", e);
             throw new RuntimeException(e);
+        }
+    }
+
+    public static PDDocument setupDocumentFromInputStream(InputStream bytes) {
+        try {
+            return PDDocument.load(bytes);
+        } catch (IOException e) {
+            LOGGER.error("Kunne ikke opprette PDF-dokument fra byte array med PDFBox.", e);
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                bytes.close();
+            } catch (IOException ignore) {
+                LOGGER.debug("Failed to close document");
+            }
         }
     }
 
