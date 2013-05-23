@@ -5,11 +5,13 @@ import no.nav.modig.core.exception.ApplicationException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.TITTEL;
 
 /**
  * Baseklasse for implementasjon av kodeverk-interface
  */
 abstract class BaseKodeverk implements Kodeverk {
+
     protected final Map<String, KodeverkElement> db = new HashMap<>();
 
     @Override
@@ -19,17 +21,15 @@ abstract class BaseKodeverk implements Kodeverk {
 
     @Override
     public String getTittel(String skjemaId) {
-        return getKode(skjemaId, Nokkel.TITTEL);
+        return getKode(skjemaId, TITTEL);
     }
 
     @Override
     public String getKode(String skjemaId, Nokkel nokkel) {
         if (db.containsKey(skjemaId)) {
-            KodeverkElement kodeverkElement = db.get(skjemaId);
-            return kodeverkElement.getKoderMap().get(nokkel);
+            return db.get(skjemaId).getKoderMap().get(nokkel);
         }
-        handleError(skjemaId);
-        return null;
+        throw new ApplicationException("Fant ikke kodeverk : " + skjemaId);
     }
 
     @Override
@@ -37,12 +37,8 @@ abstract class BaseKodeverk implements Kodeverk {
         if (db.containsKey(skjemaId)) {
             return db.get(skjemaId).getKoderMap();
         }
-        handleError(skjemaId);
-        return null;
-    }
-
-    private void handleError(String skjemaId) {
         throw new ApplicationException("Fant ikke kodeverk : " + skjemaId);
     }
+
 }
 
