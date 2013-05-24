@@ -37,7 +37,7 @@ abstract class BaseKodeverk implements Kodeverk {
         if (db.containsKey(skjemaId)) {
             return db.get(skjemaId).getKoderMap();
         }
-        throw new ApplicationException("Fant ikke kodeverk : " + skjemaId);
+        throw new ApplicationException("\n ---- Fant ikke kodeverk : " + skjemaId + "---- \n");
     }
 
 }
