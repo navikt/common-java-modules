@@ -115,8 +115,8 @@ public final class Jetty {
 
 
     private static final String[] CONFIGURATION_CLASSES = {
-            MetaInfConfiguration.class.getName(),
             WebInfConfiguration.class.getName(),
+            MetaInfConfiguration.class.getName(),
             FragmentConfiguration.class.getName(),
             WebXmlConfiguration.class.getName(),
             JettyWebXmlConfiguration.class.getName(),
@@ -153,6 +153,7 @@ public final class Jetty {
         Map<String, String> initParams = webAppContext.getInitParams();
         initParams.put("useFileMappedBuffer", "false");
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
+        webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
         return webAppContext;
     }
 
