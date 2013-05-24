@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>common-jetty</artifactId>
-    <version>1.0.14</version>
+    <version>1.0.15-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -42,7 +42,7 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-jetty/1.0.14-common-jetty</developerConnection>
-        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-jetty/1.0.14-common-jetty</url>
+        <developerConnection>scm:svn:${svn.url}/trunk/jetty</developerConnection>
+        <url>${svn.url}/trunk/jetty</url>
     </scm>
 </project>
