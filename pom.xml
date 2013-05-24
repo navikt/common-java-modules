@@ -21,6 +21,7 @@
         <module>detect</module>
         <module>web</module>
         <module>lokalt-kodeverk</module>
+        <module>types</module>
     </modules>
 
 </project>
