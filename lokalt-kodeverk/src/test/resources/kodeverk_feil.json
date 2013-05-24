@@ -2,14 +2,14 @@
     "Skjemaer": [
         {
             "Skjemanummer": "nummer1",
-            "GosysId": "gosysId1",
+            "Gosysid": "gosysId1",
             "Tema": "tema1",
             "Beskrivelse": "beskrivelse1",
             "Url": "enonicUrl1"
         },
         {
             "Skjemanummer": "nummer2",
-            "GosysId": "gosysId2",
+            "Gosysid": "gosysId2",
             "Tema": "tema2",
             "Beskrivelse": "beskrivelse2",
             "Url": "enonicUrl2",

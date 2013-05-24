@@ -126,7 +126,7 @@
                 <executions>
                     <execution>
                         <id>download-kodeverk</id>
-                        <phase>prepare-package</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>download-single</goal>
                         </goals>

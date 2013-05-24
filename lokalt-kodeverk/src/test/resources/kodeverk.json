@@ -2,7 +2,7 @@
     "Skjemaer": [
         {
             "Skjemanummer": "test",
-            "GosysId": "gosysId",
+            "Gosysid": "gosysId",
             "Tema": "tema",
             "Beskrivelse": "beskrivelse",
             "Url": "url",
