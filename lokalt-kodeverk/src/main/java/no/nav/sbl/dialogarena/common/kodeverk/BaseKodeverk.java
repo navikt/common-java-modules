@@ -26,10 +26,7 @@ abstract class BaseKodeverk implements Kodeverk {
 
     @Override
     public String getKode(String skjemaId, Nokkel nokkel) {
-        if (db.containsKey(skjemaId)) {
-            return db.get(skjemaId).getKoderMap().get(nokkel);
-        }
-        throw new ApplicationException("\n ---- Fant ikke kodeverk : " + skjemaId + "---- \n");
+        return getKoder(skjemaId).get(nokkel);
     }
 
     @Override
