@@ -37,9 +37,9 @@ public class JsonKodeverk extends BaseKodeverk {
                     new KodeverkElement(
                             getOptionalFieldValue(node, "Gosysid"),
                             getOptionalFieldValue(node, "Tema"),
-                            getOptionalFieldValue(node, "Beskrivelse"),
+                            getOptionalFieldValue(node, "Beskrivelse (ID)"),
                             getFieldValue(node, "Tittel"),
-                            getOptionalFieldValue(node, "Url")));
+                            getOptionalFieldValue(node, "Lenke")));
         }
     }
 

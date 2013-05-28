@@ -4,8 +4,8 @@
             "Skjemanummer": "test",
             "Gosysid": "gosysId",
             "Tema": "tema",
-            "Beskrivelse": "beskrivelse",
-            "Url": "url",
+            "Beskrivelse (ID)": "beskrivelse",
+            "Lenke": "url",
             "Tittel": "tittel"
         }
     ]
