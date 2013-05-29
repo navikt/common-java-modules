@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 
 public class PdfWatermarkerTest {
 
-    private static final String MOCK_FODSELSNUMMER = "112233 99999";
+    private static final String MOCK_FODSELSNUMMER = "12345678910";
     private static final String INPUT_PDF = "skjema";
 
     private final DateTime time = new DateTime(2013, 3, 18, 14, 30, 30);
@@ -72,6 +72,6 @@ public class PdfWatermarkerTest {
     @Test(expected = IllegalArgumentException.class)
     public void kasterExceptionForUlovligFil() throws IOException {
         byte[] png = getBytesFromFile("/ImageToPdfFiles/skjema1_side1.png");
-        watermarker.forIdent("123123").transform(png);
+        watermarker.forIdent(MOCK_FODSELSNUMMER).transform(png);
     }
 }

@@ -120,6 +120,8 @@ public class PdfWatermarker {
                 contentStream.appendRawCommands("/" + key + " gs\n");
                 contentStream.setNonStrokingColor(Color.white);
                 contentStream.fillRect(lowerLeftX, lowerLeftY, lineWidth, HEIGHT);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
             } finally {
                 contentStream.close();
             }
@@ -166,6 +168,8 @@ public class PdfWatermarker {
                 contentStream.drawLine(lowerLeftX, lowerLeftY + HEIGHT, lowerLeftX + lineWidth, lowerLeftY + HEIGHT);
                 contentStream.drawLine(lowerLeftX + lineWidth, lowerLeftY + HEIGHT, lowerLeftX + lineWidth, lowerLeftY);
                 contentStream.drawLine(lowerLeftX + lineWidth, lowerLeftY, lowerLeftX, lowerLeftY);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
             } finally {
                 contentStream.close();
             }
