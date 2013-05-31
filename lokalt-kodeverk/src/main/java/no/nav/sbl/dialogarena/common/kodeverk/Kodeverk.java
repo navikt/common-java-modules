@@ -6,7 +6,7 @@ import java.util.Map;
  * Tilbyr uthenting av lokalt kodeverk.
  */
 public interface Kodeverk {
-    String ANNET = "NAV 30-02.06";
+    String ANNET = "N6";
     /* ?? */
 
     /**
