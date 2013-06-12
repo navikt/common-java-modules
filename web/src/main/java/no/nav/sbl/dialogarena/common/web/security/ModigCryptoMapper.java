@@ -23,15 +23,6 @@ public class ModigCryptoMapper implements IRequestMapper {
     private final IRequestMapper wrappedMapper;
     private final IProvider<ICrypt> cryptProvider;
 
-    /**
-     * Construct.
-     *
-     * @param wrappedMapper the non-crypted request mapper
-     * @param application   the current application
-     */
-    public ModigCryptoMapper(final IRequestMapper wrappedMapper, final Application application) {
-        this(wrappedMapper, new ApplicationCryptProvider(application));
-    }
 
     /**
      * Construct.
@@ -207,6 +198,7 @@ public class ModigCryptoMapper implements IRequestMapper {
         }
 
         @Override
+
         public ICrypt get() {
             return application.getSecuritySettings().getCryptFactory().newCrypt();
         }
