@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static no.nav.sbl.dialogarena.pdf.ImageScaler.scaleImage;
-import static no.nav.sbl.dialogarena.pdf.TransformerUtils.getPageImageFromDocument;
-import static no.nav.sbl.dialogarena.pdf.TransformerUtils.setupDocumentFromInputStream;
+import static no.nav.sbl.dialogarena.pdf.PdfUtils.getPageImageFromDocument;
+import static no.nav.sbl.dialogarena.pdf.PdfUtils.setupDocumentFromInputStream;
 
 public class PdfToPng implements Transformer<InputStream, byte[]> {
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfToPng.class);
@@ -131,8 +131,8 @@ public class PdfToPng implements Transformer<InputStream, byte[]> {
             executor.setWorkingDirectory(TMP_DIR);
             exitCode = executor.execute(cmdLine);
         } catch (IOException e) {
-            LOGGER.warn("[PDF] Could not find ghostscript");
-            LOGGER.warn("[PDF] " + e, e);
+            LOGGER.warn("[PDF] Could not find ghostscript (" + e.getMessage() + ")");
+            LOGGER.debug("[PDF] " + e, e);
         }
         boolean exists = (exitCode == 0);
         if (exists) {

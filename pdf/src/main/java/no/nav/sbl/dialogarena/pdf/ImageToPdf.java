@@ -3,6 +3,7 @@ package no.nav.sbl.dialogarena.pdf;
 import no.nav.sbl.dialogarena.detect.IsJpg;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import no.nav.sbl.dialogarena.detect.IsPng;
+import no.nav.sbl.dialogarena.pdf.PdAutoCloseable.PDDocumentAutoCloseable;
 import org.apache.commons.collections15.Transformer;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -16,10 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import static no.nav.sbl.dialogarena.pdf.PdAutoCloseable.autoClose;
 
 /**
  * Konverterer PNG og JPG til PDF.
@@ -37,31 +41,21 @@ public class ImageToPdf implements Transformer<byte[], byte[]> {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             byte[] pdfBytes;
             long start = System.currentTimeMillis();
-            PDDocument pdDocument = null;
-            try {
-                pdDocument = new PDDocument();
-                PDXObjectImage image = getImage(pdDocument, bytes);
+            try (PDDocumentAutoCloseable pd = autoClose(new PDDocument())){
+                PDXObjectImage image = getImage(pd.document, bytes);
 
                 PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
-                pdDocument.addPage(page);
+                pd.document.addPage(page);
 
-                PDPageContentStream is = new PDPageContentStream(pdDocument, page);
+                PDPageContentStream is = new PDPageContentStream(pd.document, page);
                 is.drawImage(image, 0, 0);
                 is.close();
-                pdDocument.save(outputStream);
+                pd.document.save(outputStream);
 
             } catch (IOException | COSVisitorException e) {
                 throw new RuntimeException(e);
-            } finally {
-                if (pdDocument != null) {
-                    try {
-                        pdDocument.close();
-                    } catch (IOException ignore) {
-                    }
-                }
             }
-            final double tusen = 1000.0;
-            double elapsedTime = (double) (System.currentTimeMillis() - start) / tusen;
+            double elapsedTime = (System.currentTimeMillis() - start) / 1000.0;
             pdfBytes = outputStream.toByteArray();
             LOGGER.debug("Konverterte et bilde til PDF på {} sekunder", elapsedTime);
             return pdfBytes;

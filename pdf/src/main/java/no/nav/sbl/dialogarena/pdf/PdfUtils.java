@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-class TransformerUtils {
+class PdfUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransformerUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PdfUtils.class);
 
     public static PDDocument setupDocumentFromBytes(byte[] bytes) {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
@@ -25,17 +25,11 @@ class TransformerUtils {
     }
 
     public static PDDocument setupDocumentFromInputStream(InputStream bytes) {
-        try {
-            return PDDocument.load(bytes);
-        } catch (IOException e) {
+        try (InputStream autoclosedBytes = bytes) {
+            return PDDocument.load(autoclosedBytes);
+        } catch (Exception e) {
             LOGGER.error("Kunne ikke opprette PDF-dokument fra byte array med PDFBox.", e);
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                bytes.close();
-            } catch (IOException ignore) {
-                LOGGER.debug("Failed to close document");
-            }
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -50,4 +44,6 @@ class TransformerUtils {
         }
         return image;
     }
+
+    private PdfUtils() { }
 }

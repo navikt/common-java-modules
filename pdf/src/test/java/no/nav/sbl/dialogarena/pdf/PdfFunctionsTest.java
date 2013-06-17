@@ -21,4 +21,9 @@ public class PdfFunctionsTest {
         byte[] pdf = getBytesFromFile("/PdfMergerFiles/skjema1_side4-5.pdf");
         assertThat(PdfFunctions.PDF_SIDEANTALL.transform(pdf), is(2));
     }
+
+    @Test
+    public void skalReturnere0ForDataSomIkkeErPdf() {
+        assertThat(PdfFunctions.PDF_SIDEANTALL.transform(new byte[1]), is(0));
+    }
 }
