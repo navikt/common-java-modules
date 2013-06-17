@@ -1,17 +1,23 @@
 package no.nav.sbl.dialogarena.pdf;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfWriter;
 import no.nav.sbl.dialogarena.detect.IsJpg;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import no.nav.sbl.dialogarena.detect.IsPng;
 import org.apache.commons.collections15.Transformer;
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDJpeg;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDPixelMap;
+import org.apache.pdfbox.pdmodel.graphics.xobject.PDXObjectImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -31,21 +37,31 @@ public class ImageToPdf implements Transformer<byte[], byte[]> {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             byte[] pdfBytes;
             long start = System.currentTimeMillis();
-            Document document;
+            PDDocument pdDocument = null;
             try {
-                Image image = Image.getInstance(bytes);
-                Rectangle pageSize = new Rectangle(image.getWidth(), image.getHeight());
-                document = new Document(pageSize, 0, 0, 0, 0);
-                PdfWriter writer = PdfWriter.getInstance(document, outputStream);
-                document.open();
-                document.add(image);
-                writer.createXmpMetadata();
-            } catch (IOException | DocumentException e) {
+                pdDocument = new PDDocument();
+                PDXObjectImage image = getImage(pdDocument, bytes);
+
+                PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
+                pdDocument.addPage(page);
+
+                PDPageContentStream is = new PDPageContentStream(pdDocument, page);
+                is.drawImage(image, 0, 0);
+                is.close();
+                pdDocument.save(outputStream);
+
+            } catch (IOException | COSVisitorException e) {
                 throw new RuntimeException(e);
+            } finally {
+                if (pdDocument != null) {
+                    try {
+                        pdDocument.close();
+                    } catch (IOException ignore) {
+                    }
+                }
             }
-            document.close();
             final double tusen = 1000.0;
-            double elapsedTime = (double)(System.currentTimeMillis() - start) / tusen;
+            double elapsedTime = (double) (System.currentTimeMillis() - start) / tusen;
             pdfBytes = outputStream.toByteArray();
             LOGGER.debug("Konverterte et bilde til PDF på {} sekunder", elapsedTime);
             return pdfBytes;
@@ -53,5 +69,15 @@ public class ImageToPdf implements Transformer<byte[], byte[]> {
             throw new IllegalArgumentException("Kan kun konvertere JPG, PNG og PDF til PDF.");
         }
 
+    }
+
+    private PDXObjectImage getImage(PDDocument document, byte[] bytes) throws IOException {
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
+        if (new IsPng().evaluate(bytes)) {
+            return new PDPixelMap(document, image);
+        } else if (new IsJpg().evaluate(bytes)) {
+            return new PDJpeg(document, image);
+        }
+        return null;
     }
 }

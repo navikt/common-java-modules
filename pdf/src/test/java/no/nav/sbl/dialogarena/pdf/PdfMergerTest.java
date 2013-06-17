@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.pdf;
 
-import com.itextpdf.text.pdf.PdfReader;
 import no.nav.sbl.dialogarena.detect.IsPdf;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,15 +35,12 @@ public class PdfMergerTest {
     public void resultatDokumentSkalHaRiktigAntallSider() throws IOException {
         int inputPages = 0;
         for (byte[] dokument : dokumenter) {
-            PdfReader reader = new PdfReader(dokument);
-            inputPages += reader.getNumberOfPages();
+            inputPages += PdfFunctions.PDF_SIDEANTALL.transform(dokument);
         }
         byte[] mergedBytes = new PdfMerger().transform(dokumenter);
-        PdfReader reader = new PdfReader(mergedBytes);
-        int outputPages = reader.getNumberOfPages();
-        assertThat(inputPages, is(outputPages));
-
         assertThat(mergedBytes, match(new IsPdf()));
+        int outputPages = PdfFunctions.PDF_SIDEANTALL.transform(mergedBytes);
+        assertThat(inputPages, is(outputPages));
 
         writeBytesToFile(mergedBytes, "/PdfMergerFiles", "/skjema_sammenslått.pdf");
     }
