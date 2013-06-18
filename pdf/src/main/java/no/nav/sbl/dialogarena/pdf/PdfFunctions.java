@@ -14,7 +14,7 @@ import static no.nav.sbl.dialogarena.pdf.PdAutoCloseable.autoClose;
 /**
  * Funksjoner for operasjoner på PDFer, inkl henting av antall sider
  */
-public class PdfFunctions {
+public final class PdfFunctions {
     private static final Logger LOG = LoggerFactory.getLogger(PdfFunctions.class);
 
     public static final Transformer<byte[], Integer> PDF_SIDEANTALL = new Transformer<byte[], Integer>() {

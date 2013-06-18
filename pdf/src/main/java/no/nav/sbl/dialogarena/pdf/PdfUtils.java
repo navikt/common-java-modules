@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-class PdfUtils {
+final class PdfUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfUtils.class);
 
