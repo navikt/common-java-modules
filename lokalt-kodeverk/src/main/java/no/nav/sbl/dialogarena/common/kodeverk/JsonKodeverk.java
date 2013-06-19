@@ -39,7 +39,8 @@ public class JsonKodeverk extends BaseKodeverk {
                             getOptionalFieldValue(node, "Tema"),
                             getOptionalFieldValue(node, "Beskrivelse (ID)"),
                             getFieldValue(node, "Tittel"),
-                            getOptionalFieldValue(node, "Lenke")));
+                            getOptionalFieldValue(node, "Lenke"),
+                            getOptionalFieldValue(node, "Lenke engelsk skjema")));
         }
     }
 

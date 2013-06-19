@@ -6,6 +6,7 @@
             "Tema": "tema",
             "Beskrivelse (ID)": "beskrivelse",
             "Lenke": "url",
+            "Lenke engelsk skjema": "urlEnglish",
             "Tittel": "tittel"
         }
     ]
