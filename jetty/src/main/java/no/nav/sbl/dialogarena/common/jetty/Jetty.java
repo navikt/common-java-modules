@@ -45,6 +45,7 @@ public final class Jetty {
         private int port = 35000;
         private WebAppContext context;
         private File overridewebXmlFile;
+        private JAASLoginService loginService;
 
 
         public final JettyBuilder war(File warPath) {
@@ -67,6 +68,13 @@ public final class Jetty {
             return this;
         }
 
+        public final JettyBuilder withLoginService(JAASLoginService loginService){
+            this.loginService = loginService;
+            return this;
+        }
+
+
+
         public final Jetty buildJetty() {
             try {
                 if (context == null) {
@@ -76,7 +84,7 @@ public final class Jetty {
                 if (isBlank(contextPath)) {
                     contextPath = getBaseName(warPath);
                 }
-                return new Jetty(port, contextPath, warPath, context, overridewebXmlFile);
+                return new Jetty(port, contextPath, warPath, context, overridewebXmlFile, loginService);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -99,6 +107,7 @@ public final class Jetty {
     private final Server server;
     private final String contextPath;
     private final WebAppContext context;
+    private final JAASLoginService loginService;
 
     public final Runnable stop = new Runnable() {
         @Override
@@ -122,14 +131,16 @@ public final class Jetty {
             JettyWebXmlConfiguration.class.getName(),
     };
 
-    private Jetty(int port, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile) {
+    private Jetty(int port, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile, JAASLoginService loginService) {
         this.warPath = warPath;
         this.overrideWebXmlFile = overrideWebXmlFile;
 
         this.port = port;
         this.contextPath = (contextPath.startsWith("/") ? "" : "/") + contextPath;
+        this.loginService = loginService;
         this.context = setupWebapp(context);
         this.server = setupJetty(new Server());
+
     }
 
     private WebAppContext setupWebapp(final WebAppContext webAppContext) {
@@ -143,11 +154,17 @@ public final class Jetty {
             webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
         }
 
-        SecurityHandler securityHandler = webAppContext.getSecurityHandler();
-        JAASLoginService jaasLoginService = new JAASLoginService("OpenAM Realm");
-        jaasLoginService.setLoginModuleName("openam");
-        securityHandler.setLoginService(jaasLoginService);
-        securityHandler.setRealmName("OpenAM Realm");
+        if(loginService != null){
+            SecurityHandler securityHandler = webAppContext.getSecurityHandler();
+            securityHandler.setLoginService(loginService);
+            securityHandler.setRealmName(loginService.getName());
+        }
+
+//        SecurityHandler securityHandler = webAppContext.getSecurityHandler();
+//        JAASLoginService jaasLoginService = new JAASLoginService("OpenAM Realm");
+//        jaasLoginService.setLoginModuleName("openam");
+//        securityHandler.setLoginService(jaasLoginService);
+//        securityHandler.setRealmName("OpenAM Realm");
 
         webAppContext.setConfigurationClasses(CONFIGURATION_CLASSES);
         Map<String, String> initParams = webAppContext.getInitParams();
