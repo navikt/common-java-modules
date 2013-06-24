@@ -43,9 +43,9 @@ public interface Kodeverk {
     boolean isEgendefinert(String skjemaId);
 
     /**
-     * Nøkkelverider som det finnes kodeverk for.
+     * Nøkkelverdier som det finnes kodeverk for.
      */
     enum Nokkel {
-        GOSYS_ID, TEMA, TITTEL, BESKRIVELSE, URL, URLENGLISH
+        GOSYS_ID, TEMA, TITTEL, BESKRIVELSE, URL, URLENGLISH, VEDLEGGSID
     }
 }

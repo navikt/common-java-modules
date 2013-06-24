@@ -41,6 +41,7 @@ public class JsonKodeverkTest {
         assertThat(kodeverk.getKode("test", Nokkel.TEMA), is(equalTo("tema")));
         assertThat(kodeverk.getKode("test", Nokkel.TITTEL), is(equalTo("tittel")));
         assertThat(kodeverk.getKode("test", Nokkel.URL), is(equalTo("url")));
+        assertThat(kodeverk.getKode("test", Nokkel.VEDLEGGSID), is(equalTo("vedleggsid")));
         assertThat(kodeverk.getKode("test", Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
     }
 
@@ -52,6 +53,7 @@ public class JsonKodeverkTest {
         assertThat(koder.get(Nokkel.TEMA), is(equalTo("tema")));
         assertThat(koder.get(Nokkel.TITTEL), is(equalTo("tittel")));
         assertThat(koder.get(Nokkel.URL), is(equalTo("url")));
+        assertThat(koder.get(Nokkel.VEDLEGGSID), is(equalTo("vedleggsid")));
         assertThat(kodeverk.getKode("test", Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
     }
 

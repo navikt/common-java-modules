@@ -10,14 +10,16 @@ import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.TEMA;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.TITTEL;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.URL;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.URLENGLISH;
+import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.VEDLEGGSID;
 class KodeverkElement {
 
 
     private final Map<Kodeverk.Nokkel, String> koder;
 
-    KodeverkElement(String gosysId, String tema, String beskrivelse, String tittel, String url, String urlEnglish) {
+    KodeverkElement(String gosysId, String vedleggsId, String tema, String beskrivelse, String tittel, String url, String urlEnglish) {
         koder = new HashMap<>();
         koder.put(BESKRIVELSE, beskrivelse);
+        koder.put(VEDLEGGSID, vedleggsId);
         koder.put(GOSYS_ID, gosysId);
         koder.put(TEMA, tema);
         koder.put(TITTEL, tittel);

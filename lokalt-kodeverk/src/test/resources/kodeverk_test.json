@@ -2,6 +2,7 @@
     "Skjemaer": [
         {
             "Skjemanummer": "test",
+            "Vedleggsid" : "vedleggsid",
             "Gosysid": "gosysId",
             "Tema": "tema",
             "Beskrivelse (ID)": "beskrivelse",

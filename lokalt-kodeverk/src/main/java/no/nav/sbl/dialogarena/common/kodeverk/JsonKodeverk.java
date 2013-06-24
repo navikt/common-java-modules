@@ -36,6 +36,7 @@ public class JsonKodeverk extends BaseKodeverk {
             db.put(getFieldValue(node, "Skjemanummer"),
                     new KodeverkElement(
                             getOptionalFieldValue(node, "Gosysid"),
+                            getOptionalFieldValue(node, "Vedleggsid"),
                             getOptionalFieldValue(node, "Tema"),
                             getOptionalFieldValue(node, "Beskrivelse (ID)"),
                             getFieldValue(node, "Tittel"),
