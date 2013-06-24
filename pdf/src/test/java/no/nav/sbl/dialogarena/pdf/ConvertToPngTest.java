@@ -53,6 +53,23 @@ public class ConvertToPngTest {
     }
 
     @Test
+    public void konverterNAVBarnetrygdSkjemaTilPng() throws IOException {
+        byte[] pdf = getBytesFromFile("/PdfToImageFiles/nav_barnetrygd.pdf");
+        assertThat(pdf, match(new IsPdf()));
+        long start = System.currentTimeMillis();
+        byte[] png = transformer.transform(pdf);
+        LOGGER.debug("{} tok {} ms", transformer.getClass(), System.currentTimeMillis() - start);
+        assertThat(png, match(new IsPng()));
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(png);
+        BufferedImage image = ImageIO.read(bais);
+
+        assertThat(image, fitsInside(boundingBox));
+
+        writeBytesToFile(png, "/PdfToImageFiles", "pdf-file-barnetrygd-converted.png");
+    }
+
+    @Test
     public void konvertererJpgTilPng() throws IOException {
         byte[] jpg = getBytesFromFile("/PdfToImageFiles/jpeg-file.jpeg");
 
