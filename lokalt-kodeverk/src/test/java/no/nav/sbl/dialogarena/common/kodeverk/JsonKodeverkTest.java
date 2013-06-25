@@ -16,6 +16,7 @@ import static org.junit.Assert.assertThat;
 public class JsonKodeverkTest {
 
     private Kodeverk kodeverk;
+    private static final String TEST = "test";
 
     @Before
     public void setup() {
@@ -36,30 +37,30 @@ public class JsonKodeverkTest {
 
     @Test
     public void canGetExistingKodeverkByField() {
-        assertThat(kodeverk.getKode("test", Nokkel.BESKRIVELSE), is(equalTo("beskrivelse")));
-        assertThat(kodeverk.getKode("test", Nokkel.GOSYS_ID), is(equalTo("gosysId")));
-        assertThat(kodeverk.getKode("test", Nokkel.TEMA), is(equalTo("tema")));
-        assertThat(kodeverk.getKode("test", Nokkel.TITTEL), is(equalTo("tittel")));
-        assertThat(kodeverk.getKode("test", Nokkel.URL), is(equalTo("url")));
-        assertThat(kodeverk.getKode("test", Nokkel.VEDLEGGSID), is(equalTo("vedleggsid")));
-        assertThat(kodeverk.getKode("test", Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.BESKRIVELSE), is(equalTo("beskrivelse")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.GOSYS_ID), is(equalTo("gosysId")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.TEMA), is(equalTo("tema")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.TITTEL), is(equalTo("tittel")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URL), is(equalTo("url")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.VEDLEGGSID), is(equalTo("vedleggsid")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
     }
 
     @Test
     public void canGetExistingKodeverkByMap() {
-        Map<Nokkel, String> koder = kodeverk.getKoder("test");
+        Map<Nokkel, String> koder = kodeverk.getKoder(TEST);
         assertThat(koder.get(Nokkel.BESKRIVELSE), is(equalTo("beskrivelse")));
         assertThat(koder.get(Nokkel.GOSYS_ID), is(equalTo("gosysId")));
         assertThat(koder.get(Nokkel.TEMA), is(equalTo("tema")));
         assertThat(koder.get(Nokkel.TITTEL), is(equalTo("tittel")));
         assertThat(koder.get(Nokkel.URL), is(equalTo("url")));
         assertThat(koder.get(Nokkel.VEDLEGGSID), is(equalTo("vedleggsid")));
-        assertThat(kodeverk.getKode("test", Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void canNotAlterKodeverk() {
-        Map<Kodeverk.Nokkel, String> koder = kodeverk.getKoder("test");
+        Map<Kodeverk.Nokkel, String> koder = kodeverk.getKoder(TEST);
         koder.put(Nokkel.BESKRIVELSE, "feilbeskrivelse");
     }
 
@@ -81,7 +82,6 @@ public class JsonKodeverkTest {
 
     @Test
     public void shouldGetTittel() {
-        assertThat(kodeverk.getTittel("test"), equalTo("tittel"));
+        assertThat(kodeverk.getTittel(TEST), equalTo("tittel"));
     }
-
 }
