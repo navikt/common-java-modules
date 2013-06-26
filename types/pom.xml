@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>common-types</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
@@ -20,7 +20,7 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-types/1.1-common-types</developerConnection>
-        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-types/1.1-common-types</url>
+        <developerConnection>scm:svn:${svn.url}/trunk/types</developerConnection>
+        <url>${svn.url}/trunk/types</url>
     </scm>
 </project>
