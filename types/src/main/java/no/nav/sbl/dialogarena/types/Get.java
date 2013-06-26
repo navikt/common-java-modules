@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.types;
 
+import no.nav.sbl.dialogarena.types.Pingable.Ping;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 
@@ -40,6 +41,27 @@ public final class Get {
             @Override
             public boolean evaluate(WithId<T> object) {
                 return id.equals(object.getId());
+            }
+        };
+    }
+
+    public static Transformer<Pingable, Ping> pingResult() {
+        return new Transformer<Pingable, Ping>() {
+            @Override
+            public Ping transform(Pingable pingable) {
+                long start = System.currentTimeMillis();
+                Ping ping = pingable.ping();
+                ping.tidsbruk = System.currentTimeMillis() - start;
+                return ping;
+            }
+        };
+    }
+
+    public static Predicate<Ping> vellykketPing() {
+        return new Predicate<Ping>() {
+            @Override
+            public boolean evaluate(Ping ping) {
+                return ping.vellykket;
             }
         };
     }
