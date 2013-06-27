@@ -9,6 +9,7 @@ import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.util.IProvider;
 import org.apache.wicket.util.crypt.ICrypt;
+import org.apache.wicket.util.crypt.ICryptFactory;
 import org.apache.wicket.util.lang.Args;
 import org.apache.wicket.util.string.Strings;
 import org.slf4j.Logger;
@@ -21,18 +22,18 @@ public class ModigCryptoMapper implements IRequestMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModigCryptoMapper.class);
 
     private final IRequestMapper wrappedMapper;
-    private final IProvider<ICrypt> cryptProvider;
+    private final ICryptFactory cryptProvider;
 
 
     /**
      * Construct.
      *
      * @param wrappedMapper the non-crypted request mapper
-     * @param cryptProvider the custom crypt provider
+     * @param cryptFactory the custom crypt provider
      */
-    public ModigCryptoMapper(final IRequestMapper wrappedMapper, final IProvider<ICrypt> cryptProvider) {
+    public ModigCryptoMapper(final IRequestMapper wrappedMapper, final ICryptFactory cryptFactory) {
         this.wrappedMapper = Args.notNull(wrappedMapper, "wrappedMapper");
-        this.cryptProvider = Args.notNull(cryptProvider, "cryptProvider");
+        this.cryptProvider = Args.notNull(cryptFactory, "cryptProvider");
     }
 
     @Override
@@ -80,8 +81,8 @@ public class ModigCryptoMapper implements IRequestMapper {
     }
 
     private boolean isExcludePath(Url url) {
-        String urlAsString = url.toString();
-        return StringUtils.endsWithAny(urlAsString, new String[] {".js", ".css", ".gif", ".png", ".svg", "selftest"});
+        String urlPath = url.getPath();
+        return StringUtils.endsWithAny(urlPath, new String[] {".js", ".css", ".gif", ".png", ".svg", "selftest"});
     }
 
     /**
@@ -89,7 +90,7 @@ public class ModigCryptoMapper implements IRequestMapper {
      *         segments and/or query string
      */
     protected final ICrypt getCrypt() {
-        return cryptProvider.get();
+        return cryptProvider.newCrypt();
     }
 
     /**
