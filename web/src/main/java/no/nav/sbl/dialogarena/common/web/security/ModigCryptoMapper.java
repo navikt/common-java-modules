@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 
-public class ModigCryptoMapper implements IRequestMapper {
+final class ModigCryptoMapper implements IRequestMapper {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModigCryptoMapper.class);
 
     private final IRequestMapper wrappedMapper;

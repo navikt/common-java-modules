@@ -12,7 +12,23 @@
     <version>1.0.15-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <modig.security.version>1.0.1</modig.security.version>
+    </properties>
+
     <dependencies>
+
+        <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-security-authorization</artifactId>
+            <version>${modig.security.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-security-wicket</artifactId>
+            <version>${modig.security.version}</version>
+        </dependency>
 
         <!-- Third party dependencies -->
         <dependency>
@@ -58,6 +74,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <scm>
         <developerConnection>scm:svn:${svn.url}/trunk/web</developerConnection>
         <url>${svn.url}/trunk/web</url>
