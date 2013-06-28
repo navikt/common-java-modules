@@ -21,18 +21,18 @@ public final class ApplicationSecurityConfig {
         this.pep = pep;
     }
 
-    public final ApplicationSecurityConfig withCryptFactory(ICryptFactory cryptFactory) {
+    public ApplicationSecurityConfig withCryptFactory(ICryptFactory cryptFactory) {
         this.cryptFactory = cryptFactory;
         return this;
     }
 
-    public final ApplicationSecurityConfig doNotEnforcedMounts() {
+    public ApplicationSecurityConfig doNotEnforcedMounts() {
         this.enforceMounts = false;
         return this;
     }
 
 
-    public final void configure(WebApplication application) {
+    public void configure(WebApplication application) {
         ISecuritySettings securitySettings = application.getSecuritySettings();
         securitySettings.setEnforceMounts(enforceMounts);
         securitySettings.setCryptFactory(cryptFactory);
