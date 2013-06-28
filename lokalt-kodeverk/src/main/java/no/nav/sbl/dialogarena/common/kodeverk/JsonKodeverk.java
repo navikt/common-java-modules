@@ -33,7 +33,6 @@ public class JsonKodeverk extends BaseKodeverk {
 
     private void traverseSkjemaerAndInsertInMap(ArrayNode kodeverkArray) {
         for (JsonNode node : kodeverkArray) {
-
             dbSkjema.put(getFieldValue(node, "Skjemanummer"),
                     new KodeverkElement(
                             getOptionalFieldValue(node, "Skjemanummer"),
