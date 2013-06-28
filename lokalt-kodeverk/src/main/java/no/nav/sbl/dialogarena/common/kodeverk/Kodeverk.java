@@ -30,17 +30,17 @@ public interface Kodeverk {
      * Henter ut alle nøkkel-verdier for en kode-verdi.
      * Kaster ApplicationException hvis kode ikke finnes.
      *
-     * @param skjemaId SkjemaId
+     * @param vedleggsIdOrskjemaId SkjemaId
      * @return Map med alle kodeverkverdier.
      */
-    Map<Nokkel, String> getKoder(String skjemaId);
+    Map<Nokkel, String> getKoder(String vedleggsIdOrskjemaId);
 
     /**
      * Sjekker om kode-verdi er lik den magiske annet
-     * @param skjemaId SkjemaId
+     * @param vedleggsIdOrskjemaId SkjemaId
      * @return true hvis skjemaId er ANNET, ellers false
      */
-    boolean isEgendefinert(String skjemaId);
+    boolean isEgendefinert(String vedleggsIdOrskjemaId);
 
     /**
      * Nøkkelverdier som det finnes kodeverk for.

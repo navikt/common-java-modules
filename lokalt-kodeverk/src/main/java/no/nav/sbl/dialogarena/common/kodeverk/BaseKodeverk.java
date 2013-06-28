@@ -17,18 +17,18 @@ abstract class BaseKodeverk implements Kodeverk {
     protected final Map<String, KodeverkElement> dbVedlegg = new HashMap<>();
 
     @Override
-    public boolean isEgendefinert(String skjemaId) {
-        return ANNET.equals(skjemaId);
+    public boolean isEgendefinert(String vedleggsIdOrskjemaId) {
+        return ANNET.equals(vedleggsIdOrskjemaId);
     }
 
     @Override
-    public String getTittel(String skjemaId) {
-        return getKode(skjemaId, TITTEL);
+    public String getTittel(String vedleggsIdOrskjemaId) {
+        return getKode(vedleggsIdOrskjemaId, TITTEL);
     }
 
     @Override
-    public String getKode(String skjemaId, Nokkel nokkel) {
-        return getKoder(skjemaId).get(nokkel);
+    public String getKode(String vedleggsIdOrskjemaId, Nokkel nokkel) {
+        return getKoder(vedleggsIdOrskjemaId).get(nokkel);
     }
 
     @Override
