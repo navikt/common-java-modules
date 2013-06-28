@@ -33,8 +33,10 @@ public class JsonKodeverk extends BaseKodeverk {
 
     private void traverseSkjemaerAndInsertInMap(ArrayNode kodeverkArray) {
         for (JsonNode node : kodeverkArray) {
-            db.put(getFieldValue(node, "Skjemanummer"),
+
+            dbSkjema.put(getFieldValue(node, "Skjemanummer"),
                     new KodeverkElement(
+                            getOptionalFieldValue(node, "Skjemanummer"),
                             getOptionalFieldValue(node, "Gosysid"),
                             getOptionalFieldValue(node, "Vedleggsid"),
                             getOptionalFieldValue(node, "Tema"),
@@ -42,14 +44,31 @@ public class JsonKodeverk extends BaseKodeverk {
                             getFieldValue(node, "Tittel"),
                             getOptionalFieldValue(node, "Lenke"),
                             getOptionalFieldValue(node, "Lenke engelsk skjema")));
+            if (!"".equals(getOptionalFieldValue(node, "Vedleggsid")))
+            {
+
+            dbVedlegg.put(getFieldValue(node, "Vedleggsid"),
+                    new KodeverkElement(
+                            getOptionalFieldValue(node, "Skjemanummer"),
+                            getOptionalFieldValue(node, "Gosysid"),
+                            getOptionalFieldValue(node, "Vedleggsid"),
+                            getOptionalFieldValue(node, "Tema"),
+                            getOptionalFieldValue(node, "Beskrivelse (ID)"),
+                            getFieldValue(node, "Tittel"),
+                            getOptionalFieldValue(node, "Lenke"),
+                            getOptionalFieldValue(node, "Lenke engelsk skjema")));
+            }
         }
-    }
+        }
+
+
 
     private String getFieldValue(JsonNode node, String fieldName) {
+
         if (node.has(fieldName)) {
             return node.get(fieldName).asText();
         } else {
-            LOGGER.error("Mangler obligatorisk felt {} i kodeverket (json)", fieldName);
+            LOGGER.error("Mangler obligatorisk felt {} i kodeverket (json)");
             throw new ApplicationException("Mangler felt " + fieldName + " i kodeverket json");
         }
     }

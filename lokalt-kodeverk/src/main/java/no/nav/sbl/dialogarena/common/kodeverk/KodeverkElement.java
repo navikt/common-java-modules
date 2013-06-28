@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Collections.unmodifiableMap;
+import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.SKJEMANUMMER;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.BESKRIVELSE;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.GOSYS_ID;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.TEMA;
@@ -16,8 +17,9 @@ class KodeverkElement {
 
     private final Map<Kodeverk.Nokkel, String> koder;
 
-    KodeverkElement(String gosysId, String vedleggsId, String tema, String beskrivelse, String tittel, String url, String urlEnglish) {
+    KodeverkElement(String skjemanummer, String gosysId, String vedleggsId, String tema, String beskrivelse, String tittel, String url, String urlEnglish) {
         koder = new HashMap<>();
+        koder.put(SKJEMANUMMER, skjemanummer);
         koder.put(BESKRIVELSE, beskrivelse);
         koder.put(VEDLEGGSID, vedleggsId);
         koder.put(GOSYS_ID, gosysId);

@@ -20,7 +20,7 @@ public class JsonKodeverkTest {
 
     @Before
     public void setup() {
-        kodeverk = new JsonKodeverk(getClass().getResourceAsStream("/kodeverk_test.json"));
+       kodeverk = new JsonKodeverk(getClass().getResourceAsStream("/kodeverk_test.json"));
     }
 
     @Test(expected = ApplicationException.class)

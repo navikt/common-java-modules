@@ -13,18 +13,18 @@ public interface Kodeverk {
      * Henter verdi basert på kode-verdi og nøkkel.
      * Kaster ApplicationException hvis kode ikke finnes.
      *
-     * @param skjemaId SkjemaId
+     * @param vedleggsIdOrSkjemaId SkjemaId
      * @param nokkel   Hvilken del av kodeverket som skal hentes
      * @return Kodeverkverdi
      */
-    String getKode(String skjemaId, Nokkel nokkel);
+    String getKode(String vedleggsIdOrSkjemaId, Nokkel nokkel);
 
     /**
      * Behagelighetsfunksjon for å hente tittel-del av kodeverk
-     * @param skjemaId SkjemaId
+     * @param vedleggsIdOrSkjemaId SkjemaId
      * @return tittel
      */
-    String getTittel(String skjemaId) ;
+    String getTittel(String vedleggsIdOrSkjemaId) ;
 
     /**
      * Henter ut alle nøkkel-verdier for en kode-verdi.
@@ -46,6 +46,6 @@ public interface Kodeverk {
      * Nøkkelverdier som det finnes kodeverk for.
      */
     enum Nokkel {
-        GOSYS_ID, TEMA, TITTEL, BESKRIVELSE, URL, URLENGLISH, VEDLEGGSID
+        SKJEMANUMMER, GOSYS_ID, TEMA, TITTEL, BESKRIVELSE, URL, URLENGLISH, VEDLEGGSID
     }
 }

@@ -12,7 +12,9 @@ import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.TITTEL;
  */
 abstract class BaseKodeverk implements Kodeverk {
 
-    protected final Map<String, KodeverkElement> db = new HashMap<>();
+    protected final Map<String, KodeverkElement> dbSkjema = new HashMap<>();
+
+    protected final Map<String, KodeverkElement> dbVedlegg = new HashMap<>();
 
     @Override
     public boolean isEgendefinert(String skjemaId) {
@@ -30,11 +32,18 @@ abstract class BaseKodeverk implements Kodeverk {
     }
 
     @Override
-    public Map<Nokkel, String> getKoder(String skjemaId) {
-        if (db.containsKey(skjemaId)) {
-            return db.get(skjemaId).getKoderMap();
+    public Map<Nokkel, String> getKoder(String vedleggsIdOrSkjemaId) {
+        if (dbSkjema.containsKey(vedleggsIdOrSkjemaId)) {
+            return dbSkjema.get(vedleggsIdOrSkjemaId).getKoderMap();
         }
-        throw new ApplicationException("\n ---- Fant ikke kodeverk : " + skjemaId + "---- \n");
+        else
+        {
+            if (dbVedlegg.containsKey(vedleggsIdOrSkjemaId))
+            {
+                return dbVedlegg.get(vedleggsIdOrSkjemaId).getKoderMap();
+            }
+        }
+        throw new ApplicationException("\n ---- Fant ikke kodeverk : " + vedleggsIdOrSkjemaId + "---- \n");
     }
 
 }
