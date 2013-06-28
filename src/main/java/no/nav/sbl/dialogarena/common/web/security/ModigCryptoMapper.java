@@ -1,13 +1,11 @@
 package no.nav.sbl.dialogarena.common.web.security;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.Application;
 import org.apache.wicket.core.request.handler.RequestSettingRequestHandler;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.IRequestMapper;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Url;
-import org.apache.wicket.util.IProvider;
 import org.apache.wicket.util.crypt.ICrypt;
 import org.apache.wicket.util.crypt.ICryptFactory;
 import org.apache.wicket.util.lang.Args;
@@ -37,12 +35,12 @@ final class ModigCryptoMapper implements IRequestMapper {
     }
 
     @Override
-    public final int getCompatibilityScore(final Request request) {
+    public int getCompatibilityScore(final Request request) {
         return wrappedMapper.getCompatibilityScore(request);
     }
 
     @Override
-    public final Url mapHandler(final IRequestHandler requestHandler) {
+    public Url mapHandler(final IRequestHandler requestHandler) {
         final Url url = wrappedMapper.mapHandler(requestHandler);
 
         if (url == null) {
@@ -58,7 +56,7 @@ final class ModigCryptoMapper implements IRequestMapper {
     }
 
     @Override
-    public final IRequestHandler mapRequest(final Request request) {
+    public IRequestHandler mapRequest(final Request request) {
 
         Url url = request.getUrl();
         if (!isExcludePath(url)) {
@@ -89,14 +87,14 @@ final class ModigCryptoMapper implements IRequestMapper {
      * @return the {@link ICrypt} implementation that may be used to encrypt/decrypt {@link Url}'s
      *         segments and/or query string
      */
-    protected final ICrypt getCrypt() {
+    protected ICrypt getCrypt() {
         return cryptProvider.newCrypt();
     }
 
     /**
      * @return the wrapped root request mapper
      */
-    protected final IRequestMapper getWrappedMapper() {
+    protected IRequestMapper getWrappedMapper() {
         return wrappedMapper;
     }
 
@@ -189,20 +187,6 @@ final class ModigCryptoMapper implements IRequestMapper {
         }
 
         return url;
-    }
-
-    private static class ApplicationCryptProvider implements IProvider<ICrypt> {
-        private final Application application;
-
-        public ApplicationCryptProvider(final Application application) {
-            this.application = application;
-        }
-
-        @Override
-
-        public ICrypt get() {
-            return application.getSecuritySettings().getCryptFactory().newCrypt();
-        }
     }
 
     /**
