@@ -42,15 +42,15 @@ public class ImageToPdf implements Transformer<byte[], byte[]> {
             byte[] pdfBytes;
             long start = System.currentTimeMillis();
             try (PDDocumentAutoCloseable pd = autoClose(new PDDocument())){
-                PDXObjectImage image = getImage(pd.document, bytes);
+                PDXObjectImage image = getImage(pd.getDocument(), bytes);
 
                 PDPage page = new PDPage(new PDRectangle(image.getWidth(), image.getHeight()));
-                pd.document.addPage(page);
+                pd.getDocument().addPage(page);
 
-                PDPageContentStream is = new PDPageContentStream(pd.document, page);
+                PDPageContentStream is = new PDPageContentStream(pd.getDocument(), page);
                 is.drawImage(image, 0, 0);
                 is.close();
-                pd.document.save(outputStream);
+                pd.getDocument().save(outputStream);
 
             } catch (IOException | COSVisitorException e) {
                 throw new RuntimeException(e);

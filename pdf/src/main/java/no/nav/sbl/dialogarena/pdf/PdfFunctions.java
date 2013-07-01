@@ -21,7 +21,7 @@ public final class PdfFunctions {
         @Override
         public Integer transform(byte[] pdfdata) {
             try (PDDocumentAutoCloseable pd = autoClose(PDDocument.load(new ByteArrayInputStream(pdfdata)))){
-                return pd.document.getNumberOfPages();
+                return pd.getDocument().getNumberOfPages();
             } catch (IOException e) {
                 LOG.warn("Could not get number of pages from pdf document: " + e.getMessage());
                 LOG.debug(e.getMessage(), e);

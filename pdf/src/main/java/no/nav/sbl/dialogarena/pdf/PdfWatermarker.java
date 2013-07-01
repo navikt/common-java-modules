@@ -118,9 +118,9 @@ public class PdfWatermarker {
             String key = "MyGraphicsState1";
             setOpacity(page.findResources(), BACKGROUND_OPACITY, key);
             try (PDPageAutoCloseable pdPage = autoClose(new PDPageContentStream(pdfDocument, page, true, true, true))) {
-                pdPage.contentStream.appendRawCommands("/" + key + " gs\n");
-                pdPage.contentStream.setNonStrokingColor(Color.white);
-                pdPage.contentStream.fillRect(lowerLeftX, lowerLeftY, lineWidth, HEIGHT);
+                pdPage.getContentStream().appendRawCommands("/" + key + " gs\n");
+                pdPage.getContentStream().setNonStrokingColor(Color.white);
+                pdPage.getContentStream().fillRect(lowerLeftX, lowerLeftY, lineWidth, HEIGHT);
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
@@ -146,26 +146,26 @@ public class PdfWatermarker {
             setOpacity(page.findResources(), DEFAULT_BACKGROUND_OPACITY, key);
 
             try (PDPageAutoCloseable pdPage = autoClose(new PDPageContentStream(pdfDocument, page, true, true, true))) {
-                pdPage.contentStream.appendRawCommands("/" + key + " gs\n");
-                pdPage.contentStream.setFont(FONT, FONT_SIZE);
-                pdPage.contentStream.setNonStrokingColor(Color.black);
+                pdPage.getContentStream().appendRawCommands("/" + key + " gs\n");
+                pdPage.getContentStream().setFont(FONT, FONT_SIZE);
+                pdPage.getContentStream().setNonStrokingColor(Color.black);
 
-                pdPage.contentStream.beginText();
-                pdPage.contentStream.moveTextPositionByAmount(lowerLeftX + MARGIN, lowerLeftY + LINJE1_START_Y);
-                pdPage.contentStream.drawString(linje1);
-                pdPage.contentStream.endText();
+                pdPage.getContentStream().beginText();
+                pdPage.getContentStream().moveTextPositionByAmount(lowerLeftX + MARGIN, lowerLeftY + LINJE1_START_Y);
+                pdPage.getContentStream().drawString(linje1);
+                pdPage.getContentStream().endText();
 
-                pdPage.contentStream.beginText();
-                pdPage.contentStream.moveTextPositionByAmount(lowerLeftX + MARGIN, lowerLeftY + LINJE2_START_Y);
-                pdPage.contentStream.drawString(linje2);
-                pdPage.contentStream.endText();
+                pdPage.getContentStream().beginText();
+                pdPage.getContentStream().moveTextPositionByAmount(lowerLeftX + MARGIN, lowerLeftY + LINJE2_START_Y);
+                pdPage.getContentStream().drawString(linje2);
+                pdPage.getContentStream().endText();
 
-                pdPage.contentStream.setStrokingColor(Color.red);
-                pdPage.contentStream.setLineWidth(BORDER_WIDTH);
-                pdPage.contentStream.drawLine(lowerLeftX, lowerLeftY, lowerLeftX, lowerLeftY + HEIGHT);
-                pdPage.contentStream.drawLine(lowerLeftX, lowerLeftY + HEIGHT, lowerLeftX + lineWidth, lowerLeftY + HEIGHT);
-                pdPage.contentStream.drawLine(lowerLeftX + lineWidth, lowerLeftY + HEIGHT, lowerLeftX + lineWidth, lowerLeftY);
-                pdPage.contentStream.drawLine(lowerLeftX + lineWidth, lowerLeftY, lowerLeftX, lowerLeftY);
+                pdPage.getContentStream().setStrokingColor(Color.red);
+                pdPage.getContentStream().setLineWidth(BORDER_WIDTH);
+                pdPage.getContentStream().drawLine(lowerLeftX, lowerLeftY, lowerLeftX, lowerLeftY + HEIGHT);
+                pdPage.getContentStream().drawLine(lowerLeftX, lowerLeftY + HEIGHT, lowerLeftX + lineWidth, lowerLeftY + HEIGHT);
+                pdPage.getContentStream().drawLine(lowerLeftX + lineWidth, lowerLeftY + HEIGHT, lowerLeftX + lineWidth, lowerLeftY);
+                pdPage.getContentStream().drawLine(lowerLeftX + lineWidth, lowerLeftY, lowerLeftX, lowerLeftY);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }

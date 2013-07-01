@@ -17,10 +17,9 @@ public final class PdAutoCloseable {
     }
 
 
-
     public static final class PDPageAutoCloseable implements AutoCloseable {
 
-        public final PDPageContentStream contentStream;
+        private PDPageContentStream contentStream;
 
         public PDPageAutoCloseable(PDPageContentStream contentStream) {
             this.contentStream = contentStream;
@@ -31,13 +30,15 @@ public final class PdAutoCloseable {
             contentStream.close();
         }
 
+        public PDPageContentStream getContentStream() {
+            return contentStream;
+        }
     }
-
 
 
     public static final class PDDocumentAutoCloseable implements AutoCloseable {
 
-        public final PDDocument document;
+        private PDDocument document;
 
         public PDDocumentAutoCloseable(PDDocument document) {
             this.document = document;
@@ -48,8 +49,12 @@ public final class PdAutoCloseable {
             document.close();
         }
 
+        public PDDocument getDocument() {
+            return document;
+        }
     }
 
 
-    private PdAutoCloseable() { }
+    private PdAutoCloseable() {
+    }
 }
