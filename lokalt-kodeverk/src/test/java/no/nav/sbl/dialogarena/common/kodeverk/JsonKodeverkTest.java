@@ -11,6 +11,7 @@ import java.util.Map;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 public class JsonKodeverkTest {
@@ -20,7 +21,16 @@ public class JsonKodeverkTest {
 
     @Before
     public void setup() {
-       kodeverk = new JsonKodeverk(getClass().getResourceAsStream("/kodeverk_test.json"));
+        kodeverk = new JsonKodeverk(getClass().getResourceAsStream("/kodeverk_test.json"));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenParsingFails() {
+        try {
+            new JsonKodeverk(null);
+        } catch (ApplicationException ae) {
+            assertThat(ae.getMessage(), is("Klarte ikke å parse kodeverk-info"));
+        }
     }
 
     @Test(expected = ApplicationException.class)
@@ -33,6 +43,12 @@ public class JsonKodeverkTest {
     public void shouldReadEmptyFile() throws IOException {
         InputStream resourceAsStream = getClass().getResourceAsStream("/kodeverk_tom.json");
         new JsonKodeverk(resourceAsStream);
+    }
+
+    @Test
+    public void shouldGetVedleggById() {
+        Map<Kodeverk.Nokkel, String> koder = kodeverk.getKoder("vedleggsid");
+        assertThat(koder, notNullValue());
     }
 
     @Test
@@ -75,9 +91,9 @@ public class JsonKodeverkTest {
     }
 
     @Test
-    public void shouldRecognizeEgendefKode(){
-        assertThat(kodeverk.isEgendefinert(Kodeverk.ANNET),is(true));
-        assertThat(kodeverk.isEgendefinert("hei"),is(false));
+    public void shouldRecognizeEgendefKode() {
+        assertThat(kodeverk.isEgendefinert(Kodeverk.ANNET), is(true));
+        assertThat(kodeverk.isEgendefinert("hei"), is(false));
     }
 
     @Test

@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -33,37 +35,31 @@ public class JsonKodeverk extends BaseKodeverk {
 
     private void traverseSkjemaerAndInsertInMap(ArrayNode kodeverkArray) {
         for (JsonNode node : kodeverkArray) {
-            dbSkjema.put(getFieldValue(node, "Skjemanummer"),
-                    new KodeverkElement(
-                            getOptionalFieldValue(node, "Skjemanummer"),
-                            getOptionalFieldValue(node, "Gosysid"),
-                            getOptionalFieldValue(node, "Vedleggsid"),
-                            getOptionalFieldValue(node, "Tema"),
-                            getOptionalFieldValue(node, "Beskrivelse (ID)"),
-                            getFieldValue(node, "Tittel"),
-                            getOptionalFieldValue(node, "Lenke"),
-                            getOptionalFieldValue(node, "Lenke engelsk skjema")));
-            if (!"".equals(getOptionalFieldValue(node, "Vedleggsid")))
-            {
+            Map<Nokkel, String> skjema = new HashMap<>();
+            Map<Nokkel, String> vedlegg = new HashMap<>();
 
-            dbVedlegg.put(getFieldValue(node, "Vedleggsid"),
-                    new KodeverkElement(
-                            getOptionalFieldValue(node, "Skjemanummer"),
-                            getOptionalFieldValue(node, "Gosysid"),
-                            getOptionalFieldValue(node, "Vedleggsid"),
-                            getOptionalFieldValue(node, "Tema"),
-                            getOptionalFieldValue(node, "Beskrivelse (ID)"),
-                            getFieldValue(node, "Tittel"),
-                            getOptionalFieldValue(node, "Lenke"),
-                            getOptionalFieldValue(node, "Lenke engelsk skjema")));
+            byggOppSkjema(node, skjema);
+            dbSkjema.put(getFieldValue(node, "Skjemanummer"), new KodeverkElement(skjema));
+
+            if (!"".equals(getOptionalFieldValue(node, "Vedleggsid"))) {
+                byggOppSkjema(node, vedlegg);
+                dbVedlegg.put(getFieldValue(node, "Vedleggsid"), new KodeverkElement(vedlegg));
             }
         }
-        }
+    }
 
-
+    private void byggOppSkjema(JsonNode node, Map<Nokkel, String> map) {
+        map.put(Nokkel.SKJEMANUMMER, getOptionalFieldValue(node, "Skjemanummer"));
+        map.put(Nokkel.GOSYS_ID, getOptionalFieldValue(node, "Gosysid"));
+        map.put(Nokkel.VEDLEGGSID, getOptionalFieldValue(node, "Vedleggsid"));
+        map.put(Nokkel.TEMA, getOptionalFieldValue(node, "Tema"));
+        map.put(Nokkel.BESKRIVELSE, getOptionalFieldValue(node, "Beskrivelse (ID)"));
+        map.put(Nokkel.TITTEL, getFieldValue(node, "Tittel"));
+        map.put(Nokkel.URL, getOptionalFieldValue(node, "Lenke"));
+        map.put(Nokkel.URLENGLISH, getOptionalFieldValue(node, "Lenke engelsk skjema"));
+    }
 
     private String getFieldValue(JsonNode node, String fieldName) {
-
         if (node.has(fieldName)) {
             return node.get(fieldName).asText();
         } else {

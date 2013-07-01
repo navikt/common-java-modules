@@ -35,16 +35,11 @@ abstract class BaseKodeverk implements Kodeverk {
     public Map<Nokkel, String> getKoder(String vedleggsIdOrSkjemaId) {
         if (dbSkjema.containsKey(vedleggsIdOrSkjemaId)) {
             return dbSkjema.get(vedleggsIdOrSkjemaId).getKoderMap();
-        }
-        else
-        {
-            if (dbVedlegg.containsKey(vedleggsIdOrSkjemaId))
-            {
+        } else {
+            if (dbVedlegg.containsKey(vedleggsIdOrSkjemaId)) {
                 return dbVedlegg.get(vedleggsIdOrSkjemaId).getKoderMap();
             }
         }
         throw new ApplicationException("\n ---- Fant ikke kodeverk : " + vedleggsIdOrSkjemaId + "---- \n");
     }
-
 }
-
