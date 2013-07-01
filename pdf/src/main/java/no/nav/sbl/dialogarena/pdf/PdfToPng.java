@@ -68,12 +68,11 @@ public class PdfToPng implements Transformer<InputStream, byte[]> {
                 }
             }
         }
-
     }
 
     private class GSTransformer implements Transformer<InputStream, byte[]> {
 
-        public static final String ARGS = "-dNOPAUSE -sDEVICE=png16m -dDEVICEWIDTH=${width} -dDEVICEHEIGHT=${height} -dPDFFitPage -dFirstPage=${page} " +
+        public static final String ARGS = "-dNOPAUSE -dSAFER -sDEVICE=png16m -dDEVICEWIDTH=${width} -dDEVICEHEIGHT=${height} -dPDFFitPage -dFirstPage=${page} " +
                 "-dLastPage=${page} -sOutputFile=%stdout%  -q -_ -c quit";
 
         @Override
