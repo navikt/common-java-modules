@@ -3,7 +3,7 @@ package no.nav.sbl.dialogarena.test.match;
 import org.apache.commons.collections15.Predicate;
 import org.hamcrest.Matcher;
 
-public class Matchers {
+public final class Matchers {
 
     private Matchers() {
     }

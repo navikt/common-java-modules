@@ -6,7 +6,7 @@ import org.apache.tika.Tika;
 import static org.apache.commons.lang3.StringUtils.lastIndexOf;
 import static org.apache.commons.lang3.StringUtils.substring;
 
-public class Functions {
+public final class Functions {
 
     private Functions() {
     }
