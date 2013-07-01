@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 public class KodeverkConfig {
 
     @Bean
-    public final Kodeverk kodeverk() {
+    public Kodeverk kodeverk() {
         return new JsonKodeverk(getClass().getResourceAsStream("/kodeverk.json"));
     }
 }
