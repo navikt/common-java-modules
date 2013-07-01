@@ -46,6 +46,6 @@ public class PingableTest {
         List<Ping> nonWorking = on(asList(friskTjeneste, sykTjeneste)).map(pingResult()).filter(not(vellykketPing())).collect();
 
         assertThat(nonWorking, hasSize(1));
-        assertThat(nonWorking.get(0).komponent, is("windoze"));
+        assertThat(nonWorking.get(0).getKomponent(), is("windoze"));
     }
 }
