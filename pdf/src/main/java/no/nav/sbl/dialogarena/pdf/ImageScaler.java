@@ -5,8 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +21,9 @@ import static java.lang.Math.round;
 public final class ImageScaler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageScaler.class);
+
+    private ImageScaler() {
+    }
 
     public static BufferedImage scaleImage(byte[] imageBytes, Dimension boundingBox, ScaleMode scaleMode) {
 

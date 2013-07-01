@@ -8,8 +8,12 @@ import static org.apache.commons.lang3.StringUtils.substring;
 
 public class Functions {
 
+    private Functions() {
+    }
+
     public static final Transformer<byte[], String> CONTENT_TYPE = new Transformer<byte[], String>() {
         private final Tika tika = new Tika();
+
         @Override
         public String transform(byte[] data) {
             return tika.detect(data);
