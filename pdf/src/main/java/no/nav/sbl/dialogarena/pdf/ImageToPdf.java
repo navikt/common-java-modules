@@ -34,7 +34,7 @@ public class ImageToPdf implements Transformer<byte[], byte[]> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageToPdf.class);
 
     @Override
-    public byte[] transform(byte[] bytes) {
+    public final byte[] transform(byte[] bytes) {
         if (new IsPdf().evaluate(bytes)) {
             return bytes;
         } else if (new IsPng().evaluate(bytes) || new IsJpg().evaluate(bytes)) {

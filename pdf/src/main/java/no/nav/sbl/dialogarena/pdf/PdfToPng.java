@@ -43,7 +43,7 @@ public class PdfToPng implements Transformer<InputStream, byte[]> {
     }
 
     @Override
-    public byte[] transform(InputStream inputStream) {
+    public final byte[] transform(InputStream inputStream) {
         return decidePdfTransformer().transform(inputStream);
     }
 
