@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>common-pdf</artifactId>
-    <version>1.0.18</version>
+    <version>1.0.19-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
@@ -81,7 +81,7 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-pdf/1.0.18-common-pdf</developerConnection>
-        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-pdf/1.0.18-common-pdf</url>
+        <developerConnection>scm:svn:${svn.url}/trunk/pdf</developerConnection>
+        <url>${svn.url}/trunk/pdf</url>
     </scm>
 </project>
