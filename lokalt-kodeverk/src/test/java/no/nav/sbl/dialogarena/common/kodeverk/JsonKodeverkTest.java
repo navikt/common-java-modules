@@ -60,6 +60,11 @@ public class JsonKodeverkTest {
         assertThat(kodeverk.getKode(TEST, Nokkel.URL), is(equalTo("url")));
         assertThat(kodeverk.getKode(TEST, Nokkel.VEDLEGGSID), is(equalTo("vedleggsid")));
         assertThat(kodeverk.getKode(TEST, Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLNEWNORWEGIAN), is(equalTo("urlNewnorwegian")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLPOLISH), is(equalTo("urlPolish")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLFRENCH), is(equalTo("urlFrench")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLSPANISH), is(equalTo("urlSpanish")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLGERMAN), is(equalTo("urlGerman")));
     }
 
     @Test
@@ -71,7 +76,13 @@ public class JsonKodeverkTest {
         assertThat(koder.get(Nokkel.TITTEL), is(equalTo("tittel")));
         assertThat(koder.get(Nokkel.URL), is(equalTo("url")));
         assertThat(koder.get(Nokkel.VEDLEGGSID), is(equalTo("vedleggsid")));
-        assertThat(kodeverk.getKode(TEST, Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
+        assertThat(koder.get(Nokkel.URLENGLISH), is(equalTo("urlEnglish")));
+        assertThat(koder.get(Nokkel.URLNEWNORWEGIAN), is(equalTo("urlNewnorwegian")));
+        assertThat(koder.get(Nokkel.URLPOLISH), is(equalTo("urlPolish")));
+        assertThat(koder.get(Nokkel.URLFRENCH), is(equalTo("urlFrench")));
+        assertThat(koder.get(Nokkel.URLSPANISH), is(equalTo("urlSpanish")));
+        assertThat(koder.get(Nokkel.URLGERMAN), is(equalTo("urlGerman")));
+
     }
 
     @Test(expected = UnsupportedOperationException.class)

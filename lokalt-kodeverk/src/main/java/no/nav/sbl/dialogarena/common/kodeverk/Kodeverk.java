@@ -46,6 +46,6 @@ public interface Kodeverk {
      * Nøkkelverdier som det finnes kodeverk for.
      */
     enum Nokkel {
-        SKJEMANUMMER, GOSYS_ID, TEMA, TITTEL, BESKRIVELSE, URL, URLENGLISH, VEDLEGGSID
+        SKJEMANUMMER, GOSYS_ID, TEMA, TITTEL, BESKRIVELSE, URL, URLENGLISH, URLNEWNORWEGIAN, URLPOLISH, URLFRENCH, URLSPANISH, URLGERMAN, VEDLEGGSID
     }
 }

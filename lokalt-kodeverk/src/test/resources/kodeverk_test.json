@@ -8,6 +8,11 @@
             "Beskrivelse (ID)": "beskrivelse",
             "Lenke": "url",
             "Lenke engelsk skjema": "urlEnglish",
+            "Lenke nynorsk skjema": "urlNewnorwegian",
+            "Lenke polsk skjema": "urlPolish",
+            "Lenke fransk skjema": "urlFrench",
+            "Lenke spansk skjema": "urlSpanish",
+            "Lenke tysk skjema": "urlGerman",
             "Tittel": "tittel"
         }
     ]
