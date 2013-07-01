@@ -35,20 +35,20 @@ public class JsonKodeverk extends BaseKodeverk {
 
     private void traverseSkjemaerAndInsertInMap(ArrayNode kodeverkArray) {
         for (JsonNode node : kodeverkArray) {
-            Map<Nokkel, String> skjema = new HashMap<>();
-            Map<Nokkel, String> vedlegg = new HashMap<>();
-
-            byggOppSkjema(node, skjema);
-            dbSkjema.put(getFieldValue(node, "Skjemanummer"), new KodeverkElement(skjema));
+            Map<String, KodeverkElement> skjema = new HashMap<>();
+            skjema.put(getFieldValue(node, "Skjemanummer"), new KodeverkElement(byggOppSkjema(node)));
+            setDbSkjema(skjema);
 
             if (!"".equals(getOptionalFieldValue(node, "Vedleggsid"))) {
-                byggOppSkjema(node, vedlegg);
-                dbVedlegg.put(getFieldValue(node, "Vedleggsid"), new KodeverkElement(vedlegg));
+                Map<String, KodeverkElement> vedleggMap = new HashMap<>();
+                vedleggMap.put(getFieldValue(node, "Vedleggsid"), new KodeverkElement(byggOppSkjema(node)));
+                setDbVedlegg(vedleggMap);
             }
         }
     }
 
-    private void byggOppSkjema(JsonNode node, Map<Nokkel, String> map) {
+    private Map<Nokkel, String> byggOppSkjema(JsonNode node) {
+        Map<Nokkel, String> map = new HashMap<>();
         map.put(Nokkel.SKJEMANUMMER, getOptionalFieldValue(node, "Skjemanummer"));
         map.put(Nokkel.GOSYS_ID, getOptionalFieldValue(node, "Gosysid"));
         map.put(Nokkel.VEDLEGGSID, getOptionalFieldValue(node, "Vedleggsid"));
@@ -57,6 +57,7 @@ public class JsonKodeverk extends BaseKodeverk {
         map.put(Nokkel.TITTEL, getFieldValue(node, "Tittel"));
         map.put(Nokkel.URL, getOptionalFieldValue(node, "Lenke"));
         map.put(Nokkel.URLENGLISH, getOptionalFieldValue(node, "Lenke engelsk skjema"));
+        return map;
     }
 
     private String getFieldValue(JsonNode node, String fieldName) {

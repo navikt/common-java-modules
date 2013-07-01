@@ -12,9 +12,9 @@ import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.TITTEL;
  */
 abstract class BaseKodeverk implements Kodeverk {
 
-    protected final Map<String, KodeverkElement> dbSkjema = new HashMap<>();
+    private Map<String, KodeverkElement> dbSkjema = new HashMap<>();
 
-    protected final Map<String, KodeverkElement> dbVedlegg = new HashMap<>();
+    private Map<String, KodeverkElement> dbVedlegg = new HashMap<>();
 
     @Override
     public boolean isEgendefinert(String vedleggsIdOrskjemaId) {
@@ -41,5 +41,13 @@ abstract class BaseKodeverk implements Kodeverk {
             }
         }
         throw new ApplicationException("\n ---- Fant ikke kodeverk : " + vedleggsIdOrSkjemaId + "---- \n");
+    }
+
+    public void setDbSkjema(Map<String, KodeverkElement> dbSkjema) {
+        this.dbSkjema = dbSkjema;
+    }
+
+    public void setDbVedlegg(Map<String, KodeverkElement> dbVedlegg) {
+        this.dbVedlegg = dbVedlegg;
     }
 }
