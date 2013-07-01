@@ -5,6 +5,9 @@ import org.hamcrest.Matcher;
 
 public class Matchers {
 
+    private Matchers() {
+    }
+
     public static <T> Matcher<T> match(Predicate<T> predicate) {
         return new PredicateAsMatcher<>(predicate);
     }
@@ -12,6 +15,4 @@ public class Matchers {
     public static <T> Matcher<T> match(String description, Predicate<T> predicate) {
         return new PredicateAsMatcher<>(description, predicate);
     }
-
-
 }
