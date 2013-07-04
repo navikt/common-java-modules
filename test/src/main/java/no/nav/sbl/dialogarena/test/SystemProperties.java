@@ -43,7 +43,7 @@ public final class SystemProperties {
         }
     }
 
-    public static class NotFound extends RuntimeException {
+    public static final class NotFound extends RuntimeException {
         private NotFound(String resourceName) {
             super(resourceName + " not found");
         }
