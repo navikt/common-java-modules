@@ -1,10 +1,16 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
+import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.FragmentConfiguration;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
@@ -18,6 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.util.Map;
 
 import static org.apache.commons.io.FilenameUtils.getBaseName;
@@ -43,6 +51,7 @@ public final class Jetty {
         private File war;
         private String contextPath;
         private int port = 35000;
+        private int sslPort = 35999;
         private WebAppContext context;
         private File overridewebXmlFile;
         private JAASLoginService loginService;
@@ -63,16 +72,20 @@ public final class Jetty {
             return this;
         }
 
+        public final JettyBuilder sslPort(int sslPort) {
+            this.sslPort = sslPort;
+            return this;
+        }
+
         public final JettyBuilder overrideWebXml(File overrideWebXmlFile) {
             this.overridewebXmlFile = overrideWebXmlFile;
             return this;
         }
 
-        public final JettyBuilder withLoginService(JAASLoginService loginService){
+        public final JettyBuilder withLoginService(JAASLoginService loginService) {
             this.loginService = loginService;
             return this;
         }
-
 
 
         public final Jetty buildJetty() {
@@ -84,7 +97,7 @@ public final class Jetty {
                 if (isBlank(contextPath)) {
                     contextPath = getBaseName(warPath);
                 }
-                return new Jetty(port, contextPath, warPath, context, overridewebXmlFile, loginService);
+                return new Jetty(port, sslPort, contextPath, warPath, context, overridewebXmlFile, loginService);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -102,6 +115,7 @@ public final class Jetty {
 
 
     private final int port;
+    private final int sslPort;
     private final File overrideWebXmlFile;
     private final String warPath;
     private final Server server;
@@ -131,11 +145,12 @@ public final class Jetty {
             JettyWebXmlConfiguration.class.getName(),
     };
 
-    private Jetty(int port, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile, JAASLoginService loginService) {
+    private Jetty(int port, int sslPort, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile, JAASLoginService loginService) {
         this.warPath = warPath;
         this.overrideWebXmlFile = overrideWebXmlFile;
 
         this.port = port;
+        this.sslPort = sslPort;
         this.contextPath = (contextPath.startsWith("/") ? "" : "/") + contextPath;
         this.loginService = loginService;
         this.context = setupWebapp(context);
@@ -154,7 +169,7 @@ public final class Jetty {
             webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
         }
 
-        if(loginService != null){
+        if (loginService != null) {
             SecurityHandler securityHandler = webAppContext.getSecurityHandler();
             securityHandler.setLoginService(loginService);
             securityHandler.setRealmName(loginService.getName());
@@ -176,10 +191,30 @@ public final class Jetty {
 
 
     private Server setupJetty(final Server jetty) {
-        ServerConnector connector = new ServerConnector(jetty);
-        connector.setSoLingerTime(-1);
-        connector.setPort(port);
-        jetty.setConnectors(new Connector[]{connector});
+
+        HttpConfiguration configuration = new HttpConfiguration();
+        configuration.setSecureScheme("https");
+        configuration.setSecurePort(sslPort);
+        configuration.setOutputBufferSize(32768);
+
+        ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
+        httpConnector.setSoLingerTime(-1);
+        httpConnector.setPort(port);
+
+
+        SslContextFactory factory = new SslContextFactory(true);
+        factory.setKeyStorePath(System.getProperty("no.nav.modig.security.appcert.keystore"));
+        factory.setKeyStorePassword(System.getProperty("no.nav.modig.security.appcert.password"));
+
+        HttpConfiguration httpsConfiguration = new HttpConfiguration(configuration);
+        httpsConfiguration.addCustomizer(new SecureRequestCustomizer());
+
+        ServerConnector sslConnector = new ServerConnector(jetty,
+                new SslConnectionFactory(factory, HttpVersion.HTTP_1_1.toString()),
+                new HttpConnectionFactory(httpsConfiguration));
+        sslConnector.setPort(sslPort);
+
+        jetty.setConnectors(new Connector[]{httpConnector, sslConnector});
         context.setServer(jetty);
         jetty.setHandler(context);
         return jetty;
