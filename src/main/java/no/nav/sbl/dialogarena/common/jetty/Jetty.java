@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.util.Map;
 
 import static org.apache.commons.io.FilenameUtils.getBaseName;
@@ -174,12 +172,6 @@ public final class Jetty {
             securityHandler.setLoginService(loginService);
             securityHandler.setRealmName(loginService.getName());
         }
-
-//        SecurityHandler securityHandler = webAppContext.getSecurityHandler();
-//        JAASLoginService jaasLoginService = new JAASLoginService("OpenAM Realm");
-//        jaasLoginService.setLoginModuleName("openam");
-//        securityHandler.setLoginService(jaasLoginService);
-//        securityHandler.setRealmName("OpenAM Realm");
 
         webAppContext.setConfigurationClasses(CONFIGURATION_CLASSES);
         Map<String, String> initParams = webAppContext.getInitParams();
