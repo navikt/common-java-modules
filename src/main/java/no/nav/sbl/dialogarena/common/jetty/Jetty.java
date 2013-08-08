@@ -1,5 +1,15 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
+import static org.apache.commons.io.FilenameUtils.getBaseName;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.util.Map;
+
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.SecurityHandler;
@@ -11,24 +21,12 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.webapp.FragmentConfiguration;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
-import java.util.Map;
-
-import static org.apache.commons.io.FilenameUtils.getBaseName;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 
 /**
@@ -116,10 +114,10 @@ public final class Jetty {
     private final int sslPort;
     private final File overrideWebXmlFile;
     private final String warPath;
-    private final Server server;
     private final String contextPath;
-    private final WebAppContext context;
     private final JAASLoginService loginService;
+    public final Server server;
+    public final WebAppContext context;
 
     public final Runnable stop = new Runnable() {
         @Override
@@ -134,11 +132,8 @@ public final class Jetty {
         }
     };
 
-
     private static final String[] CONFIGURATION_CLASSES = {
             WebInfConfiguration.class.getName(),
-            MetaInfConfiguration.class.getName(),
-            FragmentConfiguration.class.getName(),
             WebXmlConfiguration.class.getName(),
             JettyWebXmlConfiguration.class.getName(),
     };
