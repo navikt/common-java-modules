@@ -65,6 +65,7 @@ public class JsonKodeverkTest {
         assertThat(kodeverk.getKode(TEST, Nokkel.URLFRENCH), is(equalTo("urlFrench")));
         assertThat(kodeverk.getKode(TEST, Nokkel.URLSPANISH), is(equalTo("urlSpanish")));
         assertThat(kodeverk.getKode(TEST, Nokkel.URLGERMAN), is(equalTo("urlGerman")));
+        assertThat(kodeverk.getKode(TEST, Nokkel.URLSAMISK), is(equalTo("urlSamisk")));
     }
 
     @Test
@@ -82,6 +83,7 @@ public class JsonKodeverkTest {
         assertThat(koder.get(Nokkel.URLFRENCH), is(equalTo("urlFrench")));
         assertThat(koder.get(Nokkel.URLSPANISH), is(equalTo("urlSpanish")));
         assertThat(koder.get(Nokkel.URLGERMAN), is(equalTo("urlGerman")));
+        assertThat(koder.get(Nokkel.URLSAMISK), is(equalTo("urlSamisk")));
 
     }
 

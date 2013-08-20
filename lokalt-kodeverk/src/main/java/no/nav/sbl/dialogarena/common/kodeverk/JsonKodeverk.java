@@ -64,6 +64,7 @@ public class JsonKodeverk extends BaseKodeverk {
         map.put(Nokkel.URLFRENCH, getOptionalFieldValue(node, "Lenke fransk skjema"));
         map.put(Nokkel.URLSPANISH, getOptionalFieldValue(node, "Lenke spansk skjema"));
         map.put(Nokkel.URLGERMAN, getOptionalFieldValue(node, "Lenke tysk skjema"));
+        map.put(Nokkel.URLSAMISK, getOptionalFieldValue(node, "Lenke samisk skjema"));
     }
 
 

@@ -16,6 +16,7 @@ import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.URLPOLISH;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.URLFRENCH;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.URLSPANISH;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.URLGERMAN;
+import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.URLSAMISK;
 import static no.nav.sbl.dialogarena.common.kodeverk.Kodeverk.Nokkel.VEDLEGGSID;
 class KodeverkElement {
 
@@ -37,6 +38,7 @@ class KodeverkElement {
         koder.put(URLFRENCH, kodeverkMap.get(URLFRENCH));
         koder.put(URLSPANISH, kodeverkMap.get(URLSPANISH));
         koder.put(URLGERMAN, kodeverkMap.get(URLGERMAN));
+        koder.put(URLSAMISK, kodeverkMap.get(URLSAMISK));
     }
 
     Map<Kodeverk.Nokkel, String> getKoderMap() {
