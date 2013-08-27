@@ -228,7 +228,7 @@ public final class Jetty {
         return this;
     }
 
-    public final Iterable<URL> getBaseUrls() {
+    public Iterable<URL> getBaseUrls() {
         return on(optional(port).map(new ToUrl("http", contextPath))).append(sslPort.map(new ToUrl("https", contextPath)));
     };
 
