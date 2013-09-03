@@ -141,8 +141,8 @@
                                     <goal>download-single</goal>
                                 </goals>
                                 <configuration>
-                                    <url>https://www-t8.nav.no</url>
-                                    <fromFile>skjema/Skjemaer/Alle+skjemaer+JSON</fromFile>
+                                    <url>https://www.nav.no</url>
+                                    <fromFile>Skjema/Skjemaer/Alle+skjemaer+JSON</fromFile>
                                     <toFile>${basedir}/src/main/resources/kodeverk.json</toFile>
                                 </configuration>
                             </execution>
