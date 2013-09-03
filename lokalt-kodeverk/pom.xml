@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>common-lokalt-kodeverk</artifactId>
-    <version>1.0.31-SNAPSHOT</version>
+    <version>1.0.31</version>
     <name>${project.artifactId}</name>
 
     <properties>
@@ -99,8 +99,8 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:svn:${svn.url}/trunk/lokalt-kodeverk</developerConnection>
-        <url>${svn.url}/trunk/lokalt-kodeverk</url>
+        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-lokalt-kodeverk/1.0.31-common-lokalt-kodeverk</developerConnection>
+        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-lokalt-kodeverk/1.0.31-common-lokalt-kodeverk</url>
     </scm>
     <build>
         <plugins>
