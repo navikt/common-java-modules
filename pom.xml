@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>common-time</artifactId>
-    <version>2.0</version>
+    <version>2.1-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
@@ -48,7 +48,7 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:svn:https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-time/2.0-common-time</developerConnection>
-        <url>https://versjonskontroll.adeo.no/svn/nav-sbl/dialogarena/common/tags/common-time/2.0-common-time</url>
+        <developerConnection>scm:svn:${svn.url}/trunk/time</developerConnection>
+        <url>${svn.url}/trunk/time</url>
     </scm>
 </project>
