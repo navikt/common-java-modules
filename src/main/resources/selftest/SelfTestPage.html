@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+
+<head lang="no">
+    <title>Selftest ${app-navn}</title>
+    <style type="text/css">
+        table {
+            background-color: #f0f8ff;
+            border-collapse: collapse;
+        }
+        td, th {
+            border: 1px #888 solid;
+            border-collapse: collapse;
+            padding: 1px 5px 1px 5px;
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<h1>Service status: ${aggregertStatus}</h1>
+
+<h3>${version}</h3>
+
+<table>
+    <tr>
+        <th>Status</th>
+        <th>Navn</th>
+        <th>Responstid ms</th>
+        <th>Beskrivelse</th>
+    </tr>
+    ${resultater}
+</table>
+
+<br>
+
+<h5>Siden generert: ${generert-tidspunkt}</h5>
+
+<h6 id="driftMelding">${feilende-komponenter}</h6>
+
+${custom-markup}
+
+</body>
+
+</html>

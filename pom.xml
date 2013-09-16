@@ -31,6 +31,18 @@
             <version>${modig.security.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-lang</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>common-types</artifactId>
+            <version>1.2</version>
+        </dependency>
+
         <!-- Third party dependencies -->
         <dependency>
             <groupId>org.apache.wicket</groupId>
@@ -62,6 +74,21 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.collections</groupId>
+            <artifactId>collections-generic</artifactId>
+            <version>4.01</version>
         </dependency>
 
         <!-- Test dependencies -->
