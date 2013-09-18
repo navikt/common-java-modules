@@ -54,7 +54,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
      * i selftesten. Tjenestene må implementere Pingable-grensesnittet.
      * @return Liste over tjenester som implementerer Pingable
      */
-    protected abstract Collection<Pingable> getPingables();
+    protected abstract Collection<? extends Pingable> getPingables();
 
     /**
      * Denne metoden må implementeres til å returnere applikasjonens navn, for bruk i tittel og overskrift
@@ -94,7 +94,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
         }
     }
 
-    private Result kjorSelfTest(Collection<Pingable> pingables) throws IOException {
+    private Result kjorSelfTest(Collection<? extends Pingable> pingables) throws IOException {
         StringBuilder tabell = new StringBuilder();
         List<String> feilendeKomponenter = new ArrayList<>();
         String aggregertStatus = "OK";
