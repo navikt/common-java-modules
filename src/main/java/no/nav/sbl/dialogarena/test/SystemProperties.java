@@ -9,6 +9,7 @@ import java.util.Properties;
 import java.util.TreeSet;
 
 import static no.nav.modig.lang.collections.IterUtils.on;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
 
 public final class SystemProperties {
@@ -21,6 +22,7 @@ public final class SystemProperties {
             throw new NotFound(resource);
         }
         setFrom(propsResource);
+        closeQuietly(propsResource);
     }
 
     public static void setFrom(InputStream input) {
