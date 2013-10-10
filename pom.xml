@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>common-time</artifactId>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.1</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
@@ -56,6 +56,6 @@
     <scm>
         <developerConnection>scm:git:ssh://git@a34apvl029.devillo.no:7999/dial/common.git</developerConnection>
         <url>http://stash.devillo.no/projects/DIAL/repos/common/browse/time</url>
-        <tag>HEAD</tag>
+        <tag>2.1-common-time</tag>
     </scm>
 </project>
