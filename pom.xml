@@ -52,8 +52,10 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <scm>
-        <developerConnection>scm:svn:${svn.url}/trunk/time</developerConnection>
-        <url>${svn.url}/trunk/time</url>
+        <developerConnection>scm:git:ssh://git@a34apvl029.devillo.no:7999/dial/common.git</developerConnection>
+        <url>http://stash.devillo.no/projects/DIAL/repos/common/browse/time</url>
+        <tag>HEAD</tag>
     </scm>
 </project>
