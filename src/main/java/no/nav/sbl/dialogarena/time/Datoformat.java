@@ -77,7 +77,7 @@ public final class Datoformat {
      * datoen er idag eller nær dagens dato, vil et hensiktsmessig begrep som 'i dag' eller
      * 'i går' bli brukt.
      */
-    public static abstract class LiteralDato implements Transformer<DateTime, String> {
+    public abstract static class LiteralDato implements Transformer<DateTime, String> {
         @Override
         public final String transform(DateTime dateTime) {
             LocalDate today = LocalDate.now(dateTime.getChronology());
@@ -109,7 +109,7 @@ public final class Datoformat {
         }
 
         @Override
-        public final String transform(DateTime dateTime) {
+        public String transform(DateTime dateTime) {
             return DateTimeFormat.forPattern(pattern.transform(dateTime)).withLocale(Datoformat.locale.create()).print(dateTime);
         }
 
