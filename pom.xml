@@ -12,24 +12,7 @@
     <version>1.1.5-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
-    <properties>
-        <wicket.version>6.8.0</wicket.version>
-        <modig.security.version>1.0.1</modig.security.version>
-    </properties>
-
     <dependencies>
-
-        <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-authorization</artifactId>
-            <version>${modig.security.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-wicket</artifactId>
-            <version>${modig.security.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>no.nav.modig</groupId>
@@ -45,11 +28,6 @@
 
         <!-- Third party dependencies -->
         <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-core</artifactId>
-            <version>${wicket.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.1</version>
@@ -58,16 +36,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-util</artifactId>
-            <version>${wicket.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.wicket</groupId>
-            <artifactId>wicket-request</artifactId>
-            <version>${wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
