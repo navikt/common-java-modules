@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 import static no.nav.modig.lang.collections.IterUtils.on;
@@ -57,7 +58,7 @@ public final class Jetty {
         private WebAppContext context;
         private File overridewebXmlFile;
         private JAASLoginService loginService;
-        private Map<String, DataSource> dataSources;
+        private Map<String, DataSource> dataSources = new HashMap<>();
 
 
         public final JettyBuilder war(File warPath) {
