@@ -106,7 +106,7 @@ public final class Jetty {
                 if (isBlank(contextPath)) {
                     contextPath = getBaseName(warPath);
                 }
-                return new Jetty(port, sslPort, contextPath, warPath, context, overridewebXmlFile, loginService, dataSources);
+                return new Jetty(warPath, this);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -157,17 +157,17 @@ public final class Jetty {
             PlusConfiguration.class.getName()
     };
 
-    private Jetty(int port, Optional<Integer> sslPort, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile, JAASLoginService loginService, Map<String, DataSource> dataSources) {
+    private Jetty(String warPath, JettyBuilder builder) {
         this.warPath = warPath;
-        this.overrideWebXmlFile = overrideWebXmlFile;
+        this.overrideWebXmlFile = builder.overridewebXmlFile;
 
-        this.port = port;
-        this.sslPort = sslPort;
-        this.contextPath = (contextPath.startsWith("/") ? "" : "/") + contextPath;
-        this.loginService = loginService;
-        this.context = setupWebapp(context);
+        this.port = builder.port;
+        this.sslPort = builder.sslPort;
+        this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
+        this.loginService = builder.loginService;
+        this.context = setupWebapp(builder.context);
         this.server = setupJetty(new Server());
-        this.dataSources = dataSources;
+        this.dataSources = builder.dataSources;
 
     }
 
