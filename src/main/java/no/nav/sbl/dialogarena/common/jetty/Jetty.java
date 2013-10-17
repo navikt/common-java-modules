@@ -2,6 +2,8 @@ package no.nav.sbl.dialogarena.common.jetty;
 
 import no.nav.modig.lang.option.Optional;
 import org.eclipse.jetty.jaas.JAASLoginService;
+import org.eclipse.jetty.plus.webapp.EnvConfiguration;
+import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -18,6 +20,8 @@ import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -53,6 +57,7 @@ public final class Jetty {
         private WebAppContext context;
         private File overridewebXmlFile;
         private JAASLoginService loginService;
+        private Map<String, DataSource> dataSources;
 
 
         public final JettyBuilder war(File warPath) {
@@ -86,6 +91,12 @@ public final class Jetty {
         }
 
 
+        public final JettyBuilder addDatasource(DataSource dataSource, String jndiName) {
+            dataSources.put(jndiName, dataSource);
+            return this;
+        }
+
+
         public final Jetty buildJetty() {
             try {
                 if (context == null) {
@@ -95,7 +106,7 @@ public final class Jetty {
                 if (isBlank(contextPath)) {
                     contextPath = getBaseName(warPath);
                 }
-                return new Jetty(port, sslPort, contextPath, warPath, context, overridewebXmlFile, loginService);
+                return new Jetty(port, sslPort, contextPath, warPath, context, overridewebXmlFile, loginService, dataSources);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -120,6 +131,8 @@ public final class Jetty {
     private final JAASLoginService loginService;
     public final Server server;
     public final WebAppContext context;
+    private final Map<String, DataSource> dataSources;
+
 
     public final Runnable stop = new Runnable() {
         @Override
@@ -140,9 +153,11 @@ public final class Jetty {
             MetaInfConfiguration.class.getName(),
             FragmentConfiguration.class.getName(),
             JettyWebXmlConfiguration.class.getName(),
+            EnvConfiguration.class.getName(),
+            PlusConfiguration.class.getName()
     };
 
-    private Jetty(int port, Optional<Integer> sslPort, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile, JAASLoginService loginService) {
+    private Jetty(int port, Optional<Integer> sslPort, String contextPath, String warPath, WebAppContext context, File overrideWebXmlFile, JAASLoginService loginService, Map<String, DataSource> dataSources) {
         this.warPath = warPath;
         this.overrideWebXmlFile = overrideWebXmlFile;
 
@@ -152,6 +167,7 @@ public final class Jetty {
         this.loginService = loginService;
         this.context = setupWebapp(context);
         this.server = setupJetty(new Server());
+        this.dataSources = dataSources;
 
     }
 
@@ -177,6 +193,17 @@ public final class Jetty {
         initParams.put("useFileMappedBuffer", "false");
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
+
+        if (!dataSources.isEmpty()) {
+            for (Map.Entry<String, DataSource> entrySet : dataSources.entrySet()) {
+                try {
+                    new org.eclipse.jetty.plus.jndi.Resource(webAppContext, entrySet.getKey(), entrySet.getValue());
+                } catch (NamingException e) {
+                    throw new RuntimeException("Kunne ikke legge til datasource " + e, e);
+                }
+            }
+        }
+
         return webAppContext;
     }
 
