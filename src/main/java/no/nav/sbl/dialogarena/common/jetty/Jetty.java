@@ -161,15 +161,14 @@ public final class Jetty {
     private Jetty(String warPath, JettyBuilder builder) {
         this.warPath = warPath;
         this.overrideWebXmlFile = builder.overridewebXmlFile;
-
+        this.dataSources = builder.dataSources;
         this.port = builder.port;
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
         this.loginService = builder.loginService;
+
         this.context = setupWebapp(builder.context);
         this.server = setupJetty(new Server());
-        this.dataSources = builder.dataSources;
-
     }
 
     private WebAppContext setupWebapp(final WebAppContext webAppContext) {
