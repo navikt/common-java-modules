@@ -14,6 +14,7 @@ import static no.nav.sbl.dialogarena.time.Datoformat.lang;
 import static no.nav.sbl.dialogarena.time.Datoformat.langMedTid;
 import static no.nav.sbl.dialogarena.time.Datoformat.medium;
 import static no.nav.sbl.dialogarena.time.Datoformat.mediumMedTid;
+import static no.nav.sbl.dialogarena.time.Datoformat.ultrakort;
 import static org.apache.commons.collections15.FactoryUtils.constantFactory;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -47,6 +48,11 @@ public class DatoformatTest {
     public void kortDato() {
         assertThat(kort(new DateTime(1981, 6, 4, 12, 15)), is("04.06.1981"));
         assertThat(kortMedTid(new DateTime(1981, 6, 4, 12, 15)), is("04.06.1981 kl 12:15"));
+    }
+
+    @Test
+    public void ultrakortDato() {
+        assertThat(ultrakort(new DateTime(1981, 6, 4, 12, 15)), is("04.06.81"));
     }
 
 
