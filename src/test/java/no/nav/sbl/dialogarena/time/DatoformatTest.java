@@ -58,11 +58,11 @@ public class DatoformatTest {
 
     @Test
     public void datoIDag() {
-        assertThat(lang(IDAG_KL_0805), is("i dag"));
+        assertThat(lang(IDAG_KL_0805), is("i dag 7. oktober 2013"));
         assertThat(medium(IDAG_KL_0805), is("i dag"));
         assertThat(kort(IDAG_KL_0805), is("i dag"));
 
-        assertThat(langMedTid(IDAG_KL_0805), is("i dag, kl 08:05"));
+        assertThat(langMedTid(IDAG_KL_0805), is("i dag 7. oktober 2013, kl 08:05"));
         assertThat(mediumMedTid(IDAG_KL_0805), is("i dag, kl 08:05"));
         assertThat(kortMedTid(IDAG_KL_0805), is("i dag kl 08:05"));
     }
@@ -70,11 +70,11 @@ public class DatoformatTest {
 
     @Test
     public void datoIGaar() {
-        assertThat(lang(IGAAR_KL_0805), is("i går"));
+        assertThat(lang(IGAAR_KL_0805), is("i går 6. oktober 2013"));
         assertThat(medium(IGAAR_KL_0805), is("i går"));
         assertThat(kort(IGAAR_KL_0805), is("i går"));
 
-        assertThat(langMedTid(IGAAR_KL_0805), is("i går, kl 08:05"));
+        assertThat(langMedTid(IGAAR_KL_0805), is("i går 6. oktober 2013, kl 08:05"));
         assertThat(mediumMedTid(IGAAR_KL_0805), is("i går, kl 08:05"));
         assertThat(kortMedTid(IGAAR_KL_0805), is("i går kl 08:05"));
     }
@@ -83,11 +83,11 @@ public class DatoformatTest {
     @Test
     public void datoImorgen() {
         DateTime imorgen = IDAG_KL_0805.plusDays(1);
-        assertThat(lang(imorgen), is("i morgen"));
+        assertThat(lang(imorgen), is("i morgen 8. oktober 2013"));
         assertThat(medium(imorgen), is("i morgen"));
         assertThat(kort(imorgen), is("i morgen"));
 
-        assertThat(langMedTid(imorgen), is("i morgen, kl 08:05"));
+        assertThat(langMedTid(imorgen), is("i morgen 8. oktober 2013, kl 08:05"));
         assertThat(mediumMedTid(imorgen), is("i morgen, kl 08:05"));
         assertThat(kortMedTid(imorgen), is("i morgen kl 08:05"));
     }

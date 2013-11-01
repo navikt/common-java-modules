@@ -42,9 +42,9 @@ public final class Datoformat {
     public static final Transformer<DateTime, String> KORT = new Formatter(new KortDato());
     public static final Transformer<DateTime, String> ULTRAKORT = new Formatter(new UltrakortDato());
 
-    public static final Transformer<DateTime, String> LANG_MED_TID = new Formatter(new Join<DateTime>(constantFactory(", 'kl' "), new LangDato(), TID));
-    public static final Transformer<DateTime, String> MEDIUM_MED_TID = new Formatter(new Join<DateTime>(constantFactory(", 'kl' "), new MediumDato(), TID));
-    public static final Transformer<DateTime, String> KORT_MED_TID = new Formatter(new Join<DateTime>(" 'kl' ", new KortDato(), TID));
+    public static final Transformer<DateTime, String> LANG_MED_TID = new Formatter(new Join<>(constantFactory(", 'kl' "), new LangDato(), TID));
+    public static final Transformer<DateTime, String> MEDIUM_MED_TID = new Formatter(new Join<>(constantFactory(", 'kl' "), new MediumDato(), TID));
+    public static final Transformer<DateTime, String> KORT_MED_TID = new Formatter(new Join<>(" 'kl' ", new KortDato(), TID));
 
 
 
@@ -61,13 +61,26 @@ public final class Datoformat {
 
     public static final class LangDato extends LiteralDato {
         @Override protected String defaultPattern(DateTime dateTime) { return "EEEEE d. MMMM yyyy"; }
-    }
 
+        @Override
+        public String transform(DateTime dateTime) {
+            LocalDate today = LocalDate.now(dateTime.getChronology());
+            LocalDate date = dateTime.toLocalDate();
+            if (today.equals(date)) {
+                return "'i dag' d. MMMM yyyy";
+            } else if (today.minusDays(1).equals(date)) {
+                return "'i går' d. MMMM yyyy";
+            } else if (today.plusDays(1).equals(date)) {
+                return "'i morgen' d. MMMM yyyy";
+            } else {
+                return defaultPattern(dateTime);
+            }
+        }
+    }
 
     public static final class MediumDato extends LiteralDato {
         @Override protected String defaultPattern(DateTime dateTime) { return "d. MMM yyyy"; }
     }
-
 
     public static final class KortDato extends LiteralDato {
         @Override protected String defaultPattern(DateTime dateTime) { return "dd.MM.yyyy"; }
@@ -83,9 +96,9 @@ public final class Datoformat {
      * datoen er idag eller nær dagens dato, vil et hensiktsmessig begrep som 'i dag' eller
      * 'i går' bli brukt.
      */
-    public abstract static class LiteralDato implements Transformer<DateTime, String> {
+    private abstract static class LiteralDato implements Transformer<DateTime, String> {
         @Override
-        public final String transform(DateTime dateTime) {
+        public String transform(DateTime dateTime) {
             LocalDate today = LocalDate.now(dateTime.getChronology());
             LocalDate date = dateTime.toLocalDate();
             if (today.equals(date)) {
@@ -106,7 +119,7 @@ public final class Datoformat {
     /**
      * Formaterer {@link DateTime}s, gitt et {@link Locale} og dato-pattern.
      */
-    public static final class Formatter implements Transformer<DateTime, String> {
+    private static final class Formatter implements Transformer<DateTime, String> {
 
         private final Transformer<? super DateTime, String> pattern;
 
