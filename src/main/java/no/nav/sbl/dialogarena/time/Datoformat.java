@@ -42,8 +42,8 @@ public final class Datoformat {
     public static final Transformer<DateTime, String> KORT = new Formatter(new KortDato());
     public static final Transformer<DateTime, String> ULTRAKORT = new Formatter(new UltrakortDato());
 
-    public static final Transformer<DateTime, String> LANG_MED_TID = new Formatter(new Join<>(constantFactory(", 'kl' "), new LangDato(), TID));
-    public static final Transformer<DateTime, String> MEDIUM_MED_TID = new Formatter(new Join<>(constantFactory(", 'kl' "), new MediumDato(), TID));
+    public static final Transformer<DateTime, String> LANG_MED_TID = new Formatter(new Join<>(", 'kl' ", new LangDato(), TID));
+    public static final Transformer<DateTime, String> MEDIUM_MED_TID = new Formatter(new Join<>(", 'kl' ", new MediumDato(), TID));
     public static final Transformer<DateTime, String> KORT_MED_TID = new Formatter(new Join<>(" 'kl' ", new KortDato(), TID));
 
 

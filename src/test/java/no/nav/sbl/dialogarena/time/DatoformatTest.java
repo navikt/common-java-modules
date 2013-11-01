@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.Locale;
 
+import static no.nav.modig.lang.collections.FactoryUtils.always;
 import static no.nav.sbl.dialogarena.time.Datoformat.kort;
 import static no.nav.sbl.dialogarena.time.Datoformat.kortMedTid;
 import static no.nav.sbl.dialogarena.time.Datoformat.lang;
@@ -15,7 +16,6 @@ import static no.nav.sbl.dialogarena.time.Datoformat.langMedTid;
 import static no.nav.sbl.dialogarena.time.Datoformat.medium;
 import static no.nav.sbl.dialogarena.time.Datoformat.mediumMedTid;
 import static no.nav.sbl.dialogarena.time.Datoformat.ultrakort;
-import static org.apache.commons.collections15.FactoryUtils.constantFactory;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -29,7 +29,7 @@ public class DatoformatTest {
     @Before
     public void idagEr7Oktober2013INorge() {
         DateTimeUtils.setCurrentMillisFixed(IDAG_KL_0805.getMillis());
-        Datoformat.brukLocaleFra(constantFactory(new Locale("nb", "no")));
+        Datoformat.brukLocaleFra(always(new Locale("nb", "no")));
     }
 
     @Test

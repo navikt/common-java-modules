@@ -6,7 +6,7 @@ import org.apache.commons.collections15.Transformer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.collections15.FactoryUtils.constantFactory;
+import static no.nav.modig.lang.collections.FactoryUtils.always;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class Join<T> implements Transformer<T, String> {
@@ -15,8 +15,7 @@ public class Join<T> implements Transformer<T, String> {
 
     @SafeVarargs
     public Join(String separator, Transformer<? super T, String> ... transformers) {
-        this.transformers = transformers;
-        this.separator = constantFactory(separator);
+        this(always(separator), transformers);
     }
 
     @SafeVarargs
