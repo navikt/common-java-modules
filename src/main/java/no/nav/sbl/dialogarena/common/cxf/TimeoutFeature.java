@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.integrasjon.features;
+package no.nav.sbl.dialogarena.common.cxf;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Client;
@@ -9,7 +9,6 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
 /**
  * Timeoutfeature for å konfigurer timeout på cxf-klient
- * @deprecated Bruk TimeoutFeature fra common-cxf
  */
 public class TimeoutFeature extends AbstractFeature {
 

@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.integrasjon.features;
+package no.nav.sbl.dialogarena.common.cxf;
 
 import java.io.IOException;
 import java.io.InputStream;

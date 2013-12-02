@@ -1,9 +1,8 @@
-package no.nav.sbl.dialogarena.common.integrasjon.cxf;
+package no.nav.sbl.dialogarena.common.cxf;
 
 import java.util.HashMap;
 
 import no.nav.modig.security.sts.utility.STSConfigurationUtility;
-import no.nav.sbl.dialogarena.common.integrasjon.features.TimeoutFeature;
 
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;

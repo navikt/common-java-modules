@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.integrasjon.cxf;
+package no.nav.sbl.dialogarena.common.cxf;
 
 import static java.util.Arrays.asList;
 
@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.nav.modig.security.ws.SAMLInInterceptor;
-import no.nav.sbl.dialogarena.common.integrasjon.features.AttachmentCleanupInterceptor;
 
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
