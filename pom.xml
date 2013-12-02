@@ -9,7 +9,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>common-cxf</artifactId>
-	<version>1-SNAPSHOT</version>
+	<version>1</version>
 
 	<properties>
 		<cxf.version>2.7.6</cxf.version>
@@ -76,6 +76,6 @@
     <scm>
         <developerConnection>scm:git:ssh://git@a34apvl029.devillo.no:7999/dial/common.git</developerConnection>
         <url>http://a34apvl029.devillo.no:7990/projects/DIAL/repos/common/browse</url>
-      <tag>HEAD</tag>
+      <tag>1-common-cxf</tag>
   </scm>
 </project>
