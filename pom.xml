@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>common-parent</artifactId>
+		<groupId>no.nav.sbl.dialogarena</groupId>
+		<version>1.0.1</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>common-cxf</artifactId>
+	<version>1-SNAPSHOT</version>
+
+	<properties>
+		<cxf.version>2.7.6</cxf.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-simple</artifactId>
+            <version>${cxf.version}</version>
+		</dependency>
+        <dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-api</artifactId>
+            <version>${cxf.version}</version>
+		</dependency>
+        <dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
+		</dependency>
+
+		<!-- Legg til denne som runtime hvis du trenger STS -->
+		<dependency>
+			<groupId>no.nav.modig</groupId>
+			<artifactId>modig-security-sts</artifactId>
+			<version>1.0.19</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- Legg til denne som runtime hvis du trenger SAML-interceptors -->
+		<dependency>
+			<groupId>no.nav.modig</groupId>
+			<artifactId>modig-security-ws</artifactId>
+			<version>1.0.19</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+	</dependencies>
+    <scm>
+        <developerConnection>scm:git:ssh://git@a34apvl029.devillo.no:7999/dial/common.git</developerConnection>
+        <url>http://a34apvl029.devillo.no:7990/projects/DIAL/repos/common/browse</url>
+      <tag>HEAD</tag>
+  </scm>
+</project>
