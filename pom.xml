@@ -69,8 +69,10 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <scm>
-        <developerConnection>scm:svn:${svn.url}/trunk/test</developerConnection>
-        <url>${svn.url}/trunk/test</url>
+        <developerConnection>scm:git:ssh://git@stash.devillo.no:7999/dial/common.git</developerConnection>
+        <url>http://stash.devillo.no:7990/scm/dial/common.git</url>
+        <tag>HEAD</tag>
     </scm>
 </project>
