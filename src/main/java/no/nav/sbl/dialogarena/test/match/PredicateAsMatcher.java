@@ -22,8 +22,8 @@ class PredicateAsMatcher<T> extends TypeSafeMatcher<T> {
 
 
     @Override
-    public void describeTo(Description description) {
-        description.appendText(this.description);
+    public void describeTo(Description desc) {
+        desc.appendText(this.description);
     }
 
 
