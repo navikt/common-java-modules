@@ -19,7 +19,7 @@ import static org.apache.commons.collections15.TransformerUtils.constantTransfor
  * hvordan locale resolves. F.eks. kan man sende inn en {@link Factory} som henter locale fra en Wicket session.
  * </p>
  * <p>
- * TODO: utvide med støtte for internasjonalisering av datobegrepene 'i dag', 'i morgen', etc.
+ * - Forbedringer: Utvide med støtte for internasjonalisering av datobegrepene 'i dag', 'i morgen', etc.
  * </p>
  */
 public final class Datoformat {
