@@ -76,8 +76,8 @@ public final class Jetty {
             return this;
         }
 
-        public final JettyBuilder sslPort(int sslPort) {
-            this.sslPort = optional(sslPort);
+        public final JettyBuilder sslPort(int port) {
+            this.sslPort = optional(port);
             return this;
         }
 
@@ -86,8 +86,8 @@ public final class Jetty {
             return this;
         }
 
-        public final JettyBuilder withLoginService(JAASLoginService loginService) {
-            this.loginService = loginService;
+        public final JettyBuilder withLoginService(JAASLoginService service) {
+            this.loginService = service;
             return this;
         }
 
