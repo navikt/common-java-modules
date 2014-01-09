@@ -14,7 +14,7 @@ public class ToUrl implements Transformer<Integer, URL> {
 
     public ToUrl(String scheme, String path) {
         this.scheme = scheme;
-        this.path = path + (path.startsWith("/") ? "" : "/");
+        this.path = (path.startsWith("/") ? "" : "/") + path;
     }
 
     @Override
