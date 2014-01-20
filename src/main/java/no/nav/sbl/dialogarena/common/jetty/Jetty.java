@@ -76,8 +76,8 @@ public final class Jetty {
             return this;
         }
 
-        public final JettyBuilder sslPort(int SSLport) {
-            this.sslPort = optional(SSLport);
+        public final JettyBuilder sslPort(int sslPort) {
+            this.sslPort = optional(sslPort);
             return this;
         }
 
