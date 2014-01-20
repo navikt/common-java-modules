@@ -60,7 +60,7 @@ public final class Datoformat {
 
 
     public static final class LangDato extends LiteralDato {
-        @Override protected String defaultPattern(DateTime dateTime) { return "EEEEE d. MMMM yyyy"; }
+        @Override protected String defaultPattern() { return "EEEEE d. MMMM yyyy"; }
 
         @Override
         public String transform(DateTime dateTime) {
@@ -73,21 +73,21 @@ public final class Datoformat {
             } else if (today.plusDays(1).equals(date)) {
                 return "'i morgen' d. MMMM yyyy";
             } else {
-                return defaultPattern(dateTime);
+                return defaultPattern();
             }
         }
     }
 
     public static final class MediumDato extends LiteralDato {
-        @Override protected String defaultPattern(DateTime dateTime) { return "d. MMM yyyy"; }
+        @Override protected String defaultPattern() { return "d. MMM yyyy"; }
     }
 
     public static final class KortDato extends LiteralDato {
-        @Override protected String defaultPattern(DateTime dateTime) { return "dd.MM.yyyy"; }
+        @Override protected String defaultPattern() { return "dd.MM.yyyy"; }
     }
 
     public static final class UltrakortDato extends LiteralDato {
-        @Override protected String defaultPattern(DateTime dateTime) { return "dd.MM.yy"; }
+        @Override protected String defaultPattern() { return "dd.MM.yy"; }
     }
 
 
@@ -108,11 +108,11 @@ public final class Datoformat {
             } else if (today.plusDays(1).equals(date)) {
                 return "'i morgen'";
             } else {
-                return defaultPattern(dateTime);
+                return defaultPattern();
             }
         }
 
-        protected abstract String defaultPattern(DateTime dateTime);
+        protected abstract String defaultPattern();
     }
 
 
