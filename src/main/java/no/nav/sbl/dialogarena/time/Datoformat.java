@@ -2,6 +2,7 @@ package no.nav.sbl.dialogarena.time;
 
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -64,20 +65,7 @@ public final class Datoformat {
     public static final class LangDato extends LiteralDato {
         @Override protected String defaultPattern() { return "EEEEE d. MMMM yyyy"; }
 
-        @Override
-        public String transform(DateTime dateTime) {
-            LocalDate today = LocalDate.now(dateTime.getChronology());
-            LocalDate date = dateTime.toLocalDate();
-            if (today.equals(date)) {
-                return "'i dag' d. MMMM yyyy";
-            } else if (today.minusDays(1).equals(date)) {
-                return "'i går' d. MMMM yyyy";
-            } else if (today.plusDays(1).equals(date)) {
-                return "'i morgen' d. MMMM yyyy";
-            } else {
-                return defaultPattern();
-            }
-        }
+        @Override protected String suffixPattern() { return " d. MMMM yyyy"; }
     }
 
     public static final class MediumDato extends LiteralDato {
@@ -105,18 +93,11 @@ public final class Datoformat {
     private abstract static class LiteralDato implements Transformer<DateTime, String> {
         @Override
         public String transform(DateTime dateTime) {
-            LocalDate today = LocalDate.now(dateTime.getChronology());
-            LocalDate date = dateTime.toLocalDate();
-            if (today.equals(date)) {
-                return "'i dag'";
-            } else if (today.minusDays(1).equals(date)) {
-                return "'i går'";
-            } else if (today.plusDays(1).equals(date)) {
-                return "'i morgen'";
-            } else {
-                return defaultPattern();
-            }
+            String literal = getDateLiteral(dateTime);
+            return StringUtils.isNotBlank(literal) ? literal + suffixPattern() : defaultPattern();
         }
+
+        protected String suffixPattern() { return ""; }
 
         protected abstract String defaultPattern();
     }
@@ -138,6 +119,20 @@ public final class Datoformat {
             return DateTimeFormat.forPattern(pattern.transform(dateTime)).withLocale(Datoformat.locale.create()).print(dateTime);
         }
 
+    }
+
+    private static String getDateLiteral(DateTime dateTime) {
+        LocalDate today = LocalDate.now(dateTime.getChronology());
+        LocalDate date = dateTime.toLocalDate();
+        if (today.equals(date)) {
+            return "'i dag'";
+        } else if (today.minusDays(1).equals(date)) {
+            return "'i går'";
+        } else if (today.plusDays(1).equals(date)) {
+            return "'i morgen'";
+        } else {
+            return "";
+        }
     }
 
     private Datoformat() {}
