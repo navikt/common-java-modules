@@ -11,6 +11,7 @@ import java.util.Locale;
 import static no.nav.modig.lang.collections.FactoryUtils.always;
 import static no.nav.sbl.dialogarena.time.Datoformat.kort;
 import static no.nav.sbl.dialogarena.time.Datoformat.kortMedTid;
+import static no.nav.sbl.dialogarena.time.Datoformat.kortUtenLiteral;
 import static no.nav.sbl.dialogarena.time.Datoformat.lang;
 import static no.nav.sbl.dialogarena.time.Datoformat.langMedTid;
 import static no.nav.sbl.dialogarena.time.Datoformat.medium;
@@ -47,6 +48,7 @@ public class DatoformatTest {
     @Test
     public void kortDato() {
         assertThat(kort(new DateTime(1981, 6, 4, 12, 15)), is("04.06.1981"));
+        assertThat(kortUtenLiteral(new DateTime(1981, 6, 4, 12, 15)), is("04.06.1981"));
         assertThat(kortMedTid(new DateTime(1981, 6, 4, 12, 15)), is("04.06.1981 kl 12:15"));
     }
 
@@ -61,6 +63,7 @@ public class DatoformatTest {
         assertThat(lang(IDAG_KL_0805), is("i dag 7. oktober 2013"));
         assertThat(medium(IDAG_KL_0805), is("i dag"));
         assertThat(kort(IDAG_KL_0805), is("i dag"));
+        assertThat(kortUtenLiteral(IDAG_KL_0805), is("07.10.2013"));
 
         assertThat(langMedTid(IDAG_KL_0805), is("i dag 7. oktober 2013, kl 08:05"));
         assertThat(mediumMedTid(IDAG_KL_0805), is("i dag, kl 08:05"));
@@ -73,6 +76,7 @@ public class DatoformatTest {
         assertThat(lang(IGAAR_KL_0805), is("i går 6. oktober 2013"));
         assertThat(medium(IGAAR_KL_0805), is("i går"));
         assertThat(kort(IGAAR_KL_0805), is("i går"));
+        assertThat(kortUtenLiteral(IGAAR_KL_0805), is("06.10.2013"));
 
         assertThat(langMedTid(IGAAR_KL_0805), is("i går 6. oktober 2013, kl 08:05"));
         assertThat(mediumMedTid(IGAAR_KL_0805), is("i går, kl 08:05"));
@@ -86,6 +90,7 @@ public class DatoformatTest {
         assertThat(lang(imorgen), is("i morgen 8. oktober 2013"));
         assertThat(medium(imorgen), is("i morgen"));
         assertThat(kort(imorgen), is("i morgen"));
+        assertThat(kortUtenLiteral(imorgen), is("08.10.2013"));
 
         assertThat(langMedTid(imorgen), is("i morgen 8. oktober 2013, kl 08:05"));
         assertThat(mediumMedTid(imorgen), is("i morgen, kl 08:05"));

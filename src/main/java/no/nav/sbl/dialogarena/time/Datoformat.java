@@ -40,6 +40,7 @@ public final class Datoformat {
     public static final Transformer<DateTime, String> LANG = new Formatter(new LangDato());
     public static final Transformer<DateTime, String> MEDIUM = new Formatter(new MediumDato());
     public static final Transformer<DateTime, String> KORT = new Formatter(new KortDato());
+    public static final Transformer<DateTime, String> KORT_UTEN_LITERAL = new Formatter(new KortDatoUtenLiteral());
     public static final Transformer<DateTime, String> ULTRAKORT = new Formatter(new UltrakortDato());
 
     public static final Transformer<DateTime, String> LANG_MED_TID = new Formatter(new Join<>(", 'kl' ", new LangDato(), TID));
@@ -51,6 +52,7 @@ public final class Datoformat {
     public static String lang(DateTime dateTime) { return LANG.transform(dateTime); }
     public static String medium(DateTime dateTime) { return MEDIUM.transform(dateTime); }
     public static String kort(DateTime dateTime) { return KORT.transform(dateTime); }
+    public static String kortUtenLiteral(DateTime dateTime) { return KORT_UTEN_LITERAL.transform(dateTime); }
     public static String ultrakort(DateTime dateTime) { return ULTRAKORT.transform(dateTime); }
 
     public static String langMedTid(DateTime dateTime) { return LANG_MED_TID.transform(dateTime); }
@@ -88,6 +90,10 @@ public final class Datoformat {
 
     public static final class UltrakortDato extends LiteralDato {
         @Override protected String defaultPattern() { return "dd.MM.yy"; }
+    }
+
+    public static final class KortDatoUtenLiteral implements Transformer<DateTime, String> {
+        @Override public String transform(DateTime dateTime) { return "dd.MM.yyyy"; }
     }
 
 
@@ -133,8 +139,6 @@ public final class Datoformat {
         }
 
     }
-
-
 
     private Datoformat() {}
 }
