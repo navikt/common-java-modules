@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>common-web</artifactId>
-    <version>2.0.4</version>
+    <version>2.0.5-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <dependencies>
@@ -83,7 +83,7 @@
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no:7990/scm/dial/common.git</developerConnection>
         <url>http://a34apvl029.devillo.no:7990/scm/dial/common.git</url>
-        <tag>2.0.4-common-web</tag>
+        <tag>HEAD</tag>
     </scm>
 
 </project>
