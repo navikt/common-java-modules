@@ -1,28 +1,21 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
-import no.nav.sbl.dialogarena.types.Pingable;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.jar.Manifest;
 
 import static java.util.Arrays.asList;
-import static no.nav.modig.lang.collections.IterUtils.on;
 import static no.nav.modig.lang.collections.TransformerUtils.joinedWith;
 import static no.nav.modig.lang.option.Optional.optional;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
@@ -31,9 +24,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 /**
  * Base-servlet for selftestside uten bruk av Wicket.
  */
-public abstract class SelfTestBaseServlet extends HttpServlet {
-
-    private static final Logger logger = LoggerFactory.getLogger(SelfTestBaseServlet.class);
+public abstract class SelfTestBaseServlet extends AbstractSelfTestBaseServlet {
 
     private static class Result {
         public final String html;
@@ -48,13 +39,6 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
             this.errors = errors;
         }
     }
-
-    /**
-     * Denne metoden må implementeres til å returnere en Collection av alle tjenester som skal inngå
-     * i selftesten. Tjenestene må implementere Pingable-grensesnittet.
-     * @return Liste over tjenester som implementerer Pingable
-     */
-    protected abstract Collection<? extends Pingable> getPingables();
 
     /**
      * Denne metoden må implementeres til å returnere applikasjonens navn, for bruk i tittel og overskrift
@@ -84,7 +68,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
 
     @Override
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Result result = kjorSelfTest(getPingables());
+        Result result = kjorSelfTest();
 
         if (result.hasErrors() && !req.getParameterMap().isEmpty()) {
             resp.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR, join(result.errors, ", "));
@@ -94,11 +78,12 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
         }
     }
 
-    private Result kjorSelfTest(Collection<? extends Pingable> pingables) throws IOException {
+    private Result kjorSelfTest() throws IOException {
+        doPing();
         StringBuilder tabell = new StringBuilder();
         List<String> feilendeKomponenter = new ArrayList<>();
         String aggregertStatus = "OK";
-        for (Ping resultat : on(pingables).map(SJEKK)) {
+        for (Ping resultat : this.result) {
             String status = resultat.isVellykket() ? "OK" : "ERROR";
             if (!resultat.isVellykket()) {
                 aggregertStatus = "ERROR";
@@ -116,7 +101,8 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
             html = html.replace("${aggregertStatus}", aggregertStatus);
             html = html.replace("${resultater}", tabell.toString());
             html = html.replace("${custom-rows}", StringUtils.defaultString(getCustomRows()));
-            html = html.replace("${version}", getApplicationVersion());
+            html = html.replace("${version}", getApplicationName() + "-" + getApplicationVersion());
+            html = html.replace("${host}", "Host: " + getHost());
             html = html.replace("${generert-tidspunkt}", DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
             html = html.replace("${feilende-komponenter}", join(feilendeKomponenter, ","));
             html = html.replace("${custom-markup}", StringUtils.defaultString(getCustomMarkup()));
@@ -127,30 +113,6 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
 
     protected static String tableRow(Object... tdContents) {
         return "<tr><td>" + optional(asList(tdContents)).map(joinedWith("</td><td>")).get() + "</td></tr>\n";
-    }
-
-    private static final Transformer<Pingable, Ping> SJEKK = new Transformer<Pingable, Ping>() {
-        @Override
-        public Ping transform(Pingable pingable) {
-            long startTime = System.currentTimeMillis();
-            Ping ping = pingable.ping();
-            ping.setTidsbruk(System.currentTimeMillis() - startTime);
-            if (!ping.isVellykket()) {
-                logger.warn("Feil ved SelfTest av " + ping.getKomponent(), ping.getAarsak());
-            }
-            return ping;
-        }
-    };
-
-    private String getApplicationVersion() {
-        String version = "unknown version";
-        try {
-            InputStream inputStream = getServletContext().getResourceAsStream(("/META-INF/MANIFEST.MF"));
-            version = new Manifest(inputStream).getMainAttributes().getValue("Implementation-Version");
-        } catch (Exception e) {
-            logger.warn("Feil ved henting av applikasjonsversjon: " + e.getMessage());
-        }
-        return getApplicationName() + "-" + version;
     }
 
     private static final Transformer<Throwable, String> MESSAGE = new Transformer<Throwable, String>() {
