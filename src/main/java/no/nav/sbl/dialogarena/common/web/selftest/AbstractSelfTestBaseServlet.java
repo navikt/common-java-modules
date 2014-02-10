@@ -52,12 +52,13 @@ public abstract class AbstractSelfTestBaseServlet extends HttpServlet {
     }
 
     protected String getHost() {
+        String host = "unknown host";
         try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
+            host = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             logger.error("Error retrieving host", e);
-            return "unknown host";
         }
+        return host;
     }
 
     protected String getMessage() {
