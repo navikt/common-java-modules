@@ -26,4 +26,10 @@ public class ToUrlTest {
         URL url = transformer.transform(8080);
         assertThat(url.toString(), equalTo("http://"+ InetAddress.getLocalHost().getCanonicalHostName()+":8080/my/path"));
     }
+
+    @Test(expected = RuntimeException.class)
+    public void transformMalformedUrl() {
+        ToUrl transformer = new ToUrl("abc","");
+        transformer.transform(1234);
+    }
 }
