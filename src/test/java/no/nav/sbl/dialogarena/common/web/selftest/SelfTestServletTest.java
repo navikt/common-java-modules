@@ -33,31 +33,13 @@ public class SelfTestServletTest {
 
     @Before
     public void setUp() throws Exception {
-        servlet = new SelfTestBaseServlet() {
-            @Override
-            protected String getApplicationName() {
-                return "TestApp";
-            }
-
-            @Override
-            protected Collection<? extends Pingable> getPingables() {
-                return asList(
-                        createPingable(Ping.lyktes("A")),
-                        createPingable(Ping.lyktes("B")),
-                        createPingable(Ping.feilet("C", new IllegalArgumentException("Cfeil")))
-                );
-            }
-        };
+        servlet = createServlet();
 
         mockRequest = mock(HttpServletRequest.class);
         mockResponse = mock(HttpServletResponse.class);
 
         when(mockRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
-        when(mockResponse.getWriter()).thenReturn(new PrintWriter(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-            }
-        }));
+        when(mockResponse.getWriter()).thenReturn(createMockedPrintWriter());
 
 
         tester = new ServletTester();
@@ -86,7 +68,30 @@ public class SelfTestServletTest {
         assertThat(servlet.getStatus(), is("ERROR"));
     }
 
+    private PrintWriter createMockedPrintWriter() {
+        return new PrintWriter(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {}
+        });
+    }
 
+    private SelfTestBaseServlet createServlet() {
+        return new SelfTestBaseServlet() {
+            @Override
+            protected String getApplicationName() {
+                return "TestApp";
+            }
+
+            @Override
+            protected Collection<? extends Pingable> getPingables() {
+                return asList(
+                        createPingable(Ping.lyktes("A")),
+                        createPingable(Ping.lyktes("B")),
+                        createPingable(Ping.feilet("C", new IllegalArgumentException("Cfeil")))
+                );
+            }
+        };
+    }
 
     private Pingable createPingable(final Ping ping) {
         return new Pingable() {
