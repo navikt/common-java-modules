@@ -9,8 +9,8 @@ import org.junit.Test;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.CharArrayWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,12 +28,15 @@ public class SelfTestServletTest {
 
     private HttpServletRequest mockRequest;
     private HttpServletResponse mockResponse;
-    private SelfTestBaseServlet servlet;
+    private SelfTestBaseServlet baseServlet;
     private ServletTester tester;
+    private SelfTestJsonBaseServlet jsonBaseServlet;
+    private static char[] buffer = new char[0];
 
     @Before
     public void setUp() throws Exception {
-        servlet = createServlet();
+        baseServlet = createBaseServlet();
+        jsonBaseServlet = createJsonBaseServlet();
 
         mockRequest = mock(HttpServletRequest.class);
         mockResponse = mock(HttpServletResponse.class);
@@ -44,38 +47,40 @@ public class SelfTestServletTest {
 
         tester = new ServletTester();
         tester.setContextPath("/internal");
-        tester.addServlet(servlet.getClass(), "/selftest");
+        tester.addServlet(baseServlet.getClass(), "/selftest");
+        tester.addServlet(jsonBaseServlet.getClass(), "/selftest.json");
         tester.start();
     }
 
     @After
     public void tearDown() throws Exception {
         tester.stop();
-        tester = null;
-        mockRequest = null;
-        mockResponse = null;
-        servlet = null;
     }
 
     @Test
-    public void testSelfTest() throws ServletException, IOException {
-        servlet.doGet(mockRequest, mockResponse);
+    public void testSelfTestBase() throws ServletException, IOException {
+        baseServlet.doGet(mockRequest, mockResponse);
 
-        assertNotNull(servlet);
-        assertThat(servlet.getApplicationName(), is("TestApp"));
-        assertThat(servlet.getApplicationVersion(), is("unknown version"));
-        assertTrue(servlet.getHost().endsWith(".devillo.no"));
-        assertThat(servlet.getStatus(), is("ERROR"));
+        assertNotNull(baseServlet);
+        assertThat(baseServlet.getApplicationName(), is("TestApp"));
+        assertThat(baseServlet.getApplicationVersion(), is("unknown version"));
+        assertTrue(baseServlet.getHost().endsWith(".devillo.no"));
+        assertThat(baseServlet.getStatus(), is("ERROR"));
+        assertThat(baseServlet.getPingables().size(), is(3));
+    }
+
+    @Test
+    public void testJsonSelfTestBase() throws ServletException, IOException {
+        jsonBaseServlet.doGet(mockRequest, mockResponse);
+        assertNotNull(jsonBaseServlet);
+        System.out.println(jsonBaseServlet.asJson());
     }
 
     private PrintWriter createMockedPrintWriter() {
-        return new PrintWriter(new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {}
-        });
+        return new PrintWriter(new CharArrayWriter());
     }
 
-    private SelfTestBaseServlet createServlet() {
+    private SelfTestBaseServlet createBaseServlet() {
         return new SelfTestBaseServlet() {
             @Override
             protected String getApplicationName() {
@@ -88,6 +93,18 @@ public class SelfTestServletTest {
                         createPingable(Ping.lyktes("A")),
                         createPingable(Ping.lyktes("B")),
                         createPingable(Ping.feilet("C", new IllegalArgumentException("Cfeil")))
+                );
+            }
+        };
+    }
+
+    private SelfTestJsonBaseServlet createJsonBaseServlet() {
+        return new SelfTestJsonBaseServlet() {
+            @Override
+            protected Collection<? extends Pingable> getPingables() {
+                return asList(
+                        createPingable(Ping.lyktes("A")),
+                        createPingable(Ping.feilet("B", new IllegalArgumentException("BB")))
                 );
             }
         };

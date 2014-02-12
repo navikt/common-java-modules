@@ -13,20 +13,23 @@ import java.util.Map;
 import static no.nav.modig.lang.collections.IterUtils.on;
 
 public abstract class SelfTestJsonBaseServlet extends AbstractSelfTestBaseServlet {
+
+    private Map<String, String> valueMap = new HashMap<>();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doPing();
-        Map<String, String> map = new HashMap<>();
-        map.put("host", getHost());
-        map.put("version", getApplicationVersion());
-        map.put("status", getStatus());
-        map.put("message", getMessage());
+        valueMap = new HashMap<>();
+        valueMap.put("host", getHost());
+        valueMap.put("version", getApplicationVersion());
+        valueMap.put("status", getStatus());
+        valueMap.put("message", getMessage());
         resp.setContentType("application/json");
-        resp.getWriter().write(asJson(map));
+        resp.getWriter().write(asJson());
     }
 
-    private static String asJson(Map<String, String> map) {
-        return "{" + StringUtils.join(on(map).map(new Transformer<Map.Entry<String, String>, String>() {
+    protected String asJson() {
+        return "{" + StringUtils.join(on(valueMap).map(new Transformer<Map.Entry<String, String>, String>() {
             @Override
             public String transform(Map.Entry<String, String> entry) {
                 return "\"" + entry.getKey() + "\":\"" + entry.getValue() + "\"";
