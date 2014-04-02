@@ -74,8 +74,8 @@
 
 	</dependencies>
     <scm>
-        <developerConnection>scm:git:ssh://git@a34apvl029.devillo.no:7999/dial/common.git</developerConnection>
-        <url>http://a34apvl029.devillo.no:7990/projects/DIAL/repos/common/browse</url>
+        <developerConnection>scm:git:http://stash.devillo.no:7990/dial/common.git</developerConnection>
+        <url>http://stash.devillo.no:7990/projects/DIAL/repos/common/browse</url>
       <tag>HEAD</tag>
   </scm>
 </project>
