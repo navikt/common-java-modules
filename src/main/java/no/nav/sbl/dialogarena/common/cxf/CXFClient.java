@@ -71,14 +71,17 @@ public class CXFClient<T> {
         return this;
     }
 
-    public CXFClient<T> withHandler(Handler... handlers) {
-        handlerChain.addAll(asList(handlers));
+    public CXFClient<T> withHandler(Handler handler, Handler... moreHandlers) {
+        handlerChain.add(handler);
+        handlerChain.addAll(asList(moreHandlers));
         return this;
     }
 
     @SafeVarargs
-    public final CXFClient<T> withOutInterceptor(Interceptor<? extends Message>... interceptors) {
-        factoryBean.getOutInterceptors().addAll(asList(interceptors));
+    public final CXFClient<T> withOutInterceptor(Interceptor<? extends Message> interceptor, Interceptor<? extends Message>... moreInterceptors) {
+        List<Interceptor<? extends Message>> outInterceptors = factoryBean.getOutInterceptors();
+        outInterceptors.add(interceptor);
+        outInterceptors.addAll(asList(moreInterceptors));
         return this;
     }
 
