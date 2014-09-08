@@ -55,7 +55,7 @@ public class CXFClient<T> {
         return this;
     }
 
-    public CXFClient<T> setProperty(String key, Object value) {
+    public CXFClient<T> withProperty(String key, Object value) {
         factoryBean.getProperties().put(key, value);
         return this;
     }
