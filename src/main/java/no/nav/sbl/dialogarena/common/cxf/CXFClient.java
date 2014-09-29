@@ -11,6 +11,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 
+import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
 import java.util.ArrayList;
@@ -73,6 +74,16 @@ public class CXFClient<T> {
 
     public CXFClient<T> withHandler(Handler... handlers) {
         handlerChain.addAll(asList(handlers));
+        return this;
+    }
+
+    public CXFClient<T> serviceName(QName serviceName) {
+        factoryBean.setServiceName(serviceName);
+        return this;
+    }
+
+    public CXFClient<T> endpointName(QName endpointName) {
+        factoryBean.setEndpointName(endpointName);
         return this;
     }
 
