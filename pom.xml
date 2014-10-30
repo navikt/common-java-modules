@@ -72,10 +72,17 @@
 			<scope>provided</scope>
 		</dependency>
 
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.4.01</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
+
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/dial/common.git</developerConnection>
         <url>http://stash.devillo.no:7990/scm/dial/common.git</url>
         <tag>HEAD</tag>
-  </scm>
+    </scm>
 </project>
