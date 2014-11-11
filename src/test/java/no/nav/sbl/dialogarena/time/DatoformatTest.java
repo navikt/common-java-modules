@@ -16,6 +16,7 @@ import static no.nav.sbl.dialogarena.time.Datoformat.lang;
 import static no.nav.sbl.dialogarena.time.Datoformat.langMedTid;
 import static no.nav.sbl.dialogarena.time.Datoformat.medium;
 import static no.nav.sbl.dialogarena.time.Datoformat.mediumMedTid;
+import static no.nav.sbl.dialogarena.time.Datoformat.langUtenLiteralMedTid;
 import static no.nav.sbl.dialogarena.time.Datoformat.ultrakort;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -37,6 +38,12 @@ public class DatoformatTest {
     public void langDato() {
         assertThat(lang(new DateTime(1981, 6, 4, 12, 15)), is("torsdag 4. juni 1981"));
         assertThat(langMedTid(new DateTime(1981, 6, 4, 12, 15)), is("torsdag 4. juni 1981, kl 12:15"));
+    }
+
+    @Test
+    public void langUtenLiteral() {
+        assertThat(Datoformat.langUtenLiteral(new DateTime(1985, 6, 1, 11, 33)), is("1. juni 1985"));
+        assertThat(langUtenLiteralMedTid(new DateTime(1985, 6, 1, 11, 33)), is("1. juni 1985, kl 11:33"));
     }
 
     @Test
