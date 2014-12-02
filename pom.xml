@@ -12,10 +12,17 @@
     <version>1.0.24-SNAPSHOT</version>
 
     <properties>
-        <jetty.version>9.0.5.v20130815</jetty.version>
+        <jetty.version>9.2.3.v20140905</jetty.version>
+        <spring.version>4.1.2.RELEASE</spring.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>no.nav.modig</groupId>
             <artifactId>modig-lang</artifactId>
@@ -83,6 +90,11 @@
             <version>${jetty.version}</version>
         </dependency>
         <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-testcertificates</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
@@ -93,6 +105,50 @@
             <artifactId>hamcrest-core</artifactId>
             <version>1.3</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>jms</artifactId>
+            <version>1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.mq</groupId>
+            <artifactId>mq-jms</artifactId>
+            <version>6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm</groupId>
+            <artifactId>com.ibm.mq</artifactId>
+            <version>6.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm</groupId>
+            <artifactId>dhbcore</artifactId>
+            <version>6.1</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
     <scm>

@@ -4,12 +4,13 @@ import org.eclipse.jetty.jaas.JAASLoginService;
 import org.junit.Test;
 import sun.jdbc.odbc.ee.ConnectionPoolDataSource;
 
+import javax.jms.JMSException;
 import java.io.File;
 
 public class JettyBuilderTest {
 
     @Test
-    public void startJetty() {
+    public void startJetty() throws JMSException {
         Jetty jetty = new Jetty.JettyBuilder()
                 .war(new File("/path/to/file"))
                 .at("contextpath")
