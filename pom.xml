@@ -309,7 +309,7 @@
         <repository>
             <id>m2internal</id>
             <name>NAV Maven2 Internal Repository</name>
-            <url>dav:http://maven.adeo.no/nexus/content/repositories/m2internal</url>
+            <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
         </repository>
         <snapshotRepository>
             <id>m2snapshot</id>
