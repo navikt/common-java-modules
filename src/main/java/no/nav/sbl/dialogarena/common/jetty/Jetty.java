@@ -7,29 +7,18 @@ import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.security.SecurityHandler;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.FragmentConfiguration;
-import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
-import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.eclipse.jetty.webapp.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
+import javax.jms.*;
 import javax.naming.NamingException;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
@@ -403,7 +392,16 @@ public final class Jetty {
 
     private void disableSecureCookies() {
         LOG.warn("Forcing session cookies to be insecure. DO NOT USE IN PRODUCTION!");
-        context.getSessionHandler().getSessionManager().getSessionCookieConfig().setSecure(false);
+        context.addEventListener(new ServletContextListener() {
+            @Override
+            public void contextInitialized(ServletContextEvent sce) {
+                sce.getServletContext().getSessionCookieConfig().setSecure(false);
+            }
+
+            @Override
+            public void contextDestroyed(ServletContextEvent sce) {
+            }
+        });
     }
 
     private void setDevelopmentMode() {
