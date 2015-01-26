@@ -54,8 +54,8 @@
     </dependencies>
 
     <scm>
-        <developerConnection>scm:git:http://stash.devillo.no:7990/scm/dial/common.git</developerConnection>
-        <url>http://a34apvl029.devillo.no:7990/scm/dial/common.git</url>
+        <developerConnection>scm:git:http://stash.devillo.no:7990/scm/felles/common.git</developerConnection>
+        <url>http://a34apvl029.devillo.no:7990/scm/felles/common.git</url>
         <tag>HEAD</tag>
     </scm>
 </project>
