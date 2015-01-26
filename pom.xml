@@ -81,8 +81,8 @@
 	</dependencies>
 
     <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/dial/common.git</developerConnection>
-        <url>http://stash.devillo.no:7990/scm/dial/common.git</url>
+        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/common.git</developerConnection>
+        <url>http://stash.devillo.no:7990/scm/felles/common.git</url>
         <tag>HEAD</tag>
     </scm>
 </project>
