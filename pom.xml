@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>common-jetty</artifactId>
-    <version>1.0.26-SNAPSHOT</version>
+    <version>1.0.26</version>
 
     <properties>
         <jetty.version>9.2.3.v20140905</jetty.version>
@@ -154,6 +154,6 @@
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no:7990/scm/felles/common.git</developerConnection>
         <url>http://a34apvl029.devillo.no:7990/scm/felles/common.git</url>
-        <tag>HEAD</tag>
+        <tag>1.0.26-common-jetty</tag>
     </scm>
 </project>
