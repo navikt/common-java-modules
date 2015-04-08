@@ -259,7 +259,7 @@ public final class Jetty {
 
         webAppContext.setConfigurationClasses(CONFIGURATION_CLASSES);
         Map<String, String> initParams = webAppContext.getInitParams();
-        initParams.put("useFileMappedBuffer", "false");
+        initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
 
