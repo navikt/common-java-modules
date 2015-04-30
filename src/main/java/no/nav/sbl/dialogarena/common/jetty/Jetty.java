@@ -65,6 +65,7 @@ public final class Jetty {
         private WebAppContext context;
         private File overridewebXmlFile;
         private JAASLoginService loginService;
+        private Boolean developmentMode = true;
         private Map<String, DataSource> dataSources = new HashMap<>();
         private Map<String, UserCredentialsConnectionFactoryAdapter> connectionSources = new HashMap<>();
         private Map<String, Queue> queueSources = new HashMap<>();
@@ -114,6 +115,11 @@ public final class Jetty {
             return this;
         }
 
+        //To enable CSRF etc.
+        public final JettyBuilder setDeploymentMode() {
+            this.developmentMode = false;
+            return this;
+        }
 
         public final JettyBuilder addDatasource(DataSource dataSource, String jndiName) {
             dataSources.put(jndiName, dataSource);
@@ -201,7 +207,7 @@ public final class Jetty {
     private final Map<String, DataSource> dataSources;
     private final Map<String, UserCredentialsConnectionFactoryAdapter> connections;
     private final Map<String, Queue> queues;
-
+    private final Boolean developmentMode;
 
     public final Runnable stop = new Runnable() {
         @Override
@@ -238,6 +244,7 @@ public final class Jetty {
         this.loginService = builder.loginService;
         this.context = setupWebapp(builder.context);
         this.server = setupJetty(new Server());
+        this.developmentMode = builder.developmentMode;
     }
 
     private WebAppContext setupWebapp(final WebAppContext webAppContext) {
@@ -338,7 +345,8 @@ public final class Jetty {
     public Jetty startAnd(Runnable doWhenStarted) {
         try {
             disableSecureCookies();
-            setDevelopmentMode();
+
+            setRunMode();
             server.start();
             LOG.info("STARTED JETTY");
             LOG.info(" * WAR: " + warPath);
@@ -404,9 +412,13 @@ public final class Jetty {
         });
     }
 
-    private void setDevelopmentMode() {
-        LOG.warn("Setting development mode. DO NOT USE IN PRODUCTION!");
-        LOG.warn("Override development mode by setting System property wicket.configuration to deployment");
-        setProperty("wicket.configuration", "development");
+    private void setRunMode() {
+        if (developmentMode) {
+            LOG.warn("Setting development mode. DO NOT USE IN PRODUCTION!");
+            LOG.warn("Override development mode by setting System property wicket.configuration to deployment");
+            setProperty("wicket.configuration", "development");
+        } else {
+            setProperty("wicket.configuration", "deployment");
+        }
     }
 }
