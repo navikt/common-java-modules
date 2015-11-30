@@ -33,4 +33,10 @@
         </dependency>
     </dependencies>
 
+    <scm>
+        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/metrics.git</developerConnection>
+        <url>http://stash.devillo.no/projects/FELLES/repos/metrics/browse</url>
+        <tag>HEAD</tag>
+    </scm>
+
 </project>
