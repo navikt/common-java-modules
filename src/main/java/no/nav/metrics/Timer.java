@@ -1,5 +1,7 @@
 package no.nav.metrics;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Timer {
@@ -8,11 +10,11 @@ public class Timer {
         skal brukes for tidsmåling og System.currentTimeMillis() for å
         rapportere når målingen ble gjort.
      */
-    MetricsClient metricsClient;
-    String name;
-    long measureTimestamp;
-    long startTime;
-    long stopTime;
+    private final MetricsClient metricsClient;
+    private final String name;
+    private long measureTimestamp;
+    private long startTime;
+    private long stopTime;
 
     Timer(MetricsClient metricsClient, String name) {
         this.metricsClient = metricsClient;
@@ -27,10 +29,17 @@ public class Timer {
 
     public void stop() {
         stopTime = System.nanoTime();
+        report();
+    }
+
+    public void report() {
         long elapsedTimeNanos = getElapsedTime();
         long elapsedTimeMillis = TimeUnit.NANOSECONDS.toMillis(elapsedTimeNanos);
 
-        metricsClient.report(name, Long.toString(elapsedTimeMillis), measureTimestamp);
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("value", elapsedTimeMillis);
+
+        metricsClient.report(name, fields, measureTimestamp);
     }
 
     private long getElapsedTime() {

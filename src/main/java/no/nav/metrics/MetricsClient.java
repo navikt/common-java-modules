@@ -16,10 +16,12 @@ import java.util.Map;
 
 class MetricsClient {
     private static final Logger logger = LoggerFactory.getLogger(MetricsClient.class);
-    private Map<String, String> tags = new HashMap<>();
+    private final Map<String, String> tags = new HashMap<>();
+    private final String tagsString;
 
     public MetricsClient() {
         addSystemPropertiesToTags();
+        tagsString = convertTagsToCSVString();
     }
 
     private void addSystemPropertiesToTags() {
@@ -28,9 +30,35 @@ class MetricsClient {
         tags.put("environment", System.getProperty("environment.name"));
     }
 
-    public void report(String metricName, String metricValue, long timestampInNanoseconds) {
-        JSONObject jsonObject = createSensuJSON(metricName, metricValue, timestampInNanoseconds);
+    private String convertTagsToCSVString() {
+        String tagString = tags.toString();
+        tagString = tagString.replace(" ", "");
+        tagString = tagString.substring(1, tagString.length() - 1);
+
+        return tagString;
+    }
+
+    public void report(String metricName, Map<String, Object> fields, long timestampInSeconds) {
+        JSONObject jsonObject = createSensuJSON(metricName, convertFieldsToCSVString(fields), timestampInSeconds);
         reportToSensu(jsonObject);
+    }
+
+    private String convertFieldsToCSVString(Map<String, Object> fields) {
+        StringBuilder fieldString = new StringBuilder();
+
+        for (Map.Entry<String, Object> field : fields.entrySet()) {
+            String key = field.getKey();
+            Object rawValue = field.getValue();
+            Object value = rawValue instanceof String ? createStringValue(rawValue) : rawValue;
+
+            fieldString.append("," + key + "=" + value);
+        }
+
+        return fieldString.substring(1);
+    }
+
+    private String createStringValue(Object value) {
+        return "\"" + value + "\"";
     }
 
     private JSONObject createSensuJSON(String metricName, String metricValue, long metricTimestamp) {
@@ -47,16 +75,7 @@ class MetricsClient {
     }
 
     private String createLineProtocolPayload(String metricName, String metricValue, long metricTimestamp) {
-        String tagsString = getTagsCSVString();
-        return String.format("%s,%s value=%s %d", metricName, tagsString, metricValue, metricTimestamp);
-    }
-
-    private String getTagsCSVString() {
-        String tagString = tags.toString();
-        tagString = tagString.replace(" ", "");
-        tagString = tagString.substring(1, tagString.length() - 1);
-
-        return tagString;
+        return String.format("%s,%s %s %d", metricName, tagsString, metricValue, metricTimestamp);
     }
 
     private void reportToSensu(JSONObject jsonObject) {
