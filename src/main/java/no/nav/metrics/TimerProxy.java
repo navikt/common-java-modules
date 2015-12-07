@@ -33,15 +33,20 @@ public class TimerProxy implements InvocationHandler {
 
         try {
             timer.start();
-            return method.invoke(object, args);
+            Object returnObject = method.invoke(object, args);
+            timer.addFieldToReport("success", true);
+            return returnObject;
         } catch (InvocationTargetException e) {
             logger.error("Error during invocation of method", e);
+            timer.addFieldToReport("success", false);
             throw e;
         } catch (Exception e) {
             logger.error("Exception during invocation of method", e);
+            timer.addFieldToReport("success", false);
             throw e;
         } finally {
             timer.stop();
+            timer.report();
         }
     }
 }
