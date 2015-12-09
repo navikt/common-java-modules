@@ -59,7 +59,9 @@ public class Timer {
     }
 
     private void reset() {
-        measureTimestamp = startTime = stopTime = 0;
+        measureTimestamp = 0;
+        startTime = 0;
+        stopTime = 0;
         fields = new HashMap<>();
     }
 }

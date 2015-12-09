@@ -3,7 +3,7 @@ package no.nav.metrics;
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 public class MetricsFactory {
-    public static final MetricsClient metricsClient = new MetricsClient();
+    private static final MetricsClient metricsClient = new MetricsClient();
 
     public static Timer createTimer(String name) {
         return new Timer(metricsClient, name);
