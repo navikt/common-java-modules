@@ -1,5 +1,6 @@
-package no.nav.metrics;
+package no.nav.metrics.handlers;
 
+import no.nav.metrics.MetricsClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-class SensuHandler {
+public class SensuHandler {
     private static final Logger logger = LoggerFactory.getLogger(MetricsClient.class);
     private static final int SENSU_PORT = Integer.parseInt(System.getProperty("sensu_client_port", "3030"));
 

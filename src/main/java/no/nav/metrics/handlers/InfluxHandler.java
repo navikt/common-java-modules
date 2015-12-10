@@ -1,8 +1,8 @@
-package no.nav.metrics;
+package no.nav.metrics.handlers;
 
 import java.util.Map;
 
-class InfluxHandler {
+public class InfluxHandler {
     public static String createLineProtocolPayload(String metricName, Map<String, String> tags, Map<String, Object> fields, long metricTimestamp) {
         String tagsString = convertTagsToCSVString(tags);
         String fieldsString = convertFieldsToCSVString(fields);

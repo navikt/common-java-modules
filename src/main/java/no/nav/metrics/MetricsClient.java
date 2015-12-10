@@ -1,12 +1,14 @@
 package no.nav.metrics;
 
+import no.nav.metrics.handlers.InfluxHandler;
+import no.nav.metrics.handlers.SensuHandler;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-class MetricsClient {
+public class MetricsClient {
     private final Map<String, String> tags = new HashMap<>();
 
     public MetricsClient() {

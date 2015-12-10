@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static no.nav.metrics.InfluxHandler.createLineProtocolPayload;
+import static no.nav.metrics.handlers.InfluxHandler.createLineProtocolPayload;
 import static org.junit.Assert.assertEquals;
 
 public class InfluxHandlerTest {
