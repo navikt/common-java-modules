@@ -14,6 +14,7 @@ import java.net.UnknownHostException;
 
 class SensuHandler {
     private static final Logger logger = LoggerFactory.getLogger(MetricsClient.class);
+    private static final int SENSU_PORT = Integer.parseInt(System.getProperty("sensu_client_port", "3030"));
 
     public static JSONObject createJSON(String application, String output) {
         JSONObject jsonObject = new JSONObject();
@@ -40,7 +41,7 @@ class SensuHandler {
     }
 
     private static void connectToSocket(Socket socket) throws IOException {
-        InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", 3030); //TODO: Port skal være i en system property
+        InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", SENSU_PORT);
         socket.connect(inetSocketAddress, 500);
     }
 
