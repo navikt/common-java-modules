@@ -25,7 +25,8 @@ public class SensuHandlerTest {
     @Test
     public void createJSONSetsHandlersToEvents() {
         JSONObject jsonObject = createJSON("test", "test");
+        String handlers = jsonObject.get("handlers").toString();
 
-        assertEquals("[\"events\"]", jsonObject.get("handlers"));
+        assertEquals("[\"events\"]", handlers);
     }
 }
