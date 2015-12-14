@@ -21,7 +21,7 @@ public class Timer {
 
     Timer(MetricsClient metricsClient, String name) {
         this.metricsClient = metricsClient;
-        this.name = name;
+        this.name = name + ".timer";
     }
 
     public void start() {

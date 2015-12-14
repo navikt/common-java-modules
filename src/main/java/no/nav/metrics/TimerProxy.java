@@ -20,7 +20,7 @@ public class TimerProxy implements InvocationHandler {
         Method[] methods = type.getMethods();
 
         for (Method method : methods) {
-            String metricName = name + "." + method.getName() + ".timer";
+            String metricName = name + "." + method.getName();
             Timer timer = MetricsFactory.createTimer(metricName);
 
             methodTimers.put(method, timer);
