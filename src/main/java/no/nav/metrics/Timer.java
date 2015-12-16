@@ -6,7 +6,7 @@ import java.util.Map;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-public class Timer {
+public class Timer implements Metric {
     /*
         Bruker både measureTimestamp og startTime fordi System.nanoTime()
         skal brukes for tidsmåling og System.currentTimeMillis() for å
@@ -54,7 +54,7 @@ public class Timer {
 
     private void ensureTimerIsStopped() {
         if (!fields.containsKey("value")) {
-            throw new RuntimeException("Must stop timer before reporting!");
+            throw new IllegalStateException("Must stop timer before reporting!");
         }
     }
 
