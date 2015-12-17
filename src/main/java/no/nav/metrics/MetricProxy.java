@@ -46,13 +46,13 @@ abstract class MetricProxy implements InvocationHandler {
         String methodName = method.getName();
 
         if (!shouldMeasureMethod(methodName)) {
-            return invokeMethod(proxy, method, args);
+            return invokeMethod(method, args);
         }
 
         try {
             initiateMeasurement(methodName);
 
-            return invokeMethod(proxy, method, args);
+            return invokeMethod(method, args);
         } catch (Exception e) {
             methodFailedMeasurement(methodName);
             throw e;
@@ -71,7 +71,7 @@ abstract class MetricProxy implements InvocationHandler {
         return true;
     }
 
-    private Object invokeMethod(Object proxy, Method method, Object[] args) throws Exception {
+    private Object invokeMethod(Method method, Object[] args) throws Exception {
         try {
             Object returnObject = method.invoke(object, args);
             return returnObject;

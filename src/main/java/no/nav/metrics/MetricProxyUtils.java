@@ -20,7 +20,7 @@ public class MetricProxyUtils {
             method.invoke(proxyInvocationHandler, methods);
         } catch (Exception e) {
             logger.error("Failed to invoke method", e);
-            throw new RuntimeException("Error in Metrics library. Couldn't invoke method includeMethods on " + proxyClass.getName());
+            throw new RuntimeException("Error in Metrics library. Couldn't invoke method includeMethods on " + proxyClass.getName(), e);
         }
     }
 
@@ -33,7 +33,7 @@ public class MetricProxyUtils {
             method.invoke(proxyInvocationHandler, methods);
         } catch (Exception e) {
             logger.error("Failed to invoke method", e);
-            throw new RuntimeException("Error in Metrics library. Couldn't invoke method excludeMethods on " + proxyClass.getName());
+            throw new RuntimeException("Error in Metrics library. Couldn't invoke method excludeMethods on " + proxyClass.getName(), e);
         }
     }
 }
