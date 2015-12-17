@@ -1,0 +1,1 @@
+Lenke til dokumentasjon i Confluence: http://confluence.adeo.no/pages/viewpage.action?pageId=158565738
