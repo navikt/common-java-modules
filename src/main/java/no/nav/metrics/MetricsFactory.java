@@ -9,6 +9,10 @@ public class MetricsFactory {
         return new Timer(metricsClient, name);
     }
 
+    public static Event createEvent(String name) {
+        return new Event(metricsClient, name);
+    }
+
     public static <T> T createTimerProxy(String name, T object, Class<T> type) {
         return createTimerProxyInstance(name, object, type);
     }
@@ -24,5 +28,14 @@ public class MetricsFactory {
         TimerProxy timerProxy = new TimerProxy(name, object, type);
 
         return (T) newProxyInstance(classLoader, classes, timerProxy);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T createEventProxy(String name, T object, Class<T> type) {
+        ClassLoader classLoader = TimerProxy.class.getClassLoader();
+        Class[] classes = {type};
+        EventProxy eventProxy = new EventProxy(name, object, type);
+
+        return (T) newProxyInstance(classLoader, classes, eventProxy);
     }
 }
