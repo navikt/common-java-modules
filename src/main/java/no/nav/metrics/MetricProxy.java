@@ -17,9 +17,9 @@ abstract class MetricProxy implements InvocationHandler {
     private List<String> excludedMethodNames;
     final Object object;
 
-    abstract void initiateMeasurement(String s);
-    abstract void methodFailedMeasurement(String s);
-    abstract void endMeasurement(String s);
+    abstract void initiateMeasurement(String methodName);
+    abstract void methodFailedMeasurement(String methodName);
+    abstract void endMeasurement(String methodName);
 
     MetricProxy(Object object) {
         this.object = object;
