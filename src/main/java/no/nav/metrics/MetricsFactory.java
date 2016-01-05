@@ -32,7 +32,7 @@ public class MetricsFactory {
 
     @SuppressWarnings("unchecked")
     public static <T> T createEventProxy(String name, T object, Class<T> type) {
-        ClassLoader classLoader = TimerProxy.class.getClassLoader();
+        ClassLoader classLoader = EventProxy.class.getClassLoader();
         Class[] classes = {type};
         EventProxy eventProxy = new EventProxy(name, object, type);
 
