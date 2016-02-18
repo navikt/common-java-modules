@@ -28,6 +28,7 @@ public class CXFClient<T> {
     private boolean configureStsForExternalSSO, configureStsForSystemUser;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
+    private final String STS_KEY_EXTENSION = "sts.key.extension";
 
     public CXFClient(Class<T> serviceClass) {
         factoryBean.getFeatures().add(new LoggingFeature());
@@ -83,6 +84,11 @@ public class CXFClient<T> {
         return this;
     }
 
+    public CXFClient<T> withSTSKeyExtension(String keyextension) {
+        this.withProperty(STS_KEY_EXTENSION, keyextension);
+        return this;
+    }
+
     public CXFClient<T> endpointName(QName endpointName) {
         factoryBean.setEndpointName(endpointName);
         return this;
@@ -101,12 +107,18 @@ public class CXFClient<T> {
         T portType = factoryBean.create(serviceClass);
         Client client = ClientProxy.getClient(portType);
         disableCNCheckIfConfigured(client);
+
+        if (factoryBean.getProperties().get(STS_KEY_EXTENSION) != null) {
+            STSConfigurationUtility.addStsKeyExtension(client, factoryBean.getProperties().get(STS_KEY_EXTENSION).toString());
+        }
+
         if (configureStsForExternalSSO) {
             STSConfigurationUtility.configureStsForExternalSSO(client);
         }
         if (configureStsForSystemUser) {
             STSConfigurationUtility.configureStsForSystemUser(client);
         }
+
         ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);
         return portType;
     }
