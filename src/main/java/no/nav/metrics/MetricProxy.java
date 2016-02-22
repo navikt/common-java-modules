@@ -7,10 +7,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 abstract class MetricProxy implements InvocationHandler {
-    private static final Logger logger = LoggerFactory.getLogger(MetricProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricProxy.class);
+    private static final List<String> DO_NOT_MEASURE_METHOD_NAMES = new ArrayList<>(Arrays.asList("hashCode", "equals", "toString"));
     private boolean includedMethodsAreDefined = false;
     private boolean excludedMethodsAreDefined = false;
     private List<String> includedMethodNames;
@@ -62,7 +64,9 @@ abstract class MetricProxy implements InvocationHandler {
     }
 
     private boolean shouldMeasureMethod(String methodName) {
-        if (includedMethodsAreDefined && !includedMethodNames.contains(methodName)) {
+        if (DO_NOT_MEASURE_METHOD_NAMES.contains(methodName)) {
+            return false;
+        } else if (includedMethodsAreDefined && !includedMethodNames.contains(methodName)) {
             return false;
         } else if (excludedMethodsAreDefined && excludedMethodNames.contains(methodName)) {
             return false;
@@ -76,10 +80,10 @@ abstract class MetricProxy implements InvocationHandler {
             Object returnObject = method.invoke(object, args);
             return returnObject;
         } catch (InvocationTargetException e) {
-            logger.error("Error during invocation of method" + method.toString(), e);
+            LOGGER.error("Error during invocation of method" + method.toString(), e);
             throw e;
         } catch (Exception e) {
-            logger.error("Exception during invocation of method" + method.toString(), e);
+            LOGGER.error("Exception during invocation of method" + method.toString(), e);
             throw e;
         }
     }
