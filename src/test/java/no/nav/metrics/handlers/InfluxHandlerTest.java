@@ -1,4 +1,4 @@
-package no.nav.metrics;
+package no.nav.metrics.handlers;
 
 import org.junit.Before;
 import org.junit.Test;
