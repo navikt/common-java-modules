@@ -69,7 +69,7 @@ public final class Jetty {
         private Map<String, DataSource> dataSources = new HashMap<>();
         private Map<String, UserCredentialsConnectionFactoryAdapter> connectionSources = new HashMap<>();
         private Map<String, Queue> queueSources = new HashMap<>();
-
+        private String extraClasspath;
 
         public final JettyBuilder war(File warPath) {
             this.war = warPath;
@@ -118,6 +118,11 @@ public final class Jetty {
         //To enable CSRF etc.
         public final JettyBuilder setDeploymentMode() {
             this.developmentMode = false;
+            return this;
+        }
+
+        public final JettyBuilder addExtraClasspath(String classpath) {
+            this.extraClasspath = classpath;
             return this;
         }
 
@@ -208,6 +213,7 @@ public final class Jetty {
     private final Map<String, UserCredentialsConnectionFactoryAdapter> connections;
     private final Map<String, Queue> queues;
     private final Boolean developmentMode;
+    private final String extraClasspath;
 
     public final Runnable stop = new Runnable() {
         @Override
@@ -242,6 +248,7 @@ public final class Jetty {
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
         this.loginService = builder.loginService;
+        this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder.context);
         this.server = setupJetty(new Server());
         this.developmentMode = builder.developmentMode;
@@ -253,6 +260,9 @@ public final class Jetty {
         }
         if (isNotBlank(warPath)) {
             webAppContext.setWar(warPath);
+        }
+        if (isNotBlank(extraClasspath)) {
+            webAppContext.setExtraClasspath(extraClasspath);
         }
         if (overrideWebXmlFile != null) {
             webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
