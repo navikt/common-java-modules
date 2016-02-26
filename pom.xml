@@ -162,8 +162,8 @@
         </dependency>
     </dependencies>
     <scm>
-        <developerConnection>scm:git:http://stash.devillo.no:7990/scm/common/jetty.git</developerConnection>
-        <url>http://a34apvl029.devillo.no:7990/scm/common/jetty.git</url>
+        <developerConnection>scm:git:http://stash.devillo.no/scm/common/jetty.git</developerConnection>
+        <url>http://stash.devillo.no/scm/common/jetty.git</url>
         <tag>HEAD</tag>
     </scm>
 </project>
