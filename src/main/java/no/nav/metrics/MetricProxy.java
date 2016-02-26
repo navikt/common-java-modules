@@ -80,10 +80,10 @@ abstract class MetricProxy implements InvocationHandler {
             Object returnObject = method.invoke(object, args);
             return returnObject;
         } catch (InvocationTargetException e) {
-            LOGGER.info("Error during invocation of method " + method.toString(), e);
+            LOGGER.info("Method threw exception " + method.toString(), e);
             throw (Exception) e.getCause();
         } catch (Exception e) {
-            LOGGER.error("Exception during invocation of method" + method.toString(), e);
+            LOGGER.error("Exception from invoking method " + method.toString(), e);
             throw e;
         }
     }
