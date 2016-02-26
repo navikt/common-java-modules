@@ -44,7 +44,7 @@ abstract class MetricProxy implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         String methodName = method.getName();
 
         if (!shouldMeasureMethod(methodName)) {
@@ -57,7 +57,7 @@ abstract class MetricProxy implements InvocationHandler {
             return invokeMethod(method, args);
         } catch (Exception e) {
             methodFailedMeasurement(methodName);
-            throw e;
+            throw e.getCause();
         } finally {
             endMeasurement(methodName);
         }
