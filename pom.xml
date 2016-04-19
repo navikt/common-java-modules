@@ -14,6 +14,10 @@
 	<properties>
 		<cxf.version>2.7.13</cxf.version>
         <slf4j.version>1.7.7</slf4j.version>
+        <modig-core.version>1.0.1</modig-core.version>
+        <nav-metrics.version>1.3.1</nav-metrics.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <junit.version>4.12</junit.version>
     </properties>
 
 	<dependencies>
@@ -38,7 +42,16 @@
 			<artifactId>cxf-rt-transports-http</artifactId>
             <version>${cxf.version}</version>
 		</dependency>
-
+        <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-core</artifactId>
+            <version>${modig-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav</groupId>
+            <artifactId>metrics</artifactId>
+            <version>${nav-metrics.version}</version>
+        </dependency>
 		<!-- Legg til denne som runtime hvis du trenger STS -->
 		<dependency>
 			<groupId>no.nav.modig</groupId>
@@ -79,7 +92,26 @@
             <version>1.4.01</version>
             <scope>provided</scope>
         </dependency>
-	</dependencies>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>${hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/common/cxf.git</developerConnection>
