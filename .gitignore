@@ -1,0 +1,13 @@
+*.idea
+*.iml
+*.ipr
+*.iws
+*.log
+.checkstyle
+.classpath
+.idea
+.pmd
+.project
+.settings
+target
+node_modules/
