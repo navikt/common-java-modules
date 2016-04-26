@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.time;
 
-import org.apache.commons.collections15.Transformer;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.base.AbstractDateTime;
@@ -9,7 +8,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import static no.nav.modig.lang.collections.TransformerUtils.first;
+import java.util.function.Function;
 
 public final class ToXmlGregorianCalendar {
 
@@ -23,21 +22,11 @@ public final class ToXmlGregorianCalendar {
         }
     }
 
-    public static final Transformer<AbstractDateTime, XMLGregorianCalendar> FROM_DATETIME = new Transformer<AbstractDateTime, XMLGregorianCalendar>() {
-        @Override
-        public XMLGregorianCalendar transform(AbstractDateTime datetime) {
-            return DATATYPES.newXMLGregorianCalendar(datetime.toGregorianCalendar());
-        }
-    };
+    public static final Function<AbstractDateTime, XMLGregorianCalendar> FROM_DATETIME = datetime -> DATATYPES.newXMLGregorianCalendar(datetime.toGregorianCalendar());
 
-    public static final Transformer<LocalDate, DateTime> TO_DATETIME_AT_STARTOFDAY = new Transformer<LocalDate, DateTime>() {
-        @Override
-        public DateTime transform(LocalDate date) {
-            return date.toDateTimeAtStartOfDay();
-        }
-    };
+    public static final Function<LocalDate, DateTime> TO_DATETIME_AT_STARTOFDAY = date -> date.toDateTimeAtStartOfDay();
 
-    public static final Transformer<LocalDate, XMLGregorianCalendar> FROM_LOCALDATE = first(TO_DATETIME_AT_STARTOFDAY).then(FROM_DATETIME);
+    public static final Function<LocalDate, DateTime> FROM_LOCALDATE = localDate ->  TO_DATETIME_AT_STARTOFDAY.apply(localDate);
 
     private ToXmlGregorianCalendar() { }
 }

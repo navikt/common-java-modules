@@ -14,7 +14,7 @@ public class ToXmlGregorianCalendarTest {
 
     @Test
     public void fromDateTime() {
-        XMLGregorianCalendar xmldate = ToXmlGregorianCalendar.FROM_DATETIME.transform(new DateTime(2013, 1, 10, 14, 30, DateTimeZone.forOffsetHours(1)));
+        XMLGregorianCalendar xmldate = ToXmlGregorianCalendar.FROM_DATETIME.apply(new DateTime(2013, 1, 10, 14, 30, DateTimeZone.forOffsetHours(1)));
         assertThat(xmldate.getYear(), is(2013));
         assertThat(xmldate.getMonth(), is(1));
         assertThat(xmldate.getDay(), is(10));
@@ -26,7 +26,8 @@ public class ToXmlGregorianCalendarTest {
 
     @Test
     public void fromLocalDate() {
-        XMLGregorianCalendar xmldate = ToXmlGregorianCalendar.FROM_LOCALDATE.transform(new LocalDate(2013, 1, 10));
+        DateTime apply = ToXmlGregorianCalendar.FROM_LOCALDATE.apply(new LocalDate(2013, 1, 10));
+        XMLGregorianCalendar xmldate = ToXmlGregorianCalendar.FROM_DATETIME.apply(apply);
         assertThat(xmldate.getYear(), is(2013));
         assertThat(xmldate.getMonth(), is(1));
         assertThat(xmldate.getDay(), is(10));
