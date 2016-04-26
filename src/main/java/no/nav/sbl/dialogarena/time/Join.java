@@ -11,7 +11,6 @@ public class Join<T> implements Function<T, String> {
     private final Function<? super T,String>[] transformers;
     private final String separator;
 
-    //TODO her må det gjøres noe.
     public Join(String separator, Function<? super T, String> ... transformers) {
         this.transformers = transformers;
         this.separator = separator;
@@ -25,4 +24,5 @@ public class Join<T> implements Function<T, String> {
         }
         return join(strings, separator);
     }
+
 }

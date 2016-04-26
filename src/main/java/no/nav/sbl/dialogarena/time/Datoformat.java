@@ -10,7 +10,6 @@ import java.util.Locale;
 import java.util.function.Function;
 
 import static org.apache.commons.collections15.FactoryUtils.constantFactory;
-import static org.apache.commons.collections15.TransformerUtils.constantTransformer;
 
 /**
  * Ulike tekstlige formateringer av datoer og tid, ref:
@@ -35,19 +34,18 @@ public final class Datoformat {
         locale = constantFactory(Locale.getDefault());
     }
 
-
+    public static final Function<DateTime, String> KLOKKESLETT = new Formatter(new Klokkeslett());
     public static final Function<DateTime, String> LANG = new Formatter(new LangDato());
-    public static final Function<DateTime, String> LANG_UTEN_LITERAL = new Formatter(new LangDatoUtenLiteral());;
+    public static final Function<DateTime, String> LANG_UTEN_LITERAL = new Formatter(new LangDatoUtenLiteral());
     public static final Function<DateTime, String> MEDIUM = new Formatter(new MediumDato());
     public static final Function<DateTime, String> KORT = new Formatter(new KortDato());
     public static final Function<DateTime, String> KORT_UTEN_LITERAL = new Formatter(new KortDatoUtenLiteral());
     public static final Function<DateTime, String> ULTRAKORT = new Formatter(new UltrakortDato());
 
-    public static final Function<DateTime, String> LANG_MED_TID = new Formatter(new Join<>(", 'kl' ", new LangDato()));
-    public static final Function<DateTime, String> LANG_UTEN_LITERAL_MED_TID = new Formatter(new Join<>(", 'kl' ", new LangDatoUtenLiteral()));
-    public static final Function<DateTime, String> MEDIUM_MED_TID = new Formatter(new Join<>(", 'kl' ", new MediumDato()));
-    public static final Function<DateTime, String> KORT_MED_TID = new Formatter(new Join<>(" 'kl' ", new KortDato()));
-
+    public static final Function<DateTime, String> LANG_MED_TID = new Formatter(new Join<>(", 'kl' ", new LangDato(), KLOKKESLETT));
+    public static final Function<DateTime, String> LANG_UTEN_LITERAL_MED_TID = new Formatter(new Join<>(", 'kl' ", new LangDatoUtenLiteral(), KLOKKESLETT));
+    public static final Function<DateTime, String> MEDIUM_MED_TID = new Formatter(new Join<>(", 'kl' ", new MediumDato(), KLOKKESLETT));
+    public static final Function<DateTime, String> KORT_MED_TID = new Formatter(new Join<>(" 'kl' ", new KortDato(), KLOKKESLETT));
 
 
     public static String lang(DateTime dateTime) { return LANG.apply(dateTime); }
@@ -88,6 +86,10 @@ public final class Datoformat {
 
     public static final class KortDatoUtenLiteral implements Function<DateTime, String> {
         @Override public String apply(DateTime dateTime) { return "dd.MM.yyyy"; }
+    }
+
+    public static final class Klokkeslett implements Function<DateTime, String> {
+        @Override public String apply(DateTime dateTime) { return "HH:mm"; }
     }
 
 
