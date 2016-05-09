@@ -9,7 +9,7 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-web</artifactId>
-    <version>2.0.5-SNAPSHOT</version>
+    <version>lokalt-SNAPSHOT</version>
 
     <dependencies>
 
