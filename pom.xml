@@ -18,6 +18,7 @@
         <nav-metrics.version>1.3.1</nav-metrics.version>
         <hamcrest.version>1.3</hamcrest.version>
         <junit.version>4.12</junit.version>
+        <jsoup.version>1.7.2</jsoup.version>
     </properties>
 
 	<dependencies>
@@ -52,7 +53,19 @@
             <artifactId>metrics</artifactId>
             <version>${nav-metrics.version}</version>
         </dependency>
-		<!-- Legg til denne som runtime hvis du trenger STS -->
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>${jsoup.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- Legg til denne som runtime hvis du trenger STS -->
 		<dependency>
 			<groupId>no.nav.modig</groupId>
 			<artifactId>modig-security-sts</artifactId>
