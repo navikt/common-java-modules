@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 
 public class CXFMaskSAMLTokenLoggingOutInterceptor extends LoggingOutInterceptor {
+    private boolean maskerSAMLToken = true;
 
     public CXFMaskSAMLTokenLoggingOutInterceptor() {
         super();
@@ -27,7 +28,7 @@ public class CXFMaskSAMLTokenLoggingOutInterceptor extends LoggingOutInterceptor
 
     @Override
     protected void writePayload(StringBuilder builder, CachedOutputStream cos, String encoding, String contentType) throws Exception {
-        if(contentType.contains("xml")) {
+        if(contentType.contains("xml") && maskerSAMLToken) {
             super.writePayload(builder, getMaskedOutputStream(cos), encoding, contentType);
         } else {
             super.writePayload(builder, cos, encoding, contentType);
@@ -38,6 +39,10 @@ public class CXFMaskSAMLTokenLoggingOutInterceptor extends LoggingOutInterceptor
     public void handleMessage(Message message) {
         setupMessageLogger(message);
         super.handleMessage(message);
+    }
+
+    public void setMaskerSAMLToken(boolean maskerSAMLToken) {
+        this.maskerSAMLToken = maskerSAMLToken;
     }
 
     private void setupMessageLogger(Message message) {

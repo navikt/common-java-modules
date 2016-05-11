@@ -9,13 +9,17 @@ public class LoggingFeatureUtenBinaryOgUtenSamlTokenLogging extends AbstractFeat
 
     private static final int DEFAULT_LIMIT = 64 * 1024;
     private static final LoggingInInterceptor IN = new LoggingInInterceptor(DEFAULT_LIMIT);
-    private static final LoggingOutInterceptor OUT = new CXFMaskSAMLTokenLoggingOutInterceptor(DEFAULT_LIMIT);
+    private static final CXFMaskSAMLTokenLoggingOutInterceptor OUT = new CXFMaskSAMLTokenLoggingOutInterceptor(DEFAULT_LIMIT);
     static {
         IN.addAfter(AttachmentInInterceptor.class.getName());
         OUT.addAfter(AttachmentOutInterceptor.class.getName());
     }
 
     public LoggingFeatureUtenBinaryOgUtenSamlTokenLogging() {
+    }
+
+    public LoggingFeatureUtenBinaryOgUtenSamlTokenLogging(boolean maskerSAMLToken) {
+        OUT.setMaskerSAMLToken(maskerSAMLToken);
     }
 
     @Override
