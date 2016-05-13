@@ -30,7 +30,7 @@ public class CXFClient<T> {
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
 
     public CXFClient(Class<T> serviceClass) {
-        factoryBean.getFeatures().add(new LoggingFeature());
+        factoryBean.getFeatures().add(new LoggingFeatureUtenBinaryOgUtenSamlTokenLogging());
         factoryBean.getFeatures().add(new WSAddressingFeature());
         factoryBean.setProperties(new HashMap<String, Object>());
         this.serviceClass = serviceClass;
