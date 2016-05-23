@@ -1,8 +1,6 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
 import no.nav.sbl.dialogarena.types.Pingable;
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,12 +10,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.jar.Manifest;
 
-import static no.nav.modig.lang.collections.IterUtils.on;
-import static no.nav.modig.lang.collections.PredicateUtils.not;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
-import static org.apache.commons.lang3.StringUtils.join;
 
 public abstract class AbstractSelfTestBaseServlet extends HttpServlet {
 
@@ -33,11 +32,13 @@ public abstract class AbstractSelfTestBaseServlet extends HttpServlet {
     protected abstract Collection<? extends Pingable> getPingables();
 
     protected void doPing() {
-        result = on(getPingables()).map(PING).collect();
+        result = getPingables().stream().map(PING).collect(toList());
     }
 
     protected String getStatus() {
-        return on(result).filter(not(VELLYKKET)).isEmpty() ? "OK" : "ERROR";
+        return result.stream()
+                .filter(IKKE_VELLYKKET)
+                .findAny().isPresent() ? "ERROR" : "OK";
     }
 
     protected String getApplicationVersion() {
@@ -62,33 +63,23 @@ public abstract class AbstractSelfTestBaseServlet extends HttpServlet {
     }
 
     protected String getMessage() {
-        return join(on(result).filter(not(VELLYKKET)).map(KOMPONENT).collect(), ",");
+        return result.stream()
+                .filter(IKKE_VELLYKKET)
+                .map(KOMPONENT)
+                .collect(joining(","));
     }
 
-    private static final Transformer<Pingable, Ping> PING = new Transformer<Pingable, Ping>() {
-        @Override
-        public Ping transform(Pingable pingable) {
-            long startTime = System.currentTimeMillis();
-            Ping ping = pingable.ping();
-            ping.setTidsbruk(System.currentTimeMillis() - startTime);
-            if (!ping.isVellykket()) {
-                logger.warn("Feil ved SelfTest av " + ping.getKomponent(), ping.getAarsak());
-            }
-            return ping;
+    private static final Function<Pingable, Ping> PING = pingable -> {
+        long startTime = System.currentTimeMillis();
+        Ping ping = pingable.ping();
+        ping.setTidsbruk(System.currentTimeMillis() - startTime);
+        if (!ping.isVellykket()) {
+            logger.warn("Feil ved SelfTest av " + ping.getKomponent(), ping.getAarsak());
         }
+        return ping;
     };
 
-    private static final Transformer<Ping, String> KOMPONENT = new Transformer<Ping, String>() {
-        @Override
-        public String transform(Ping ping) {
-            return ping.getKomponent();
-        }
-    };
-
-    private static final Predicate<Ping> VELLYKKET = new Predicate<Ping>() {
-        @Override
-        public boolean evaluate(Ping ping) {
-            return ping.isVellykket();
-        }
-    };
+    private static final Function<Ping, String> KOMPONENT = ping -> ping.getKomponent();
+    private static final Predicate<Ping> VELLYKKET = ping -> ping.isVellykket();
+    private static final Predicate<Ping> IKKE_VELLYKKET = ping -> !ping.isVellykket();
 }

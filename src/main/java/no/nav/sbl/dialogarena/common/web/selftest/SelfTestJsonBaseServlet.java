@@ -1,8 +1,5 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
-import org.apache.commons.collections15.Transformer;
-import org.apache.commons.lang3.StringUtils;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,7 +7,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static no.nav.modig.lang.collections.IterUtils.on;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.join;
+
 
 public abstract class SelfTestJsonBaseServlet extends AbstractSelfTestBaseServlet {
 
@@ -29,11 +28,8 @@ public abstract class SelfTestJsonBaseServlet extends AbstractSelfTestBaseServle
     }
 
     protected String asJson() {
-        return "{" + StringUtils.join(on(valueMap).map(new Transformer<Map.Entry<String, String>, String>() {
-            @Override
-            public String transform(Map.Entry<String, String> entry) {
-                return "\"" + entry.getKey() + "\":\"" + entry.getValue() + "\"";
-            }
-        }).collect(), ",") + "}";
+        return "{" + join(valueMap.entrySet().stream()
+                .map(entry -> "\"" + entry.getKey() + "\":\"" + entry.getValue() + "\"")
+                .collect(toList()), ",") + "}";
     }
 }

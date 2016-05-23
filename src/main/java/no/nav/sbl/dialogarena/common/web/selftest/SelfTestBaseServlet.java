@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -14,10 +13,11 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import static java.util.Arrays.asList;
-import static no.nav.modig.lang.collections.TransformerUtils.joinedWith;
-import static no.nav.modig.lang.option.Optional.optional;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -88,7 +88,7 @@ public abstract class SelfTestBaseServlet extends AbstractSelfTestBaseServlet {
             if (!resultat.isVellykket()) {
                 aggregertStatus = "ERROR";
             }
-            String beskrivelse = optional(resultat.getAarsak()).map(MESSAGE).getOrElse("");
+            String beskrivelse = ofNullable(resultat.getAarsak()).map(MESSAGE).orElse("");
             tabell.append(tableRow(status, resultat.getKomponent(), resultat.getTidsbruk(), beskrivelse));
             if (!resultat.isVellykket()) {
                 feilendeKomponenter.add(resultat.getKomponent());
@@ -112,15 +112,16 @@ public abstract class SelfTestBaseServlet extends AbstractSelfTestBaseServlet {
     }
 
     protected static String tableRow(Object... tdContents) {
-        return "<tr><td>" + optional(asList(tdContents)).map(joinedWith("</td><td>")).get() + "</td></tr>\n";
+        String row = asList(tdContents).stream()
+                .map(o -> o.toString())
+                .collect(joining("</td><td>"));
+        return "<tr><td>" + row +  "</td></tr>\n";
+
     }
 
-    private static final Transformer<Throwable, String> MESSAGE = new Transformer<Throwable, String>() {
-        @Override
-        public String transform(Throwable throwable) {
-            StackTraceElement origin = throwable.getStackTrace()[0];
-            return throwable.getClass().getSimpleName() + ": " + throwable.getMessage() + ", at " + origin.getClassName() + "." + origin.getMethodName()
-                    + "(..), line " + origin.getLineNumber();
-        }
+    private static final Function<Throwable, String> MESSAGE = throwable -> {
+        StackTraceElement origin = throwable.getStackTrace()[0];
+        return throwable.getClass().getSimpleName() + ": " + throwable.getMessage() + ", at " + origin.getClassName() + "." + origin.getMethodName()
+                + "(..), line " + origin.getLineNumber();
     };
 }
