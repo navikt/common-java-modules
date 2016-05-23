@@ -1,13 +1,12 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
-import org.apache.commons.collections15.Transformer;
-
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.function.Function;
 
-public class ToUrl implements Transformer<Integer, URL> {
+public class ToUrl implements Function<Integer, URL> {
 
     private final String scheme;
     private final String path;
@@ -18,7 +17,7 @@ public class ToUrl implements Transformer<Integer, URL> {
     }
 
     @Override
-    public URL transform(Integer port) {
+    public URL apply(Integer port) {
         try {
             return new URL(scheme + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port + path);
         } catch (MalformedURLException | UnknownHostException e) {

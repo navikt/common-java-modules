@@ -1,11 +1,12 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
-import no.nav.modig.lang.collections.combine.ChainedRunnables;
-import no.nav.modig.lang.collections.factory.StreamHasContent;
-import no.nav.modig.lang.util.WaitFor;
+import no.nav.sbl.dialogarena.common.jetty.utils.ChainedRunnables;
+import no.nav.sbl.dialogarena.common.jetty.utils.StreamHasContent;
 import org.apache.commons.collections15.Factory;
 
 import java.io.InputStream;
+
+import static no.nav.sbl.dialogarena.common.jetty.utils.Pause.pause;
 
 public class JettyStarterUtils {
 
@@ -21,8 +22,8 @@ public class JettyStarterUtils {
         return new ChainedRunnables(task);
     }
 
-    public static WaitFor waitFor(Factory<Boolean> toReturnTrue) {
-        return new WaitFor(toReturnTrue);
+    public static Runnable waitFor(Factory<Boolean> toReturnTrue) {
+        return () -> pause().pollEveryMs(400).noTimeout().until(toReturnTrue);
     }
 
 }

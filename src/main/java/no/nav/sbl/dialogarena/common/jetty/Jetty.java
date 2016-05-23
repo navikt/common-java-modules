@@ -2,7 +2,6 @@ package no.nav.sbl.dialogarena.common.jetty;
 
 import com.ibm.mq.jms.JMSC;
 import com.ibm.mq.jms.MQQueueConnectionFactory;
-import no.nav.modig.lang.option.Optional;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
@@ -16,6 +15,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter;
 
 import javax.jms.*;
+import javax.jms.Queue;
 import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -25,14 +25,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.System.setProperty;
-import static no.nav.modig.lang.collections.IterUtils.on;
-import static no.nav.modig.lang.option.Optional.none;
-import static no.nav.modig.lang.option.Optional.optional;
+import static java.util.Arrays.asList;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.stream.Collectors.*;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -61,7 +61,7 @@ public final class Jetty {
         private File war;
         private String contextPath;
         private int port = 35000;
-        private Optional<Integer> sslPort = none();
+        private Optional<Integer> sslPort = empty();
         private WebAppContext context;
         private File overridewebXmlFile;
         private JAASLoginService loginService;
@@ -87,7 +87,7 @@ public final class Jetty {
         }
 
         public final JettyBuilder sslPort(int sslPort) {
-            this.sslPort = optional(sslPort);
+            this.sslPort = of(sslPort);
             return this;
         }
 
@@ -334,21 +334,23 @@ public final class Jetty {
         ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
         httpConnector.setSoLingerTime(-1);
         httpConnector.setPort(port);
+        Connector[] connectors = {httpConnector};
 
+        Optional<ServerConnector> sslConnector = sslPort.map(new CreateSslConnector(jetty, configuration));
 
-        jetty.setConnectors(on(new Connector[]{httpConnector}).append(sslPort.map(new CreateSslConnector(jetty, configuration))).collectIn(new Connector[]{}));
+        if (sslConnector.isPresent()) {
+            asList(connectors).add(sslConnector.get());
+        }
 
+        jetty.setConnectors(connectors);
         context.setServer(jetty);
         jetty.setHandler(context);
         return jetty;
     }
 
     public Jetty start() {
-        return startAnd(new Runnable() {
-            @Override
-            public void run() {
+        return startAnd(() -> {
 
-            }
         });
     }
 
@@ -362,8 +364,8 @@ public final class Jetty {
             LOG.info(" * WAR: " + warPath);
             LOG.info(" * Context path: " + contextPath);
             LOG.info(" * Http port: " + port);
-            for (Integer httpsPort : sslPort) {
-                LOG.info(" * Https port: " + httpsPort);
+            if (sslPort.isPresent()) {
+                LOG.info(" * Https port: " + sslPort.get());
             }
             for (URL url : getBaseUrls()) {
                 LOG.info(" * " + url);
@@ -375,8 +377,13 @@ public final class Jetty {
         return this;
     }
 
-    public Iterable<URL> getBaseUrls() {
-        return on(optional(port).map(new ToUrl("http", contextPath))).append(sslPort.map(new ToUrl("https", contextPath)));
+    public List<URL> getBaseUrls() {
+        List<URL> urls = new ArrayList<>();
+        urls.add(new ToUrl("http", contextPath).apply(port));
+        if (sslPort.isPresent()) {
+            urls.add(new ToUrl("https", contextPath).apply(sslPort.get()));
+        }
+        return urls;
     }
 
     private static File getWebappSource() {

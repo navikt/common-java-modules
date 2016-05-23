@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
-import org.apache.commons.collections15.Transformer;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -10,7 +9,9 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-class CreateSslConnector implements Transformer<Integer, ServerConnector> {
+import java.util.function.Function;
+
+class CreateSslConnector implements Function<Integer, ServerConnector> {
 
     private final Server jetty;
     private final HttpConfiguration baseConfiguration;
@@ -21,7 +22,7 @@ class CreateSslConnector implements Transformer<Integer, ServerConnector> {
     }
 
     @Override
-    public ServerConnector transform(Integer sslPort) {
+    public ServerConnector apply(Integer sslPort) {
 
         SslContextFactory factory = new SslContextFactory(true);
         factory.setKeyStorePath(System.getProperty("no.nav.modig.security.appcert.keystore"));

@@ -15,7 +15,7 @@ public class ToUrlTest {
     public void transformToUrlWithLeadingSlash() throws UnknownHostException {
         ToUrl transformer = new ToUrl("http","/my/path");
 
-        URL url = transformer.transform(8080);
+        URL url = transformer.apply(8080);
         assertThat(url.toString(), equalTo("http://"+ InetAddress.getLocalHost().getCanonicalHostName()+":8080/my/path"));
     }
 
@@ -23,13 +23,13 @@ public class ToUrlTest {
     public void transformToUrlWithoutLeadingSlash() throws UnknownHostException {
         ToUrl transformer = new ToUrl("http","my/path");
 
-        URL url = transformer.transform(8080);
+        URL url = transformer.apply(8080);
         assertThat(url.toString(), equalTo("http://"+ InetAddress.getLocalHost().getCanonicalHostName()+":8080/my/path"));
     }
 
     @Test(expected = RuntimeException.class)
     public void transformMalformedUrl() {
         ToUrl transformer = new ToUrl("abc","");
-        transformer.transform(1234);
+        transformer.apply(1234);
     }
 }
