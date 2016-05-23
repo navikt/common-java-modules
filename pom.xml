@@ -8,7 +8,7 @@
         <artifactId>mor-pom</artifactId>
         <version>3.2</version>
     </parent>
-
+    <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-jetty</artifactId>
     <version>0-SNAPSHOT</version>
 
