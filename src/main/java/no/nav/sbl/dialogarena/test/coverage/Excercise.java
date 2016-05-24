@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static no.nav.modig.lang.collections.IterUtils.on;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -48,11 +48,11 @@ public final class Excercise {
     }
 
     public void privateDefaultConstructorsInStaticUtilClasses() {
-        on(reflections.getSubTypesOf(Object.class))
+        reflections.getSubTypesOf(Object.class).stream()
             .filter(new StaticFinalUtilClass())
             .map(new DeclaredConstructorMadeAccessible())
             .map(new NewInstance())
-            .collect();
+            .collect(toList());
     }
 
 

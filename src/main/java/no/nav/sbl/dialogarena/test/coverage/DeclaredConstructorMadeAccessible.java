@@ -1,11 +1,10 @@
 package no.nav.sbl.dialogarena.test.coverage;
 
-import org.apache.commons.collections15.Transformer;
-
 import java.lang.reflect.Constructor;
+import java.util.function.Function;
 
 
-public class DeclaredConstructorMadeAccessible implements Transformer<Class<?>, Constructor<?>> {
+public class DeclaredConstructorMadeAccessible implements Function<Class<?>, Constructor<?>> {
 
     private final Class<?>[] paramTypes;
 
@@ -14,7 +13,7 @@ public class DeclaredConstructorMadeAccessible implements Transformer<Class<?>, 
     }
 
     @Override
-    public Constructor<?> transform(Class<?> type) {
+    public Constructor<?> apply(Class<?> type) {
         try {
             Constructor<?> constructor = type.getDeclaredConstructor(paramTypes);
             constructor.setAccessible(true);

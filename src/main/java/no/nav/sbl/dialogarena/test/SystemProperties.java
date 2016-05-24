@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import static no.nav.modig.lang.collections.IterUtils.on;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.io.IOUtils.closeQuietly;
 
 
@@ -33,7 +34,7 @@ public final class SystemProperties {
             throw new RuntimeException("Kunne ikke lese properties", e);
         }
         Properties target = System.getProperties();
-        for (String name : on(props.stringPropertyNames()).collectIn(new TreeSet<String>())) {
+        for (String name : props.stringPropertyNames().stream().collect(toSet())) {
             String value = props.getProperty(name);
             if (target.containsKey(name)) {
                 LOG.warn("Old value '{}' is replaced with", target.getProperty(name));

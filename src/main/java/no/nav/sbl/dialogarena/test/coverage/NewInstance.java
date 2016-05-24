@@ -1,14 +1,14 @@
 package no.nav.sbl.dialogarena.test.coverage;
 
-import org.apache.commons.collections15.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.Function;
 
 
-public class NewInstance implements Transformer<Constructor<?>, Object> {
+public class NewInstance implements Function<Constructor<?>, Object> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NewInstance.class);
 
@@ -19,7 +19,7 @@ public class NewInstance implements Transformer<Constructor<?>, Object> {
     }
 
     @Override
-    public Object transform(Constructor<?> constructor) {
+    public Object apply(Constructor<?> constructor) {
         try {
             LOG.info("Instantiating " + constructor.getName());
             return constructor.newInstance(paramTypes);

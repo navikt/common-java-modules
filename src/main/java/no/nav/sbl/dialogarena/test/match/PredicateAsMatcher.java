@@ -1,8 +1,9 @@
 package no.nav.sbl.dialogarena.test.match;
 
-import org.apache.commons.collections15.Predicate;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
+
+import java.util.function.Predicate;
 
 class PredicateAsMatcher<T> extends TypeSafeMatcher<T> {
 
@@ -29,7 +30,7 @@ class PredicateAsMatcher<T> extends TypeSafeMatcher<T> {
 
     @Override
     protected boolean matchesSafely(T item) {
-        return predicate.evaluate(item);
+        return predicate.test(item);
     }
 
 }

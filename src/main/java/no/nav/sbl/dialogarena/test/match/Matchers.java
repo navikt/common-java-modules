@@ -1,7 +1,8 @@
 package no.nav.sbl.dialogarena.test.match;
 
-import org.apache.commons.collections15.Predicate;
 import org.hamcrest.Matcher;
+
+import java.util.function.Predicate;
 
 public final class Matchers {
 
