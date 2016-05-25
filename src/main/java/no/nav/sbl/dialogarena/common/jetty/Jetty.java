@@ -26,13 +26,11 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static java.util.stream.Collectors.*;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -325,7 +323,6 @@ public final class Jetty {
     }
 
     private Server setupJetty(final Server jetty) {
-
         Resource.setDefaultUseCaches(false);
 
         HttpConfiguration configuration = new HttpConfiguration();
@@ -334,14 +331,16 @@ public final class Jetty {
         ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
         httpConnector.setSoLingerTime(-1);
         httpConnector.setPort(port);
-        Connector[] connectors = {httpConnector};
 
         Optional<ServerConnector> sslConnector = sslPort.map(new CreateSslConnector(jetty, configuration));
+        List<Connector> liste = new ArrayList<>();
+        liste.add(httpConnector);
 
         if (sslConnector.isPresent()) {
-            asList(connectors).add(sslConnector.get());
+            liste.add(sslConnector.get());
         }
 
+        Connector[] connectors = liste.toArray(new Connector[liste.size()]);
         jetty.setConnectors(connectors);
         context.setServer(jetty);
         jetty.setHandler(context);
