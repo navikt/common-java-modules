@@ -8,19 +8,32 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
+/**
+ * HOWTO:
+ * - aspectjweaver som en runtime dependency
+ * - @EnableAspectJAutoProxy i Spring-config
+ * - Sørg for at klassen der du bruker @Timed er managed av Spring
+ */
 @Aspect
 @Component
 public class TimerAspect {
-    @Pointcut("@within(no.nav.metrics.aspects.Timed) || @annotation(no.nav.metrics.aspects.Timed)")
-    public void timed() {
+    @Pointcut("execution(public * *(..))")
+    public void publicMethod() {
     }
 
     @SuppressWarnings("ProhibitedExceptionThrown")
-    @Around(value = "timed()")
-    public Object timer(ProceedingJoinPoint joinPoint) throws Throwable {
-        String simpleName = joinPoint.getSignature().getDeclaringType().getSimpleName();
-        String method = joinPoint.getSignature().getName();
-        Timer timer = createTimerForMethod(simpleName, method);
+    @Around("publicMethod() && @annotation(timed)")
+    public Object timer(ProceedingJoinPoint joinPoint, Timed timed) throws Throwable {
+        String signature;
+        if (timed.name().equals("")) {
+            String simpleName = joinPoint.getSignature().getDeclaringType().getSimpleName();
+            String method = joinPoint.getSignature().getName();
+            signature = simpleName + "." + method;
+        } else {
+            signature = timed.name();
+        }
+
+        Timer timer = createTimerForMethod(signature);
         timer.start();
         try {
             return joinPoint.proceed();
@@ -33,7 +46,7 @@ public class TimerAspect {
         }
     }
 
-    public Timer createTimerForMethod(String simpleName, String method) {
-        return MetricsFactory.createTimer(simpleName + "." + method);
+    private Timer createTimerForMethod(String signature) {
+        return MetricsFactory.createTimer(signature);
     }
 }
