@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
  * HOWTO:
  * - aspectjweaver som en runtime dependency
  * - @EnableAspectJAutoProxy i Spring-config
+ * - Gjør TimerAspect tilgjengelig som en Spring-bean
  * - Sørg for at klassen der du bruker @Timed er managed av Spring
  */
 @Aspect
