@@ -24,17 +24,17 @@ public class TimerAspect {
 
     @SuppressWarnings("ProhibitedExceptionThrown")
     @Around("publicMethod() && @annotation(timed)")
-    public Object timer(ProceedingJoinPoint joinPoint, Timed timed) throws Throwable {
-        String signature;
+    public Object timer(final ProceedingJoinPoint joinPoint, final Timed timed) throws Throwable {
+        final String signature;
         if (timed.name().equals("")) {
-            String simpleName = joinPoint.getSignature().getDeclaringType().getSimpleName();
-            String method = joinPoint.getSignature().getName();
+            final String simpleName = joinPoint.getSignature().getDeclaringType().getSimpleName();
+            final String method = joinPoint.getSignature().getName();
             signature = simpleName + "." + method;
         } else {
             signature = timed.name();
         }
 
-        Timer timer = createTimerForMethod(signature);
+        final Timer timer = createTimerForMethod(signature);
         timer.start();
         try {
             return joinPoint.proceed();
