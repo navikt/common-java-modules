@@ -12,11 +12,11 @@ public class MetricProxyTest {
         proxy.feilendeNettverkskall();
     }
 
-    public interface Tjeneste{
+    public interface Tjeneste {
         boolean feilendeNettverkskall() throws IOException;
     }
 
-    public class FeilendeTjeneste implements Tjeneste{
+    public class FeilendeTjeneste implements Tjeneste {
         public boolean feilendeNettverkskall() throws IOException {
             throw new IOException("feil");
         }
