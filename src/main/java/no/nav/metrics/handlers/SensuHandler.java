@@ -1,20 +1,15 @@
 package no.nav.metrics.handlers;
 
-import no.nav.metrics.MetricsClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 
 public class SensuHandler {
-    private static final Logger logger = LoggerFactory.getLogger(MetricsClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
     private static final int SENSU_PORT = Integer.parseInt(System.getProperty("sensu_client_port", "3030"));
 
     public static JSONObject createJSON(String application, String output) {
