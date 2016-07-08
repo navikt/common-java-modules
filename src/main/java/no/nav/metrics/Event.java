@@ -1,5 +1,7 @@
 package no.nav.metrics;
 
+import no.nav.metrics.aspects.Field;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +16,13 @@ public class Event implements Metric {
         this.metricsClient = metricsClient;
         this.name = name + ".event";
         addFieldToReport("value", 1);
+    }
+
+    public Event withFields(Field[] fields) {
+        for (Field field : fields) {
+            this.fields.put(field.key(), field.value());
+        }
+        return this;
     }
 
     @Override
