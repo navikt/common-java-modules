@@ -1,10 +1,17 @@
 package no.nav.metrics;
 
+import no.nav.metrics.aspects.Count;
 import no.nav.metrics.aspects.Field;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static java.lang.Integer.parseInt;
+import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class Event implements Metric {
@@ -18,10 +25,13 @@ public class Event implements Metric {
         addFieldToReport("value", 1);
     }
 
-    public Event withFields(Field[] fields) {
-        for (Field field : fields) {
-            this.fields.put(field.key(), field.value());
-        }
+    public Event withFields(ProceedingJoinPoint joinPoint, Count count) {
+        List<Object> args = asList(joinPoint.getArgs());
+        asList(count.fields()).stream()
+                .forEach(field -> {
+                    String value = args.get(parseInt(field.argumentNumber()) - 1).toString();
+                    this.fields.put(field.key(), value);
+                });
         return this;
     }
 
