@@ -22,13 +22,28 @@ import static no.nav.metrics.aspects.AspectUtil.getAspectName;
  * - aspectjweaver som en runtime dependency
  * - @EnableAspectJAutoProxy i Spring-config
  * - Gjør CountAspect tilgjengelig som en Spring-bean
- * - Sørg for at klassen der du bruker @Timed er managed av Spring
+ * - Sørg for at klassen der du bruker @Count er managed av Spring
  *
  * Kan brukes f. eks. slik:
  *
+ *
+ @Count
+ public void methodname() {
+
+ }
+
+ eller slik:
+
+ @Count(name = "eventnavn")
+ public void methodname() {
+
+ }
+
+
+ eller om du vil ha med et field i rapporten, slik:
 
  @Count(name = "eventnavn", fields = {@Field(key = "orgnummer", argumentNumber = "2")})
- public void sendSykmeldingTilArbeidsgiver(String sykmeldingId, String orgnummer) {
+ public void methodname(String id, String orgnummer) {
  }
 
  *
