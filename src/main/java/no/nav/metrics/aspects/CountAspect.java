@@ -1,19 +1,11 @@
 package no.nav.metrics.aspects;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static java.lang.Integer.*;
-import static java.util.Arrays.*;
-import static java.util.Collections.emptyList;
 import static no.nav.metrics.MetricsFactory.createEvent;
 import static no.nav.metrics.aspects.AspectUtil.getAspectName;
 
@@ -56,14 +48,8 @@ public class CountAspect {
     public void publicMethod() {
     }
 
-    @SuppressWarnings("ProhibitedExceptionThrown")
-    @Around("publicMethod() && @annotation(count)")
-    public Object count(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
+    @Before("publicMethod() && @annotation(count)")
+    public void count(JoinPoint joinPoint, Count count) {
         createEvent(getAspectName(joinPoint, count.name())).withFields(joinPoint, count).report();
-        try {
-            return joinPoint.proceed();
-        } catch (Throwable e) {
-            throw e;
-        }
     }
 }

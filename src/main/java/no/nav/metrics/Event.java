@@ -1,11 +1,8 @@
 package no.nav.metrics;
 
 import no.nav.metrics.aspects.Count;
-import no.nav.metrics.aspects.Field;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.reflect.MethodSignature;
+import org.aspectj.lang.JoinPoint;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +22,7 @@ public class Event implements Metric {
         addFieldToReport("value", 1);
     }
 
-    public Event withFields(ProceedingJoinPoint joinPoint, Count count) {
+    public Event withFields(JoinPoint joinPoint, Count count) {
         List<Object> args = asList(joinPoint.getArgs());
         asList(count.fields()).stream()
                 .forEach(field -> {

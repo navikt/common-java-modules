@@ -9,7 +9,7 @@ import org.aspectj.lang.Signature;
 import org.junit.Before;
 import org.junit.Test;
 
-import static no.nav.metrics.MetricsFactory.*;
+import static no.nav.metrics.MetricsFactory.createEvent;
 import static org.junit.Assert.assertEquals;
 
 public class CountAspectTest {
@@ -85,25 +85,5 @@ public class CountAspectTest {
                 assertEquals(Class.class.getSimpleName() + "." + metodeNavn, navnBruktITimerProxy);
             }
         };
-    }
-
-    @Test(expected = EnException.class)
-    public void exceptionsFraJoinPointProceedSkalKastesVidereFraAspektet() throws Throwable {
-        new Expectations() {
-            {
-                proceedingJoinPoint.getSignature();
-                result = signature;
-                signature.getDeclaringType();
-                result = Class.class;
-                proceedingJoinPoint.proceed();
-                result = new EnException();
-            }
-        };
-
-        new CountAspect().count(proceedingJoinPoint, count);
-    }
-
-    private class EnException extends Throwable {
-
     }
 }
