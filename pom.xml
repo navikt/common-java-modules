@@ -61,4 +61,11 @@
         </dependency>
     </dependencies>
 
+
+    <scm>
+        <developerConnection>scm:git:http://stash.devillo.no/scm/common/batch.git</developerConnection>
+        <url>http://stash.devillo.no/scm/common/batch.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
 </project>
