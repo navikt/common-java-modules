@@ -3,7 +3,6 @@ package no.nav.metrics;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class Timer implements Metric {
@@ -25,8 +24,7 @@ public class Timer implements Metric {
     }
 
     public void start() {
-        long currentTime = System.currentTimeMillis();
-        measureTimestamp = MILLISECONDS.toSeconds(currentTime);
+        measureTimestamp = System.currentTimeMillis();
         startTime = System.nanoTime();
     }
 

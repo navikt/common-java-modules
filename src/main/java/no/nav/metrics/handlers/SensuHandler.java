@@ -18,7 +18,7 @@ public class SensuHandler {
         jsonObject.put("type", "metric");
         jsonObject.put("output", output);
         jsonObject.put("status", 0);
-        jsonObject.put("handlers", new JSONArray("[events]"));
+        jsonObject.put("handlers", new JSONArray("[events_nano]"));
 
         return jsonObject;
     }

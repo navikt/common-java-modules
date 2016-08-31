@@ -9,6 +9,7 @@ import java.util.Map;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.System.getProperty;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 
 
@@ -26,9 +27,10 @@ public class MetricsClient {
         tags.put("environment", System.getProperty("environment.name"));
     }
 
-    void report(String metricName, Map<String, Object> fields, long timestampInSeconds) {
+    void report(String metricName, Map<String, Object> fields, long timestampInMilliseconds) {
         if (!DISABLE_METRICS_REPORT) {
-            String output = InfluxHandler.createLineProtocolPayload(metricName, tags, fields, timestampInSeconds);
+            long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
+            String output = InfluxHandler.createLineProtocolPayload(metricName, tags, fields, timestamp);
             JSONObject jsonObject = SensuHandler.createJSON(tags.get("application"), output);
             SensuHandler.report(jsonObject);
         }
