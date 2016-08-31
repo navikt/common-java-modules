@@ -1,14 +1,13 @@
 package no.nav.metrics;
 
 import no.nav.metrics.aspects.Count;
+import no.nav.metrics.aspects.Field;
 import org.aspectj.lang.JoinPoint;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
-import static java.util.Arrays.asList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class Event implements Metric {
@@ -23,12 +22,13 @@ public class Event implements Metric {
     }
 
     public Event withFields(JoinPoint joinPoint, Count count) {
-        List<Object> args = asList(joinPoint.getArgs());
-        asList(count.fields()).stream()
-                .forEach(field -> {
-                    String value = args.get(parseInt(field.argumentNumber()) - 1).toString();
-                    this.fields.put(field.key(), value);
-                });
+        Object[] args = joinPoint.getArgs();
+
+        for (Field field : count.fields()) {
+            String value = args[parseInt(field.argumentNumber()) - 1].toString();
+            fields.put(field.key(), value);
+        }
+
         return this;
     }
 
