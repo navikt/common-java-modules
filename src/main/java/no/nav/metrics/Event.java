@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class Event implements Metric {
     private final MetricsClient metricsClient;
@@ -39,9 +38,6 @@ public class Event implements Metric {
 
     @Override
     public void report() {
-        long currentTime = System.currentTimeMillis();
-        long measureTimestamp = MILLISECONDS.toSeconds(currentTime);
-
-        metricsClient.report(name, fields, measureTimestamp);
+        metricsClient.report(name, fields, System.currentTimeMillis());
     }
 }

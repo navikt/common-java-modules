@@ -4,7 +4,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import static no.nav.metrics.handlers.SensuHandler.createJSON;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SensuHandlerTest {
 
@@ -27,6 +27,6 @@ public class SensuHandlerTest {
         JSONObject jsonObject = createJSON("test", "test");
         String handlers = jsonObject.get("handlers").toString();
 
-        assertEquals("[\"events\"]", handlers);
+        assertEquals("[\"events_nano\"]", handlers);
     }
 }
