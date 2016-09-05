@@ -1,9 +1,7 @@
 package no.nav.metrics.aspects;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
 import static no.nav.metrics.MetricsFactory.createEvent;
@@ -17,27 +15,26 @@ import static no.nav.metrics.aspects.AspectUtil.getAspectName;
  * - Sørg for at klassen der du bruker @Count er managed av Spring
  *
  * Kan brukes f. eks. slik:
+ * <pre>
  *
+ * {@literal @}Count
+ * public void methodname() {
  *
- @Count
- public void methodname() {
-
- }
-
- eller slik:
-
- @Count(name = "eventnavn")
- public void methodname() {
-
- }
-
-
- eller om du vil ha med et field i rapporten, slik:
-
- @Count(name = "eventnavn", fields = {@Field(key = "orgnummer", argumentNumber = "2")})
- public void methodname(String id, String orgnummer) {
- }
-
+ * }
+ *
+ * eller slik:
+ *
+ * {@literal @}Count(name = "eventnavn")
+ * public void methodname() {
+ *
+ * }
+ *
+ * eller om du vil ha med et field i rapporten, slik:
+ *
+ * {@literal @}Count(name = "eventnavn", fields = {{@literal @}Field(key = "orgnummer", argumentNumber = "2")})
+ * public void methodname(String id, String orgnummer) {
+ * }
+ * </pre>
  *
  */
 @Aspect
