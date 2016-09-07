@@ -26,7 +26,7 @@ public class MetricsFactory {
     private static <T> T createTimerProxyInstance(String name, T object, Class<T> type) {
         ClassLoader classLoader = TimerProxy.class.getClassLoader();
         Class[] classes = {type};
-        TimerProxy timerProxy = new TimerProxy(name, object, type);
+        TimerProxy timerProxy = new TimerProxy(name, object);
 
         return (T) newProxyInstance(classLoader, classes, timerProxy);
     }

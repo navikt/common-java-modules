@@ -1,45 +1,57 @@
 package no.nav.metrics;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 public class TimerProxy extends MetricProxy {
-    private final Map<String, Timer> methodTimers = new HashMap<>();
+    private String name;
 
-    TimerProxy(String name, Object object, Class type) {
+    TimerProxy(String name, Object object) {
         super(object);
+        this.name = name;
+    }
 
-        Method[] methods = type.getMethods();
+    /**
+     * Midlertidig implementasjon av TimerProxy for å hindre at det oppstår race conditions dersom
+     * det gjøres målinger på samme metodekall samtidig, dvs at måling på kall 2 starter før kall 1 er ferdig og
+     * rapportert. Store deler av metrics-biblioteket må sannsynligvis skrives om. I dag er det bygget opp med
+     * grunntanken at Metric-implementasjoner kan gjenbrukes, noe som i praksis viste seg å ikke være riktig.
+     */
+    @Override
+    public Object invoke(final Object proxy, final Method method, final Object[] args) throws Exception {
+        String methodName = method.getName();
 
-        for (Method method : methods) {
-            String metricName = name + "." + method.getName();
-            Timer timer = MetricsFactory.createTimer(metricName);
+        if (!shouldMeasureMethod(methodName)) {
+            return invokeMethod(method, args);
+        }
 
-            methodTimers.put(method.getName(), timer);
+        String metricName = name + "." + method.getName();
+        Timer timer = MetricsFactory.createTimer(metricName);
+
+        try {
+            timer.start();
+            timer.addFieldToReport("success", true);
+            return invokeMethod(method, args);
+        } catch (Exception e) {
+            timer.addFieldToReport("success", false);
+            throw e;
+        } finally {
+            timer.stop();
+            timer.report();
         }
     }
 
     @Override
     void initiateMeasurement(String methodName) {
-        Timer timer = methodTimers.get(methodName);
-
-        timer.start();
-        timer.addFieldToReport("success", true);
+        /* This implementation is intentionally left blank. */
     }
 
     @Override
     void methodFailedMeasurement(String methodName) {
-        Timer timer = methodTimers.get(methodName);
-
-        timer.addFieldToReport("success", false);
+        /* This implementation is intentionally left blank. */
     }
 
     @Override
     void endMeasurement(String methodName) {
-        Timer timer = methodTimers.get(methodName);
-
-        timer.stop();
-        timer.report();
+        /* This implementation is intentionally left blank. */
     }
 }

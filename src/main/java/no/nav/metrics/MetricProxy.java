@@ -63,7 +63,7 @@ abstract class MetricProxy implements InvocationHandler {
         }
     }
 
-    private boolean shouldMeasureMethod(String methodName) {
+    protected boolean shouldMeasureMethod(String methodName) {
         if (DO_NOT_MEASURE_METHOD_NAMES.contains(methodName)) {
             return false;
         } else if (includedMethodsAreDefined && !includedMethodNames.contains(methodName)) {
@@ -75,10 +75,9 @@ abstract class MetricProxy implements InvocationHandler {
         return true;
     }
 
-    private Object invokeMethod(Method method, Object[] args) throws Exception {
+    protected Object invokeMethod(Method method, Object[] args) throws Exception {
         try {
-            Object returnObject = method.invoke(object, args);
-            return returnObject;
+            return method.invoke(object, args);
         } catch (InvocationTargetException e) {
             LOGGER.info("Method threw exception " + method.toString(), e);
             throw (Exception) e.getCause();
