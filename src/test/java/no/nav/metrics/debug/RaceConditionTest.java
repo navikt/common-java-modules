@@ -111,7 +111,8 @@ public class RaceConditionTest {
 
     }
 
-    interface TimeMe {
+    @SuppressWarnings("WeakerAccess")
+    public interface TimeMe {
         void doStuff(int sleep);
     }
 
