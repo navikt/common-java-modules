@@ -2,7 +2,6 @@ package no.nav.metrics;
 
 import no.nav.metrics.handlers.InfluxHandler;
 import no.nav.metrics.handlers.SensuHandler;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +13,9 @@ import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 
 
 public class MetricsClient {
-    private static final Boolean DISABLE_METRICS_REPORT = parseBoolean(getProperty(DISABLE_METRICS_REPORT_KEY, "false"));
+    public static final Boolean DISABLE_METRICS_REPORT = parseBoolean(getProperty(DISABLE_METRICS_REPORT_KEY, "false"));
     private final Map<String, String> tags = new HashMap<>();
+    private final SensuHandler sensuHandler = new SensuHandler();
 
     public MetricsClient() {
         addSystemPropertiesToTags();
@@ -31,8 +31,7 @@ public class MetricsClient {
         if (!DISABLE_METRICS_REPORT) {
             long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
             String output = InfluxHandler.createLineProtocolPayload(metricName, tags, fields, timestamp);
-            JSONObject jsonObject = SensuHandler.createJSON(tags.get("application"), output);
-            SensuHandler.report(jsonObject);
+            sensuHandler.report(tags.get("application"), output);
         }
     }
 }
