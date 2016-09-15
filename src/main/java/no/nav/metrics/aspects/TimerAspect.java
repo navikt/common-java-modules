@@ -5,7 +5,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
-import static no.nav.metrics.aspects.AspectUtil.lagMetodeTimernavn;
+import static no.nav.metrics.aspects.AspectUtil.*;
 
 /**
  * HOWTO:
@@ -29,5 +29,19 @@ public class TimerAspect {
 
         return MetodeTimer.timeMetode(metodekall, timerName);
     }
+
+    @SuppressWarnings("ProhibitedExceptionThrown")
+    @Around("publicMethod() && @within(timed)")
+    public Object timerPaKlasse(final ProceedingJoinPoint joinPoint, final Timed timed) throws Throwable {
+        if (metodeSkalIgnoreres(getMetodenavn(joinPoint), timed.ignoredMethods())) {
+            return joinPoint.proceed();
+        }
+
+        AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
+        String timerNavn = lagKlasseTimernavn(joinPoint, timed.name());
+
+        return MetodeTimer.timeMetode(metodekall, timerNavn);
+    }
+
 
 }

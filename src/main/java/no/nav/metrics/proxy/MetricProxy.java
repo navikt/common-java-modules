@@ -6,9 +6,11 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.InvocationHandler;
 import java.util.*;
 
-abstract class MetricProxy implements InvocationHandler {
+public abstract class MetricProxy implements InvocationHandler {
+    public static final List<String> DO_NOT_MEASURE_METHOD_NAMES = new ArrayList<>(Arrays.asList("hashCode", "equals", "toString"));
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricProxy.class);
-    private static final List<String> DO_NOT_MEASURE_METHOD_NAMES = new ArrayList<>(Arrays.asList("hashCode", "equals", "toString"));
+
     private boolean includedMethodsAreDefined = false;
     private boolean excludedMethodsAreDefined = false;
     private List<String> includedMethodNames;
