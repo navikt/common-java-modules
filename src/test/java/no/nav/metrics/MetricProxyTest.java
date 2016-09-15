@@ -1,5 +1,6 @@
 package no.nav.metrics;
 
+import mockit.Mocked;
 import no.nav.metrics.proxy.EventProxy;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ import java.util.Collections;
 public class MetricProxyTest {
 
     @Test(expected = IOException.class)
-    public void skalKasteUnderliggendeExceptionFraTjenesten() throws Exception {
+    public void skalKasteUnderliggendeExceptionFraTjenesten(@Mocked Timer timer) throws Exception {
         Tjeneste proxy = MetricsFactory.createTimerProxy("navn", new FeilendeTjeneste(), Tjeneste.class);
         proxy.feilendeNettverkskall();
     }
