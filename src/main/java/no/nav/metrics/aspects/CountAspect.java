@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import static java.lang.Integer.parseInt;
 import static no.nav.metrics.MetricsFactory.createEvent;
-import static no.nav.metrics.aspects.AspectUtil.getAspectName;
+import static no.nav.metrics.aspects.AspectUtil.lagMetodeTimernavn;
 
 /**
  * HOWTO:
@@ -49,7 +49,7 @@ public class CountAspect {
 
     @Before("publicMethod() && @annotation(count)")
     public void count(JoinPoint joinPoint, Count count) {
-        Event event = createEvent(getAspectName(joinPoint, count.name()));
+        Event event = createEvent(lagMetodeTimernavn(joinPoint, count.name()));
         leggTilFelterPaEvent(event, joinPoint, count);
 
         event.report();

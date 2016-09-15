@@ -1,0 +1,67 @@
+package no.nav.metrics;
+
+import mockit.*;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+public class MetodeTimerTest {
+
+    @Test
+    public void starterOgStopperTimerRundtFunksjon(@Mocked final Timer timer, @Mocked MetricsFactory factory) throws Throwable {
+        new Expectations() {{
+            MetricsFactory.createTimer(anyString); result = timer;
+        }};
+
+        Metodekall metodekall = new Metodekall() {
+            @Override
+            public Object kallMetode() throws Throwable {
+                return "kall ok";
+            }
+        };
+
+        Object resultat = MetodeTimer.timeMetode(metodekall, "timerNavn");
+
+        new Verifications() {{
+            MetricsFactory.createTimer("timerNavn");
+
+            timer.start();
+            timer.addFieldToReport("success", true);
+            timer.stop();
+            timer.report();
+        }};
+
+        assertEquals("kall ok", resultat);
+    }
+
+    @Test
+    public void rapportererFeilOmKalletTryner(@Mocked final Timer timer, @Mocked MetricsFactory factory) throws Throwable {
+        new Expectations() {{
+            MetricsFactory.createTimer(anyString); result = timer;
+        }};
+
+        Metodekall metodekall = new Metodekall() {
+            @Override
+            public Object kallMetode() throws Throwable {
+                throw new RuntimeException("dummy");
+            }
+        };
+
+
+        try {
+            MetodeTimer.timeMetode(metodekall, "timerNavn");
+            fail("Skal kaste exception");
+        } catch (Throwable throwable) {
+            assertEquals("dummy", throwable.getMessage());
+        }
+
+        new Verifications() {{
+            timer.start();
+            timer.addFieldToReport("success", false);
+            timer.stop();
+            timer.report();
+        }};
+
+    }
+}

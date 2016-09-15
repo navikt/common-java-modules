@@ -23,21 +23,10 @@ public class EventProxy extends MetricProxy {
         }
 
     }
-    @Override
-    void initiateMeasurement(String methodName) {
-        Event event = methodEvents.get(methodName);
-        event.addFieldToReport("success", true);
-    }
 
     @Override
-    void methodFailedMeasurement(String methodName) {
-        Event event = methodEvents.get(methodName);
-        event.addFieldToReport("success", false);
-    }
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        return null;// TODO fix for Event også
 
-    @Override
-    void endMeasurement(String methodName) {
-        Event event = methodEvents.get(methodName);
-        event.report();
     }
 }

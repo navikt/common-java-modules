@@ -56,6 +56,10 @@ public class Timer implements Metric {
         }
     }
 
+    /**
+     * Timer er ikke threadsafe, bruk en ny timer heller enn å resette en eksisterende
+     * om flere tråder kan aksessere målepunktet samtidig
+     */
     private void reset() {
         measureTimestamp = 0;
         startTime = 0;

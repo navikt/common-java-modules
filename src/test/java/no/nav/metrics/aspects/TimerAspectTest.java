@@ -1,106 +1,63 @@
 package no.nav.metrics.aspects;
 
 import mockit.*;
-import no.nav.metrics.MetricsFactory;
+import no.nav.metrics.MetodeTimer;
+import no.nav.metrics.Metodekall;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
-import org.junit.Before;
 import org.junit.Test;
 
+import static no.nav.metrics.TestUtil.lagAspectProxy;
 import static org.junit.Assert.assertEquals;
 
 public class TimerAspectTest {
 
-    @Mocked
-    private ProceedingJoinPoint proceedingJoinPoint;
+    @Test
+    public void metoderMedTimedAnnotasjonBlirTruffetAvAspect(@Mocked final TimerAspect aspect) throws Throwable {
+        new Expectations() {{
+            aspect.timerPaMetode((ProceedingJoinPoint) any, (Timed) any); result = "proxyTimed";
+        }};
 
-    @Mocked
-    private Timed timed;
+        TimedMetoder proxy = lagAspectProxy(new TimedMetoder(), aspect);
 
-    @Mocked
-    private MetricsFactory metricsFactory;
-
-    @Mocked
-    private Signature signature;
-
-    @Before
-    public void setup() throws Exception {
-        new Expectations() {
-            {
-                timed.name();
-                result = "";
-            }
-        };
+        assertEquals("proxyTimed", proxy.timed());
+        assertEquals("originalIkkeTimed", proxy.ikkeTimed());
     }
+
 
     @Test
-    public void metricsProxySkalHaNavnLikNavnetBruktIAnnotasjonenDersomDetErSatt() throws Throwable {
-        final String egendefinertNavn = "EtEgenDefinertNavn";
-        new Expectations() {
-            {
-                timed.name();
-                result = egendefinertNavn;
-            }
-        };
+    public void timeMetodeBlirKaltMedRiktigNavn(@Mocked final MetodeTimer metodeTimer) throws Throwable {
+        new Expectations() {{
+            MetodeTimer.timeMetode((Metodekall) any, anyString); result = "timedMetode";
+        }};
 
-        new TimerAspect().timer(proceedingJoinPoint, timed);
+        TimerAspect aspect = new TimerAspect();
 
-        new Verifications() {
-            {
-                String navnBruktITimerProxy;
-                MetricsFactory.createTimer(navnBruktITimerProxy = withCapture());
-                times = 1;
+        TimedMetoder timedMetoder = lagAspectProxy(new TimedMetoder(), aspect);
+        timedMetoder.timed();
+        timedMetoder.timedMedNavn();
 
-                assertEquals(egendefinertNavn, navnBruktITimerProxy);
-            }
-        };
+        new Verifications() {{
+            MetodeTimer.timeMetode((Metodekall) any, "TimedMetoder.timed");
+            MetodeTimer.timeMetode((Metodekall) any, "customTimerNavn");
+        }};
     }
 
-    @Test
-    public void metricsProxySkalHaNavnSomInneholderSimpleNameOgMetodeNavnDersomNavnIkkeErSattIAnnotasjon() throws Throwable {
-        final String metodeNavn = "etMetodeNavn";
 
-        new Expectations() {
-            {
-                proceedingJoinPoint.getSignature();
-                result = signature;
-                signature.getDeclaringType();
-                result = Class.class;
-                signature.getName();
-                result = metodeNavn;
-            }
-        };
 
-        new TimerAspect().timer(proceedingJoinPoint, timed);
+    private static class TimedMetoder {
+        @Timed
+        public String timed() {
+            return "originalTimed";
+        }
+        @Timed(name = "customTimerNavn")
+        public String timedMedNavn() {
+            return "timedMedNavn";
+        }
 
-        new Verifications() {
-            {
-                String navnBruktITimerProxy;
-                MetricsFactory.createTimer(navnBruktITimerProxy = withCapture());
-                times = 1;
-
-                assertEquals(Class.class.getSimpleName() + "." + metodeNavn, navnBruktITimerProxy);
-            }
-        };
+        public String ikkeTimed() {
+            return "originalIkkeTimed";
+        }
     }
 
-    @Test(expected = EnException.class)
-    public void exceptionsFraJoinPointProceedSkalKastesVidereFraAspektet() throws Throwable {
-        new Expectations() {
-            {
-                proceedingJoinPoint.getSignature();
-                result = signature;
-                signature.getDeclaringType();
-                result = Class.class;
-                proceedingJoinPoint.proceed();
-                result = new EnException();
-            }
-        };
 
-        new TimerAspect().timer(proceedingJoinPoint, timed);
-    }
-
-    private class EnException extends Throwable {
-
-    }
 }

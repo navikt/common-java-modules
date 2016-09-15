@@ -3,7 +3,7 @@ package no.nav.metrics.proxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationHandler;
 import java.util.*;
 
 abstract class MetricProxy implements InvocationHandler {
@@ -14,10 +14,6 @@ abstract class MetricProxy implements InvocationHandler {
     private List<String> includedMethodNames;
     private List<String> excludedMethodNames;
     final Object object;
-
-    abstract void initiateMeasurement(String methodName);
-    abstract void methodFailedMeasurement(String methodName);
-    abstract void endMeasurement(String methodName);
 
     MetricProxy(Object object) {
         this.object = object;
@@ -39,26 +35,6 @@ abstract class MetricProxy implements InvocationHandler {
         excludedMethodsAreDefined = true;
     }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Exception {
-        String methodName = method.getName();
-
-        if (!shouldMeasureMethod(methodName)) {
-            return invokeMethod(method, args);
-        }
-
-        try {
-            initiateMeasurement(methodName);
-
-            return invokeMethod(method, args);
-        } catch (Exception e) {
-            methodFailedMeasurement(methodName);
-            throw e;
-        } finally {
-            endMeasurement(methodName);
-        }
-    }
-
     protected boolean shouldMeasureMethod(String methodName) {
         if (DO_NOT_MEASURE_METHOD_NAMES.contains(methodName)) {
             return false;
@@ -71,15 +47,4 @@ abstract class MetricProxy implements InvocationHandler {
         return true;
     }
 
-    protected Object invokeMethod(Method method, Object[] args) throws Exception {
-        try {
-            return method.invoke(object, args);
-        } catch (InvocationTargetException e) {
-            LOGGER.info("Method threw exception " + method.toString(), e);
-            throw (Exception) e.getCause();
-        } catch (Exception e) {
-            LOGGER.error("Exception from invoking method " + method.toString(), e);
-            throw e;
-        }
-    }
 }
