@@ -1,9 +1,11 @@
 package no.nav.metrics.aspects;
 
+import no.nav.metrics.Event;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
+import static java.lang.Integer.parseInt;
 import static no.nav.metrics.MetricsFactory.createEvent;
 import static no.nav.metrics.aspects.AspectUtil.getAspectName;
 
@@ -47,6 +49,19 @@ public class CountAspect {
 
     @Before("publicMethod() && @annotation(count)")
     public void count(JoinPoint joinPoint, Count count) {
-        createEvent(getAspectName(joinPoint, count.name())).withFields(joinPoint, count).report();
+        Event event = createEvent(getAspectName(joinPoint, count.name()));
+        leggTilFelterPaEvent(event, joinPoint, count);
+
+        event.report();
+    }
+
+
+    private void leggTilFelterPaEvent(Event event, JoinPoint joinPoint, Count count) {
+        Object[] args = joinPoint.getArgs();
+
+        for (Field field : count.fields()) {
+            String value = args[parseInt(field.argumentNumber()) - 1].toString();
+            event.addFieldToReport(field.key(), value);
+        }
     }
 }
