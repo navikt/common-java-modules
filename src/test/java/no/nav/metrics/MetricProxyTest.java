@@ -1,5 +1,6 @@
 package no.nav.metrics;
 
+import no.nav.metrics.proxy.EventProxy;
 import org.junit.Test;
 
 import java.io.IOException;

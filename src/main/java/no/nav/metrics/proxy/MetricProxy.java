@@ -1,14 +1,10 @@
-package no.nav.metrics;
+package no.nav.metrics.proxy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.*;
+import java.util.*;
 
 abstract class MetricProxy implements InvocationHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricProxy.class);
@@ -27,7 +23,7 @@ abstract class MetricProxy implements InvocationHandler {
         this.object = object;
     }
 
-    void includeMethods(List<String> methodNames) {
+    public void includeMethods(List<String> methodNames) {
         if (excludedMethodsAreDefined) {
             throw new IllegalStateException("Include and exclude are mutual exclusive methods");
         }
@@ -35,7 +31,7 @@ abstract class MetricProxy implements InvocationHandler {
         includedMethodsAreDefined = true;
     }
 
-    void excludeMethods(List<String> methodNames) {
+    public void excludeMethods(List<String> methodNames) {
         if (includedMethodsAreDefined) {
             throw new IllegalStateException("Include and exclude are mutual exclusive methods");
         }

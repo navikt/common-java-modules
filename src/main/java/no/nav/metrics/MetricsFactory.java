@@ -1,5 +1,8 @@
 package no.nav.metrics;
 
+import no.nav.metrics.proxy.EventProxy;
+import no.nav.metrics.proxy.TimerProxy;
+
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 public class MetricsFactory {

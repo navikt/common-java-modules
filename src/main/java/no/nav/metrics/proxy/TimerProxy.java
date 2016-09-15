@@ -1,11 +1,14 @@
-package no.nav.metrics;
+package no.nav.metrics.proxy;
+
+import no.nav.metrics.MetricsFactory;
+import no.nav.metrics.Timer;
 
 import java.lang.reflect.Method;
 
 public class TimerProxy extends MetricProxy {
     private String name;
 
-    TimerProxy(String name, Object object) {
+    public TimerProxy(String name, Object object) {
         super(object);
         this.name = name;
     }

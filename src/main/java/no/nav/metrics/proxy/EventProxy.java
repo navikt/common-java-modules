@@ -1,4 +1,7 @@
-package no.nav.metrics;
+package no.nav.metrics.proxy;
+
+import no.nav.metrics.Event;
+import no.nav.metrics.MetricsFactory;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -7,7 +10,7 @@ import java.util.Map;
 public class EventProxy extends MetricProxy {
     private final Map<String, Event> methodEvents = new HashMap<>();
 
-    EventProxy(String name, Object object, Class type) {
+    public EventProxy(String name, Object object, Class type) {
         super(object);
 
         Method[] methods = type.getMethods();
@@ -18,8 +21,8 @@ public class EventProxy extends MetricProxy {
 
             methodEvents.put(method.getName(), event);
         }
-    }
 
+    }
     @Override
     void initiateMeasurement(String methodName) {
         Event event = methodEvents.get(methodName);
