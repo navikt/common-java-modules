@@ -2,8 +2,7 @@ package no.nav.metrics.integration;
 
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.TestUtil;
-import no.nav.metrics.aspects.Timed;
-import no.nav.metrics.aspects.TimerAspect;
+import no.nav.metrics.aspects.*;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -16,11 +15,10 @@ import static org.junit.Assert.assertEquals;
 public class MetricReportTest {
 
     @Test
-    public void aspectOgProxySkalRapportereLikeData() throws Exception {
+    public void aspectOgProxySkalRapportereLikeDataForTimer() throws Exception {
         TestUtil.resetMetrics();
 
         final TimeMe timerProxy = MetricsFactory.createTimerProxy("TimeMe", new TimeMeImpl(), TimeMe.class);
-
         final TimeMe timerAspect = TestUtil.lagAspectProxy(new TimeMeImpl(), new TimerAspect());
 
         new Thread(new Runnable() {
@@ -31,6 +29,28 @@ public class MetricReportTest {
             }
         }).start();
 
+        sjekkLiktPaSocketData();
+    }
+
+    @Test
+    public void aspectOgProxySkalRapportereLikeDataForEvent() throws Exception {
+        TestUtil.resetMetrics();
+
+        final EventMe eventProxy = MetricsFactory.createEventProxy("EventMe", new EventMeImpl(), EventMe.class);
+        final EventMe eventAspect = TestUtil.lagAspectProxy(new EventMeImpl(), new CountAspect());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                eventProxy.event();
+                eventAspect.event();
+            }
+        }).start();
+
+        sjekkLiktPaSocketData();
+    }
+
+    private void sjekkLiktPaSocketData() throws Exception {
         ServerSocket serverSocket = new ServerSocket(3030);
         Socket socket = serverSocket.accept();
 
@@ -61,5 +81,18 @@ public class MetricReportTest {
 
         }
     }
+
+    public interface EventMe {
+        void event();
+    }
+
+    public static class EventMeImpl implements EventMe {
+        @Count
+        @Override
+        public void event() {
+
+        }
+    }
+
 
 }

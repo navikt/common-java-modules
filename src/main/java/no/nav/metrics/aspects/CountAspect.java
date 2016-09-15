@@ -1,13 +1,15 @@
 package no.nav.metrics.aspects;
 
-import no.nav.metrics.Event;
+import no.nav.metrics.MetodeEvent;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static java.lang.Integer.parseInt;
-import static no.nav.metrics.MetricsFactory.createEvent;
 import static no.nav.metrics.aspects.AspectUtil.lagMetodeTimernavn;
 
 /**
@@ -50,20 +52,28 @@ public class CountAspect {
 
     @Around("publicMethod() && @annotation(count)")
     public Object count(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
-        Event event = createEvent(lagMetodeTimernavn(joinPoint, count.name()));
-        leggTilFelterPaEvent(event, joinPoint, count);
-        event.report();
+        AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
 
-        return joinPoint.proceed();
+        String eventNavn = lagMetodeTimernavn(joinPoint, count.name());
+
+        return MetodeEvent.eventForMetode(metodekall, eventNavn, finnArgumentVerdier(joinPoint, count));
     }
 
 
-    private void leggTilFelterPaEvent(Event event, JoinPoint joinPoint, Count count) {
+    private Map<String, String> finnArgumentVerdier(JoinPoint joinPoint, Count count) {
+        if (count.fields().length == 0) {
+            return null;
+        }
+
+        Map<String, String> verdier = new HashMap<>();
+
         Object[] args = joinPoint.getArgs();
 
         for (Field field : count.fields()) {
             String value = args[parseInt(field.argumentNumber()) - 1].toString();
-            event.addFieldToReport(field.key(), value);
+            verdier.put(field.key(), value);
         }
+
+        return verdier;
     }
 }

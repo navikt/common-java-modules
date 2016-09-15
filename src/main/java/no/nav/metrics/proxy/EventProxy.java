@@ -5,7 +5,6 @@ import no.nav.metrics.MetodeEvent;
 import java.lang.reflect.Method;
 
 public class EventProxy extends MetricProxy {
-    private String name;
 
     public EventProxy(String name, Object object) {
         super(name, object);
