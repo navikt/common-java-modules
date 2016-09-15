@@ -5,7 +5,7 @@ import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-public class Timer implements Metric {
+public class Timer {
     /*
         Bruker både measureTimestamp og startTime fordi System.nanoTime()
         skal brukes for tidsmåling og System.currentTimeMillis() for å

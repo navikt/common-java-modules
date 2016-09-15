@@ -3,7 +3,7 @@ package no.nav.metrics;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Event implements Metric {
+public class Event {
     private final MetricsClient metricsClient;
     private final String name;
     private Map<String, Object> fields = new HashMap<>();
@@ -14,12 +14,10 @@ public class Event implements Metric {
         addFieldToReport("value", 1);
     }
 
-    @Override
     public void addFieldToReport(String fieldName, Object value) {
         fields.put(fieldName, value);
     }
 
-    @Override
     public void report() {
         metricsClient.report(name, fields, System.currentTimeMillis());
     }
