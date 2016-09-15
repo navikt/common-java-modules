@@ -65,7 +65,7 @@ public class CountAspect {
         }
 
         AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
-        String eventNavn = lagMetodeTimernavn(joinPoint, count.name());
+        String eventNavn = lagKlasseTimernavn(joinPoint, count.name());
 
         return MetodeEvent.eventForMetode(metodekall, eventNavn);
     }
