@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
-import static no.nav.metrics.aspects.AspectUtil.lagMetodeTimernavn;
+import static no.nav.metrics.aspects.AspectUtil.*;
 
 /**
  * HOWTO:
@@ -51,14 +51,24 @@ public class CountAspect {
     }
 
     @Around("publicMethod() && @annotation(count)")
-    public Object count(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
+    public Object countPaMetode(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
         AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
-
         String eventNavn = lagMetodeTimernavn(joinPoint, count.name());
 
         return MetodeEvent.eventForMetode(metodekall, eventNavn, finnArgumentVerdier(joinPoint, count));
     }
 
+    @Around("publicMethod() && @within(count)")
+    public Object countPaKlasse(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
+        if (metodeSkalIgnoreres(getMetodenavn(joinPoint), count.ignoredMethods())) {
+            return joinPoint.proceed();
+        }
+
+        AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
+        String eventNavn = lagMetodeTimernavn(joinPoint, count.name());
+
+        return MetodeEvent.eventForMetode(metodekall, eventNavn);
+    }
 
     private Map<String, String> finnArgumentVerdier(JoinPoint joinPoint, Count count) {
         if (count.fields().length == 0) {
