@@ -1,19 +1,16 @@
 package no.nav.metrics.handlers;
 
+import mockit.*;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.ServerSocket;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.net.SocketAddress;
 
 import static no.nav.metrics.handlers.SensuHandler.createJSON;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class SensuHandlerTest {
 
@@ -40,79 +37,37 @@ public class SensuHandlerTest {
     }
 
     @Test
-    public void senderJsonOverSocket() throws Exception {
+    public void skriverJsonTilSocket(@Mocked Socket socket, @Mocked final BufferedWriter writer) throws Exception {
+        SensuHandler sensuHandler = new SensuHandler();
+        sensuHandler.report("testApp", "testOutput");
+        sensuHandler.report("testApp2", "testOutput2");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(50); // Vente på socketen er klar
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                new SensuHandler().report("testApp", "data123");
-            }
-        }).start();
+        Thread.sleep(100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
 
-        ServerSocket serverSocket = new ServerSocket(3030);
-        Socket socket = serverSocket.accept();
+        new Verifications() {{
+            writer.write("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
+            writer.write("{\"status\":0,\"name\":\"testApp2\",\"output\":\"testOutput2\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
+        }};
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        assertThat(bufferedReader.readLine(), containsString("data123"));
-
-        serverSocket.close();
     }
 
     @Test
-    public void proverPaNyttOmFeiler() throws Exception {
+    public void senderDataPaNyNarSocketConnectionFeiler(@Mocked final Socket socket, @Mocked final BufferedWriter writer) throws Exception {
+        new Expectations() {{
+            socket.connect((SocketAddress) any, anyInt);
+            result = new IOException("dummy connection feil"); // Første kallet feiler
+            result = null;
+        }};
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new SensuHandler().report("testApp", "data123");
-            }
-        }).start();
+        SensuHandler sensuHandler = new SensuHandler();
+        sensuHandler.report("testApp", "testOutput");
 
-        Thread.sleep(1000); // Venter med å lage socket en stund
-        ServerSocket serverSocket = new ServerSocket(3030);
-        Socket socket = serverSocket.accept();
+        Thread.sleep(100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        assertThat(bufferedReader.readLine(), containsString("data123"));
+        new Verifications() {{
+            writer.write("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
+        }};
 
-        serverSocket.close();
     }
 
-    @Test
-    public void taklerMyeLast() throws Exception {
-        ExecutorService ex = Executors.newFixedThreadPool(4);
-
-        final SensuHandler sensuHandler = new SensuHandler();
-
-        for (int i = 0; i < 100; i++) {
-            final int finalI = i;
-            ex.execute(new Runnable() {
-                @Override
-                public void run() {
-                    sensuHandler.report("test", "nr " + finalI);
-                }
-            });
-        }
-
-        ServerSocket serverSocket = new ServerSocket(3030);
-        Socket socket = serverSocket.accept();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-        // Kan lese ut riktig antall meldinger fra socketen uten at testen henger
-        int antallLinjer = 0;
-        for (int i = 0; i < 100; i++) {
-            reader.readLine();
-            antallLinjer++;
-        }
-
-        assertEquals(100, antallLinjer);
-
-        serverSocket.close();
-    }
 }
