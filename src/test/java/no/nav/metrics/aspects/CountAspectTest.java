@@ -1,89 +1,70 @@
 package no.nav.metrics.aspects;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
+import mockit.*;
+import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
-import org.junit.Before;
 import org.junit.Test;
 
-import static no.nav.metrics.MetricsFactory.createEvent;
+import static no.nav.metrics.TestUtil.lagAspectProxy;
 import static org.junit.Assert.assertEquals;
 
 public class CountAspectTest {
 
-    @Mocked
-    private ProceedingJoinPoint proceedingJoinPoint;
 
-    @Mocked
-    private Count count;
+    @Test
+    public void metoderMedCountAnnotasjonBlirTruffetAvAspect(@Mocked final CountAspect aspect) throws Throwable {
+        new Expectations() {{
+            aspect.count((ProceedingJoinPoint) any, (Count) any); result = "proxyCount";
+        }};
 
-    @Mocked
-    private Signature signature;
+        CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), aspect);
 
-    @Mocked
-    private MetricsFactory metricsFactory;
-
-    @Before
-    public void setup() throws Exception {
-        new Expectations() {
-            {
-                count.name();
-                result = "";
-            }
-        };
+        assertEquals("proxyCount", countMetoder.count());
+        assertEquals("ikkeCount", countMetoder.ikkeCount());
     }
 
     @Test
-    public void metricsProxySkalHaNavnLikNavnetBruktIAnnotasjonenDersomDetErSatt() throws Throwable {
-        final String egendefinertNavn = "EtEgenDefinertNavn";
-        new Expectations() {
-            {
-                count.name();
-                result = egendefinertNavn;
-            }
-        };
+    public void fieldsSattPaCountBlirInkludertIEventet(@Mocked final Event event) throws Throwable {
+        CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), new CountAspect());
 
-        new CountAspect().count(proceedingJoinPoint, count);
+        countMetoder.countMedFields("testArg1", "testArg2", "testArg3");
 
-        new Verifications() {
-            {
-                String navnBruktITimerProxy;
-                createEvent(navnBruktITimerProxy = withCapture());
-                times = 1;
+        new Verifications() {{
+            event.addFieldToReport("customKey", "testArg2");
 
-                assertEquals(egendefinertNavn, navnBruktITimerProxy);
-            }
-        };
+            event.addFieldToReport("str2", "testArg2"); times = 0;
+            event.addFieldToReport("str3", "testArg3"); times = 0;
+        }};
     }
 
     @Test
-    public void metricsProxySkalHaNavnSomInneholderSimpleNameOgMetodeNavnDersomNavnIkkeErSattIAnnotasjon() throws Throwable {
-        final String metodeNavn = "etMetodeNavn";
+    public void countAspectLagerEventsMedRiktigeNavn(@Mocked final MetricsFactory factory) {
+        CountAspect aspect = new CountAspect();
 
-        new Expectations() {
-            {
-                proceedingJoinPoint.getSignature();
-                result = signature;
-                signature.getDeclaringType();
-                result = Class.class;
-                signature.getName();
-                result = metodeNavn;
-            }
-        };
+        CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), aspect);
 
-        new CountAspect().count(proceedingJoinPoint, count);
+        countMetoder.count();
+        countMetoder.countMedFields("", "", "");
 
-        new Verifications() {
-            {
-                String navnBruktITimerProxy;
-                createEvent(navnBruktITimerProxy = withCapture());
-                times = 1;
+        new Verifications() {{
+            MetricsFactory.createEvent("CountMetoder.count");
+            MetricsFactory.createEvent("customName");
+        }};
+    }
 
-                assertEquals(Class.class.getSimpleName() + "." + metodeNavn, navnBruktITimerProxy);
-            }
-        };
+    private static class CountMetoder {
+        @Count
+        public String count() {
+            return "count";
+        }
+        public String ikkeCount() {
+            return "ikkeCount";
+        }
+
+        @Count(name = "customName", fields = @Field(key = "customKey", argumentNumber = "2"))
+        public String countMedFields(String str1, String str2, String str3) {
+            return "countMedFields";
+        }
     }
 }

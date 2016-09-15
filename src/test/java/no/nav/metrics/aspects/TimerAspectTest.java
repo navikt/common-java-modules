@@ -53,10 +53,6 @@ public class TimerAspectTest {
 
     @Test
     public void timeMetodeBlirKaltMedRiktigNavn(@Mocked final MetodeTimer metodeTimer) throws Throwable {
-        new Expectations() {{
-            MetodeTimer.timeMetode((Metodekall) any, anyString); result = "timedMetode";
-        }};
-
         TimerAspect aspect = new TimerAspect();
 
         TimedKlasse timedKlasse = lagAspectProxy(new TimedKlasse(), aspect);

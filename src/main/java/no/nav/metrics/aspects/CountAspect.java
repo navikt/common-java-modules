@@ -2,6 +2,7 @@ package no.nav.metrics.aspects;
 
 import no.nav.metrics.Event;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 
@@ -47,12 +48,13 @@ public class CountAspect {
     public void publicMethod() {
     }
 
-    @Before("publicMethod() && @annotation(count)")
-    public void count(JoinPoint joinPoint, Count count) {
+    @Around("publicMethod() && @annotation(count)")
+    public Object count(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
         Event event = createEvent(lagMetodeTimernavn(joinPoint, count.name()));
         leggTilFelterPaEvent(event, joinPoint, count);
-
         event.report();
+
+        return joinPoint.proceed();
     }
 
 
