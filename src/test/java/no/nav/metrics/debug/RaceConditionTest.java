@@ -1,6 +1,7 @@
 package no.nav.metrics.debug;
 
 import no.nav.metrics.MetricsFactory;
+import no.nav.metrics.TestUtil;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -18,7 +19,7 @@ public class RaceConditionTest {
 
     @Test
     public void testStuff() throws Exception {
-
+        TestUtil.resetMetrics();
         /*
 
         Lager en metode som simulerer arbeid som tar litt tid, wrapper den i en TimerProxy.
@@ -95,13 +96,8 @@ public class RaceConditionTest {
         Socket socket = serverSocket.accept();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String line1 = bufferedReader.readLine();
-
-        socket = serverSocket.accept();
-        bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         String line2 = bufferedReader.readLine();
 
-        System.out.println(line1);
-        System.out.println(line2);
 
         int timeUsed = (int) (System.currentTimeMillis() - start);
 
@@ -109,6 +105,7 @@ public class RaceConditionTest {
         assertThat(line1, containsString("success=true"));
         assertThat(line2, containsString("success=true"));
 
+        serverSocket.close();
     }
 
     @SuppressWarnings("WeakerAccess")
