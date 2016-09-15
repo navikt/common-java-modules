@@ -1,4 +1,4 @@
-package no.nav.metrics.debug;
+package no.nav.metrics.integration;
 
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.TestUtil;
@@ -22,6 +22,9 @@ public class RaceConditionTest {
         TestUtil.resetMetrics();
         /*
 
+        Denne koden/analysen ble skrevet for å verifisere en race-condition vi opplevde under ytelsestest.
+        Skrevet den om til en test da den kan gi verdi for å verifisere at koden i fremtiden er korrekt
+
         Lager en metode som simulerer arbeid som tar litt tid, wrapper den i en TimerProxy.
         Sørger for at kallene blir ca. slik, altså at kall nr2 starter og fullfører mens kall nr1 jobber
 
@@ -31,11 +34,6 @@ public class RaceConditionTest {
 
         dette fører til at nr2 reporter metrics og resetter timeren, samme timer som nr1 bruker, så når en er ferdig blir alt crazy.
 
-
-
-        Start ncat lokalt og kjør testen
-        ncat -l -k 3030
-        evt. med bare "nc" i stedet for "ncat"
 
         Slik som det er i dag:
         FEIL, mangler success=true på nr 2 samt bogus value
