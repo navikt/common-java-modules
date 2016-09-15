@@ -5,11 +5,9 @@ import no.nav.metrics.MetodeTimer;
 import java.lang.reflect.Method;
 
 public class TimerProxy extends MetricProxy {
-    private String name;
 
     public TimerProxy(String name, Object object) {
-        super(object);
-        this.name = name;
+        super(name, object);
     }
 
     @Override

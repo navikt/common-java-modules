@@ -1,6 +1,7 @@
 package no.nav.metrics;
 
-import mockit.*;
+import mockit.Mocked;
+import mockit.Verifications;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -10,10 +11,6 @@ public class MetodeTimerTest {
 
     @Test
     public void starterOgStopperTimerRundtFunksjon(@Mocked final Timer timer, @Mocked MetricsFactory factory) throws Throwable {
-        new Expectations() {{
-            MetricsFactory.createTimer(anyString); result = timer;
-        }};
-
         Metodekall metodekall = new Metodekall() {
             @Override
             public Object kallMetode() throws Throwable {
@@ -37,17 +34,12 @@ public class MetodeTimerTest {
 
     @Test
     public void rapportererFeilOmKalletTryner(@Mocked final Timer timer, @Mocked MetricsFactory factory) throws Throwable {
-        new Expectations() {{
-            MetricsFactory.createTimer(anyString); result = timer;
-        }};
-
         Metodekall metodekall = new Metodekall() {
             @Override
             public Object kallMetode() throws Throwable {
                 throw new RuntimeException("dummy");
             }
         };
-
 
         try {
             MetodeTimer.timeMetode(metodekall, "timerNavn");

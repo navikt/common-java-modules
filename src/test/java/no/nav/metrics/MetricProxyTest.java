@@ -27,14 +27,14 @@ public class MetricProxyTest {
 
     @Test(expected = IllegalStateException.class)
     public void proxySkalKasteIllegalStateExceptionDersomIncludeMethodsErGjortOgExcludeMethodsKalles() throws Exception {
-        final EventProxy eventProxy = new EventProxy("navPaEvent", new Object(), Object.class);
+        final EventProxy eventProxy = new EventProxy("navPaEvent", new Object());
         eventProxy.includeMethods(Collections.singletonList("enMetodeSomSkalInkluderes"));
         eventProxy.excludeMethods(Collections.singletonList("enMetodeSomSkalEkskluderes"));
     }
 
     @Test(expected = IllegalStateException.class)
     public void proxySkalKasteIllegalStateExceptionDersomExcludeMethodsErGjortOgIncludeMethodsKalles() throws Exception {
-        final EventProxy eventProxy = new EventProxy("navPaEvent", new Object(), Object.class);
+        final EventProxy eventProxy = new EventProxy("navPaEvent", new Object());
         eventProxy.excludeMethods(Collections.singletonList("enMetodeSomSkalEkskluderes"));
         eventProxy.includeMethods(Collections.singletonList("enMetodeSomSkalInkluderes"));
     }

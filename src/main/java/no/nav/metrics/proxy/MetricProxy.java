@@ -15,9 +15,12 @@ public abstract class MetricProxy implements InvocationHandler {
     private boolean excludedMethodsAreDefined = false;
     private List<String> includedMethodNames;
     private List<String> excludedMethodNames;
-    final Object object;
 
-    MetricProxy(Object object) {
+    final Object object;
+    final String name;
+
+    MetricProxy(String name, Object object) {
+        this.name = name;
         this.object = object;
     }
 
