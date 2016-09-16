@@ -5,13 +5,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -33,10 +31,10 @@ public class SocketIntegrasjonTest {
         }).start();
 
         ServerSocket serverSocket = new ServerSocket(3030);
-        Socket socket = serverSocket.accept();
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        assertThat(bufferedReader.readLine(), containsString("data123"));
+        String linje = lesLinjeFraSocket(serverSocket);
+
+        assertThat(linje, containsString("data123"));
 
         serverSocket.close();
     }
@@ -49,17 +47,14 @@ public class SocketIntegrasjonTest {
         Thread.sleep(600); // Venter med å lage socket en stund
         ServerSocket serverSocket = new ServerSocket(3030);
 
-        Socket socket = serverSocket.accept();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String output = bufferedReader.readLine();
+        String linje = lesLinjeFraSocket(serverSocket);
 
-        if (output == null) {
-            socket = serverSocket.accept();
-            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            output = bufferedReader.readLine();
+        if (linje == null) {
+            System.out.println("Måtte prøve på nytt");
+            lesLinjeFraSocket(serverSocket);
         }
 
-        assertThat(output, containsString("data123"));
+        assertThat(linje, containsString("data123"));
 
         serverSocket.close();
     }
@@ -81,19 +76,17 @@ public class SocketIntegrasjonTest {
         }
 
         ServerSocket serverSocket = new ServerSocket(3030);
-        Socket socket = serverSocket.accept();
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         // Kan lese ut riktig antall meldinger fra socketen uten at testen henger
         int antallLinjer = 0;
         for (int i = 0; i < 100; i++) {
-            reader.readLine();
+            if (lesLinjeFraSocket(serverSocket) == null) {
+                break;
+            }
             antallLinjer++;
         }
 
         assertEquals(100, antallLinjer);
-
         serverSocket.close();
     }
 }

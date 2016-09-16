@@ -2,8 +2,11 @@ package no.nav.metrics;
 
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class TestUtil {
 
@@ -29,5 +32,11 @@ public class TestUtil {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public static String lesLinjeFraSocket(ServerSocket serverSocket) throws IOException {
+        Socket socket = serverSocket.accept();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        return bufferedReader.readLine();
     }
 }

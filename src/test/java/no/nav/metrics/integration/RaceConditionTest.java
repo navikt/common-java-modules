@@ -4,13 +4,11 @@ import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.TestUtil;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
@@ -91,17 +89,16 @@ public class RaceConditionTest {
 
         ServerSocket serverSocket = new ServerSocket(3030);
 
-        Socket socket = serverSocket.accept();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String line1 = bufferedReader.readLine();
-        String line2 = bufferedReader.readLine();
-
+        String line1 = lesLinjeFraSocket(serverSocket);
+        String line2 = lesLinjeFraSocket(serverSocket);
 
         int timeUsed = (int) (System.currentTimeMillis() - start);
 
         assertThat("skal ikke kjøres serielt", timeUsed, lessThan(500));
         assertThat(line1, containsString("success=true"));
+        assertThat(line1, containsString("testProxy.doStuff"));
         assertThat(line2, containsString("success=true"));
+        assertThat(line2, containsString("testProxy.doStuff"));
 
         serverSocket.close();
     }

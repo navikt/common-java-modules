@@ -28,52 +28,39 @@ public class SensuHandler {
 
     private class SensuReporter implements Runnable {
 
-        private Socket socket;
-        private BufferedWriter writer;
-
         @Override
         public void run() {
 
             while (true) {
-                JSONObject object = null;
                 try {
-                    object = reportQueue.take(); // denne venter til det er noe i køen
+                    JSONObject object = reportQueue.take(); // denne venter til det er noe i køen
 
-                    if (socket == null) {
-                        connectToSocket();
+                    try (Socket socket = new Socket()) {
+                        BufferedWriter writer = connectToSensu(socket);
+
+                        writer.write(object.toString());
+                        writer.newLine();
+                        writer.flush();
+                    } catch (IOException e) {
+                        reportQueue.offer(object);
+                        logger.error("Noe gikk feil med tilkoblingen til Sensu socket", e);
                     }
-
-                    writer.write(object.toString());
-                    writer.newLine();
-                    writer.flush();
-                } catch (IOException e) {
-                    if (socket != null) {
-                        try {
-                            socket.close();
-                        } catch (IOException ignored) {
-                        }
-                    }
-
-                    socket = null;
-                    reportQueue.offer(object);
-                    logger.error("Noe gikk feil med tilkoblingen til Sensu socket", e);
-                } catch (InterruptedException e) {
+                }
+                catch (InterruptedException e) {
                     logger.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
                 }
-
 
             }
 
         }
 
-        private void connectToSocket() throws IOException {
-            logger.info("Lager ny socket for SensuClient, port {}", SENSU_PORT);
-
+        private BufferedWriter connectToSensu(Socket socket) throws IOException {
             InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", SENSU_PORT);
-            socket = new Socket();
             socket.connect(inetSocketAddress, 500);
-            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         }
+
+
     }
 
     public void report(String application, String output) {

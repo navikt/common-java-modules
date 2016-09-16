@@ -5,11 +5,9 @@ import no.nav.metrics.TestUtil;
 import no.nav.metrics.aspects.*;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
 
+import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
 import static org.junit.Assert.assertEquals;
 
 public class MetricReportTest {
@@ -52,11 +50,9 @@ public class MetricReportTest {
 
     private void sjekkLiktPaSocketData() throws Exception {
         ServerSocket serverSocket = new ServerSocket(3030);
-        Socket socket = serverSocket.accept();
 
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String line1 = bufferedReader.readLine();
-        String line2 = bufferedReader.readLine();
+        String line1 = lesLinjeFraSocket(serverSocket);
+        String line2 = lesLinjeFraSocket(serverSocket);
 
         assertEquals(fjernTimestamps(line1), fjernTimestamps(line2));
 
