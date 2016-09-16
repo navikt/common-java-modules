@@ -25,6 +25,10 @@ public @interface Count {
      */
     String[] ignoredMethods() default {};
 
+    /**
+     * Om argumenter til metoden skal logges sammen med eventet.
+     * Kan kun brukes når annotasjonen brukes rett på en metode.
+     */
     Field[] fields() default {};
 }
 

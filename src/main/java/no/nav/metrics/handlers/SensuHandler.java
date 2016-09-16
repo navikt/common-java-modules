@@ -47,6 +47,13 @@ public class SensuHandler {
                     writer.newLine();
                     writer.flush();
                 } catch (IOException e) {
+                    if (socket != null) {
+                        try {
+                            socket.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
+
                     socket = null;
                     reportQueue.offer(object);
                     logger.error("Noe gikk feil med tilkoblingen til Sensu socket", e);

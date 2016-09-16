@@ -2,6 +2,8 @@ package no.nav.metrics.integration;
 
 import no.nav.metrics.handlers.SensuHandler;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -38,23 +40,26 @@ public class SocketIntegrasjonTest {
 
         serverSocket.close();
     }
+    private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
 
     @Test
     public void proverPaNyttOmFeiler() throws Exception {
+        new SensuHandler().report("testApp", "data123");
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new SensuHandler().report("testApp", "data123");
-            }
-        }).start();
-
-        Thread.sleep(1000); // Venter med å lage socket en stund
+        Thread.sleep(600); // Venter med å lage socket en stund
         ServerSocket serverSocket = new ServerSocket(3030);
-        Socket socket = serverSocket.accept();
 
+        Socket socket = serverSocket.accept();
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        assertThat(bufferedReader.readLine(), containsString("data123"));
+        String output = bufferedReader.readLine();
+
+        if (output == null) {
+            socket = serverSocket.accept();
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            output = bufferedReader.readLine();
+        }
+
+        assertThat(output, containsString("data123"));
 
         serverSocket.close();
     }

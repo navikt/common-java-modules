@@ -24,7 +24,6 @@ public class AspectUtil {
     }
 
     public static String getKlassenavn(JoinPoint joinPoint) {
-//        return joinPoint.getTarget().getClass().getSimpleName(); TODO denne?
         return joinPoint.getSignature().getDeclaringType().getSimpleName();
     }
 
