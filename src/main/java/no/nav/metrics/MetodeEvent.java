@@ -19,10 +19,10 @@ public class MetodeEvent {
 
         try {
             Object resultat = metodekall.kallMetode();
-            event.addFieldToReport("success", true);
+            event.setSuccess();
             return resultat;
         } catch (Throwable throwable) {
-            event.addFieldToReport("success", false);
+            event.setFailed();
             throw throwable;
         } finally {
             event.report();

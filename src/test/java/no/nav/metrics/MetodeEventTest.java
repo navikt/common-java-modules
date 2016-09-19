@@ -23,7 +23,7 @@ public class MetodeEventTest {
         new Verifications() {{
             MetricsFactory.createEvent("eventNavn");
 
-            event.addFieldToReport("success", true);
+            event.setSuccess();
             event.report();
         }};
 
@@ -47,7 +47,7 @@ public class MetodeEventTest {
         }
 
         new Verifications() {{
-            event.addFieldToReport("success", false);
+            event.setFailed();
             event.report();
         }};
     }

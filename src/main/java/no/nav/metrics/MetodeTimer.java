@@ -8,10 +8,10 @@ public class MetodeTimer {
         try {
             timer.start();
             Object resultat = metodekall.kallMetode();
-            timer.addFieldToReport("success", true);
+            timer.setSuccess();
             return resultat;
         } catch (Throwable throwable) {
-            timer.addFieldToReport("success", false);
+            timer.setFailed();
             throw throwable;
         } finally {
             timer.stop();

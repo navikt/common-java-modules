@@ -24,7 +24,7 @@ public class MetodeTimerTest {
             MetricsFactory.createTimer("timerNavn");
 
             timer.start();
-            timer.addFieldToReport("success", true);
+            timer.setSuccess();
             timer.stop();
             timer.report();
         }};
@@ -50,7 +50,7 @@ public class MetodeTimerTest {
 
         new Verifications() {{
             timer.start();
-            timer.addFieldToReport("success", false);
+            timer.setFailed();
             timer.stop();
             timer.report();
         }};
