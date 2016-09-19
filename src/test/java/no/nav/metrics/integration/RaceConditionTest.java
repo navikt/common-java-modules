@@ -18,6 +18,8 @@ public class RaceConditionTest {
     @Test
     public void testStuff() throws Exception {
         TestUtil.resetMetrics();
+        Thread.sleep(100);
+
         /*
 
         Denne koden/analysen ble skrevet for å verifisere en race-condition vi opplevde under ytelsestest.

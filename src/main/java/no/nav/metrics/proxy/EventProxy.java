@@ -14,11 +14,12 @@ public class EventProxy extends MetricProxy {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         ProxyMetodekall metodekall = new ProxyMetodekall(object, method, args);
 
-        if (!shouldMeasureMethod(method.getName())) {
+        String metodeNavn = method.getName();
+        if (!shouldMeasureMethod(metodeNavn)) {
             return metodekall.kallMetode();
         }
 
-        String eventName = name + "." + method.getName();
+        String eventName = this.name + "." + metodeNavn;
 
         return MetodeEvent.eventForMetode(metodekall, eventName);
 

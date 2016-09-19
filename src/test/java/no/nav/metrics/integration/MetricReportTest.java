@@ -15,6 +15,7 @@ public class MetricReportTest {
     @Test
     public void aspectOgProxySkalRapportereLikeDataForTimer() throws Exception {
         TestUtil.resetMetrics();
+        Thread.sleep(100);
 
         final TimeMe timerProxy = MetricsFactory.createTimerProxy("TimeMe", new TimeMeImpl(), TimeMe.class);
         final TimeMe timerAspect = TestUtil.lagAspectProxy(new TimeMeImpl(), new TimerAspect());
@@ -33,6 +34,7 @@ public class MetricReportTest {
     @Test
     public void aspectOgProxySkalRapportereLikeDataForEvent() throws Exception {
         TestUtil.resetMetrics();
+        Thread.sleep(100);
 
         final EventMe eventProxy = MetricsFactory.createEventProxy("EventMe", new EventMeImpl(), EventMe.class);
         final EventMe eventAspect = TestUtil.lagAspectProxy(new EventMeImpl(), new CountAspect());

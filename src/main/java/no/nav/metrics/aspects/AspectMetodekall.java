@@ -3,12 +3,12 @@ package no.nav.metrics.aspects;
 import no.nav.metrics.Metodekall;
 import org.aspectj.lang.ProceedingJoinPoint;
 
-public class AspectMetodekall implements Metodekall {
+class AspectMetodekall implements Metodekall {
 
 
     private final ProceedingJoinPoint joinPoint;
 
-    public AspectMetodekall(ProceedingJoinPoint joinPoint) {
+    AspectMetodekall(ProceedingJoinPoint joinPoint) {
         this.joinPoint = joinPoint;
     }
 
