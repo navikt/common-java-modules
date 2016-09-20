@@ -7,9 +7,7 @@ public class MetodeTimer {
 
         try {
             timer.start();
-            Object resultat = metodekall.kallMetode();
-            timer.setSuccess();
-            return resultat;
+            return metodekall.kallMetode();
         } catch (Throwable throwable) {
             timer.setFailed();
             throw throwable;

@@ -18,9 +18,7 @@ public class MetodeEvent {
         }
 
         try {
-            Object resultat = metodekall.kallMetode();
-            event.setSuccess();
-            return resultat;
+            return metodekall.kallMetode();
         } catch (Throwable throwable) {
             event.setFailed();
             throw throwable;

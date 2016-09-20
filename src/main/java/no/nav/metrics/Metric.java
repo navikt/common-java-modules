@@ -11,6 +11,7 @@ abstract class Metric {
     Metric(MetricsClient metricsClient, String name) {
         this.metricsClient = metricsClient;
         this.name = name;
+        setSuccess();
     }
 
     public void addFieldToReport(String fieldName, Object value) {

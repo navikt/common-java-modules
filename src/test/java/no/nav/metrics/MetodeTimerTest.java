@@ -24,7 +24,6 @@ public class MetodeTimerTest {
             MetricsFactory.createTimer("timerNavn");
 
             timer.start();
-            timer.setSuccess();
             timer.stop();
             timer.report();
         }};

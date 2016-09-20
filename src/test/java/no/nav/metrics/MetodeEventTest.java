@@ -22,8 +22,6 @@ public class MetodeEventTest {
 
         new Verifications() {{
             MetricsFactory.createEvent("eventNavn");
-
-            event.setSuccess();
             event.report();
         }};
 
