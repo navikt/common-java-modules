@@ -1,5 +1,6 @@
 package no.nav.metrics.aspects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 
 import static no.nav.metrics.proxy.MetricProxy.DO_NOT_MEASURE_METHOD_NAMES;
@@ -7,7 +8,7 @@ import static no.nav.metrics.proxy.MetricProxy.DO_NOT_MEASURE_METHOD_NAMES;
 public class AspectUtil {
 
     public static String lagMetodeTimernavn(JoinPoint joinPoint, String sattNavn) {
-        if (sattNavn.equals("")) {
+        if (StringUtils.isBlank(sattNavn)) {
             return getKlassenavn(joinPoint) + "." + getMetodenavn(joinPoint);
         } else {
             return sattNavn;
@@ -15,7 +16,7 @@ public class AspectUtil {
     }
 
     public static String lagKlasseTimernavn(JoinPoint joinPoint, String sattNavn) {
-        if (sattNavn.equals("")) {
+        if (StringUtils.isBlank(sattNavn)) {
             return getKlassenavn(joinPoint) + "." + getMetodenavn(joinPoint);
         } else {
             return sattNavn + "." + getMetodenavn(joinPoint);
