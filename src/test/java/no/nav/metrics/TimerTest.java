@@ -9,7 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 public class TimerTest {
     private Timer timer;
-    @Mocked MetricsClient metricsClient;
+    @Mocked
+    MetricsClient metricsClient;
 
     @Before
     public void setUp() {
@@ -21,7 +22,10 @@ public class TimerTest {
         timer.start();
 
         new Verifications() {
-            { System.nanoTime(); times = 1; }
+            {
+                System.nanoTime();
+                times = 1;
+            }
         };
     }
 
@@ -30,13 +34,16 @@ public class TimerTest {
         timer.stop();
 
         new Verifications() {
-            { System.nanoTime(); times = 1; }
+            {
+                System.nanoTime();
+                times = 1;
+            }
         };
     }
 
     @Test
     public void elapsedTimeReturnsDifferenceBetweenStartAndStopTimeInMillis(@Mocked System mockedSystem) {
-        new NonStrictExpectations(){
+        new NonStrictExpectations() {
             {
                 System.nanoTime();
                 result = 1000000;
@@ -60,7 +67,10 @@ public class TimerTest {
     @Test
     public void timerIsResetAfterReport() {
         new StrictExpectations(timer) {
-            { Deencapsulation.invoke(timer, "reset"); times = 1; }
+            {
+                Deencapsulation.invoke(timer, "reset");
+                times = 1;
+            }
         };
 
         timer.start();

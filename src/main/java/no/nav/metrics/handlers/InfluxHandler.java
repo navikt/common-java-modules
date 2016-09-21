@@ -26,7 +26,7 @@ public class InfluxHandler {
             Object rawValue = field.getValue();
             Object value = rawValue instanceof String ? createStringValue(rawValue) : rawValue;
 
-            fieldString.append("," + key + "=" + value);
+            fieldString.append(",").append(key).append("=").append(value);
         }
 
         return fieldString.substring(1);

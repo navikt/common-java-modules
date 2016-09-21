@@ -1,106 +1,132 @@
 package no.nav.metrics.aspects;
 
 import mockit.*;
-import no.nav.metrics.MetricsFactory;
+import no.nav.metrics.MetodeTimer;
+import no.nav.metrics.Metodekall;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
-import org.junit.Before;
 import org.junit.Test;
 
+import static no.nav.metrics.TestUtil.lagAspectProxy;
 import static org.junit.Assert.assertEquals;
 
 public class TimerAspectTest {
 
-    @Mocked
-    private ProceedingJoinPoint proceedingJoinPoint;
+    @Test
+    public void metoderMedTimedAnnotasjonBlirTruffetAvAspect(@Mocked final TimerAspect aspect) throws Throwable {
+        new Expectations() {{
+            aspect.timerPaMetode((ProceedingJoinPoint) any, (Timed) any);
+            result = "proxyTimed";
+        }};
 
-    @Mocked
-    private Timed timed;
+        TimedMetoder proxy = lagAspectProxy(new TimedMetoder(), aspect);
 
-    @Mocked
-    private MetricsFactory metricsFactory;
+        assertEquals("proxyTimed", proxy.timed());
+        assertEquals("originalIkkeTimed", proxy.ikkeTimed());
+    }
 
-    @Mocked
-    private Signature signature;
 
-    @Before
-    public void setup() throws Exception {
-        new Expectations() {
-            {
-                timed.name();
-                result = "";
-            }
-        };
+    @Test
+    public void metoderPaKlasseMedAnnotasjonBlirTruffetAvAspect(@Mocked final TimerAspect aspect) throws Throwable {
+        new Expectations() {{
+            aspect.timerPaKlasse((ProceedingJoinPoint) any, (Timed) any);
+            result = "proxyTimed";
+        }};
+
+        TimedKlasse proxy = lagAspectProxy(new TimedKlasse(), aspect);
+
+        assertEquals("proxyTimed", proxy.timed1());
+        assertEquals("proxyTimed", proxy.timed2());
     }
 
     @Test
-    public void metricsProxySkalHaNavnLikNavnetBruktIAnnotasjonenDersomDetErSatt() throws Throwable {
-        final String egendefinertNavn = "EtEgenDefinertNavn";
-        new Expectations() {
-            {
-                timed.name();
-                result = egendefinertNavn;
-            }
-        };
+    public void metoderPaKlasseMedAnnotasjonBlirIgnorert(@Mocked final MetodeTimer metodeTimer) throws Throwable {
+        new Expectations() {{
+            MetodeTimer.timeMetode((Metodekall) any, anyString);
+            result = "timedMetode";
+        }};
 
-        new TimerAspect().timer(proceedingJoinPoint, timed);
+        TimedKlasseMedIgnorerteMetoder proxy = lagAspectProxy(new TimedKlasseMedIgnorerteMetoder(), new TimerAspect());
 
-        new Verifications() {
-            {
-                String navnBruktITimerProxy;
-                MetricsFactory.createTimer(navnBruktITimerProxy = withCapture());
-                times = 1;
-
-                assertEquals(egendefinertNavn, navnBruktITimerProxy);
-            }
-        };
+        assertEquals("timedMetode", proxy.timed1());
+        assertEquals("timedMetode", proxy.timed2());
+        assertEquals("ignorert1", proxy.ignorert1());
+        assertEquals("toString", proxy.toString());
     }
+
 
     @Test
-    public void metricsProxySkalHaNavnSomInneholderSimpleNameOgMetodeNavnDersomNavnIkkeErSattIAnnotasjon() throws Throwable {
-        final String metodeNavn = "etMetodeNavn";
+    public void timeMetodeBlirKaltMedRiktigNavn(@Mocked final MetodeTimer metodeTimer) throws Throwable {
+        TimerAspect aspect = new TimerAspect();
 
-        new Expectations() {
-            {
-                proceedingJoinPoint.getSignature();
-                result = signature;
-                signature.getDeclaringType();
-                result = Class.class;
-                signature.getName();
-                result = metodeNavn;
-            }
-        };
+        TimedKlasse timedKlasse = lagAspectProxy(new TimedKlasse(), aspect);
+        timedKlasse.timed1();
+        timedKlasse.timed2();
 
-        new TimerAspect().timer(proceedingJoinPoint, timed);
+        TimedMetoder timedMetoder = lagAspectProxy(new TimedMetoder(), aspect);
+        timedMetoder.timed();
+        timedMetoder.timedMedNavn();
 
-        new Verifications() {
-            {
-                String navnBruktITimerProxy;
-                MetricsFactory.createTimer(navnBruktITimerProxy = withCapture());
-                times = 1;
+        TimedKlasseMedIgnorerteMetoder ignorerteMetoder = lagAspectProxy(new TimedKlasseMedIgnorerteMetoder(), new TimerAspect());
+        ignorerteMetoder.timed1();
 
-                assertEquals(Class.class.getSimpleName() + "." + metodeNavn, navnBruktITimerProxy);
-            }
-        };
+
+        new Verifications() {{
+            MetodeTimer.timeMetode((Metodekall) any, "TimedKlasse.timed1");
+            MetodeTimer.timeMetode((Metodekall) any, "TimedKlasse.timed2");
+
+            MetodeTimer.timeMetode((Metodekall) any, "TimedMetoder.timed");
+            MetodeTimer.timeMetode((Metodekall) any, "customTimerNavn");
+
+            MetodeTimer.timeMetode((Metodekall) any, "customKlasseTimer.timed1");
+        }};
     }
 
-    @Test(expected = EnException.class)
-    public void exceptionsFraJoinPointProceedSkalKastesVidereFraAspektet() throws Throwable {
-        new Expectations() {
-            {
-                proceedingJoinPoint.getSignature();
-                result = signature;
-                signature.getDeclaringType();
-                result = Class.class;
-                proceedingJoinPoint.proceed();
-                result = new EnException();
-            }
-        };
 
-        new TimerAspect().timer(proceedingJoinPoint, timed);
+    private static class TimedMetoder {
+        @Timed
+        public String timed() {
+            return "originalTimed";
+        }
+
+        @Timed(name = "customTimerNavn")
+        public String timedMedNavn() {
+            return "timedMedNavn";
+        }
+
+        public String ikkeTimed() {
+            return "originalIkkeTimed";
+        }
     }
 
-    private class EnException extends Throwable {
+    @Timed
+    private static class TimedKlasse {
+        public String timed1() {
+            return "timed1";
+        }
 
+        public String timed2() {
+            return "timed2";
+        }
     }
+
+    @Timed(ignoredMethods = "ignorert1", name = "customKlasseTimer")
+    private static class TimedKlasseMedIgnorerteMetoder {
+        public String timed1() {
+            return "timed1";
+        }
+
+        public String timed2() {
+            return "timed2";
+        }
+
+        public String ignorert1() {
+            return "ignorert1";
+        }
+
+        @Override
+        public String toString() {
+            return "toString";
+        }
+    }
+
 }

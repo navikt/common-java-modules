@@ -1,26 +1,21 @@
 package no.nav.metrics;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-public class Timer implements Metric {
+public class Timer extends Metric {
     /*
         Bruker både measureTimestamp og startTime fordi System.nanoTime()
         skal brukes for tidsmåling og System.currentTimeMillis() for å
         rapportere når målingen ble gjort.
      */
-    private final MetricsClient metricsClient;
-    private final String name;
     private long measureTimestamp;
     private long startTime;
     private long stopTime;
-    private Map<String, Object> fields = new HashMap<>();
 
     Timer(MetricsClient metricsClient, String name) {
-        this.metricsClient = metricsClient;
-        this.name = name + ".timer";
+        super(metricsClient, name + ".timer");
     }
 
     public void start() {
@@ -40,10 +35,7 @@ public class Timer implements Metric {
         return NANOSECONDS.toMillis(elapsedTimeNanos);
     }
 
-    public void addFieldToReport(String fieldName, Object value) {
-        fields.put(fieldName, value);
-    }
-
+    @Override
     public void report() {
         ensureTimerIsStopped();
         metricsClient.report(name, fields, measureTimestamp);
@@ -56,6 +48,10 @@ public class Timer implements Metric {
         }
     }
 
+    /**
+     * Timer er ikke threadsafe, bruk en ny timer heller enn å resette en eksisterende
+     * om flere tråder kan aksessere målepunktet samtidig
+     */
     private void reset() {
         measureTimestamp = 0;
         startTime = 0;

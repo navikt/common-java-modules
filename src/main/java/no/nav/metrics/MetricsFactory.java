@@ -1,5 +1,8 @@
 package no.nav.metrics;
 
+import no.nav.metrics.proxy.EventProxy;
+import no.nav.metrics.proxy.TimerProxy;
+
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 public class MetricsFactory {
@@ -35,7 +38,7 @@ public class MetricsFactory {
     public static <T> T createEventProxy(String name, T object, Class<T> type) {
         ClassLoader classLoader = EventProxy.class.getClassLoader();
         Class[] classes = {type};
-        EventProxy eventProxy = new EventProxy(name, object, type);
+        EventProxy eventProxy = new EventProxy(name, object);
 
         return (T) newProxyInstance(classLoader, classes, eventProxy);
     }

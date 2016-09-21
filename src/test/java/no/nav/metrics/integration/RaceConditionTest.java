@@ -1,15 +1,14 @@
-package no.nav.metrics.debug;
+package no.nav.metrics.integration;
 
 import no.nav.metrics.MetricsFactory;
+import no.nav.metrics.TestUtil;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
@@ -18,8 +17,13 @@ public class RaceConditionTest {
 
     @Test
     public void testStuff() throws Exception {
+        TestUtil.resetMetrics();
+        Thread.sleep(100);
 
         /*
+
+        Denne koden/analysen ble skrevet for å verifisere en race-condition vi opplevde under ytelsestest.
+        Skrevet den om til en test da den kan gi verdi for å verifisere at koden i fremtiden er korrekt
 
         Lager en metode som simulerer arbeid som tar litt tid, wrapper den i en TimerProxy.
         Sørger for at kallene blir ca. slik, altså at kall nr2 starter og fullfører mens kall nr1 jobber
@@ -30,11 +34,6 @@ public class RaceConditionTest {
 
         dette fører til at nr2 reporter metrics og resetter timeren, samme timer som nr1 bruker, så når en er ferdig blir alt crazy.
 
-
-
-        Start ncat lokalt og kjør testen
-        ncat -l -k 3030
-        evt. med bare "nc" i stedet for "ncat"
 
         Slik som det er i dag:
         FEIL, mangler success=true på nr 2 samt bogus value
@@ -92,23 +91,18 @@ public class RaceConditionTest {
 
         ServerSocket serverSocket = new ServerSocket(3030);
 
-        Socket socket = serverSocket.accept();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String line1 = bufferedReader.readLine();
-
-        socket = serverSocket.accept();
-        bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String line2 = bufferedReader.readLine();
-
-        System.out.println(line1);
-        System.out.println(line2);
+        String line1 = lesLinjeFraSocket(serverSocket);
+        String line2 = lesLinjeFraSocket(serverSocket);
 
         int timeUsed = (int) (System.currentTimeMillis() - start);
 
         assertThat("skal ikke kjøres serielt", timeUsed, lessThan(500));
         assertThat(line1, containsString("success=true"));
+        assertThat(line1, containsString("testProxy.doStuff"));
         assertThat(line2, containsString("success=true"));
+        assertThat(line2, containsString("testProxy.doStuff"));
 
+        serverSocket.close();
     }
 
     @SuppressWarnings("WeakerAccess")
