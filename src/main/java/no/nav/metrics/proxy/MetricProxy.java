@@ -1,15 +1,10 @@
 package no.nav.metrics.proxy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.InvocationHandler;
 import java.util.*;
 
 public abstract class MetricProxy implements InvocationHandler {
     public static final List<String> DO_NOT_MEASURE_METHOD_NAMES = new ArrayList<>(Arrays.asList("hashCode", "equals", "toString"));
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MetricProxy.class);
 
     private boolean includedMethodsAreDefined = false;
     private boolean excludedMethodsAreDefined = false;
