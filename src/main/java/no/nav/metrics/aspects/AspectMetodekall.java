@@ -5,7 +5,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 
 class AspectMetodekall implements Metodekall {
 
-
     private final ProceedingJoinPoint joinPoint;
 
     AspectMetodekall(ProceedingJoinPoint joinPoint) {

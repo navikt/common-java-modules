@@ -4,12 +4,11 @@ import org.aspectj.lang.JoinPoint;
 
 import static no.nav.metrics.proxy.MetricProxy.DO_NOT_MEASURE_METHOD_NAMES;
 
-
 public class AspectUtil {
 
     public static String lagMetodeTimernavn(JoinPoint joinPoint, String sattNavn) {
         if (sattNavn.equals("")) {
-            return  getKlassenavn(joinPoint) + "." + getMetodenavn(joinPoint);
+            return getKlassenavn(joinPoint) + "." + getMetodenavn(joinPoint);
         } else {
             return sattNavn;
         }
@@ -17,7 +16,7 @@ public class AspectUtil {
 
     public static String lagKlasseTimernavn(JoinPoint joinPoint, String sattNavn) {
         if (sattNavn.equals("")) {
-            return  getKlassenavn(joinPoint) + "." + getMetodenavn(joinPoint);
+            return getKlassenavn(joinPoint) + "." + getMetodenavn(joinPoint);
         } else {
             return sattNavn + "." + getMetodenavn(joinPoint);
         }

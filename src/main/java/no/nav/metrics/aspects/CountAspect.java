@@ -18,7 +18,7 @@ import static no.nav.metrics.aspects.AspectUtil.*;
  * - @EnableAspectJAutoProxy i Spring-config
  * - Gjør CountAspect tilgjengelig som en Spring-bean
  * - Sørg for at klassen der du bruker @Count er managed av Spring
- *
+ * <p>
  * Kan brukes f. eks. slik:
  * <pre>
  *
@@ -40,7 +40,6 @@ import static no.nav.metrics.aspects.AspectUtil.*;
  * public void methodname(String id, String orgnummer) {
  * }
  * </pre>
- *
  */
 @Aspect
 @Component

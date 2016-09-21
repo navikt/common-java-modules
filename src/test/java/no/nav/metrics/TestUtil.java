@@ -25,7 +25,7 @@ public class TestUtil {
             // Fjerner final lol
             Field modifier = Field.class.getDeclaredField("modifiers");
             modifier.setAccessible(true);
-            modifier.setInt(metricsClient, metricsClient.getModifiers() &~Modifier.FINAL);
+            modifier.setInt(metricsClient, metricsClient.getModifiers() & ~Modifier.FINAL);
 
             metricsClient.set(null, new MetricsClient());
         } catch (NoSuchFieldException | IllegalAccessException e) {

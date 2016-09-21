@@ -14,7 +14,8 @@ public class TimerAspectTest {
     @Test
     public void metoderMedTimedAnnotasjonBlirTruffetAvAspect(@Mocked final TimerAspect aspect) throws Throwable {
         new Expectations() {{
-            aspect.timerPaMetode((ProceedingJoinPoint) any, (Timed) any); result = "proxyTimed";
+            aspect.timerPaMetode((ProceedingJoinPoint) any, (Timed) any);
+            result = "proxyTimed";
         }};
 
         TimedMetoder proxy = lagAspectProxy(new TimedMetoder(), aspect);
@@ -27,7 +28,8 @@ public class TimerAspectTest {
     @Test
     public void metoderPaKlasseMedAnnotasjonBlirTruffetAvAspect(@Mocked final TimerAspect aspect) throws Throwable {
         new Expectations() {{
-            aspect.timerPaKlasse((ProceedingJoinPoint) any, (Timed) any); result = "proxyTimed";
+            aspect.timerPaKlasse((ProceedingJoinPoint) any, (Timed) any);
+            result = "proxyTimed";
         }};
 
         TimedKlasse proxy = lagAspectProxy(new TimedKlasse(), aspect);
@@ -39,7 +41,8 @@ public class TimerAspectTest {
     @Test
     public void metoderPaKlasseMedAnnotasjonBlirIgnorert(@Mocked final MetodeTimer metodeTimer) throws Throwable {
         new Expectations() {{
-            MetodeTimer.timeMetode((Metodekall) any, anyString); result = "timedMetode";
+            MetodeTimer.timeMetode((Metodekall) any, anyString);
+            result = "timedMetode";
         }};
 
         TimedKlasseMedIgnorerteMetoder proxy = lagAspectProxy(new TimedKlasseMedIgnorerteMetoder(), new TimerAspect());
@@ -79,13 +82,12 @@ public class TimerAspectTest {
     }
 
 
-
-
     private static class TimedMetoder {
         @Timed
         public String timed() {
             return "originalTimed";
         }
+
         @Timed(name = "customTimerNavn")
         public String timedMedNavn() {
             return "timedMedNavn";
@@ -101,6 +103,7 @@ public class TimerAspectTest {
         public String timed1() {
             return "timed1";
         }
+
         public String timed2() {
             return "timed2";
         }
@@ -111,12 +114,15 @@ public class TimerAspectTest {
         public String timed1() {
             return "timed1";
         }
+
         public String timed2() {
             return "timed2";
         }
+
         public String ignorert1() {
             return "ignorert1";
         }
+
         @Override
         public String toString() {
             return "toString";

@@ -14,7 +14,8 @@ public class CountAspectTest {
     @Test
     public void metoderMedCountAnnotasjonBlirTruffetAvAspect(@Mocked final CountAspect aspect) throws Throwable {
         new Expectations() {{
-            aspect.countPaMetode((ProceedingJoinPoint) any, (Count) any); result = "proxyCount";
+            aspect.countPaMetode((ProceedingJoinPoint) any, (Count) any);
+            result = "proxyCount";
         }};
 
         CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), aspect);
@@ -26,7 +27,8 @@ public class CountAspectTest {
     @Test
     public void metoderPaKlasseMedAnnotasjonBlirTruffetAvAspect(@Mocked final CountAspect aspect) throws Throwable {
         new Expectations() {{
-            aspect.countPaKlasse((ProceedingJoinPoint) any, (Count) any); result = "proxyCount";
+            aspect.countPaKlasse((ProceedingJoinPoint) any, (Count) any);
+            result = "proxyCount";
         }};
 
         CountKlasse proxy = lagAspectProxy(new CountKlasse(), aspect);
@@ -37,7 +39,8 @@ public class CountAspectTest {
     @Test
     public void metoderPaKlasseMedAnnotasjonBlirRiktigIgnorert(@Mocked final MetodeEvent event) throws Throwable {
         new Expectations() {{
-            MetodeEvent.eventForMetode((Metodekall) any, anyString); result = "eventMetode";
+            MetodeEvent.eventForMetode((Metodekall) any, anyString);
+            result = "eventMetode";
         }};
 
         CountKlasseMedIgnorerteMetoder proxy = lagAspectProxy(new CountKlasseMedIgnorerteMetoder(), new CountAspect());
@@ -55,8 +58,10 @@ public class CountAspectTest {
         new Verifications() {{
             event.addFieldToReport("customKey", "testArg2");
 
-            event.addFieldToReport("str2", "testArg2"); times = 0;
-            event.addFieldToReport("str3", "testArg3"); times = 0;
+            event.addFieldToReport("str2", "testArg2");
+            times = 0;
+            event.addFieldToReport("str3", "testArg3");
+            times = 0;
         }};
     }
 
@@ -89,6 +94,7 @@ public class CountAspectTest {
         public String count() {
             return "count";
         }
+
         public String ikkeCount() {
             return "ikkeCount";
         }
@@ -111,6 +117,7 @@ public class CountAspectTest {
         public String event1() {
             return "event1";
         }
+
         public String ignorert1() {
             return "ignorert1";
         }

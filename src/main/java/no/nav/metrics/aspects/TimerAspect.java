@@ -42,6 +42,4 @@ public class TimerAspect {
 
         return MetodeTimer.timeMetode(metodekall, timerNavn);
     }
-
-
 }

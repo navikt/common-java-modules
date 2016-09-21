@@ -55,9 +55,12 @@ public class AspectUtilTest {
 
     private void settOppNavneMock() {
         new Expectations() {{
-            signature.getDeclaringType(); result = AspectUtilTest.class; // Bare for å ha noe
-            signature.getName(); result = "metode1";
-            joinPoint.getSignature(); result = signature;
+            signature.getDeclaringType();
+            result = AspectUtilTest.class; // Bare for å ha noe
+            signature.getName();
+            result = "metode1";
+            joinPoint.getSignature();
+            result = signature;
         }};
 
     }

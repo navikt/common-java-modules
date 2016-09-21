@@ -7,5 +7,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface Field {
     String key();
+
     String argumentNumber() default "";
 }

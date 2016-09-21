@@ -19,7 +19,7 @@ public @interface Count {
     /**
      * Brukes bare om annotasjonen er på en klasse.
      * I tilleg blir hashCode, equals og toString alltid ignorert.
-     *
+     * <p>
      * Finnes ikke en tilsvarende "inkluderteMetoder" som i proxy-versjonen,
      * sett i stedet da annotasjonen direkte kun på de metodene som ønskes
      */

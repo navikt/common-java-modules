@@ -45,8 +45,7 @@ public class SensuHandler {
                         reportQueue.offer(object);
                         logger.error("Noe gikk feil med tilkoblingen til Sensu socket", e);
                     }
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     logger.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
                 }
 
