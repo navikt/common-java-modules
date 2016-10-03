@@ -5,10 +5,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static no.nav.metrics.MetricsClient.DISABLE_METRICS_REPORT;
 
@@ -17,7 +21,8 @@ public class SensuHandler {
     private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
     private static final int SENSU_PORT = Integer.parseInt(System.getProperty("sensu_client_port", "3030"));
 
-    private final LinkedBlockingQueue<JSONObject> reportQueue = new LinkedBlockingQueue<>(1000);
+    private final LinkedBlockingQueue<JSONObject> reportQueue = new LinkedBlockingQueue<>(5000);
+    private long queueSisteGangFullTimestamp = 0;
 
     public SensuHandler() {
         if (!DISABLE_METRICS_REPORT) {
@@ -44,6 +49,7 @@ public class SensuHandler {
                     } catch (IOException e) {
                         reportQueue.offer(object);
                         logger.error("Noe gikk feil med tilkoblingen til Sensu socket", e);
+                        Thread.sleep(1000); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
                 } catch (InterruptedException e) {
                     logger.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
@@ -64,10 +70,11 @@ public class SensuHandler {
 
     public void report(String application, String output) {
         JSONObject json = createJSON(application, output);
-        boolean result = reportQueue.offer(json);// blir ikke lagt til om ikke plass, men må få tak i en lock...
+        boolean result = reportQueue.offer(json); // Thread-safe måte å legge til i køen på, returnerer false i stedet for å blokkere om køen er full
 
-        if (!result) {
-            logger.info("Sensu-køen er full");
+        if (!result && (System.currentTimeMillis() - queueSisteGangFullTimestamp > 1000 * 60)) { // Unngår å spamme loggen om køen er full over lengre tid (f. eks. Sensu er nede)
+            logger.warn("Sensu-køen har vært full, ikke alle metrikker har blitt sendt til Sensu");
+            queueSisteGangFullTimestamp = System.currentTimeMillis();
         }
     }
 
