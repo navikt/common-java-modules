@@ -1,6 +1,8 @@
 package no.nav.metrics.handlers;
 
-import mockit.*;
+import mockit.Expectations;
+import mockit.Mocked;
+import mockit.Verifications;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -71,7 +73,7 @@ public class SensuHandlerTest {
         SensuHandler sensuHandler = new SensuHandler();
         sensuHandler.report("testApp", "testOutput");
 
-        Thread.sleep(100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
+        Thread.sleep(1100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt (1000ms delay pga feilende kall + litt)
 
         final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
         new Verifications() {{

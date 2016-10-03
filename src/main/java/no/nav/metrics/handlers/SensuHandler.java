@@ -5,10 +5,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static no.nav.metrics.MetricsClient.DISABLE_METRICS_REPORT;
 
@@ -44,6 +48,7 @@ public class SensuHandler {
                     } catch (IOException e) {
                         reportQueue.offer(object);
                         logger.error("Noe gikk feil med tilkoblingen til Sensu socket", e);
+                        Thread.sleep(1000); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
                 } catch (InterruptedException e) {
                     logger.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
