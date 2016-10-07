@@ -48,7 +48,7 @@ public class SensuHandler {
                         writer.flush();
                     } catch (IOException e) {
                         reportQueue.offer(object);
-                        logger.error("Noe gikk feil med tilkoblingen til Sensu socket", e);
+                        logger.error("Noe gikk feil med tilkoblingen til Sensu socket");
                         Thread.sleep(1000); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
                 } catch (InterruptedException e) {
