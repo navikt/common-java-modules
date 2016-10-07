@@ -19,7 +19,7 @@ import static no.nav.metrics.MetricsClient.DISABLE_METRICS_REPORT;
 public class SensuHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
-    private static final int SENSU_PORT = Integer.parseInt(System.getProperty("metrics.sensu.sensu_client_port", "3030"));
+    private static final int SENSU_PORT = Integer.parseInt(System.getProperty("sensu_client_port", "3030")); // System property'en sensu_client_port settes av plattformen
     private static final int RETRY_INTERVAL = Integer.parseInt(System.getProperty("metrics.sensu.report.retryInterval", "1000"));
     private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.queueSize", "5000"));
 
@@ -50,7 +50,7 @@ public class SensuHandler {
                         writer.flush();
                     } catch (IOException e) {
                         reportQueue.offer(object);
-                        logger.error("Noe gikk feil med tilkoblingen til Sensu socket.", e.getMessage());
+                        logger.error("Noe gikk feil med tilkoblingen til Sensu socket: {}.", e.getMessage());
                         Thread.sleep(RETRY_INTERVAL); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
                 } catch (InterruptedException e) {
