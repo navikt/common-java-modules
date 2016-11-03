@@ -39,4 +39,8 @@ public class TestUtil {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         return bufferedReader.readLine();
     }
+
+    public static int getSensuClientPort() {
+        return Integer.parseInt(System.getProperty("sensu_client_port", "3030"));
+    }
 }

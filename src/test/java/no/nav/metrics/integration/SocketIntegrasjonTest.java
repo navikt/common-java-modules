@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static no.nav.metrics.TestUtil.getSensuClientPort;
 import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
@@ -29,7 +30,7 @@ public class SocketIntegrasjonTest {
             }
         }).start();
 
-        ServerSocket serverSocket = new ServerSocket(3030);
+        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         String linje = lesLinjeFraSocket(serverSocket);
 
@@ -45,7 +46,7 @@ public class SocketIntegrasjonTest {
         new SensuHandler().report("testApp", "data123");
 
         Thread.sleep(600); // Venter med å lage socket en stund
-        ServerSocket serverSocket = new ServerSocket(3030);
+        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         String linje = lesLinjeFraSocket(serverSocket);
 
@@ -76,7 +77,7 @@ public class SocketIntegrasjonTest {
             });
         }
 
-        ServerSocket serverSocket = new ServerSocket(3030);
+        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         // Kan lese ut riktig antall meldinger fra socketen uten at testen henger
         int antallLinjer = 0;

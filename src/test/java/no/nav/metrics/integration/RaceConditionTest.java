@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static no.nav.metrics.TestUtil.getSensuClientPort;
 import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
@@ -89,7 +90,7 @@ public class RaceConditionTest {
 
         long start = System.currentTimeMillis();
 
-        ServerSocket serverSocket = new ServerSocket(3030);
+        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         String line1 = lesLinjeFraSocket(serverSocket);
         String line2 = lesLinjeFraSocket(serverSocket);

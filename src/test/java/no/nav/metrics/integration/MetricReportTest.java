@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.net.ServerSocket;
 
+import static no.nav.metrics.TestUtil.getSensuClientPort;
 import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
 import static org.junit.Assert.assertEquals;
 
@@ -51,7 +52,7 @@ public class MetricReportTest {
     }
 
     private void sjekkLiktPaSocketData() throws Exception {
-        ServerSocket serverSocket = new ServerSocket(3030);
+        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         String line1 = lesLinjeFraSocket(serverSocket);
         String line2 = lesLinjeFraSocket(serverSocket);
@@ -66,7 +67,6 @@ public class MetricReportTest {
                 .replaceAll("value=\\d+", "value=<dummy>")
                 .replaceAll("\\d{19}", "<timestamp>");
     }
-
 
     public interface TimeMe {
         void time();
