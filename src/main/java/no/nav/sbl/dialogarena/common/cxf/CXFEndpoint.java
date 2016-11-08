@@ -33,8 +33,8 @@ public class CXFEndpoint {
 	}
 
     public CXFEndpoint kerberosInInterceptor() {
-        factoryBean.getOutInterceptors().clear();
-        factoryBean.getOutInterceptors().add(new KerberosTokenInterceptor());
+        factoryBean.getInInterceptors().clear();
+        factoryBean.getInInterceptors().add(new KerberosTokenInterceptor());
         return this;
     }
 
