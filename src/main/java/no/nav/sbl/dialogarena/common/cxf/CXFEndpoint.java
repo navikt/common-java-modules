@@ -10,6 +10,7 @@ import no.nav.modig.security.ws.SAMLInInterceptor;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
+import org.apache.cxf.ws.security.wss4j.KerberosTokenInterceptor;
 
 public class CXFEndpoint {
 
@@ -30,6 +31,12 @@ public class CXFEndpoint {
 		factoryBean.getOutFaultInterceptors().add(new AttachmentCleanupInterceptor());
 		return this;
 	}
+
+    public CXFEndpoint kerberosInInterceptor() {
+        factoryBean.getOutInterceptors().clear();
+        factoryBean.getOutInterceptors().add(new KerberosTokenInterceptor());
+        return this;
+    }
 
 	public CXFEndpoint address(String address) {
 		factoryBean.setAddress(address);
