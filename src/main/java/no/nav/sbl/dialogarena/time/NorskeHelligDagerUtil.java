@@ -7,7 +7,7 @@ import static java.time.LocalDate.*;
 public class NorskeHelligDagerUtil {
 
     public static boolean erNorskHelligDag(LocalDate dato) {
-        int mnd = dato.getMonth().getValue() + 1;
+        int mnd = dato.getMonth().getValue();
         int dag = dato.getDayOfMonth();
         LocalDate paaskedag = hentFoerstePaaskedag(dato.getYear());
 
