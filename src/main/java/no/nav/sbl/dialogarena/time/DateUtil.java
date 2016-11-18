@@ -14,4 +14,7 @@ public class DateUtil {
         return dato.format(ofPattern("dd.MM.yyyy"));
     }
 
+    public static String tilKortDatoMedTid(LocalDateTime dato){
+        return dato.format(ofPattern("dd.MM.yyyy HH:mm"));
+    }
 }
