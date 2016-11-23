@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -70,12 +69,11 @@ public abstract class SelfTestBaseServlet extends AbstractSelfTestBaseServlet {
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Result result = kjorSelfTest();
 
-        if (result.hasErrors() && !req.getParameterMap().isEmpty()) {
-            resp.sendError(HttpURLConnection.HTTP_INTERNAL_ERROR, join(result.errors, ", "));
-        } else {
-            resp.setContentType("text/html");
-            resp.getWriter().write(result.html);
+        if (result.hasErrors()) {
+            resp.setStatus(500);
         }
+        resp.setContentType("text/html");
+        resp.getWriter().write(result.html);
     }
 
     private Result kjorSelfTest() throws IOException {
