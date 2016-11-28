@@ -11,15 +11,20 @@ public class DateUtil {
     public static String tilKortDato(LocalDate dato) {
         return dato.format(ofPattern("dd.MM.yyyy"));
     }
+
     public static String tilKortDato(LocalDateTime dato) {
         return dato.format(ofPattern("dd.MM.yyyy"));
     }
 
-    public static String tilKortDatoMedTid(LocalDateTime dato){
+    public static String tilKortDatoMedTid(LocalDateTime dato) {
         return dato.format(ofPattern("dd.MM.yyyy HH:mm"));
     }
 
-    public static LocalDateTime fraKortDatoMedTid(String dato){
+    public static LocalDateTime fraKortDatoMedTid(String dato) {
         return parse(dato, ofPattern("dd.MM.yyyy HH:mm"));
+    }
+
+    public static String tilLangDatoMedTid(LocalDateTime dato) {
+        return dato.format(ofPattern("dd.MM")) + " kl. " + dato.format(ofPattern("HH:mm"));
     }
 }
