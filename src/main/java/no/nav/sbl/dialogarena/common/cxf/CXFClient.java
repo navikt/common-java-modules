@@ -36,6 +36,14 @@ public class CXFClient<T> {
         this.serviceClass = serviceClass;
     }
 
+    //FIXME hackish løsning. Det skjer for mye i constructeren. Burde refactores
+    public CXFClient<T> ikkeMaskerSecurityHeader() {
+        factoryBean.getFeatures().removeAll(factoryBean.getFeatures());
+        factoryBean.getFeatures().add(new LoggingFeature());
+        factoryBean.getFeatures().add(new WSAddressingFeature());
+        return this;
+    }
+
     public CXFClient<T> address(String url) {
         factoryBean.setAddress(url);
         return this;
