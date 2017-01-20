@@ -25,7 +25,7 @@ public class CXFClient<T> {
     public final JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
     private final Class<T> serviceClass;
     private final List<Handler> handlerChain = new ArrayList<>();
-    private boolean configureStsForExternalSSO, configureStsForSystemUser;
+    private boolean configureStsForExternalSSO, configureStsForSystemUser, configureStsForOnBehalfOfWithJWT;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
 
@@ -61,6 +61,11 @@ public class CXFClient<T> {
 
     public CXFClient<T> configureStsForSystemUser() {
         configureStsForSystemUser = true;
+        return this;
+    }
+
+    public CXFClient<T> configureStsForOnBehalfOfWithJWT() {
+        configureStsForOnBehalfOfWithJWT = true;
         return this;
     }
 
@@ -115,6 +120,9 @@ public class CXFClient<T> {
         }
         if (configureStsForSystemUser) {
             STSConfigurationUtility.configureStsForSystemUser(client);
+        }
+        if(configureStsForOnBehalfOfWithJWT) {
+            JWTClientWrapper.configureStsForOnBehalfOfWithJWT(client);
         }
 
         ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);
