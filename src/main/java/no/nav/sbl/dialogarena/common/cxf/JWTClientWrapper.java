@@ -39,7 +39,7 @@ public class JWTClientWrapper {
         stsClient.setOnBehalfOf(new ModigOnBehalfOfWithJWTCallbackHandler());
         client.getRequestContext().put("ws-security.sts.client", stsClient);
         client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, false);
-        setEndpointPolicyReference(client, "classpath:stsPolicy.xml");
+        setEndpointPolicyReference(client, "classpath:JwtSTSPolicy.xml");
     }
 
     private static String requireProperty(String key) {
