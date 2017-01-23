@@ -24,7 +24,11 @@ public class DateUtil {
         return parse(dato, ofPattern("dd.MM.yyyy HH:mm"));
     }
 
-    public static String tilLangDatoMedTid(LocalDateTime dato) {
+    public static String tilKortDatoMedKlokkeslettPostfix(LocalDateTime dato) {
         return dato.format(ofPattern("dd.MM")) + " kl. " + dato.format(ofPattern("HH:mm"));
+    }
+
+    public static String tilLangDatoMedKlokkeslettPostfix(LocalDateTime dato) {
+        return dato.format(ofPattern("dd.MM.yyyy")) + " kl. " + dato.format(ofPattern("HH:mm"));
     }
 }
