@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>no.nav.sbl</groupId>
+        <artifactId>mor-pom</artifactId>
+        <version>3.2</version>
+    </parent>
+
+    <groupId>no.nav.fo</groupId>
+    <artifactId>jwt-security</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <modules>
+        <module>jwt-security-loginmodule</module>
+        <module>jwt-security-filter</module>
+        <module>jwt-security-common</module>
+    </modules>
+
+    <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
+    <description>
+        Fellesfunksjonalitet for sikkerthet basert på jwt
+    </description>
+
+    <properties>
+        <common.cxf.version>0.1-SNAPSHOT-LOKAL</common.cxf.version>
+        <jose4j.version>0.5.0</jose4j.version>
+        <picketbox.version>4.9.2.Final</picketbox.version>
+        <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
+        <slf4j.version>1.7.6</slf4j.version>
+        <jee.version>7.0</jee.version>
+    </properties>
+
+    <dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.bitbucket.b_c</groupId>
+            <artifactId>jose4j</artifactId>
+            <version>${jose4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.picketbox</groupId>
+            <artifactId>picketbox</artifactId>
+            <version>${picketbox.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax.ws.rs-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>${jee.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    </dependencyManagement>
+
+
+
+    <scm>
+        <developerConnection>http://stash.devillo.no/scm/felles/jwt-security.git</developerConnection>
+        <url>http://stash.devillo.no/projects/FELLES/repos/jwt-security/browse</url>
+        <tag>HEAD</tag>
+    </scm>
+</project>
