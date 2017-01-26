@@ -83,7 +83,7 @@
     </dependencyManagement>
 
     <scm>
-        <developerConnection>http://stash.devillo.no/scm/felles/jwt-security.git</developerConnection>
+        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/jwt-security.git</developerConnection>
         <url>http://stash.devillo.no/projects/FELLES/repos/jwt-security/browse</url>
         <tag>HEAD</tag>
     </scm>
