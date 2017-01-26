@@ -9,7 +9,7 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
 	<artifactId>common-cxf</artifactId>
-	<version>0.1-SNAPSHOT-LOKAL</version>
+	<version>lokalt-SNAPSHOT</version>
 
 	<properties>
 		<cxf.version>2.7.6</cxf.version>
@@ -18,10 +18,11 @@
         <nav-metrics.version>3.1.0</nav-metrics.version>
         <hamcrest.version>1.3</hamcrest.version>
         <junit.version>4.12</junit.version>
-        <modig-security.version>1.0.31-SNAPSHOT</modig-security.version>
+        <modig-security.version>1.0.24-portaler</modig-security.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <spring.version>4.2.6.RELEASE</spring.version>
         <jsoup.version>1.7.2</jsoup.version>
+        <jwt-security.version>1.0.5</jwt-security.version>
     </properties>
 
 	<dependencies>
@@ -34,6 +35,11 @@
             <groupId>org.apache.neethi</groupId>
             <artifactId>neethi</artifactId>
             <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.fo</groupId>
+            <artifactId>jwt-security-common</artifactId>
+            <version>${jwt-security.version}</version>
         </dependency>
 
 		<dependency>

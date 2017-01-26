@@ -2,8 +2,8 @@ package no.nav.sbl.dialogarena.common.cxf;
 
 
 
-import no.nav.modig.core.context.SubjectHandler;
-import no.nav.modig.core.domain.IdentType;
+import no.nav.fo.security.jwt.context.SubjectHandler;
+import no.nav.fo.security.jwt.domain.IdentType;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
