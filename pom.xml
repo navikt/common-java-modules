@@ -12,7 +12,7 @@
 	<version>lokalt-SNAPSHOT</version>
 
 	<properties>
-		<cxf.version>2.7.10</cxf.version>
+		<cxf.version>2.7.6</cxf.version>
         <slf4j.version>1.7.7</slf4j.version>
         <modig-core.version>1.0.1</modig-core.version>
         <nav-metrics.version>3.1.0</nav-metrics.version>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-policy</artifactId>
-            <version>2.7.6</version>
+            <version>${cxf.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.neethi</groupId>
