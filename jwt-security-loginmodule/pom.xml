@@ -4,12 +4,12 @@
     <parent>
         <groupId>no.nav.fo</groupId>
         <artifactId>jwt-security</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>no.nav.fo</groupId>
     <artifactId>jwt-security-loginmodule</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
     </properties>
@@ -18,7 +18,6 @@
         <dependency>
             <groupId>no.nav.fo</groupId>
             <artifactId>jwt-security-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>

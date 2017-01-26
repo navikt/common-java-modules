@@ -19,4 +19,12 @@ public class StatusMessage {
                 ",message=" + message +
                 ">";
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
 }

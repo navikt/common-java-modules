@@ -9,7 +9,7 @@
 
     <groupId>no.nav.fo</groupId>
     <artifactId>jwt-security</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <modules>
         <module>jwt-security-loginmodule</module>
@@ -24,16 +24,22 @@
     </description>
 
     <properties>
-        <common.cxf.version>0.1-SNAPSHOT-LOKAL</common.cxf.version>
         <jose4j.version>0.5.0</jose4j.version>
         <picketbox.version>4.9.2.Final</picketbox.version>
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <slf4j.version>1.7.6</slf4j.version>
         <jee.version>7.0</jee.version>
+        <jetty.version>9.3.0.M2</jetty.version>
+        <spring.version>4.3.5.RELEASE</spring.version>
     </properties>
 
     <dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>no.nav.fo</groupId>
+            <artifactId>jwt-security-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
@@ -61,10 +67,20 @@
             <version>${jee.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     </dependencyManagement>
-
-
 
     <scm>
         <developerConnection>http://stash.devillo.no/scm/felles/jwt-security.git</developerConnection>

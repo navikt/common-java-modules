@@ -3,6 +3,7 @@ package no.nav.fo.security.jwt.filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Priority;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -14,8 +15,9 @@ import java.io.IOException;
 
 @Provider
 @SessionTerminator
+@Priority(Integer.MAX_VALUE) //terminering av session er siste filter.
 /**
- * Dette er et no.nav.fo.security.jwt.filter som avslutter session etter hver forespøsel.
+ * Dette er et filter som avslutter session etter hver forespøsel.
  *
  * Dette sikrer at forespørsler er tilstandsløse.
  */
