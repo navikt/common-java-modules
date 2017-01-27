@@ -4,6 +4,8 @@ import no.nav.modig.core.context.ModigSecurityConstants;
 import no.nav.modig.security.sts.client.NAVSTSClient;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.endpoint.*;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -89,8 +91,10 @@ public class JWTClientWrapper {
         Endpoint endpoint = client.getEndpoint();
         EndpointInfo endpointInfo = endpoint.getEndpointInfo();
 
+        SoapMessage message = new SoapMessage(Soap12.getInstance());
+
         PolicyEngine policyEngine = client.getBus().getExtension(PolicyEngine.class);
-        EndpointPolicy endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, null, null);
-        policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy, null));
+        EndpointPolicy endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, null, message);
+        policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy, message));
     }
 }
