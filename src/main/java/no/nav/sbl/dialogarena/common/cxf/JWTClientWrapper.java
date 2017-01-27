@@ -4,16 +4,14 @@ import no.nav.modig.core.context.ModigSecurityConstants;
 import no.nav.modig.security.sts.client.NAVSTSClient;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.EndpointException;
+import org.apache.cxf.binding.soap.Soap12;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.endpoint.*;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.ws.policy.EndpointPolicy;
-import org.apache.cxf.ws.policy.PolicyBuilder;
-import org.apache.cxf.ws.policy.PolicyEngine;
+import org.apache.cxf.ws.policy.*;
 import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
 import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.cxf.ws.security.SecurityConstants;
@@ -93,8 +91,10 @@ public class JWTClientWrapper {
         Endpoint endpoint = client.getEndpoint();
         EndpointInfo endpointInfo = endpoint.getEndpointInfo();
 
+        SoapMessage message = new SoapMessage(Soap12.getInstance());
+
         PolicyEngine policyEngine = client.getBus().getExtension(PolicyEngine.class);
-        EndpointPolicy endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, null);
-        policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy));
+        EndpointPolicy endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, null, message);
+        policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy, message));
     }
 }
