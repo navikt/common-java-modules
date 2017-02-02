@@ -29,7 +29,7 @@ public class PepTest {
 
     @Test
     public void returnsDecision() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withResponse(Decision.Permit));
+        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Permit));
 
         final XacmlRequest xacmlRequest = getXacmlRequest();
 
@@ -40,7 +40,7 @@ public class PepTest {
 
     @Test
     public void returnsDenyForNotApplicable() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withResponse(Decision.NotApplicable));
+        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.NotApplicable));
 
         final XacmlRequest xacmlRequest = getXacmlRequest();
 
@@ -51,7 +51,7 @@ public class PepTest {
 
     @Test(expected = PepException.class)
     public void decisionIndetminateThrowsException() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withResponse(Decision.Indeterminate));
+        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Indeterminate));
 
         final XacmlRequest xacmlRequest = getXacmlRequest();
 
