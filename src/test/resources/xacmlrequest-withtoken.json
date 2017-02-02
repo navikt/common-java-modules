@@ -1,0 +1,40 @@
+{
+  "Request": {
+    "Environment": {
+      "Attribute": [
+        {
+          "AttributeId": "no.nav.abac.attributter.environment.felles.oidc_token_body",
+          "Value": "eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.environment.felles.pep_id",
+          "Value": "srvEksempelPep"
+        }
+      ]
+    },
+    "Action": {
+      "Attribute": [
+        {
+          "AttributeId": "urn:oasis:names:tc:xacml:1.0:action:action-id",
+          "Value": "read"
+        }
+      ]
+    },
+    "Resource": {
+      "Attribute": [
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
+          "Value": "no.nav.abac.attributter.resource.felles.person"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
+          "Value": "Foreldrepenger"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.person.fnr",
+          "Value": "01010122222"
+        }
+      ]
+    }
+  }
+}
