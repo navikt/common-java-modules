@@ -15,10 +15,8 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
+
+import static no.nav.sbl.dialogarena.common.abac.TestUtils.jsonFileToString;
 
 @RunWith(JMockit.class)
 public class PdpServiceTest {
@@ -29,7 +27,7 @@ public class PdpServiceTest {
 
         new Expectations(PdpService.class) {{
             pdpService.doPost(withAny(new HttpPost()));
-            result = prepareResponse(200, getExpectedContentResponse());
+            result = prepareResponse(200, jsonFileToString("xacmlresponse.json"));
         }};
 
         final XacmlResponse actualXacmlResponse = pdpService.askForPermission(MockXacmlRequest.getXacmlRequest());
@@ -46,16 +44,7 @@ public class PdpServiceTest {
         return response;
     }
 
-    private static String getExpectedContentResponse() throws IOException {
 
-        final URL url = Thread.currentThread().getContextClassLoader().getResource("xacmlresponse.json");
-        String path = getPathWithoutInitialSlashOnWindows(url);
-        return Files.lines(Paths.get(path)).collect(Collectors.joining());
-    }
-
-    private static String getPathWithoutInitialSlashOnWindows(URL url) {
-        return url.getPath().replaceFirst("^/(.:/)", "$1");
-    }
 
 
 }
