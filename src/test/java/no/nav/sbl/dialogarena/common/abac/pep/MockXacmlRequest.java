@@ -39,6 +39,9 @@ public class MockXacmlRequest {
         final Action action = new Action();
         action.getAttribute().add(new Attribute("urn:oasis:names:tc:xacml:1.0:action:action-id", "read"));
 
+        final Environment environment = new Environment();
+        environment.getAttribute().add(new Attribute("no.nav.abac.attributter.environment.felles.pep_id", "srvEksempelPep"));
+
         final AccessSubject accessSubject = new AccessSubject();
         accessSubject.getAttribute().add(new Attribute("urn:oasis:names:tc:xacml:1.0:subject:subject-id", "A111111"));
         accessSubject.getAttribute().add(new Attribute("no.nav.abac.attributter.subject.felles.subjectType", "InternBruker"));
@@ -49,8 +52,9 @@ public class MockXacmlRequest {
         resource.getAttribute().add(new Attribute("no.nav.abac.attributter.resource.felles.person.fnr", "01010122222"));
 
         return new Request()
-                .withAction(action)
                 .withAccessSubject(accessSubject)
+                .withEnvironment(environment)
+                .withAction(action)
                 .withResource(resource);
     }
 }

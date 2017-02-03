@@ -3,8 +3,8 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 class Request {
 
-    private Environment environment;
     private AccessSubject accessSubject;
+    private Environment environment;
     private Action action;
     private Resource resource;
 

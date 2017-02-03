@@ -25,4 +25,15 @@ public class XacmlMapperTest {
         String expectedContent = jsonFileToString("xacmlrequest-withtoken.json");
         assertThat(Utils.entityToString(stringEntity), is(expectedContent));
     }
+
+    @Test
+    public void convertRequestWithSubjectAttributesToJson() throws IOException {
+
+        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjectAttributes());
+
+        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+
+        String expectedContent = jsonFileToString("xacmlrequest-withsubjectattributes.json");
+        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+    }
 }
