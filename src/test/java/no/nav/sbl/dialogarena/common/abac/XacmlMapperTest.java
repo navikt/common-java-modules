@@ -6,10 +6,11 @@ import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-import static java.nio.file.Paths.get;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -29,7 +30,12 @@ public class XacmlMapperTest {
     }
 
     private String getExpectedContentRequest() throws IOException {
-        String expectedContent = Files.lines(get("C:\\code\\abac\\src\\test\\resources\\xacmlrequest-withtoken.json")).collect(Collectors.joining());
-        return expectedContent;
+        final URL url = Thread.currentThread().getContextClassLoader().getResource("xacmlrequest-withtoken.json");
+        String path = getPathWithoutInitialSlashOnWindows(url);
+        return Files.lines(Paths.get(path)).collect(Collectors.joining());
+    }
+
+    private String getPathWithoutInitialSlashOnWindows(URL url) {
+        return url.getPath().replaceFirst("^/(.:/)", "$1");
     }
 }

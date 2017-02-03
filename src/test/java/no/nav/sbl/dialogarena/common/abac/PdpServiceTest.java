@@ -15,10 +15,10 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
-
-import static java.nio.file.Paths.get;
 
 @RunWith(JMockit.class)
 public class PdpServiceTest {
@@ -47,8 +47,14 @@ public class PdpServiceTest {
     }
 
     private static String getExpectedContentResponse() throws IOException {
-        String expectedContent = Files.lines(get("C:\\code\\abac\\src\\test\\resources\\xacmlresponse.json")).collect(Collectors.joining());
-        return expectedContent;
+
+        final URL url = Thread.currentThread().getContextClassLoader().getResource("xacmlresponse.json");
+        String path = getPathWithoutInitialSlashOnWindows(url);
+        return Files.lines(Paths.get(path)).collect(Collectors.joining());
+    }
+
+    private static String getPathWithoutInitialSlashOnWindows(URL url) {
+        return url.getPath().replaceFirst("^/(.:/)", "$1");
     }
 
 
