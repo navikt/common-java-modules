@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static no.nav.sbl.dialogarena.common.abac.TestUtils.jsonFileToString;
+import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -22,7 +22,7 @@ public class XacmlMapperTest {
 
         assertThat(stringEntity.getContentLength(), greaterThan(0L));
 
-        String expectedContent = jsonFileToString("xacmlrequest-withtoken.json");
+        String expectedContent = getContentFromJsonFile("xacmlrequest-withtoken.json");
         assertThat(Utils.entityToString(stringEntity), is(expectedContent));
     }
 
