@@ -1,17 +1,19 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
-
 public class XacmlResponse {
-    private Decision decision;
+    private Response response;
 
-    public Decision getDecision() {
-        return decision;
+    Response getResponse() {
+        return response;
     }
 
-    public XacmlResponse withDecision(Decision decision) {
-        this.decision = decision;
+    public void setResponse(Response response) {
+        this.response = response;
+    }
+
+    public XacmlResponse withResponse(Response response) {
+        this.response = response;
         return this;
     }
 
@@ -20,14 +22,14 @@ public class XacmlResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        XacmlResponse response = (XacmlResponse) o;
+        XacmlResponse response1 = (XacmlResponse) o;
 
-        return decision == response.decision;
+        return response != null ? response.equals(response1.response) : response1.response == null;
 
     }
 
     @Override
     public int hashCode() {
-        return decision != null ? decision.hashCode() : 0;
+        return response != null ? response.hashCode() : 0;
     }
 }

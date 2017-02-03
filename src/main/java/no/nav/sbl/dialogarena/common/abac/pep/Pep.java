@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Pep {
+class Pep {
 
     private final static Logger log = LoggerFactory.getLogger(Pep.class);
     private final Bias bias = Bias.Deny;
@@ -30,7 +30,7 @@ public class Pep {
         log.debug("evaluating request with bias:" + bias);
         XacmlResponse response = pdpService.askForPermission(request);
 
-        Decision originalDecision = response.getDecision();
+        Decision originalDecision = response.getResponse().getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);
 
         if (failOnIndeterminateDecision && originalDecision == Decision.Indeterminate) {
