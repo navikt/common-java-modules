@@ -47,7 +47,7 @@ public class PdpServiceTest {
     }
 
     private static String getExpectedContentResponse() throws IOException {
-        String expectedContent = Files.lines(get("C:\\code\\abac\\src\\test\\resources\\xacmlresponse.json")).collect(Collectors.joining());
+        String expectedContent = Files.lines(get("C:\\Users\\e148211\\abac\\src\\test\\resources\\xacmlresponse.json")).collect(Collectors.joining());
         return expectedContent;
     }
 

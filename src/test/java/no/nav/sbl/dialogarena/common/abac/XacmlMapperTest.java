@@ -24,12 +24,20 @@ public class XacmlMapperTest {
 
         assertThat(stringEntity.getContentLength(), greaterThan(0L));
 
-        String expectedContent = getExpectedContentRequest();
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        String expectedContentWithToken = getExpectedContentRequestWithToken();
+        assertThat(Utils.entityToString(stringEntity), is(expectedContentWithToken));
+
+        String expectedContentWithSubjectAttribute = getExpectedContentRequestWithSubjectAttribute();
+        assertThat(Utils.entityToString(stringEntity), is(expectedContentWithSubjectAttribute));
     }
 
-    private String getExpectedContentRequest() throws IOException {
-        String expectedContent = Files.lines(get("C:\\code\\abac\\src\\test\\resources\\xacmlrequest-withtoken.json")).collect(Collectors.joining());
+    private String getExpectedContentRequestWithToken() throws IOException {
+        String expectedContent = Files.lines(get("C:\\Users\\e148211\\abac\\src\\test\\resources\\xacmlrequest-withtoken.json")).collect(Collectors.joining());
+        return expectedContent;
+    }
+
+    private String getExpectedContentRequestWithSubjectAttribute() throws IOException {
+        String expectedContent = Files.lines(get("C:\\Users\\e148211\\abac\\src\\test\\resources\\xacmlrequest-withsubjectattribute.json")).collect(Collectors.joining());
         return expectedContent;
     }
 }

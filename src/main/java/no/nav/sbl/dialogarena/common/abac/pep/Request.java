@@ -4,12 +4,15 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 class Request {
 
     private Environment environment;
+    private AccessSubject accessSubject;
     private Action action;
     private Resource resource;
 
     public Environment getEnvironment() {
         return environment;
     }
+
+    public AccessSubject getAccessSubject() { return accessSubject; }
 
     public Action getAction() {
         return action;
@@ -21,6 +24,11 @@ class Request {
 
     Request withEnvironment(Environment environment) {
         this.environment = environment;
+        return this;
+    }
+
+    Request withAccessSubject(AccessSubject accessSubject) {
+        this.accessSubject = accessSubject;
         return this;
     }
 
