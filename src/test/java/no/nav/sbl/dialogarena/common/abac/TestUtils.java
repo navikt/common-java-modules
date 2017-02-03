@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 class TestUtils {
 
-    static String jsonFileToString(String filename) throws IOException {
+    static String getContentFromJsonFile(String filename) throws IOException {
 
         final URL url = Thread.currentThread().getContextClassLoader().getResource(filename);
         String path = getPathWithoutInitialSlashOnWindows(url);

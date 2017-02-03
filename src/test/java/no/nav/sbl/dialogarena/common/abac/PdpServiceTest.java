@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static no.nav.sbl.dialogarena.common.abac.TestUtils.jsonFileToString;
+import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 
 @RunWith(JMockit.class)
 public class PdpServiceTest {
@@ -27,7 +27,7 @@ public class PdpServiceTest {
 
         new Expectations(PdpService.class) {{
             pdpService.doPost(withAny(new HttpPost()));
-            result = prepareResponse(200, jsonFileToString("xacmlresponse.json"));
+            result = prepareResponse(200, getContentFromJsonFile("xacmlresponse.json"));
         }};
 
         final XacmlResponse actualXacmlResponse = pdpService.askForPermission(MockXacmlRequest.getXacmlRequest());
