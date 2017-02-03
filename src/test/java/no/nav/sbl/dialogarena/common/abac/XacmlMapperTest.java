@@ -33,7 +33,18 @@ public class XacmlMapperTest {
 
         assertThat(stringEntity.getContentLength(), greaterThan(0L));
 
-        String expectedContent = jsonFileToString("xacmlrequest-withsubjectattributes.json");
+        String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjectattributes.json");
+        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+    }
+
+    @Test
+    public void convertRequestWithSubjAttrWithoutEnvironmentToJson() throws IOException {
+
+        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjAttrWithoutEnvironment());
+
+        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+
+        String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjattrwithoutenvironment.json");
         assertThat(Utils.entityToString(stringEntity), is(expectedContent));
     }
 }
