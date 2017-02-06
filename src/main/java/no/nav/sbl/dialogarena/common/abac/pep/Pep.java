@@ -25,7 +25,6 @@ public class Pep {
         this.pdpService = pdpService;
     }
 
-
     BiasedDecisionResponse evaluateWithBias(XacmlRequest request) {
         log.debug("evaluating request with bias:" + bias);
         XacmlResponse response = pdpService.askForPermission(request);
