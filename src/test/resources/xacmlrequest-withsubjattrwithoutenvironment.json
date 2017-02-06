@@ -1,0 +1,40 @@
+{
+  "Request": {
+    "AccessSubject": {
+      "Attribute": [
+        {
+          "AttributeId": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+          "Value": "A111111"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.subject.felles.subjectType",
+          "Value": "InternBruker"
+        }
+      ]
+    },
+    "Action": {
+      "Attribute": [
+        {
+          "AttributeId": "urn:oasis:names:tc:xacml:1.0:action:action-id",
+          "Value": "read"
+        }
+      ]
+    },
+    "Resource": {
+      "Attribute": [
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
+          "Value": "no.nav.abac.attributter.resource.felles.person"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
+          "Value": "Foreldrepenger"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.person.fnr",
+          "Value": "01010122222"
+        }
+      ]
+    }
+  }
+}
