@@ -13,10 +13,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.fo</groupId>
-            <artifactId>jwt-security-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
         </dependency>

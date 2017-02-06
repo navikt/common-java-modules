@@ -31,6 +31,7 @@
         <jee.version>7.0</jee.version>
         <jetty.version>9.3.0.M2</jetty.version>
         <spring.version>4.3.5.RELEASE</spring.version>
+        <httpclient.version>4.5.2</httpclient.version>
     </properties>
 
     <dependencyManagement>
@@ -39,6 +40,16 @@
             <groupId>no.nav.fo</groupId>
             <artifactId>jwt-security-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.4.4</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>

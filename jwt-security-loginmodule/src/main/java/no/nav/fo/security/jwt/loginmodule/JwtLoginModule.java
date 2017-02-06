@@ -1,17 +1,18 @@
 package no.nav.fo.security.jwt.loginmodule;
 
-
-
 import no.nav.fo.security.jwt.context.AuthenticationLevelCredential;
 import no.nav.fo.security.jwt.context.JwtCredential;
 import no.nav.fo.security.jwt.domain.ConsumerId;
 import no.nav.fo.security.jwt.domain.IdentType;
 import no.nav.fo.security.jwt.domain.SluttBruker;
+import no.nav.fo.security.jwt.loginmodule.no.nav.fo.security.jwt.jwks.JwksKeyHandler;
+import no.nav.fo.security.jwt.loginmodule.no.nav.fo.security.jwt.jwks.JwtHeader;
 import org.jboss.security.SimpleGroup;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.jwx.JsonWebStructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +23,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.*;
-import java.security.cert.CertificateException;
+import java.security.Key;
 import java.util.*;
 
 /**
@@ -35,6 +33,8 @@ import java.util.*;
 public class JwtLoginModule implements LoginModule {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtLoginModule.class);
+
+    private static final JwksKeyHandler jwks = JwksKeyHandler.forSelfHostedJwksDevelopOnly();
 
     private Subject subject;
     private CallbackHandler callbackHandler;
@@ -68,12 +68,18 @@ public class JwtLoginModule implements LoginModule {
 
             jwt = new String(passwordCallback.getPassword());
 
+            JwtHeader header = getHeader(jwt);
+            Key key = jwks.getKey(header);
+            if (key == null) {
+                throw new InvalidJwtException(String.format("Jwt (%s) is not in jwks", header));
+            }
+
             JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                     .setRequireExpirationTime()
                     .setAllowedClockSkewInSeconds(30)
                     .setRequireSubject()
-                    .setExpectedIssuer("https://modapp-t11.adeo.no/openam/oauth2")
-                    .setVerificationKey(getKey())
+                    .setExpectedIssuer(System.getProperty("oidc.iss"))
+                    .setVerificationKey(key)
                     .setExpectedAudience("OIDC")
                     .build();
 
@@ -83,7 +89,7 @@ public class JwtLoginModule implements LoginModule {
                 authLevel = 4;
                 consumerId = new ConsumerId();
                 identType = IdentType.InternBruker.toString();
-                roles = new ArrayList<>();//jwtClaims.getStringListClaimValue("roles");
+                roles = new ArrayList<>();  //jwtClaims.getStringListClaimValue("roles");
                 logger.info("JWT validation OK:" + jwtClaims);
             } catch (InvalidJwtException e) {
                 logger.info("Feil ved validaering av token.", e);
@@ -101,20 +107,24 @@ public class JwtLoginModule implements LoginModule {
         }
     }
 
-    private Key getKey() {
-        PublicKey myPublicKey = null;
-        try {
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(System.getProperty("javax.net.ssl.keyStore")), System.getProperty("javax.net.ssl.keyStorePassword").toCharArray());
-            logger.info("KEYSTORE LOADED. Aliases: " + Collections.list(ks.aliases()));
-            String alias = "isso-t.1";
-            myPublicKey = ks.getCertificate(alias).getPublicKey();
-            logger.info("Loaded pubkey from cert (" + alias + "): " + myPublicKey);
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-            e.printStackTrace();
-            logger.error("Error during loading of keystore: " + e.getMessage());
+    private JwtHeader getHeader(String jwt) throws InvalidJwtException {
+        JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+                .setSkipAllValidators()
+                .setSkipAllDefaultValidators()
+                .setRelaxVerificationKeyValidation()
+                .setRelaxDecryptionKeyValidation()
+                .setDisableRequireSignature()
+                .setSkipSignatureVerification()
+                .build();
+
+        List<JsonWebStructure> objs = jwtConsumer.process(jwt).getJoseObjects();
+        JsonWebStructure wstruct = objs.iterator().next();
+        String kid = wstruct.getKeyIdHeaderValue();
+        if (kid == null) {
+            kid = "";
         }
-        return myPublicKey;
+
+        return new JwtHeader(kid, wstruct.getHeader("kty"), wstruct.getHeader("use"), wstruct.getAlgorithmHeaderValue());
     }
 
     @Override
@@ -127,6 +137,9 @@ public class JwtLoginModule implements LoginModule {
                 return false;
             }
 
+            if (!IdentType.InternBruker.name().equals(identType)) {
+                throw new IllegalArgumentException("Støtter bare " + IdentType.InternBruker);
+            }
             SluttBruker bruker = SluttBruker.internBruker(jwtSubject);
             subject.getPrincipals().add(bruker);
             subject.getPublicCredentials().add(new AuthenticationLevelCredential(authLevel));
