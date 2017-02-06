@@ -39,7 +39,7 @@ public class Pep {
         this.client = new Client();
     }
 
-    Environment getEnvironment() {
+    Environment makeEnvironment() {
         final Environment environment = new Environment();
         if (client.getOidcToken() != null) {
             environment.getAttribute().add(new Attribute(OIDCTOKEN_ID, client.getOidcToken()));
@@ -48,20 +48,20 @@ public class Pep {
         return environment;
     }
 
-    AccessSubject getAccessSubject() {
+    AccessSubject makeAccessSubject() {
         final AccessSubject accessSubject = new AccessSubject();
         accessSubject.getAttribute().add(new Attribute(SUBJECTID_ID, client.getSubjectId()));
         accessSubject.getAttribute().add(new Attribute(SUBJECTTYPE_ID, SUBJECTTYPE_VALUE));
         return accessSubject;
     }
 
-    Action getAction() {
+    Action makeAction() {
         final Action action = new Action();
         action.getAttribute().add(new Attribute(ACTIONID_ID, ACTIONID_VALUE));
         return action;
     }
 
-    Resource getResource() {
+    Resource makeResource() {
         final Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(RESOURCETYPE_ID, RESOURCETYPE_VALUE));
         resource.getAttribute().add(new Attribute(DOMAIN_ID, client.getDomain()));
@@ -69,22 +69,22 @@ public class Pep {
         return resource;
     }
 
-    Request buildRequest() {
+    Request makeRequest() {
         if (client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
                 (client.getOidcToken() == null && client.getSubjectId() == null)) { return null; }
 
         Request request = new Request()
-                .withEnvironment(getEnvironment())
-                .withAction(getAction())
-                .withResource(getResource());
+                .withEnvironment(makeEnvironment())
+                .withAction(makeAction())
+                .withResource(makeResource());
         if (client.getSubjectId() != null) {
-            request.withAccessSubject(getAccessSubject());
+            request.withAccessSubject(makeAccessSubject());
         }
         return request;
     }
 
-    XacmlRequest createXacmlRequest() {
-        Request request = buildRequest();
+    XacmlRequest makeXacmlRequest() {
+        Request request = makeRequest();
         if (request != null) {
             return new XacmlRequest().withRequest(request);
         }
@@ -106,7 +106,7 @@ public class Pep {
         setClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         log.debug("evaluating request with bias:" + bias);
-        XacmlResponse response = pdpService.askForPermission(createXacmlRequest());
+        XacmlResponse response = pdpService.askForPermission(makeXacmlRequest());
 
         Decision originalDecision = response.getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);

@@ -66,7 +66,7 @@ public class PepTest {
     @Test
     public void buildsCorrectEnvironment() {
         pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        Environment environment = pep.getEnvironment();
+        Environment environment = pep.makeEnvironment();
         List<Attribute> environmentAttributes = environment.getAttribute();
         assertThat(environmentAttributes.size(), is(2));
         assertThat(environmentAttributes.get(0).getValue(), is(OIDC_TOKEN));
@@ -76,7 +76,7 @@ public class PepTest {
     @Test
     public void buildsCorrectResource() {
         pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        Resource resource = pep.getResource();
+        Resource resource = pep.makeResource();
         List<Attribute> resourceAttributes = resource.getAttribute();
         assertThat(resourceAttributes.size(), is(3));
         assertThat(resourceAttributes.get(0).getAttributeId(), is( "no.nav.abac.attributter.resource.felles.resource_type"));
@@ -87,33 +87,33 @@ public class PepTest {
     @Test
     public void buildsCorrectAccessSubject() {
         pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        AccessSubject accessSubject = pep.getAccessSubject();
+        AccessSubject accessSubject = pep.makeAccessSubject();
         assertThat(accessSubject.getAttribute().get(0).getValue(), is(SUBJECT_ID));
     }
 
     @Test
     public void buildsCorrectAction() {
-        Action action = pep.getAction();
+        Action action = pep.makeAction();
         assertThat(action.getAttribute().get(0).getValue(), is("read"));
     }
 
     @Test
     public void buildsCorrectRequest() {
         pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        Request request = pep.buildRequest();
+        Request request = pep.makeRequest();
         assertNotNull(request);
     }
 
     @Test
     public void requestReturnsNullWithNonValidValues() {
-        Request request = pep.buildRequest();
+        Request request = pep.makeRequest();
         assertNull(request);
     }
 
     @Test
     public void buildsCorrectXacmlRequest() {
         pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        XacmlRequest xacmlRequest = pep.createXacmlRequest();
+        XacmlRequest xacmlRequest = pep.makeXacmlRequest();
         assertNotNull(xacmlRequest);
     }
 }
