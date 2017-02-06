@@ -1,17 +1,19 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.modig.core.context.ModigSecurityConstants;
-import no.nav.modig.security.sts.client.NAVSTSClient;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.binding.soap.Soap12;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.endpoint.*;
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.ws.policy.*;
+import org.apache.cxf.ws.policy.EndpointPolicy;
+import org.apache.cxf.ws.policy.PolicyBuilder;
+import org.apache.cxf.ws.policy.PolicyEngine;
 import org.apache.cxf.ws.policy.attachment.reference.ReferenceResolver;
 import org.apache.cxf.ws.policy.attachment.reference.RemoteReferenceResolver;
 import org.apache.cxf.ws.security.SecurityConstants;
@@ -21,20 +23,18 @@ import org.apache.neethi.Policy;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 
-import static no.nav.modig.security.sts.utility.STSConfigurationUtility.STS_URL_KEY;
-
 public class JWTClientWrapper {
 
     public static void configureStsForOnBehalfOfWithJWT(Client client) {
-        String location = requireProperty(STS_URL_KEY);
-        String username = requireProperty(ModigSecurityConstants.SYSTEMUSER_USERNAME);
-        String password = requireProperty(ModigSecurityConstants.SYSTEMUSER_PASSWORD);
+        String location = requireProperty(StsSecurityConstants.STS_URL_KEY);
+        String username = requireProperty(StsSecurityConstants.SYSTEMUSER_USERNAME);
+        String password = requireProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD);
         configureStsForOnBehalfOfWithJWT(client, location, username, password);
     }
 
     public static void configureStsForOnBehalfOfWithJWT(Client client, String stsURL, String stsUsername, String stsPassword) {
         STSClient stsClient = createBasicSTSClient(client.getBus(), stsURL, stsUsername, stsPassword);
-        stsClient.setOnBehalfOf(new ModigOnBehalfOfWithJWTCallbackHandler());
+        stsClient.setOnBehalfOf(new OnBehalfOfWithJWTCallbackHandler());
         client.getRequestContext().put("ws-security.sts.client", stsClient);
         client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, false);
         setEndpointPolicyReference(client, "classpath:JwtSTSPolicy.xml");
@@ -91,9 +91,8 @@ public class JWTClientWrapper {
         Endpoint endpoint = client.getEndpoint();
         EndpointInfo endpointInfo = endpoint.getEndpointInfo();
 
-        SoapMessage message = new SoapMessage(Soap12.getInstance());
-
         PolicyEngine policyEngine = client.getBus().getExtension(PolicyEngine.class);
+        SoapMessage message = new SoapMessage(Soap12.getInstance());
         EndpointPolicy endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, null, message);
         policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy, message));
     }

@@ -1,7 +1,6 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 
-
 import no.nav.fo.security.jwt.context.SubjectHandler;
 import no.nav.fo.security.jwt.domain.IdentType;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
@@ -20,12 +19,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Base64;
 
-public class ModigOnBehalfOfWithJWTCallbackHandler implements CallbackHandler {
+public class OnBehalfOfWithJWTCallbackHandler implements CallbackHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ModigOnBehalfOfWithJWTCallbackHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(OnBehalfOfWithJWTCallbackHandler.class);
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
@@ -43,9 +41,7 @@ public class ModigOnBehalfOfWithJWTCallbackHandler implements CallbackHandler {
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
         IdentType identType = subjectHandler.getIdentType();
 
-        if (IdentType.Systemressurs.equals(identType)) {
-            return null;
-        } else if (IdentType.InternBruker.equals(identType)) {
+        if (IdentType.InternBruker.equals(identType)) {
             return lagOnBehalfOfElement(subjectHandler);
         }
         throw new IllegalStateException("wst:OnBehalfOf is only supported for IdentType.Systemressurs and IdentType.InternBruker");
@@ -75,8 +71,9 @@ public class ModigOnBehalfOfWithJWTCallbackHandler implements CallbackHandler {
 
     private static String getOnBehalfOfString(SubjectHandler subjectHandler) {
         logger.info("subjectHandler={}", subjectHandler);
-        JwtCredential jwtCredential = new ArrayList<>( subjectHandler.getSubject().getPublicCredentials(JwtCredential.class)).get(0);
-        String base64encodedJTW = Base64.getEncoder().encodeToString(jwtCredential.getToken().getBytes());
+
+        String jwt = subjectHandler.getInternSsoToken();
+        String base64encodedJTW = Base64.getEncoder().encodeToString(jwt.getBytes());
         return "<wsse:BinarySecurityToken EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\" ValueType=\"urn:ietf:params:oauth:token-type:jwt\" xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\">" + base64encodedJTW + "</wsse:BinarySecurityToken>";
     }
 
