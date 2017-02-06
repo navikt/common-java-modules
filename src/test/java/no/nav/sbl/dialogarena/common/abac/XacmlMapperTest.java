@@ -30,10 +30,12 @@ public class XacmlMapperTest {
     }
 
     @Test
-    public void convertsJsonToRequest() throws IOException {
-        final XacmlResponse actualResponse = XacmlMapper.mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple.json")));
+    public void convertsJsonToResponse() throws IOException {
+        final XacmlResponse actualResponse = XacmlMapper
+                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple.json")));
 
-        XacmlResponse expectedResponse = new XacmlResponse().withResponse(new Response().withDecision(Decision.Permit));
+        XacmlResponse expectedResponse = new XacmlResponse()
+                .withResponse(new Response().withDecision(Decision.Permit));
 
         assertThat(actualResponse, is(equalTo(expectedResponse)));
     }
