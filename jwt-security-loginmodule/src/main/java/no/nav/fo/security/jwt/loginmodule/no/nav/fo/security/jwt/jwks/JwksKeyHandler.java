@@ -43,7 +43,7 @@ public class JwksKeyHandler {
     public static JwksKeyHandler forSelfHostedJwksDevelopOnly() {
         try {
             String hostname = InetAddress.getLocalHost().getCanonicalHostName();
-            String url = System.getProperty("selfhostedjwks.url");
+            String url = System.getProperty("certificateService.url");
             log.info("Opprettet " + JwksKeyHandler.class.getSimpleName() + " med url: " + url);
             return new JwksKeyHandler(url);
         } catch (UnknownHostException e) {
