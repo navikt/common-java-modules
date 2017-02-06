@@ -39,7 +39,7 @@ public class Pep {
         this.client = new Client();
     }
 
-    public Environment getEnvironment() {
+    Environment getEnvironment() {
         final Environment environment = new Environment();
         if (client.getOidcToken() != null) {
             environment.getAttribute().add(new Attribute(OIDCTOKEN_ID, client.getOidcToken()));
@@ -48,20 +48,20 @@ public class Pep {
         return environment;
     }
 
-    public AccessSubject getAccessSubject() {
+    AccessSubject getAccessSubject() {
         final AccessSubject accessSubject = new AccessSubject();
         accessSubject.getAttribute().add(new Attribute(SUBJECTID_ID, client.getSubjectId()));
         accessSubject.getAttribute().add(new Attribute(SUBJECTTYPE_ID, SUBJECTTYPE_VALUE));
         return accessSubject;
     }
 
-    public Action getAction() {
+    Action getAction() {
         final Action action = new Action();
         action.getAttribute().add(new Attribute(ACTIONID_ID, ACTIONID_VALUE));
         return action;
     }
 
-    public Resource getResource() {
+    Resource getResource() {
         final Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(RESOURCETYPE_ID, RESOURCETYPE_VALUE));
         resource.getAttribute().add(new Attribute(DOMAIN_ID, client.getDomain()));
@@ -69,7 +69,7 @@ public class Pep {
         return resource;
     }
 
-    public Request buildRequest() {
+    Request buildRequest() {
         if (client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
                 (client.getOidcToken() == null && client.getSubjectId() == null)) { return null; }
 
@@ -83,15 +83,16 @@ public class Pep {
         return request;
     }
 
-    public XacmlRequest createXacmlRequest() {
+    XacmlRequest createXacmlRequest() {
         Request request = buildRequest();
         if (request != null) {
             return new XacmlRequest().withRequest(request);
         }
-        return null;
+        throw new PepException("Did not receive sufficient values. Provide OIDC-token or subject-ID, domain, fnr and" +
+                "name of credential resource");
     }
 
-    public Client setClientValues(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+    Client setClientValues(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
         client
                 .withOidcToken(oidcToken)
                 .withSubjectId(subjectId)
