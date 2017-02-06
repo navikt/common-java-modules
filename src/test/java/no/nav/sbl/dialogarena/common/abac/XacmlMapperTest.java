@@ -7,6 +7,8 @@ import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.prepareResponse;
@@ -30,13 +32,27 @@ public class XacmlMapperTest {
     }
 
     @Test
-    public void convertsJsonToResponse() throws IOException {
+    public void convertsSimpleJsonToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
                 .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple.json")));
 
-        XacmlResponse expectedResponse = new XacmlResponse()
-                .withResponse(new Response().withDecision(Decision.Permit));
+        XacmlResponse expectedResponse = getXacmlResponse();
 
         assertThat(actualResponse, is(equalTo(expectedResponse)));
+    }
+
+    @Test
+    public void convertsSimpleJsonWithArrayToResponse() throws IOException {
+        final XacmlResponse actualResponse = XacmlMapper
+                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple-with-array.json")));
+        XacmlResponse expectedResponse = getXacmlResponse();
+
+        assertThat(actualResponse, is(equalTo(expectedResponse)));
+    }
+
+    private XacmlResponse getXacmlResponse() {
+        List<Response> responses = new ArrayList<>();
+        responses.add(new Response().withDecision(Decision.Permit));
+        return new XacmlResponse().withResponse(responses);
     }
 }

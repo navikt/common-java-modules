@@ -30,7 +30,7 @@ class Pep {
         log.debug("evaluating request with bias:" + bias);
         XacmlResponse response = pdpService.askForPermission(request);
 
-        Decision originalDecision = response.getResponse().getDecision();
+        Decision originalDecision = response.getResponse().get(0).getDecision(); //TODO hente ut alle?
         Decision biasedDecision = createBiasedDecision(originalDecision);
 
         if (failOnIndeterminateDecision && originalDecision == Decision.Indeterminate) {
