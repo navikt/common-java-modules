@@ -15,50 +15,97 @@ public class Pep {
     private final Bias bias = Bias.Deny;
     private final boolean failOnIndeterminateDecision = true;
 
+    private static final String OIDCTOKEN_ID = "no.nav.abac.attributter.environment.felles.oidc_token_body";
+    private static final String CREDENTIALRESOURCE_ID = "no.nav.abac.attributter.environment.felles.pep_id";
+    private static final String SUBJECTID_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+    private static final String SUBJECTTYPE_ID = "no.nav.abac.attributter.subject.felles.subjectType";
+    private static final String SUBJECTTYPE_VALUE = "InternBruker";
+    private static final String ACTIONID_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
+    private static final String ACTIONID_VALUE = "read";
+    private static final String RESOURCETYPE_ID = "no.nav.abac.attributter.resource.felles.resource_type";
+    private static final String RESOURCETYPE_VALUE = "no.nav.abac.attributter.resource.felles.person";
+    private static final String DOMAIN_ID = "no.nav.abac.attributter.resource.felles.domene";
+    private static final String FNR_ID = "no.nav.abac.attributter.resource.felles.person.fnr";
+
     private enum Bias {
         Permit, Deny
     }
 
     private final PdpService pdpService;
+    private Client client;
 
     public Pep(PdpService pdpService) {
         this.pdpService = pdpService;
+        this.client = new Client();
     }
 
-    private Request buildRequest(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
-        if (domain == null || fnr == null || credentialResource == null || (oidcToken == null && subjectId == null)) { return null; }
-
+    public Environment getEnvironment() {
         final Environment environment = new Environment();
-        if (oidcToken != null) {
-            environment.getAttribute().add(new Attribute("no.nav.abac.attributter.environment.felles.oidc_token_body", oidcToken));
+        if (client.getOidcToken() != null) {
+            environment.getAttribute().add(new Attribute(OIDCTOKEN_ID, client.getOidcToken()));
         }
-        environment.getAttribute().add(new Attribute("no.nav.abac.attributter.environment.felles.pep_id", credentialResource));
-
-        final Action action = new Action();
-        action.getAttribute().add(new Attribute("urn:oasis:names:tc:xacml:1.0:action:action-id", "read"));
-
-        final Resource resource = new Resource();
-        resource.getAttribute().add(new Attribute("no.nav.abac.attributter.resource.felles.resource_type", "no.nav.abac.attributter.resource.felles.person"));
-        resource.getAttribute().add(new Attribute("no.nav.abac.attributter.resource.felles.domene", domain));
-        resource.getAttribute().add(new Attribute("no.nav.abac.attributter.resource.felles.person.fnr", fnr));
-
-        return new Request()
-                .withEnvironment(environment)
-                .withAction(action)
-                .withResource(resource);
+        environment.getAttribute().add(new Attribute(CREDENTIALRESOURCE_ID, client.getCredentialResource()));
+        return environment;
     }
 
-    XacmlRequest createXacmlRequest(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
-        Request request = buildRequest(oidcToken, subjectId, domain, fnr, credentialResource);
+    public AccessSubject getAccessSubject() {
+        final AccessSubject accessSubject = new AccessSubject();
+        accessSubject.getAttribute().add(new Attribute(SUBJECTID_ID, client.getSubjectId()));
+        accessSubject.getAttribute().add(new Attribute(SUBJECTTYPE_ID, SUBJECTTYPE_VALUE));
+        return accessSubject;
+    }
+
+    public Action getAction() {
+        final Action action = new Action();
+        action.getAttribute().add(new Attribute(ACTIONID_ID, ACTIONID_VALUE));
+        return action;
+    }
+
+    public Resource getResource() {
+        final Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(RESOURCETYPE_ID, RESOURCETYPE_VALUE));
+        resource.getAttribute().add(new Attribute(DOMAIN_ID, client.getDomain()));
+        resource.getAttribute().add(new Attribute(FNR_ID, client.getFnr()));
+        return resource;
+    }
+
+    public Request buildRequest() {
+        if (client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
+                (client.getOidcToken() == null && client.getSubjectId() == null)) { return null; }
+
+        Request request = new Request()
+                .withEnvironment(getEnvironment())
+                .withAction(getAction())
+                .withResource(getResource());
+        if (client.getSubjectId() != null) {
+            request.withAccessSubject(getAccessSubject());
+        }
+        return request;
+    }
+
+    public XacmlRequest createXacmlRequest() {
+        Request request = buildRequest();
         if (request != null) {
             return new XacmlRequest().withRequest(request);
         }
         return null;
     }
 
-    BiasedDecisionResponse evaluateWithBias(XacmlRequest request) {
+    public Client setClientValues(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+        client
+                .withOidcToken(oidcToken)
+                .withSubjectId(subjectId)
+                .withDomain(domain)
+                .withFnr(fnr)
+                .withCredentialResource(credentialResource);
+        return client;
+    }
+
+    BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+        setClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
+
         log.debug("evaluating request with bias:" + bias);
-        XacmlResponse response = pdpService.askForPermission(request);
+        XacmlResponse response = pdpService.askForPermission(createXacmlRequest());
 
         Decision originalDecision = response.getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);

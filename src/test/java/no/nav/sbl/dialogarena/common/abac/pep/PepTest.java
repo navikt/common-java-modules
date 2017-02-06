@@ -33,9 +33,8 @@ public class PepTest {
     public void returnsDecision() {
         when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Permit));
 
-        final XacmlRequest xacmlRequest = getXacmlRequest();
-
-        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(xacmlRequest);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias("eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9",
+                null, "Foreldrepenger", "01010122222", "srvEksempelPep");
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Permit));
     }
@@ -44,9 +43,8 @@ public class PepTest {
     public void returnsDenyForNotApplicable() {
         when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.NotApplicable));
 
-        final XacmlRequest xacmlRequest = getXacmlRequest();
-
-        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(xacmlRequest);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias("eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9",
+                null, "Foreldrepenger", "01010122222", "srvEksempelPep");
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
     }
@@ -55,24 +53,17 @@ public class PepTest {
     public void decisionIndetminateThrowsException() {
         when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Indeterminate));
 
-        final XacmlRequest xacmlRequest = getXacmlRequest();
-
-        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(xacmlRequest);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias("eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9",
+                null, "Foreldrepenger", "01010122222", "srvEksempelPep");
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
     }
 
     @Test
     public void buildsCorrectRequest() {
-        XacmlRequest xacmlRequest = pep.createXacmlRequest("eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9",
+        pep.setClientValues("eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9",
                 null, "Foreldrepenger", "01010122222", "srvEksempelPep");
+        XacmlRequest xacmlRequest = pep.createXacmlRequest();
         assertNotNull(xacmlRequest);
     }
-
-    @Test
-    public void returnsNullForMissingOidcTokenAndSubjectId() {
-        XacmlRequest xacmlRequest = pep.createXacmlRequest(null, null, "Foreldrepenger", "01010122222", "srvEksempelPep");
-        assertNull(xacmlRequest);
-    }
-
 }
