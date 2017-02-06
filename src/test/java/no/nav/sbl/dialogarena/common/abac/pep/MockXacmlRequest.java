@@ -3,24 +3,15 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 public class MockXacmlRequest {
     public static XacmlRequest getXacmlRequest() {
-        final XacmlRequest xacmlRequest = new XacmlRequest();
-        final Request request = getRequest();
-        xacmlRequest.withRequest(request);
-        return xacmlRequest;
+        return new XacmlRequest().withRequest(getRequest());
     }
 
     public static XacmlRequest getXacmlRequestWithSubjectAttributes() {
-        final XacmlRequest xacmlRequest = new XacmlRequest();
-        final Request request = getRequestWithSubjectAttributes();
-        xacmlRequest.withRequest(request);
-        return xacmlRequest;
+        return new XacmlRequest().withRequest(getRequestWithSubjectAttributes());
     }
 
     public static XacmlRequest getXacmlRequestWithSubjAttrWithoutEnvironment() {
-        final XacmlRequest xacmlRequest = new XacmlRequest();
-        final Request request = getRequestWithSubjAttrWithoutEnvironment();
-        xacmlRequest.withRequest(request);
-        return xacmlRequest;
+        return new XacmlRequest().withRequest(getRequestWithSubjAttrWithoutEnvironment());
     }
 
     private static Request getRequest() {
