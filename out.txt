@@ -1,65 +1,77 @@
 [INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] jwt-security
+[INFO] jwt-security-common
+[INFO] jwt-security-loginmodule
+[INFO] jwt-security-filter
 [INFO]                                                                         
 [INFO] ------------------------------------------------------------------------
 [INFO] Building jwt-security 1.0-SNAPSHOT
 [INFO] ------------------------------------------------------------------------
-Downloading: http://maven.adeo.no/nexus/content/groups/public-snapshots/no/nav/modig/modig-security-core/1.0.31-SNAPSHOT/maven-metadata.xml
-2/2 KB            Downloaded: http://maven.adeo.no/nexus/content/groups/public-snapshots/no/nav/modig/modig-security-core/1.0.31-SNAPSHOT/maven-metadata.xml (2 KB at 3.6 KB/sec)
-Downloading: http://maven.adeo.no/nexus/content/groups/public-snapshots/no/nav/modig/modig-security/1.0.31-SNAPSHOT/maven-metadata.xml
-605/605 B               Downloaded: http://maven.adeo.no/nexus/content/groups/public-snapshots/no/nav/modig/modig-security/1.0.31-SNAPSHOT/maven-metadata.xml (605 B at 1.9 KB/sec)
 [INFO] 
 [INFO] --- maven-dependency-plugin:2.9:tree (default-cli) @ jwt-security ---
-[INFO] no.nav.fo:jwt-security:jar:1.0-SNAPSHOT
-[INFO] \- no.nav.sbl.dialogarena:common-cxf:jar:0.1-SNAPSHOT-LOKAL:compile
-[INFO]    +- org.apache.cxf:cxf-rt-ws-policy:jar:2.7.6:compile
-[INFO]    |  \- org.apache.cxf:cxf-rt-core:jar:2.7.6:compile
-[INFO]    |     \- com.sun.xml.bind:jaxb-impl:jar:2.1.13:compile
-[INFO]    +- org.apache.neethi:neethi:jar:3.0.2:compile
-[INFO]    |  \- org.codehaus.woodstox:woodstox-core-asl:jar:4.0.8:compile
-[INFO]    |     +- javax.xml.stream:stax-api:jar:1.0-2:compile
-[INFO]    |     \- org.codehaus.woodstox:stax2-api:jar:3.0.2:compile
-[INFO]    +- org.apache.cxf:cxf-rt-frontend-jaxws:jar:2.7.6:compile
-[INFO]    |  +- xml-resolver:xml-resolver:jar:1.2:compile
-[INFO]    |  +- asm:asm:jar:3.3.1:compile
-[INFO]    |  +- org.apache.cxf:cxf-rt-bindings-soap:jar:2.7.6:compile
-[INFO]    |  |  \- org.apache.cxf:cxf-rt-databinding-jaxb:jar:2.7.6:compile
-[INFO]    |  +- org.apache.cxf:cxf-rt-bindings-xml:jar:2.7.6:compile
-[INFO]    |  \- org.apache.cxf:cxf-rt-ws-addr:jar:2.7.6:compile
-[INFO]    +- org.apache.cxf:cxf-rt-frontend-simple:jar:2.7.6:compile
-[INFO]    +- org.apache.cxf:cxf-api:jar:2.7.6:compile
-[INFO]    |  +- org.apache.ws.xmlschema:xmlschema-core:jar:2.0.3:compile
-[INFO]    |  +- org.apache.geronimo.specs:geronimo-javamail_1.4_spec:jar:1.7.1:compile
-[INFO]    |  \- wsdl4j:wsdl4j:jar:1.6.3:compile
-[INFO]    +- org.apache.cxf:cxf-rt-ws-security:jar:2.7.6:compile
-[INFO]    |  +- net.sf.ehcache:ehcache-core:jar:2.5.1:compile
-[INFO]    |  +- org.apache.ws.security:wss4j:jar:1.6.11:compile
-[INFO]    |  |  +- org.apache.santuario:xmlsec:jar:1.5.5:compile
-[INFO]    |  |  \- org.opensaml:opensaml:jar:2.5.1-1:compile
-[INFO]    |  |     \- org.opensaml:openws:jar:1.4.2-1:compile
-[INFO]    |  |        \- org.opensaml:xmltooling:jar:1.3.2-1:compile
-[INFO]    |  |           \- joda-time:joda-time:jar:1.6.2:compile
-[INFO]    |  \- commons-logging:commons-logging:jar:1.1.1:compile
-[INFO]    +- org.apache.cxf:cxf-rt-transports-http:jar:2.7.6:compile
-[INFO]    +- no.nav.modig:modig-core:jar:1.0.1:compile
-[INFO]    +- no.nav:metrics:jar:3.1.0:compile
-[INFO]    |  +- org.json:json:jar:20151123:compile
-[INFO]    |  +- org.aspectj:aspectjrt:jar:1.8.8:compile
-[INFO]    |  +- org.aspectj:aspectjweaver:jar:1.8.8:runtime
-[INFO]    |  \- org.apache.commons:commons-lang3:jar:3.4:compile
-[INFO]    +- org.jsoup:jsoup:jar:1.7.2:compile
-[INFO]    +- no.nav.modig:modig-security-core:jar:1.0.31-SNAPSHOT:compile
-[INFO]    +- javax.inject:javax.inject:jar:1:compile
-[INFO]    +- org.springframework:spring-context:jar:4.2.6.RELEASE:compile
-[INFO]    |  +- org.springframework:spring-beans:jar:4.2.6.RELEASE:compile
-[INFO]    |  +- org.springframework:spring-core:jar:4.2.6.RELEASE:compile
-[INFO]    |  \- org.springframework:spring-expression:jar:4.2.6.RELEASE:compile
-[INFO]    +- org.springframework:spring-aop:jar:4.2.6.RELEASE:compile
-[INFO]    |  \- aopalliance:aopalliance:jar:1.0:compile
-[INFO]    \- org.slf4j:slf4j-api:jar:1.7.7:compile
+[INFO] no.nav.fo:jwt-security:pom:1.0-SNAPSHOT
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building jwt-security-common 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:tree (default-cli) @ jwt-security-common ---
+[INFO] no.nav.fo:jwt-security-common:jar:1.0-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.6:compile
+[INFO] +- org.picketbox:picketbox:jar:4.9.2.Final:provided
+[INFO] +- org.springframework:spring-web:jar:4.3.5.RELEASE:test
+[INFO] |  +- org.springframework:spring-aop:jar:4.3.5.RELEASE:test
+[INFO] |  +- org.springframework:spring-beans:jar:4.3.5.RELEASE:test
+[INFO] |  +- org.springframework:spring-context:jar:4.3.5.RELEASE:test
+[INFO] |  |  \- org.springframework:spring-expression:jar:4.3.5.RELEASE:test
+[INFO] |  \- org.springframework:spring-core:jar:4.3.5.RELEASE:test
+[INFO] |     \- commons-logging:commons-logging:jar:1.2:test
+[INFO] \- org.eclipse.jetty:jetty-server:jar:9.3.0.M2:test
+[INFO]    +- javax.servlet:javax.servlet-api:jar:3.1.0:test
+[INFO]    +- org.eclipse.jetty:jetty-http:jar:9.3.0.M2:test
+[INFO]    |  \- org.eclipse.jetty:jetty-util:jar:9.3.0.M2:test
+[INFO]    \- org.eclipse.jetty:jetty-io:jar:9.3.0.M2:test
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building jwt-security-loginmodule 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+Downloading: http://maven.adeo.no/nexus/content/groups/public-snapshots/no/nav/fo/jwt-security-common/1.0-SNAPSHOT/maven-metadata.xml
+2/2 KB            Downloaded: http://maven.adeo.no/nexus/content/groups/public-snapshots/no/nav/fo/jwt-security-common/1.0-SNAPSHOT/maven-metadata.xml (2 KB at 3.5 KB/sec)
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:tree (default-cli) @ jwt-security-loginmodule ---
+[INFO] no.nav.fo:jwt-security-loginmodule:jar:1.0-SNAPSHOT
+[INFO] +- no.nav.fo:jwt-security-common:jar:1.0-SNAPSHOT:compile
+[INFO] +- org.apache.httpcomponents:httpclient:jar:4.5.2:compile
+[INFO] |  \- commons-codec:commons-codec:jar:1.9:compile
+[INFO] +- org.apache.httpcomponents:httpcore:jar:4.4.4:compile
+[INFO] +- org.bitbucket.b_c:jose4j:jar:0.5.0:compile
+[INFO] +- org.picketbox:picketbox:jar:4.9.2.Final:provided
+[INFO] \- org.slf4j:slf4j-api:jar:1.7.6:compile
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building jwt-security-filter 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.9:tree (default-cli) @ jwt-security-filter ---
+[INFO] no.nav.fo:jwt-security-filter:jar:1.0-SNAPSHOT
+[INFO] +- javax:javaee-api:jar:7.0:provided
+[INFO] |  \- com.sun.mail:javax.mail:jar:1.5.0:provided
+[INFO] |     \- javax.activation:activation:jar:1.1:provided
+[INFO] \- org.slf4j:slf4j-api:jar:1.7.6:compile
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO] 
+[INFO] jwt-security ...................................... SUCCESS [1.000s]
+[INFO] jwt-security-common ............................... SUCCESS [0.063s]
+[INFO] jwt-security-loginmodule .......................... SUCCESS [0.844s]
+[INFO] jwt-security-filter ............................... SUCCESS [0.062s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time: 2.828s
-[INFO] Finished at: Mon Jan 23 12:55:08 CET 2017
+[INFO] Total time: 2.311s
+[INFO] Finished at: Mon Feb 06 09:54:41 CET 2017
 [INFO] Final Memory: 14M/232M
 [INFO] ------------------------------------------------------------------------
