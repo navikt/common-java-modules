@@ -11,6 +11,8 @@ import org.mockito.*;
 import static no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest.getXacmlRequest;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -60,5 +62,17 @@ public class PepTest {
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
     }
 
+    @Test
+    public void buildsCorrectRequest() {
+        XacmlRequest xacmlRequest = pep.createXacmlRequest("eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9",
+                null, "Foreldrepenger", "01010122222", "srvEksempelPep");
+        assertNotNull(xacmlRequest);
+    }
+
+    @Test
+    public void returnsNullForMissingOidcTokenAndSubjectId() {
+        XacmlRequest xacmlRequest = pep.createXacmlRequest(null, null, "Foreldrepenger", "01010122222", "srvEksempelPep");
+        assertNull(xacmlRequest);
+    }
 
 }

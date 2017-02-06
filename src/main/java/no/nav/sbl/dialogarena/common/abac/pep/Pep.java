@@ -48,6 +48,14 @@ public class Pep {
                 .withResource(resource);
     }
 
+    XacmlRequest createXacmlRequest(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+        Request request = buildRequest(oidcToken, subjectId, domain, fnr, credentialResource);
+        if (request != null) {
+            return new XacmlRequest().withRequest(request);
+        }
+        return null;
+    }
+
     BiasedDecisionResponse evaluateWithBias(XacmlRequest request) {
         log.debug("evaluating request with bias:" + bias);
         XacmlResponse response = pdpService.askForPermission(request);
