@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -34,6 +35,7 @@ public class PepTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
     }
 
     @Test
@@ -64,56 +66,66 @@ public class PepTest {
     }
 
     @Test
-    public void buildsCorrectEnvironment() {
-        pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        Environment environment = pep.getEnvironment();
-        List<Attribute> environmentAttributes = environment.getAttribute();
-        assertThat(environmentAttributes.size(), is(2));
-        assertThat(environmentAttributes.get(0).getValue(), is(OIDC_TOKEN));
-        assertThat(environmentAttributes.get(1).getValue(), is(CREDENTIAL_RESOURCE));
+    public void buildsCorrectEnvironmentWithOidcToken() {
+        Environment environment = pep.makeEnvironment();
+        List<Attribute> testAttribute = new ArrayList<>();
+        testAttribute.add(new Attribute(StaticRequestValues.OIDCTOKEN_ID, OIDC_TOKEN));
+        testAttribute.add(new Attribute(StaticRequestValues.CREDENTIALRESOURCE_ID, CREDENTIAL_RESOURCE));
+        assertThat(environment.getAttribute(), is(testAttribute));
+    }
+
+    @Test
+    public void buildsCorrectEnvironmentWithoutOidcToken() {
+        pep.setClientValues(null, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
+        Environment environment = pep.makeEnvironment();
+        List<Attribute> testAttribute = new ArrayList<>();
+        testAttribute.add(new Attribute(StaticRequestValues.CREDENTIALRESOURCE_ID, CREDENTIAL_RESOURCE));
+        assertThat(environment.getAttribute(), is(testAttribute));
     }
 
     @Test
     public void buildsCorrectResource() {
-        pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        Resource resource = pep.getResource();
-        List<Attribute> resourceAttributes = resource.getAttribute();
-        assertThat(resourceAttributes.size(), is(3));
-        assertThat(resourceAttributes.get(0).getAttributeId(), is( "no.nav.abac.attributter.resource.felles.resource_type"));
-        assertThat(resourceAttributes.get(1).getValue(), is(DOMAIN));
-        assertThat(resourceAttributes.get(2).getValue(), is(FNR));
+        Resource resource = pep.makeResource();
+        List<Attribute> testAttributes = new ArrayList<>();
+        testAttributes.add(new Attribute(StaticRequestValues.RESOURCETYPE_ID, StaticRequestValues.RESOURCETYPE_VALUE));
+        testAttributes.add(new Attribute(StaticRequestValues.DOMAIN_ID, DOMAIN));
+        testAttributes.add(new Attribute(StaticRequestValues.FNR_ID, FNR));
+        assertThat(resource.getAttribute(), is(testAttributes));
     }
 
     @Test
     public void buildsCorrectAccessSubject() {
-        pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        AccessSubject accessSubject = pep.getAccessSubject();
-        assertThat(accessSubject.getAttribute().get(0).getValue(), is(SUBJECT_ID));
+        AccessSubject accessSubject = pep.makeAccessSubject();
+        List<Attribute> testAttributes = new ArrayList<>();
+        testAttributes.add(new Attribute(StaticRequestValues.SUBJECTID_ID, SUBJECT_ID));
+        testAttributes.add(new Attribute(StaticRequestValues.SUBJECTTYPE_ID, StaticRequestValues.SUBJECTTYPE_VALUE));
+        assertThat(accessSubject.getAttribute(), is(testAttributes));
     }
 
     @Test
     public void buildsCorrectAction() {
-        Action action = pep.getAction();
-        assertThat(action.getAttribute().get(0).getValue(), is("read"));
+        Action action = pep.makeAction();
+        List<Attribute> testAttributes = new ArrayList<>();
+        testAttributes.add(new Attribute(StaticRequestValues.ACTIONID_ID, StaticRequestValues.ACTIONID_VALUE));
+        assertThat(action.getAttribute(), is(testAttributes));
     }
 
     @Test
     public void buildsCorrectRequest() {
-        pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        Request request = pep.buildRequest();
+        Request request = pep.makeRequest();
         assertNotNull(request);
     }
 
     @Test
     public void requestReturnsNullWithNonValidValues() {
-        Request request = pep.buildRequest();
+        pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, null, FNR, CREDENTIAL_RESOURCE);
+        Request request = pep.makeRequest();
         assertNull(request);
     }
 
     @Test
     public void buildsCorrectXacmlRequest() {
-        pep.setClientValues(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);
-        XacmlRequest xacmlRequest = pep.createXacmlRequest();
+        XacmlRequest xacmlRequest = pep.makeXacmlRequest();
         assertNotNull(xacmlRequest);
     }
 }

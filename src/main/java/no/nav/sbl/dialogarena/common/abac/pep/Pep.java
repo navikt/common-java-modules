@@ -15,18 +15,6 @@ public class Pep {
     private final Bias bias = Bias.Deny;
     private final boolean failOnIndeterminateDecision = true;
 
-    private static final String OIDCTOKEN_ID = "no.nav.abac.attributter.environment.felles.oidc_token_body";
-    private static final String CREDENTIALRESOURCE_ID = "no.nav.abac.attributter.environment.felles.pep_id";
-    private static final String SUBJECTID_ID = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
-    private static final String SUBJECTTYPE_ID = "no.nav.abac.attributter.subject.felles.subjectType";
-    private static final String SUBJECTTYPE_VALUE = "InternBruker";
-    private static final String ACTIONID_ID = "urn:oasis:names:tc:xacml:1.0:action:action-id";
-    private static final String ACTIONID_VALUE = "read";
-    private static final String RESOURCETYPE_ID = "no.nav.abac.attributter.resource.felles.resource_type";
-    private static final String RESOURCETYPE_VALUE = "no.nav.abac.attributter.resource.felles.person";
-    private static final String DOMAIN_ID = "no.nav.abac.attributter.resource.felles.domene";
-    private static final String FNR_ID = "no.nav.abac.attributter.resource.felles.person.fnr";
-
     private enum Bias {
         Permit, Deny
     }
@@ -39,52 +27,52 @@ public class Pep {
         this.client = new Client();
     }
 
-    Environment getEnvironment() {
-        final Environment environment = new Environment();
+    Environment makeEnvironment() {
+        Environment environment = new Environment();
         if (client.getOidcToken() != null) {
-            environment.getAttribute().add(new Attribute(OIDCTOKEN_ID, client.getOidcToken()));
+            environment.getAttribute().add(new Attribute(StaticRequestValues.OIDCTOKEN_ID, client.getOidcToken()));
         }
-        environment.getAttribute().add(new Attribute(CREDENTIALRESOURCE_ID, client.getCredentialResource()));
+        environment.getAttribute().add(new Attribute(StaticRequestValues.CREDENTIALRESOURCE_ID, client.getCredentialResource()));
         return environment;
     }
 
-    AccessSubject getAccessSubject() {
-        final AccessSubject accessSubject = new AccessSubject();
-        accessSubject.getAttribute().add(new Attribute(SUBJECTID_ID, client.getSubjectId()));
-        accessSubject.getAttribute().add(new Attribute(SUBJECTTYPE_ID, SUBJECTTYPE_VALUE));
+    AccessSubject makeAccessSubject() {
+        AccessSubject accessSubject = new AccessSubject();
+        accessSubject.getAttribute().add(new Attribute(StaticRequestValues.SUBJECTID_ID, client.getSubjectId()));
+        accessSubject.getAttribute().add(new Attribute(StaticRequestValues.SUBJECTTYPE_ID, StaticRequestValues.SUBJECTTYPE_VALUE));
         return accessSubject;
     }
 
-    Action getAction() {
-        final Action action = new Action();
-        action.getAttribute().add(new Attribute(ACTIONID_ID, ACTIONID_VALUE));
+    Action makeAction() {
+        Action action = new Action();
+        action.getAttribute().add(new Attribute(StaticRequestValues.ACTIONID_ID, StaticRequestValues.ACTIONID_VALUE));
         return action;
     }
 
-    Resource getResource() {
-        final Resource resource = new Resource();
-        resource.getAttribute().add(new Attribute(RESOURCETYPE_ID, RESOURCETYPE_VALUE));
-        resource.getAttribute().add(new Attribute(DOMAIN_ID, client.getDomain()));
-        resource.getAttribute().add(new Attribute(FNR_ID, client.getFnr()));
+    Resource makeResource() {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(StaticRequestValues.RESOURCETYPE_ID, StaticRequestValues.RESOURCETYPE_VALUE));
+        resource.getAttribute().add(new Attribute(StaticRequestValues.DOMAIN_ID, client.getDomain()));
+        resource.getAttribute().add(new Attribute(StaticRequestValues.FNR_ID, client.getFnr()));
         return resource;
     }
 
-    Request buildRequest() {
+    Request makeRequest() {
         if (client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
                 (client.getOidcToken() == null && client.getSubjectId() == null)) { return null; }
 
         Request request = new Request()
-                .withEnvironment(getEnvironment())
-                .withAction(getAction())
-                .withResource(getResource());
+                .withEnvironment(makeEnvironment())
+                .withAction(makeAction())
+                .withResource(makeResource());
         if (client.getSubjectId() != null) {
-            request.withAccessSubject(getAccessSubject());
+            request.withAccessSubject(makeAccessSubject());
         }
         return request;
     }
 
-    XacmlRequest createXacmlRequest() {
-        Request request = buildRequest();
+    XacmlRequest makeXacmlRequest() {
+        Request request = makeRequest();
         if (request != null) {
             return new XacmlRequest().withRequest(request);
         }
@@ -106,7 +94,7 @@ public class Pep {
         setClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         log.debug("evaluating request with bias:" + bias);
-        XacmlResponse response = pdpService.askForPermission(createXacmlRequest());
+        XacmlResponse response = pdpService.askForPermission(makeXacmlRequest());
 
         Decision originalDecision = response.getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);

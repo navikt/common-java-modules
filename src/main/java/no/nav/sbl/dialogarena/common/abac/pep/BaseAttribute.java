@@ -12,4 +12,19 @@ class BaseAttribute {
             attribute = new ArrayList<>();
         return attribute;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BaseAttribute)) return false;
+
+        BaseAttribute that = (BaseAttribute) o;
+
+        return attribute != null ? attribute.equals(that.attribute) : that.attribute == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return attribute != null ? attribute.hashCode() : 0;
+    }
 }
