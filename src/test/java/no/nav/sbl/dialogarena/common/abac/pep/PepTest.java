@@ -57,7 +57,7 @@ public class PepTest {
     }
 
     @Test(expected = PepException.class)
-    public void decisionIndetminateThrowsException() {
+    public void decisionIndeterminateThrowsException() {
         when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Indeterminate));
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(OIDC_TOKEN, SUBJECT_ID, DOMAIN, FNR, CREDENTIAL_RESOURCE);

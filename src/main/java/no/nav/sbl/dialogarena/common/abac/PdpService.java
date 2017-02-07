@@ -8,6 +8,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -17,11 +19,12 @@ public class PdpService {
 
     private final static String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
+    private final static Logger logger = LoggerFactory.getLogger(PdpService.class);
 
 
     public XacmlResponse askForPermission(XacmlRequest request) {
         HttpPost httpPost = getPostRequest(request);
-        System.out.println("Ask for permission");
+        logger.info("Ask for permission");
         final HttpResponse rawResponse = doPost(httpPost);
 
         return XacmlMapper.mapRawResponse(rawResponse);

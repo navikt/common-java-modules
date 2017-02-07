@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class Pep {
 
-    private final static Logger log = LoggerFactory.getLogger(Pep.class);
-    private final Bias bias = Bias.Deny;
-    private final boolean failOnIndeterminateDecision = true;
+    private static final Logger log = LoggerFactory.getLogger(Pep.class);
+    private static final Bias bias = Bias.Deny;
+    private static final boolean failOnIndeterminateDecision = true;
 
     private enum Bias {
         Permit, Deny
