@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
 
 public class CXFClient<T> {
@@ -30,18 +31,11 @@ public class CXFClient<T> {
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
 
     public CXFClient(Class<T> serviceClass) {
-        factoryBean.getFeatures().add(new LoggingFeatureUtenBinaryOgUtenSamlTokenLogging());
+        boolean loggSecurityHeader = "true".equals(getProperty("no.nav.sbl.dialogarena.common.cxf.cxfclient.logging.logg-securityheader"));
+        factoryBean.getFeatures().add(new LoggingFeatureUtenBinaryOgUtenSamlTokenLogging(!loggSecurityHeader));
         factoryBean.getFeatures().add(new WSAddressingFeature());
         factoryBean.setProperties(new HashMap<String, Object>());
         this.serviceClass = serviceClass;
-    }
-
-    //FIXME hackish løsning. Det skjer for mye i constructeren. Burde refactores
-    public CXFClient<T> ikkeMaskerSecurityHeader() {
-        factoryBean.getFeatures().removeAll(factoryBean.getFeatures());
-        factoryBean.getFeatures().add(new LoggingFeature());
-        factoryBean.getFeatures().add(new WSAddressingFeature());
-        return this;
     }
 
     public CXFClient<T> address(String url) {
@@ -132,7 +126,7 @@ public class CXFClient<T> {
     private static void disableCNCheckIfConfigured(Client client) {
         HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
         httpConduit.setTlsClientParameters(new TLSClientParameters());
-        if (Boolean.valueOf(System.getProperty("disable.ssl.cn.check", "false"))) {
+        if (Boolean.valueOf(getProperty("disable.ssl.cn.check", "false"))) {
             httpConduit.getTlsClientParameters().setDisableCNCheck(true);
         }
     }
