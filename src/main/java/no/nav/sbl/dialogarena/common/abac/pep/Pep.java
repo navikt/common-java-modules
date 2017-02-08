@@ -4,6 +4,7 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 import no.nav.sbl.dialogarena.common.abac.PdpService;
 import no.nav.sbl.dialogarena.common.abac.pep.xacml.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
+import no.nav.sbl.dialogarena.common.abac.pep.xacml.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -58,8 +59,12 @@ public class Pep {
     }
 
     Request makeRequest() {
-        if (client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
-                (client.getOidcToken() == null && client.getSubjectId() == null)) { return null; }
+        if (Utils.invalidClientValues(client)) {
+            throw new PepException("Received client values: oidc-token:" + client.getOidcToken() +
+            "subject-id:" + client.getSubjectId() + "domain: " + client.getDomain() + "fnr: " + client.getFnr() +
+            "credential resource: " + client.getCredentialResource() + "\nProvide OIDC-token or subject-ID, domain, fnr and" +
+                    "name of credential resource");
+        }
 
         Request request = new Request()
                 .withEnvironment(makeEnvironment())
@@ -72,26 +77,21 @@ public class Pep {
     }
 
     XacmlRequest makeXacmlRequest() {
-        Request request = makeRequest();
-        if (request != null) {
-            return new XacmlRequest().withRequest(request);
-        }
-        throw new PepException("Did not receive sufficient values. Provide OIDC-token or subject-ID, domain, fnr and" +
-                "name of credential resource");
+        return new XacmlRequest().withRequest(makeRequest());
     }
 
-    Client setClientValues(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+    Pep withClientValues(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
         client
                 .withOidcToken(oidcToken)
                 .withSubjectId(subjectId)
                 .withDomain(domain)
                 .withFnr(fnr)
                 .withCredentialResource(credentialResource);
-        return client;
+        return this;
     }
 
     BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
-        setClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
+        withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         log.debug("evaluating request with bias:" + bias);
         XacmlResponse response = pdpService.askForPermission(makeXacmlRequest());

@@ -41,4 +41,27 @@ class Request {
         this.resource = resource;
         return this;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Request)) return false;
+
+        Request request = (Request) o;
+
+        if (accessSubject != null ? !accessSubject.equals(request.accessSubject) : request.accessSubject != null)
+            return false;
+        if (environment != null ? !environment.equals(request.environment) : request.environment != null) return false;
+        if (action != null ? !action.equals(request.action) : request.action != null) return false;
+        return resource != null ? resource.equals(request.resource) : request.resource == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = accessSubject != null ? accessSubject.hashCode() : 0;
+        result = 31 * result + (environment != null ? environment.hashCode() : 0);
+        result = 31 * result + (action != null ? action.hashCode() : 0);
+        result = 31 * result + (resource != null ? resource.hashCode() : 0);
+        return result;
+    }
 }

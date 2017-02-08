@@ -2,7 +2,11 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 public class Client {
 
-    private String oidcToken, subjectId, domain, fnr, credentialResource;
+    private String oidcToken;
+    private String subjectId;
+    private String domain;
+    private String fnr;
+    private String credentialResource;
 
     public String getOidcToken() { return oidcToken; }
 

@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep.xacml;
 
+import no.nav.sbl.dialogarena.common.abac.pep.Client;
 import org.apache.http.HttpEntity;
 
 import java.io.*;
@@ -25,5 +26,10 @@ public class Utils {
         }
         return result;
 
+    }
+
+    public static boolean invalidClientValues(Client client) {
+        return client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
+                (client.getOidcToken() == null && client.getSubjectId() == null);
     }
 }
