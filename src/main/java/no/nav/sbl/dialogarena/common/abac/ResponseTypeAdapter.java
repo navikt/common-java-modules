@@ -9,7 +9,7 @@ import java.util.List;
 
 class ResponseTypeAdapter implements JsonDeserializer<List<Response>> {
     @Override
-    public List<Response> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public List<Response> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         List<Response> responses = new ArrayList<>();
         if (json.isJsonArray()) {
             for (JsonElement element : json.getAsJsonArray()) {

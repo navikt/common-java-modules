@@ -13,8 +13,8 @@ class Pep {
 
     private final static Logger log = LoggerFactory.getLogger(Pep.class);
     private static final int NUMBER_OF_RESPONSES_ALLOWED = 1;
-    private final Bias bias = Bias.Deny;
-    private final boolean failOnIndeterminateDecision = true;
+    private final static Bias bias = Bias.Deny;
+    private final static boolean failOnIndeterminateDecision = true;
 
     private enum Bias {
         Permit, Deny

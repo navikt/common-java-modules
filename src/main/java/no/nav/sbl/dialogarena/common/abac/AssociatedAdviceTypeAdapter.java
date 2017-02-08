@@ -9,7 +9,7 @@ import java.util.List;
 
 class AssociatedAdviceTypeAdapter implements JsonDeserializer<List<Advice>> {
     @Override
-    public List<Advice> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public List<Advice> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         List<Advice> associatedAdvice = new ArrayList<>();
         if (json.isJsonArray()) {
             for (JsonElement element : json.getAsJsonArray()) {
