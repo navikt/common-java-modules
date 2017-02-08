@@ -34,10 +34,13 @@ class XacmlMapper {
     private static Gson getGsonForResponse() {
         Type responseType = new TypeToken<List<Response>>() {
         }.getType();
+        Type associatedAdviceType = new TypeToken<List<Advice>>() {
+        }.getType();
         return new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .setPrettyPrinting()
                 .registerTypeAdapter(responseType, new ResponseTypeAdapter())
+                .registerTypeAdapter(associatedAdviceType, new AssociatedAdviceTypeAdapter())
                 .create();
     }
 

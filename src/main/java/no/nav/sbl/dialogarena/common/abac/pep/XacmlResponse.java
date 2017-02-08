@@ -6,7 +6,7 @@ import java.util.List;
 public class XacmlResponse {
     private List<Response> response;
 
-    List<Response> getResponse() {
+    public List<Response> getResponse() {
         return response;
     }
 

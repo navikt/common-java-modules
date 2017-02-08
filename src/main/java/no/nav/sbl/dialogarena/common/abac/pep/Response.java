@@ -2,16 +2,24 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
 
+import java.util.List;
+
 
 public class Response {
     private Decision decision;
+    private List<Advice> associatedAdvice;
 
-    Decision getDecision() {
+    public Decision getDecision() {
         return decision;
     }
 
     public Response withDecision(Decision decision) {
         this.decision = decision;
+        return this;
+    }
+
+    public Response withAssociatedAdvice(List<Advice> associatedAdvice) {
+        this.associatedAdvice = associatedAdvice;
         return this;
     }
 
