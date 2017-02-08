@@ -8,20 +8,6 @@ class Request {
     private Action action;
     private Resource resource;
 
-    public Environment getEnvironment() {
-        return environment;
-    }
-
-    public AccessSubject getAccessSubject() { return accessSubject; }
-
-    public Action getAction() {
-        return action;
-    }
-
-    public Resource getResource() {
-        return resource;
-    }
-
     Request withEnvironment(Environment environment) {
         this.environment = environment;
         return this;

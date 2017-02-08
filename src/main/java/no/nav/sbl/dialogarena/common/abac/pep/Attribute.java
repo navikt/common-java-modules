@@ -10,11 +10,4 @@ class Attribute {
         this.value = value;
     }
 
-    public String getAttributeId() {
-        return attributeId;
-    }
-
-    public String getValue() {
-        return value;
-    }
 }
