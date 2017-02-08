@@ -1,5 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 class Attribute {
     private final String attributeId;
     private final String value;

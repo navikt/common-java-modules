@@ -1,8 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
+import lombok.EqualsAndHashCode;
+
 import java.util.List;
 
+@EqualsAndHashCode
 public class XacmlResponse {
     private List<Response> response;
 
@@ -17,21 +20,5 @@ public class XacmlResponse {
     public XacmlResponse withResponse(List<Response> response) {
         this.response = response;
         return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        XacmlResponse response1 = (XacmlResponse) o;
-
-        return response != null ? response.equals(response1.response) : response1.response == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        return response != null ? response.hashCode() : 0;
     }
 }
