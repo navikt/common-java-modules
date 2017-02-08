@@ -35,6 +35,28 @@ public class XacmlMapperTest {
     }
 
     @Test
+    public void convertRequestWithSubjectAttributesToJson() throws IOException {
+
+        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjectAttributes());
+
+        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+
+        String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjectattributes.json");
+        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+    }
+
+    @Test
+    public void convertRequestWithSubjAttrWithoutEnvironmentToJson() throws IOException {
+
+        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjAttrWithoutEnvironment());
+
+        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+
+        String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjattrwithoutenvironment.json");
+        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+    }
+
+    @Test
     public void convertsSimpleJsonToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
                 .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple.json")));
