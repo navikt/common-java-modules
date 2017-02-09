@@ -21,7 +21,6 @@ public class PdpService {
 
     public XacmlResponse askForPermission(XacmlRequest request) {
         HttpPost httpPost = getPostRequest(request);
-        System.out.println("Ask for permission");
         final HttpResponse rawResponse = doPost(httpPost);
 
         return XacmlMapper.mapRawResponse(rawResponse);

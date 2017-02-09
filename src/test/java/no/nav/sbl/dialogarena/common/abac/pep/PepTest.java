@@ -8,6 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest.getXacmlRequest;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,7 +32,8 @@ public class PepTest {
 
     @Test
     public void returnsDecision() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Permit));
+        when(pdpService.askForPermission(any(XacmlRequest.class)))
+                .thenReturn(getMockResponse(Decision.Permit));
 
         final XacmlRequest xacmlRequest = getXacmlRequest();
 
@@ -40,7 +44,8 @@ public class PepTest {
 
     @Test
     public void returnsDenyForNotApplicable() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.NotApplicable));
+        when(pdpService.askForPermission(any(XacmlRequest.class)))
+                .thenReturn(getMockResponse(Decision.NotApplicable));
 
         final XacmlRequest xacmlRequest = getXacmlRequest();
 
@@ -51,13 +56,20 @@ public class PepTest {
 
     @Test(expected = PepException.class)
     public void decisionIndetminateThrowsException() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Indeterminate));
+        when(pdpService.askForPermission(any(XacmlRequest.class)))
+                .thenReturn(getMockResponse(Decision.Indeterminate));
 
         final XacmlRequest xacmlRequest = getXacmlRequest();
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(xacmlRequest);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
+    }
+
+    private XacmlResponse getMockResponse(Decision decision) {
+        List<Response> responses = new ArrayList<>();
+        responses.add(new Response().withDecision(decision));
+        return new XacmlResponse().withResponse(responses);
     }
 
 
