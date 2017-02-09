@@ -1,9 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
-import no.nav.sbl.dialogarena.common.abac.PdpService;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.BiasedDecisionResponse;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.abac.pep.xacml;
+package no.nav.sbl.dialogarena.common.abac.pep;
 
 import org.apache.http.HttpEntity;
 
