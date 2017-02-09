@@ -32,6 +32,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>no.nav.abac.policies</groupId>
+            <artifactId>abac-attribute-constants</artifactId>
+            <version>0.0.0.22</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>

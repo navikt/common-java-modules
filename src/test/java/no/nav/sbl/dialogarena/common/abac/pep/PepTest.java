@@ -1,6 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
+import no.nav.abac.xacml.NavAttributter;
+import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.PdpService;
 import no.nav.sbl.dialogarena.common.abac.pep.xacml.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
@@ -64,8 +66,8 @@ public class PepTest {
     public void buildsCorrectEnvironmentWithOidcToken() {
         Environment environment = pep.makeEnvironment();
         List<Attribute> expectedAttributes = new ArrayList<>();
-        expectedAttributes.add(new Attribute(StaticRequestValues.OIDCTOKEN_ID, MockXacmlRequest.OIDC_TOKEN));
-        expectedAttributes.add(new Attribute(StaticRequestValues.CREDENTIALRESOURCE_ID, MockXacmlRequest.CREDENTIAL_RESOURCE));
+        expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, MockXacmlRequest.OIDC_TOKEN));
+        expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, MockXacmlRequest.CREDENTIAL_RESOURCE));
 
         assertThat(environment.getAttribute(), is(expectedAttributes));
     }
@@ -75,7 +77,7 @@ public class PepTest {
         pep.withClientValues(null, MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
         Environment environment = pep.makeEnvironment();
         List<Attribute> expectedAttributes = new ArrayList<>();
-        expectedAttributes.add(new Attribute(StaticRequestValues.CREDENTIALRESOURCE_ID, MockXacmlRequest.CREDENTIAL_RESOURCE));
+        expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, MockXacmlRequest.CREDENTIAL_RESOURCE));
 
         assertThat(environment.getAttribute(), is(expectedAttributes));
     }
@@ -84,9 +86,9 @@ public class PepTest {
     public void buildsCorrectResource() {
         Resource resource = pep.makeResource();
         List<Attribute> expectedAttributes = new ArrayList<>();
-        expectedAttributes.add(new Attribute(StaticRequestValues.RESOURCETYPE_ID, StaticRequestValues.RESOURCETYPE_VALUE));
-        expectedAttributes.add(new Attribute(StaticRequestValues.DOMAIN_ID, MockXacmlRequest.DOMAIN));
-        expectedAttributes.add(new Attribute(StaticRequestValues.FNR_ID, MockXacmlRequest.FNR));
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, MockXacmlRequest.FNR));
 
         assertThat(resource.getAttribute(), is(expectedAttributes));
     }
@@ -95,8 +97,8 @@ public class PepTest {
     public void buildsCorrectAccessSubject() {
         AccessSubject accessSubject = pep.makeAccessSubject();
         List<Attribute> expectedAttributes = new ArrayList<>();
-        expectedAttributes.add(new Attribute(StaticRequestValues.SUBJECTID_ID, MockXacmlRequest.SUBJECT_ID));
-        expectedAttributes.add(new Attribute(StaticRequestValues.SUBJECTTYPE_ID, StaticRequestValues.SUBJECTTYPE_VALUE));
+        expectedAttributes.add(new Attribute(StandardAttributter.SUBJECT_ID, MockXacmlRequest.SUBJECT_ID));
+        expectedAttributes.add(new Attribute(NavAttributter.SUBJECT_FELLES_SUBJECTTYPE, "Internbruker"));
 
         assertThat(accessSubject.getAttribute(), is(expectedAttributes));
     }
@@ -105,7 +107,7 @@ public class PepTest {
     public void buildsCorrectAction() {
         Action action = pep.makeAction();
         List<Attribute> expectedAttributes = new ArrayList<>();
-        expectedAttributes.add(new Attribute(StaticRequestValues.ACTIONID_ID, StaticRequestValues.ACTIONID_VALUE));
+        expectedAttributes.add(new Attribute(StandardAttributter.ACTION_ID, "read"));
 
         assertThat(action.getAttribute(), is(expectedAttributes));
     }

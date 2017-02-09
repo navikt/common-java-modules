@@ -19,12 +19,9 @@ public class PdpService {
 
     private final static String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
-    private final static Logger logger = LoggerFactory.getLogger(PdpService.class);
-
 
     public XacmlResponse askForPermission(XacmlRequest request) {
         HttpPost httpPost = getPostRequest(request);
-        logger.info("Ask for permission");
         final HttpResponse rawResponse = doPost(httpPost);
 
         return XacmlMapper.mapRawResponse(rawResponse);

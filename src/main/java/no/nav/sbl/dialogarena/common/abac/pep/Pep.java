@@ -1,6 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
+import no.nav.abac.xacml.NavAttributter;
+import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.PdpService;
 import no.nav.sbl.dialogarena.common.abac.pep.xacml.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
@@ -31,30 +33,30 @@ public class Pep {
     Environment makeEnvironment() {
         Environment environment = new Environment();
         if (client.getOidcToken() != null) {
-            environment.getAttribute().add(new Attribute(StaticRequestValues.OIDCTOKEN_ID, client.getOidcToken()));
+            environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, client.getOidcToken()));
         }
-        environment.getAttribute().add(new Attribute(StaticRequestValues.CREDENTIALRESOURCE_ID, client.getCredentialResource()));
+        environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, client.getCredentialResource()));
         return environment;
     }
 
     AccessSubject makeAccessSubject() {
         AccessSubject accessSubject = new AccessSubject();
-        accessSubject.getAttribute().add(new Attribute(StaticRequestValues.SUBJECTID_ID, client.getSubjectId()));
-        accessSubject.getAttribute().add(new Attribute(StaticRequestValues.SUBJECTTYPE_ID, StaticRequestValues.SUBJECTTYPE_VALUE));
+        accessSubject.getAttribute().add(new Attribute(StandardAttributter.SUBJECT_ID, client.getSubjectId()));
+        accessSubject.getAttribute().add(new Attribute(NavAttributter.SUBJECT_FELLES_SUBJECTTYPE, "InternBruker"));
         return accessSubject;
     }
 
     Action makeAction() {
         Action action = new Action();
-        action.getAttribute().add(new Attribute(StaticRequestValues.ACTIONID_ID, StaticRequestValues.ACTIONID_VALUE));
+        action.getAttribute().add(new Attribute(StandardAttributter.ACTION_ID, "read"));
         return action;
     }
 
     Resource makeResource() {
         Resource resource = new Resource();
-        resource.getAttribute().add(new Attribute(StaticRequestValues.RESOURCETYPE_ID, StaticRequestValues.RESOURCETYPE_VALUE));
-        resource.getAttribute().add(new Attribute(StaticRequestValues.DOMAIN_ID, client.getDomain()));
-        resource.getAttribute().add(new Attribute(StaticRequestValues.FNR_ID, client.getFnr()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, client.getDomain()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, client.getFnr()));
         return resource;
     }
 
