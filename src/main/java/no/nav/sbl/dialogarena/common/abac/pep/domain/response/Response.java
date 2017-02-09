@@ -1,7 +1,6 @@
-package no.nav.sbl.dialogarena.common.abac.pep;
+package no.nav.sbl.dialogarena.common.abac.pep.domain.response;
 
 import lombok.EqualsAndHashCode;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
 
 import java.util.List;
 

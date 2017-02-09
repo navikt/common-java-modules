@@ -1,8 +1,9 @@
-package no.nav.sbl.dialogarena.common.abac;
+package no.nav.sbl.dialogarena.common.abac.pep;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import no.nav.sbl.dialogarena.common.abac.pep.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.StringEntity;
@@ -11,12 +12,12 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import static no.nav.sbl.dialogarena.common.abac.pep.xacml.Utils.entityToString;
+import static no.nav.sbl.dialogarena.common.abac.pep.Utils.entityToString;
 
 
-class XacmlMapper {
+public class XacmlMapper {
 
-    static XacmlResponse mapRawResponse(HttpResponse rawResponse) {
+    public static XacmlResponse mapRawResponse(HttpResponse rawResponse) {
         final HttpEntity httpEntity = rawResponse.getEntity();
         final String content = entityToString(httpEntity);
         Gson gson = getGsonForResponse();
@@ -44,7 +45,7 @@ class XacmlMapper {
                 .create();
     }
 
-    static StringEntity mapRequestToEntity(XacmlRequest request) {
+    public static StringEntity mapRequestToEntity(XacmlRequest request) {
         final Gson gson = getGson();
         StringEntity postingString = null;
         try {

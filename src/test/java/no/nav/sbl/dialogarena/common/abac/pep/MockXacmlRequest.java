@@ -1,6 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
+
 public class MockXacmlRequest {
     public static XacmlRequest getXacmlRequest() {
         return new XacmlRequest().withRequest(getRequest());

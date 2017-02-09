@@ -1,6 +1,4 @@
-package no.nav.sbl.dialogarena.common.abac.pep.xacml;
-
-import no.nav.sbl.dialogarena.common.abac.pep.XacmlResponse;
+package no.nav.sbl.dialogarena.common.abac.pep.domain.response;
 
 public class BiasedDecisionResponse {
 

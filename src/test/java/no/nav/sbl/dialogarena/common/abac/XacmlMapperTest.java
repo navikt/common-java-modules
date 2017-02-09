@@ -1,8 +1,7 @@
 package no.nav.sbl.dialogarena.common.abac;
 
 import no.nav.sbl.dialogarena.common.abac.pep.*;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Utils;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 

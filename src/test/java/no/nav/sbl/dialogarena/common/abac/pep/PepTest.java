@@ -1,9 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
-import no.nav.sbl.dialogarena.common.abac.PdpService;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.BiasedDecisionResponse;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;

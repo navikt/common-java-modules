@@ -1,13 +1,13 @@
-package no.nav.sbl.dialogarena.common.abac.pep;
+package no.nav.sbl.dialogarena.common.abac.pep.domain;
 
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-class Attribute {
+public class Attribute {
     private final String attributeId;
     private final String value;
 
-    Attribute(String attributeId, String value) {
+    public Attribute(String attributeId, String value) {
 
         this.attributeId = attributeId;
         this.value = value;

@@ -1,13 +1,12 @@
-package no.nav.sbl.dialogarena.common.abac;
+package no.nav.sbl.dialogarena.common.abac.pep.domain.response;
 
 import com.google.gson.*;
-import no.nav.sbl.dialogarena.common.abac.pep.Advice;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-class AssociatedAdviceTypeAdapter implements JsonDeserializer<List<Advice>> {
+public class AssociatedAdviceTypeAdapter implements JsonDeserializer<List<Advice>> {
     @Override
     public List<Advice> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         List<Advice> associatedAdvice = new ArrayList<>();
