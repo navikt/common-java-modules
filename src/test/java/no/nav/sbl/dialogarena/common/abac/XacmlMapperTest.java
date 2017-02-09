@@ -78,7 +78,7 @@ public class XacmlMapperTest {
     @Test
     public void convertsJsonWithAdvicesToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
-                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse_multiple_advice.json")));
+                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-multiple-advice.json")));
         XacmlResponse expectedResponse = getXacmlResponseWithAdvices();
 
         assertThat(actualResponse, is(equalTo(expectedResponse)));

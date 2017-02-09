@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 class Pep {
 
     private final static Logger log = LoggerFactory.getLogger(Pep.class);
-    private static final int NUMBER_OF_RESPONSES_ALLOWED = 1;
+    private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
 
