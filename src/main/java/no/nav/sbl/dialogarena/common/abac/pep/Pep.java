@@ -11,8 +11,9 @@ import org.springframework.stereotype.Component;
 class Pep {
 
     private final static Logger log = LoggerFactory.getLogger(Pep.class);
-    private final Bias bias = Bias.Deny;
-    private final boolean failOnIndeterminateDecision = true;
+    private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
+    private final static Bias bias = Bias.Deny;
+    private final static boolean failOnIndeterminateDecision = true;
 
     private enum Bias {
         Permit, Deny
@@ -29,7 +30,12 @@ class Pep {
         log.debug("evaluating request with bias:" + bias);
         XacmlResponse response = pdpService.askForPermission(request);
 
-        Decision originalDecision = response.getResponse().get(0).getDecision(); //TODO hente ut alle?
+        if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
+            throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
+                    + NUMBER_OF_RESPONSES_ALLOWED + " is supported.");
+        }
+
+        Decision originalDecision = response.getResponse().get(0).getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);
 
         if (failOnIndeterminateDecision && originalDecision == Decision.Indeterminate) {
