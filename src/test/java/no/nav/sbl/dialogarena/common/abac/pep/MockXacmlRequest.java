@@ -1,6 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
+
 public class MockXacmlRequest {
 
     static final String OIDC_TOKEN = "eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9";

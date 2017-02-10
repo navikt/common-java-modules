@@ -3,20 +3,21 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
-import no.nav.sbl.dialogarena.common.abac.PdpService;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.BiasedDecisionResponse;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Utils;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Pep {
+class Pep {
 
-    private static final Logger log = LoggerFactory.getLogger(Pep.class);
-    private static final Bias bias = Bias.Deny;
-    private static final boolean failOnIndeterminateDecision = true;
+    private final static Logger log = LoggerFactory.getLogger(Pep.class);
+    private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
+    private final static Bias bias = Bias.Deny;
+    private final static boolean failOnIndeterminateDecision = true;
 
     private enum Bias {
         Permit, Deny
@@ -98,7 +99,12 @@ public class Pep {
         log.debug("evaluating request with bias:" + bias);
         XacmlResponse response = pdpService.askForPermission(makeXacmlRequest());
 
-        Decision originalDecision = response.getDecision();
+        if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
+            throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
+                    + NUMBER_OF_RESPONSES_ALLOWED + " is supported.");
+        }
+
+        Decision originalDecision = response.getResponse().get(0).getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);
 
         if (failOnIndeterminateDecision && originalDecision == Decision.Indeterminate) {

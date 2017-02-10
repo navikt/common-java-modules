@@ -1,15 +1,13 @@
-package no.nav.sbl.dialogarena.common.abac;
+package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.sbl.dialogarena.common.abac.pep.XacmlRequest;
-import no.nav.sbl.dialogarena.common.abac.pep.XacmlResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,7 +33,7 @@ public class PdpService {
         return httpPost;
     }
 
-    HttpResponse doPost(HttpPost httpPost) {
+    public HttpResponse doPost(HttpPost httpPost) {
         final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
         HttpResponse response = null;
