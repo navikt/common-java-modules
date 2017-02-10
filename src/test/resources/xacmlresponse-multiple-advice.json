@@ -1,0 +1,26 @@
+{
+  "Response": {
+    "Decision": "Deny",
+    "AssociatedAdvice": [
+      {
+        "Id": "no.nav.abac.advice.ingen_tilgang",
+        "AttributeAssignment": {
+          "AttributeId": "no.nav.abac.advice.fritekst",
+          "Value": "Mangler konsument (consumerId)",
+          "Category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+          "DataType": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      },
+      {
+        "Id": "no.nav.abac.advices.deny.reason",
+        "AttributeAssignment": {
+          "AttributeId": "no.nav.abac.advice.fritekst",
+          "Value": "Mangler autentiseringsNivaa (authenticationLevel)",
+          "Category": "urn:oasis:names:tc:xacml:1.0:subject-category:access-subject",
+          "DataType": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      }
+    ]
+  }
+}
+ 

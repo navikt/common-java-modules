@@ -1,9 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 
-import no.nav.sbl.dialogarena.common.abac.PdpService;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.BiasedDecisionResponse;
-import no.nav.sbl.dialogarena.common.abac.pep.xacml.Decision;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
@@ -32,7 +32,8 @@ public class PepTest {
 
     @Test
     public void returnsDecision() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Permit));
+        when(pdpService.askForPermission(any(XacmlRequest.class)))
+                .thenReturn(getMockResponse(Decision.Permit));
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN,
                 MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
@@ -42,7 +43,8 @@ public class PepTest {
 
     @Test
     public void returnsDenyForNotApplicable() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.NotApplicable));
+        when(pdpService.askForPermission(any(XacmlRequest.class)))
+                .thenReturn(getMockResponse(Decision.NotApplicable));
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
                 MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
@@ -52,7 +54,8 @@ public class PepTest {
 
     @Test(expected = PepException.class)
     public void decisionIndeterminateThrowsException() {
-        when(pdpService.askForPermission(any(XacmlRequest.class))).thenReturn(new XacmlResponse().withDecision(Decision.Indeterminate));
+        when(pdpService.askForPermission(any(XacmlRequest.class)))
+                .thenReturn(getMockResponse(Decision.Indeterminate));
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
                 MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
@@ -126,6 +129,12 @@ public class PepTest {
         Request expectedRequest = MockXacmlRequest.getRequestWithSubjectAttributes();
 
         assertThat(request, is(expectedRequest));
+    }
+
+    private XacmlResponse getMockResponse(Decision decision) {
+        List<Response> responses = new ArrayList<>();
+        responses.add(new Response().withDecision(decision));
+        return new XacmlResponse().withResponse(responses);
     }
 
     @Test(expected = PepException.class)

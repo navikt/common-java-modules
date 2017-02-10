@@ -1,7 +1,7 @@
-package no.nav.sbl.dialogarena.common.abac;
+package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.sbl.dialogarena.common.abac.pep.XacmlRequest;
-import no.nav.sbl.dialogarena.common.abac.pep.XacmlResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -19,12 +19,10 @@ public class PdpService {
 
     private final static String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
-    private final static Logger logger = LoggerFactory.getLogger(PdpService.class);
 
 
     public XacmlResponse askForPermission(XacmlRequest request) {
         HttpPost httpPost = getPostRequest(request);
-        logger.info("Ask for permission");
         final HttpResponse rawResponse = doPost(httpPost);
 
         return XacmlMapper.mapRawResponse(rawResponse);
@@ -38,7 +36,7 @@ public class PdpService {
         return httpPost;
     }
 
-    HttpResponse doPost(HttpPost httpPost) {
+    public HttpResponse doPost(HttpPost httpPost) {
         final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 
         HttpResponse response = null;
