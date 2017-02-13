@@ -133,15 +133,15 @@ public class PepTest {
         assertThat(request, is(expectedRequest));
     }
 
-    private XacmlResponse getMockResponse(Decision decision) {
-        List<Response> responses = new ArrayList<>();
-        responses.add(new Response().withDecision(decision));
-        return new XacmlResponse().withResponse(responses);
-    }
-
     @Test(expected = PepException.class)
     public void requestThrowsExceptionNonValidValues() {
         pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID, null, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
         pep.makeRequest();
+    }
+
+    private XacmlResponse getMockResponse(Decision decision) {
+        List<Response> responses = new ArrayList<>();
+        responses.add(new Response().withDecision(decision));
+        return new XacmlResponse().withResponse(responses);
     }
 }
