@@ -123,6 +123,17 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.10</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/dependencies/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
                 <configuration>
                     <ignoredDependencies>
                         <dependency>no.nav.abac.policies:abac-attribute-constants</dependency>
