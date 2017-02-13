@@ -141,7 +141,7 @@ public class PepTest {
 
     @Test(expected = PepException.class)
     public void requestThrowsExceptionNonValidValues() {
-        pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID, null, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
+        pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, null, null, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
         pep.makeRequest();
     }
 }

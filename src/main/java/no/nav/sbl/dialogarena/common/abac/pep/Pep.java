@@ -11,6 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
+
 @Component
 class Pep {
 
@@ -25,10 +32,22 @@ class Pep {
 
     private final PdpService pdpService;
     private Client client;
+    private FileHandler fh;
 
     public Pep(PdpService pdpService) {
         this.pdpService = pdpService;
         this.client = new Client();
+
+    }
+
+    private void addFileHandlerToLogger() throws SecurityException {
+        try {
+            this.fh = new FileHandler("C:\\Users\\e148211\\abac\\LoggFil.log");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        fh.setFormatter(new SimpleFormatter());
+        
     }
 
     Environment makeEnvironment() {
@@ -93,7 +112,25 @@ class Pep {
         return this;
     }
 
+    void logRequestInfoToConsole(String navIdent, String fnr) {
+        DateFormat df = new SimpleDateFormat("YYYY-MM-DD HH:MM:SS");
+        Date date = new Date();
+        log.info("Time of request: " + df.format(date));
+        log.info("NAV-ident: " + navIdent);
+        log.info("Fnr: " + fnr);
+    }
+
+    void logResponseInfoToConsole(String httpResponseCode, String abacDecision, String biasedDecision, List<Advice> advises) {
+        //log.info("HTTP response code: " + httpResponseCode);
+        log.info("Decision value from ABAC: " + abacDecision);
+        log.info("Biased decision: " + biasedDecision);
+        if (advises != null) { log.info(advises.toString()); }
+    }
+
     BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+        if (oidcToken != null) { logRequestInfoToConsole(oidcToken, fnr); }
+        else { logRequestInfoToConsole(subjectId, fnr); }
+
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         log.debug("evaluating request with bias:" + bias);
@@ -111,6 +148,9 @@ class Pep {
             throw new PepException("received decision " + originalDecision + " from PDP. This should never happen. "
                     + "Fix policy and/or PEP to send proper attributes.");
         }
+
+        logResponseInfoToConsole("", originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice());
+
         return new BiasedDecisionResponse(biasedDecision, response);
     }
 

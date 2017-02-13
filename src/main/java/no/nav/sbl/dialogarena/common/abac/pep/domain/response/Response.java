@@ -13,6 +13,8 @@ public class Response {
         return decision;
     }
 
+    public List<Advice> getAssociatedAdvice() { return associatedAdvice; }
+
     public Response withDecision(Decision decision) {
         this.decision = decision;
         return this;
