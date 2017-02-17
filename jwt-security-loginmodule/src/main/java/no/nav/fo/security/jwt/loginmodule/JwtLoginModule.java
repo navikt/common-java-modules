@@ -34,7 +34,7 @@ public class JwtLoginModule implements LoginModule {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtLoginModule.class);
 
-    private static final JwksKeyHandler jwks = JwksKeyHandler.forSelfHostedJwksDevelopOnly();
+    private static final JwksKeyHandler jwks = JwksKeyHandler.forIssoHost();
 
     private Subject subject;
     private CallbackHandler callbackHandler;
