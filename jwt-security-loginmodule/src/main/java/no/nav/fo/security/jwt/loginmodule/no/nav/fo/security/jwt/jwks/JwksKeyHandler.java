@@ -27,7 +27,7 @@ public class JwksKeyHandler {
     private JsonWebKeySet keyCache;
 
     public static JwksKeyHandler forIssoHost() {
-        return new JwksKeyHandler("https://" + System.getProperty("issoHost.url") + "/jwks.json");
+        return new JwksKeyHandler(System.getProperty("issoHost.url"));
     }
 
     public static JwksKeyHandler forU14() {
