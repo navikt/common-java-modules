@@ -5,7 +5,7 @@ import javax.inject.Inject;
 
 import static java.util.Arrays.asList;
 
-public class VeilederService {
+public class TilgangService {
 
     @Inject
     private LdapService ldapService;
