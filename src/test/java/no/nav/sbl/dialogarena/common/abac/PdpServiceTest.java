@@ -1,30 +1,39 @@
 package no.nav.sbl.dialogarena.common.abac;
 
 import mockit.Expectations;
-import mockit.integration.junit4.JMockit;
+import mockit.Tested;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.PdpService;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.apache.http.client.methods.HttpPost;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.System.setProperty;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.prepareResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-@RunWith(JMockit.class)
 public class PdpServiceTest {
+
+    @Tested
+    PdpService pdpService;
+
+    @BeforeClass
+    public static void setup() {
+        setProperty("ldap.url", "www.something.com");
+        setProperty("ldap.username", "username");
+        setProperty("ldap.password", "supersecrectpassword");
+    }
 
     @Test
     public void returnsResponse() throws IOException {
-        PdpService pdpService = new PdpService();
 
         new Expectations(PdpService.class) {{
             pdpService.doPost(withAny(new HttpPost()));

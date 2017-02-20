@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
 @Component
 class Pep {
 
@@ -19,12 +21,8 @@ class Pep {
         Permit, Deny
     }
 
-    private final PdpService pdpService;
-
-    public Pep(PdpService pdpService) {
-        this.pdpService = pdpService;
-    }
-
+    @Inject
+    PdpService pdpService;
 
     BiasedDecisionResponse evaluateWithBias(XacmlRequest request) {
         log.debug("evaluating request with bias:" + bias);
