@@ -1,0 +1,35 @@
+<ns:jbosspdp xmlns:ns="urn:jboss:xacml:2.0">
+    <ns:Policies>
+        <ns:PolicySet>
+            <ns:Location>policy/sykmelding-policy.xml</ns:Location>
+        </ns:PolicySet>
+    </ns:Policies>
+    <ns:Locators>
+        <!-- PDP bruker PolicyLocator for policies. Hvis et attributt som er nødvendig for avgjørelsen/decisions ikke er
+        en del av XACML-requesten, spør PDP Attribut Locators for informasjon om manglende attributt.
+        Default locator som er provided med JBossXACML er JBossPolicySetLocator og denne må oppgis -->
+        <ns:Locator Name="org.jboss.security.xacml.locators.JBossPolicySetLocator"/>
+
+        <!-- Intern PIP for oppslag av avsenderId, wrappet med caching -->
+        <ns:Locator Name="no.nav.modig.security.tilgangskontroll.policy.pip.PicketLinkAttributeCacheLocator">
+            <ns:Option Name="attributeLocatorClass">no.nav.syfo.provider.security.SyfoserviceAttributeLocator</ns:Option>
+            <ns:Option Name="attributeSupportedId">urn:nav:ikt:tilgangskontroll:xacml:resource:owner-id</ns:Option>
+            <ns:Option Name="cacheKeySubjectID">urn:nav:ikt:tilgangskontroll:xacml:subject:aktor-id</ns:Option>
+            <ns:Option Name="cacheKeyResourceID">urn:nav:ikt:tilgangskontroll:xacml:resource:resource-type,urn:oasis:names:tc:xacml:1.0:resource:resource-id</ns:Option>
+            <ns:Option Name="attributeCacheName">pip.attribute</ns:Option>
+        </ns:Locator>
+
+        <ns:Locator Name="no.nav.modig.security.tilgangskontroll.policy.pip.PicketLinkAttributeCacheLocator">
+            <ns:Option Name="attributeLocatorClass">no.nav.modig.security.tilgangskontroll.policy.pip.LDAPRoleAttributeLocator</ns:Option>
+            <ns:Option Name="url">${ldap.url}</ns:Option>
+            <ns:Option Name="username">${ldap.username}</ns:Option>
+            <ns:Option Name="password">${ldap.password}</ns:Option>
+            <ns:Option Name="baseDN">OU=Users,OU=NAV,OU=BusinessUnits,${ldap.basedn}</ns:Option>
+            <ns:Option Name="attributeSupportedId">urn:oasis:names:tc:xacml:2.0:subject:role</ns:Option>
+            <ns:Option Name="cacheKeySubjectID">urn:oasis:names:tc:xacml:1.0:subject:subject-id</ns:Option>
+            <ns:Option Name="attributeCacheName">pip.role</ns:Option>
+        </ns:Locator>
+
+    </ns:Locators>
+</ns:jbosspdp>
+
