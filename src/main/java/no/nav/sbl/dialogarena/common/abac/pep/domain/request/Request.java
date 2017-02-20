@@ -1,6 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep.domain.request;
 
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode
 public class Request {
 
     private AccessSubject accessSubject;
