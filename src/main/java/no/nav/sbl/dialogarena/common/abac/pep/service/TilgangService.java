@@ -1,17 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 
-import javax.inject.Inject;
+interface TilgangService {
 
-import static java.util.Arrays.asList;
+    XacmlResponse askForPermission(XacmlRequest request) throws AbacException;
 
-public class TilgangService {
-
-    @Inject
-    private LdapService ldapService;
-
-    public boolean hasAccess(String veilederUid) {
-        Object map = ldapService.hentVeilederAttributter(veilederUid, asList("role")).get("role");
-        return true;
-    }
 }

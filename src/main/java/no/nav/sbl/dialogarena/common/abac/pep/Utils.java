@@ -1,6 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.sbl.dialogarena.common.abac.pep.Client;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.InvalidJsonContent;
 import org.apache.http.HttpEntity;
 
 import java.io.*;
@@ -28,7 +28,7 @@ public class Utils {
 
     }
 
-    public static boolean invalidClientValues(Client client) {
+    static boolean invalidClientValues(Client client) {
         return client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
                 (client.getOidcToken() == null && client.getSubjectId() == null);
     }

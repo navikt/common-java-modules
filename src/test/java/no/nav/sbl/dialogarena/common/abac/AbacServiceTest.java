@@ -3,8 +3,10 @@ package no.nav.sbl.dialogarena.common.abac;
 import mockit.Expectations;
 import mockit.Tested;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
-import no.nav.sbl.dialogarena.common.abac.pep.PdpService;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,10 +22,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-public class PdpServiceTest {
+public class AbacServiceTest {
 
     @Tested
-    PdpService pdpService;
+    AbacService abacService;
 
     @BeforeClass
     public static void setup() {
@@ -33,19 +35,31 @@ public class PdpServiceTest {
     }
 
     @Test
-    public void returnsResponse() throws IOException {
+    public void returnsResponse() throws IOException, AbacException {
 
-        new Expectations(PdpService.class) {{
-            pdpService.doPost(withAny(new HttpPost()));
+        new Expectations(AbacService.class) {{
+            abacService.doPost(withAny(new HttpPost()));
             result = prepareResponse(200, getContentFromJsonFile("xacmlresponse.json"));
         }};
 
-        final XacmlResponse actualXacmlResponse = pdpService.askForPermission(MockXacmlRequest.getXacmlRequest());
+        final XacmlResponse actualXacmlResponse = abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
 
 
         final XacmlResponse expectedXacmlResponse = getExpectedXacmlResponse();
 
         assertThat(actualXacmlResponse, is(equalTo(expectedXacmlResponse)));
+
+    }
+
+    @Test(expected = AbacException.class)
+    public void throwsExceptionAtFailureAgainstABAC() throws IOException, AbacException {
+
+        new Expectations(AbacService.class) {{
+            abacService.doPost(withAny(new HttpPost()));
+            result = prepareResponse(HttpStatus.SC_FORBIDDEN, "");
+        }};
+
+        abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
 
     }
 

@@ -1,9 +1,11 @@
-package no.nav.sbl.dialogarena.common.abac.pep;
+package no.nav.sbl.dialogarena.common.abac.pep.service;
 
+import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
+import org.apache.http.*;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -13,15 +15,19 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class PdpService {
+public class AbacService implements TilgangService{
 
     private final static String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
 
-    public XacmlResponse askForPermission(XacmlRequest request) {
+    @Override
+    public XacmlResponse askForPermission(XacmlRequest request) throws AbacException {
         HttpPost httpPost = getPostRequest(request);
         final HttpResponse rawResponse = doPost(httpPost);
 
+        if (rawResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new AbacException("An error has occured calling ABAC");
+        }
         return XacmlMapper.mapRawResponse(rawResponse);
     }
 
@@ -34,7 +40,8 @@ public class PdpService {
     }
 
     public HttpResponse doPost(HttpPost httpPost) {
-        final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        final RequestConfig config = createConfigForTimeout();
+        final CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
 
         HttpResponse response = null;
         try {
@@ -46,4 +53,12 @@ public class PdpService {
     }
 
 
+    private RequestConfig createConfigForTimeout() {
+        final int TIMEOUT_IN_MILLISEC = 500;
+        return RequestConfig.custom()
+                .setConnectTimeout(TIMEOUT_IN_MILLISEC)
+                .setConnectionRequestTimeout(TIMEOUT_IN_MILLISEC)
+                .setSocketTimeout(TIMEOUT_IN_MILLISEC)
+                .build();
+    }
 }
