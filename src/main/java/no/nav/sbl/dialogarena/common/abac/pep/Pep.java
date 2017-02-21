@@ -8,20 +8,19 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.FileHandler;
-import java.util.logging.SimpleFormatter;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 class Pep {
 
-    private final static Logger log = LoggerFactory.getLogger(Pep.class);
+    private final static Logger log = getLogger(Pep.class);
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
@@ -32,22 +31,11 @@ class Pep {
 
     private final PdpService pdpService;
     private Client client;
-    private FileHandler fh;
 
     public Pep(PdpService pdpService) {
         this.pdpService = pdpService;
         this.client = new Client();
 
-    }
-
-    private void addFileHandlerToLogger() throws SecurityException {
-        try {
-            this.fh = new FileHandler("C:\\Users\\e148211\\abac\\LoggFil.log");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        fh.setFormatter(new SimpleFormatter());
-        
     }
 
     Environment makeEnvironment() {
@@ -112,7 +100,7 @@ class Pep {
         return this;
     }
 
-    void logRequestInfoToConsole(String navIdent, String fnr) {
+    private void logRequestInfoToConsole(String navIdent, String fnr) {
         DateFormat df = new SimpleDateFormat("YYYY-MM-DD HH:MM:SS");
         Date date = new Date();
         log.info("Time of request: " + df.format(date));
@@ -120,8 +108,7 @@ class Pep {
         log.info("Fnr: " + fnr);
     }
 
-    void logResponseInfoToConsole(String httpResponseCode, String abacDecision, String biasedDecision, List<Advice> advises) {
-        //log.info("HTTP response code: " + httpResponseCode);
+    private void logResponseInfoToConsole(String abacDecision, String biasedDecision, List<Advice> advises) {
         log.info("Decision value from ABAC: " + abacDecision);
         log.info("Biased decision: " + biasedDecision);
         if (advises != null) { log.info(advises.toString()); }
@@ -149,7 +136,7 @@ class Pep {
                     + "Fix policy and/or PEP to send proper attributes.");
         }
 
-        logResponseInfoToConsole("", originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice());
+        logResponseInfoToConsole(originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice());
 
         return new BiasedDecisionResponse(biasedDecision, response);
     }

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <property name="MAIN_APPLICATION" value="abac"/>
+
+    <property name="loggingPattern" value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}] ){'- \[, , \] ',''}- %m%n"/>
+
+    <appender name="exceptionlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${APP_LOG_HOME}/${MAIN_APPLICATION}_error.log</File>
+        <encoder>
+            <pattern>${loggingPattern}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>90</maxHistory>
+            <FileNamePattern>${APP_LOG_HOME}/${MAIN_APPLICATION}-error-%d{yyyy-MM-dd}.gz</FileNamePattern>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
+    <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+        <syslogHost>localhost</syslogHost>
+        <facility>LOCAL1</facility>
+        <throwableExcluded>true</throwableExcluded>
+        <suffixPattern>${MAIN_APPLICATION} %mdc %logger{30} %m %n%rEx</suffixPattern>
+    </appender>
+
+    <appender name="infolog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${APP_LOG_HOME}/${MAIN_APPLICATION}.log</File>
+        <encoder>
+            <pattern>${loggingPattern}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <maxHistory>90</maxHistory>
+            <FileNamePattern>${APP_LOG_HOME}/${MAIN_APPLICATION}-info-%d{yyyy-MM-dd}.gz</FileNamePattern>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <appender name="ServiceCallsFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SERVICE_CALLS_HOME}/tjenestekall.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${SERVICE_CALLS_HOME}/tjenestekall.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>1</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{ISO8601} ${applicationName} %level %mdc %m%n%rEx</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="ServiceCalls" level="INFO" additivity="false">
+        <appender-ref ref="ServiceCallsFile"/>
+    </logger>
+
+
+    <logger name="org.apache.http.client.protocol.ResponseProcessCookies" level="ERROR" />
+
+    <root level="${ROOT_LOG_LEVEL:-DEBUG}">
+        <appender-ref ref="exceptionlog"/>
+        <appender-ref ref="SYSLOG"/>
+        <appender-ref ref="infolog"/>
+        <appender-ref ref="ServiceCallsFile"/>
+    </root>
+</configuration>
