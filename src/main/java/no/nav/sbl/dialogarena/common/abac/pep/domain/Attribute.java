@@ -13,4 +13,8 @@ public class Attribute {
         this.value = value;
     }
 
+    @Override
+    public String toString() {
+        return "AttributeId: " + attributeId + "Attribute value: " + value;
+    }
 }
