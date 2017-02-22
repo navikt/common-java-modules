@@ -5,7 +5,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.springframework.context.annotation.*;
 
 @Configuration
-@Import({ServiceContext.class})
+@Import({ServiceContext.class, ServiceProviderContext.class})
 public class AbacContext {
 
     private final LdapService ldapService;

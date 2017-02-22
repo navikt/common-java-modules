@@ -4,27 +4,23 @@ import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 
-import javax.naming.*;
-import javax.naming.directory.*;
-import javax.naming.ldap.InitialLdapContext;
-import javax.naming.ldap.LdapContext;
-import java.util.*;
-
-import static java.lang.System.getProperty;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import java.util.ArrayList;
+import java.util.List;
 
 //må bruke Hashtable i InitiallLdapContext dessverre.
 @SuppressWarnings({"squid:S1149"})
 public class LdapService implements TilgangService {
 
     private static final String WANTED_ATTRIBUTE = "memberof";
-    private static final Hashtable<String, String> env = new Hashtable<>();
+    private final Ldap ldap;
 
-    static {
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, getProperty("ldap.url"));
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, getProperty("ldap.username"));
-        env.put(Context.SECURITY_CREDENTIALS, getProperty("ldap.password"));
+    public LdapService(Ldap ldap) {
+
+        this.ldap = ldap;
     }
 
     @Override
@@ -36,26 +32,13 @@ public class LdapService implements TilgangService {
                 .orElseThrow(() -> new RuntimeException("This should never happen. Subject id is missing in request."))
                 .getValue();
 
-        final boolean hasAccess = hasWantedGroupInAD(saksbehandler, WANTED_ATTRIBUTE);
+        final Attributes attributes = ldap.getAttributes(saksbehandler);
+        boolean hasAccess = isMemberOf(WANTED_ATTRIBUTE, attributes);
+
         Decision decision = hasAccess ? Decision.Permit : Decision.Deny;
         List<Response> responses = new ArrayList<>();
         responses.add(new Response().withDecision(decision));
         return new XacmlResponse().withResponse(responses);
-    }
-
-    private boolean hasWantedGroupInAD(String veilederUid, String attributter) {
-        try {
-            String searchbase = "OU=Users,OU=NAV,OU=BusinessUnits," + getProperty("ldap.basedn");
-            SearchControls searchCtrl = new SearchControls();
-            searchCtrl.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-            NamingEnumeration<SearchResult> result = ldapContext().search(searchbase, String.format("(&(objectClass=user)(CN=%s))", veilederUid), searchCtrl);
-            Attributes ldapAttributes = result.next().getAttributes();
-            return isMemberOf(attributter, ldapAttributes);
-
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private boolean isMemberOf(String wantedAttribute, Attributes ldapAttributes) {
@@ -75,7 +58,5 @@ public class LdapService implements TilgangService {
         return false;
     }
 
-    private static LdapContext ldapContext() throws NamingException {
-        return new InitialLdapContext(env, null);
-    }
+
 }
