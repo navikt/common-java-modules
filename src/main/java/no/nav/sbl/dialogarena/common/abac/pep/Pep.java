@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-class Pep {
+public class Pep {
 
     private final static Logger log = LoggerFactory.getLogger(Pep.class);
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
@@ -28,6 +28,13 @@ class Pep {
 
     private final LdapService ldapService;
     private final AbacService abacService;
+    private final Client client;
+
+    public Pep(LdapService ldapService, AbacService abacService) {
+        this.ldapService = ldapService;
+        this.abacService = abacService;
+        this.client = new Client();
+    }
 
     private XacmlResponse askForPermission(XacmlRequest request) {
 
@@ -36,15 +43,6 @@ class Pep {
         } catch (AbacException e) {
             return ldapService.askForPermission(request);
         }
-
-    }
-
-    private Client client;
-
-    public Pep(LdapService ldapService, AbacService abacService) {
-        this.ldapService = ldapService;
-        this.abacService = abacService;
-        this.client = new Client();
     }
 
     Environment makeEnvironment() {
@@ -109,7 +107,7 @@ class Pep {
         return this;
     }
 
-    BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+    public BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         log.debug("evaluating request with bias:" + bias);
