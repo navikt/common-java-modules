@@ -33,4 +33,8 @@ public class Request {
     public Environment getEnvironment() {
         return environment;
     }
+
+    public AccessSubject getAccessSubject() {
+        return accessSubject;
+    }
 }
