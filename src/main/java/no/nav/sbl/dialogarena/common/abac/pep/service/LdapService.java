@@ -11,11 +11,9 @@ import javax.naming.directory.Attributes;
 import java.util.ArrayList;
 import java.util.List;
 
-//må bruke Hashtable i InitiallLdapContext dessverre.
-@SuppressWarnings({"squid:S1149"})
 public class LdapService implements TilgangService {
 
-    private static final String WANTED_ATTRIBUTE = "memberof";
+    static final String WANTED_ATTRIBUTE = "memberof";
     private final Ldap ldap;
 
     public LdapService(Ldap ldap) {
