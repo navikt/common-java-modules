@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.abac.pep;
+package no.nav.sbl.dialogarena.common.abac.pep.context;
 
 import no.nav.sbl.dialogarena.common.abac.pep.service.*;
 import org.springframework.context.annotation.Bean;

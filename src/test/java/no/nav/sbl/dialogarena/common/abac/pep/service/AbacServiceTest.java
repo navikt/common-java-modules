@@ -1,11 +1,10 @@
-package no.nav.sbl.dialogarena.common.abac;
+package no.nav.sbl.dialogarena.common.abac.pep.service;
 
 import mockit.Expectations;
 import mockit.Tested;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
-import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.BeforeClass;

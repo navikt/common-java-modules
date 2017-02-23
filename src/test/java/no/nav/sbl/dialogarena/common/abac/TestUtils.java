@@ -14,9 +14,9 @@ import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 
-class TestUtils {
+public class TestUtils {
 
-    static String getContentFromJsonFile(String filename) throws IOException {
+    public static String getContentFromJsonFile(String filename) throws IOException {
 
         final URL url = Thread.currentThread().getContextClassLoader().getResource(filename);
         String path = getPathWithoutInitialSlashOnWindows(url);
@@ -27,7 +27,7 @@ class TestUtils {
         return url.getPath().replaceFirst("^/(.:/)", "$1");
     }
 
-    static HttpResponse prepareResponse(int expectedResponseStatus, String expectedResponseBody) throws UnsupportedEncodingException {
+    public static HttpResponse prepareResponse(int expectedResponseStatus, String expectedResponseBody) throws UnsupportedEncodingException {
         HttpResponse response = new BasicHttpResponse(new BasicStatusLine(
                 new ProtocolVersion("HTTP", 1, 1), expectedResponseStatus, ""));
         response.setStatusCode(expectedResponseStatus);
