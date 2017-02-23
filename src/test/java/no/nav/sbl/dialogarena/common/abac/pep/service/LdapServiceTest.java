@@ -26,6 +26,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class LdapServiceTest {
 
+    private static final String AD_ROLE = "0000-GA-Modia-Oppfolging";
+
     @Mock
     Ldap ldap;
 
@@ -37,6 +39,7 @@ public class LdapServiceTest {
         setProperty("ldap.url", "www.something.com");
         setProperty("ldap.username", "username");
         setProperty("ldap.password", "supersecrectpassword");
+        setProperty("role", AD_ROLE);
     }
 
     @Test
@@ -72,7 +75,7 @@ public class LdapServiceTest {
     private Attributes mockLdapMedRiktigRolle() throws NamingException {
         final Attributes attributes = mockLdapUtenRiktigRolle();
         BasicAttribute attribute = (BasicAttribute) attributes.get(LdapService.WANTED_ATTRIBUTE).get();
-        attribute.add("CN=0000-GA-GOSYS_SENSITIVT,OU=AccountGroups,OU=Groups,OU=NAV,OU=BusinessUnits,DC=test,DC=local");
+        attribute.add("CN=" + AD_ROLE + ",OU=AccountGroups,OU=Groups,OU=NAV,OU=BusinessUnits,DC=test,DC=local");
         return attributes;
     }
 

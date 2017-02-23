@@ -11,6 +11,8 @@ import javax.naming.directory.Attributes;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.System.getProperty;
+
 public class LdapService implements TilgangService {
 
     static final String WANTED_ATTRIBUTE = "memberof";
@@ -45,8 +47,7 @@ public class LdapService implements TilgangService {
             final NamingEnumeration<?> groups = attribute.getAll();
             while (groups.hasMore()) {
                 final String group = groups.next().toString();
-//                if (group.contains("AD-gruppe 0000-GA-Modia-Oppfolg-Pilot")) {
-                if (group.contains("0000-GA-GOSYS_SENSITIVT")) {
+                if (group.contains(getProperty("role"))) {
                     return true;
                 }
             }
