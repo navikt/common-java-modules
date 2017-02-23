@@ -32,6 +32,8 @@
         <abac-attributes.version>1.0.0</abac-attributes.version>
         <httpcomponents.httpcore.version>4.4.6</httpcomponents.httpcore.version>
         <httpcomponents.httpclient.version>4.5.3</httpcomponents.httpclient.version>
+
+        <sonar.exclusions>**/context/**</sonar.exclusions>
     </properties>
 
     <dependencies>
