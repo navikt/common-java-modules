@@ -26,7 +26,7 @@ public class AbacService implements TilgangService{
         final HttpResponse rawResponse = doPost(httpPost);
 
         if (rawResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-            throw new AbacException("An error has occured calling ABAC");
+            throw new AbacException("An error has occured calling ABAC: " + rawResponse.getStatusLine().getReasonPhrase());
         }
         return XacmlMapper.mapRawResponse(rawResponse);
     }
@@ -39,15 +39,15 @@ public class AbacService implements TilgangService{
         return httpPost;
     }
 
-    public HttpResponse doPost(HttpPost httpPost) {
+    HttpResponse doPost(HttpPost httpPost) throws AbacException {
         final RequestConfig config = createConfigForTimeout();
         final CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
 
-        HttpResponse response = null;
+        HttpResponse response;
         try {
             response = httpClient.execute(httpPost);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AbacException("An error has occured calling ABAC: " + e.getMessage());
         }
         return response;
     }
