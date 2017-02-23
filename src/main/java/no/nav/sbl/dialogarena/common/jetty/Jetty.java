@@ -5,7 +5,10 @@ import com.ibm.mq.jms.MQQueueConnectionFactory;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.*;
@@ -68,6 +71,8 @@ public final class Jetty {
         private Map<String, UserCredentialsConnectionFactoryAdapter> connectionSources = new HashMap<>();
         private Map<String, Queue> queueSources = new HashMap<>();
         private String extraClasspath;
+        private Boolean configureForJaspic;
+
 
         public final JettyBuilder war(File warPath) {
             this.war = warPath;
@@ -126,6 +131,11 @@ public final class Jetty {
 
         public final JettyBuilder addDatasource(DataSource dataSource, String jndiName) {
             dataSources.put(jndiName, dataSource);
+            return this;
+        }
+
+        public final JettyBuilder configureForJaspic() {
+            this.configureForJaspic = true;
             return this;
         }
 
@@ -212,6 +222,9 @@ public final class Jetty {
     private final Map<String, Queue> queues;
     private final Boolean developmentMode;
     private final String extraClasspath;
+    private final Boolean configureForJaspic;
+
+
 
     public final Runnable stop = new Runnable() {
         @Override
@@ -246,6 +259,7 @@ public final class Jetty {
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
         this.loginService = builder.loginService;
+        this.configureForJaspic = builder.configureForJaspic;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder.context);
         this.server = setupJetty(new Server());
@@ -270,6 +284,21 @@ public final class Jetty {
             SecurityHandler securityHandler = webAppContext.getSecurityHandler();
             securityHandler.setLoginService(loginService);
             securityHandler.setRealmName(loginService.getName());
+        }
+
+        if(configureForJaspic != null) {
+            if(loginService != null) {
+                LOG.warn("loginService shoudld be null when configured for jaspic");
+            }
+
+            JAASLoginService loginService = new JAASLoginService();
+            loginService.setName("jetty-login");
+            loginService.setLoginModuleName("jetty-login");
+            loginService.setIdentityService(new DefaultIdentityService());
+            ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
+            sh.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
+            sh.setLoginService(loginService);
+            webAppContext.setSecurityHandler(sh);
         }
 
         webAppContext.setConfigurationClasses(CONFIGURATION_CLASSES);
