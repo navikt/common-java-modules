@@ -57,7 +57,7 @@ public class LdapServiceTest {
 
         final XacmlResponse xacmlResponse = ldapService.askForPermission(getRequest());
 
-        assertThat(xacmlResponse.getResponse().get(0).getDecision(), is(Decision.Deny));
+        assertThat(xacmlResponse.getResponse().get(0).getDecision(), is(Decision.Permit));
 
     }
 
