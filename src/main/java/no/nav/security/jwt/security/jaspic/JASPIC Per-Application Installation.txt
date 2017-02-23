@@ -1,0 +1,7 @@
+ServletContextListener
+-> AuthConfigFactory
+   -> AuthConfigProvider
+      -> ServerAuthConfig
+         -> ServerAuthContext
+            -> ServerAuthModule
+
