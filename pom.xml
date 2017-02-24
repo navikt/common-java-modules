@@ -32,6 +32,7 @@
         <abac-attributes.version>1.0.0</abac-attributes.version>
         <httpcomponents.httpcore.version>4.4.6</httpcomponents.httpcore.version>
         <httpcomponents.httpclient.version>4.5.3</httpcomponents.httpclient.version>
+        <jwt-security.version>1.0.8</jwt-security.version>
 
         <sonar.exclusions>**/context/**</sonar.exclusions>
     </properties>
@@ -130,6 +131,11 @@
             <artifactId>hamcrest-all</artifactId>
             <version>${hamcrest.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.fo</groupId>
+            <artifactId>jwt-security-common</artifactId>
+            <version>${jwt-security.version}</version>
         </dependency>
     </dependencies>
 

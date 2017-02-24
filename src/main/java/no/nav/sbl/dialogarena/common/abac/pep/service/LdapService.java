@@ -1,6 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.abac.xacml.StandardAttributter;
+import no.nav.fo.security.jwt.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 
@@ -25,14 +25,9 @@ public class LdapService implements TilgangService {
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) {
-        final String saksbehandler = request.getRequest().getAccessSubject().getAttribute().stream()
-                .filter(attribute -> attribute.getAttributeId().equals(StandardAttributter.SUBJECT_ID))
-                //TODO or get from token
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("This should never happen. Subject id is missing in request."))
-                .getValue();
+        String ident = SubjectHandler.getSubjectHandler().getUid();
 
-        final Attributes attributes = ldap.getAttributes(saksbehandler);
+        final Attributes attributes = ldap.getAttributes(ident);
         boolean hasAccess = isMemberOf(WANTED_ATTRIBUTE, attributes);
 
         Decision decision = hasAccess ? Decision.Permit : Decision.Deny;
