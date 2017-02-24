@@ -5,7 +5,10 @@ import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
-
+import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
+import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
@@ -24,7 +27,10 @@ public class PepTest {
     Pep pep;
 
     @Mock
-    PdpService pdpService;
+    LdapService ldapService;
+    @Mock
+    AbacService abacService;
+
 
     @Before
     public void setup() {
@@ -33,8 +39,8 @@ public class PepTest {
     }
 
     @Test
-    public void returnsDecision() {
-        when(pdpService.askForPermission(any(XacmlRequest.class)))
+    public void returnsDecision() throws AbacException {
+        when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Permit));
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN,
@@ -44,8 +50,8 @@ public class PepTest {
     }
 
     @Test
-    public void returnsDenyForNotApplicable() {
-        when(pdpService.askForPermission(any(XacmlRequest.class)))
+    public void returnsDenyForNotApplicable() throws AbacException {
+        when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.NotApplicable));
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
@@ -55,8 +61,8 @@ public class PepTest {
     }
 
     @Test(expected = PepException.class)
-    public void decisionIndeterminateThrowsException() {
-        when(pdpService.askForPermission(any(XacmlRequest.class)))
+    public void decisionIndeterminateThrowsException() throws AbacException {
+        when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Indeterminate));
 
         final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,

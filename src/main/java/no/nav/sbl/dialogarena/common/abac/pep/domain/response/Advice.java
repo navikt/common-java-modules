@@ -4,8 +4,8 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class Advice {
-    private String id;
-    private AttributeAssignment attributeAssignment;
+    private final String id;
+    private final AttributeAssignment attributeAssignment;
 
     public Advice(String id, AttributeAssignment attributeAssignment) {
 

@@ -1,9 +1,11 @@
-package no.nav.sbl.dialogarena.common.abac.pep;
+package no.nav.sbl.dialogarena.common.abac.pep.service;
 
+import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
+import org.apache.http.*;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -16,15 +18,20 @@ import java.io.IOException;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class PdpService {
+public class AbacService implements TilgangService {
 
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
     private static final Logger log = getLogger(PdpService.class);
 
-    public XacmlResponse askForPermission(XacmlRequest request) {
+    @Override
+    public XacmlResponse askForPermission(XacmlRequest request) throws AbacException {
         HttpPost httpPost = getPostRequest(request);
         final HttpResponse rawResponse = doPost(httpPost);
+
+        if (rawResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+            throw new AbacException("An error has occured calling ABAC: " + rawResponse.getStatusLine().getReasonPhrase());
+        }
         return XacmlMapper.mapRawResponse(rawResponse);
     }
 
@@ -36,16 +43,27 @@ public class PdpService {
         return httpPost;
     }
 
-    public HttpResponse doPost(HttpPost httpPost) {
-        final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+    HttpResponse doPost(HttpPost httpPost) throws AbacException {
+        final RequestConfig config = createConfigForTimeout();
+        final CloseableHttpClient httpClient = HttpClientBuilder.create().setDefaultRequestConfig(config).build();
 
-        HttpResponse response = null;
+        HttpResponse response;
         try {
             response = httpClient.execute(httpPost);
             log.info("HTTP response code: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new AbacException("An error has occured calling ABAC: " + e.getMessage());
         }
         return response;
+    }
+
+
+    private RequestConfig createConfigForTimeout() {
+        final int timeoutInMillisec = 500;
+        return RequestConfig.custom()
+                .setConnectTimeout(timeoutInMillisec)
+                .setConnectionRequestTimeout(timeoutInMillisec)
+                .setSocketTimeout(timeoutInMillisec)
+                .build();
     }
 }

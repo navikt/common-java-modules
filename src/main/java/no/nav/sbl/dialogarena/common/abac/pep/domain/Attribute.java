@@ -4,7 +4,16 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class Attribute {
+    public String getAttributeId() {
+        return attributeId;
+    }
+
     private final String attributeId;
+
+    public String getValue() {
+        return value;
+    }
+
     private final String value;
 
     public Attribute(String attributeId, String value) {
