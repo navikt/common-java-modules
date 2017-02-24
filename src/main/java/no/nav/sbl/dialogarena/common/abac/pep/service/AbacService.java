@@ -22,7 +22,7 @@ public class AbacService implements TilgangService {
 
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
-    private static final Logger log = getLogger(PdpService.class);
+    private static final Logger log = getLogger(AbacService.class);
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException {
