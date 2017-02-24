@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class AbacService implements TilgangService{
+public class AbacService implements TilgangService {
 
     private final static String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
@@ -54,11 +54,11 @@ public class AbacService implements TilgangService{
 
 
     private RequestConfig createConfigForTimeout() {
-        final int TIMEOUT_IN_MILLISEC = 500;
+        final int timeoutInMillisec = 500;
         return RequestConfig.custom()
-                .setConnectTimeout(TIMEOUT_IN_MILLISEC)
-                .setConnectionRequestTimeout(TIMEOUT_IN_MILLISEC)
-                .setSocketTimeout(TIMEOUT_IN_MILLISEC)
+                .setConnectTimeout(timeoutInMillisec)
+                .setConnectionRequestTimeout(timeoutInMillisec)
+                .setSocketTimeout(timeoutInMillisec)
                 .build();
     }
 }

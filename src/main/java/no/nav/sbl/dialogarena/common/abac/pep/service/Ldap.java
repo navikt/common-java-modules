@@ -9,6 +9,8 @@ import java.util.Hashtable;
 
 import static java.lang.System.getProperty;
 
+//må bruke Hashtable i InitiallLdapContext dessverre.
+@SuppressWarnings({"squid:S1149"})
 public class Ldap {
     private static final Hashtable<String, String> env = new Hashtable<>();
 
@@ -24,7 +26,7 @@ public class Ldap {
         return new InitialLdapContext(env, null);
     }
 
-    public Attributes getAttributes(String veilederUid) {
+    Attributes getAttributes(String veilederUid) {
         try {
             String searchbase = "OU=Users,OU=NAV,OU=BusinessUnits," + getProperty("ldap.basedn");
             SearchControls searchCtrl = new SearchControls();
