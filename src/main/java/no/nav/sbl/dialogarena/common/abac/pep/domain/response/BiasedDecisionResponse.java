@@ -14,5 +14,7 @@ public class BiasedDecisionResponse {
         return biasedDecision;
     }
 
-
+    public XacmlResponse getXacmlResponse() {
+        return xacmlResponse;
+    }
 }
