@@ -14,6 +14,7 @@ import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ public class CXFClient<T> {
     private boolean configureStsForExternalSSO, configureStsForSystemUser, configureStsForOnBehalfOfWithJWT;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
+    private boolean metrics; // TODO bør dette være default true?
 
     public CXFClient(Class<T> serviceClass) {
         boolean loggSecurityHeader = "true".equals(getProperty("no.nav.sbl.dialogarena.common.cxf.cxfclient.logging.logg-securityheader"));
@@ -45,6 +47,11 @@ public class CXFClient<T> {
 
     public CXFClient<T> wsdl(String url) {
         factoryBean.setWsdlURL(url);
+        return this;
+    }
+
+    public CXFClient<T> withMetrics(){
+        metrics = true;
         return this;
     }
 
@@ -120,7 +127,12 @@ public class CXFClient<T> {
         }
 
         ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);
-        return portType;
+        return metrics ? addMetrics(portType) : portType;
+    }
+
+    @SuppressWarnings("unchecked")
+    private T addMetrics(T portType) {
+        return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),new Class[]{serviceClass}, new MetricsInterceptor(portType));
     }
 
     private static void disableCNCheckIfConfigured(Client client) {
