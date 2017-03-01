@@ -4,7 +4,8 @@ import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
-import org.apache.http.*;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -25,10 +26,15 @@ public class AbacService implements TilgangService {
         HttpPost httpPost = getPostRequest(request);
         final HttpResponse rawResponse = doPost(httpPost);
 
-        if (rawResponse.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+        final int statusCode = rawResponse.getStatusLine().getStatusCode();
+        if (statusCodeIn500Series(statusCode)) {
             throw new AbacException("An error has occured calling ABAC: " + rawResponse.getStatusLine().getReasonPhrase());
         }
         return XacmlMapper.mapRawResponse(rawResponse);
+    }
+
+    private boolean statusCodeIn500Series(int statusCode) {
+        return statusCode >= 500 && statusCode < 600;
     }
 
     private HttpPost getPostRequest(XacmlRequest request) {
@@ -54,11 +60,13 @@ public class AbacService implements TilgangService {
 
 
     private RequestConfig createConfigForTimeout() {
-        final int timeoutInMillisec = 500;
+        final int connectionTimeout = 500;
+        final int readTimeout = 1500;
+
         return RequestConfig.custom()
-                .setConnectTimeout(timeoutInMillisec)
-                .setConnectionRequestTimeout(timeoutInMillisec)
-                .setSocketTimeout(timeoutInMillisec)
+                .setConnectTimeout(connectionTimeout)
+                .setConnectionRequestTimeout(connectionTimeout)
+                .setSocketTimeout(readTimeout)
                 .build();
     }
 }
