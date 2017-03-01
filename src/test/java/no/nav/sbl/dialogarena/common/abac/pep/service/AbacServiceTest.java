@@ -55,7 +55,7 @@ public class AbacServiceTest {
 
         new Expectations(AbacService.class) {{
             abacService.doPost(withAny(new HttpPost()));
-            result = prepareResponse(HttpStatus.SC_FORBIDDEN, "");
+            result = prepareResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "");
         }};
 
         abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
