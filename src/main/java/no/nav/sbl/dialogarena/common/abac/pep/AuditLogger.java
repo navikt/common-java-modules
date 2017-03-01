@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 public class AuditLogger {
-    private Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
 
     AuditLogger() {
     }
