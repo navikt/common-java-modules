@@ -29,4 +29,12 @@ public class Request {
         this.resource = resource;
         return this;
     }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public AccessSubject getAccessSubject() {
+        return accessSubject;
+    }
 }

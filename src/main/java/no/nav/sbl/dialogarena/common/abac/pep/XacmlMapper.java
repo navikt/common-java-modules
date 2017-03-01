@@ -47,12 +47,12 @@ public class XacmlMapper {
 
     public static StringEntity mapRequestToEntity(XacmlRequest request) {
         final Gson gson = getGson();
-        StringEntity postingString = null;
+        StringEntity postingString;
         try {
             postingString = new StringEntity(gson.toJson(request));
 
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot parse object to json request. " + e.getMessage());
         }
         return postingString;
     }

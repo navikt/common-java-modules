@@ -6,13 +6,16 @@ import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
-
+import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
+import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-class Pep {
+public class Pep {
 
     private final static Logger log = LoggerFactory.getLogger(Pep.class);
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
@@ -23,12 +26,23 @@ class Pep {
         Permit, Deny
     }
 
-    private final PdpService pdpService;
-    private Client client;
+    private final LdapService ldapService;
+    private final AbacService abacService;
+    private final Client client;
 
-    public Pep(PdpService pdpService) {
-        this.pdpService = pdpService;
+    public Pep(LdapService ldapService, AbacService abacService) {
+        this.ldapService = ldapService;
+        this.abacService = abacService;
         this.client = new Client();
+    }
+
+    private XacmlResponse askForPermission(XacmlRequest request) {
+
+        try {
+            return abacService.askForPermission(request);
+        } catch (AbacException e) {
+            return ldapService.askForPermission(request);
+        }
     }
 
     Environment makeEnvironment() {
@@ -64,8 +78,8 @@ class Pep {
     Request makeRequest() {
         if (Utils.invalidClientValues(client)) {
             throw new PepException("Received client values: oidc-token:" + client.getOidcToken() +
-            "subject-id:" + client.getSubjectId() + "domain: " + client.getDomain() + "fnr: " + client.getFnr() +
-            "credential resource: " + client.getCredentialResource() + "\nProvide OIDC-token or subject-ID, domain, fnr and" +
+                    "subject-id:" + client.getSubjectId() + "domain: " + client.getDomain() + "fnr: " + client.getFnr() +
+                    "credential resource: " + client.getCredentialResource() + "\nProvide OIDC-token or subject-ID, domain, fnr and" +
                     "name of credential resource");
         }
 
@@ -79,7 +93,7 @@ class Pep {
         return request;
     }
 
-    XacmlRequest makeXacmlRequest() {
+    private XacmlRequest makeXacmlRequest() {
         return new XacmlRequest().withRequest(makeRequest());
     }
 
@@ -93,11 +107,11 @@ class Pep {
         return this;
     }
 
-    BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+    public BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         log.debug("evaluating request with bias:" + bias);
-        XacmlResponse response = pdpService.askForPermission(makeXacmlRequest());
+        XacmlResponse response = askForPermission(makeXacmlRequest());
 
         if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
             throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
