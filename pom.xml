@@ -8,13 +8,13 @@
     </parent>
 
     <groupId>no.nav.dialogarena</groupId>
-    <artifactId>jwt-security</artifactId>
+    <artifactId>oidc-security</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>
-        Fellesfunksjonalitet for sikkerthet basert på jwt
+        Fellesfunksjonalitet for sikkerthet basert på oidc
     </description>
 
     <properties>
@@ -104,8 +104,8 @@
     </dependencies>
 
     <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/jwt-security.git</developerConnection>
-        <url>http://stash.devillo.no/projects/FELLES/repos/jwt-security/browse</url>
+        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/oidc-security.git</developerConnection>
+        <url>http://stash.devillo.no/projects/FELLES/repos/oidc-security/browse</url>
         <tag>HEAD</tag>
     </scm>
 
