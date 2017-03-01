@@ -1,6 +1,9 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import org.apache.commons.io.IOUtils;
+import org.apache.cxf.BusFactory;
+import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.http.client.utils.URIBuilder;
@@ -12,6 +15,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.URI;
 
 import static java.lang.System.setProperty;
 import static org.apache.cxf.staxutils.StaxUtils.ALLOW_INSECURE_PARSER;
@@ -33,6 +37,9 @@ public abstract class JettyTest {
 
     protected <T> String startCxfServer(Class<T> serviceClass, T service) {
         try {
+            // Hvis andre tester har opprettet en bus allerede, må denne stoppes først
+            BusFactory.getThreadDefaultBus().shutdown(false);
+
             setProperty(ALLOW_INSECURE_PARSER, Boolean.TRUE.toString());
 
             int port = findFreePort();
@@ -40,8 +47,15 @@ public abstract class JettyTest {
             jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service)), "/*");
             jetty.start();
 
-            String path = new URIBuilder("http://localhost").setPort(port).setPath(CONTEXT_PATH + SERVICE_PATH).build().toString();
-            LOG.info("{} is running at {}", serviceClass, path);
+            URIBuilder uriBuilder = new URIBuilder("http://localhost").setPort(port).setPath(CONTEXT_PATH + SERVICE_PATH);
+            String path = uriBuilder.build().toString();
+
+            // Sjekk at vi kan hente wsdl-en
+            LOG.info("WSDL:");
+            URI wsdlUrl = uriBuilder.addParameter("wsdl", null).build();
+            LOG.info(IOUtils.toString(wsdlUrl));
+
+            LOG.info("{} is running at {} wsdl: {}", serviceClass, path, wsdlUrl);
             return path;
         } catch (Exception e) {
             throw new RuntimeException(e);

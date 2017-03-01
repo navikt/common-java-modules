@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 
-public class MetricsInterceptorIntegrationTest extends JettyTest {
+public class MetricsIntegrationTest extends JettyTest {
 
     @Test
     public void metrikkerSendesTilSensuSocket() throws Exception {
