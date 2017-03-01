@@ -3,7 +3,6 @@ package no.nav.sbl.dialogarena.common.cxf;
 import no.nav.modig.security.sts.utility.STSConfigurationUtility;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
@@ -14,13 +13,13 @@ import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
+import static no.nav.metrics.MetricsFactory.createTimerProxyForWebService;
 
 public class CXFClient<T> {
 
@@ -127,12 +126,7 @@ public class CXFClient<T> {
         }
 
         ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);
-        return metrics ? addMetrics(portType) : portType;
-    }
-
-    @SuppressWarnings("unchecked")
-    private T addMetrics(T portType) {
-        return (T) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),new Class[]{serviceClass}, new MetricsInterceptor(portType));
+        return metrics ? createTimerProxyForWebService(serviceClass.getSimpleName(), portType, serviceClass) : portType;
     }
 
     private static void disableCNCheckIfConfigured(Client client) {
