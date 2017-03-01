@@ -1,8 +1,8 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 
-import no.nav.fo.security.jwt.context.SubjectHandler;
-import no.nav.fo.security.jwt.domain.IdentType;
+import no.nav.brukerdialog.security.context.SubjectHandler;
+import no.nav.brukerdialog.security.domain.IdentType;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Base64;
 
-public class OnBehalfOfWithJWTCallbackHandler implements CallbackHandler {
+public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(OnBehalfOfWithJWTCallbackHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(OnBehalfOfWithOidcCallbackHandler.class);
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {

@@ -23,7 +23,7 @@ import org.apache.neethi.Policy;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 
-public class JWTClientWrapper {
+public class OidcClientWrapper {
 
     public static void configureStsForOnBehalfOfWithJWT(Client client) {
         String location = requireProperty(StsSecurityConstants.STS_URL_KEY);
@@ -34,7 +34,7 @@ public class JWTClientWrapper {
 
     public static void configureStsForOnBehalfOfWithJWT(Client client, String stsURL, String stsUsername, String stsPassword) {
         STSClient stsClient = createBasicSTSClient(client.getBus(), stsURL, stsUsername, stsPassword);
-        stsClient.setOnBehalfOf(new OnBehalfOfWithJWTCallbackHandler());
+        stsClient.setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
         client.getRequestContext().put("ws-security.sts.client", stsClient);
         client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, false);
         setEndpointPolicyReference(client, "classpath:JwtSTSPolicy.xml");

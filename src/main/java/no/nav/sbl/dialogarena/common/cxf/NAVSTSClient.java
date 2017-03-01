@@ -1,6 +1,6 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.fo.security.jwt.context.SubjectHandler;
+import no.nav.brukerdialog.security.context.SubjectHandler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
@@ -35,7 +35,7 @@ public class NAVSTSClient extends STSClient {
 
         String key = SubjectHandler.getSubjectHandler().getInternSsoToken();
         if (key == null) {
-            throw new IllegalStateException("Kan ikke hente SAML uten JWT");
+            throw new IllegalStateException("Kan ikke hente SAML uten OIDC");
         }
 
         SecurityToken token = tokenStore.getToken(key);

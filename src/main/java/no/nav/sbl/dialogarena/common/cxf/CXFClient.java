@@ -3,7 +3,6 @@ package no.nav.sbl.dialogarena.common.cxf;
 import no.nav.modig.security.sts.utility.STSConfigurationUtility;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
@@ -116,7 +115,7 @@ public class CXFClient<T> {
             STSConfigurationUtility.configureStsForSystemUser(client);
         }
         if(configureStsForOnBehalfOfWithJWT) {
-            JWTClientWrapper.configureStsForOnBehalfOfWithJWT(client);
+            OidcClientWrapper.configureStsForOnBehalfOfWithJWT(client);
         }
 
         ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);

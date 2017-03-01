@@ -9,7 +9,7 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
 	<artifactId>common-cxf</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT-jaspic</version>
 
 	<properties>
 		<cxf.version>3.1.6</cxf.version>
@@ -22,7 +22,7 @@
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
         <spring.version>4.2.6.RELEASE</spring.version>
         <jsoup.version>1.7.2</jsoup.version>
-        <jwt-security.version>1.0.5</jwt-security.version>
+        <oidc-security.version>2.0.11</oidc-security.version>
     </properties>
 
 	<dependencies>
@@ -42,9 +42,9 @@
             <version>3.0.2</version>
         </dependency>
         <dependency>
-            <groupId>no.nav.fo</groupId>
-            <artifactId>jwt-security-common</artifactId>
-            <version>${jwt-security.version}</version>
+            <groupId>no.nav.dialogarena</groupId>
+            <artifactId>oidc-security</artifactId>
+            <version>${oidc-security.version}</version>
         </dependency>
 
 		<dependency>
