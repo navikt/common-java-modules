@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * Factory which returns <code>true</code> when an {@link InputStream} has any content that can be read. It is guarantied to not
  * throw IOException from the stream, e.g. if the stream has been closed the function simply returns false, not an exception.
- * Any no.nav.security.oidc.rest.resource management is the responsibility of the client of this class.
+ * Any resource management is the responsibility of the client of this class.
  */
 public class StreamHasContent implements Factory<Boolean>, Serializable {
 
