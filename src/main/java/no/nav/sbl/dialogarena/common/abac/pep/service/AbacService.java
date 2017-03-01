@@ -22,7 +22,7 @@ public class AbacService implements TilgangService {
 
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
-    private static final Logger log = getLogger(AbacService.class);
+    private static final Logger LOG = getLogger(AbacService.class);
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException {
@@ -50,7 +50,7 @@ public class AbacService implements TilgangService {
         HttpResponse response;
         try {
             response = httpClient.execute(httpPost);
-            log.info("HTTP response code: " + response.getStatusLine().getStatusCode());
+            LOG.info("HTTP response code: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
             throw new AbacException("An error has occured calling ABAC: " + e.getMessage());
         }

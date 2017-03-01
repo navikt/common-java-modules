@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included scan="true" scanPeriod="30 seconds">
+    <property name="MAIN_APPLICATION" value="abac"/>
+
+    <property name="loggingPattern"
+              value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}] ){'- \[, , \] ',''}- %m%n"/>
+
+    <appender name="ServiceCallsFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${SERVICE_CALLS_HOME}/tjenestekall.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${SERVICE_CALLS_HOME}/tjenestekall.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>1</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date{ISO8601} ${applicationName} %level %mdc %m%n%rEx</pattern>
+        </encoder>
+    </appender>
+    <appender name="sporinglog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${APP_LOG_HOME}/${MAIN_APPLICATION}-sporing.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${APP_LOG_HOME}/${MAIN_APPLICATION}-sporing-%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <maxHistory>95</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d [%-5level] [%thread] %logger{5} - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="ServiceCalls" level="INFO" additivity="false">
+        <appender-ref ref="ServiceCallsFile"/>
+    </logger>
+
+    <logger name="no.nav.sbl.dialogarena.common.abac.pep.AuditLogger" level="INFO">
+        <appender-ref ref="sporinglog"/>
+    </logger>
+
+
+    <root level="${ROOT_LOG_LEVEL:-DEBUG}">
+        <appender-ref ref="ServiceCallsFile"/>
+    </root>
+</included>

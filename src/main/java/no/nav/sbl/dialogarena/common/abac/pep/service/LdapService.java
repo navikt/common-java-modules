@@ -33,7 +33,7 @@ public class LdapService implements TilgangService {
         Decision decision = hasAccess ? Decision.Permit : Decision.Deny;
         List<Response> responses = new ArrayList<>();
         responses.add(new Response().withDecision(decision));
-        return new XacmlResponse().withResponse(responses);
+        return new XacmlResponse().withResponse(responses).withFallbackUsed();
     }
 
     private boolean isMemberOf(String wantedAttribute, Attributes ldapAttributes) {

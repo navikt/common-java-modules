@@ -13,17 +13,12 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class Pep {
 
-    private final static Logger log = getLogger(Pep.class);
+    private final static Logger LOG = getLogger(Pep.class);
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
@@ -35,12 +30,13 @@ public class Pep {
     private final LdapService ldapService;
     private final AbacService abacService;
     private final Client client;
+    private final AuditLogger auditLogger;
 
     public Pep(LdapService ldapService, AbacService abacService) {
         this.ldapService = ldapService;
         this.abacService = abacService;
         this.client = new Client();
-
+        auditLogger = new AuditLogger();
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) {
@@ -97,6 +93,7 @@ public class Pep {
         if (client.getSubjectId() != null) {
             request.withAccessSubject(makeAccessSubject());
         }
+
         return request;
     }
 
@@ -114,28 +111,16 @@ public class Pep {
         return this;
     }
 
-    private void logRequestInfoToConsole(String navIdent, String fnr) {
-        DateFormat df = new SimpleDateFormat("YYYY-MM-DD HH:MM:SS");
-        Date date = new Date();
-        log.info("Time of request: " + df.format(date));
-        log.info("NAV-ident: " + navIdent);
-        log.info("Fnr: " + fnr);
-    }
-
-    private void logResponseInfoToConsole(String abacDecision, String biasedDecision, List<Advice> advises) {
-        log.info("Decision value from ABAC: " + abacDecision);
-        log.info("Biased decision: " + biasedDecision);
-        if (advises != null) { log.info(advises.toString()); }
-    }
-
-   public BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
-        if (oidcToken != null) { logRequestInfoToConsole(oidcToken, fnr); }
-        else { logRequestInfoToConsole(subjectId, fnr); }
+    public BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+        auditLogger.logRequestInfo(fnr);
 
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
-        log.debug("evaluating request with bias:" + bias);
-        XacmlResponse response = askForPermission(makeXacmlRequest());
+        LOG.debug("evaluating request with bias:" + bias);
+        final XacmlRequest xacmlRequest = makeXacmlRequest();
+        XacmlResponse response = askForPermission(xacmlRequest);
+
+        auditLogger.log("evaluating request with bias:" + bias);
 
         if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
             throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
@@ -150,7 +135,7 @@ public class Pep {
                     + "Fix policy and/or PEP to send proper attributes.");
         }
 
-        logResponseInfoToConsole(originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice());
+        auditLogger.logResponseInfo(originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice(), response.isFallbackUsed());
 
         return new BiasedDecisionResponse(biasedDecision, response);
     }
@@ -165,4 +150,6 @@ public class Pep {
                 return originalDecision;
         }
     }
+
+
 }
