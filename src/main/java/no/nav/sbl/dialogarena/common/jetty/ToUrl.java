@@ -19,6 +19,9 @@ public class ToUrl implements Function<Integer, URL> {
     @Override
     public URL apply(Integer port) {
         try {
+            if(System.getProperty("jetty.print.localhost") != null) {
+                return new URL(scheme + "://localhost:" + port + path);
+            }
             return new URL(scheme + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port + path);
         } catch (MalformedURLException | UnknownHostException e) {
             throw new RuntimeException(e);
