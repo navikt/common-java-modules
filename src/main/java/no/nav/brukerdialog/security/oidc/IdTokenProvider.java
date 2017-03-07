@@ -29,7 +29,7 @@ public class IdTokenProvider {
                 + "&scope=openid"
                 + "&realm=" + realm
                 + "&refresh_token=" + refreshToken;
-        log.info("POST to " + host + " data " + data);
+        log.debug("Refreshing ID-token by POST to " + host);
         request.setEntity(new StringEntity(data, "UTF-8"));
         return request;
     }

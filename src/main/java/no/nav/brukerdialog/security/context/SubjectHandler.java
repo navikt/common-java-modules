@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class SubjectHandler {
     private static final Logger logger = LoggerFactory.getLogger(SubjectHandler.class);
@@ -111,11 +112,15 @@ public abstract class SubjectHandler {
             return first;
         }
 
-        logger.error("expected 1 (or zero) items, got " + set.size() + ", listing them:");
-        for (T item : set) {
-            logger.error(item.toString());
-        }
-        throw new IllegalStateException("To many (" + set.size() + ") " + first.getClass().getName() + ". Should be either 1 (logged in) og 0 (not logged in)");
+        //logging class names to the log to help debug. Cannot log actual objects,
+        //since then ID_tokens may be logged
+        Set<String> classNames = set.stream()
+                .map(Object::getClass)
+                .map(Class::getName)
+                .collect(Collectors.toSet());
+        String errorMessage = "Expected 1 or 0 items, but got " + set.size() + " items. Class of items: " + classNames;
+        logger.error(errorMessage);
+        throw new IllegalStateException(errorMessage);
     }
 
     private static String resolveProperty(String key) {
@@ -136,5 +141,10 @@ public abstract class SubjectHandler {
 
     private Boolean hasSubject() {
         return getSubject() != null;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }

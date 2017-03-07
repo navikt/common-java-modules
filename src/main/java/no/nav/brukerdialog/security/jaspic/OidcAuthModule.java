@@ -137,7 +137,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     private Optional<String> fetchUpdatedToken(String refreshToken) {
-        log.info("Refreshing token using refresh token " + refreshToken);
+        log.debug("Refreshing token"); //Do not log token
         try {
             return Optional.of(tokenProvider.getToken(refreshToken).getToken());
         } catch (Exception e) {

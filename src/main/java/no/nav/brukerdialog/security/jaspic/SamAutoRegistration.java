@@ -17,12 +17,12 @@ public class SamAutoRegistration implements ServletContextListener {
 
 
     public SamAutoRegistration() {
-        log.info("Instancieted");
+        log.debug("Instancieted");
     }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        log.info("Initializing JASPIC");
+        log.debug("Initializing JASPIC");
         registerServerAuthModule(new OidcAuthModule(), sce.getServletContext());
     }
 

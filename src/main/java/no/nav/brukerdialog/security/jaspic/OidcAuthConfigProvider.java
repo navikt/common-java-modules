@@ -39,7 +39,7 @@ public class OidcAuthConfigProvider implements AuthConfigProvider {
     }
 
     public OidcAuthConfigProvider(ServerAuthModule serverAuthModule) {
-        log.info("Instancieted");
+        log.debug("Instancieted");
         this.serverAuthModule = serverAuthModule;
     }
 
@@ -56,7 +56,7 @@ public class OidcAuthConfigProvider implements AuthConfigProvider {
      */
     @Override
     public ServerAuthConfig getServerAuthConfig(String layer, String appContext, CallbackHandler handler) throws AuthException {
-        log.info("getServerAuthConfig");
+        log.debug("getServerAuthConfig");
         return new OidcServerAuthConfig(layer, appContext, handler == null ? createDefaultCallbackHandler() : handler, providerProperties, serverAuthModule);
     }
 

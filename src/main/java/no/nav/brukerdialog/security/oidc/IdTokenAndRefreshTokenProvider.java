@@ -45,7 +45,7 @@ public class IdTokenAndRefreshTokenProvider {
                 + "&realm=" + realm
                 + "&redirect_uri=" + urlEncodedRedirectUri
                 + "&code=" + authorizationCode;
-        log.info("POST to " + host + " data " + data);
+        log.debug("Requesting tokens by POST to " + host);
         request.setEntity(new StringEntity(data, "UTF-8"));
         return request;
     }
