@@ -33,18 +33,20 @@ public class NAVSTSClient extends STSClient {
 
         ensureTokenStoreExists();
 
-        String key = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
+        String userId = subjectHandler.getUid();
+        String key = subjectHandler.getInternSsoToken();
         if (key == null) {
             throw new IllegalStateException("Kan ikke hente SAML uten OIDC");
         }
 
         SecurityToken token = tokenStore.getToken(key);
         if (token == null) {
-            logger.debug("Missing token for {}, fetching it from STS", key);
+            logger.debug("Missing token for user {}, fetching it from STS", userId);
             token = super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
             tokenStore.add(key, token);
         } else {
-            logger.debug("Retrived token for {} from tokenStore", key);
+            logger.debug("Retrived token for user {} from tokenStore", userId);
         }
         return token;
     }
