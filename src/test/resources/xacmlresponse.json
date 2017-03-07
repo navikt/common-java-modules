@@ -10,7 +10,7 @@
       }
     },
     "AssociatedAdvice" : {
-      "Id" : "no.nav.abac.advices.deny.reason",
+      "Id" : "no.nav.abac.advices.reason.deny_reason",
       "AttributeAssignment" :{
 			 "AttributeId" : "no.nav.abac.advice.fritekst",
 		      "Value" : "Ikke tilgang",

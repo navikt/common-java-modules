@@ -1,0 +1,36 @@
+{
+  "Response": {
+    "Decision": "Deny",
+    "Status": {
+      "StatusCode": {
+        "Value": "urn:oasis:names:tc:xacml:1.0:status:ok",
+        "StatusCode": {
+          "Value": "urn:oasis:names:tc:xacml:1.0:status:ok"
+        }
+      }
+    },
+    "AssociatedAdvice": {
+      "Id": "no.nav.abac.advices.reason.deny_reason",
+      "AttributeAssignment": [
+        {
+          "AttributeId": "no.nav.abac.attributter.adviceorobligation.cause",
+          "Value": "cause-0001-manglerrolle",
+          "Category": "urn:oasis:names:tc:xacml:3.0:attribute-category:environment",
+          "DataType": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.adviceorobligation.deny_policy",
+          "Value": "veilarb_pilot_tilgang",
+          "Category": "urn:oasis:names:tc:xacml:3.0:attribute-category:environment",
+          "DataType": "http://www.w3.org/2001/XMLSchema#string"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.adviceorobligation.deny_rule",
+          "Value": "veilarb_pilot_tilgang_deny_all",
+          "Category": "urn:oasis:names:tc:xacml:3.0:attribute-category:environment",
+          "DataType": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ]
+    }
+  }
+}

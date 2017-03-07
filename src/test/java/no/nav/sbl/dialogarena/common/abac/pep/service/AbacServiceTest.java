@@ -31,6 +31,7 @@ public class AbacServiceTest {
         setProperty("ldap.url", "www.something.com");
         setProperty("ldap.username", "username");
         setProperty("ldap.password", "supersecrectpassword");
+        setProperty("abac.endpoint.url", "www.abac.com");
     }
 
     @Test
@@ -63,8 +64,11 @@ public class AbacServiceTest {
     }
 
     private XacmlResponse getExpectedXacmlResponse() {
-        final Advice advice = new Advice("no.nav.abac.advices.deny.reason",
-                new AttributeAssignment("no.nav.abac.advice.fritekst", "Ikke tilgang"));
+
+        final List<AttributeAssignment> attributeAssignments = new ArrayList<>();
+        attributeAssignments.add(new AttributeAssignment("no.nav.abac.advice.fritekst", "Ikke tilgang"));
+
+        final Advice advice = new Advice("no.nav.abac.advices.reason.deny_reason", attributeAssignments);
 
         final List<Advice> associatedAdvice = new ArrayList<>();
         associatedAdvice.add(advice);

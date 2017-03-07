@@ -2,12 +2,14 @@ package no.nav.sbl.dialogarena.common.abac.pep.domain.response;
 
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @EqualsAndHashCode
 public class Advice {
     private final String id;
-    private final AttributeAssignment attributeAssignment;
+    private final List<AttributeAssignment> attributeAssignment;
 
-    public Advice(String id, AttributeAssignment attributeAssignment) {
+    public Advice(String id, List<AttributeAssignment> attributeAssignment) {
 
         this.id = id;
         this.attributeAssignment = attributeAssignment;

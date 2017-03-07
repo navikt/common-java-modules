@@ -37,11 +37,14 @@ public class XacmlMapper {
         }.getType();
         Type associatedAdviceType = new TypeToken<List<Advice>>() {
         }.getType();
+        Type attributeAssignmentType = new TypeToken<List<AttributeAssignment>>() {
+        }.getType();
         return new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .setPrettyPrinting()
                 .registerTypeAdapter(responseType, new ResponseTypeAdapter())
                 .registerTypeAdapter(associatedAdviceType, new AssociatedAdviceTypeAdapter())
+                .registerTypeAdapter(attributeAssignmentType, new AttributeAssignmentTypeAdapter())
                 .create();
     }
 
