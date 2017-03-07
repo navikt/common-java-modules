@@ -1,55 +1,52 @@
 package no.nav.brukerdialog.filter;
 
+import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
+import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.mockito.Mockito;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.ws.rs.core.UriInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class OpenAMHelper {
 
-    static String getJWT(String openAmhost, String username, String password) throws IOException, ScriptException {
-        String sessionId = hentSession(openAmhost);
-        OpenAmSessionToken openAmToken = hentSessionToken(sessionId, username, password, openAmhost);
-        return transformerTokenTilJWT(openAmToken, openAmhost);
+    private String openAmHost;
+
+    public OpenAMHelper(String openAmHost) {
+        this.openAmHost = openAmHost;
     }
 
-    private static String createTranslateRequest(String openAmToken) {
-        return "{" +
-                "                \"input_token_state\": {\n" +
-                "                    \"token_type\": \"OPENAM\",\n" +
-                "                    \"session_id\": \"" + openAmToken + "\"\n" +
-                "                },\n" +
-                "                \"output_token_state\": {\n" +
-                "                    \"token_type\": \"OPENIDCONNECT\",\n" +
-                "                    \"nonce\": \"" + Math.random() + "\",\n" +
-                "                    \"allow_access\": true\n" +
-                "                }" +
-                "}";
+    public String getAuthorizationCode(String username, String password) throws IOException, ScriptException, InterruptedException {
+        String sessionId = hentSession();
+
+        String sessionToken = hentSessionToken(sessionId, username, password);
+        return hentAuthorizationCode(sessionToken);
     }
 
-    private static String transformerTokenTilJWT(OpenAmSessionToken openAmToken, String openAmhost) throws IOException, ScriptException {
-        String url = openAmhost + "/openam/rest-sts/stsoidc?_action=translate";
-        String data = createTranslateRequest(openAmToken.getToken());
-        Function<String, String> hentOidcFraResult = (result) -> {
-            Map<String, String> json = parseJSON(result);
-            return json.get("issued_token");
-        };
-        return post(url, data, hentOidcFraResult);
+    public IdTokenAndRefreshToken getTokens(String username, String password) throws IOException, ScriptException, InterruptedException {
+        String authorizationCode = getAuthorizationCode(username, password);
+        return hentTokens(authorizationCode);
     }
 
-    private static String hentSession(String openAmhost) throws IOException, ScriptException {
-        String url = openAmhost + "/openam/json/authenticate?=undefined";
+    private String hentSession() throws IOException, ScriptException {
+        String url = openAmHost + "/openam/json/authenticate?=undefined";
         Function<String, String> hentAuthIdFraResponse = (result) -> {
             Map<String, String> stringStringMap = parseJSON(result);
             return stringStringMap.get("authId");
@@ -57,12 +54,12 @@ public class OpenAMHelper {
         return post(url, null, hentAuthIdFraResponse);
     }
 
-    private static OpenAmSessionToken hentSessionToken(String sessionId, String username, String password, String openAmhost) throws IOException, ScriptException {
+    private String hentSessionToken(String sessionId, String username, String password) throws IOException, ScriptException {
         String data = "{\"authId\":\"" + sessionId + "\",\"template\":\"\",\"stage\":\"DataStore1\",\"header\":\"Sign in to OpenAM\",\"callbacks\":[{\"type\":\"NameCallback\",\"output\":[{\"name\":\"prompt\",\"value\":\"User Name:\"}],\"input\":[{\"name\":\"IDToken1\",\"value\":\"" + username + "\"}]},{\"type\":\"PasswordCallback\",\"output\":[{\"name\":\"prompt\",\"value\":\"Password:\"}],\"input\":[{\"name\":\"IDToken2\",\"value\":\"" + password + "\"}]}]}";
-        String url = openAmhost + "/openam/json/authenticate";
-        Function<String, OpenAmSessionToken> hentSessionTokenFraResult = (result) -> {
+        String url = openAmHost + "/openam/json/authenticate";
+        Function<String, String> hentSessionTokenFraResult = (result) -> {
             Map<String, String> stringStringMap = parseJSON(result);
-            return new OpenAmSessionToken(stringStringMap.get("tokenId"));
+            return stringStringMap.get("tokenId");
         };
         return post(url, data, hentSessionTokenFraResult);
     }
@@ -96,24 +93,30 @@ public class OpenAMHelper {
         }
     }
 
-    private static class OpenAmSessionToken {
-
-        private String token;
-
-        public OpenAmSessionToken(String token) {
-            this.token = token;
-        }
-
-        public String getToken() {
-            return token;
-        }
+    private static IdTokenAndRefreshToken hentTokens(String authorizationCode) {
+        URI uri = URI.create("http://localhost:8080");
+        UriInfo uriInfo = Mockito.mock(UriInfo.class);
+        Mockito.when(uriInfo.getBaseUri()).thenReturn(uri);
+        return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode, uriInfo);
     }
 
-    public static void main(String[] args) throws IOException, ScriptException {
-        String username = "demo";
-        String password = "changeit";
-        String token = OpenAMHelper.getJWT("https://isso-t.adeo.no", username, password);
-        System.out.printf("A JWT token for user '%s' is '%s'\n", username, token);
-    }
+    private String hentAuthorizationCode(String sessionToken) throws IOException {
+        String redirect = URLEncoder.encode("http://localhost:8080/eridanus-jwt/cb", "UTF-8");
+        String cookie = "nav-isso=" + sessionToken;
 
+        HttpGet get = new HttpGet(openAmHost + "/openam/oauth2/authorize?response_type=code&scope=openid&client_id=OIDC&state=dummy&redirect_uri=" + redirect);
+        get.setHeader("Content-type", "application/json");
+        get.setHeader("Cookie", cookie);
+        try (CloseableHttpClient httpClient = HttpClients.createMinimal()) {
+            try (CloseableHttpResponse response = httpClient.execute(get)) {
+                Pattern pattern = Pattern.compile("code=([^&]*)");
+                String locationHeader = response.getFirstHeader("Location").getValue();
+                Matcher matcher = pattern.matcher(locationHeader);
+                if (matcher.find()) {
+                    return matcher.group(1);
+                }
+                throw new IllegalArgumentException("Did not find auth.code");
+            }
+        }
+    }
 }
