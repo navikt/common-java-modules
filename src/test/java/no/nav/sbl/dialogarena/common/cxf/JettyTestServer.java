@@ -3,7 +3,6 @@ package no.nav.sbl.dialogarena.common.cxf;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.http.client.utils.URIBuilder;
@@ -22,12 +21,12 @@ import static org.apache.cxf.staxutils.StaxUtils.ALLOW_INSECURE_PARSER;
 import static org.mockito.Mockito.mock;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public abstract class JettyTest {
+public abstract class JettyTestServer {
 
-    private static final Logger LOG = getLogger(JettyTest.class);
+    private static final Logger LOG = getLogger(JettyTestServer.class);
 
     private static final String SERVICE_PATH = "/test";
-    private static final String CONTEXT_PATH = "/" + JettyTest.class.getSimpleName();
+    private static final String CONTEXT_PATH = "/" + JettyTestServer.class.getSimpleName();
 
     private Jetty jetty;
 
