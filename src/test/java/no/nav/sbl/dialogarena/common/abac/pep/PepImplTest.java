@@ -15,6 +15,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.junit.*;
 import org.mockito.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void returnsDecision() throws AbacException {
+    public void returnsDecision() throws AbacException, IOException, NoSuchFieldException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Permit));
 
@@ -60,7 +61,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void returnsDenyForNotApplicable() throws AbacException {
+    public void returnsDenyForNotApplicable() throws AbacException, IOException, NoSuchFieldException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.NotApplicable));
 
@@ -71,7 +72,7 @@ public class PepImplTest {
     }
 
     @Test(expected = PepException.class)
-    public void decisionIndeterminateThrowsException() throws AbacException {
+    public void decisionIndeterminateThrowsException() throws AbacException, IOException, NoSuchFieldException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Indeterminate));
 

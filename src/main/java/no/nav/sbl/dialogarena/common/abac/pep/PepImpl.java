@@ -12,6 +12,10 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.springframework.stereotype.Component;
 
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @Component
@@ -42,7 +46,15 @@ public class PepImpl implements Pep {
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
-            return ldapService.askForPermission(request);
+            try {
+                return ldapService.askForPermission(request);
+            } catch (NamingException e1) {
+                throw new PepException("Fallback: Verifying role in AD failed: ", e1);
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new PepException("Cannot parse object to json request. ", e);
+        } catch (IOException | NoSuchFieldException e) {
+            throw new PepException(e);
         }
     }
 
@@ -114,7 +126,12 @@ public class PepImpl implements Pep {
     public BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) {
         auditLogger.logRequestInfo(fnr);
 
-        String credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
+        String credentialResource;
+        try {
+            credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
+        } catch (NoSuchFieldException e) {
+            throw new PepException(e);
+        }
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         final XacmlRequest xacmlRequest = makeXacmlRequest();

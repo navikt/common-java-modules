@@ -24,7 +24,7 @@ public class LdapService implements TilgangService {
     }
 
     @Override
-    public XacmlResponse askForPermission(XacmlRequest request) {
+    public XacmlResponse askForPermission(XacmlRequest request) throws NamingException {
         String ident = SubjectHandler.getSubjectHandler().getUid();
 
         final Attributes attributes = ldap.getAttributes(ident);
@@ -36,18 +36,14 @@ public class LdapService implements TilgangService {
         return new XacmlResponse().withResponse(responses).withFallbackUsed();
     }
 
-    private boolean isMemberOf(String wantedAttribute, Attributes ldapAttributes) {
+    private boolean isMemberOf(String wantedAttribute, Attributes ldapAttributes) throws NamingException {
         final Attribute attribute = ldapAttributes.get(wantedAttribute);
-        try {
-            final NamingEnumeration<?> groups = attribute.getAll();
-            while (groups.hasMore()) {
-                final String group = groups.next().toString();
-                if (group.contains(getProperty("role"))) {
-                    return true;
-                }
+        final NamingEnumeration<?> groups = attribute.getAll();
+        while (groups.hasMore()) {
+            final String group = groups.next().toString();
+            if (group.contains(getProperty("role"))) {
+                return true;
             }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
         }
         return false;
     }
