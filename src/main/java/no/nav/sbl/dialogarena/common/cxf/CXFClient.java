@@ -29,7 +29,7 @@ public class CXFClient<T> {
     private boolean configureStsForExternalSSO, configureStsForSystemUser, configureStsForOnBehalfOfWithJWT;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
-    private boolean metrics; // TODO bør dette være default true?
+    private boolean metrics;
 
     public CXFClient(Class<T> serviceClass) {
         boolean loggSecurityHeader = "true".equals(getProperty("no.nav.sbl.dialogarena.common.cxf.cxfclient.logging.logg-securityheader"));
