@@ -13,4 +13,10 @@ public class Advice {
         this.attributeAssignment = attributeAssignment;
     }
 
+    @Override
+    public String toString() {
+        String attributeString = "Attribute: " + attributeAssignment.toString();
+        return "Id: " + id + "\n\t" + attributeString + "\n";
+    }
+
 }

@@ -11,13 +11,14 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class Pep {
 
-    private final static Logger log = LoggerFactory.getLogger(Pep.class);
+    private final static Logger LOG = getLogger(Pep.class);
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
@@ -29,11 +30,13 @@ public class Pep {
     private final LdapService ldapService;
     private final AbacService abacService;
     private final Client client;
+    private final AuditLogger auditLogger;
 
     public Pep(LdapService ldapService, AbacService abacService) {
         this.ldapService = ldapService;
         this.abacService = abacService;
         this.client = new Client();
+        auditLogger = new AuditLogger();
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) {
@@ -90,6 +93,7 @@ public class Pep {
         if (client.getSubjectId() != null) {
             request.withAccessSubject(makeAccessSubject());
         }
+
         return request;
     }
 
@@ -108,10 +112,15 @@ public class Pep {
     }
 
     public BiasedDecisionResponse evaluateWithBias(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
+        auditLogger.logRequestInfo(fnr);
+
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
-        log.debug("evaluating request with bias:" + bias);
-        XacmlResponse response = askForPermission(makeXacmlRequest());
+        LOG.debug("evaluating request with bias:" + bias);
+        final XacmlRequest xacmlRequest = makeXacmlRequest();
+        XacmlResponse response = askForPermission(xacmlRequest);
+
+        auditLogger.log("evaluating request with bias:" + bias);
 
         if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
             throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
@@ -125,6 +134,9 @@ public class Pep {
             throw new PepException("received decision " + originalDecision + " from PDP. This should never happen. "
                     + "Fix policy and/or PEP to send proper attributes.");
         }
+
+        auditLogger.logResponseInfo(originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice(), response.isFallbackUsed());
+
         return new BiasedDecisionResponse(biasedDecision, response);
     }
 
@@ -138,4 +150,6 @@ public class Pep {
                 return originalDecision;
         }
     }
+
+
 }

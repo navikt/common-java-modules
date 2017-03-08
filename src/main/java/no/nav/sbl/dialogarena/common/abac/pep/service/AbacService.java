@@ -11,15 +11,19 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Component
 public class AbacService implements TilgangService {
 
-    private final static String MEDIA_TYPE = "application/xacml+json";
+    private static final String MEDIA_TYPE = "application/xacml+json";
     private static final String pdpEndpointUrl = "https://e34wasl00401.devillo.no:9443/asm-pdp/authorize";
+    private static final Logger LOG = getLogger(AbacService.class);
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException {
@@ -52,6 +56,7 @@ public class AbacService implements TilgangService {
         HttpResponse response;
         try {
             response = httpClient.execute(httpPost);
+            LOG.info("HTTP response code: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
             throw new AbacException("An error has occured calling ABAC: " + e.getMessage());
         }
