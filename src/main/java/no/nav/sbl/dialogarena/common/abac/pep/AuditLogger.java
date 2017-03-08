@@ -1,6 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.fo.security.jwt.context.SubjectHandler;
+import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Advice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,13 +1,17 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
 import no.nav.abac.xacml.StandardAttributter;
+import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
+import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
+import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.AccessSubject;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
-import org.junit.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -39,10 +43,13 @@ public class LdapServiceTest {
         setProperty("ldap.username", "username");
         setProperty("ldap.password", "supersecrectpassword");
         setProperty("role", AD_ROLE);
+        setProperty("no.nav.modig.security.systemuser.username", "username");
+        setProperty("no.nav.modig.security.systemuser.password", "password");
+        System.setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
+        SubjectHandlerUtils.setSubject(new SubjectHandlerUtils.SubjectBuilder("userId", IdentType.InternBruker).withAuthLevel(3).getSubject());
     }
 
     @Test
-    @Ignore
     public void missingRoleGivesDeny() {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapUtenRiktigRolle());
@@ -54,7 +61,6 @@ public class LdapServiceTest {
     }
 
     @Test
-    @Ignore
     public void havingRoleGivesPermit() throws NamingException {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapMedRiktigRolle());

@@ -2,6 +2,9 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
+import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
+import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
+import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
@@ -15,6 +18,7 @@ import org.mockito.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.System.setProperty;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +34,13 @@ public class PepImplTest {
     @Mock
     AbacService abacService;
 
+    @BeforeClass
+    public static void setUp() throws Exception {
+        setProperty("no.nav.modig.security.systemuser.username", "username");
+        setProperty("no.nav.modig.security.systemuser.password", "password");
+        setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
+        SubjectHandlerUtils.setSubject(new SubjectHandlerUtils.SubjectBuilder("userId", IdentType.InternBruker).withAuthLevel(3).getSubject());
+    }
 
     @Before
     public void setup() {
@@ -38,7 +49,6 @@ public class PepImplTest {
     }
 
     @Test
-    @Ignore
     public void returnsDecision() throws AbacException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Permit));
@@ -50,7 +60,6 @@ public class PepImplTest {
     }
 
     @Test
-    @Ignore
     public void returnsDenyForNotApplicable() throws AbacException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.NotApplicable));
@@ -62,7 +71,6 @@ public class PepImplTest {
     }
 
     @Test(expected = PepException.class)
-    @Ignore
     public void decisionIndeterminateThrowsException() throws AbacException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Indeterminate));
