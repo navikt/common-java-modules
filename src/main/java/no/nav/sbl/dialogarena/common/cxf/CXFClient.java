@@ -19,6 +19,7 @@ import java.util.List;
 
 import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
+import static no.nav.metrics.MetricsFactory.createTimerProxyForWebService;
 
 public class CXFClient<T> {
 
@@ -28,6 +29,7 @@ public class CXFClient<T> {
     private boolean configureStsForExternalSSO, configureStsForSystemUser, configureStsForOnBehalfOfWithJWT;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
+    private boolean metrics;
 
     public CXFClient(Class<T> serviceClass) {
         boolean loggSecurityHeader = "true".equals(getProperty("no.nav.sbl.dialogarena.common.cxf.cxfclient.logging.logg-securityheader"));
@@ -44,6 +46,11 @@ public class CXFClient<T> {
 
     public CXFClient<T> wsdl(String url) {
         factoryBean.setWsdlURL(url);
+        return this;
+    }
+
+    public CXFClient<T> withMetrics(){
+        metrics = true;
         return this;
     }
 
@@ -119,7 +126,7 @@ public class CXFClient<T> {
         }
 
         ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);
-        return portType;
+        return metrics ? createTimerProxyForWebService(serviceClass.getSimpleName(), portType, serviceClass) : portType;
     }
 
     private static void disableCNCheckIfConfigured(Client client) {
