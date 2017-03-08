@@ -24,10 +24,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-public class PepTest {
+public class PepImplTest {
 
     @InjectMocks
-    Pep pep;
+    PepImpl pep;
 
     @Mock
     LdapService ldapService;
@@ -53,8 +53,8 @@ public class PepTest {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Permit));
 
-        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN,
-                MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowed(MockXacmlRequest.OIDC_TOKEN,
+                MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Permit));
     }
@@ -64,8 +64,8 @@ public class PepTest {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.NotApplicable));
 
-        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
-                MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowed(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
+                MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
     }
@@ -75,8 +75,8 @@ public class PepTest {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Indeterminate));
 
-        final BiasedDecisionResponse biasedDecisionResponse = pep.evaluateWithBias(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
-                MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowed(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
+                MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
     }

@@ -1,10 +1,10 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
+import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-import static java.lang.System.getProperty;
+import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -53,13 +53,6 @@ public class AbacService implements TilgangService {
         return httpPost;
     }
 
-    private String getApplicationProperty(String propertyKey) {
-        final String property = getProperty(propertyKey);
-        if (StringUtils.isEmpty(property)) {
-            throw new RuntimeException("Cannot find URL to abac. Verify that property " + propertyKey + " is set.");
-        }
-        return property;
-    }
 
     HttpResponse doPost(HttpPost httpPost) throws AbacException {
         final CloseableHttpClient httpClient = createHttpClient();
@@ -87,8 +80,8 @@ public class AbacService implements TilgangService {
         CredentialsProvider provider = new BasicCredentialsProvider();
         UsernamePasswordCredentials credentials
                 = new UsernamePasswordCredentials(
-                getApplicationProperty("no.nav.modig.security.systemuser.username"),
-                getApplicationProperty("no.nav.modig.security.systemuser.password"));
+                getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME),
+                getApplicationProperty(CredentialConstants.SYSTEMUSER_PASSWORD));
         provider.setCredentials(AuthScope.ANY, credentials);
         return provider;
     }
