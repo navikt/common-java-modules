@@ -10,16 +10,13 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class Pep {
 
-    private final static Logger LOG = getLogger(Pep.class);
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
