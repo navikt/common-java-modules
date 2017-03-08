@@ -1,6 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.fo.security.jwt.context.SubjectHandler;
+import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 

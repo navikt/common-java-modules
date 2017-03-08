@@ -32,9 +32,9 @@
         <abac-attributes.version>1.0.0</abac-attributes.version>
         <httpcomponents.httpcore.version>4.4.6</httpcomponents.httpcore.version>
         <httpcomponents.httpclient.version>4.5.3</httpcomponents.httpclient.version>
-        <jwt-security.version>1.0.8</jwt-security.version>
 
         <sonar.exclusions>**/context/**</sonar.exclusions>
+        <oidc-security.version>2.0.14</oidc-security.version>
     </properties>
 
     <dependencies>
@@ -133,9 +133,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.fo</groupId>
-            <artifactId>jwt-security-common</artifactId>
-            <version>${jwt-security.version}</version>
+            <groupId>no.nav.dialogarena</groupId>
+            <artifactId>oidc-security</artifactId>
+            <version>${oidc-security.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.dialogarena</groupId>
+            <artifactId>oidc-security</artifactId>
+            <version>${oidc-security.version}</version>
+            <type>test-jar</type>
         </dependency>
     </dependencies>
 
