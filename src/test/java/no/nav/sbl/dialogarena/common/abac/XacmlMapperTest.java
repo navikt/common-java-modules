@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac;
 
+import no.nav.abac.xacml.NavAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.apache.http.entity.StringEntity;
@@ -83,6 +84,15 @@ public class XacmlMapperTest {
         assertThat(actualResponse, is(equalTo(expectedResponse)));
     }
 
+    @Test
+    public void convertsJsonWithAdvices2ToResponse() throws IOException {
+        final XacmlResponse actualResponse = XacmlMapper
+                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-with-attributeassignmentlist.json")));
+        XacmlResponse expectedResponse = getXacmlResponseWithAdvices2();
+
+        assertThat(actualResponse, is(equalTo(expectedResponse)));
+    }
+
     private XacmlResponse getXacmlResponse() {
         List<Response> responses = new ArrayList<>();
         responses.add(new Response().withDecision(Decision.Permit));
@@ -93,11 +103,40 @@ public class XacmlMapperTest {
         List<Advice> associatedAdvice = new ArrayList<>();
 
         final AttributeAssignment attributeAssignment1 = new AttributeAssignment("no.nav.abac.advice.fritekst", "Mangler konsument (consumerId)");
-        final Advice advice1 = new Advice(ID1, attributeAssignment1);
+
+        final List<AttributeAssignment> attributeAssignments1 = new ArrayList<>();
+        attributeAssignments1.add(attributeAssignment1);
+
+        final Advice advice1 = new Advice(ID1, attributeAssignments1);
         associatedAdvice.add(advice1);
 
+
         final AttributeAssignment attributeAssignment2 = new AttributeAssignment("no.nav.abac.advice.fritekst", "Mangler autentiseringsNivaa (authenticationLevel)");
-        final Advice advice2 = new Advice(ID2, attributeAssignment2);
+        final List<AttributeAssignment> attributeAssignments2 = new ArrayList<>();
+        attributeAssignments2.add(attributeAssignment2);
+
+        final Advice advice2 = new Advice(ID2, attributeAssignments2);
+        associatedAdvice.add(advice2);
+
+        List<Response> responses = new ArrayList<>();
+        responses.add(new Response().withDecision(Decision.Deny).withAssociatedAdvice(associatedAdvice));
+
+        return new XacmlResponse().withResponse(responses);
+    }
+
+    private XacmlResponse getXacmlResponseWithAdvices2() {
+        List<Advice> associatedAdvice = new ArrayList<>();
+
+        final AttributeAssignment attributeAssignment1 = new AttributeAssignment(NavAttributter.ADVICEOROBLIGATION_CAUSE, "cause-0001-manglerrolle");
+        final AttributeAssignment attributeAssignment2 = new AttributeAssignment(NavAttributter.ADVICEOROBLIGATION_DENY_POLICY, "veilarb_pilot_tilgang");
+        final AttributeAssignment attributeAssignment3 = new AttributeAssignment(NavAttributter.ADVICEOROBLIGATION_DENY_RULE, "veilarb_pilot_tilgang_deny_all");
+
+        final List<AttributeAssignment> attributeAssignments = new ArrayList<>();
+        attributeAssignments.add(attributeAssignment1);
+        attributeAssignments.add(attributeAssignment2);
+        attributeAssignments.add(attributeAssignment3);
+
+        final Advice advice2 = new Advice("no.nav.abac.advices.reason.deny_reason", attributeAssignments);
         associatedAdvice.add(advice2);
 
         List<Response> responses = new ArrayList<>();

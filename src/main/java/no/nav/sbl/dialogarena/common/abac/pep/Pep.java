@@ -10,15 +10,13 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Component
 public class Pep {
 
-    private final static Logger LOG = getLogger(Pep.class);
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
@@ -50,8 +48,9 @@ public class Pep {
 
     Environment makeEnvironment() {
         Environment environment = new Environment();
-        if (client.getOidcToken() != null) {
-            environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, client.getOidcToken()));
+        final String oidcToken = client.getOidcToken();
+        if (!isEmpty(oidcToken)) {
+            environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, oidcToken));
         }
         environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, client.getCredentialResource()));
         return environment;
@@ -80,10 +79,10 @@ public class Pep {
 
     Request makeRequest() {
         if (Utils.invalidClientValues(client)) {
-            throw new PepException("Received client values: oidc-token:" + client.getOidcToken() +
-                    "subject-id:" + client.getSubjectId() + "domain: " + client.getDomain() + "fnr: " + client.getFnr() +
-                    "credential resource: " + client.getCredentialResource() + "\nProvide OIDC-token or subject-ID, domain, fnr and" +
-                    "name of credential resource");
+            throw new PepException("Received client values: oidc-token: " + client.getOidcToken() +
+                    " subject-id: " + client.getSubjectId() + " domain: " + client.getDomain() + " fnr: " + client.getFnr() +
+                    " credential resource: " + client.getCredentialResource() + "\nProvide OIDC-token or subject-ID, domain, fnr and " +
+                    " name of credential resource.");
         }
 
         Request request = new Request()
@@ -116,11 +115,8 @@ public class Pep {
 
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
-        LOG.debug("evaluating request with bias:" + bias);
         final XacmlRequest xacmlRequest = makeXacmlRequest();
         XacmlResponse response = askForPermission(xacmlRequest);
-
-        auditLogger.log("evaluating request with bias:" + bias);
 
         if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
             throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
