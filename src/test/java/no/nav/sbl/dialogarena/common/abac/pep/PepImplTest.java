@@ -50,7 +50,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void returnsDecision() throws AbacException, IOException, NoSuchFieldException {
+    public void returnsDecision() throws AbacException, IOException, NoSuchFieldException, PepException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Permit));
 
@@ -61,7 +61,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void returnsDenyForNotApplicable() throws AbacException, IOException, NoSuchFieldException {
+    public void returnsDenyForNotApplicable() throws AbacException, IOException, NoSuchFieldException, PepException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.NotApplicable));
 
@@ -72,7 +72,7 @@ public class PepImplTest {
     }
 
     @Test(expected = PepException.class)
-    public void decisionIndeterminateThrowsException() throws AbacException, IOException, NoSuchFieldException {
+    public void decisionIndeterminateThrowsException() throws AbacException, IOException, NoSuchFieldException, PepException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Indeterminate));
 
@@ -133,7 +133,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void buildsCorrectRequestWithOidcToken() {
+    public void buildsCorrectRequestWithOidcToken() throws PepException {
         pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, null, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
         Request request = pep.makeRequest();
         Request expectedRequest = MockXacmlRequest.getRequest();
@@ -142,7 +142,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void buildsCorrectRequestWithSubjectId() {
+    public void buildsCorrectRequestWithSubjectId() throws PepException {
         pep.withClientValues(null, MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
         Request request = pep.makeRequest();
         Request expectedRequest = MockXacmlRequest.getRequestWithSubjectAttributes();
@@ -151,7 +151,7 @@ public class PepImplTest {
     }
 
     @Test(expected = PepException.class)
-    public void requestThrowsExceptionNonValidValues() {
+    public void requestThrowsExceptionNonValidValues() throws PepException {
         pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, null, null, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
         pep.makeRequest();
     }

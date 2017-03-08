@@ -41,7 +41,7 @@ public class PepImpl implements Pep {
         auditLogger = new AuditLogger();
     }
 
-    private XacmlResponse askForPermission(XacmlRequest request) {
+    private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
 
         try {
             return abacService.askForPermission(request);
@@ -89,7 +89,7 @@ public class PepImpl implements Pep {
         return resource;
     }
 
-    Request makeRequest() {
+    Request makeRequest() throws PepException {
         if (Utils.invalidClientValues(client)) {
             throw new PepException("Received client values: oidc-token: " + client.getOidcToken() +
                     " subject-id: " + client.getSubjectId() + " domain: " + client.getDomain() + " fnr: " + client.getFnr() +
@@ -108,7 +108,7 @@ public class PepImpl implements Pep {
         return request;
     }
 
-    private XacmlRequest makeXacmlRequest() {
+    private XacmlRequest makeXacmlRequest() throws PepException {
         return new XacmlRequest().withRequest(makeRequest());
     }
 
@@ -123,7 +123,7 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) {
+    public BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) throws PepException {
         auditLogger.logRequestInfo(fnr);
 
         String credentialResource;

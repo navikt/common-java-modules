@@ -1,7 +1,7 @@
 package no.nav.sbl.dialogarena.common.abac.pep.exception;
 
 
-public class PepException extends RuntimeException {
+public class PepException extends Exception {
 
     public PepException(String message) {
         super(message);
