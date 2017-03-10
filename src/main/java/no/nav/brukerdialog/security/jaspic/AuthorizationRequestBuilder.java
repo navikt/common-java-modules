@@ -43,7 +43,7 @@ public class AuthorizationRequestBuilder {
         String kerberosTrigger = useKerberos
                 ? "session=winssochain&authIndexType=service&authIndexValue=winssochain&"
                 : "";
-        return String.format("%s/openam/oauth2/authorize?" + kerberosTrigger + "response_type=code&scope=%s&client_id=%s&state=%s&redirect_uri=%s",
+        return String.format("%s/authorize?" + kerberosTrigger + "response_type=code&scope=%s&client_id=%s&state=%s&redirect_uri=%s",
                 System.getProperty("isso-host.url"),
                 scope,
                 URLEncoder.encode(clientId, "UTF-8"),

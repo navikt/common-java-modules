@@ -37,7 +37,7 @@ public class IdTokenAndRefreshTokenProvider {
         String username = System.getProperty("isso-rp-user.username");
         String password = System.getProperty("isso-rp-user.password");
 
-        HttpPost request = new HttpPost(host + "/openam/oauth2/access_token");
+        HttpPost request = new HttpPost(host + "/access_token");
         request.setHeader("Authorization", TokenProviderUtil.basicCredentials(username, password));
         request.setHeader("Cache-Control", "no-cache");
         request.setHeader("Content-type", "application/x-www-form-urlencoded");
