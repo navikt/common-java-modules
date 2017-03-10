@@ -39,7 +39,7 @@ public class Utils {
     public static String getApplicationProperty(String propertyKey) {
         final String property = getProperty(propertyKey);
         if (StringUtils.isEmpty(property)) {
-            throw new RuntimeException("Cannot find URL to abac. Verify that property " + propertyKey + " is set.");
+            throw new RuntimeException("Cannot find property. Verify that property " + propertyKey + " is set.");
         }
         return property;
     }

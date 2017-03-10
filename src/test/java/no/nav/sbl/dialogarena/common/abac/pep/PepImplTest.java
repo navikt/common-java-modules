@@ -15,11 +15,13 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.junit.*;
 import org.mockito.*;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.setProperty;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -36,6 +38,8 @@ public class PepImplTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
+        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
+        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         setProperty("no.nav.modig.security.systemuser.username", "username");
         setProperty("no.nav.modig.security.systemuser.password", "password");
         setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
@@ -53,7 +57,7 @@ public class PepImplTest {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Permit));
 
-        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowed(MockXacmlRequest.OIDC_TOKEN,
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowedWithIdent(
                 MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Permit));
@@ -64,8 +68,8 @@ public class PepImplTest {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.NotApplicable));
 
-        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowed(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
-                MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowedWithIdent(
+                MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
     }
@@ -75,8 +79,8 @@ public class PepImplTest {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Indeterminate));
 
-        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowed(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID,
-                MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowedWithIdent(
+                MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Deny));
     }
@@ -153,6 +157,22 @@ public class PepImplTest {
     public void requestThrowsExceptionNonValidValues() {
         pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, null, null, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
         pep.makeRequest();
+    }
+
+    @Test
+    public void clientValuesAreReset() throws NoSuchFieldException, AbacException, IllegalAccessException {
+        when(abacService.askForPermission(any(XacmlRequest.class)))
+                .thenReturn(getMockResponse(Decision.Permit));
+
+        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", "10108000398");
+        pep.isServiceCallAllowedWithToken("token", "veilarb", "10108000398");
+
+        final Field client = PepImpl.class.getDeclaredField("client");
+        client.setAccessible(true);
+        final Client c = (Client) client.get(pep);
+
+        assertThat(c.getSubjectId(), is(nullValue()));
+        assertThat(c.getOidcToken(), is("token"));
     }
 
     private XacmlResponse getMockResponse(Decision decision) {

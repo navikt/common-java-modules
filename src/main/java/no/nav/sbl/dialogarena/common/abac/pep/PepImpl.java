@@ -37,6 +37,16 @@ public class PepImpl implements Pep {
         auditLogger = new AuditLogger();
     }
 
+    @Override
+    public BiasedDecisionResponse isServiceCallAllowedWithToken(String oidcToken, String domain, String fnr) {
+        return isServiceCallAllowed(oidcToken, null, domain, fnr);
+    }
+
+    @Override
+    public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) {
+        return isServiceCallAllowed(null, ident, domain, fnr);
+    }
+
     private XacmlResponse askForPermission(XacmlRequest request) {
 
         try {
@@ -110,8 +120,7 @@ public class PepImpl implements Pep {
         return this;
     }
 
-    @Override
-    public BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) {
+    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) {
         auditLogger.logRequestInfo(fnr);
 
         String credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
