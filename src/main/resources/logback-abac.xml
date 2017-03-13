@@ -32,7 +32,7 @@
     </logger>
 
 
-    <logger name="org.apache" level="DEBUG">
+    <logger name="no.nav.sbl.dialogarena.common.abac.pep.HttpLogger" level="INFO">
         <appender-ref ref="tjenestekall-abac"/>
     </logger>
 

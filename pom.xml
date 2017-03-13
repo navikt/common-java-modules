@@ -32,10 +32,11 @@
         <abac-attributes.version>1.0.3</abac-attributes.version>
         <httpcomponents.httpcore.version>4.4.6</httpcomponents.httpcore.version>
         <httpcomponents.httpclient.version>4.5.3</httpcomponents.httpclient.version>
-
-        <sonar.exclusions>**/context/**</sonar.exclusions>
+        <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <commons-lang.version>2.6</commons-lang.version>
         <oidc-security.version>2.0.14</oidc-security.version>
+
+        <sonar.exclusions>**/context/**</sonar.exclusions>
     </properties>
 
     <dependencies>
@@ -148,6 +149,11 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
             <version>${commons-lang.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax.ws.rs-api.version}</version>
         </dependency>
     </dependencies>
 

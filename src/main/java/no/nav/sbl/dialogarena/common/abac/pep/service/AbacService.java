@@ -1,7 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
-import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
+import no.nav.sbl.dialogarena.common.abac.pep.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
@@ -17,6 +16,7 @@ import org.apache.http.impl.client.*;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.ClientErrorException;
 import java.io.IOException;
 
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
@@ -27,6 +27,8 @@ public class AbacService implements TilgangService {
 
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = getLogger(AbacService.class);
+    private final HttpLogger httpLogger = new HttpLogger();
+    private final AuditLogger auditLogger = new AuditLogger();
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException {
@@ -34,14 +36,29 @@ public class AbacService implements TilgangService {
         final HttpResponse rawResponse = doPost(httpPost);
 
         final int statusCode = rawResponse.getStatusLine().getStatusCode();
+        final String reasonPhrase = rawResponse.getStatusLine().getReasonPhrase();
         if (statusCodeIn500Series(statusCode)) {
-            throw new AbacException("An error has occured calling ABAC: " + rawResponse.getStatusLine().getReasonPhrase());
+            LOG.warn("ABAC returned: " + statusCode + " " + reasonPhrase);
+            httpLogger.logPostRequest(httpPost);
+            httpLogger.logHttpResponse(rawResponse);
+            throw new AbacException("An error has occured calling ABAC: " + reasonPhrase);
         }
+        if (statusCodeIn400Series(statusCode)) {
+            LOG.error("ABAC returned: " + statusCode + " " + reasonPhrase);
+            httpLogger.logPostRequest(httpPost);
+            httpLogger.logHttpResponse(rawResponse);
+            throw new ClientErrorException("An error has occured calling ABAC: ", statusCode);
+        }
+
         return XacmlMapper.mapRawResponse(rawResponse);
     }
 
     private boolean statusCodeIn500Series(int statusCode) {
         return statusCode >= 500 && statusCode < 600;
+    }
+
+    private boolean statusCodeIn400Series(int statusCode) {
+        return statusCode >= 400 && statusCode < 500;
     }
 
     private HttpPost getPostRequest(XacmlRequest request) {
@@ -60,9 +77,10 @@ public class AbacService implements TilgangService {
         HttpResponse response;
         try {
             response = httpClient.execute(httpPost);
-            LOG.info("HTTP response code: " + response.getStatusLine().getStatusCode());
+            auditLogger.log("HTTP response code: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
-            throw new AbacException("An error has occured calling ABAC: " + e.getMessage());
+            httpLogger.logPostRequest(httpPost);
+            throw new AbacException("An error has occured calling ABAC: ", e);
         }
         return response;
     }
