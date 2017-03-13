@@ -4,6 +4,7 @@ import no.nav.abac.xacml.StandardAttributter;
 import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.AccessSubject;
@@ -45,6 +46,8 @@ public class LdapServiceTest {
         setProperty("role", AD_ROLE);
         setProperty("no.nav.modig.security.systemuser.username", "username");
         setProperty("no.nav.modig.security.systemuser.password", "password");
+        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
+        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         System.setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
         SubjectHandlerUtils.setSubject(new SubjectHandlerUtils.SubjectBuilder("userId", IdentType.InternBruker).withAuthLevel(3).getSubject());
     }

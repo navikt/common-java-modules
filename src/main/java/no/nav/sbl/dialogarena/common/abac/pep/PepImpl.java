@@ -41,7 +41,17 @@ public class PepImpl implements Pep {
         auditLogger = new AuditLogger();
     }
 
-    private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
+    @Override
+    public BiasedDecisionResponse isServiceCallAllowedWithToken(String oidcToken, String domain, String fnr) {
+        return isServiceCallAllowed(oidcToken, null, domain, fnr);
+    }
+
+    @Override
+    public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) {
+        return isServiceCallAllowed(null, ident, domain, fnr);
+    }
+
+    private XacmlResponse askForPermission(XacmlRequest request) {
 
         try {
             return abacService.askForPermission(request);
@@ -123,7 +133,7 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) throws PepException {
+    public BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) {
         auditLogger.logRequestInfo(fnr);
 
         String credentialResource;
