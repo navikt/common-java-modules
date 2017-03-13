@@ -13,9 +13,6 @@ import java.util.List;
 public class AuditLogger {
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
 
-    AuditLogger() {
-    }
-
     void logRequestInfo(String fnr) {
         DateFormat df = new SimpleDateFormat("YYYY-MM-DD HH:MM:SS");
         Date date = new Date();
@@ -36,7 +33,7 @@ public class AuditLogger {
         }
     }
 
-    void log(String message) {
+    public void log(String message) {
         LOG.info(message);
     }
 
