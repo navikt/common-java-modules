@@ -15,8 +15,8 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.junit.*;
 import org.mockito.*;
 
-import java.lang.reflect.Field;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -161,7 +161,7 @@ public class PepImplTest {
     }
 
     @Test
-    public void clientValuesAreReset() throws NoSuchFieldException, AbacException, IllegalAccessException {
+    public void clientValuesAreReset() throws NoSuchFieldException, AbacException, IllegalAccessException, IOException, PepException {
         when(abacService.askForPermission(any(XacmlRequest.class)))
                 .thenReturn(getMockResponse(Decision.Permit));
 
