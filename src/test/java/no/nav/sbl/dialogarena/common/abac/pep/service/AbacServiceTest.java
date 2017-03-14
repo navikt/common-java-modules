@@ -35,7 +35,7 @@ public class AbacServiceTest {
     }
 
     @Test
-    public void returnsResponse() throws IOException, AbacException {
+    public void returnsResponse() throws IOException, AbacException, NoSuchFieldException {
 
         new Expectations(AbacService.class) {{
             abacService.doPost(withAny(new HttpPost()));
@@ -52,7 +52,7 @@ public class AbacServiceTest {
     }
 
     @Test(expected = AbacException.class)
-    public void throwsExceptionAtFailureAgainstABAC() throws IOException, AbacException {
+    public void throwsExceptionAtFailureAgainstABAC() throws IOException, AbacException, NoSuchFieldException {
 
         new Expectations(AbacService.class) {{
             abacService.doPost(withAny(new HttpPost()));
