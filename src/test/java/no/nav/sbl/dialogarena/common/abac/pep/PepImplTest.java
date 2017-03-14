@@ -166,7 +166,7 @@ public class PepImplTest {
                 .thenReturn(getMockResponse(Decision.Permit));
 
         pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", "10108000398");
-        pep.isServiceCallAllowedWithToken("token", "veilarb", "10108000398");
+        pep.isServiceCallAllowedWithOidcToken("token", "veilarb", "10108000398");
 
         final Field client = PepImpl.class.getDeclaredField("client");
         client.setAccessible(true);

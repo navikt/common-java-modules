@@ -10,7 +10,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
-import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.naming.NamingException;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
-import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class PepImpl implements Pep {
@@ -26,8 +24,6 @@ public class PepImpl implements Pep {
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
-
-    private static final Logger LOG = getLogger(PepImpl.class);
 
     private enum Bias {
         Permit, Deny
@@ -46,8 +42,11 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowedWithToken(String oidcToken, String domain, String fnr) throws PepException {
-        return isServiceCallAllowed(oidcToken, null, domain, fnr);
+    public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
+        if (oidcTokenBody.contains(".")) {
+            throw new IllegalArgumentException("Token contains header and/or signature. Argument should be token body.");
+        }
+        return isServiceCallAllowed(oidcTokenBody, null, domain, fnr);
     }
 
     @Override
