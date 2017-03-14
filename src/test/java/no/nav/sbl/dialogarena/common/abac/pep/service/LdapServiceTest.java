@@ -53,7 +53,7 @@ public class LdapServiceTest {
     }
 
     @Test
-    public void missingRoleGivesDeny() {
+    public void missingRoleGivesDeny() throws NamingException {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapUtenRiktigRolle());
 

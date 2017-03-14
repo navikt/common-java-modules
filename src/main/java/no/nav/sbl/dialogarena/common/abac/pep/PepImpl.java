@@ -13,6 +13,10 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -42,22 +46,30 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowedWithToken(String oidcToken, String domain, String fnr) {
+    public BiasedDecisionResponse isServiceCallAllowedWithToken(String oidcToken, String domain, String fnr) throws PepException {
         return isServiceCallAllowed(oidcToken, null, domain, fnr);
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) {
+    public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) throws PepException {
         return isServiceCallAllowed(null, ident, domain, fnr);
     }
 
-    private XacmlResponse askForPermission(XacmlRequest request) {
+    private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
 
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
             LOG.warn("Error calling ABAC ", e);
-            return ldapService.askForPermission(request);
+            try {
+                return ldapService.askForPermission(request);
+            } catch (NamingException e1) {
+                throw new PepException("Fallback: Verifying role in AD failed: ", e1);
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new PepException("Cannot parse object to json request. ", e);
+        } catch (IOException | NoSuchFieldException e) {
+            throw new PepException(e);
         }
     }
 
@@ -92,7 +104,7 @@ public class PepImpl implements Pep {
         return resource;
     }
 
-    Request makeRequest() {
+    Request makeRequest() throws PepException {
         if (Utils.invalidClientValues(client)) {
             throw new PepException("Received client values: oidc-token: " + client.getOidcToken() +
                     " subject-id: " + client.getSubjectId() + " domain: " + client.getDomain() + " fnr: " + client.getFnr() +
@@ -111,7 +123,7 @@ public class PepImpl implements Pep {
         return request;
     }
 
-    private XacmlRequest makeXacmlRequest() {
+    private XacmlRequest makeXacmlRequest() throws PepException {
         return new XacmlRequest().withRequest(makeRequest());
     }
 
@@ -125,10 +137,15 @@ public class PepImpl implements Pep {
         return this;
     }
 
-    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) {
+    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) throws PepException {
         auditLogger.logRequestInfo(fnr);
 
-        String credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
+        String credentialResource;
+        try {
+            credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
+        } catch (NoSuchFieldException e) {
+            throw new PepException(e);
+        }
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
         final XacmlRequest xacmlRequest = makeXacmlRequest();

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.ClientErrorException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -31,7 +32,7 @@ public class AbacService implements TilgangService {
     private final AuditLogger auditLogger = new AuditLogger();
 
     @Override
-    public XacmlResponse askForPermission(XacmlRequest request) throws AbacException {
+    public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
         HttpPost httpPost = getPostRequest(request);
         final HttpResponse rawResponse = doPost(httpPost);
 
@@ -61,7 +62,7 @@ public class AbacService implements TilgangService {
         return statusCode >= 400 && statusCode < 500;
     }
 
-    private HttpPost getPostRequest(XacmlRequest request) {
+    private HttpPost getPostRequest(XacmlRequest request) throws NoSuchFieldException, UnsupportedEncodingException {
         StringEntity postingString = XacmlMapper.mapRequestToEntity(request);
         final String abacEndpointUrl = getApplicationProperty("abac.endpoint.url");
         HttpPost httpPost = new HttpPost(abacEndpointUrl);
@@ -71,7 +72,7 @@ public class AbacService implements TilgangService {
     }
 
 
-    HttpResponse doPost(HttpPost httpPost) throws AbacException {
+    HttpResponse doPost(HttpPost httpPost) throws AbacException, NoSuchFieldException {
         final CloseableHttpClient httpClient = createHttpClient();
 
         HttpResponse response;
@@ -85,7 +86,7 @@ public class AbacService implements TilgangService {
         return response;
     }
 
-    private CloseableHttpClient createHttpClient() {
+    private CloseableHttpClient createHttpClient() throws NoSuchFieldException {
         final RequestConfig config = createConfigForTimeout();
 
         return HttpClientBuilder.create()
@@ -94,7 +95,7 @@ public class AbacService implements TilgangService {
                 .build();
     }
 
-    private CredentialsProvider addSystemUserToRequest() {
+    private CredentialsProvider addSystemUserToRequest() throws NoSuchFieldException {
         CredentialsProvider provider = new BasicCredentialsProvider();
         UsernamePasswordCredentials credentials
                 = new UsernamePasswordCredentials(
