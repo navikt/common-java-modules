@@ -4,6 +4,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.ClientErrorException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -71,16 +73,24 @@ public class AbacService implements TilgangService {
         return httpPost;
     }
 
+    private boolean isSimulateConnectionProblem() {
+        final String propertyConnectionProblem = System.getProperty("abac.bibliotek.simuler.avbrudd");
+        return StringUtils.isNotBlank(propertyConnectionProblem) && propertyConnectionProblem.equals("true");
+    }
 
     HttpResponse doPost(HttpPost httpPost) throws AbacException, NoSuchFieldException {
         final CloseableHttpClient httpClient = createHttpClient();
 
         HttpResponse response;
         try {
+            if (isSimulateConnectionProblem()) {
+                throw new SocketException("Simulating connection problem");
+            }
             response = httpClient.execute(httpPost);
             auditLogger.log("HTTP response code: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
             httpLogger.logPostRequest(httpPost);
+            httpLogger.logException("Error calling ABAC ", e);
             throw new AbacException("An error has occured calling ABAC: ", e);
         }
         return response;

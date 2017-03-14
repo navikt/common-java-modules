@@ -78,4 +78,7 @@ public class HttpLogger {
         }
     }
 
+    public void logException(String s, Exception e) {
+        LOG.info(s, e);
+    }
 }

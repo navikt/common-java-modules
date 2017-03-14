@@ -60,7 +60,6 @@ public class PepImpl implements Pep {
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
-            LOG.warn("Error calling ABAC ", e);
             try {
                 return ldapService.askForPermission(request);
             } catch (NamingException e1) {
