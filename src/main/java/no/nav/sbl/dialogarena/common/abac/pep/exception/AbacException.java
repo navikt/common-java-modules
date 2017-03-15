@@ -7,7 +7,7 @@ public class AbacException extends Exception {
         super(message);
     }
 
-    public AbacException(String s, IOException e) {
-        super(s, e);
+    public AbacException(String message, IOException exception) {
+        super(message, exception);
     }
 }

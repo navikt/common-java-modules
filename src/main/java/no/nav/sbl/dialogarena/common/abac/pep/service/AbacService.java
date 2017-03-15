@@ -45,8 +45,7 @@ public class AbacService implements TilgangService {
             httpLogger.logPostRequest(httpPost);
             httpLogger.logHttpResponse(rawResponse);
             throw new AbacException("An error has occured calling ABAC: " + reasonPhrase);
-        }
-        if (statusCodeIn400Series(statusCode)) {
+        } else if (statusCodeIn400Series(statusCode)) {
             LOG.error("ABAC returned: " + statusCode + " " + reasonPhrase);
             httpLogger.logPostRequest(httpPost);
             httpLogger.logHttpResponse(rawResponse);
