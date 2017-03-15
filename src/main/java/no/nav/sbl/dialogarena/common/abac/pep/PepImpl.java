@@ -42,8 +42,11 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowedWithToken(String oidcToken, String domain, String fnr) throws PepException {
-        return isServiceCallAllowed(oidcToken, null, domain, fnr);
+    public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
+        if (oidcTokenBody.contains(".")) {
+            throw new IllegalArgumentException("Token contains header and/or signature. Argument should be token body.");
+        }
+        return isServiceCallAllowed(oidcTokenBody, null, domain, fnr);
     }
 
     @Override

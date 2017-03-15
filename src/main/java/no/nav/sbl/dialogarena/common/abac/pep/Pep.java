@@ -4,7 +4,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResp
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 
 public interface Pep {
-    BiasedDecisionResponse isServiceCallAllowedWithToken(String oidcToken, String domain, String fnr) throws PepException;
+    BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcToken, String domain, String fnr) throws PepException;
 
     BiasedDecisionResponse isServiceCallAllowedWithIdent(String subjectId, String domain, String fnr) throws PepException;
 
