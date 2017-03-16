@@ -10,16 +10,8 @@ import org.springframework.context.annotation.*;
 @Import({ServiceContext.class, ServiceProviderContext.class})
 public class AbacContext {
 
-    private final LdapService ldapService;
-    private final AbacService abacService;
-
-    public AbacContext(LdapService ldapService, AbacService abacService) {
-        this.ldapService = ldapService;
-        this.abacService = abacService;
-    }
-
     @Bean
-    public Pep pep() {
+    public Pep pep(LdapService ldapService, AbacService abacService) {
         return new PepImpl(ldapService, abacService);
     }
 }

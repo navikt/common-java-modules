@@ -7,14 +7,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServiceContext {
 
-    private Ldap ldap;
-
-    public ServiceContext(Ldap ldap) {
-        this.ldap = ldap;
-    }
-
     @Bean
-    public LdapService ldapService() {
+    public LdapService ldapService(Ldap ldap) {
         return new LdapService(ldap);
     }
 
