@@ -1,40 +1,60 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Advice;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class AuditLogger {
+    private static final Logger AUDITLOG = LoggerFactory.getLogger("auditlog");
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
 
+    private final String linebreak = System.getProperty("line.separator");
+
     void logRequestInfo(String fnr) {
-        DateFormat df = new SimpleDateFormat("YYYY-MM-DD HH:MM:SS");
-        Date date = new Date();
-        log("Time of request: " + df.format(date));
-        log("NAV-ident: " + SubjectHandler.getSubjectHandler().getUid());
-        log("Fnr: " + fnr);
+        String requestMessage = linebreak + "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() +
+                linebreak + "Fnr: " + fnr;
+
+        AUDITLOG.info(requestMessage);
+        LOG.info(requestMessage);
     }
 
-    void logResponseInfo(String abacDecision, String biasedDecision, List<Advice> advises, boolean fallbackUsed) {
+    void logResponseInfoWithAdvice(String biasedDecision, XacmlResponse xacmlResponse) {
         String decision = "";
-        if (fallbackUsed) {
+        if (xacmlResponse.isFallbackUsed()) {
             decision = "FALLBACK ";
         }
-        log("Decision value from ABAC: " + decision + abacDecision);
-        log("Pep decision: " + biasedDecision);
-        if (advises != null) {
-            log(advises.toString());
+        final Response response = xacmlResponse.getResponse().get(0);
+
+        final String decisionMessage = "Decision value from ABAC: " + decision + response.getDecision().name();
+        final String pepDecisionMessage = "Pep decision: " + biasedDecision;
+
+        boolean logAdviceToSporbarhetslog = false;
+        final List<Advice> associatedAdvice = response.getAssociatedAdvice();
+        for (Advice advice : associatedAdvice) {
+            if (advice.getId().equals("no.nav.abac.advices.action.sporbarhetslogg")) {
+                logAdviceToSporbarhetslog = true;
+            }
         }
+        String responseMessage = linebreak +
+                decisionMessage +
+                linebreak +
+                pepDecisionMessage;
+
+        String responseMessageWithAdvices = responseMessage + linebreak + response.getAssociatedAdvice().toString();
+
+        if (!logAdviceToSporbarhetslog) {
+            AUDITLOG.info(responseMessage);
+        } else {
+            AUDITLOG.info(responseMessageWithAdvices);
+        }
+        LOG.info(responseMessageWithAdvices);
+
     }
 
     public void log(String message) {
-        LOG.info(message);
+        AUDITLOG.info(message);
     }
-
 }

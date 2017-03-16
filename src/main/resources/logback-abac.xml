@@ -27,12 +27,12 @@
         </encoder>
     </appender>
 
-    <logger name="no.nav.sbl.dialogarena.common.abac.pep.AuditLogger" level="INFO">
+    <logger name="auditlog" level="INFO">
         <appender-ref ref="sporinglog"/>
     </logger>
 
 
-    <logger name="no.nav.sbl.dialogarena.common.abac.pep.HttpLogger" level="INFO">
+    <logger name="httplog" level="INFO">
         <appender-ref ref="tjenestekall-abac"/>
     </logger>
 

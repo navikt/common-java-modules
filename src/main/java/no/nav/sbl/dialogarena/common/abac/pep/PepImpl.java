@@ -162,7 +162,7 @@ public class PepImpl implements Pep {
                     + "Fix policy and/or PEP to send proper attributes.");
         }
 
-        auditLogger.logResponseInfo(originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice(), response.isFallbackUsed());
+        auditLogger.logResponseInfoWithAdvice(biasedDecision.name(), response);
 
         return new BiasedDecisionResponse(biasedDecision, response);
     }
