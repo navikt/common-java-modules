@@ -14,8 +14,8 @@ public class AuditLogger {
     private final String linebreak = System.getProperty("line.separator");
 
     void logRequestInfo(String fnr) {
-        String requestMessage = linebreak + "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() +
-                linebreak + "Fnr: " + fnr;
+        LOG.info("--------------------------------------");
+        String requestMessage = "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() + " Fnr: " + fnr;
 
         AUDITLOG.info(requestMessage);
         LOG.info(requestMessage);
@@ -29,7 +29,7 @@ public class AuditLogger {
         final Response response = xacmlResponse.getResponse().get(0);
 
         final String decisionMessage = "Decision value from ABAC: " + decision + response.getDecision().name();
-        final String pepDecisionMessage = "Pep decision: " + biasedDecision;
+        final String pepDecisionMessage = "Pep-decision: " + biasedDecision;
 
         boolean logAdviceToSporbarhetslog = false;
         final List<Advice> associatedAdvice = response.getAssociatedAdvice();
@@ -38,12 +38,9 @@ public class AuditLogger {
                 logAdviceToSporbarhetslog = true;
             }
         }
-        String responseMessage = linebreak +
-                decisionMessage +
-                linebreak +
-                pepDecisionMessage;
+        String responseMessage = decisionMessage + " " + pepDecisionMessage;
 
-        String responseMessageWithAdvices = responseMessage + linebreak + response.getAssociatedAdvice().toString();
+        String responseMessageWithAdvices = responseMessage + linebreak + "Advices: " + response.getAssociatedAdvice().toString();
 
         if (!logAdviceToSporbarhetslog) {
             AUDITLOG.info(responseMessage);
