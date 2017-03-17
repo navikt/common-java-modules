@@ -8,4 +8,10 @@ public interface Pep {
 
     BiasedDecisionResponse isServiceCallAllowedWithIdent(String subjectId, String domain, String fnr) throws PepException;
 
+    BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String subjectId, String domain) throws PepException;
+
+    BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String subjectId, String domain) throws PepException;
+
+    BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String subjectId, String domain) throws PepException;
+
 }

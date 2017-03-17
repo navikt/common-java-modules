@@ -1,9 +1,10 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources.ResourceType;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
@@ -46,13 +47,26 @@ public class PepImpl implements Pep {
         if (oidcTokenBody.contains(".")) {
             throw new IllegalArgumentException("Token contains header and/or signature. Argument should be token body.");
         }
-        return isServiceCallAllowed(oidcTokenBody, null, domain, fnr);
+        return isServiceCallAllowed(oidcTokenBody, null, domain, fnr, ResourceType.Person);
     }
 
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) throws PepException {
-        return isServiceCallAllowed(null, ident, domain, fnr);
+        return isServiceCallAllowed(null, ident, domain, fnr, Resources.ResourceType.Person);
     }
+
+    @Override
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String subjectId, String domain) throws PepException {
+        return isServiceCallAllowed(null, subjectId, domain, null, Resources.ResourceType.Kode7);
+    }
+
+    @Override
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String subjectId, String domain) throws PepException {
+        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.Kode6);    }
+
+    @Override
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String subjectId, String domain) throws PepException {
+        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.EgenAnsatt);    }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
 
@@ -94,15 +108,17 @@ public class PepImpl implements Pep {
         return action;
     }
 
-    Resource makeResource() {
-        Resource resource = new Resource();
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, client.getDomain()));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, client.getFnr()));
-        return resource;
+    Resource makeResource(ResourceType resourceType) {
+        switch(resourceType) {
+            case EgenAnsatt: return Resources.makeEgenAnsattResource(client);
+            case Kode6: return Resources.makeKode6Resource(client);
+            case Kode7: return Resources.makeKode7Resource(client);
+            case Person: return Resources.makePersonResource(client);
+            default: return null;
+        }
     }
 
-    Request makeRequest() throws PepException {
+    Request makeRequest(ResourceType resourceType) throws PepException {
         if (Utils.invalidClientValues(client)) {
             throw new PepException("Received client values: oidc-token: " + client.getOidcToken() +
                     " subject-id: " + client.getSubjectId() + " domain: " + client.getDomain() + " fnr: " + client.getFnr() +
@@ -113,7 +129,7 @@ public class PepImpl implements Pep {
         Request request = new Request()
                 .withEnvironment(makeEnvironment())
                 .withAction(makeAction())
-                .withResource(makeResource());
+                .withResource(makeResource(resourceType));
         if (client.getSubjectId() != null) {
             request.withAccessSubject(makeAccessSubject());
         }
@@ -121,8 +137,8 @@ public class PepImpl implements Pep {
         return request;
     }
 
-    private XacmlRequest makeXacmlRequest() throws PepException {
-        return new XacmlRequest().withRequest(makeRequest());
+    private XacmlRequest makeXacmlRequest(ResourceType resourceType) throws PepException {
+        return new XacmlRequest().withRequest(makeRequest(resourceType));
     }
 
     Pep withClientValues(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
@@ -135,7 +151,7 @@ public class PepImpl implements Pep {
         return this;
     }
 
-    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) throws PepException {
+    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
         auditLogger.logRequestInfo(fnr);
 
         String credentialResource;
@@ -146,7 +162,7 @@ public class PepImpl implements Pep {
         }
         withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
 
-        final XacmlRequest xacmlRequest = makeXacmlRequest();
+        final XacmlRequest xacmlRequest = makeXacmlRequest(resourceType);
         XacmlResponse response = askForPermission(xacmlRequest);
 
         if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
