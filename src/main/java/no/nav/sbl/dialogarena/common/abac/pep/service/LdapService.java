@@ -48,5 +48,17 @@ public class LdapService implements TilgangService {
         return false;
     }
 
+    public boolean isSubjectMemberOfModigOppfolging(String ident) throws NamingException {
+        final Attribute attribute = ldap.getAttributes(ident).get(WANTED_ATTRIBUTE);
+        final NamingEnumeration<?> groups = attribute.getAll();
+        while (groups.hasMore()) {
+            final String group = groups.next().toString();
+            if (group.contains(getProperty("role"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }

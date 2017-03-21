@@ -62,11 +62,18 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String subjectId, String domain) throws PepException {
-        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.Kode6);    }
+        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.Kode6);
+    }
 
     @Override
     public BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String subjectId, String domain) throws PepException {
-        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.EgenAnsatt);    }
+        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.EgenAnsatt);
+    }
+
+    @Override
+    public boolean isSubjectMemberOfModigOppfolging(String subjectId) throws NamingException{
+        return ldapService.isSubjectMemberOfModigOppfolging(subjectId);
+    }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
 
