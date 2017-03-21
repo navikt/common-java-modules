@@ -1,12 +1,12 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources.ResourceType;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
 import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;

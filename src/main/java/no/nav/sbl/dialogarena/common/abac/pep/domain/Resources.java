@@ -7,9 +7,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Resource;
 
 public class Resources {
 
-    public enum ResourceType {
-        Person, Kode6, Kode7, EgenAnsatt
-    }
 
     public static Resource makePersonResource(Client client) {
 

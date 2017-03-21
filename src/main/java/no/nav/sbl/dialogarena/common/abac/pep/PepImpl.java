@@ -1,9 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources.ResourceType;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
@@ -52,12 +52,12 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) throws PepException {
-        return isServiceCallAllowed(null, ident, domain, fnr, Resources.ResourceType.Person);
+        return isServiceCallAllowed(null, ident, domain, fnr, ResourceType.Person);
     }
 
     @Override
     public BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String subjectId, String domain) throws PepException {
-        return isServiceCallAllowed(null, subjectId, domain, null, Resources.ResourceType.Kode7);
+        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.Kode7);
     }
 
     @Override
