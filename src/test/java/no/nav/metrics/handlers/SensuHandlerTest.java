@@ -24,19 +24,19 @@ public class SensuHandlerTest {
 
         Thread.sleep(100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
 
-        final JSONObject forventet1 = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
+        final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
 
         new Verifications() {{
             List<String> writtenJSON = new ArrayList<>();
 
             writer.write(withCapture(writtenJSON));
-            String source = writtenJSON.get(1);
-            assertTrue(new JSONObject(source).similar(forventet1));
+            String json = finnJsonString(writtenJSON);
+
+            assertTrue(new JSONObject(json).similar(forventet));
         }};
 
     }
 
-    @Test
     public void senderDataPaNyNarSocketConnectionFeiler(@Mocked final Socket socket, @Mocked final BufferedWriter writer) throws Exception {
         new Expectations() {{
             socket.connect((SocketAddress) any, anyInt);
@@ -57,6 +57,16 @@ public class SensuHandlerTest {
             assertTrue(new JSONObject(writtenJSON).similar(forventet));
         }};
 
+
+    }
+
+    private String finnJsonString(List<String> writtenStrings) {
+        int index = 0;
+        String string = writtenStrings.get(index++);
+        while (!string.startsWith("{")) {
+            string = writtenStrings.get(index++);
+        }
+        return string;
     }
 
 }
