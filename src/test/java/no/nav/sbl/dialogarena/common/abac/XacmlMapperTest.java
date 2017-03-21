@@ -57,6 +57,38 @@ public class XacmlMapperTest {
     }
 
     @Test
+    public void convertRequestWithSubjectAndKode6() throws IOException {
+        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode6Resource());
+
+        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+
+        String expectedContent = getContentFromJsonFile("xacmlrequest-kode6.json");
+        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+
+    }
+
+    @Test
+    public void convertRequestWithSubjectAndKode7() throws IOException {
+        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode7Resource());
+
+        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+
+        String expectedContent = getContentFromJsonFile("xacmlrequest-kode7.json");
+        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+    }
+
+    @Test
+    public void convertRequestWithSubjectAndEgenAnsatt() throws IOException {
+        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithEgenAnsattResource());
+
+        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+
+        String expectedContent = getContentFromJsonFile("xacmlrequest-egenAnsatt.json");
+        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+    }
+
+
+    @Test
     public void convertsSimpleJsonToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
                 .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple.json")));

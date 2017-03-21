@@ -53,6 +53,26 @@ public class LdapServiceTest {
     }
 
     @Test
+    public void skalReturnereFalse() throws NamingException{
+        when(ldap.getAttributes(anyString())).thenReturn(mockLdapUtenRiktigRolle());
+
+        final boolean isMember = ldapService.isSubjectMemberOfModigOppfolging("X123456");
+
+        assertThat(isMember, is(false));
+
+    }
+
+    @Test
+    public void skalReturnereTrue() throws NamingException{
+        when(ldap.getAttributes(anyString())).thenReturn(mockLdapMedRiktigRolle());
+
+        final boolean isMember = ldapService.isSubjectMemberOfModigOppfolging("X123456");
+
+        assertThat(isMember, is(true));
+
+    }
+
+    @Test
     public void missingRoleGivesDeny() throws NamingException {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapUtenRiktigRolle());

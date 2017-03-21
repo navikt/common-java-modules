@@ -2,6 +2,7 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 
 public class MockXacmlRequest {
@@ -22,6 +23,18 @@ public class MockXacmlRequest {
 
     public static XacmlRequest getXacmlRequestWithSubjAttrWithoutEnvironment() {
         return new XacmlRequest().withRequest(getRequestWithSubjAttrWithoutEnvironment());
+    }
+
+    public static XacmlRequest getXacmlRequestForSubjectWithKode7Resource() {
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeKode7Resource(new Client().withDomain("veilarb"))));
+    }
+
+    public static XacmlRequest getXacmlRequestForSubjectWithKode6Resource() {
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeKode6Resource(new Client().withDomain("veilarb"))));
+    }
+
+    public static XacmlRequest getXacmlRequestForSubjectWithEgenAnsattResource() {
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeEgenAnsattResource(new Client().withDomain("veilarb"))));
     }
 
     private static Request getRequestWithActionAndResource() {
@@ -65,5 +78,19 @@ public class MockXacmlRequest {
         accessSubject.getAttribute().add(new Attribute("no.nav.abac.attributter.subject.felles.subjectType", "InternBruker"));
 
         return getRequestWithActionAndResource().withAccessSubject(accessSubject);
+    }
+
+    private static Request getRequestWithoutResource() {
+        final Environment environment = new Environment();
+        environment.getAttribute().add(new Attribute("no.nav.abac.attributter.environment.felles.pep_id", CREDENTIAL_RESOURCE));
+
+        final Action action = new Action();
+        action.getAttribute().add(new Attribute("urn:oasis:names:tc:xacml:1.0:action:action-id", "read"));
+
+        final AccessSubject accessSubject = new AccessSubject();
+        accessSubject.getAttribute().add(new Attribute("urn:oasis:names:tc:xacml:1.0:subject:subject-id", SUBJECT_ID));
+        accessSubject.getAttribute().add(new Attribute("no.nav.abac.attributter.subject.felles.subjectType", "InternBruker"));
+
+        return new Request().withAccessSubject(accessSubject).withEnvironment(environment).withAction(action);
     }
 }
