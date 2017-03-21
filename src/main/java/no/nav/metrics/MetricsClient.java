@@ -15,10 +15,11 @@ import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 public class MetricsClient {
     public static final Boolean DISABLE_METRICS_REPORT = parseBoolean(getProperty(DISABLE_METRICS_REPORT_KEY, "false"));
     private final Map<String, String> tags = new HashMap<>();
-    private final SensuHandler sensuHandler = new SensuHandler();
+    private final SensuHandler sensuHandler;
 
     public MetricsClient() {
         addSystemPropertiesToTags();
+        sensuHandler = new SensuHandler(tags.get("application"));;
     }
 
     private void addSystemPropertiesToTags() {
@@ -31,7 +32,7 @@ public class MetricsClient {
         if (!DISABLE_METRICS_REPORT) {
             long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
             String output = InfluxHandler.createLineProtocolPayload(metricName, tags, fields, timestamp);
-            sensuHandler.report(tags.get("application"), output);
+            sensuHandler.report(output);
         }
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.metrics.handlers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,12 +25,19 @@ public class SensuHandler {
     private static final int SENSU_PORT = Integer.parseInt(System.getProperty("sensu_client_port", "3030")); // System property'en sensu_client_port settes av plattformen
     private static final int RETRY_INTERVAL = Integer.parseInt(System.getProperty("metrics.sensu.report.retryInterval", "1000"));
     private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.queueSize", "5000"));
+    private static final int BATCHES_PER_SECOND = Integer.parseInt(System.getProperty("metrics.sensu.report.batchesPerSecond", "50"));
+    private static final int BATCH_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.batchSize", "100"));
+    private static final int BATCH_DELAY = 1000 / BATCHES_PER_SECOND;
 
-    private final LinkedBlockingQueue<JSONObject> reportQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
+    private final LinkedBlockingQueue<String> reportQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
+    private final String application;
     private long queueSisteGangFullTimestamp = 0;
 
-    public SensuHandler() {
+    public SensuHandler(String application) {
+        this.application = application;
         if (!DISABLE_METRICS_REPORT) {
+            logger.info("Metrics aktivert med parametre: batch size: {}, batches per second: {}, gir batch delay: {}ms, queue size: {}, retry interval: {}ms, sensu port: {}",
+                    BATCH_SIZE, BATCHES_PER_SECOND, BATCH_DELAY, QUEUE_SIZE, RETRY_INTERVAL, SENSU_PORT);
             ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
             scheduledExecutorService.execute(new SensuReporter());
         }
@@ -38,21 +48,34 @@ public class SensuHandler {
         @Override
         public void run() {
 
+            List<String> reports = new ArrayList<>();
+
             while (true) {
                 try {
-                    JSONObject object = reportQueue.take(); // denne venter til det er noe i køen
+                    String report = reportQueue.take(); // denne venter til det er noe i køen
+
+                    reports.clear();
+                    reports.add(report);
+                    reportQueue.drainTo(reports, BATCH_SIZE - 1);
+                    logger.debug("Sender {} metrikker", reports.size());
+
+                    String influxOutput = StringUtils.join(reports, "\n");
+                    JSONObject jsonObject = createJSON(influxOutput);
 
                     try (Socket socket = new Socket()) {
                         BufferedWriter writer = connectToSensu(socket);
 
-                        writer.write(object.toString());
+                        writer.write(jsonObject.toString());
                         writer.newLine();
                         writer.flush();
                     } catch (IOException e) {
-                        reportQueue.offer(object);
+                        reportQueue.addAll(reports); // Legger tilbake i køen
                         logger.error("Noe gikk feil med tilkoblingen til Sensu socket: {}.", e.getMessage());
                         Thread.sleep(RETRY_INTERVAL); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
+
+                    Thread.sleep(BATCH_DELAY);
+
                 } catch (InterruptedException e) {
                     logger.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje.", e);
                 }
@@ -70,9 +93,8 @@ public class SensuHandler {
 
     }
 
-    public void report(String application, String output) {
-        JSONObject json = createJSON(application, output);
-        boolean result = reportQueue.offer(json); // Thread-safe måte å legge til i køen på, returnerer false i stedet for å blokkere om køen er full
+    public void report(String output) {
+        boolean result = reportQueue.offer(output); // Thread-safe måte å legge til i køen på, returnerer false i stedet for å blokkere om køen er full
 
         if (!result && (System.currentTimeMillis() - queueSisteGangFullTimestamp > 1000 * 60)) { // Unngår å spamme loggen om køen er full over lengre tid (f. eks. Sensu er nede)
             logger.warn("Sensu-køen har vært full, ikke alle metrikker har blitt sendt til Sensu.");
@@ -80,7 +102,7 @@ public class SensuHandler {
         }
     }
 
-    public static JSONObject createJSON(String application, String output) {
+    private JSONObject createJSON(String output) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("name", application);
         jsonObject.put("type", "metric");

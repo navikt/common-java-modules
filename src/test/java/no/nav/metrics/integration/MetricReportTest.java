@@ -2,13 +2,16 @@ package no.nav.metrics.integration;
 
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.TestUtil;
-import no.nav.metrics.aspects.*;
+import no.nav.metrics.aspects.Count;
+import no.nav.metrics.aspects.CountAspect;
+import no.nav.metrics.aspects.Timed;
+import no.nav.metrics.aspects.TimerAspect;
 import org.junit.Test;
 
 import java.net.ServerSocket;
+import java.util.List;
 
-import static no.nav.metrics.TestUtil.getSensuClientPort;
-import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
+import static no.nav.metrics.TestUtil.*;
 import static org.junit.Assert.assertEquals;
 
 public class MetricReportTest {
@@ -56,6 +59,12 @@ public class MetricReportTest {
 
         String line1 = lesLinjeFraSocket(serverSocket);
         String line2 = lesLinjeFraSocket(serverSocket);
+
+        if (line2 == null) { // Om meldingene kom grupper i samme melding
+            List<String> strings = splitStringsFraMelding(line1);
+            line1 = strings.get(0);
+            line2 = strings.get(1);
+        }
 
         assertEquals(fjernTimestamps(line1), fjernTimestamps(line2));
 
