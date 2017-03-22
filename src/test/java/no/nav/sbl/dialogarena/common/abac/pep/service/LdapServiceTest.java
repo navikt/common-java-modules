@@ -11,6 +11,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.request.AccessSubject;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,42 +54,22 @@ public class LdapServiceTest {
     }
 
     @Test
-    public void skalReturnereFalse() throws NamingException{
-        when(ldap.getAttributes(anyString())).thenReturn(mockLdapUtenRiktigRolle());
-
-        final boolean isMember = ldapService.isSubjectMemberOfModigOppfolging("X123456");
-
-        assertThat(isMember, is(false));
-
-    }
-
-    @Test
-    public void skalReturnereTrue() throws NamingException{
-        when(ldap.getAttributes(anyString())).thenReturn(mockLdapMedRiktigRolle());
-
-        final boolean isMember = ldapService.isSubjectMemberOfModigOppfolging("X123456");
-
-        assertThat(isMember, is(true));
-
-    }
-
-    @Test
-    public void missingRoleGivesDeny() throws NamingException {
+    public void missingRoleGivesDeny() throws PepException, NamingException {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapUtenRiktigRolle());
 
-        final XacmlResponse xacmlResponse = ldapService.askForPermission(getRequest());
+        final XacmlResponse xacmlResponse = ldapService.askForPermission();
 
         assertThat(xacmlResponse.getResponse().get(0).getDecision(), is(Decision.Deny));
 
     }
 
     @Test
-    public void havingRoleGivesPermit() throws NamingException {
+    public void havingRoleGivesPermit() throws PepException, NamingException {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapMedRiktigRolle());
 
-        final XacmlResponse xacmlResponse = ldapService.askForPermission(getRequest());
+        final XacmlResponse xacmlResponse = ldapService.askForPermission();
 
         assertThat(xacmlResponse.getResponse().get(0).getDecision(), is(Decision.Permit));
 

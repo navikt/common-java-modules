@@ -13,7 +13,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.springframework.stereotype.Component;
 
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -71,8 +70,12 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public boolean isSubjectMemberOfModigOppfolging(String subjectId) throws NamingException{
-        return ldapService.isSubjectMemberOfModigOppfolging(subjectId);
+    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging() throws PepException{
+        XacmlResponse response = ldapService.askForPermission();
+        Decision originalDecision = response.getResponse().get(0).getDecision();
+        Decision biasedDecision = createBiasedDecision(originalDecision);
+        return new BiasedDecisionResponse(biasedDecision,response);
+
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
@@ -80,11 +83,7 @@ public class PepImpl implements Pep {
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
-            try {
-                return ldapService.askForPermission(request);
-            } catch (NamingException e1) {
-                throw new PepException("Fallback: Verifying role in AD failed: ", e1);
-            }
+            return ldapService.askForPermission();
         } catch (UnsupportedEncodingException e) {
             throw new PepException("Cannot parse object to json request. ", e);
         } catch (IOException | NoSuchFieldException e) {
