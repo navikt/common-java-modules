@@ -16,5 +16,5 @@ public interface Pep {
 
     BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String subjectId, String domain) throws PepException;
 
-    BiasedDecisionResponse isSubjectMemberOfModiaOppfolging() throws PepException;
+    BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException;
 }

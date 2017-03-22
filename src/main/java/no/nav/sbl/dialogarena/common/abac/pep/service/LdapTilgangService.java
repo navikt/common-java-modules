@@ -8,6 +8,6 @@ import java.io.IOException;
 
 interface LdapTilgangService {
 
-    XacmlResponse askForPermission() throws AbacException, PepException, IOException, NoSuchFieldException;
+    XacmlResponse askForPermission(String ident) throws AbacException, PepException, IOException, NoSuchFieldException;
 
 }

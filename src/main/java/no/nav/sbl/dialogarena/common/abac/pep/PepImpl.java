@@ -2,6 +2,7 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
+import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
@@ -13,6 +14,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.springframework.stereotype.Component;
 
+import javax.security.auth.Subject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -70,8 +72,8 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging() throws PepException{
-        XacmlResponse response = ldapService.askForPermission();
+    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException{
+        XacmlResponse response = ldapService.askForPermission(ident);
         Decision originalDecision = response.getResponse().get(0).getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);
         return new BiasedDecisionResponse(biasedDecision,response);
@@ -79,11 +81,11 @@ public class PepImpl implements Pep {
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
-
+        String ident = SubjectHandler.getSubjectHandler().getUid();
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
-            return ldapService.askForPermission();
+            return ldapService.askForPermission(ident);
         } catch (UnsupportedEncodingException e) {
             throw new PepException("Cannot parse object to json request. ", e);
         } catch (IOException | NoSuchFieldException e) {

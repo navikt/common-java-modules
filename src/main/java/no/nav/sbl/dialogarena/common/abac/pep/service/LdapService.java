@@ -25,8 +25,7 @@ public class LdapService implements LdapTilgangService {
     }
 
     @Override
-    public XacmlResponse askForPermission() throws PepException {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
+    public XacmlResponse askForPermission(String ident) throws PepException {
 
         final Attributes attributes = ldap.getAttributes(ident);
         boolean hasAccess = false;

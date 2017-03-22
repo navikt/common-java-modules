@@ -58,7 +58,7 @@ public class LdapServiceTest {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapUtenRiktigRolle());
 
-        final XacmlResponse xacmlResponse = ldapService.askForPermission();
+        final XacmlResponse xacmlResponse = ldapService.askForPermission("X111111");
 
         assertThat(xacmlResponse.getResponse().get(0).getDecision(), is(Decision.Deny));
 
@@ -69,7 +69,7 @@ public class LdapServiceTest {
 
         when(ldap.getAttributes(anyString())).thenReturn(mockLdapMedRiktigRolle());
 
-        final XacmlResponse xacmlResponse = ldapService.askForPermission();
+        final XacmlResponse xacmlResponse = ldapService.askForPermission("X111111");
 
         assertThat(xacmlResponse.getResponse().get(0).getDecision(), is(Decision.Permit));
 
