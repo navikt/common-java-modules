@@ -1,20 +1,17 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class AuditLogger {
     private static final Logger AUDITLOG = LoggerFactory.getLogger("auditlog");
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
 
-    private final String linebreak = System.getProperty("line.separator");
-
     void logRequestInfo(String fnr) {
-        LOG.info("--------------------------------------");
+        AUDITLOG.info("--------------------------------------");
         String requestMessage = "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() + " Fnr: " + fnr;
 
         AUDITLOG.info(requestMessage);
@@ -29,25 +26,12 @@ public class AuditLogger {
         final Response response = xacmlResponse.getResponse().get(0);
 
         final String decisionMessage = "Decision value from ABAC: " + decision + response.getDecision().name();
-        final String pepDecisionMessage = "Pep-decision: " + biasedDecision;
-
-        boolean logAdviceToSporbarhetslog = false;
-        final List<Advice> associatedAdvice = response.getAssociatedAdvice();
-        for (Advice advice : associatedAdvice) {
-            if (advice.getId().equals("no.nav.abac.advices.action.sporbarhetslogg")) {
-                logAdviceToSporbarhetslog = true;
-            }
-        }
+        final String pepDecisionMessage = " | Pep-decision: " + biasedDecision;
         String responseMessage = decisionMessage + " " + pepDecisionMessage;
 
-        String responseMessageWithAdvices = responseMessage + linebreak + "Advices: " + response.getAssociatedAdvice().toString();
+        AUDITLOG.info(responseMessage);
 
-        if (!logAdviceToSporbarhetslog) {
-            AUDITLOG.info(responseMessage);
-        } else {
-            AUDITLOG.info(responseMessageWithAdvices);
-        }
-        LOG.info(responseMessageWithAdvices);
+        LOG.info(responseMessage + " | " + response.getAssociatedAdvice().toString());
 
     }
 
