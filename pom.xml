@@ -179,6 +179,14 @@
                     </ignoredDependencies>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.4.201502262128</version>
+                <configuration>
+                    <append>false</append>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
