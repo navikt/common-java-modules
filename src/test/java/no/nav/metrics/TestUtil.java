@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,9 +40,22 @@ public class TestUtil {
 
     }
 
+    public static List<String> lesUtAlleMeldingerSendtPaSocket(ServerSocket serverSocket) throws IOException {
+        List<String> meldinger = new ArrayList<>();
+
+        String linje = lesLinjeFraSocket(serverSocket);
+        while (linje != null) {
+            meldinger.addAll(splitStringsFraMelding(linje));
+            linje = lesLinjeFraSocket(serverSocket);
+        }
+
+        return meldinger;
+    }
+
+
     public static String lesLinjeFraSocket(ServerSocket serverSocket) throws IOException {
         try {
-            serverSocket.setSoTimeout(5000);
+            serverSocket.setSoTimeout(2000);
             Socket socket = serverSocket.accept();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             return bufferedReader.readLine();

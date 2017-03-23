@@ -4,7 +4,6 @@ import no.nav.metrics.handlers.SensuHandler;
 import org.junit.Test;
 
 import java.net.ServerSocket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -81,13 +80,7 @@ public class SocketIntegrasjonTest {
         ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         // Kan lese ut alle meldingene igjen
-        List<String> meldinger = new ArrayList<>();
-
-        String linje = lesLinjeFraSocket(serverSocket);
-        while (linje != null) {
-            meldinger.addAll(splitStringsFraMelding(linje));
-            linje = lesLinjeFraSocket(serverSocket);
-        }
+        List<String> meldinger = lesUtAlleMeldingerSendtPaSocket(serverSocket);
 
         for (int i = 0; i < antallTester; i++) {
             boolean contains = meldinger.contains("nr" + i);
