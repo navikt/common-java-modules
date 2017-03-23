@@ -13,7 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public class HttpLogger {
-    private static final Logger LOG = LoggerFactory.getLogger(HttpLogger.class);
+    private static final Logger LOG = LoggerFactory.getLogger("httplog");
     private final String linebreak = System.getProperty("line.separator");
 
     public void logPostRequest(HttpPost httpPost) {

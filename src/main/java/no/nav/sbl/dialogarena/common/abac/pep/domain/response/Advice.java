@@ -6,6 +6,10 @@ import java.util.List;
 
 @EqualsAndHashCode
 public class Advice {
+    public String getId() {
+        return id;
+    }
+
     private final String id;
     private final List<AttributeAssignment> attributeAssignment;
 

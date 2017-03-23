@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included scan="true" scanPeriod="30 seconds">
-    <property name="MAIN_APPLICATION" value="abac"/>
+    <property name="THIS_LIBRARY" value="abac"/>
 
     <property name="loggingPattern"
               value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}] ){'- \[, , \] ',''}- %m%n"/>
 
     <appender name="tjenestekall-abac" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${SERVICE_CALLS_HOME}/${MAIN_APPLICATION}-tjenestekall.log</file>
+        <file>${SERVICE_CALLS_HOME}/${THIS_LIBRARY}-tjenestekall.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${SERVICE_CALLS_HOME}/${MAIN_APPLICATION}-tjenestekall.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>${SERVICE_CALLS_HOME}/${THIS_LIBRARY}-tjenestekall.log.%d{yyyy-MM-dd}</fileNamePattern>
             <maxHistory>1</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -17,9 +17,9 @@
         </encoder>
     </appender>
     <appender name="sporinglog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${APP_LOG_HOME}/${MAIN_APPLICATION}-sporing.log</File>
+        <File>${APP_LOG_HOME}/${THIS_LIBRARY}-sporing.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${APP_LOG_HOME}/${MAIN_APPLICATION}-sporing-%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <fileNamePattern>${APP_LOG_HOME}/${THIS_LIBRARY}-sporing-%d{yyyy-MM-dd}.gz</fileNamePattern>
             <maxHistory>95</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -27,12 +27,12 @@
         </encoder>
     </appender>
 
-    <logger name="no.nav.sbl.dialogarena.common.abac.pep.AuditLogger" level="INFO">
+    <logger name="auditlog" level="INFO">
         <appender-ref ref="sporinglog"/>
     </logger>
 
 
-    <logger name="no.nav.sbl.dialogarena.common.abac.pep.HttpLogger" level="INFO">
+    <logger name="httplog" level="INFO">
         <appender-ref ref="tjenestekall-abac"/>
     </logger>
 
