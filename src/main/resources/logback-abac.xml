@@ -20,7 +20,7 @@
         <File>${APP_LOG_HOME}/${THIS_LIBRARY}-sporing.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${APP_LOG_HOME}/${THIS_LIBRARY}-sporing-%d{yyyy-MM-dd}.gz</fileNamePattern>
-            <maxHistory>95</maxHistory>
+            <maxHistory>365</maxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%d [%-5level] [%thread] %logger{5} - %m%n</pattern>
