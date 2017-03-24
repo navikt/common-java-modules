@@ -12,6 +12,8 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.security.auth.Subject;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class PepImpl implements Pep {
@@ -26,6 +29,7 @@ public class PepImpl implements Pep {
     private final static int NUMBER_OF_RESPONSES_ALLOWED = 1;
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
+    private static final Logger LOG = getLogger(PepImpl.class);
 
     private enum Bias {
         Permit, Deny
@@ -159,6 +163,9 @@ public class PepImpl implements Pep {
         return this;
     }
 
+    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) throws PepException {
+        validateFnr(fnr);
+
     private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
         auditLogger.logRequestInfo(fnr);
 
@@ -186,9 +193,17 @@ public class PepImpl implements Pep {
                     + "Fix policy and/or PEP to send proper attributes.");
         }
 
-        auditLogger.logResponseInfo(originalDecision.name(), biasedDecision.name(), response.getResponse().get(0).getAssociatedAdvice(), response.isFallbackUsed());
+        auditLogger.logResponseInfoWithAdvice(biasedDecision.name(), response);
 
         return new BiasedDecisionResponse(biasedDecision, response);
+    }
+
+    private void validateFnr(String fnr) {
+        if (!StringUtils.isNumeric(fnr) || fnr.length() != 11) {
+            final String message = "Fnr " + fnr + " is not valid";
+            LOG.error(message);
+            throw new IllegalArgumentException(message);
+        }
     }
 
     private Decision createBiasedDecision(Decision originalDecision) {

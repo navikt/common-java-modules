@@ -207,6 +207,21 @@ public class PepImplTest {
         assertThat(c.getOidcToken(), is("token"));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void nullFnrThrowsIllegalArgumentException() throws PepException {
+        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void notNumericFnrThrowsIllegalArgumentException() throws PepException {
+        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", "xxxxxx4444");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void wrongLengthOfFnrThrowsIllegalArgumentException() throws PepException {
+        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", "xxxx4444");
+    }
+
     private XacmlResponse getMockResponse(Decision decision) {
         List<Response> responses = new ArrayList<>();
         responses.add(new Response().withDecision(decision));

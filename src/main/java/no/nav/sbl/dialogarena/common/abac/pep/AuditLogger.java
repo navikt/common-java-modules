@@ -1,40 +1,41 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Advice;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 public class AuditLogger {
+    private static final Logger AUDITLOG = LoggerFactory.getLogger("auditlog");
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
 
     void logRequestInfo(String fnr) {
-        DateFormat df = new SimpleDateFormat("YYYY-MM-DD HH:MM:SS");
-        Date date = new Date();
-        log("Time of request: " + df.format(date));
-        log("NAV-ident: " + SubjectHandler.getSubjectHandler().getUid());
-        log("Fnr: " + fnr);
+        AUDITLOG.info("--------------------------------------");
+        String requestMessage = "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() + " Fnr: " + fnr;
+
+        AUDITLOG.info(requestMessage);
+        LOG.info(requestMessage);
     }
 
-    void logResponseInfo(String abacDecision, String biasedDecision, List<Advice> advises, boolean fallbackUsed) {
+    void logResponseInfoWithAdvice(String biasedDecision, XacmlResponse xacmlResponse) {
         String decision = "";
-        if (fallbackUsed) {
+        if (xacmlResponse.isFallbackUsed()) {
             decision = "FALLBACK ";
         }
-        log("Decision value from ABAC: " + decision + abacDecision);
-        log("Pep decision: " + biasedDecision);
-        if (advises != null) {
-            log(advises.toString());
-        }
+        final Response response = xacmlResponse.getResponse().get(0);
+
+        final String decisionMessage = "Decision value from ABAC: " + decision + response.getDecision().name();
+        final String pepDecisionMessage = " | Pep-decision: " + biasedDecision;
+        String responseMessage = decisionMessage + " " + pepDecisionMessage;
+
+        AUDITLOG.info(responseMessage);
+
+        LOG.info(responseMessage + " | " + response.getAssociatedAdvice().toString());
+
     }
 
     public void log(String message) {
-        LOG.info(message);
+        AUDITLOG.info(message);
     }
-
 }
