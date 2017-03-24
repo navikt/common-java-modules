@@ -13,7 +13,7 @@ public class ServiceContext {
     }
 
     @Bean
-    public AbacService abacService() {
-        return new AbacService();
+    public AbacService abacService(Abac abac) {
+        return new AbacService(abac);
     }
 }

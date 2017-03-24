@@ -13,14 +13,13 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.*;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.ClientErrorException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.SocketException;
 
 import static java.lang.System.getProperty;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
@@ -33,6 +32,11 @@ public class AbacService implements TilgangService {
     private static final Logger LOG = getLogger(AbacService.class);
     private final HttpLogger httpLogger = new HttpLogger();
     private final AuditLogger auditLogger = new AuditLogger();
+    private final Abac abac;
+
+    public AbacService(Abac abac) {
+        this.abac = abac;
+    }
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
@@ -73,20 +77,11 @@ public class AbacService implements TilgangService {
         return httpPost;
     }
 
-    private boolean isSimulateConnectionProblem() {
-        final String propertyConnectionProblem = getProperty("abac.bibliotek.simuler.avbrudd");
-        return StringUtils.isNotBlank(propertyConnectionProblem) && propertyConnectionProblem.equals("true");
-    }
-
-    HttpResponse doPost(HttpPost httpPost) throws AbacException, NoSuchFieldException {
-        final CloseableHttpClient httpClient = createHttpClient();
+    private HttpResponse doPost(HttpPost httpPost) throws AbacException, NoSuchFieldException {
 
         HttpResponse response;
         try {
-            if (isSimulateConnectionProblem()) {
-                throw new SocketException("Simulating connection problem");
-            }
-            response = httpClient.execute(httpPost);
+            response = abac.isAuthorized(createConfigForTimeout(), httpPost, addSystemUserToRequest());
             auditLogger.log("HTTP response code: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
             httpLogger.logPostRequest(httpPost);
@@ -94,15 +89,6 @@ public class AbacService implements TilgangService {
             throw new AbacException("An error has occured calling ABAC: ", e);
         }
         return response;
-    }
-
-    private CloseableHttpClient createHttpClient() throws NoSuchFieldException {
-        final RequestConfig config = createConfigForTimeout();
-
-        return HttpClientBuilder.create()
-                .setDefaultRequestConfig(config)
-                .setDefaultCredentialsProvider(addSystemUserToRequest())
-                .build();
     }
 
     private CredentialsProvider addSystemUserToRequest() throws NoSuchFieldException {
