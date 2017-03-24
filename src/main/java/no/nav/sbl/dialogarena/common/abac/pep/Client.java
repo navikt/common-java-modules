@@ -1,45 +1,51 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import lombok.Getter;
+import lombok.Setter;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
+
+@Getter
+@Setter
 public class Client {
 
     private String oidcToken;
     private String subjectId;
     private String domain;
     private String fnr;
+    private ResourceType resourceType;
     private String credentialResource;
 
-    public String getOidcToken() { return oidcToken; }
+    Client(String oidcToken, String subjectId, String fnr, ResourceType resourceType, String domain, String credentialResource) {
 
-    public String getSubjectId() { return subjectId; }
+        this.oidcToken = oidcToken;
+        this.subjectId = subjectId;
+        this.fnr = fnr;
+        this.resourceType = resourceType;
+        this.domain = domain;
+        this.credentialResource = credentialResource;
+    }
 
-    public String getDomain() { return domain; }
+    Client() {
+    }
 
-    public String getFnr() { return fnr; }
-
-    public String getCredentialResource() { return credentialResource; }
-
-    public Client withOidcToken(String oidcToken) {
+    Client withOidcToken(String oidcToken) {
         this.oidcToken = oidcToken;
         return this;
     }
 
-    public Client withSubjectId(String subjectId) {
+    Client withSubjectId(String subjectId) {
         this.subjectId = subjectId;
         return this;
     }
 
-    public Client withCredentialResource(String credentialResource) {
+    Client withCredentialResource(String credentialResource) {
         this.credentialResource = credentialResource;
         return this;
     }
 
-    public Client withDomain(String domain) {
+    Client withDomain(String domain) {
         this.domain = domain;
         return this;
     }
 
-    public Client withFnr(String fnr) {
-        this.fnr = fnr;
-        return this;
-    }
 }
