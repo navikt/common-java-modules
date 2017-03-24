@@ -3,9 +3,7 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
 import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
@@ -16,7 +14,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import javax.security.auth.Subject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -76,11 +73,11 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException{
+    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException {
         XacmlResponse response = ldapService.askForPermission(ident);
         Decision originalDecision = response.getResponse().get(0).getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);
-        return new BiasedDecisionResponse(biasedDecision,response);
+        return new BiasedDecisionResponse(biasedDecision, response);
 
     }
 
@@ -121,12 +118,17 @@ public class PepImpl implements Pep {
     }
 
     Resource makeResource(ResourceType resourceType) {
-        switch(resourceType) {
-            case EgenAnsatt: return Resources.makeEgenAnsattResource(client);
-            case Kode6: return Resources.makeKode6Resource(client);
-            case Kode7: return Resources.makeKode7Resource(client);
-            case Person: return Resources.makePersonResource(client);
-            default: return null;
+        switch (resourceType) {
+            case EgenAnsatt:
+                return Resources.makeEgenAnsattResource(client);
+            case Kode6:
+                return Resources.makeKode6Resource(client);
+            case Kode7:
+                return Resources.makeKode7Resource(client);
+            case Person:
+                return Resources.makePersonResource(client);
+            default:
+                return null;
         }
     }
 
@@ -163,10 +165,9 @@ public class PepImpl implements Pep {
         return this;
     }
 
-    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr) throws PepException {
+    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
         validateFnr(fnr);
 
-    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
         auditLogger.logRequestInfo(fnr);
 
         String credentialResource;
