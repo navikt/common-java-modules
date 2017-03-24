@@ -31,7 +31,7 @@ public class Utils {
     }
 
     static boolean invalidClientValues(Client client) {
-        return client.getDomain() == null || client.getFnr() == null || client.getCredentialResource() == null ||
+        return client.getDomain() == null || client.getCredentialResource() == null ||
                 (client.getOidcToken() == null && client.getSubjectId() == null);
     }
 

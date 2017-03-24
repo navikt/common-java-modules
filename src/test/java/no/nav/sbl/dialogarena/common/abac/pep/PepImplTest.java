@@ -6,6 +6,7 @@ import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
@@ -107,12 +108,42 @@ public class PepImplTest {
     }
 
     @Test
-    public void buildsCorrectResource() {
-        Resource resource = pep.makeResource();
+    public void buildsCorrectResourceWithTypePerson() {
+        Resource resource = pep.makeResource(ResourceType.Person);
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, MockXacmlRequest.FNR));
+
+        assertThat(resource.getAttribute(), is(expectedAttributes));
+    }
+
+    @Test
+    public void buildsCorrectResourceWithTypeEgenAnsatt() {
+        Resource resource = pep.makeResource(ResourceType.EgenAnsatt);
+        List<Attribute> expectedAttributes = new ArrayList<>();
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT));
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
+
+        assertThat(resource.getAttribute(), is(expectedAttributes));
+    }
+
+    @Test
+    public void buildsCorrectResourceWithTypeKode6() {
+        Resource resource = pep.makeResource(ResourceType.Kode6);
+        List<Attribute> expectedAttributes = new ArrayList<>();
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_KODE_6));
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
+
+        assertThat(resource.getAttribute(), is(expectedAttributes));
+    }
+
+    @Test
+    public void buildsCorrectResourceWithTypeKode7() {
+        Resource resource = pep.makeResource(ResourceType.Kode7);
+        List<Attribute> expectedAttributes = new ArrayList<>();
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_KODE_7));
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
 
         assertThat(resource.getAttribute(), is(expectedAttributes));
     }
@@ -139,7 +170,7 @@ public class PepImplTest {
     @Test
     public void buildsCorrectRequestWithOidcToken() throws PepException {
         pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, null, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
-        Request request = pep.makeRequest();
+        Request request = pep.makeRequest(ResourceType.Person);
         Request expectedRequest = MockXacmlRequest.getRequest();
 
         assertThat(request, is(expectedRequest));
@@ -148,7 +179,7 @@ public class PepImplTest {
     @Test
     public void buildsCorrectRequestWithSubjectId() throws PepException {
         pep.withClientValues(null, MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
-        Request request = pep.makeRequest();
+        Request request = pep.makeRequest(ResourceType.Person);
         Request expectedRequest = MockXacmlRequest.getRequestWithSubjectAttributes();
 
         assertThat(request, is(expectedRequest));
@@ -157,7 +188,7 @@ public class PepImplTest {
     @Test(expected = PepException.class)
     public void requestThrowsExceptionNonValidValues() throws PepException {
         pep.withClientValues(MockXacmlRequest.OIDC_TOKEN, null, null, MockXacmlRequest.FNR, MockXacmlRequest.CREDENTIAL_RESOURCE);
-        pep.makeRequest();
+        pep.makeRequest(ResourceType.Person);
     }
 
     @Test
