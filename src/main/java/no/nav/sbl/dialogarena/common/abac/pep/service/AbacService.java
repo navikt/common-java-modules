@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 
+import static java.lang.System.getProperty;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -73,7 +74,7 @@ public class AbacService implements TilgangService {
     }
 
     private boolean isSimulateConnectionProblem() {
-        final String propertyConnectionProblem = System.getProperty("abac.bibliotek.simuler.avbrudd");
+        final String propertyConnectionProblem = getProperty("abac.bibliotek.simuler.avbrudd");
         return StringUtils.isNotBlank(propertyConnectionProblem) && propertyConnectionProblem.equals("true");
     }
 
@@ -116,13 +117,25 @@ public class AbacService implements TilgangService {
 
 
     private RequestConfig createConfigForTimeout() {
-        final int connectionTimeout = 500;
-        final int readTimeout = 1500;
 
         return RequestConfig.custom()
-                .setConnectTimeout(connectionTimeout)
-                .setConnectionRequestTimeout(connectionTimeout)
-                .setSocketTimeout(readTimeout)
+                .setConnectTimeout(getConnectionTimeout())
+                .setConnectionRequestTimeout(getConnectionTimeout())
+                .setSocketTimeout(getReadTimeout())
                 .build();
+    }
+
+    private int getConnectionTimeout() {
+        final String propertyConnectionTimeout = getProperty("abac.bibliotek.connectionTimeout");
+        final int defaultConnectionTimeout = 500;
+        return StringUtils.isNotBlank(propertyConnectionTimeout) ?
+                Integer.parseInt(propertyConnectionTimeout) : defaultConnectionTimeout;
+    }
+
+    private int getReadTimeout() {
+        final String propertyConnectionTimeout = getProperty("abac.bibliotek.readTimeout");
+        final int defaultConnectionTimeout = 1500;
+        return StringUtils.isNotBlank(propertyConnectionTimeout) ?
+                Integer.parseInt(propertyConnectionTimeout) : defaultConnectionTimeout;
     }
 }
