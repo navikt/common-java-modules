@@ -2,13 +2,17 @@ package no.nav.metrics.integration;
 
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.TestUtil;
-import no.nav.metrics.aspects.*;
+import no.nav.metrics.aspects.Count;
+import no.nav.metrics.aspects.CountAspect;
+import no.nav.metrics.aspects.Timed;
+import no.nav.metrics.aspects.TimerAspect;
 import org.junit.Test;
 
 import java.net.ServerSocket;
+import java.util.List;
 
 import static no.nav.metrics.TestUtil.getSensuClientPort;
-import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
+import static no.nav.metrics.TestUtil.lesUtAlleMeldingerSendtPaSocket;
 import static org.junit.Assert.assertEquals;
 
 public class MetricReportTest {
@@ -54,13 +58,14 @@ public class MetricReportTest {
     private void sjekkLiktPaSocketData() throws Exception {
         ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
-        String line1 = lesLinjeFraSocket(serverSocket);
-        String line2 = lesLinjeFraSocket(serverSocket);
+        List<String> meldinger = lesUtAlleMeldingerSendtPaSocket(serverSocket);
 
-        assertEquals(fjernTimestamps(line1), fjernTimestamps(line2));
+        assertEquals(2, meldinger.size());
+        assertEquals(fjernTimestamps(meldinger.get(0)), fjernTimestamps(meldinger.get(1)));
 
         serverSocket.close();
     }
+
 
     private String fjernTimestamps(String data) {
         return data
