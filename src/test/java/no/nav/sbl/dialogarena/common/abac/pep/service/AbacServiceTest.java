@@ -10,8 +10,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.ws.rs.ClientErrorException;
@@ -34,7 +33,7 @@ public class AbacServiceTest {
 
     @InjectMocks
     AbacService abacService;
-    @org.mockito.Mock
+    @Mock
     Abac abac;
 
     private static final String KEY_READ_TIMEOUT = "abac.bibliotek.readTimeout";
