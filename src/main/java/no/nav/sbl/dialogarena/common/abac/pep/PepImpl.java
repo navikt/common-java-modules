@@ -1,10 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.abac.xacml.NavAttributter;
-import no.nav.abac.xacml.StandardAttributter;
 import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.*;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -34,22 +31,24 @@ public class PepImpl implements Pep {
 
     private final LdapService ldapService;
     private final AbacService abacService;
-    private final Client client;
     private final AuditLogger auditLogger;
 
     public PepImpl(LdapService ldapService, AbacService abacService) {
         this.ldapService = ldapService;
         this.abacService = abacService;
-        this.client = new Client();
         auditLogger = new AuditLogger();
     }
 
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
+        validateToken(oidcTokenBody);
+        return isServiceCallAllowed(oidcTokenBody, null, domain, fnr, ResourceType.Person);
+    }
+
+    private void validateToken(String oidcTokenBody) {
         if (oidcTokenBody.contains(".")) {
             throw new IllegalArgumentException("Token contains header and/or signature. Argument should be token body.");
         }
-        return isServiceCallAllowed(oidcTokenBody, null, domain, fnr, ResourceType.Person);
     }
 
     @Override
@@ -81,105 +80,14 @@ public class PepImpl implements Pep {
 
     }
 
-    private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
-        try {
-            return abacService.askForPermission(request);
-        } catch (AbacException e) {
-            return ldapService.askForPermission(ident);
-        } catch (UnsupportedEncodingException e) {
-            throw new PepException("Cannot parse object to json request. ", e);
-        } catch (IOException | NoSuchFieldException e) {
-            throw new PepException(e);
-        }
-    }
-
-    Environment makeEnvironment() {
-        Environment environment = new Environment();
-        final String oidcToken = client.getOidcToken();
-        if (isNotEmpty(oidcToken)) {
-            environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, oidcToken));
-        }
-        environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, client.getCredentialResource()));
-        return environment;
-    }
-
-    AccessSubject makeAccessSubject() {
-        AccessSubject accessSubject = new AccessSubject();
-        accessSubject.getAttribute().add(new Attribute(StandardAttributter.SUBJECT_ID, client.getSubjectId()));
-        accessSubject.getAttribute().add(new Attribute(NavAttributter.SUBJECT_FELLES_SUBJECTTYPE, "InternBruker"));
-        return accessSubject;
-    }
-
-    Action makeAction() {
-        Action action = new Action();
-        action.getAttribute().add(new Attribute(StandardAttributter.ACTION_ID, "read"));
-        return action;
-    }
-
-    Resource makeResource(ResourceType resourceType) {
-        switch (resourceType) {
-            case EgenAnsatt:
-                return Resources.makeEgenAnsattResource(client);
-            case Kode6:
-                return Resources.makeKode6Resource(client);
-            case Kode7:
-                return Resources.makeKode7Resource(client);
-            case Person:
-                return Resources.makePersonResource(client);
-            default:
-                return null;
-        }
-    }
-
-    Request makeRequest(ResourceType resourceType) throws PepException {
-        if (Utils.invalidClientValues(client)) {
-            throw new PepException("Received client values: oidc-token: " + client.getOidcToken() +
-                    " subject-id: " + client.getSubjectId() + " domain: " + client.getDomain() + " fnr: " + client.getFnr() +
-                    " credential resource: " + client.getCredentialResource() + "\nProvide OIDC-token or subject-ID, domain, fnr and " +
-                    " name of credential resource.");
-        }
-
-        Request request = new Request()
-                .withEnvironment(makeEnvironment())
-                .withAction(makeAction())
-                .withResource(makeResource(resourceType));
-        if (client.getSubjectId() != null) {
-            request.withAccessSubject(makeAccessSubject());
-        }
-
-        return request;
-    }
-
-    private XacmlRequest makeXacmlRequest(ResourceType resourceType) throws PepException {
-        return new XacmlRequest().withRequest(makeRequest(resourceType));
-    }
-
-    Pep withClientValues(String oidcToken, String subjectId, String domain, String fnr, String credentialResource) {
-        client
-                .withOidcToken(oidcToken)
-                .withSubjectId(subjectId)
-                .withDomain(domain)
-                .withFnr(fnr)
-                .withCredentialResource(credentialResource);
-        return this;
-    }
-
     private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
         validateFnr(fnr);
 
         auditLogger.logRequestInfo(fnr);
 
-        String credentialResource;
-        try {
-            credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
-        } catch (NoSuchFieldException e) {
-            throw new PepException(e);
-        }
-        withClientValues(oidcToken, subjectId, domain, fnr, credentialResource);
+        XacmlRequestGenerator xacmlRequestGenerator = new XacmlRequestGenerator(new Client(oidcToken, subjectId, fnr, resourceType, domain, getCredentialResource()));
 
-        final XacmlRequest xacmlRequest = makeXacmlRequest(resourceType);
-        XacmlResponse response = askForPermission(xacmlRequest);
+        XacmlResponse response = askForPermission(xacmlRequestGenerator.getRequest());
 
         if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
             throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
@@ -199,11 +107,35 @@ public class PepImpl implements Pep {
         return new BiasedDecisionResponse(biasedDecision, response);
     }
 
+    private String getCredentialResource() throws PepException {
+        String credentialResource;
+        try {
+            credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
+        } catch (NoSuchFieldException e) {
+            throw new PepException(e);
+        }
+        return credentialResource;
+    }
+
     private void validateFnr(String fnr) {
         if (!StringUtils.isNumeric(fnr) || fnr.length() != 11) {
             final String message = "Fnr " + fnr + " is not valid";
             LOG.error(message);
             throw new IllegalArgumentException(message);
+        }
+    }
+
+
+    private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
+        String ident = SubjectHandler.getSubjectHandler().getUid();
+        try {
+            return abacService.askForPermission(request);
+        } catch (AbacException e) {
+            return ldapService.askForPermission(ident);
+        } catch (UnsupportedEncodingException e) {
+            throw new PepException("Cannot parse object to json request. ", e);
+        } catch (IOException | NoSuchFieldException e) {
+            throw new PepException(e);
         }
     }
 
@@ -217,6 +149,4 @@ public class PepImpl implements Pep {
                 return originalDecision;
         }
     }
-
-
 }
