@@ -20,7 +20,6 @@ public abstract class SubjectHandler {
 
         if (runningOnJboss()) {
             subjectHandlerImplementationClass = JbossSubjectHandler.class.getName();
-            logger.debug("Detected running on JBoss Application Server. Using: " + subjectHandlerImplementationClass);
         } else {
             subjectHandlerImplementationClass = resolveProperty(SUBJECTHANDLER_KEY);
         }
