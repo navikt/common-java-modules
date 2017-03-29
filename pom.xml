@@ -7,20 +7,14 @@
         <version>3.2</version>
     </parent>
 
-    <groupId>no.nav.fo</groupId>
-    <artifactId>jwt-security</artifactId>
+    <groupId>no.nav.dialogarena</groupId>
+    <artifactId>oidc-security</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <modules>
-        <module>jwt-security-loginmodule</module>
-        <module>jwt-security-filter</module>
-        <module>jwt-security-common</module>
-    </modules>
-
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>
-        Fellesfunksjonalitet for sikkerthet basert på jwt
+        Fellesfunksjonalitet for sikkerthet basert på oidc
     </description>
 
     <properties>
@@ -34,13 +28,7 @@
         <httpclient.version>4.5.2</httpclient.version>
     </properties>
 
-    <dependencyManagement>
     <dependencies>
-        <dependency>
-            <groupId>no.nav.fo</groupId>
-            <artifactId>jwt-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -85,6 +73,17 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.7.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.7.4</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
@@ -102,12 +101,51 @@
             <version>${jetty.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-    </dependencyManagement>
 
     <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/jwt-security.git</developerConnection>
-        <url>http://stash.devillo.no/projects/FELLES/repos/jwt-security/browse</url>
+        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/oidc-security.git</developerConnection>
+        <url>http://stash.devillo.no/projects/FELLES/repos/oidc-security/browse</url>
         <tag>HEAD</tag>
     </scm>
+
+    <build>
+        <testResources>
+            <testResource>
+                <filtering>false</filtering>
+                <directory>src/test/resources</directory>
+                <excludes>
+                    <exclude>logback-test.xml</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
