@@ -15,11 +15,6 @@ public class SamAutoRegistration implements ServletContextListener {
     public static final String CONTEXT_REGISTRATION_ID = "no.nav.kes.security.jaspic.security.message.registrationId";
     private static final Logger log = LoggerFactory.getLogger(SamAutoRegistration.class);
 
-
-    public SamAutoRegistration() {
-        log.debug("Instancieted");
-    }
-
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         log.debug("Initializing JASPIC");
