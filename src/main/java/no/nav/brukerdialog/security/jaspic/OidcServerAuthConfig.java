@@ -22,7 +22,6 @@ public class OidcServerAuthConfig implements ServerAuthConfig {
     private final ServerAuthModule serverAuthModule;
 
     public OidcServerAuthConfig(String messageLayer, String appContext, CallbackHandler callbackHandler, Map<String, String> providerProperties, ServerAuthModule serverAuthModule) {
-        log.debug("Instancieted");
         this.messageLayer = messageLayer;
         this.appContext = appContext;
         this.callbackHandler = callbackHandler;
@@ -32,7 +31,6 @@ public class OidcServerAuthConfig implements ServerAuthConfig {
 
     @Override
     public ServerAuthContext getAuthContext(String authContextID, Subject serviceSubject, Map properties) throws AuthException {
-        log.debug("getAuthContext");
         return new OidcServerAuthContext(callbackHandler, serverAuthModule);
     }
 
