@@ -38,7 +38,7 @@ public class Utils {
     public static String getApplicationProperty(String propertyKey) throws NoSuchFieldException {
         final String property = getProperty(propertyKey);
         if (StringUtils.isEmpty(property)) {
-            throw new NoSuchFieldException("Cannot find property. Verify that property " + propertyKey + " is set.");
+            throw new NoSuchFieldException("Cannot find property. Verify that property \"" + propertyKey + "\" is set.");
         }
         return property;
     }
