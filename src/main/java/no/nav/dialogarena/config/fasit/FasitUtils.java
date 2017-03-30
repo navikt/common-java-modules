@@ -1,6 +1,7 @@
 package no.nav.dialogarena.config.fasit;
 
 
+import lombok.Data;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.util.BasicAuthentication;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -40,30 +41,57 @@ public class FasitUtils {
         return applicationConfig;
     }
 
-    public static ServiceUser getServiceUser(String username, String applicationName, String environment) {
-        ServiceUser serviceUser = new ServiceUser();
+    public static LdapConfig getLdapConfig(String ldapAlias, String applicationName, String environment) {
         ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
-
-        Document document = fetchXml(String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=Credential&alias=%s&app=%s",
+        String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=LDAP&alias=%s&app=%s",
                 environment,
                 applicationConfig.domain,
-                username,
+                ldapAlias,
                 applicationName
-        ));
+        );
+
+        UsernameAndPassword usernameAndPassword = getUsernameAndPassword(resourceUrl);
+        LdapConfig ldapConfig = new LdapConfig()
+                .setUsername(usernameAndPassword.getUsername())
+                .setPassword(usernameAndPassword.getPassword());
+
+        LOG.info("{} = {}", ldapAlias, ldapConfig);
+        return ldapConfig;
+    }
+
+    public static ServiceUser getServiceUser(String userAlias, String applicationName, String environment) {
+        ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
+        String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=Credential&alias=%s&app=%s",
+                environment,
+                applicationConfig.domain,
+                userAlias,
+                applicationName
+        );
+        UsernameAndPassword usernameAndPassword = getUsernameAndPassword(resourceUrl);
+        ServiceUser serviceUser = new ServiceUser()
+                .setUsername(usernameAndPassword.getUsername())
+                .setPassword(usernameAndPassword.getPassword());
+
+        LOG.info("{} = {}", userAlias, serviceUser);
+        return serviceUser;
+    }
+
+    private static UsernameAndPassword getUsernameAndPassword(String resourceUrl) {
+        UsernameAndPassword usernameAndPassword = new UsernameAndPassword();
+        Document document = fetchXml(resourceUrl);
 
         NodeList properties = document.getElementsByTagName("property");
-        serviceUser.username = extractStringProperty(properties, "username");
+        usernameAndPassword.setUsername(extractStringProperty(properties, "username"));
 
         String passwordUrl = extractStringProperty(properties, "password");
         LOG.info(passwordUrl);
 
-        httpClient(httpClient -> serviceUser.password = httpClient
+        usernameAndPassword.setPassword(httpClient(httpClient -> httpClient
                 .newRequest(passwordUrl)
                 .send()
-                .getContentAsString());
-
-        LOG.info("{} = {}", username, serviceUser);
-        return serviceUser;
+                .getContentAsString())
+        );
+        return usernameAndPassword;
     }
 
     private static Document fetchXml(String resourceUrl) {
@@ -141,6 +169,12 @@ public class FasitUtils {
 
         R with(T t) throws Exception;
 
+    }
+
+    @Data
+    private static class UsernameAndPassword {
+        public String username;
+        public String password;
     }
 
 }

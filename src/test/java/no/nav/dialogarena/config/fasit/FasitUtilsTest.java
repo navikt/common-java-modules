@@ -18,7 +18,7 @@ public class FasitUtilsTest {
     }
 
     @Test
-    public void getApplikasjonsKonfigurasjon() {
+    public void getApplicationConfig() {
         ApplicationConfig aktivitetsplanApplicationConfig = FasitUtils.getApplicationConfig("aktivitetsplan", "t6");
         assertThat(aktivitetsplanApplicationConfig.domain, equalTo("oera-t.local"));
 
@@ -27,11 +27,24 @@ public class FasitUtilsTest {
     }
 
     @Test
-    public void getServiceBruker() {
+    public void getServiceUser() {
         ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon", "t6");
         assertThat(serviceUser.username, equalTo("srvveilarbsituasjon"));
         assertThat(serviceUser.password, not(nullValue()));
     }
 
+    @Test
+    public void getServiceUser_aliasDifferentFromUsername() {
+        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbsituasjonproxy", "veilarbsituasjonproxy", "t6");
+        assertThat(serviceUser.username, equalTo("srvveilarbsituasjo"));
+        assertThat(serviceUser.password, not(nullValue()));
+    }
+
+    @Test
+    public void getLdapConfig() {
+        LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap","veilarbsituasjon", "t6");
+        assertThat(ldapConfig.username, equalTo("srvSSOLinux"));
+        assertThat(ldapConfig.password, not(nullValue()));
+    }
 
 }
