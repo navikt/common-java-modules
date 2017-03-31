@@ -169,8 +169,8 @@ public class FasitUtils {
 
     private static class FasitAuthenication extends BasicAuthentication {
 
-        public FasitAuthenication() {
-            super(null, null, getFasitUser(), getFasitPassword());
+        private FasitAuthenication() {
+            super(URI.create("https://fasit.adeo.no"), null, getFasitUser(), getFasitPassword());
         }
 
         @Override
