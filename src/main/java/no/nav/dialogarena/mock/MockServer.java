@@ -48,8 +48,12 @@ public class MockServer {
                 baseRequest.setHandled(true);
             } else {
                 String pathInfo = target + "." + baseRequest.getMethod();
-                baseRequest.setPathInfo(pathInfo);
+                String jsonPath =  pathInfo + ".json";
+                if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
+                    pathInfo = jsonPath;
+                }
                 baseRequest.setMethod(HttpMethod.GET.name());
+                baseRequest.setPathInfo(pathInfo);
 
                 super.handle(target, baseRequest, request, httpServletResponse);
 

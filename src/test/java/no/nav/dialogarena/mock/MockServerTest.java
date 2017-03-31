@@ -1,5 +1,6 @@
 package no.nav.dialogarena.mock;
 
+import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.AfterClass;
@@ -18,23 +19,26 @@ import static org.junit.Assert.assertThat;
 public class MockServerTest {
 
     private static HttpClient httpClient;
+    private static Jetty mockServer;
+    private static int jettyPort;
 
     @BeforeClass
     public static void setup() throws Exception {
         httpClient = new HttpClient(new SslContextFactory());
         httpClient.start();
+
+        jettyPort = freePort();
+        mockServer = startMockServer("mockservertest", jettyPort);
     }
 
     @AfterClass
     public static void cleanup() throws Exception {
         httpClient.stop();
+        mockServer.stop.run();
     }
 
     @Test
     public void startMockServer_serverMockData() throws Exception {
-        int jettyPort = freePort();
-        startMockServer("mockservertest", jettyPort);
-
         String getContent = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/content").send().getContentAsString();
         assertThat(getContent, equalTo("GET-content"));
 
@@ -42,7 +46,13 @@ public class MockServerTest {
         assertThat(postContent, equalTo("POST-content"));
     }
 
-    private int freePort() throws IOException {
+    @Test
+    public void startMockServer_finnerJsonFiler() throws Exception {
+        String jsonContent = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/jsoncontent").send().getContentAsString();
+        assertThat(jsonContent, equalTo("{\"text\": \"json\"}"));
+    }
+
+    private static int freePort() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();
         }
