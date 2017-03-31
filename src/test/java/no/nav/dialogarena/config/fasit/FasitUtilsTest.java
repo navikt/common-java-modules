@@ -41,6 +41,13 @@ public class FasitUtilsTest {
     }
 
     @Test
+    public void getTestUser() {
+        TestUser serviceUser = FasitUtils.getTestUser("priveligert_veileder");
+        assertThat(serviceUser.username, equalTo("Z990281"));
+        assertThat(serviceUser.password, not(nullValue()));
+    }
+
+    @Test
     public void getLdapConfig() {
         LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap","veilarbsituasjon", "t6");
         assertThat(ldapConfig.username, equalTo("srvSSOLinux"));

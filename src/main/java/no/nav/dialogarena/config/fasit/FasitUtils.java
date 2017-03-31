@@ -59,11 +59,27 @@ public class FasitUtils {
         return ldapConfig;
     }
 
+    public static TestUser getTestUser(String userAlias) {
+        ServiceUser serviceUser = getServiceUser(
+                userAlias,
+                "fasit",
+                "t1",
+                "test.local"
+        );
+        return new TestUser()
+                .setUsername(serviceUser.username)
+                .setPassword(serviceUser.password);
+    }
+
     public static ServiceUser getServiceUser(String userAlias, String applicationName, String environment) {
         ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
+        return getServiceUser(userAlias, applicationName, environment, applicationConfig.domain);
+    }
+
+    private static ServiceUser getServiceUser(String userAlias, String applicationName, String environment, String domain) {
         String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=Credential&alias=%s&app=%s",
                 environment,
-                applicationConfig.domain,
+                domain,
                 userAlias,
                 applicationName
         );
