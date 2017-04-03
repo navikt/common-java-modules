@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
@@ -41,14 +40,13 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
-        validateToken(oidcTokenBody);
-        return isServiceCallAllowed(oidcTokenBody, null, domain, fnr, ResourceType.Person);
+        final String token = validateToken(oidcTokenBody);
+        return isServiceCallAllowed(token, null, domain, fnr, ResourceType.Person);
     }
 
-    private void validateToken(String oidcTokenBody) {
-        if (oidcTokenBody.contains(".")) {
-            throw new IllegalArgumentException("Token contains header and/or signature. Argument should be token body.");
-        }
+    String validateToken(String oidcTokenBody) throws PepException {
+        final String[] tokenParts = oidcTokenBody.split("\\.");
+        return tokenParts.length == 1 ? tokenParts[0] : tokenParts[1];
     }
 
     @Override
@@ -57,18 +55,18 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String subjectId, String domain) throws PepException {
-        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.Kode7);
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String oidcTokenBody, String domain) throws PepException {
+        return isServiceCallAllowed(oidcTokenBody, null, domain, null, ResourceType.Kode7);
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String subjectId, String domain) throws PepException {
-        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.Kode6);
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String oidcTokenBody, String domain) throws PepException {
+        return isServiceCallAllowed(oidcTokenBody, null, domain, null, ResourceType.Kode6);
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String subjectId, String domain) throws PepException {
-        return isServiceCallAllowed(null, subjectId, domain, null, ResourceType.EgenAnsatt);
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String oidcTokenBody, String domain) throws PepException {
+        return isServiceCallAllowed(oidcTokenBody, null, domain, null, ResourceType.EgenAnsatt);
     }
 
     @Override
@@ -127,7 +125,7 @@ public class PepImpl implements Pep {
 
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
+        String ident = "Z990300";
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
