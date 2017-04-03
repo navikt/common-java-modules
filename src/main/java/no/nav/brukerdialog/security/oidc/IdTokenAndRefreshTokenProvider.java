@@ -16,15 +16,13 @@ import java.net.URLEncoder;
 public class IdTokenAndRefreshTokenProvider {
 
     private static final Logger log = LoggerFactory.getLogger(IdTokenAndRefreshTokenProvider.class);
-    private static final String DEFAULT_REDIRECT_URL = "/"+System.getProperty("applicationName")+"/tjenester/login";
 
     public IdTokenAndRefreshToken getToken(String authorizationCode, UriInfo uri) {
         return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, uri), s -> extractToken(s));
     }
 
     private HttpUriRequest createTokenRequest(String authorizationCode, UriInfo redirectUri) {
-        String redirectUrl = System.getProperty("oidc-redirect.url") == null ? DEFAULT_REDIRECT_URL : System.getProperty("oidc-redirect.url");
-
+        String redirectUrl = "/oidclogin/login";
         String urlEncodedRedirectUri;
         try {
             urlEncodedRedirectUri = URLEncoder.encode(HostUtils.formatSchemeHostPort(redirectUri) + redirectUrl, "UTF-8");

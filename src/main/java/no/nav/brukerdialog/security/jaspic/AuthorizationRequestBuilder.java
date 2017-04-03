@@ -13,15 +13,11 @@ public class AuthorizationRequestBuilder {
 
     private static final SecureRandom random = new SecureRandom();
 
-    private final String server;
     private final String scope = "openid";
     private boolean useKerberos = true;
     private String stateIndex;
-    private static final String DEFAULT_REDIRECT_URL = "/"+System.getProperty("applicationName")+"/tjenester/login";
 
-
-    public AuthorizationRequestBuilder(HttpServletRequest req) {
-        server = HostUtils.formatSchemeHostPort(req);
+    public AuthorizationRequestBuilder() {
         byte bytes[] = new byte[20];
         random.nextBytes(bytes);
         stateIndex = "state_" + new BigInteger(1, bytes).toString(16);
@@ -39,7 +35,6 @@ public class AuthorizationRequestBuilder {
     public String buildRedirectString() throws UnsupportedEncodingException {
         String clientId = System.getProperty("isso-rp-user.username");
         String state = stateIndex;
-        String redirectUrl = System.getProperty("oidc-redirect.url") == null ? server +DEFAULT_REDIRECT_URL : server + System.getProperty("oidc-redirect.url");
         String kerberosTrigger = useKerberos
                 ? "session=winssochain&authIndexType=service&authIndexValue=winssochain&"
                 : "";
@@ -48,7 +43,7 @@ public class AuthorizationRequestBuilder {
                 scope,
                 URLEncoder.encode(clientId, "UTF-8"),
                 state,
-                URLEncoder.encode(redirectUrl, "UTF-8")
+                URLEncoder.encode(System.getProperty("oidc-redirect.url"), "UTF-8")
         );
     }
 
