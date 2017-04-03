@@ -2,7 +2,9 @@ package no.nav.dialogarena.config.fasit;
 
 
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.BasicAuthentication;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
@@ -102,21 +104,30 @@ public class FasitUtils {
         String passwordUrl = extractStringProperty(properties, "password");
         LOG.info(passwordUrl);
 
-        usernameAndPassword.setPassword(httpClient(httpClient -> httpClient
+        usernameAndPassword.setPassword(httpClient(httpClient -> getContent(httpClient
                 .newRequest(passwordUrl)
-                .send()
-                .getContentAsString())
+                .send()))
         );
         return usernameAndPassword;
+    }
+
+    private static String getContent(ContentResponse contentResponse) {
+        String contentAsString = contentResponse.getContentAsString();
+        if (contentResponse.getStatus() != 200) {
+            throw new IllegalStateException(contentAsString);
+        } else {
+            return contentAsString;
+        }
     }
 
     private static Document fetchXml(String resourceUrl) {
         LOG.info("Fetching xml: {}", resourceUrl);
         return httpClient(httpClient -> {
-            String resourceXml = httpClient
+            ContentResponse contentResponse = httpClient
                     .newRequest(resourceUrl)
-                    .send()
-                    .getContentAsString();
+                    .send();
+
+            String resourceXml = getContent(contentResponse);
 
             LOG.info(resourceXml);
 
@@ -126,27 +137,18 @@ public class FasitUtils {
         });
     }
 
-    private static <T> T handle(Exception exception) {
-        throw new RuntimeException(exception);
-    }
-
+    @SneakyThrows
     private static <T> T httpClient(With<HttpClient, T> httpClientConsumer) {
         HttpClient httpClient = new HttpClient(SSL_CONTEXT_FACTORY);
+        httpClient.setFollowRedirects(false);
         httpClient.getAuthenticationStore().addAuthentication(new FasitAuthenication());
         try {
             httpClient.start();
             return httpClientConsumer.with(httpClient);
-        } catch (Exception e) {
-            return handle(e);
         } finally {
-            try {
-                httpClient.stop();
-            } catch (Exception e) {
-                return handle(e);
-            }
+            httpClient.stop();
         }
     }
-
 
     private static String extractStringProperty(NodeList nodeList, String propertyName) {
         for (int i = 0; i < nodeList.getLength(); i++) {

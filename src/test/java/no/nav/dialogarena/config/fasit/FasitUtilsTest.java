@@ -2,6 +2,7 @@ package no.nav.dialogarena.config.fasit;
 
 import org.junit.Test;
 
+import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE_NAME;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -33,6 +34,21 @@ public class FasitUtilsTest {
         assertThat(serviceUser.password, not(nullValue()));
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void getServiceUser_invalidFasitPassword() {
+        String property = System.getProperty(FASIT_USERNAME_VARIABLE_NAME);
+        try {
+            System.setProperty(FASIT_USERNAME_VARIABLE_NAME, "invalidpassword");
+            FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon", "t6");
+        } finally {
+            if (property != null) {
+                System.setProperty(FASIT_USERNAME_VARIABLE_NAME, property);
+            } else {
+                System.clearProperty(FASIT_USERNAME_VARIABLE_NAME);
+            }
+        }
+    }
+
     @Test
     public void getServiceUser_aliasDifferentFromUsername() {
         ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbsituasjonproxy", "veilarbsituasjonproxy", "t6");
@@ -49,7 +65,7 @@ public class FasitUtilsTest {
 
     @Test
     public void getLdapConfig() {
-        LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap","veilarbsituasjon", "t6");
+        LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap", "veilarbsituasjon", "t6");
         assertThat(ldapConfig.username, equalTo("srvSSOLinux"));
         assertThat(ldapConfig.password, not(nullValue()));
     }
