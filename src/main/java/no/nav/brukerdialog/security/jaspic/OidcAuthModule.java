@@ -45,7 +45,7 @@ public class OidcAuthModule implements ServerAuthModule {
 
     private static final boolean sslOnlyCookies = !Boolean.valueOf(System.getProperty("develop-local", "false"));
     public static final String REFRESH_TIME = "no.nav.kes.security.oidc.minimum_time_to_expire_before_refresh.seconds";
-    public static final String OIDCLOGIN_REDIRECT_URL = "/oidclogin/login";
+    private static final String DEFAULT_REDIRECT_URL = "/"+System.getProperty("applicationName")+"/tjenester/login";
 
     private final OidcTokenValidator tokenValidator;
     private final IdTokenProvider tokenProvider;
@@ -159,10 +159,12 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     private void addApplicationCallbackSpecificHttpOnlyCookie(HttpServletResponse response, String name, String value) {
+        String redirectUrl = System.getProperty("oidc-redirect.url") == null ? DEFAULT_REDIRECT_URL : "/oidclogin/login";
+
         Cookie cookie = new Cookie(name, value);
         cookie.setSecure(sslOnlyCookies);
         cookie.setHttpOnly(true);
-        cookie.setPath(OIDCLOGIN_REDIRECT_URL);
+        cookie.setPath(redirectUrl);
         response.addCookie(cookie);
     }
 
@@ -173,7 +175,7 @@ public class OidcAuthModule implements ServerAuthModule {
             if ("application/json".equals(request.getHeader("Accept"))) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
-                AuthorizationRequestBuilder builder = new AuthorizationRequestBuilder();
+                AuthorizationRequestBuilder builder = new AuthorizationRequestBuilder(request);
                 //TODO CSRF attack protection. See RFC-6749 section 10.12 (the state-cookie containing redirectURL shold be encrypted to avoid tampering)
                 addApplicationCallbackSpecificHttpOnlyCookie(response, builder.getStateIndex(), encode(getOriginalUrl(request)));
                 response.sendRedirect(builder.buildRedirectString());
