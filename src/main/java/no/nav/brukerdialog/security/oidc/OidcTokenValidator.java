@@ -109,7 +109,7 @@ public class OidcTokenValidator {
 
         try {
             JwtClaims claims = jwtConsumer.processToClaims(token);
-            logger.info("OIDC validation OK:" + claims.getSubject());
+            logger.debug("OIDC validation OK:" + claims.getSubject());
             return OidcTokenValidatorResult.valid(claims.getSubject(), claims.getExpirationTime().getValue());
         } catch (InvalidJwtException e) {
             logger.info("Feil ved validering av token.", e);
