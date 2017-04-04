@@ -11,7 +11,7 @@ public class AuditLogger {
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
 
     void logRequestInfo(String fnr) {
-        String requestMessage = "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() + " Fnr: " + fnr;
+        String requestMessage = "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() + " requests access to fnr: " + fnr;
 
         AUDITLOG.info(requestMessage);
         LOG.info(requestMessage);
