@@ -40,11 +40,11 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
-        final String token = validateToken(oidcTokenBody);
+        final String token = extractTokenBody(oidcTokenBody);
         return isServiceCallAllowed(token, null, domain, fnr, ResourceType.Person);
     }
 
-    String validateToken(String oidcTokenBody) throws PepException {
+    String extractTokenBody(String oidcTokenBody) throws PepException {
         final String[] tokenParts = oidcTokenBody.split("\\.");
         return tokenParts.length == 1 ? tokenParts[0] : tokenParts[1];
     }

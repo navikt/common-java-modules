@@ -66,13 +66,13 @@ public class PepImplTest {
 
     @Test
     public void girRiktigTokenBodyGittHeltToken() throws PepException {
-        final String token = pep.validateToken(TOKEN);
+        final String token = pep.extractTokenBody(TOKEN);
         assertThat(token, is(TOKEN_BODY));
     }
 
     @Test
     public void girRiktigTokenBodyGittBody() throws PepException {
-        final String token = pep.validateToken(TOKEN_BODY);
+        final String token = pep.extractTokenBody(TOKEN_BODY);
         assertThat(token, is(TOKEN_BODY));
     }
 
