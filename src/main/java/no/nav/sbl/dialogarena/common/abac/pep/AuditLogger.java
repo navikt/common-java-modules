@@ -11,23 +11,24 @@ public class AuditLogger {
     private static final Logger LOG = LoggerFactory.getLogger(AuditLogger.class);
 
     void logRequestInfo(String fnr) {
-        AUDITLOG.info("--------------------------------------");
         String requestMessage = "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid() + " Fnr: " + fnr;
 
         AUDITLOG.info(requestMessage);
         LOG.info(requestMessage);
     }
 
-    void logResponseInfoWithAdvice(String biasedDecision, XacmlResponse xacmlResponse) {
+    void logResponseInfo(String biasedDecision, XacmlResponse xacmlResponse, String fnr) {
         String decision = "";
         if (xacmlResponse.isFallbackUsed()) {
             decision = "FALLBACK ";
         }
         final Response response = xacmlResponse.getResponse().get(0);
 
-        final String decisionMessage = "Decision value from ABAC: " + decision + response.getDecision().name();
+        final String subjectidMessage = "NAV-ident: " + SubjectHandler.getSubjectHandler().getUid();
+        final String fnrMessage = " | Fnr: " + fnr;
+        final String decisionMessage = " | Decision value from ABAC: " + decision + response.getDecision().name();
         final String pepDecisionMessage = " | Pep-decision: " + biasedDecision;
-        String responseMessage = decisionMessage + " " + pepDecisionMessage;
+        String responseMessage = subjectidMessage + fnrMessage + decisionMessage + " " + pepDecisionMessage;
 
         AUDITLOG.info(responseMessage);
 

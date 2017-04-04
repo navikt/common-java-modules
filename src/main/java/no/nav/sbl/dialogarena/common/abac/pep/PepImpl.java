@@ -101,7 +101,7 @@ public class PepImpl implements Pep {
                     + "Fix policy and/or PEP to send proper attributes.");
         }
 
-        auditLogger.logResponseInfoWithAdvice(biasedDecision.name(), response);
+        auditLogger.logResponseInfo(biasedDecision.name(), response, fnr);
 
         return new BiasedDecisionResponse(biasedDecision, response);
     }

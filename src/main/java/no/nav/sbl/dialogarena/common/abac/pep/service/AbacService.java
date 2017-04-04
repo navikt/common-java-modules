@@ -82,7 +82,7 @@ public class AbacService implements TilgangService {
         HttpResponse response;
         try {
             response = abac.isAuthorized(createConfigForTimeout(), httpPost, addSystemUserToRequest());
-            auditLogger.log("HTTP response code: " + response.getStatusLine().getStatusCode());
+            auditLogger.log("HTTP response code from ABAC: " + response.getStatusLine().getStatusCode());
         } catch (IOException e) {
             httpLogger.logPostRequest(httpPost);
             httpLogger.logException("Error calling ABAC ", e);
