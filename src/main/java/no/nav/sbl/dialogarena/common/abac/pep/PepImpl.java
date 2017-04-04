@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
@@ -125,7 +126,7 @@ public class PepImpl implements Pep {
 
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
-        String ident = "Z990300";
+        String ident = SubjectHandler.getSubjectHandler().getUid();
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
