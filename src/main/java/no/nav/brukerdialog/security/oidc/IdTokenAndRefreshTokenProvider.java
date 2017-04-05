@@ -13,18 +13,19 @@ import javax.ws.rs.core.UriInfo;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import static java.lang.System.getProperty;
+
 public class IdTokenAndRefreshTokenProvider {
 
     private static final Logger log = LoggerFactory.getLogger(IdTokenAndRefreshTokenProvider.class);
-    private static final String DEFAULT_REDIRECT_URL = "/"+System.getProperty("applicationName")+"/tjenester/login";
+    private static final String DEFAULT_REDIRECT_URL = "/"+ getProperty("applicationName")+"/tjenester/login";
 
     public IdTokenAndRefreshToken getToken(String authorizationCode, UriInfo uri) {
         return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, uri), s -> extractToken(s));
     }
 
     private HttpUriRequest createTokenRequest(String authorizationCode, UriInfo redirectUri) {
-        String redirectUrl = System.getProperty("oidc-redirect.url") == null ? DEFAULT_REDIRECT_URL : System.getProperty("oidc-redirect.url");
-
+        String redirectUrl = getProperty("oidc-redirect.url") == null ? DEFAULT_REDIRECT_URL : "/oidclogin/login";
         String urlEncodedRedirectUri;
         try {
             urlEncodedRedirectUri = URLEncoder.encode(HostUtils.formatSchemeHostPort(redirectUri) + redirectUrl, "UTF-8");
@@ -32,10 +33,10 @@ public class IdTokenAndRefreshTokenProvider {
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
 
-        String host = System.getProperty("isso-host.url");
+        String host = getProperty("isso-host.url");
         String realm = "/";
-        String username = System.getProperty("isso-rp-user.username");
-        String password = System.getProperty("isso-rp-user.password");
+        String username = getProperty("isso-rp-user.username");
+        String password = getProperty("isso-rp-user.password");
 
         HttpPost request = new HttpPost(host + "/access_token");
         request.setHeader("Authorization", TokenProviderUtil.basicCredentials(username, password));
