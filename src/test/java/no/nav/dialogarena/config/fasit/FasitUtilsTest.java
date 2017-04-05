@@ -57,6 +57,16 @@ public class FasitUtilsTest {
     }
 
     @Test
+    public void getOpenAmConfig() {
+        OpenAmConfig openAmConfig = FasitUtils.getOpenAmConfig("t6");
+        assertThat(openAmConfig.username, equalTo("srvOpenam_test"));
+        assertThat(openAmConfig.password, not(nullValue()));
+
+        assertThat(openAmConfig.logoutUrl, equalTo("https://tjenester-t6.nav.no/esso/logout"));
+        assertThat(openAmConfig.restUrl, equalTo("https://itjenester-t6.oera.no/esso"));
+    }
+
+    @Test
     public void getTestUser() {
         TestUser serviceUser = FasitUtils.getTestUser("priveligert_veileder");
         assertThat(serviceUser.username, equalTo("Z990281"));

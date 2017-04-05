@@ -5,9 +5,9 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class ServiceUser {
+public class OpenAmConfig {
     public String username;
     public String password;
-    public String environment;
-    public String domain;
+    public String restUrl;
+    public String logoutUrl;
 }

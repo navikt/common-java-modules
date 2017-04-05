@@ -25,9 +25,12 @@ public class FasitUtils {
 
     public static final String FASIT_USERNAME_VARIABLE_NAME = "domenebrukernavn";
     public static final String FASIT_PASSWORD_VARIABLE_NAME = "domenepassord";
+    public static final String OERA_T_LOCAL = "oera-t.local";
 
     private static final Logger LOG = getLogger(FasitUtils.class);
     private static final SslContextFactory SSL_CONTEXT_FACTORY = new SslContextFactory();
+    public static final String WELL_KNOWN_APPLICATION_NAME = "fasit";
+    public static final String TEST_LOCAL = "test.local";
 
     public static String getVariable(String variableName) {
         return ofNullable(System.getProperty(variableName, System.getenv(variableName)))
@@ -64,9 +67,9 @@ public class FasitUtils {
     public static TestUser getTestUser(String userAlias) {
         ServiceUser serviceUser = getServiceUser(
                 userAlias,
-                "fasit",
+                WELL_KNOWN_APPLICATION_NAME,
                 "t1",
-                "test.local"
+                TEST_LOCAL
         );
         return new TestUser()
                 .setUsername(serviceUser.username)
@@ -76,6 +79,24 @@ public class FasitUtils {
     public static ServiceUser getServiceUser(String userAlias, String applicationName, String environment) {
         ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
         return getServiceUser(userAlias, applicationName, environment, applicationConfig.domain);
+    }
+
+    public static OpenAmConfig getOpenAmConfig(String environment) {
+        String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=OpenAm&alias=openam&app=fasit",
+                environment,
+                OERA_T_LOCAL
+        );
+        Document document = fetchXml(resourceUrl);
+        UsernameAndPassword usernameAndPassword = getUsernameAndPassword(document);
+        OpenAmConfig openAmConfig = new OpenAmConfig()
+                .setUsername(usernameAndPassword.getUsername())
+                .setPassword(usernameAndPassword.getPassword())
+                .setRestUrl(extractStringProperty(document,"restUrl"))
+                .setLogoutUrl(extractStringProperty(document,"logoutUrl"))
+                ;
+
+        LOG.info("openAm: {}",  openAmConfig);
+        return openAmConfig;
     }
 
     private static ServiceUser getServiceUser(String userAlias, String applicationName, String environment, String domain) {
@@ -88,22 +109,25 @@ public class FasitUtils {
         UsernameAndPassword usernameAndPassword = getUsernameAndPassword(resourceUrl);
         ServiceUser serviceUser = new ServiceUser()
                 .setUsername(usernameAndPassword.getUsername())
-                .setPassword(usernameAndPassword.getPassword());
+                .setPassword(usernameAndPassword.getPassword())
+                .setEnvironment(environment)
+                .setDomain(domain)
+                ;
 
         LOG.info("{} = {}", userAlias, serviceUser);
         return serviceUser;
     }
 
     private static UsernameAndPassword getUsernameAndPassword(String resourceUrl) {
+        return getUsernameAndPassword(fetchXml(resourceUrl));
+    }
+
+    private static UsernameAndPassword getUsernameAndPassword(Document document) {
         UsernameAndPassword usernameAndPassword = new UsernameAndPassword();
-        Document document = fetchXml(resourceUrl);
+        usernameAndPassword.setUsername(extractStringProperty(document, "username"));
 
-        NodeList properties = document.getElementsByTagName("property");
-        usernameAndPassword.setUsername(extractStringProperty(properties, "username"));
-
-        String passwordUrl = extractStringProperty(properties, "password");
-        LOG.info(passwordUrl);
-
+        String passwordUrl = extractStringProperty(document, "password");
+        LOG.info("fetching password from: {}", passwordUrl);
         usernameAndPassword.setPassword(httpClient(httpClient -> getContent(httpClient
                 .newRequest(passwordUrl)
                 .send()))
@@ -148,6 +172,11 @@ public class FasitUtils {
         } finally {
             httpClient.stop();
         }
+    }
+
+    private static String extractStringProperty(Document document, String propertyName) {
+        NodeList properties = document.getElementsByTagName("property");
+        return extractStringProperty(properties, propertyName);
     }
 
     private static String extractStringProperty(NodeList nodeList, String propertyName) {
