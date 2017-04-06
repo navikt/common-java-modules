@@ -1,6 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
+import no.nav.metrics.Event;
+import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
@@ -130,6 +132,8 @@ public class PepImpl implements Pep {
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
+            Event event = MetricsFactory.createEvent("abac.fallback.used");
+            event.report();
             return ldapService.askForPermission(ident);
         } catch (UnsupportedEncodingException e) {
             throw new PepException("Cannot parse object to json request. ", e);
