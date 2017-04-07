@@ -159,7 +159,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     private void addApplicationCallbackSpecificHttpOnlyCookie(HttpServletResponse response, String name, String value) {
-        String redirectUrl = System.getProperty("oidc-redirect.url") == null ? DEFAULT_REDIRECT_URL : System.getProperty("oidc-redirect.url");
+        String redirectUrl = System.getProperty("oidc-redirect.url") == null ? DEFAULT_REDIRECT_URL : "/oidclogin/login";
 
         Cookie cookie = new Cookie(name, value);
         cookie.setSecure(sslOnlyCookies);
