@@ -141,7 +141,7 @@ public class OidcAuthModule implements ServerAuthModule {
         try {
             return Optional.of(tokenProvider.getToken(refreshToken).getToken());
         } catch (Exception e) {
-            log.error("Could not refresh token", e);
+            log.warn("Could not refresh token", e);
             return Optional.empty();
         }
     }
