@@ -7,7 +7,12 @@ import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.modig.core.context.ThreadLocalSubjectHandler;
+import no.nav.dialogarena.config.security.ESSOProvider;
+import no.nav.modig.core.context.AuthenticationLevelCredential;
+import no.nav.modig.core.context.OpenAmTokenCredential;
+import no.nav.modig.core.context.StaticSubjectHandler;
+import no.nav.modig.core.domain.ConsumerId;
+import no.nav.modig.core.domain.SluttBruker;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
 import no.nav.modig.testcertificates.TestCertificates;
@@ -18,6 +23,7 @@ import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.slf4j.Logger;
 
+import javax.security.auth.Subject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -145,12 +151,28 @@ public class DevelopmentSecurity {
     public static void setupIntegrationTestSecurity(ServiceUser serviceUser) {
         commonSetup();
 
-        System.setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
         configureServiceUser(serviceUser);
+        configureSubjectHandler(StaticSubjectHandler.class);
+        StaticSubjectHandler subjectHandler = (StaticSubjectHandler) StaticSubjectHandler.getSubjectHandler();
+        subjectHandler.setSubject(integrationTestSubject(serviceUser));
+    }
+
+    private static Subject integrationTestSubject(ServiceUser serviceUser) {
+        ESSOProvider.ESSOCredentials essoCredentials = ESSOProvider.getEssoCredentials(serviceUser.environment);
+        String sso = essoCredentials.sso;
+        String username = essoCredentials.testUser.username;
+
+        Subject subject = new Subject();
+        subject.getPrincipals().add(SluttBruker.eksternBruker(username));
+        subject.getPrincipals().add(new ConsumerId(username));
+        subject.getPublicCredentials().add(new OpenAmTokenCredential(sso));
+        subject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
+        return subject;
     }
 
     private static void commonSetup() {
         TestCertificates.setupKeyAndTrustStore();
+        setProperty("disable.ssl.cn.check", Boolean.TRUE.toString());
         setProperty("disable.metrics.report", Boolean.TRUE.toString());
     }
 
