@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import java.net.HttpCookie;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
@@ -18,14 +20,8 @@ public class ISSOProviderIntegrationTest {
         List<HttpCookie> issoCookies = ISSOProvider.getISSOCookies(kerberos_test_token.password, "https://app-t6.adeo.no/veilarbpersonflatefs/tjenester/login");
 
         assertThat(issoCookies.size(), is(2));
-
-        HttpCookie refreshTokenCookie = issoCookies.get(0);
-        assertThat(refreshTokenCookie.getName(), equalTo("refresh_token"));
-        assertThat(refreshTokenCookie.getName(), notNullValue());
-
-        HttpCookie idTokenCookie = issoCookies.get(1);
-        assertThat(idTokenCookie.getName(), equalTo("ID_token"));
-        assertThat(idTokenCookie.getName(), notNullValue());
+        Set<String> cookieNames = issoCookies.stream().map(HttpCookie::getName).collect(Collectors.toSet());
+        assertThat(cookieNames, equalTo(ISSOProvider.ISSO_COOKIE_NAMES));
     }
 
 }

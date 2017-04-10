@@ -3,6 +3,7 @@ package no.nav.dialogarena.config.fasit;
 
 import lombok.Data;
 import lombok.SneakyThrows;
+import no.nav.dialogarena.config.util.Util;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.BasicAuthentication;
@@ -162,16 +163,11 @@ public class FasitUtils {
     }
 
     @SneakyThrows
-    private static <T> T httpClient(With<HttpClient, T> httpClientConsumer) {
-        HttpClient httpClient = new HttpClient(SSL_CONTEXT_FACTORY);
-        httpClient.setFollowRedirects(false);
-        httpClient.getAuthenticationStore().addAuthentication(new FasitAuthenication());
-        try {
-            httpClient.start();
+    public static <T> T httpClient(Util.With<HttpClient, T> httpClientConsumer) {
+        return Util.httpClient((httpClient) -> {
+            httpClient.getAuthenticationStore().addAuthentication(new FasitAuthenication());
             return httpClientConsumer.with(httpClient);
-        } finally {
-            httpClient.stop();
-        }
+        });
     }
 
     private static String extractStringProperty(Document document, String propertyName) {
@@ -208,13 +204,6 @@ public class FasitUtils {
         public boolean matches(String type, URI uri, String realm) {
             return true;
         }
-
-    }
-
-    @FunctionalInterface
-    public interface With<T, R> {
-
-        R with(T t) throws Exception;
 
     }
 
