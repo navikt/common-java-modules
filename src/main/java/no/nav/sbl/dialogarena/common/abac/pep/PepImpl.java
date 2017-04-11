@@ -43,6 +43,7 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
+        validateFnr(fnr);
         final String token = extractTokenBody(oidcTokenBody);
         return isServiceCallAllowed(token, null, domain, fnr, ResourceType.Person);
     }
@@ -54,22 +55,26 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) throws PepException {
+        validateFnr(fnr);
         return isServiceCallAllowed(null, ident, domain, fnr, ResourceType.Person);
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String oidcTokenBody, String domain) throws PepException {
-        return isServiceCallAllowed(oidcTokenBody, null, domain, null, ResourceType.Kode7);
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String token, String domain) throws PepException {
+        final String tokenBody = extractTokenBody(token);
+        return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.Kode7);
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String oidcTokenBody, String domain) throws PepException {
-        return isServiceCallAllowed(oidcTokenBody, null, domain, null, ResourceType.Kode6);
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String token, String domain) throws PepException {
+        final String tokenBody = extractTokenBody(token);
+        return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.Kode6);
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String oidcTokenBody, String domain) throws PepException {
-        return isServiceCallAllowed(oidcTokenBody, null, domain, null, ResourceType.EgenAnsatt);
+    public BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String token, String domain) throws PepException {
+        final String tokenBody = extractTokenBody(token);
+        return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.EgenAnsatt);
     }
 
     @Override
@@ -82,7 +87,6 @@ public class PepImpl implements Pep {
     }
 
     private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
-        validateFnr(fnr);
 
         auditLogger.logRequestInfo(fnr);
 
