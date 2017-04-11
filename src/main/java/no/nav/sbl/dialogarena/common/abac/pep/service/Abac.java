@@ -33,9 +33,8 @@ public class Abac {
         try {
             return (HttpResponse) MetodeTimer.timeMetode(() -> httpClient.execute(httpPost), "abac-pdp");
         } catch (Throwable throwable) {
-            LOG.warn("Problem in metrics library", throwable);
+            throw new IOException("Problem calling ABAC", throwable);
         }
-        return httpClient.execute(httpPost);
     }
 
     private CloseableHttpClient createHttpClient(RequestConfig config, CredentialsProvider credentialsProvider) throws NoSuchFieldException {
