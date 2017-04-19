@@ -212,7 +212,9 @@ public class DevelopmentSecurity {
     }
 
     private static Jetty.JettyBuilder configureJaspi(Jetty.JettyBuilder jettyBuilder, ISSOSecurityConfig issoSecurityConfig) throws IOException {
-        File jaspiConfigFile = new File("target/jaspiconf.xml");
+        File target = new File("target");
+        target.mkdirs();
+        File jaspiConfigFile = new File(target, "jaspiconf.xml");
         try (FileOutputStream fileOutputStream = new FileOutputStream(jaspiConfigFile)) {
             write(readJaspiConfig(issoSecurityConfig), fileOutputStream);
         }
