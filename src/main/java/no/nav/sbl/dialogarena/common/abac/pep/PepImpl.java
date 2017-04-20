@@ -83,8 +83,20 @@ public class PepImpl implements Pep {
         Decision originalDecision = response.getResponse().get(0).getDecision();
         Decision biasedDecision = createBiasedDecision(originalDecision);
         return new BiasedDecisionResponse(biasedDecision, response);
-
     }
+
+    @Override
+    public void ping() throws NoSuchFieldException, AbacException, IOException, PepException {
+        XacmlResponse response = abacService.askForPermission(XacmlRequestGenerator.getEmptyRequest());
+
+        Decision originalDecision = response.getResponse().get(0).getDecision();
+        Decision biasedDecision = createBiasedDecision(originalDecision);
+
+        if(biasedDecision.equals(Decision.Permit)) {
+            throw new PepException("Ping call should return Deny not Permit");
+        }
+    }
+
 
     private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
 

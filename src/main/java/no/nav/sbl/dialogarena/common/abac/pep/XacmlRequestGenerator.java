@@ -85,4 +85,10 @@ class XacmlRequestGenerator {
     public XacmlRequest getRequest() {
         return xacmlRequest;
     }
+
+
+    public static XacmlRequest getEmptyRequest() {
+        return new XacmlRequest().withRequest(new Request());
+
+    }
 }
