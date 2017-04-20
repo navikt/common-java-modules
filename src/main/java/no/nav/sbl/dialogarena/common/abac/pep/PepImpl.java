@@ -86,11 +86,18 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public void ping() throws NoSuchFieldException, AbacException, IOException, PepException {
-        XacmlResponse response = abacService.askForPermission(XacmlRequestGenerator.getEmptyRequest());
+    public void ping() throws PepException {
+        Decision biasedDecision;
 
-        Decision originalDecision = response.getResponse().get(0).getDecision();
-        Decision biasedDecision = createBiasedDecision(originalDecision);
+        try {
+            XacmlResponse response = abacService.askForPermission(XacmlRequestGenerator.getEmptyRequest());
+            Decision originalDecision = response.getResponse().get(0).getDecision();
+            biasedDecision = createBiasedDecision(originalDecision);
+
+        }catch(NoSuchFieldException | AbacException | IOException e) {
+            throw new PepException("Feil ved kall til abac", e);
+        }
+
 
         if(biasedDecision.equals(Decision.Permit)) {
             throw new PepException("Ping call should return Deny not Permit");

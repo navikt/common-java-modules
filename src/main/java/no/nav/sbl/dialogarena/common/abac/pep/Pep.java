@@ -36,5 +36,5 @@ public interface Pep {
 
     BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException;
 
-    void ping() throws PepException, NoSuchFieldException, AbacException, IOException;
+    void ping() throws PepException;
 }
