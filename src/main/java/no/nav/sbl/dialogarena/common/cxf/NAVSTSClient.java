@@ -37,7 +37,8 @@ public class NAVSTSClient extends STSClient {
         String userId = subjectHandler.getUid();
         String key = subjectHandler.getInternSsoToken();
         if (key == null) {
-            throw new IllegalStateException("Kan ikke hente SAML uten OIDC");
+            key = "systemSAML";
+            logger.info("Finner ingen OIDC, henter SAML som systembruker");
         }
 
         SecurityToken token = tokenStore.getToken(key);
