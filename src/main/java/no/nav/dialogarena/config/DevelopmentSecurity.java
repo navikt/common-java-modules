@@ -172,6 +172,7 @@ public class DevelopmentSecurity {
 
     private static void commonSetup() {
         TestCertificates.setupKeyAndTrustStore();
+        setProperty("environment.class", "t");
         setProperty("disable.ssl.cn.check", Boolean.TRUE.toString());
         setProperty("disable.metrics.report", Boolean.TRUE.toString());
     }
