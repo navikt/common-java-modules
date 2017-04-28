@@ -2,6 +2,7 @@ package no.nav.sbl.dialogarena.common.jetty;
 
 import com.ibm.mq.jms.JMSC;
 import com.ibm.mq.jms.MQQueueConnectionFactory;
+import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
@@ -189,6 +190,7 @@ public final class Jetty {
             try {
                 if (context == null) {
                     context = new WebAppContext();
+                    context.setThrowUnavailableOnStartupException(true);
                 }
                 String warPath = getWarPath();
                 if (isBlank(contextPath)) {
@@ -240,6 +242,7 @@ public final class Jetty {
     };
 
     private static final String[] CONFIGURATION_CLASSES = {
+            AnnotationConfiguration.class.getName(),
             WebInfConfiguration.class.getName(),
             WebXmlConfiguration.class.getName(),
             MetaInfConfiguration.class.getName(),
