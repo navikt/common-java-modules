@@ -136,6 +136,7 @@ public class DevelopmentSecurity {
         setProperty("isso-jwks.url", format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentShort));
         setProperty("isso-issuer.url", format("https://isso-%s.adeo.no:443/isso/oauth2", environmentShort)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
         setProperty("isso-host.url", format("https://isso-%s.adeo.no/isso/oauth2", environmentShort));
+        setProperty("oidc-redirect.url", format("/%s/tjenester/login", issoSecurityConfig.contextName));
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, TEST_LOCAL);
