@@ -6,6 +6,7 @@ import javax.servlet.annotation.WebListener;
 import java.util.Map;
 
 import static java.util.Collections.list;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 @WebListener
@@ -22,7 +23,7 @@ public class TestListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         contextParams = list(sce.getServletContext().getInitParameterNames())
                 .stream()
-                .collect(toMap(i -> i, i -> i));
+                .collect(toMap(identity(), identity()));
     }
 
     @Override
