@@ -176,6 +176,7 @@ public class DevelopmentSecurity {
         setProperty("environment.class", "t");
         setProperty("disable.ssl.cn.check", Boolean.TRUE.toString());
         setProperty("disable.metrics.report", Boolean.TRUE.toString());
+        setProperty("jetty.print.localhost", Boolean.TRUE.toString());
     }
 
     private static void assertCorrectDomain(ServiceUser serviceUser, String expectedDomain) {
