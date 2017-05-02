@@ -12,7 +12,7 @@
 	<version>1.0-SNAPSHOT</version>
 
 	<properties>
-		<cxf.version>3.1.6</cxf.version>
+		<cxf.version>3.1.11</cxf.version>
         <slf4j.version>1.7.7</slf4j.version>
         <modig-core.version>1.0.1</modig-core.version>
         <nav-metrics.version>3.1.0</nav-metrics.version>
