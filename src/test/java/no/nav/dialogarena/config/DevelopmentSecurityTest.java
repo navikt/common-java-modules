@@ -7,6 +7,10 @@ import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.junit.Test;
 
+import java.io.File;
+
+import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
+
 
 public class DevelopmentSecurityTest {
 
@@ -20,7 +24,7 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupJettyWithISSO() {
         Jetty jetty = DevelopmentSecurity.setupISSO(
-                new Jetty.JettyBuilder().at("test"),
+                jettyBuilder(),
                 new ISSOSecurityConfig("veilarbsituasjon", "t6")
         ).buildJetty();
         jetty.start();
@@ -30,7 +34,7 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupJettyWithESSO() {
         Jetty jetty = DevelopmentSecurity.setupESSO(
-                new Jetty.JettyBuilder().at("test"),
+                jettyBuilder(),
                 new ESSOSecurityConfig("veilarbsituasjonproxy", "t6")
         ).buildJetty();
         jetty.start();
@@ -40,11 +44,15 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupJettyWithSamlLogin() {
         Jetty jetty = DevelopmentSecurity.setupSamlLogin(
-                new Jetty.JettyBuilder().at("test"),
+                jettyBuilder(),
                 new SamlSecurityConfig("veilarbsituasjon", "t6")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
+    }
+
+    private Jetty.JettyBuilder jettyBuilder() {
+        return usingWar(new File("src/test/webapp"));
     }
 
 }
