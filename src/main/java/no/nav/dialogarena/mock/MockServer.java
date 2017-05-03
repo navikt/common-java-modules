@@ -47,6 +47,9 @@ public class MockServer {
                 response.getWriter().write("mock for: " + contextPath);
                 baseRequest.setHandled(true);
             } else {
+                if (getResource("/") == null) {
+                    throw new IOException("Unable to locate /mockserver in resources. Check your configuration.");
+                }
                 String pathInfo = target + "." + baseRequest.getMethod();
                 String jsonPath =  pathInfo + ".json";
                 if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
