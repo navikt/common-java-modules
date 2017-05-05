@@ -31,6 +31,8 @@ import java.io.IOException;
 
 import static java.lang.String.format;
 import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
+import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
+import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.dialogarena.config.fasit.FasitUtils.OERA_T_LOCAL;
 import static no.nav.dialogarena.config.fasit.FasitUtils.TEST_LOCAL;
 import static no.nav.dialogarena.config.util.Util.setProperty;
@@ -109,7 +111,7 @@ public class DevelopmentSecurity {
         configureSubjectHandler(MODIG_SUBJECT_HANDLER_CLASS);
 
         LOG.info("configuring: {}", SamlLoginModule.class.getName());
-        return jaasLoginModule(jettyBuilder, "saml");
+        return jettyBuilder.withLoginService(jaasLoginModule(SAML));
     }
 
     @SneakyThrows
@@ -203,16 +205,17 @@ public class DevelopmentSecurity {
         setProperty("openam.restUrl", openAmConfig.restUrl);
         setProperty("openam.logoutUrl", openAmConfig.logoutUrl);
         LOG.info("configuring: {}", OpenAMLoginModule.class.getName());
-        return jaasLoginModule(jettyBuilder, "esso");
+        return jettyBuilder.withLoginService(jaasLoginModule(ESSO));
     }
 
-    private static Jetty.JettyBuilder jaasLoginModule(Jetty.JettyBuilder jettyBuilder, String name) throws IOException {
+    public static JAASLoginService jaasLoginModule(LoginModuleType loginModuleType) {
         setProperty("java.security.auth.login.config", DevelopmentSecurity.class.getResource("/jaas.config").toExternalForm());
         JAASLoginService loginService = new JAASLoginService();
-        loginService.setName(name);
-        loginService.setLoginModuleName(name);
+        String moduleName = loginModuleType.getModuleName();
+        loginService.setName(moduleName);
+        loginService.setLoginModuleName(moduleName);
         loginService.setIdentityService(new DefaultIdentityService());
-        return jettyBuilder.withLoginService(loginService);
+        return loginService;
     }
 
     private static void configureSubjectHandler(Class<?> jettySubjectHandlerClass) {
@@ -243,4 +246,19 @@ public class DevelopmentSecurity {
                 .replace("%%CONTEXT_PATH%%", contextName);
     }
 
+    public enum LoginModuleType {
+        ESSO("esso"),
+        SAML("saml");
+
+        private final String moduleName;
+
+        LoginModuleType(String moduleName) {
+            this.moduleName = moduleName;
+        }
+
+        public String getModuleName() {
+            return moduleName;
+        }
+
+    }
 }
