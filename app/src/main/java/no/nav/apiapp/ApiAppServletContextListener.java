@@ -5,6 +5,7 @@ import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestJsonServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
+import no.nav.apiapp.soap.SoapServlet;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
@@ -31,6 +32,7 @@ import static java.util.Optional.ofNullable;
 import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.ServletUtil.getApplicationName;
 import static no.nav.apiapp.ServletUtil.getContext;
+import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -97,6 +99,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         leggTilServlet(servletContextEvent, SelfTestJsonServlet.class, INTERNAL_SELFTEST_JSON);
 
         settOppRestApi(servletContextEvent);
+        if (soapTjenesterEksisterer(servletContextEvent.getServletContext())) {
+            leggTilServlet(servletContextEvent, new SoapServlet(), "/ws/*");
+        }
         settOppSessionOgCookie(servletContextEvent);
         LOGGER.info("contextInitialized - slutt");
     }
@@ -168,8 +173,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private void settOppRestApi(ServletContextEvent servletContextEvent) {
         RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()));
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
-        ServletRegistration.Dynamic servletRegistration = servletContextEvent.getServletContext().addServlet("rest", servlet);
-        servletRegistration.addMapping("/api/*");
+        leggTilServlet(servletContextEvent, servlet, "/api/*");
     }
 
     private void settOppSessionOgCookie(ServletContextEvent servletContextEvent) {
@@ -207,6 +211,11 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         servletContextEvent.getServletContext().addServlet(servletClass.getName(), servletClass).addMapping(path);
         // TODO eksperimenter med setServletSecurity()!
         LOGGER.info("la til servlet [{}] på [{}]", servletClass.getName(), path);
+    }
+
+    private void leggTilServlet(ServletContextEvent servletContextEvent, Servlet servlet, String path) {
+        servletContextEvent.getServletContext().addServlet(servlet.getClass().getName(), servlet).addMapping(path);
+        LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
     }
 
 }

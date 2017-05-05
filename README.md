@@ -26,7 +26,9 @@ Dermed kan
 
 ### 2) Oppsett av REST-api
 
-Hvis ønskelig, kan api-app sette opp et rest-api med fornuftige defaults basert på en annotert klasse i prosjektet. Legg til følgende avhengighet i war-modulen og bruk feilmeldigene denne printer ved oppstart til resterende konfigurasjon:
+Hvis ønskelig, kan api-app sette opp et rest-api og eventuelle soap-tjenester med fornuftige defaults basert på en annotert klasse i prosjektet. 
+
+Legg til følgende avhengighet i war-modulen og bruk feilmeldigene denne printer ved oppstart til resterende konfigurasjon:
 ```
     <dependency>
         <groupId>no.nav.sbl.dialogarena</groupId>

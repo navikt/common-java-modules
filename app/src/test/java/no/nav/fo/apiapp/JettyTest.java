@@ -1,6 +1,9 @@
 package no.nav.fo.apiapp;
 
 import no.nav.apiapp.rest.JsonProvider;
+import no.nav.dialogarena.config.DevelopmentSecurity;
+import no.nav.dialogarena.config.fasit.ServiceUser;
+import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.AfterClass;
@@ -43,10 +46,14 @@ public abstract class JettyTest {
         JETTY.stop.run();
     }
 
-    private int port = ((ServerConnector) JETTY.server.getConnectors()[0]).getPort();
+    @BeforeClass
+    public static void systemUser() {
+        System.setProperty("no.nav.modig.security.systemuser.username","username");
+        System.setProperty("no.nav.modig.security.systemuser.password","password");
+    }
 
     protected Response get(String path) {
-        URI uri = UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("http").port(port).build();
+        URI uri = uri(path);
         LOGGER.info("get: {}", uri);
         Invocation.Builder request = client.target(uri).request();
         cookies.forEach((k, v) -> request.cookie(k, v.getValue()));
@@ -54,6 +61,10 @@ public abstract class JettyTest {
         response.getCookies().forEach((k, v) -> cookies.put(k, v));
         LOGGER.info("[response] status={} cookies={}", response.getStatus(), cookies);
         return response;
+    }
+
+    protected static URI uri(String path) {
+        return UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("http").port(getPort()).build();
     }
 
     protected String getString(String path) {
@@ -69,7 +80,11 @@ public abstract class JettyTest {
         return cookies;
     }
 
-    private String getHostName() {
+    private static int getPort() {
+        return ((ServerConnector) JETTY.server.getConnectors()[0]).getPort();
+    }
+
+    private static String getHostName() {
         try {
             return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {

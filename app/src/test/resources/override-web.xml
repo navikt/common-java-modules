@@ -10,9 +10,9 @@
         <param-value>no.nav.fo.apiapp.ApplicationConfig</param-value>
     </context-param>
 
-    <!--<listener>-->
-        <!--<listener-class>no.nav.apiapp.ApiAppServletContextListener</listener-class>-->
-    <!--</listener>-->
+    <listener>
+        <listener-class>no.nav.apiapp.ApiAppServletContextListener</listener-class>
+    </listener>
 
     <!-- kun for testingen sin del, se SessionCookieTest -->
     <context-param>

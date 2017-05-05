@@ -1,5 +1,6 @@
 package no.nav.fo.apiapp;
 
+import no.nav.dialogarena.config.DevelopmentSecurity;
 import no.nav.modig.core.context.StaticSubjectHandler;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
@@ -9,6 +10,7 @@ import java.net.ServerSocket;
 
 import static java.lang.System.setProperty;
 import static no.nav.apiapp.rest.ExceptionMapper.MILJO_PROPERTY_NAME;
+import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.sbl.dialogarena.common.jetty.JettyStarterUtils.*;
 
 
@@ -26,6 +28,8 @@ public class StartJetty {
                 .at(contextPath)
                 .port(tilfeldigPort())
                 .overrideWebXml()
+                .disableAnnotationScanning()
+                .withLoginService(DevelopmentSecurity.jaasLoginModule(SAML))
                 .buildJetty();
     }
 
