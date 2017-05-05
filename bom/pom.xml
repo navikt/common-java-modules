@@ -34,7 +34,7 @@
         <common-web.version>2.0.4</common-web.version>
         <common-abac.version>1.0.46</common-abac.version>
         <common-test.version>2.0.3</common-test.version>
-        <common-jetty.version>2.0.15</common-jetty.version>
+        <common-jetty.version>2.0.16</common-jetty.version>
         <jetty.version>9.3.0.M2</jetty.version>
 
         <!-- SOAP -->
@@ -622,7 +622,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>test-config</artifactId>
-                <version>1.0.15.25</version>
+                <version>1.0.17.34</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
