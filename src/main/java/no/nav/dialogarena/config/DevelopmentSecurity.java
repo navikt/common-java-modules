@@ -18,6 +18,7 @@ import no.nav.modig.security.loginmodule.SamlLoginModule;
 import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
+import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.DefaultIdentityService;
@@ -29,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static java.lang.String.format;
+import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
 import static no.nav.dialogarena.config.fasit.FasitUtils.OERA_T_LOCAL;
 import static no.nav.dialogarena.config.fasit.FasitUtils.TEST_LOCAL;
 import static no.nav.dialogarena.config.util.Util.setProperty;
@@ -71,14 +73,11 @@ public class DevelopmentSecurity {
         private final String environment;
 
         private String serviceUserName;
-        private String contextName;
 
         public ESSOSecurityConfig(String applicationName, String environment) {
             this.applicationName = applicationName;
             this.environment = environment;
-
             this.serviceUserName = "srv" + applicationName;
-            this.contextName = applicationName;
         }
     }
 
@@ -90,21 +89,18 @@ public class DevelopmentSecurity {
         private final String environment;
 
         private String serviceUserName;
-        private String contextName;
 
         public SamlSecurityConfig(String applicationName, String environment) {
             this.applicationName = applicationName;
             this.environment = environment;
-
             this.serviceUserName = "srv" + applicationName;
-            this.contextName = applicationName;
         }
     }
 
 
     @SneakyThrows
     public static Jetty.JettyBuilder setupSamlLogin(Jetty.JettyBuilder jettyBuilder, SamlSecurityConfig essoSecurityConfig) {
-        commonServerSetup(jettyBuilder, essoSecurityConfig.contextName);
+        commonServerSetup(jettyBuilder);
 
         String environment = essoSecurityConfig.environment;
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
@@ -118,7 +114,7 @@ public class DevelopmentSecurity {
 
     @SneakyThrows
     public static Jetty.JettyBuilder setupESSO(Jetty.JettyBuilder jettyBuilder, ESSOSecurityConfig essoSecurityConfig) {
-        commonServerSetup(jettyBuilder, essoSecurityConfig.contextName);
+        commonServerSetup(jettyBuilder);
         String environment = essoSecurityConfig.environment;
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
@@ -130,7 +126,7 @@ public class DevelopmentSecurity {
 
     @SneakyThrows
     public static Jetty.JettyBuilder setupISSO(Jetty.JettyBuilder jettyBuilder, ISSOSecurityConfig issoSecurityConfig) {
-        commonServerSetup(jettyBuilder, issoSecurityConfig.contextName);
+        commonServerSetup(jettyBuilder);
 
         String environment = issoSecurityConfig.environment;
         String environmentShort = environment.substring(0, 1);
@@ -151,7 +147,7 @@ public class DevelopmentSecurity {
         setProperty("no.nav.abac.systemuser.password", serviceUser.password);
 
         configureSubjectHandler(OIDC_SUBJECT_HANDLER_CLASS);
-        return jettyBuilder;
+        return configureJaspi(jettyBuilder, issoSecurityConfig.contextName);
     }
 
     public static void setupIntegrationTestSecurity(ServiceUser serviceUser) {
@@ -176,10 +172,9 @@ public class DevelopmentSecurity {
         return subject;
     }
 
-    private static void commonServerSetup(Jetty.JettyBuilder jettyBuilder, String contextName) {
+    private static void commonServerSetup(Jetty.JettyBuilder jettyBuilder) {
         commonSetup();
-        // annotation-scanning oppdater automatisk SamAutoRegistration, og vi må derfor alltid konfigurere jaspi
-        configureJaspi(jettyBuilder, contextName);
+        jettyBuilder.disableAnnotationScanning();
     }
 
     private static void commonSetup() {
@@ -238,6 +233,8 @@ public class DevelopmentSecurity {
         String absolutePath = jaspiConfigFile.getAbsolutePath();
         LOG.info("jaspi contiguration at: {}", absolutePath);
         setProperty("org.apache.geronimo.jaspic.configurationFile", absolutePath);
+        // NB hvis man kjører på appserver med annotasjons-scanning, blir denne oppdaget automatisk
+        setProperty(DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
         return jettyBuilder.configureForJaspic();
     }
 

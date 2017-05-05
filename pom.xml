@@ -57,6 +57,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-jaspi</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>no.nav.modig</groupId>
             <artifactId>modig-security-loginmodule</artifactId>
             <scope>compile</scope>
