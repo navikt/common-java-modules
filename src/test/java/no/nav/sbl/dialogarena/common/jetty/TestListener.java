@@ -14,9 +14,12 @@ public class TestListener implements ServletContextListener {
 
     private static Map<String, String> contextParams;
 
-
     public static Map<String, String> getContextParams() {
         return contextParams;
+    }
+
+    public static void reset() {
+        contextParams = null;
     }
 
     @Override
