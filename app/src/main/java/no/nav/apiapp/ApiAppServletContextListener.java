@@ -16,7 +16,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -47,6 +46,7 @@ import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
 public class ApiAppServletContextListener implements WebApplicationInitializer, ServletContextListener, HttpSessionListener {
 
     public static final String SPRING_CONTEKST_KLASSE_PARAMETER_NAME = "springContekstKlasse";
+    private static final String SPRING_CONTEXT_KLASSENAVN = AnnotationConfigWebApplicationContext.class.getName();
 
     public static final String INTERNAL_IS_ALIVE = "/internal/isAlive";
     public static final String INTERNAL_SELFTEST = "/internal/selftest";
@@ -73,6 +73,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextInitialized");
+        if(!erSpringSattOpp(servletContextEvent)){
+            konfigurerSpring(servletContextEvent.getServletContext());
+        }
         ApiApplication apiApplication = startSpring(servletContextEvent);
 
         if (apiApplication.getSone() == ApiApplication.Sone.SBS) {
@@ -117,6 +120,21 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     }
 
     private void konfigurerSpring(ServletContext servletContext) {
+        servletContext.setInitParameter(CONTEXT_CLASS_PARAM, SPRING_CONTEXT_KLASSENAVN);
+        servletContext.setInitParameter(CONFIG_LOCATION_PARAM, getAppKontekstKlasseNavn(servletContext));
+
+        // Se JettySubjectHandler. Strengt talt ikke nødvendig på JBOSS, men greit å ha mest mulig konsistens
+        servletContext.addListener(RequestContextListener.class);
+    }
+
+    private boolean erSpringSattOpp(ServletContextEvent servletContextEvent) {
+        ServletContext servletContext = servletContextEvent.getServletContext();
+        return SPRING_CONTEXT_KLASSENAVN.equals(servletContext.getInitParameter(CONTEXT_CLASS_PARAM))
+                && getAppKontekstKlasseNavn(servletContext).equals(servletContext.getInitParameter(CONFIG_LOCATION_PARAM))
+                ;
+    }
+
+    private String getAppKontekstKlasseNavn(ServletContext servletContext) {
         /////////////////
         // TODO validering ????
         /////////////////
@@ -131,12 +149,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         if(!erApiApplikasjon(springContekstKlasseNavn)){
             throw new IllegalArgumentException(String.format("Klassen '%s' må implementere %s", springContekstKlasseNavn, ApiApplication.class));
         }
-
-        servletContext.setInitParameter(CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
-        servletContext.setInitParameter(CONFIG_LOCATION_PARAM, springContekstKlasseNavn);
-
-        // Se JettySubjectHandler. Strengt talt ikke nødvendig på JBOSS, men greit å ha mest mulig konsistens
-        servletContext.addListener(RequestContextListener.class);
+        return springContekstKlasseNavn;
     }
 
     private boolean erApiApplikasjon(String springContekstKlasseNavn) {
