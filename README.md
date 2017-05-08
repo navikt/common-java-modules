@@ -28,16 +28,19 @@ Dermed kan
 
 Hvis ønskelig, kan api-app sette opp et rest-api og eventuelle soap-tjenester med fornuftige defaults basert på en annotert klasse i prosjektet. 
 
-Legg til følgende avhengighet i war-modulen og bruk feilmeldigene denne printer ved oppstart til resterende konfigurasjon:
+Legg til følgende avhengighet i war-modulen:
 ```
     <dependency>
         <groupId>no.nav.sbl.dialogarena</groupId>
         <artifactId>api-app</artifactId>
     </dependency>
 ```
-  
-  
+Api-app settes da opp automatisk på applikasjonsservere som ufører scanning etter servlet 3.0-annotasjoner, og vil logge retningslinjer for resterende konfigurasjon ved oppstart. 
 
-
-
-
+Hvis ikke annotasjonsscanning brukes, legg til følgende i web.xml: 
+```
+    <listener>
+        <listener-class>no.nav.apiapp.ApiAppServletContextListener</listener-class>
+    </listener>
+```
+ 
