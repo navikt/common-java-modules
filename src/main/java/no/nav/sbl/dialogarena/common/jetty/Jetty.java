@@ -2,6 +2,7 @@ package no.nav.sbl.dialogarena.common.jetty;
 
 import com.ibm.mq.jms.JMSC;
 import com.ibm.mq.jms.MQQueueConnectionFactory;
+import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -73,6 +74,7 @@ public final class Jetty {
         private Map<String, Queue> queueSources = new HashMap<>();
         private String extraClasspath;
         private Boolean configureForJaspic;
+        private boolean disableAnnotationScanning;
 
 
         public final JettyBuilder war(File warPath) {
@@ -209,6 +211,11 @@ public final class Jetty {
                 return context.getWar();
             }
         }
+
+        public JettyBuilder disableAnnotationScanning() {
+            this.disableAnnotationScanning = true;
+            return this;
+        }
     }
 
     private final int port;
@@ -242,7 +249,6 @@ public final class Jetty {
     };
 
     private static final String[] CONFIGURATION_CLASSES = {
-            AnnotationConfiguration.class.getName(),
             WebInfConfiguration.class.getName(),
             WebXmlConfiguration.class.getName(),
             MetaInfConfiguration.class.getName(),
@@ -264,12 +270,13 @@ public final class Jetty {
         this.loginService = builder.loginService;
         this.configureForJaspic = builder.configureForJaspic;
         this.extraClasspath = builder.extraClasspath;
-        this.context = setupWebapp(builder.context);
+        this.context = setupWebapp(builder);
         this.server = setupJetty(new Server());
         this.developmentMode = builder.developmentMode;
     }
 
-    private WebAppContext setupWebapp(final WebAppContext webAppContext) {
+    private WebAppContext setupWebapp(JettyBuilder builder) {
+        WebAppContext webAppContext = builder.context;
         if (isNotBlank(contextPath)) {
             webAppContext.setContextPath(contextPath);
         }
@@ -304,7 +311,7 @@ public final class Jetty {
             webAppContext.setSecurityHandler(sh);
         }
 
-        webAppContext.setConfigurationClasses(CONFIGURATION_CLASSES);
+        webAppContext.setConfigurationClasses(builder.disableAnnotationScanning ? CONFIGURATION_CLASSES : ArrayUtils.add(CONFIGURATION_CLASSES, AnnotationConfiguration.class.getName()));
         Map<String, String> initParams = webAppContext.getInitParams();
         initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
