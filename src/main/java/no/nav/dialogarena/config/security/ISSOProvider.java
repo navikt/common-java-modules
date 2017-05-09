@@ -35,6 +35,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
+import static no.nav.dialogarena.config.DevelopmentSecurity.DEFAULT_ISSO_RP_USER;
 import static org.eclipse.jetty.http.HttpMethod.POST;
 import static org.mockito.Mockito.when;
 
@@ -51,6 +52,10 @@ public class ISSOProvider {
 
     private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("description: \".*\"");
 
+    public static List<HttpCookie> getISSOCookies() {
+        return getISSOCookies(getTestAuthorization(),KJENT_LOGIN_ADRESSE);
+    }
+
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl) {
         LOGGER.info("getting isso-cookies: {} {}", redirectUrl, authorization);
         try {
@@ -58,6 +63,18 @@ public class ISSOProvider {
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn med isso mot: [%s]\n > %s", redirectUrl, e.getMessage()), e);
         }
+    }
+
+    public static String getISSOToken() {
+        return getISSOToken(getTestUser(), getTestAuthorization());
+    }
+
+    private static ServiceUser getTestUser() {
+        return FasitUtils.getServiceUser(DEFAULT_ISSO_RP_USER, "veilarbpersonflatefs", "t6");
+    }
+
+    private static String getTestAuthorization() {
+        return FasitUtils.getTestUser("kerberos_test_token").password;
     }
 
     public static String getISSOToken(ServiceUser issoServiceUser, String authorization) {
