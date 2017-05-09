@@ -46,6 +46,8 @@ public class DevelopmentSecurity {
     private static final Class<no.nav.modig.core.context.JettySubjectHandler> MODIG_SUBJECT_HANDLER_CLASS = no.nav.modig.core.context.JettySubjectHandler.class;
     private static final Class<no.nav.brukerdialog.security.context.JettySubjectHandler> OIDC_SUBJECT_HANDLER_CLASS = no.nav.brukerdialog.security.context.JettySubjectHandler.class;
 
+    public static final String DEFAULT_ISSO_RP_USER = "isso-rp-user";
+
     @Setter
     @Accessors(chain = true)
     public static class ISSOSecurityConfig {
@@ -62,7 +64,7 @@ public class DevelopmentSecurity {
             this.environment = environment;
 
             this.contextName = applicationName;
-            this.issoUserName = "isso-rp-user";
+            this.issoUserName = DEFAULT_ISSO_RP_USER;
             this.serviceUserName = "srv" + applicationName;
         }
     }

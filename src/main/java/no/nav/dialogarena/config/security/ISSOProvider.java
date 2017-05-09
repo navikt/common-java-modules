@@ -6,17 +6,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider;
 import no.nav.dialogarena.config.fasit.FasitUtils;
+import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.fasit.TestUser;
 import no.nav.dialogarena.config.util.Util;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.UriInfo;
 import java.net.HttpCookie;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,9 +36,12 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static org.eclipse.jetty.http.HttpMethod.POST;
+import static org.mockito.Mockito.when;
 
 
 public class ISSOProvider {
+
+    static final String KJENT_LOGIN_ADRESSE = "https://app-t6.adeo.no/veilarbpersonflatefs/tjenester/login";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ISSOProvider.class);
 
@@ -50,12 +60,12 @@ public class ISSOProvider {
         }
     }
 
-    public static String getISSOToken(String authorization, String redirectUrl) {
-        LOGGER.info("getting isso-token: {} {}", redirectUrl, authorization);
+    public static String getISSOToken(ServiceUser issoServiceUser, String authorization) {
+        LOGGER.info("getting isso-token: {}");
         try {
-            return Util.httpClient(httpClient -> new ISSORequest(authorization, redirectUrl, httpClient).getToken());
+            return Util.httpClient(httpClient -> new ISSORequest(authorization, KJENT_LOGIN_ADRESSE, httpClient).getToken(issoServiceUser));
         } catch (Exception e) {
-            throw new RuntimeException(format("Kunne ikke logge inn med isso mot: [%s]\n > %s", redirectUrl, e.getMessage()), e);
+            throw new RuntimeException(format("Kunne ikke logge inn med isso mot: [%s]\n > %s", KJENT_LOGIN_ADRESSE, e.getMessage()), e);
         }
     }
 
@@ -73,6 +83,7 @@ public class ISSOProvider {
         private ObjectNode authJson;
         private String tokenId;
         private String appLoginUrl;
+        private String authorizationCode;
 
         private ISSORequest(String authorization, String redirectUrl, HttpClient httpClient) {
             this.httpClient = httpClient;
@@ -80,11 +91,29 @@ public class ISSOProvider {
             this.redirectUrl = redirectUrl;
         }
 
-        private String getToken() {
+        private String getToken(ServiceUser issoServiceUser) {
             startAuth();
             fetchTokenId();
             authorizeWithOauth();
-            return tokenId;
+            return retrieveToken(issoServiceUser);
+        }
+
+        private String retrieveToken(ServiceUser issoServiceUser) {
+            UriInfo uriInfoMock = Mockito.mock(UriInfo.class);
+            URI redirectUrl = URI.create(this.redirectUrl);
+            when(uriInfoMock.getBaseUri()).thenReturn(redirectUrl);
+
+            synchronized (this.getClass()) {
+                // TODO Veldig kjipt at IdTokenAndRefreshTokenProvider henter dette fra system properties!
+                System.setProperty("oidc-redirect.url", redirectUrl.getPath());
+                System.setProperty("isso-host.url", "https://isso-t.adeo.no/isso/oauth2");
+                System.setProperty("isso-rp-user.username", issoServiceUser.username);
+                System.setProperty("isso-rp-user.password", issoServiceUser.password);
+
+                return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode, uriInfoMock)
+                        .getIdToken()
+                        .getToken();
+            }
         }
 
         private List<HttpCookie> getCookies() {
@@ -161,7 +190,15 @@ public class ISSOProvider {
                     .cookie(new HttpCookie("nav-isso", tokenId))
                     .send();
             sjekk(response, 302);
-            this.appLoginUrl = response.getHeaders().get(LOCATION);
+            String redirectUrl = response.getHeaders().get(LOCATION);
+            this.appLoginUrl = redirectUrl;
+            this.authorizationCode = new URIBuilder(redirectUrl)
+                    .getQueryParams()
+                    .stream()
+                    .filter(a->"code".equals(a.getName()))
+                    .map(NameValuePair::getValue)
+                    .findFirst()
+                    .get();
         }
 
         @SneakyThrows

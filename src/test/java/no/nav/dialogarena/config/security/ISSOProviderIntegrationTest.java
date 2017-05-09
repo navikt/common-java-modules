@@ -1,6 +1,7 @@
 package no.nav.dialogarena.config.security;
 
 import no.nav.dialogarena.config.fasit.FasitUtils;
+import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.fasit.TestUser;
 import org.junit.Test;
 
@@ -9,12 +10,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static no.nav.dialogarena.config.DevelopmentSecurity.DEFAULT_ISSO_RP_USER;
+import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
+import static no.nav.dialogarena.config.util.Util.setProperty;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ISSOProviderIntegrationTest {
 
-    private static final String KJENT_LOGIN_ADRESSE = "https://app-t6.adeo.no/veilarbpersonflatefs/tjenester/login";
 
     @Test
     public void getISSOCookies() {
@@ -29,7 +32,8 @@ public class ISSOProviderIntegrationTest {
     @Test
     public void getISSOToken() {
         TestUser kerberos_test_token = FasitUtils.getTestUser("kerberos_test_token");
-        String issoToken = ISSOProvider.getISSOToken(kerberos_test_token.password, KJENT_LOGIN_ADRESSE);
+        ServiceUser issoServiceUser = FasitUtils.getServiceUser(DEFAULT_ISSO_RP_USER, "veilarbsituasjon", "t6");
+        String issoToken = ISSOProvider.getISSOToken(issoServiceUser, kerberos_test_token.password);
         assertThat(issoToken, notNullValue());
     }
 
