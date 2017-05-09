@@ -46,6 +46,10 @@
             <artifactId>modig-security-core</artifactId>
             <type>test-jar</type>
         </dependency>
+        <dependency>
+            <groupId>no.nav.dialogarena</groupId>
+            <artifactId>oidc-security</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>no.nav</groupId>

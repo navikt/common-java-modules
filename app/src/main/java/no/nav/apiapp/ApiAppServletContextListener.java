@@ -98,7 +98,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         leggTilServlet(servletContextEvent, SelfTestServlet.class, INTERNAL_SELFTEST);
         leggTilServlet(servletContextEvent, SelfTestJsonServlet.class, INTERNAL_SELFTEST_JSON);
 
-        settOppRestApi(servletContextEvent);
+        settOppRestApi(servletContextEvent, apiApplication);
         if (soapTjenesterEksisterer(servletContextEvent.getServletContext())) {
             leggTilServlet(servletContextEvent, new SoapServlet(), "/ws/*");
         }
@@ -170,8 +170,8 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         return getContext(servletContextEvent.getServletContext()).getBean(ApiApplication.class);
     }
 
-    private void settOppRestApi(ServletContextEvent servletContextEvent) {
-        RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()));
+    private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
+        RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()),apiApplication);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
         leggTilServlet(servletContextEvent, servlet, "/api/*");
     }

@@ -1,5 +1,7 @@
 package no.nav.apiapp.rest;
 
+import no.nav.apiapp.ApiApplication;
+import no.nav.brukerdialog.isso.RelyingPartyCallback;
 import org.springframework.context.ApplicationContext;
 
 import javax.ws.rs.Path;
@@ -15,9 +17,11 @@ import static java.util.Arrays.asList;
 public class RestApplication extends Application {
 
     private final ApplicationContext applicationContext;
+    private final ApiApplication apiApplication;
 
-    public RestApplication(ApplicationContext applicationContext) {
+    public RestApplication(ApplicationContext applicationContext, ApiApplication apiApplication) {
         this.applicationContext = applicationContext;
+        this.apiApplication = apiApplication;
     }
 
 
@@ -31,6 +35,9 @@ public class RestApplication extends Application {
                 new ExceptionMapper(),
                 new NavMetricsBinder()
         ));
+        if (apiApplication.getSone() == ApiApplication.Sone.FSS) {
+            singeltons.add(new RelyingPartyCallback());
+        }
         singeltons.addAll(getBeansWithAnnotation(Provider.class));
         singeltons.addAll(getBeansWithAnnotation(Path.class));
         return singeltons;
