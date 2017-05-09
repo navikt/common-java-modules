@@ -164,11 +164,12 @@ public class DevelopmentSecurity {
     }
 
     public static void configureLdap(LdapConfig ldapConfig) {
-        setProperty("ldap.username", ldapConfig.username);
-        setProperty("ldap.password", ldapConfig.username);
-        setProperty("ldap.url","ldaps\\://ldapgw.test.local");
-        setProperty("ldap.basedn","dc\\=test,dc\\=local");
         setProperty("abac.endpoint.url", String.format("https://wasapp-%s.adeo.no/asm-pdp/authorize", ldapConfig.environment));
+        setProperty("ldap.username", ldapConfig.username);
+        setProperty("ldap.password", ldapConfig.password);
+        setProperty("ldap.url", "ldaps://ldapgw.test.local");
+        setProperty("ldap.basedn", "dc=test,dc=local");
+        setProperty("role", "0000-GA-Modia-Oppfolging");
     }
 
     public static void setupIntegrationTestSecurity(ServiceUser serviceUser) {
