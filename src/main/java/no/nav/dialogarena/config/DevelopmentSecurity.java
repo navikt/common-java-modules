@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.dialogarena.config.fasit.FasitUtils;
+import no.nav.dialogarena.config.fasit.LdapConfig;
 import no.nav.dialogarena.config.fasit.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.security.ESSOProvider;
@@ -35,6 +36,7 @@ import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.dialogarena.config.fasit.FasitUtils.OERA_T_LOCAL;
 import static no.nav.dialogarena.config.fasit.FasitUtils.TEST_LOCAL;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getLdapConfig;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static org.apache.commons.io.IOUtils.write;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -47,6 +49,7 @@ public class DevelopmentSecurity {
     private static final Class<no.nav.brukerdialog.security.context.JettySubjectHandler> OIDC_SUBJECT_HANDLER_CLASS = no.nav.brukerdialog.security.context.JettySubjectHandler.class;
 
     public static final String DEFAULT_ISSO_RP_USER = "isso-rp-user";
+    public static final String DEFAULT_LDAP_USER = "ldap";
 
     @Setter
     @Accessors(chain = true)
@@ -58,6 +61,7 @@ public class DevelopmentSecurity {
         private String issoUserName;
         private String serviceUserName;
         private String contextName;
+        private String ldapUserAlias;
 
         public ISSOSecurityConfig(String applicationName, String environment) {
             this.applicationName = applicationName;
@@ -66,6 +70,7 @@ public class DevelopmentSecurity {
             this.contextName = applicationName;
             this.issoUserName = DEFAULT_ISSO_RP_USER;
             this.serviceUserName = "srv" + applicationName;
+            this.ldapUserAlias = DEFAULT_LDAP_USER;
         }
     }
 
@@ -146,18 +151,31 @@ public class DevelopmentSecurity {
         ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, TEST_LOCAL);
         configureServiceUser(serviceUser);
-
-        setProperty("no.nav.abac.systemuser.username", serviceUser.username);
-        setProperty("no.nav.abac.systemuser.password", serviceUser.password);
+        configureAbacUser(serviceUser);
+        configureLdap(getLdapConfig(issoSecurityConfig.ldapUserAlias, issoSecurityConfig.applicationName, issoSecurityConfig.environment));
 
         configureSubjectHandler(OIDC_SUBJECT_HANDLER_CLASS);
         return configureJaspi(jettyBuilder, issoSecurityConfig.contextName);
+    }
+
+    private static void configureAbacUser(ServiceUser serviceUser) {
+        setProperty("no.nav.abac.systemuser.username", serviceUser.username);
+        setProperty("no.nav.abac.systemuser.password", serviceUser.password);
+    }
+
+    public static void configureLdap(LdapConfig ldapConfig) {
+        setProperty("ldap.username", ldapConfig.username);
+        setProperty("ldap.password", ldapConfig.username);
+        setProperty("ldap.url","ldaps\\://ldapgw.test.local");
+        setProperty("ldap.basedn","dc\\=test,dc\\=local");
+        setProperty("abac.endpoint.url", String.format("https://wasapp-%s.adeo.no/asm-pdp/authorize", ldapConfig.environment));
     }
 
     public static void setupIntegrationTestSecurity(ServiceUser serviceUser) {
         commonSetup();
 
         configureServiceUser(serviceUser);
+        configureAbacUser(serviceUser);
         configureSubjectHandler(StaticSubjectHandler.class);
         StaticSubjectHandler subjectHandler = (StaticSubjectHandler) StaticSubjectHandler.getSubjectHandler();
         subjectHandler.setSubject(integrationTestSubject(serviceUser));

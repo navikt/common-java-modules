@@ -59,7 +59,10 @@ public class FasitUtils {
         UsernameAndPassword usernameAndPassword = getUsernameAndPassword(resourceUrl);
         LdapConfig ldapConfig = new LdapConfig()
                 .setUsername(usernameAndPassword.getUsername())
-                .setPassword(usernameAndPassword.getPassword());
+                .setPassword(usernameAndPassword.getPassword())
+
+                .setEnvironment(environment)
+                ;
 
         LOG.info("{} = {}", ldapAlias, ldapConfig);
         return ldapConfig;

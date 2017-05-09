@@ -9,4 +9,6 @@ import lombok.experimental.Accessors;
 public class LdapConfig {
     public String username;
     public String password;
+
+    public String environment;
 }
