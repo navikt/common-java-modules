@@ -3,6 +3,7 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -156,6 +158,16 @@ public class PepImpl implements Pep {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
             Event event = MetricsFactory.createEvent("abac.fallback.used");
+            String ressurs = request
+                    .getRequest()
+                    .getResource()
+                    .getAttribute()
+                    .stream()
+                    .filter( a -> RESOURCE_FELLES_RESOURCE_TYPE.equals(a.getAttributeId()))
+                    .findFirst()
+                    .orElse(new Attribute("EMPTY","EMPTY"))
+                    .getValue();
+            event.addFieldToReport("resource-attributeid", ressurs);
             event.report();
             return ldapService.askForPermission(ident);
         } catch (UnsupportedEncodingException e) {

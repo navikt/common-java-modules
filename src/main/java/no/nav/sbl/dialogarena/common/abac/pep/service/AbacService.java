@@ -1,6 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
+import no.nav.metrics.MetricsFactory;
+import no.nav.metrics.Timer;
 import no.nav.sbl.dialogarena.common.abac.pep.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static java.lang.System.getProperty;
+import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -41,7 +45,20 @@ public class AbacService implements TilgangService {
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
         HttpPost httpPost = getPostRequest(request);
+        Timer timer = MetricsFactory.createTimer("abac-pdp");
+        timer.start();
         final HttpResponse rawResponse = doPost(httpPost);
+        String ressursId = request
+                .getRequest()
+                .getResource()
+                .getAttribute()
+                .stream()
+                .filter( a -> RESOURCE_FELLES_RESOURCE_TYPE.equals(a.getAttributeId()))
+                .findFirst()
+                .orElse(new Attribute("EMPTY","EMPTY"))
+                .getValue();
+        timer.addFieldToReport("resource-attributeid", ressursId);
+        timer.report();
 
         final int statusCode = rawResponse.getStatusLine().getStatusCode();
         final String reasonPhrase = rawResponse.getStatusLine().getReasonPhrase();

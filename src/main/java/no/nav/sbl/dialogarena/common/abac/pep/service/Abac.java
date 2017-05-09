@@ -31,7 +31,7 @@ public class Abac {
 
     private HttpResponse doPost(HttpPost httpPost, CloseableHttpClient httpClient) throws IOException {
         try {
-            return (HttpResponse) MetodeTimer.timeMetode(() -> httpClient.execute(httpPost), "abac-pdp");
+            return httpClient.execute(httpPost);
         } catch (Throwable throwable) {
             throw new IOException("Problem calling ABAC", throwable);
         }

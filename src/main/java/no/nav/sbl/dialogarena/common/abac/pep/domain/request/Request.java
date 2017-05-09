@@ -30,6 +30,10 @@ public class Request {
         return this;
     }
 
+    public Resource getResource() {
+        return resource;
+    }
+
     public Environment getEnvironment() {
         return environment;
     }
