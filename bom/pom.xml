@@ -67,6 +67,7 @@
         <commons-io.version>2.5</commons-io.version>
         <collections-generic.version>4.01</collections-generic.version>
         <httpclient.version>4.3.6</httpclient.version>
+        <httpcore.version>4.4</httpcore.version>
 
         <!-- Test -->
         <assertj.version>3.6.1</assertj.version>
@@ -429,6 +430,17 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpclient.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>commons-logging</artifactId>
+                        <groupId>commons-logging</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcore.version}</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>commons-logging</artifactId>
