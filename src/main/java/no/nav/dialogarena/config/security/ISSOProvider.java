@@ -44,7 +44,16 @@ public class ISSOProvider {
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl) {
         LOGGER.info("getting isso-cookies: {} {}", redirectUrl, authorization);
         try {
-            return Util.httpClient(httpClient -> new ISSORequest(authorization, redirectUrl, httpClient).execute());
+            return Util.httpClient(httpClient -> new ISSORequest(authorization, redirectUrl, httpClient).getCookies());
+        } catch (Exception e) {
+            throw new RuntimeException(format("Kunne ikke logge inn med isso mot: [%s]\n > %s", redirectUrl, e.getMessage()), e);
+        }
+    }
+
+    public static String getISSOToken(String authorization, String redirectUrl) {
+        LOGGER.info("getting isso-token: {} {}", redirectUrl, authorization);
+        try {
+            return Util.httpClient(httpClient -> new ISSORequest(authorization, redirectUrl, httpClient).getToken());
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn med isso mot: [%s]\n > %s", redirectUrl, e.getMessage()), e);
         }
@@ -71,7 +80,14 @@ public class ISSOProvider {
             this.redirectUrl = redirectUrl;
         }
 
-        private List<HttpCookie> execute() {
+        private String getToken() {
+            startAuth();
+            fetchTokenId();
+            authorizeWithOauth();
+            return tokenId;
+        }
+
+        private List<HttpCookie> getCookies() {
             startAuth();
             fetchTokenId();
             authorizeWithOauth();
