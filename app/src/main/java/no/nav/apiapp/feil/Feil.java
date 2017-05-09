@@ -3,6 +3,7 @@ package no.nav.apiapp.feil;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 public class Feil extends RuntimeException {
@@ -19,6 +20,7 @@ public class Feil extends RuntimeException {
 
     public enum Type {
         VERSJONSKONFLIKT(BAD_REQUEST),
+        INGEN_TILGANG(FORBIDDEN),
         UKJENT(INTERNAL_SERVER_ERROR);
 
         private final Response.Status status;
