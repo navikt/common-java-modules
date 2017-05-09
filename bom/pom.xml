@@ -634,7 +634,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>test-config</artifactId>
-                <version>1.22.44</version>
+                <version>1.23.46</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
