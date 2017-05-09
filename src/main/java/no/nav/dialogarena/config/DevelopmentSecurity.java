@@ -218,10 +218,12 @@ public class DevelopmentSecurity {
         return loginService;
     }
 
-    private static void configureSubjectHandler(Class<?> jettySubjectHandlerClass) {
-        String jettySubjectHandler = jettySubjectHandlerClass.getName();
-        LOG.info("{} -> {}", SubjectHandler.class.getName(), jettySubjectHandler);
-        setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", jettySubjectHandler);
+    @SneakyThrows
+    public static <T> T configureSubjectHandler(Class<T> subjectHandlerClass) {
+        String subjectHandlerClassName = subjectHandlerClass.getName();
+        LOG.info("{} -> {}", SubjectHandler.class.getName(), subjectHandlerClassName);
+        setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", subjectHandlerClassName);
+        return subjectHandlerClass.newInstance();
     }
 
     private static Jetty.JettyBuilder configureJaspi(Jetty.JettyBuilder jettyBuilder, String contextName) {
