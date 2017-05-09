@@ -48,6 +48,7 @@ public class AbacService implements TilgangService {
         Timer timer = MetricsFactory.createTimer("abac-pdp");
         timer.start();
         final HttpResponse rawResponse = doPost(httpPost);
+        timer.stop();
         String ressursId = request
                 .getRequest()
                 .getResource()
