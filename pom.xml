@@ -10,7 +10,7 @@
 
     <groupId>no.nav</groupId>
     <artifactId>metrics</artifactId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.2.1</version>
     <name>${project.artifactId}</name>
 
     <properties>
@@ -125,7 +125,7 @@
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/felles/metrics.git</developerConnection>
         <url>http://stash.devillo.no/projects/FELLES/repos/metrics/browse</url>
-        <tag>HEAD</tag>
+        <tag>metrics-3.2.1</tag>
     </scm>
 
 </project>
