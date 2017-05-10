@@ -9,6 +9,6 @@ public class Event extends Metric {
 
     @Override
     public void report() {
-        metricsClient.report(name, fields, System.currentTimeMillis());
+        metricsClient.report(name, fields, tags, System.currentTimeMillis());
     }
 }

@@ -14,24 +14,25 @@ import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 
 public class MetricsClient {
     public static final Boolean DISABLE_METRICS_REPORT = parseBoolean(getProperty(DISABLE_METRICS_REPORT_KEY, "false"));
-    private final Map<String, String> tags = new HashMap<>();
+    private final Map<String, String> systemTags = new HashMap<>();
     private final SensuHandler sensuHandler;
 
     public MetricsClient() {
         addSystemPropertiesToTags();
-        sensuHandler = new SensuHandler(tags.get("application"));;
+        sensuHandler = new SensuHandler(systemTags.get("application"));;
     }
 
     private void addSystemPropertiesToTags() {
-        tags.put("application", System.getProperty("applicationName"));
-        tags.put("hostname", System.getProperty("node.hostname"));
-        tags.put("environment", System.getProperty("environment.name"));
+        systemTags.put("application", System.getProperty("applicationName"));
+        systemTags.put("hostname", System.getProperty("node.hostname"));
+        systemTags.put("environment", System.getProperty("environment.name"));
     }
 
-    void report(String metricName, Map<String, Object> fields, long timestampInMilliseconds) {
+    void report(String metricName, Map<String, Object> fields, Map<String, String> tagsFromMetric, long timestampInMilliseconds) {
+        tagsFromMetric.putAll(systemTags);
         if (!DISABLE_METRICS_REPORT) {
             long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
-            String output = InfluxHandler.createLineProtocolPayload(metricName, tags, fields, timestamp);
+            String output = InfluxHandler.createLineProtocolPayload(metricName, tagsFromMetric, fields, timestamp);
             sensuHandler.report(output);
         }
     }
