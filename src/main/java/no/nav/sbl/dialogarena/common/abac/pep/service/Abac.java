@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.metrics.MetodeTimer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CredentialsProvider;
