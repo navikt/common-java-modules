@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import static java.lang.Boolean.valueOf;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -26,6 +27,7 @@ public class PepImpl implements Pep {
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
     private static final Logger LOG = getLogger(PepImpl.class);
+    private static final boolean allowLdapFallback = valueOf(System.getProperty("ldap.fallback", "true"));
 
     private enum Bias {
         Permit, Deny
@@ -155,6 +157,9 @@ public class PepImpl implements Pep {
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
+            if (!allowLdapFallback) {
+                throw new PepException(e);
+            }
             Event event = MetricsFactory.createEvent("abac.fallback.used");
             event.report();
             return ldapService.askForPermission(ident);
