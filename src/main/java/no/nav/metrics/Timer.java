@@ -38,7 +38,7 @@ public class Timer extends Metric {
     @Override
     public void report() {
         ensureTimerIsStopped();
-        metricsClient.report(name, fields, measureTimestamp);
+        metricsClient.report(name, fields, tags, measureTimestamp);
         reset();
     }
 

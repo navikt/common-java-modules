@@ -23,7 +23,7 @@ public class EventTest {
         new Verifications() {
             {
                 String metricName;
-                metricsClient.report(metricName = withCapture(), (Map<String, Object>) any, anyLong);
+                metricsClient.report(metricName = withCapture(), (Map<String, Object>) any,(Map<String, String>) any, anyLong);
                 times = 1;
 
                 assertTrue(metricName.contains(navnPaEvent));

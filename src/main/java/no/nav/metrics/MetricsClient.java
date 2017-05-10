@@ -28,7 +28,8 @@ public class MetricsClient {
         tags.put("environment", System.getProperty("environment.name"));
     }
 
-    void report(String metricName, Map<String, Object> fields, long timestampInMilliseconds) {
+    void report(String metricName, Map<String, Object> fields, Map<String, String> tagsFromMetric, long timestampInMilliseconds) {
+        tags.putAll(tagsFromMetric);
         if (!DISABLE_METRICS_REPORT) {
             long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
             String output = InfluxHandler.createLineProtocolPayload(metricName, tags, fields, timestamp);
