@@ -22,6 +22,9 @@ import static java.lang.System.setProperty;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PepImplTest {
@@ -50,6 +53,7 @@ public class PepImplTest {
 
     @Before
     public void setup() {
+        System.setProperty("ldap.fallback", "true");
         MockitoAnnotations.initMocks(this);
     }
 
@@ -122,6 +126,30 @@ public class PepImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void wrongLengthOfFnrThrowsIllegalArgumentException() throws PepException {
         pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", "xxxx4444");
+    }
+
+    @Test
+    public void callsLdapFallbackWhenAbacFails() throws Exception {
+        when(abacService.askForPermission(any(XacmlRequest.class))).thenThrow(AbacException.class);
+        when(ldapService.askForPermission(anyString())).thenReturn(getMockResponse(Decision.Permit));
+
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowedWithIdent(
+                MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR
+        );
+
+        verify(ldapService, times(1)).askForPermission("userId");
+        assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Permit));
+    }
+
+    @Test(expected = PepException.class)
+    public void doesNotCallsLdapFallbackWhenAbacFails() throws Exception {
+        System.setProperty("ldap.fallback", "false");
+        when(abacService.askForPermission(any(XacmlRequest.class))).thenThrow(AbacException.class);
+        when(ldapService.askForPermission(anyString())).thenReturn(getMockResponse(Decision.Permit));
+
+        final BiasedDecisionResponse biasedDecisionResponse = pep.isServiceCallAllowedWithIdent(
+                MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR
+        );
     }
 
     private XacmlResponse getMockResponse(Decision decision) {

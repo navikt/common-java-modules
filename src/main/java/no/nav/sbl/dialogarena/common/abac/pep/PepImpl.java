@@ -27,7 +27,6 @@ public class PepImpl implements Pep {
     private final static Bias bias = Bias.Deny;
     private final static boolean failOnIndeterminateDecision = true;
     private static final Logger LOG = getLogger(PepImpl.class);
-    private static final boolean allowLdapFallback = valueOf(System.getProperty("ldap.fallback", "true"));
 
     private enum Bias {
         Permit, Deny
@@ -157,7 +156,7 @@ public class PepImpl implements Pep {
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
-            if (!allowLdapFallback) {
+            if (!valueOf(System.getProperty("ldap.fallback", "true"))) {
                 throw new PepException(e);
             }
             Event event = MetricsFactory.createEvent("abac.fallback.used");
