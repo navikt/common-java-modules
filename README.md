@@ -8,6 +8,10 @@ Hvordan bruke biblioteket og hvordan alt henger sammen.
 ## Changelog
 Endringer / breaking changes
 
+### 3.2.1
+Gjør det mulig å rapportere tags ved hjelp av metoden addTagToReport(), ettersom tags blir indeksert av influxDB. 
+Dersom du ønsker å kjøre GROUP BY på rapportert data må tags benyttes.
+
 
 ### 3.2.0
 Batch-sending av metrikker til Sensu. Kan oppgradere uten endringer, men mulighet for å sette to nye system properties:
