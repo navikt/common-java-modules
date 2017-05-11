@@ -49,16 +49,8 @@ public class AbacService implements TilgangService {
         timer.start();
         final HttpResponse rawResponse = doPost(httpPost);
         timer.stop();
-        String ressursId = request
-                .getRequest()
-                .getResource()
-                .getAttribute()
-                .stream()
-                .filter( a -> RESOURCE_FELLES_RESOURCE_TYPE.equals(a.getAttributeId()))
-                .findFirst()
-                .orElse(new Attribute("EMPTY","EMPTY"))
-                .getValue();
-        timer.addFieldToReport("resource-attributeid", ressursId);
+        String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
+        timer.addTagToReport("resource-attributeid", ressursId);
         timer.report();
 
         final int statusCode = rawResponse.getStatusLine().getStatusCode();
