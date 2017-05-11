@@ -158,16 +158,8 @@ public class PepImpl implements Pep {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
             Event event = MetricsFactory.createEvent("abac.fallback.used");
-            String ressurs = request
-                    .getRequest()
-                    .getResource()
-                    .getAttribute()
-                    .stream()
-                    .filter( a -> RESOURCE_FELLES_RESOURCE_TYPE.equals(a.getAttributeId()))
-                    .findFirst()
-                    .orElse(new Attribute("EMPTY","EMPTY"))
-                    .getValue();
-            event.addFieldToReport("resource-attributeid", ressurs);
+            String ressurs = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
+            event.addTagToReport("resource-attributeid", ressurs);
             event.report();
             return ldapService.askForPermission(ident);
         } catch (UnsupportedEncodingException e) {
