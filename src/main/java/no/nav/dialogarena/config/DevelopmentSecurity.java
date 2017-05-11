@@ -115,7 +115,7 @@ public class DevelopmentSecurity {
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, TEST_LOCAL);
         configureServiceUser(serviceUser);
-        configureSubjectHandler(MODIG_SUBJECT_HANDLER_CLASS);
+        configureSubjectHandler(OIDC_SUBJECT_HANDLER_CLASS);
 
         LOG.info("configuring: {}", SamlLoginModule.class.getName());
         return jettyBuilder.withLoginService(jaasLoginModule(SAML));
