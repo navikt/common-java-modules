@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp;
 
 import no.nav.apiapp.ApiApplication;
+import no.nav.fo.apiapp.rest.DatoEksempel;
 import no.nav.fo.apiapp.rest.RestEksempel;
 import no.nav.fo.apiapp.security.KreverSesjon;
 import no.nav.fo.apiapp.selftest.PingableEksempel;
@@ -20,6 +21,11 @@ public class ApplicationConfig implements ApiApplication {
     @Bean
     public RestEksempel restEksempel() {
         return new RestEksempel();
+    }
+
+    @Bean
+    public DatoEksempel datoEksempel(){
+        return new DatoEksempel();
     }
 
     @Bean

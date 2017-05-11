@@ -15,6 +15,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -61,6 +62,11 @@ public abstract class JettyTest {
         response.getCookies().forEach((k, v) -> cookies.put(k, v));
         LOGGER.info("[response] status={} cookies={}", response.getStatus(), cookies);
         return response;
+    }
+
+    protected WebTarget target(String path) {
+        URI uri = uri(path);
+        return client.target(uri);
     }
 
     protected static URI uri(String path) {

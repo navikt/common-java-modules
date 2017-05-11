@@ -9,19 +9,19 @@ import javax.ws.rs.Path;
 public class RestEksempel {
 
     @GET
-    public String get(){
+    public String get() {
         return "eksempel";
     }
 
     @GET
     @Path("/konflikt")
-    public String konflikt(){
+    public String konflikt() {
         throw new VersjonsKonflikt();
     }
 
     @GET
     @Path("/ukjent-feil")
-    public String ukjentFeil(){
+    public String ukjentFeil() {
         throw new RuntimeException();
     }
 

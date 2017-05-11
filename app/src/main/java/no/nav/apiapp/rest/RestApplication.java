@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
+import static no.nav.apiapp.rest.DateConfiguration.parameterConverterProvider;
 
 public class RestApplication extends Application {
 
@@ -24,7 +25,6 @@ public class RestApplication extends Application {
         this.apiApplication = apiApplication;
     }
 
-
     @Override
     public Set<Object> getSingletons() {
         HashSet<Object> singeltons = new HashSet<>();
@@ -33,7 +33,8 @@ public class RestApplication extends Application {
                 new AlltidJsonFilter(),
                 new CacheBusterFilter(),
                 new ExceptionMapper(),
-                new NavMetricsBinder()
+                new NavMetricsBinder(),
+                parameterConverterProvider()
         ));
         if (apiApplication.getSone() == ApiApplication.Sone.FSS) {
             singeltons.add(new RelyingPartyCallback());
