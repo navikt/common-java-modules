@@ -3,10 +3,11 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import static java.lang.Boolean.valueOf;
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -80,11 +82,9 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException {
-        XacmlResponse response = ldapService.askForPermission(ident);
-        Decision originalDecision = response.getResponse().get(0).getDecision();
-        Decision biasedDecision = createBiasedDecision(originalDecision);
-        return new BiasedDecisionResponse(biasedDecision, response);
+    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String token, String domain) throws PepException {
+        final String tokenBody = extractTokenBody(token);
+        return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.VeilArb);
     }
 
     @Override
@@ -96,12 +96,12 @@ public class PepImpl implements Pep {
             Decision originalDecision = response.getResponse().get(0).getDecision();
             biasedDecision = createBiasedDecision(originalDecision);
 
-        }catch(NoSuchFieldException | AbacException | IOException e) {
+        } catch (NoSuchFieldException | AbacException | IOException e) {
             throw new PepException("Feil ved kall til abac", e);
         }
 
 
-        if(biasedDecision.equals(Decision.Permit)) {
+        if (biasedDecision.equals(Decision.Permit)) {
             throw new PepException("Ping call should return Deny not Permit");
         }
     }
@@ -157,6 +157,9 @@ public class PepImpl implements Pep {
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
+            if (!valueOf(System.getProperty("ldap.fallback", "true"))) {
+                throw new PepException(e);
+            }
             Event event = MetricsFactory.createEvent("abac.fallback.used");
             String ressurs = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
             event.addTagToReport("resource-attributeid", ressurs);
