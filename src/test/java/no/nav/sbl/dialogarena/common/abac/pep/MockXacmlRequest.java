@@ -37,6 +37,10 @@ public class MockXacmlRequest {
         return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeEgenAnsattResource(new Client().withDomain("veilarb"))));
     }
 
+    public static XacmlRequest getXacmlRequestForSubjectWithVeilArbResource() {
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeVeilArbResource(new Client().withDomain("veilarb"))));
+    }
+
     private static Request getRequestWithActionAndResource() {
         final Action action = new Action();
         action.getAttribute().add(new Attribute("urn:oasis:names:tc:xacml:1.0:action:action-id", "read"));
