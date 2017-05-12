@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.metrics.MetodeTimer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CredentialsProvider;
@@ -31,7 +30,7 @@ public class Abac {
 
     private HttpResponse doPost(HttpPost httpPost, CloseableHttpClient httpClient) throws IOException {
         try {
-            return (HttpResponse) MetodeTimer.timeMetode(() -> httpClient.execute(httpPost), "abac-pdp");
+            return httpClient.execute(httpPost);
         } catch (Throwable throwable) {
             throw new IOException("Problem calling ABAC", throwable);
         }
