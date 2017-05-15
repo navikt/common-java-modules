@@ -15,7 +15,7 @@ public class UrlValidator {
     }
 
     static boolean isValidUrl(String url) {
-        return true;
+        return validPattern.matcher(url).matches();
     }
 
     @SneakyThrows

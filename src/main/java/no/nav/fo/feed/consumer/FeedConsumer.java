@@ -1,6 +1,7 @@
 package no.nav.fo.feed.consumer;
 
-import lombok.experimental.Builder;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import no.nav.fo.feed.producer.FeedWebhookRequest;
 import no.nav.metrics.aspects.Timed;
 import org.slf4j.Logger;
@@ -13,7 +14,8 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Builder
+@Data
+@Accessors(chain = true)
 public class FeedConsumer<T> {
     private static final Logger LOG = getLogger(FeedConsumer.class);
 
