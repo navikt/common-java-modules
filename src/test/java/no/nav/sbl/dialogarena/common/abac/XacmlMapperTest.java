@@ -78,16 +78,6 @@ public class XacmlMapperTest {
     }
 
     @Test
-    public void convertRequestWithSubjectAndVeilarb() throws IOException {
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithVeilArbResource());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
-
-        String expectedContent = getContentFromJsonFile("xacmlrequest-veilarb.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
-    }
-
-    @Test
     public void convertRequestWithSubjectAndEgenAnsatt() throws IOException {
         final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithEgenAnsattResource());
 
