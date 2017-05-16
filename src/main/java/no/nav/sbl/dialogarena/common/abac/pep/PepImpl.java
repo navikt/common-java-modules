@@ -82,9 +82,11 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String token, String domain) throws PepException {
-        final String tokenBody = extractTokenBody(token);
-        return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.VeilArb);
+    public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException {
+        XacmlResponse response = ldapService.askForPermission(ident);
+        Decision originalDecision = response.getResponse().get(0).getDecision();
+        Decision biasedDecision = createBiasedDecision(originalDecision);
+        return new BiasedDecisionResponse(biasedDecision, response);
     }
 
     @Override

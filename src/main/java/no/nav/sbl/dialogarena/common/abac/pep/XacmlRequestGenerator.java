@@ -55,8 +55,6 @@ class XacmlRequestGenerator {
                 return Resources.makeKode7Resource(client);
             case Person:
                 return Resources.makePersonResource(client);
-            case VeilArb:
-                return Resources.makeVeilArbResource(client);
             default:
                 return null;
         }

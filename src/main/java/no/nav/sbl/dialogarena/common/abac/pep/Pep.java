@@ -34,7 +34,7 @@ public interface Pep {
 
     BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String oidcToken, String domain) throws PepException;
 
-    BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String oidcToken, String domain) throws PepException;
+    BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String ident) throws PepException;
 
     void ping() throws PepException;
 }
