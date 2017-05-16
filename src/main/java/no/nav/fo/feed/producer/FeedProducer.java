@@ -37,6 +37,7 @@ public class FeedProducer<T> {
         List<FeedElement<T>> pageElements =
                 feedProvider
                         .fetchData(sinceId, pageSize)
+                        .sorted()
                         .limit(pageSize)
                         .collect(Collectors.toList());
 
@@ -45,7 +46,7 @@ public class FeedProducer<T> {
                         .stream()
                         .reduce((x, y) -> x.getId().isAfter(y.getId()) ? x : y)
                         .map(FeedElement::getId)
-                        .orElseGet(null);
+                        .orElse(null);
 
         FeedResponse<T> page = new FeedResponse<T>().setNextPageId(nextPageId).setElements(pageElements);
 
