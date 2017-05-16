@@ -1,8 +1,8 @@
 package no.nav.fo.feed.producer;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.stream.Stream;
 
-public interface FeedProvider<E, T> {
-    List<FeedElement<E, T>> hentData(LocalDateTime sinceId, int pageSize);
+public interface FeedProvider<T> {
+    Stream<FeedElement<T>> fetchData(LocalDateTime sinceId, int pageSize);
 }

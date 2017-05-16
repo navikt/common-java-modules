@@ -14,6 +14,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static javax.ws.rs.HttpMethod.HEAD;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
@@ -21,7 +22,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Data
 @Accessors(chain = true)
-public class FeedProducer<E, T> {
+public class FeedProducer<T> {
 
     private static final Logger LOG = getLogger(FeedProducer.class);
 
@@ -29,14 +30,29 @@ public class FeedProducer<E, T> {
     private Optional<String> webhookUrl;
     private Optional<String> callbackUrl;
 
-    public Response createFeedResponse(FeedRequest request, FeedProvider<E, T> feedProvider) {
-        int pageSize = setPageSize(request.pageSize, maxPageSize);
+    public Response getFeedPage(FeedRequest request, FeedProvider<T> feedProvider) {
+        int pageSize = getPageSize(request.pageSize, maxPageSize);
         LocalDateTime sinceId = request.sinceId;
-        List<FeedElement<E, T>> data = feedProvider.hentData(sinceId, pageSize);
-        return Response.ok().entity(data).build();
+
+        List<FeedElement<T>> pageElements =
+                feedProvider
+                        .fetchData(sinceId, pageSize)
+                        .limit(pageSize)
+                        .collect(Collectors.toList());
+
+        LocalDateTime nextPageId =
+                pageElements
+                        .stream()
+                        .reduce((x, y) -> x.getId().isAfter(y.getId()) ? x : y)
+                        .map(FeedElement::getId)
+                        .orElseGet(null);
+
+        FeedResponse<T> page = new FeedResponse<T>().setNextPageId(nextPageId).setElements(pageElements);
+
+        return Response.ok().entity(page).build();
     }
 
-    private static int setPageSize(int pageSize, int maxPageSize) {
+    private static int getPageSize(int pageSize, int maxPageSize) {
         return pageSize > maxPageSize ? maxPageSize : pageSize;
     }
 
