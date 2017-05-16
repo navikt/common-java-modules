@@ -19,8 +19,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class FeedConsumer<T> {
     private static final Logger LOG = getLogger(FeedConsumer.class);
 
-    private String feedProducerUrl;
-    private String feedProducerUrlWebhook;
+    private String feedUrl;
+    private String registerWebhookUrl;
     private FeedCallback onWebhook;
 
     public void callback() {
@@ -29,12 +29,11 @@ public class FeedConsumer<T> {
 
     @Timed(name = "feed.registerWebhook")
     public void registerWebhook(String callbackUrl) {
-
         Client client = ClientBuilder.newBuilder().build();
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
         Response response = client
-                .target(feedProducerUrlWebhook)
+                .target(registerWebhookUrl)
                 .request()
                 .buildPut(entity)
                 .invoke();
@@ -52,7 +51,7 @@ public class FeedConsumer<T> {
 
         Client client = ClientBuilder.newBuilder().build();
         Response response = client
-                .target(feedProducerUrl)
+                .target(feedUrl)
                 .queryParam("since_id", sinceId)
                 .request()
                 .buildGet()

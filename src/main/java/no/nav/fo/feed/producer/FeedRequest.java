@@ -2,12 +2,12 @@ package no.nav.fo.feed.producer;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class FeedRequest {
 
     @QueryParam("since_id")
-    LocalDateTime sinceId;
+    ZonedDateTime sinceId;
 
     @QueryParam("page_size")
     @DefaultValue("100")

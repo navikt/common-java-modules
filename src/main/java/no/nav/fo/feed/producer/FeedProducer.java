@@ -11,7 +11,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class FeedProducer<T> {
 
     public Response getFeedPage(FeedRequest request, FeedProvider<T> feedProvider) {
         int pageSize = getPageSize(request.pageSize, maxPageSize);
-        LocalDateTime sinceId = request.sinceId;
+        ZonedDateTime sinceId = request.sinceId;
 
         List<FeedElement<T>> pageElements =
                 feedProvider
@@ -40,7 +40,7 @@ public class FeedProducer<T> {
                         .limit(pageSize)
                         .collect(Collectors.toList());
 
-        LocalDateTime nextPageId =
+        ZonedDateTime nextPageId =
                 pageElements
                         .stream()
                         .reduce((x, y) -> x.getId().isAfter(y.getId()) ? x : y)
