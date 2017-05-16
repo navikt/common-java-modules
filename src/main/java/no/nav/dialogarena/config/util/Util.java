@@ -5,6 +5,10 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class Util {
@@ -27,6 +31,15 @@ public class Util {
             return httpClientConsumer.with(httpClient);
         } finally {
             httpClient.stop();
+        }
+    }
+
+    @SneakyThrows
+    public static Properties loadProperties(File file) {
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            Properties properties = new Properties();
+            properties.load(fileInputStream);
+            return properties;
         }
     }
 
