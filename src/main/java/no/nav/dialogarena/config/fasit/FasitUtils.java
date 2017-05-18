@@ -7,7 +7,6 @@ import no.nav.dialogarena.config.util.Util;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.BasicAuthentication;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -16,9 +15,11 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -28,14 +29,28 @@ public class FasitUtils {
     public static final String FASIT_PASSWORD_VARIABLE_NAME = "domenepassord";
     public static final String OERA_T_LOCAL = "oera-t.local";
 
+    private static final File fasitPropertyFile = new File(System.getProperty("user.home"), "fasit.properties");
+
     private static final Logger LOG = getLogger(FasitUtils.class);
-    private static final SslContextFactory SSL_CONTEXT_FACTORY = new SslContextFactory();
+
     public static final String WELL_KNOWN_APPLICATION_NAME = "fasit";
     public static final String TEST_LOCAL = "test.local";
 
     public static String getVariable(String variableName) {
         return ofNullable(System.getProperty(variableName, System.getenv(variableName)))
-                .orElseThrow(() -> new RuntimeException(String.format("mangler '%s'. Denne må settes som property eller miljøvariabel", variableName)));
+                .orElseGet(() -> getVariableFromPropertyFile(variableName));
+    }
+
+    private static String getVariableFromPropertyFile(String variableName) {
+        return of(fasitPropertyFile)
+                .filter(File::exists)
+                .map(Util::loadProperties)
+                .map(fasitProperties -> fasitProperties.getProperty(variableName))
+                .orElseThrow(() -> new RuntimeException(String.format(
+                        "mangler variabel '%s'. Denne må settes som property, miljøvariabel eller i '%s'",
+                        variableName,
+                        fasitPropertyFile.getAbsolutePath())
+                ));
     }
 
     public static ApplicationConfig getApplicationConfig(String applicationName, String environment) {
