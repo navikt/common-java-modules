@@ -1,7 +1,7 @@
 package no.nav.fo.feed.exception;
 
 
-import no.nav.fo.feed.producer.FeedWebhookResponse;
+import no.nav.fo.feed.common.FeedWebhookResponse;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -13,7 +13,7 @@ public class NoCallbackUrlException extends WebApplicationException {
         super(
                 Response
                 .status(BAD_REQUEST)
-                .entity(new FeedWebhookResponse().setMelding( "Respons må inneholde callback-url"))
+                .entity(new FeedWebhookResponse().setMelding( "Respons må inneholde webhookCallback-url"))
                 .build()
         );
     }

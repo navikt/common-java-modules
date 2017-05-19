@@ -1,17 +1,19 @@
 package no.nav.fo.feed.producer;
 
+import com.sun.java.browser.plugin2.DOM;
+import javafx.beans.property.ReadOnlySetProperty;
+import lombok.Builder;
 import lombok.Data;
-import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import no.nav.fo.feed.exception.NoCallbackUrlException;
-import no.nav.fo.feed.exception.NoWebhookUrlException;
+import no.nav.fo.feed.common.FeedElement;
+import no.nav.fo.feed.common.FeedRequest;
+import no.nav.fo.feed.common.FeedResponse;
+import no.nav.fo.feed.common.FeedWebhookRequest;
+import no.nav.fo.feed.exception.InvalidUrlException;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-import java.net.URI;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,70 +22,63 @@ import static javax.ws.rs.HttpMethod.HEAD;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Data
-@Accessors(chain = true)
-public class FeedProducer<T> {
+@Builder
+public class FeedProducer<ID extends Comparable<ID>, DOMAINOBJECT> {
 
     private static final Logger LOG = getLogger(FeedProducer.class);
 
-    private int maxPageSize;
-    private Optional<String> webhookUrl;
-    private Optional<String> callbackUrl;
+    @Builder.Default private int maxPageSize = 10000;
+    private List<String> callbackUrls;
+    private FeedProvider<ID, DOMAINOBJECT> provider;
 
-    public Response getFeedPage(FeedRequest request, FeedProvider<T> feedProvider) {
-        int pageSize = getPageSize(request.pageSize, maxPageSize);
-        ZonedDateTime sinceId = request.sinceId;
 
-        List<FeedElement<T>> pageElements =
-                feedProvider
-                        .fetchData(sinceId, pageSize)
-                        .sorted()
-                        .limit(pageSize)
-                        .collect(Collectors.toList());
+    public FeedResponse<ID, DOMAINOBJECT> getFeedPage(FeedRequest request) {
+        int pageSize = getPageSize(request.getPageSize(), maxPageSize);
+        ID sinceId = (ID)request.getSinceId();
 
-        ZonedDateTime nextPageId =
-                pageElements
-                        .stream()
-                        .reduce((x, y) -> x.getId().isAfter(y.getId()) ? x : y)
-                        .map(FeedElement::getId)
-                        .orElse(null);
+        List<FeedElement<ID, DOMAINOBJECT>> pageElements = provider
+                .fetchData(sinceId, pageSize)
+                .sorted()
+                .limit(pageSize)
+                .collect(Collectors.toList());
 
-        FeedResponse<T> page = new FeedResponse<T>().setNextPageId(nextPageId).setElements(pageElements);
+        if (pageElements.isEmpty()) {
+            return new FeedResponse<ID, DOMAINOBJECT>().setNextPageId((ID)request.getSinceId());
+        }
 
-        return Response.ok().entity(page).build();
+        ID nextPageId = Optional.ofNullable(pageElements.get(0))
+                .map(FeedElement::getId)
+                .orElse(null);
+
+        return new FeedResponse<ID, DOMAINOBJECT>().setNextPageId(nextPageId).setElements(pageElements);
+    }
+
+    public void activateWebhook() {
+        callbackUrls
+                .forEach((url) -> {
+                    Client client = ClientBuilder.newBuilder().build();
+                    client.target(url).request().build(HEAD).invoke();
+                });
+    }
+
+    public boolean createWebhook(FeedWebhookRequest request) {
+        return Optional.ofNullable(request.callbackUrl)
+                .map(this::createWebhook)
+                .orElseThrow(InvalidUrlException::new);
+    }
+
+    private boolean createWebhook(String callbackUrl) {
+        if (callbackUrls.contains(callbackUrl)) {
+            return false;
+        }
+        validateUrl(callbackUrl);
+
+        callbackUrls.add(callbackUrl);
+
+        return true;
     }
 
     private static int getPageSize(int pageSize, int maxPageSize) {
         return pageSize > maxPageSize ? maxPageSize : pageSize;
-    }
-
-    public void activateWebhook() {
-        webhookUrl.ifPresent(
-                url -> {
-                    Client client = ClientBuilder.newBuilder().build();
-                    client.target(url).request().build(HEAD).invoke();
-                }
-        );
-    }
-
-    public Response getWebhook() {
-        String url = webhookUrl.orElseThrow(NoWebhookUrlException::new);
-        return Response.ok().entity(new FeedWebhookResponse().setWebhookUrl(url)).build();
-    }
-
-    public Response createWebhook(Optional<String> callbackUrl) {
-        if (callbackUrl.equals(webhookUrl)) {
-            return Response.ok().build();
-        }
-        String url = callbackUrl.orElseThrow(NoCallbackUrlException::new);
-        validateUrl(url);
-
-        webhookUrl = callbackUrl;
-        return Response.created(getUri()).build();
-    }
-
-    @SneakyThrows
-    private URI getUri() {
-        return new URI("tilordninger/webhook");
     }
 }

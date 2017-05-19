@@ -1,13 +1,16 @@
-package no.nav.fo.feed.producer;
+package no.nav.fo.feed.common;
+
+import lombok.Data;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 import java.time.ZonedDateTime;
 
+@Data
 public class FeedRequest {
 
     @QueryParam("since_id")
-    ZonedDateTime sinceId;
+    String sinceId;
 
     @QueryParam("page_size")
     @DefaultValue("100")

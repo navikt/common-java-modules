@@ -1,4 +1,4 @@
-package no.nav.fo.feed.producer;
+package no.nav.fo.feed.common;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

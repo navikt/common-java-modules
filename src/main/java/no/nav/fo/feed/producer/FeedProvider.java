@@ -1,8 +1,10 @@
 package no.nav.fo.feed.producer;
 
-import java.time.ZonedDateTime;
+import no.nav.fo.feed.common.FeedElement;
+
 import java.util.stream.Stream;
 
-public interface FeedProvider<T> {
-    Stream<FeedElement<T>> fetchData(ZonedDateTime sinceId, int pageSize);
+@FunctionalInterface
+public interface FeedProvider<ID extends Comparable<ID>, DOMAINOBJECT> {
+    Stream<FeedElement<ID, DOMAINOBJECT>> fetchData(ID sinceId, int pageSize);
 }

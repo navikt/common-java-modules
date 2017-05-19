@@ -1,7 +1,7 @@
 package no.nav.fo.feed.exception;
 
 
-import no.nav.fo.feed.producer.FeedWebhookResponse;
+import no.nav.fo.feed.common.FeedWebhookResponse;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
