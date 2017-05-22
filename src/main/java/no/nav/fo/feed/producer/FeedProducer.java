@@ -1,10 +1,6 @@
 package no.nav.fo.feed.producer;
 
-import com.sun.java.browser.plugin2.DOM;
-import javafx.beans.property.ReadOnlySetProperty;
 import lombok.Builder;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.common.FeedRequest;
 import no.nav.fo.feed.common.FeedResponse;
@@ -14,6 +10,7 @@ import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,34 +20,34 @@ import static no.nav.fo.feed.util.UrlValidator.validateUrl;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Builder
-public class FeedProducer<ID extends Comparable<ID>, DOMAINOBJECT> {
+public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
 
     private static final Logger LOG = getLogger(FeedProducer.class);
 
     @Builder.Default private int maxPageSize = 10000;
-    private List<String> callbackUrls;
-    private FeedProvider<ID, DOMAINOBJECT> provider;
+    @Builder.Default private List<String> callbackUrls = new ArrayList<>();
+    private FeedProvider<DOMAINOBJECT> provider;
 
 
-    public FeedResponse<ID, DOMAINOBJECT> getFeedPage(FeedRequest request) {
+    public FeedResponse<DOMAINOBJECT> getFeedPage(FeedRequest request) {
         int pageSize = getPageSize(request.getPageSize(), maxPageSize);
-        ID sinceId = (ID)request.getSinceId();
+        String id = request.getSinceId();
 
-        List<FeedElement<ID, DOMAINOBJECT>> pageElements = provider
-                .fetchData(sinceId, pageSize)
+        List<FeedElement<DOMAINOBJECT>> pageElements = provider
+                .fetchData(id, pageSize)
                 .sorted()
                 .limit(pageSize)
                 .collect(Collectors.toList());
 
         if (pageElements.isEmpty()) {
-            return new FeedResponse<ID, DOMAINOBJECT>().setNextPageId((ID)request.getSinceId());
+            return new FeedResponse<DOMAINOBJECT>().setNextPageId(id);
         }
 
-        ID nextPageId = Optional.ofNullable(pageElements.get(0))
+        String nextPageId = Optional.ofNullable(pageElements.get(0))
                 .map(FeedElement::getId)
                 .orElse(null);
 
-        return new FeedResponse<ID, DOMAINOBJECT>().setNextPageId(nextPageId).setElements(pageElements);
+        return new FeedResponse<DOMAINOBJECT>().setNextPageId(nextPageId).setElements(pageElements);
     }
 
     public void activateWebhook() {

@@ -1,5 +1,6 @@
 package no.nav.fo.feed.controller;
 
+import com.sun.java.browser.plugin2.DOM;
 import no.nav.fo.feed.common.FeedRequest;
 import no.nav.fo.feed.common.FeedWebhookRequest;
 import no.nav.fo.feed.consumer.FeedConsumer;
@@ -21,14 +22,17 @@ public class FeedController {
     private Map<String, FeedProducer> producers = new HashMap<>();
     private Map<String, FeedConsumer> consumers = new HashMap<>();
 
-    public <ID extends Comparable<ID>, DOMAINOBJECT> void addFeed(String serverFeedname, FeedProducer<ID, DOMAINOBJECT> producer) {
+    public <DOMAINOBJECT extends Comparable<DOMAINOBJECT>> void addFeed(String serverFeedname, FeedProducer<DOMAINOBJECT> producer) {
         producers.put(serverFeedname, producer);
     }
 
-    public <ID extends Comparable<ID>, DOMAINOBJECT> void addFeed(String clientFeedname, FeedConsumer<ID, DOMAINOBJECT> consumer) {
+    public <DOMAINOBJECT extends Comparable<DOMAINOBJECT>> void addFeed(String clientFeedname, FeedConsumer<DOMAINOBJECT> consumer) {
         consumers.put(clientFeedname, consumer);
     }
 
+    public FeedController() {
+        System.out.println("Starter");
+    }
     // PRODUCER CONTROLLER
 
     @PUT
@@ -42,9 +46,10 @@ public class FeedController {
 
     @GET
     @Path("{name}")
-    public Response get(@PathParam("name") String name, @BeanParam FeedRequest request) {
+    public Response get(@PathParam("name") String name, @QueryParam("id") String id, @QueryParam("page_size") Integer pageSize) {
+        int size = Optional.ofNullable(pageSize).orElse(100);
         return Optional.ofNullable(producers.get(name))
-                .map((feed) -> feed.getFeedPage(request))
+                .map((feed) -> feed.getFeedPage(new FeedRequest().setPageSize(size).setSinceId(id)))
                 .map(Response::ok)
                 .orElse(Response.status(Response.Status.BAD_REQUEST))
                 .build();

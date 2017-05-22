@@ -5,12 +5,12 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class FeedElement<ID extends Comparable<ID>, DOMAINOBJECT> implements Comparable<FeedElement<ID, DOMAINOBJECT>>{
-    protected ID id;
+public class FeedElement<DOMAINOBJECT> implements Comparable<FeedElement<DOMAINOBJECT>>{
+    protected String id;
     protected DOMAINOBJECT element;
 
     @Override
-    public int compareTo(FeedElement<ID, DOMAINOBJECT> o) {
+    public int compareTo(FeedElement<DOMAINOBJECT> o) {
         return id.compareTo(o.getId());
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class FeedResponse<ID extends Comparable<ID>, DOMAINOBJECT> {
-    ID nextPageId;
-    List<FeedElement<ID, DOMAINOBJECT>> elements;
+public class FeedResponse<DOMAINOBJECT> {
+    String nextPageId;
+    List<FeedElement<DOMAINOBJECT>> elements;
 }

@@ -4,5 +4,5 @@ import java.util.List;
 
 @FunctionalInterface
 public interface FeedCallback<T> {
-    void callback(List<T> data);
+    void call(List<T> data);
 }

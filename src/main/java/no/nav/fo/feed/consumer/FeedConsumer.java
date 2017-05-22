@@ -1,117 +1,62 @@
 package no.nav.fo.feed.consumer;
 
-import lombok.Builder;
-import lombok.SneakyThrows;
 import no.nav.fo.feed.common.FeedElement;
+import no.nav.fo.feed.common.FeedParameterizedType;
 import no.nav.fo.feed.common.FeedResponse;
 import no.nav.fo.feed.common.FeedWebhookRequest;
-import no.nav.metrics.aspects.Timed;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.quartz.CronScheduleBuilder.cronSchedule;
-import static org.quartz.JobBuilder.newJob;
-import static org.quartz.TriggerBuilder.newTrigger;
+import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
+import static no.nav.fo.feed.util.UrlUtils.asUrl;
+import static no.nav.fo.feed.util.UrlUtils.callbackUrl;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Builder
-public class FeedConsumer<ID extends Comparable<ID>, DOMAINOBJECT> implements Job {
-    public static String applicationContextroot;
+public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
+    public static String applicationApiroot;
     private static final Logger LOG = getLogger(FeedConsumer.class);
-    private static Scheduler scheduler;
 
-    static {
-        try {
-            scheduler = new StdSchedulerFactory().getScheduler();
-            scheduler.start();
-        } catch (SchedulerException e) {
-            throw new RuntimeException("Could not create schduler", e);
-        }
-    }
+    private FeedConsumerConfig<DOMAINOBJECT> config;
 
-    private ID lastEntry;
-    private String host;
-    private String feedName;
-    @Builder.Default private String pollingInterval = "0 * * * * ?";
-    @Builder.Default private String webhookPollingInterval = "0 * * * * ?";
-    @Builder.Default private boolean allowWebhooks = false;
-    private List<FeedCallback<DOMAINOBJECT>> callbacks;
+    public FeedConsumer(FeedConsumerConfig<DOMAINOBJECT> config) {
+        this.config = config;
 
-    public FeedConsumer(ID lastEntry, String host, String feedName, String pollingInterval, String webhookPollingInterval, boolean allowWebhooks, List<FeedCallback<DOMAINOBJECT>> callbacks) {
-        this.lastEntry = lastEntry;
-        this.host = host;
-        this.feedName = feedName;
-        this.pollingInterval = pollingInterval;
-        this.webhookPollingInterval = webhookPollingInterval;
-        this.allowWebhooks = allowWebhooks;
-        this.callbacks = callbacks;
-
-        this.init();
-    }
-
-    @SneakyThrows
-    private void init() {
-        JobDetail pollingJob = newJob(FeedConsumer.class)
-                .withIdentity(feedName, host)
-                .build();
-        CronTrigger pollingTrigger = newTrigger()
-                .withIdentity(feedName, host)
-                .withSchedule(cronSchedule(this.pollingInterval))
-                .build();
-        scheduler.scheduleJob(pollingJob, pollingTrigger);
-
-        if (allowWebhooks) {
-            JobDetail webhookJob = newJob(FeedConsumer.class)
-                    .withIdentity(feedName + "/webhook", host)
-                    .build();
-            CronTrigger webhookTrigger = newTrigger()
-                    .withIdentity(feedName + "/webhook", host)
-                    .withSchedule(cronSchedule(this.webhookPollingInterval))
-                    .build();
-            scheduler.scheduleJob(webhookJob, webhookTrigger);
-        }
-    }
-
-    @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
-
+        createScheduledJob(this.config.feedName, this.config.host, this.config.pollingInterval, this::poll);
+        createScheduledJob(this.config.feedName + "/webhook", this.config.host, this.config.webhookPollingInterval, this::registerWebhook);
     }
 
     public boolean webhookCallback() {
-        if (!allowWebhooks) {
+        if (isBlank(this.config.webhookPollingInterval)) {
             return false;
         }
 
-        // TODO Fetch data
-        poll(lastEntry, 1000);
-
+        poll();
         return true;
     }
 
     public void addCallback(FeedCallback callback) {
-        if (!callbacks.contains(callback)) {
-            callbacks.add(callback);
-        }
+        this.config.callback(callback);
     }
 
-    @Timed(name = "feed.registerWebhook")
-    public void registerWebhook() {
+    void registerWebhook() {
         Client client = ClientBuilder.newBuilder().build();
-        FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl());
+
+        String callbackUrl = callbackUrl(FeedConsumer.applicationApiroot, this.config.feedName);
+        FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
+
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
         Response response = client
-                .target(asUrl(host + feedName + "/webhook"))
+                .target(asUrl(this.config.host, "feed", this.config.feedName, "webhook"))
                 .request()
                 .buildPut(entity)
                 .invoke();
@@ -123,54 +68,30 @@ public class FeedConsumer<ID extends Comparable<ID>, DOMAINOBJECT> implements Jo
         }
     }
 
-    @Timed(name = "feed.poll")
-    public void poll(ID sinceId, int pageSize) {
-        Client client = ClientBuilder.newBuilder().build();
-        Response response = client
-                .target(asUrl(host + feedName))
-                .queryParam("since_id", sinceId)
+    void poll() {
+        Response response = ClientBuilder.newBuilder().build()
+                .target(asUrl(this.config.host, "feed", this.config.feedName))
+                .queryParam("id", this.config.lastEntry)
                 .request()
                 .buildGet()
                 .invoke();
-
-        FeedResponse<ID, DOMAINOBJECT> entity = (FeedResponse<ID, DOMAINOBJECT>) response.getEntity();// FeedResponse<ID, DOMAINOBJECT>
-        List<DOMAINOBJECT> data = entity
-                .getElements()
-                .stream()
-                .map(FeedElement::getElement)
-                .collect(Collectors.toList());
 
         if (response.getStatus() != 200) {
             LOG.warn("Endepunkt for polling av feed returnerte feilkode {}", response.getStatus());
         }
 
-        callbacks.forEach((callback) -> callback.callback(data));
-        lastEntry = entity.getNextPageId();
-    }
+        ParameterizedType type = new FeedParameterizedType(this.config.domainobject);
+        FeedResponse<DOMAINOBJECT> entity = response.readEntity(new GenericType<>(type));
 
-    private String callbackUrl() {
-        String environmentClass = System.getProperty("environment.class");
-        String environment = System.getProperty("environment.name");
-        String host = getHost(environmentClass, environment);
+        if (entity.getElements() != null && !entity.getElements().isEmpty()) {
+            List<DOMAINOBJECT> data = entity
+                    .getElements()
+                    .stream()
+                    .map(FeedElement::getElement)
+                    .collect(Collectors.toList());
 
-        return asUrl(format("%s/%s/feed/%s", host, applicationContextroot, feedName));
-    }
-
-    private String getHost(String environmentClass, String environment) {
-        switch (environmentClass) {
-            case "u":
-            case "t":
-            case "q": {
-                return format("https://app-%s.adeo.no", environment);
-            }
-            default: {
-                return "https://app.adeo.no";
-            }
+            this.config.callbacks.forEach((callback) -> callback.call(data));
+            this.config.lastEntry = entity.getNextPageId();
         }
     }
-
-    private String asUrl(String s) {
-        return s;
-    }
-
 }
