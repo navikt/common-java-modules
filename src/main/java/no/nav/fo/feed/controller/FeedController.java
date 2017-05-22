@@ -3,6 +3,7 @@ package no.nav.fo.feed.controller;
 import no.nav.fo.feed.common.FeedRequest;
 import no.nav.fo.feed.common.FeedWebhookRequest;
 import no.nav.fo.feed.consumer.FeedConsumer;
+import no.nav.fo.feed.exception.MissingIdException;
 import no.nav.fo.feed.producer.FeedProducer;
 import org.springframework.stereotype.Component;
 
@@ -46,9 +47,10 @@ public class FeedController {
     @GET
     @Path("{name}")
     public Response get(@PathParam("name") String name, @QueryParam("id") String id, @QueryParam("page_size") Integer pageSize) {
+        String sinceId = Optional.ofNullable(id).orElseThrow(MissingIdException::new);
         int size = Optional.ofNullable(pageSize).orElse(100);
         return Optional.ofNullable(producers.get(name))
-                .map((feed) -> feed.getFeedPage(new FeedRequest().setPageSize(size).setSinceId(id)))
+                .map((feed) -> feed.getFeedPage(new FeedRequest().setPageSize(size).setSinceId(sinceId)))
                 .map(Response::ok)
                 .orElse(Response.status(Response.Status.BAD_REQUEST))
                 .build();
