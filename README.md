@@ -2,10 +2,22 @@
 
 Bibliotek for oppsett av feeds over https
 
+### Eksempel på konfigurasjon ved lokal kjøring
 
-### 1) Importer avhengighet i ditt prosjekt
+````
+environment.class=lokalt
+feed.lokalt.callback.host=http://localhost:9595/veilarbportefolje/internal/feed/callback
+tilordninger.feed.producer.url=http://localhost:8486/veilarbsituasjon/api/feed/
+tilordninger.feed.consumer.pollingrate.cron=*/10 * * * * ?
+tilordninger.feed.consumer.pollingratewebhook.cron=*/10 * * * * ?
+````
 
-Tas i bruk ved å legge til følgende i applikasjonens pom:
+Konfigurasjonen gjøres hos konsumenten.
+
+### Installasjon 
+
+Tas i bruk ved å legge til følgende i applikasjonens pom-fil:
+
 ```
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
@@ -13,6 +25,3 @@ Tas i bruk ved å legge til følgende i applikasjonens pom:
                 <version>LATEST</version>
             </dependency>
 ```
-
-### 2) Oppsett av REST-feed
- 
