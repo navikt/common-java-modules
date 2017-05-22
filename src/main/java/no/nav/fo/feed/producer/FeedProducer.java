@@ -43,7 +43,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
             return new FeedResponse<DOMAINOBJECT>().setNextPageId(id);
         }
 
-        String nextPageId = Optional.ofNullable(pageElements.get(0))
+        String nextPageId = Optional.ofNullable(pageElements.get(pageElements.size() - 1))
                 .map(FeedElement::getId)
                 .orElse(null);
 
