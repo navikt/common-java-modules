@@ -1,6 +1,6 @@
 # API-APP-FEED
 
-Bibliotek for oppsett av feeds over http
+Bibliotek for oppsett av feeds over https
 
 
 ### 1) Importer avhengighet i ditt prosjekt
@@ -8,8 +8,8 @@ Bibliotek for oppsett av feeds over http
 Tas i bruk ved å legge til følgende i applikasjonens pom:
 ```
             <dependency>
-                <groupId>no.nav.fo</groupId>
-                <artifactId>api-app-feed</artifactId>
+                <groupId>no.nav.sbl.dialogarena</groupId>
+                <artifactId>feed</artifactId>
                 <version>LATEST</version>
             </dependency>
 ```

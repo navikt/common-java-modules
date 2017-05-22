@@ -1,6 +1,5 @@
 package no.nav.fo.feed.controller;
 
-import com.sun.java.browser.plugin2.DOM;
 import no.nav.fo.feed.common.FeedRequest;
 import no.nav.fo.feed.common.FeedWebhookRequest;
 import no.nav.fo.feed.consumer.FeedConsumer;
