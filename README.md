@@ -12,7 +12,7 @@ Tas i bruk ved å legge til følgende i applikasjonens parent-pom:
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>api-app-bom</artifactId>
-                <version>LATEST</version>
+                <version>RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
