@@ -52,6 +52,15 @@ public class MockServerTest {
         assertThat(jsonContent, equalTo("{\"text\": \"json\"}"));
     }
 
+    @Test
+    public void startMockServer_taklerAtContextNameErContextPath() throws Exception {
+        mockServer.stop.run();
+        mockServer = startMockServer("/mockservertest", jettyPort);
+
+        startMockServer_serverMockData();
+        startMockServer_finnerJsonFiler();
+    }
+
     private static int freePort() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();

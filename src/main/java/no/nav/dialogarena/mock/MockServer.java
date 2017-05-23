@@ -35,8 +35,8 @@ public class MockServer {
         private final String contextPath;
 
         private MockHandler(String contextName) {
-            this.contextPath = "/" + contextName;
-            this.setBaseResource(URLResource.newClassPathResource(CLASS_PATH_PATH));
+            this.contextPath = contextName.startsWith("/") ? contextName : "/" + contextName;
+            this.setBaseResource(URLResource.newClassPathResource(CLASS_PATH_PATH + this.contextPath));
         }
 
         @Override
@@ -50,7 +50,8 @@ public class MockServer {
                 if (getResource("/") == null) {
                     throw new IOException("Unable to locate /mockserver in resources. Check your configuration.");
                 }
-                String pathInfo = target + "." + baseRequest.getMethod();
+
+                String pathInfo = target.substring(this.contextPath.length()) + "." + baseRequest.getMethod();
                 String jsonPath =  pathInfo + ".json";
                 if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
                     pathInfo = jsonPath;
