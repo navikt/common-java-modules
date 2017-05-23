@@ -46,13 +46,16 @@ public class MockServer {
                 response.setContentType("text/plain");
                 response.getWriter().write("mock for: " + contextPath);
                 baseRequest.setHandled(true);
+            } else if (target.startsWith(this.contextPath + "/internal/selftest")) {
+                httpServletResponse.getWriter().write("OK");
+                baseRequest.setHandled(true);
             } else {
                 if (getResource("/") == null) {
                     throw new IOException("Unable to locate /mockserver in resources. Check your configuration.");
                 }
 
                 String pathInfo = target.substring(this.contextPath.length()) + "." + baseRequest.getMethod();
-                String jsonPath =  pathInfo + ".json";
+                String jsonPath = pathInfo + ".json";
                 if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
                     pathInfo = jsonPath;
                 }
