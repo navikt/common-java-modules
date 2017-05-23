@@ -678,7 +678,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>app-mock</artifactId>
-                <version>1.0.2.3</version>
+                <version>1.6.5</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
