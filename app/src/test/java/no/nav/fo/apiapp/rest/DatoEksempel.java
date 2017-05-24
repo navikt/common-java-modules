@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Optional;
 
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static no.nav.apiapp.rest.DateConfiguration.DEFAULT_ZONE;
 
 @Path("/dato")
@@ -35,12 +36,14 @@ public class DatoEksempel {
 
     private DTO tilDTO(QueryDTO queryDTO) {
         DTO dto = new DTO();
-        dto.localDate = queryDTO.localDate;
-        dto.localDateTime = queryDTO.localDateTime;
-        dto.zonedDateTime = queryDTO.zonedDateTime;
-        dto.date = queryDTO.date;
-        dto.optionalDate = of(queryDTO.date);
-        dto.string = queryDTO.string;
+        if (queryDTO != null) {
+            dto.localDate = queryDTO.localDate;
+            dto.localDateTime = queryDTO.localDateTime;
+            dto.zonedDateTime = queryDTO.zonedDateTime;
+            dto.date = queryDTO.date;
+            dto.optionalDate = ofNullable(queryDTO.date);
+            dto.string = queryDTO.string;
+        }
         return dto;
     }
 
