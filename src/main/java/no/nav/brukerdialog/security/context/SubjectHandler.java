@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public abstract class SubjectHandler {
     private static final Logger logger = LoggerFactory.getLogger(SubjectHandler.class);
 
-    static final String SUBJECTHANDLER_KEY = "no.nav.modig.core.context.subjectHandlerImplementationClass";
+    public static final String SUBJECTHANDLER_KEY = "no.nav.brukerdialog.security.context.subjectHandlerImplementationClass";
     static final String JBOSS_PROPERTY_KEY = "jboss.home.dir";
 
     public static SubjectHandler getSubjectHandler() {
@@ -25,10 +25,14 @@ public abstract class SubjectHandler {
         }
 
         if (subjectHandlerImplementationClass == null) {
-            throw new RuntimeException("Du kjører på noe annet enn JBoss. Om du kjører i jetty og test " +
-                    "må du konfigurere opp en System property med key no.nav.modig.core.context.subjectHandlerImplementationClass. " +
-                    "Dette kan gjøres på følgende måte: " +
-                    "System.setProperty(\"no.nav.modig.core.context.subjectHandlerImplementationClass\", ThreadLocalSubjectHandler.class.getName());");
+            throw new RuntimeException(String.format("" +
+                            "Du kjører på noe annet enn JBoss. Om du kjører i jetty og test " +
+                            "må du konfigurere opp en System property med key %s. " +
+                            "Dette kan gjøres på følgende måte: " +
+                            "System.setProperty(\"%s\", ThreadLocalSubjectHandler.class.getName());",
+                    SUBJECTHANDLER_KEY,
+                    SUBJECTHANDLER_KEY
+            ));
         }
 
         try {
