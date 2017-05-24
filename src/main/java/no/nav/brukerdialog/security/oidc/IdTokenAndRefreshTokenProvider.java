@@ -26,14 +26,12 @@ public class IdTokenAndRefreshTokenProvider {
 
     static final String ENCODING = "UTF-8";
 
-    private static final String DEFAULT_REDIRECT_URL = "/"+ getProperty("applicationName")+"/tjenester/login";
+    private static final String DEFAULT_REDIRECT_URL = "/oidclogin/login";
     private final Parameters parameters;
 
     public IdTokenAndRefreshTokenProvider() {
         this(Parameters.builder()
-                // TODO er dette korrekt? eller skal det være: getProperty("oidc-redirect.url") == null ? getProperty("oidc-redirect.url") : "/oidclogin/login";
-                .redirectUrl(getProperty("oidc-redirect.url") == null ? DEFAULT_REDIRECT_URL : "/oidclogin/login")
-                //
+                .redirectUrl(getProperty("oidc-redirect.url",DEFAULT_REDIRECT_URL))
                 .host(getProperty(ISSO_HOST_URL_PROPERTY_NAME))
                 .username(getProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME))
                 .password(getProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME))
