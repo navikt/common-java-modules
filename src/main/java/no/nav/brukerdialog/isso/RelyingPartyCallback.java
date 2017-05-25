@@ -48,7 +48,7 @@ public class RelyingPartyCallback {
             return Response.status(BAD_REQUEST).build();
         }
 
-        IdTokenAndRefreshToken tokens = tokenProvider.getToken(authorizationCode, uri);
+        IdTokenAndRefreshToken tokens = tokenProvider.getToken(authorizationCode, uri.getAbsolutePath().toString());
         OidcCredential token = tokens.getIdToken();
         String refreshToken = tokens.getRefreshToken();
 
