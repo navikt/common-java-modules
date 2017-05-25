@@ -1,7 +1,5 @@
 package no.nav.brukerdialog.security.jaspic;
 
-import no.nav.brukerdialog.tools.HostUtils;
-import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
@@ -13,15 +11,12 @@ public class AuthorizationRequestBuilder {
 
     private static final SecureRandom random = new SecureRandom();
 
-    private final String server;
     private final String scope = "openid";
     private boolean useKerberos = true;
     private String stateIndex;
-    private static final String DEFAULT_REDIRECT_URL = "/" + getProperty("applicationName") + "/tjenester/login";
 
 
-    public AuthorizationRequestBuilder(HttpServletRequest req) {
-        server = HostUtils.formatSchemeHostPort(req);
+    public AuthorizationRequestBuilder() {
         byte bytes[] = new byte[20];
         random.nextBytes(bytes);
         stateIndex = "state_" + new BigInteger(1, bytes).toString(16);
@@ -39,7 +34,7 @@ public class AuthorizationRequestBuilder {
     public String buildRedirectString() throws UnsupportedEncodingException {
         String clientId = getProperty("isso-rp-user.username");
         String state = stateIndex;
-        String redirectUrl = getProperty("oidc-redirect.url") == null ? server + DEFAULT_REDIRECT_URL : getProperty("oidc-redirect.url");
+        String redirectUrl = getProperty("oidc-redirect.url");
         String kerberosTrigger = useKerberos
                 ? "session=winssochain&authIndexType=service&authIndexValue=winssochain&"
                 : "";

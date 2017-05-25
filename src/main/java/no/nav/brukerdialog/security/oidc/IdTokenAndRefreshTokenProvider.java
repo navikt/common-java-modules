@@ -3,13 +3,11 @@ package no.nav.brukerdialog.security.oidc;
 import lombok.Builder;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
-import no.nav.brukerdialog.tools.HostUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriInfo;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -26,12 +24,10 @@ public class IdTokenAndRefreshTokenProvider {
 
     static final String ENCODING = "UTF-8";
 
-    private static final String DEFAULT_REDIRECT_URL = "/oidclogin/login";
     private final Parameters parameters;
 
     public IdTokenAndRefreshTokenProvider() {
         this(Parameters.builder()
-                .redirectUrl(getProperty("oidc-redirect.url",DEFAULT_REDIRECT_URL))
                 .host(getProperty(ISSO_HOST_URL_PROPERTY_NAME))
                 .username(getProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME))
                 .password(getProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME))
@@ -43,14 +39,15 @@ public class IdTokenAndRefreshTokenProvider {
         this.parameters = parameters;
     }
 
-    public IdTokenAndRefreshToken getToken(String authorizationCode, UriInfo uri) {
-        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, uri), s -> extractToken(s));
+    public IdTokenAndRefreshToken getToken(String authorizationCode, String redirectUri) {
+        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, redirectUri), s -> extractToken(s));
     }
 
-    HttpPost createTokenRequest(String authorizationCode, UriInfo redirectUri) {
+    HttpPost createTokenRequest(String authorizationCode, String redirectUri) {
         String urlEncodedRedirectUri;
+
         try {
-            urlEncodedRedirectUri = URLEncoder.encode(HostUtils.formatSchemeHostPort(redirectUri) + parameters.redirectUrl, ENCODING);
+            urlEncodedRedirectUri = URLEncoder.encode(redirectUri, ENCODING);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
@@ -76,12 +73,8 @@ public class IdTokenAndRefreshTokenProvider {
 
     @Builder
     public static class Parameters {
-
         public final String host;
-        public final String redirectUrl;
         public final String username;
         public final String password;
-
     }
-
 }
