@@ -1,15 +1,13 @@
 package no.nav.fo.feed.producer;
 
 import lombok.Builder;
-import no.nav.fo.feed.common.FeedElement;
-import no.nav.fo.feed.common.FeedRequest;
-import no.nav.fo.feed.common.FeedResponse;
-import no.nav.fo.feed.common.FeedWebhookRequest;
+import no.nav.fo.feed.common.*;
 import no.nav.fo.feed.exception.InvalidUrlException;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +24,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
 
     @Builder.Default private int maxPageSize = 10000;
     @Builder.Default private List<String> callbackUrls = new ArrayList<>();
+    @Builder.Default private List<OutInterceptor> interceptors = null;
     private FeedProvider<DOMAINOBJECT> provider;
 
 
@@ -54,7 +53,9 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
         callbackUrls
                 .forEach((url) -> {
                     Client client = ClientBuilder.newBuilder().build();
-                    client.target(url).request().build(HEAD).invoke();
+                    Invocation.Builder request = client.target(url).request();
+                    this.interceptors.forEach( interceptor -> interceptor.apply(request));
+                    request.build(HEAD).invoke();
                 });
     }
 

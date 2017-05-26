@@ -1,14 +1,12 @@
 package no.nav.fo.feed.consumer;
 
-import no.nav.fo.feed.common.FeedElement;
-import no.nav.fo.feed.common.FeedParameterizedType;
-import no.nav.fo.feed.common.FeedResponse;
-import no.nav.fo.feed.common.FeedWebhookRequest;
+import no.nav.fo.feed.common.*;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.ParameterizedType;
@@ -55,9 +53,14 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
 
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
-        Response response = client
+
+        Invocation.Builder request = client
                 .target(asUrl(this.config.host, "feed", this.config.feedName, "webhook"))
-                .request()
+                .request();
+
+        config.interceptors.forEach( interceptor -> interceptor.apply(request));
+
+        Response response = request
                 .buildPut(entity)
                 .invoke();
 
@@ -69,10 +72,15 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     }
 
     void poll() {
-        Response response = ClientBuilder.newBuilder().build()
+
+        Invocation.Builder request = ClientBuilder.newBuilder().build()
                 .target(asUrl(this.config.host, "feed", this.config.feedName))
                 .queryParam("id", this.config.lastEntry)
-                .request()
+                .request();
+
+        config.interceptors.forEach( interceptor -> interceptor.apply(request));
+
+        Response response = request
                 .buildGet()
                 .invoke();
 
