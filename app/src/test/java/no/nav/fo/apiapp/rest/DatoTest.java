@@ -67,6 +67,18 @@ public class DatoTest extends JettyTest {
             "\"string\":\"dette er en test\"" +
             "}";
 
+    private static final String NULL_JSON = "{" +
+            "\"localDate\":null," +
+            "\"localDateTime\":null," +
+            "\"zonedDateTime\":null," +
+            "\"date\":null," +
+            "\"aBoolean\":true," +
+            "\"optionalDate\":null," +
+            "\"noOptionalDate\":null," +
+            "\"string\":" +
+            "\"dette er en test\"" +
+            "}";
+
     @Test
     public void getDTO() {
         assertThat(getString("/api/dato/dto"), equalTo(DTO_JSON));
@@ -83,13 +95,23 @@ public class DatoTest extends JettyTest {
     }
 
     @Test
-    public void queryPostUTC() throws Exception{
+    public void queryNull() {
+        testQuery(null, NULL_JSON);
+    }
+
+    @Test
+    public void queryPostUTC() throws Exception {
         testPost(QUERY_UTC, DTO_FRA_UTC_QUERY);
     }
 
     @Test
-    public void queryPostParis() throws Exception{
+    public void queryPostParis() throws Exception {
         testPost(QUERY_PARIS, DTO_FRA_PARIS_QUERY);
+    }
+
+    @Test
+    public void queryPostNull() throws Exception {
+        testPost(null, DTO_JSON);
     }
 
     private void testPost(String queryParis, String dtoFraParisQuery) {

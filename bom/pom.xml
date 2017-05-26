@@ -36,6 +36,7 @@
         <common-test.version>2.0.3</common-test.version>
         <common-jetty.version>2.0.16</common-jetty.version>
         <jetty.version>9.3.0.M2</jetty.version>
+        <feed.version>1.0.2</feed.version>
 
         <!-- SOAP -->
         <common-cxf.version>3.1.41</common-cxf.version>
@@ -53,6 +54,7 @@
         <ojdbc.version>11.2.0.3</ojdbc.version>
         <flyway.version>4.0.3</flyway.version>
         <hsqldb.version>2.2.9</hsqldb.version>
+        <h2.version>1.4.195</h2.version>
 
         <!-- REST -->
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
@@ -95,6 +97,13 @@
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- Feed -->
+            <dependency>
+                <groupId>no.nav.sbl.dialogarena</groupId>
+                <artifactId>feed</artifactId>
+                <version>${feed.version}</version>
             </dependency>
 
             <!-- modig -->
@@ -345,6 +354,11 @@
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
                 <scope>runtime</scope>
@@ -528,6 +542,12 @@
                 <scope>test</scope>
                 <version>${jetty.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-proxy</artifactId>
+                <scope>test</scope>
+                <version>${jetty.version}</version>
+            </dependency>
 
             <!-- SOAP -->
             <dependency>
@@ -636,6 +656,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-core</artifactId>
                 <version>${flyway.version}</version>
@@ -653,7 +679,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>app-mock</artifactId>
-                <version>1.0.2.3</version>
+                <version>1.6.5</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

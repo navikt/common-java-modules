@@ -90,7 +90,10 @@ public class DateConfiguration {
 
         @Override
         public T fromString(String value) {
-            return toValue(ZonedDateTime.parse(value));
+            return of(value)
+                    .map(ZonedDateTime::parse)
+                    .map(this::toValue)
+                    .orElse(null);
         }
 
         @Override
