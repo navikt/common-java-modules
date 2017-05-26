@@ -13,14 +13,11 @@ import java.net.URLEncoder;
 
 import static java.lang.System.getProperty;
 import static javax.ws.rs.core.HttpHeaders.*;
+import static no.nav.brukerdialog.security.Constants.*;
 
 public class IdTokenAndRefreshTokenProvider {
 
     private static final Logger log = LoggerFactory.getLogger(IdTokenAndRefreshTokenProvider.class);
-
-    public static final String ISSO_HOST_URL_PROPERTY_NAME = "isso-host.url";
-    public static final String ISSO_RP_USER_USERNAME_PROPERTY_NAME = "isso-rp-user.username";
-    public static final String ISSO_RP_USER_PASSWORD_PROPERTY_NAME = "isso-rp-user.password";
 
     static final String ENCODING = "UTF-8";
 
@@ -40,7 +37,7 @@ public class IdTokenAndRefreshTokenProvider {
     }
 
     public IdTokenAndRefreshToken getToken(String authorizationCode, String redirectUri) {
-        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, redirectUri), s -> extractToken(s));
+        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, redirectUri), this::extractToken);
     }
 
     HttpPost createTokenRequest(String authorizationCode, String redirectUri) {

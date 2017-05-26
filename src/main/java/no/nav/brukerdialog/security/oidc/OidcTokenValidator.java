@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.security.Key;
 import java.util.List;
 
+import static no.nav.brukerdialog.security.Constants.ISSO_EXPECTED_TOKEN_ISSUER;
+import static no.nav.brukerdialog.security.Constants.ISSO_RP_USER_USERNAME_PROPERTY_NAME;
+import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
+
 public class OidcTokenValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(OidcTokenValidator.class);
@@ -90,11 +94,11 @@ public class OidcTokenValidator {
         if (key == null) {
             return OidcTokenValidatorResult.invalid(String.format("Jwt (%s) is not in jwks", header));
         }
-        String expectedIssuer = System.getProperty("isso-issuer.url");
+        String expectedIssuer = getSystemProperty(ISSO_EXPECTED_TOKEN_ISSUER);
         if (expectedIssuer == null) {
             return OidcTokenValidatorResult.invalid("Expected issuer must be configured.");
         }
-        String expectedAudience = System.getProperty("isso-rp-user.username");
+        String expectedAudience = getSystemProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME);
         if (expectedAudience == null) {
             return OidcTokenValidatorResult.invalid("Expected audience must be configured.");
         }

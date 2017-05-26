@@ -30,7 +30,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static javax.security.auth.message.AuthStatus.*;
-import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
+import static no.nav.brukerdialog.security.Constants.*;
+import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
 
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
@@ -44,7 +45,6 @@ public class OidcAuthModule implements ServerAuthModule {
     private static final String IS_MANDATORY = "javax.security.auth.message.MessagePolicy.isMandatory";
 
     private static final boolean sslOnlyCookies = !Boolean.valueOf(System.getProperty("develop-local", "false"));
-    public static final String REFRESH_TIME = "no.nav.brukerdialog.security.oidc.minimum_time_to_expire_before_refresh.seconds";
 
     private final OidcTokenValidator tokenValidator;
     private final IdTokenProvider tokenProvider;
@@ -158,7 +158,7 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     private void addApplicationCallbackSpecificHttpOnlyCookie(HttpServletResponse response, String name, String value) {
-        String redirectUrl = System.getProperty("oidc-redirect.url");
+        String redirectUrl = getSystemProperty(OIDC_REDIRECT_URL);
 
         Cookie cookie = new Cookie(name, value);
         cookie.setSecure(sslOnlyCookies);
