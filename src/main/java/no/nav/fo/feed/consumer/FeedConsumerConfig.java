@@ -2,7 +2,6 @@ package no.nav.fo.feed.consumer;
 
 import no.nav.fo.feed.common.OutInterceptor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FeedConsumerConfig<DOMAINOBJECT> {
@@ -12,7 +11,7 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
     String feedName;
     String pollingInterval;
     String webhookPollingInterval;
-    List<FeedCallback<DOMAINOBJECT>> callbacks = new ArrayList<>();
+    FeedCallback<DOMAINOBJECT> callback;
     List<OutInterceptor> interceptors;
 
     public FeedConsumerConfig(Class<DOMAINOBJECT> domainobject, String lastEntry, String host, String feedName) {
@@ -37,10 +36,8 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
         return this;
     }
 
-    public FeedConsumerConfig<DOMAINOBJECT> callback(FeedCallback callback) {
-        if (!this.callbacks.contains(callback)) {
-            this.callbacks.add(callback);
-        }
+    public FeedConsumerConfig<DOMAINOBJECT> callback(FeedCallback<DOMAINOBJECT> callback) {
+        this.callback = callback;
         return this;
     }
 }

@@ -98,7 +98,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
                     .map(FeedElement::getElement)
                     .collect(Collectors.toList());
 
-            this.config.callbacks.forEach((callback) -> callback.call(data));
+            this.config.callback.call(entity.getNextPageId(), data);
             this.config.lastEntry = entity.getNextPageId();
         }
     }
