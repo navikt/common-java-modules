@@ -3,10 +3,11 @@ package no.nav.fo.feed.consumer;
 import no.nav.fo.feed.common.OutInterceptor;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class FeedConsumerConfig<DOMAINOBJECT> {
     Class<DOMAINOBJECT> domainobject;
-    String lastEntry;
+    Supplier<String> lastEntrySupplier;
     String host;
     String feedName;
     String pollingInterval;
@@ -14,9 +15,9 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
     FeedCallback<DOMAINOBJECT> callback;
     List<OutInterceptor> interceptors;
 
-    public FeedConsumerConfig(Class<DOMAINOBJECT> domainobject, String lastEntry, String host, String feedName) {
+    public FeedConsumerConfig(Class<DOMAINOBJECT> domainobject, Supplier<String> lastEntrySupplier, String host, String feedName) {
         this.domainobject = domainobject;
-        this.lastEntry = lastEntry;
+        this.lastEntrySupplier = lastEntrySupplier;
         this.host = host;
         this.feedName = feedName;
     }

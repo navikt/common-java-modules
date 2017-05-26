@@ -72,10 +72,10 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     }
 
     void poll() {
-
+        String lastEntry = this.config.lastEntrySupplier.get();
         Invocation.Builder request = ClientBuilder.newBuilder().build()
                 .target(asUrl(this.config.host, "feed", this.config.feedName))
-                .queryParam("id", this.config.lastEntry)
+                .queryParam("id", lastEntry)
                 .request();
 
         config.interceptors.forEach( interceptor -> interceptor.apply(request));
@@ -99,7 +99,6 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
                     .collect(Collectors.toList());
 
             this.config.callback.call(entity.getNextPageId(), data);
-            this.config.lastEntry = entity.getNextPageId();
         }
     }
 }
