@@ -40,7 +40,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>api-app-bom</artifactId>
-                <version>LATEST</version>
+                <version>RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -97,12 +97,6 @@
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>api-app</artifactId>
             <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
