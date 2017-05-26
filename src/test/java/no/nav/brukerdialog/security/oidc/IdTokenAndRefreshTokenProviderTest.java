@@ -4,18 +4,16 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
 
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
-import static no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider.*;
+import static no.nav.brukerdialog.security.Constants.*;
+import static no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider.ENCODING;
+import static no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider.Parameters;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
 
 public class IdTokenAndRefreshTokenProviderTest {
 
