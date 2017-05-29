@@ -40,4 +40,10 @@ public class Resources {
         return resource;
     }
 
+    public static Resource makeVeilArbResource(Client client) {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, "no.nav.abac.attributter.resource.veilarb"));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, client.getDomain()));
+        return resource;
+    }
 }
