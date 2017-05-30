@@ -3,16 +3,17 @@ package no.nav.fo.feed.producer;
 import lombok.Builder;
 import no.nav.fo.feed.common.*;
 import no.nav.fo.feed.exception.InvalidUrlException;
+import no.nav.metrics.Event;
+import no.nav.metrics.MetricsFactory;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.HttpMethod.HEAD;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -28,7 +29,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     private FeedProvider<DOMAINOBJECT> provider;
 
 
-    public FeedResponse<DOMAINOBJECT> getFeedPage(FeedRequest request) {
+    public FeedResponse<DOMAINOBJECT> getFeedPage(String feedname, FeedRequest request) {
         int pageSize = getPageSize(request.getPageSize(), maxPageSize);
         String id = request.getSinceId();
 
@@ -37,6 +38,21 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
                 .sorted()
                 .limit(pageSize)
                 .collect(Collectors.toList());
+
+        Set<String> ids = pageElements
+                .stream()
+                .map(FeedElement::getId)
+                .collect(toSet());
+
+        if (pageElements.size() != ids.size()) {
+            // Found duplicate ids
+            Event event = MetricsFactory.createEvent("feed.duplicateid");
+            event.addTagToReport("feedname", feedname);
+            event.report();
+
+            LOG.warn("Found duplicate IDs in response to {} for feed {}", request, feedname);
+            LOG.info("This can lead to excessive network usage between the producer and its consumers...");
+        }
 
         if (pageElements.isEmpty()) {
             return new FeedResponse<DOMAINOBJECT>().setNextPageId(id);
