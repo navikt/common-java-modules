@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static no.nav.fo.feed.util.MetricsUtils.timed;
+
 @Component
 @Consumes("application/json")
 @Produces("application/json")
@@ -38,22 +40,25 @@ public class FeedController {
     @PUT
     @Path("{name}/webhook")
     public Response putWebhook(FeedWebhookRequest request, @PathParam("name") String name) {
-        return Optional.ofNullable(producers.get(name))
+        return timed(String.format("feed.%s.createwebhook", name), () -> Optional.ofNullable(producers.get(name))
                 .map((feed) -> feed.createWebhook(request))
                 .map((created) -> Response.status(created ? 201 : 200))
-                .orElse(Response.status(Response.Status.BAD_REQUEST)).build();
+                .orElse(Response.status(Response.Status.BAD_REQUEST)).build());
     }
 
     @GET
     @Path("{name}")
     public Response get(@PathParam("name") String name, @QueryParam("id") String id, @QueryParam("page_size") Integer pageSize) {
-        String sinceId = Optional.ofNullable(id).orElseThrow(MissingIdException::new);
-        int size = Optional.ofNullable(pageSize).orElse(100);
-        return Optional.ofNullable(producers.get(name))
-                .map((feed) -> feed.getFeedPage(new FeedRequest().setPageSize(size).setSinceId(sinceId)))
-                .map(Response::ok)
-                .orElse(Response.status(Response.Status.BAD_REQUEST))
-                .build();
+        return timed(String.format("feed.%s.poll", name), () -> {
+            String sinceId = Optional.ofNullable(id).orElseThrow(MissingIdException::new);
+            int size = Optional.ofNullable(pageSize).orElse(100);
+            return Optional.ofNullable(producers.get(name))
+                    .map((feed) -> feed.getFeedPage(name, new FeedRequest().setPageSize(size).setSinceId(sinceId)))
+                    .map(Response::ok)
+                    .orElse(Response.status(Response.Status.BAD_REQUEST))
+                    .build();
+        });
+
     }
 
     // CONSUMER CONTROLLER
@@ -61,12 +66,12 @@ public class FeedController {
     @HEAD
     @Path("{name}")
     public Response webhook(@PathParam("name") String feedname) {
-        return Optional.ofNullable(feedname)
+        return timed(String.format("feed.%s.webhook", feedname), () -> Optional.ofNullable(feedname)
                 .map((name) -> consumers.get(name))
                 .map(FeedConsumer::webhookCallback)
                 .map((hadCallback) -> Response.status(hadCallback ? 200 : 404))
                 .orElse(Response.status(404))
-                .build();
+                .build());
     }
 
 }
