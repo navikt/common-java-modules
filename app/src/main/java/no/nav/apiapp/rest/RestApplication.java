@@ -34,7 +34,8 @@ public class RestApplication extends Application {
                 new CacheBusterFilter(),
                 new ExceptionMapper(),
                 new NavMetricsBinder(),
-                parameterConverterProvider()
+                parameterConverterProvider(),
+                new SwaggerResource(applicationContext)
         ));
         if (apiApplication.getSone() == ApiApplication.Sone.FSS) {
             singeltons.add(new RelyingPartyCallback());

@@ -3,6 +3,7 @@ package no.nav.fo.apiapp;
 import no.nav.apiapp.ApiApplication;
 import no.nav.fo.apiapp.rest.DatoEksempel;
 import no.nav.fo.apiapp.rest.RestEksempel;
+import no.nav.fo.apiapp.rest.SwaggerEksempel;
 import no.nav.fo.apiapp.security.KreverSesjon;
 import no.nav.fo.apiapp.selftest.PingableEksempel;
 import no.nav.fo.apiapp.soap.SoapEksempel;
@@ -36,6 +37,11 @@ public class ApplicationConfig implements ApiApplication {
     @Bean
     public KreverSesjon kreverSesjon() {
         return new KreverSesjon();
+    }
+
+    @Bean
+    public SwaggerEksempel swaggerEksempel(){
+        return new SwaggerEksempel();
     }
 
     @Override

@@ -1,9 +1,6 @@
 package no.nav.fo.apiapp;
 
 import no.nav.apiapp.rest.JsonProvider;
-import no.nav.dialogarena.config.DevelopmentSecurity;
-import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.AfterClass;
@@ -19,7 +16,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public abstract class JettyTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
 
     protected static final String CONTEXT_NAME = JettyTest.class.getSimpleName();
-    protected static final Jetty JETTY = StartJetty.nyJetty(CONTEXT_NAME);
+    protected static final Jetty JETTY = StartJetty.nyJetty(CONTEXT_NAME, tilfeldigPort());
 
     private Client client = ClientBuilder.newBuilder().register(new JsonProvider()).build();
     private Map<String, NewCookie> cookies = new HashMap<>();
@@ -51,6 +50,14 @@ public abstract class JettyTest {
     public static void systemUser() {
         System.setProperty("no.nav.modig.security.systemuser.username","username");
         System.setProperty("no.nav.modig.security.systemuser.password","password");
+    }
+
+    private static int tilfeldigPort() {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            return serverSocket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected Response get(String path) {

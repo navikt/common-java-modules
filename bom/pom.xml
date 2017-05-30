@@ -65,6 +65,8 @@
         <hk2.version>2.4.0-b34</hk2.version>
 
         <!-- DIV -->
+        <swagger.version>1.5.13</swagger.version>
+        <swagger-ui.version>2.2.10</swagger-ui.version>
         <commons-lang.version>3.4</commons-lang.version>
         <commons-io.version>2.5</commons-io.version>
         <collections-generic.version>4.01</collections-generic.version>
@@ -413,6 +415,42 @@
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <!-- Swagger -->
+
+            <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>swagger-ui</artifactId>
+                <version>${swagger-ui.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jaxrs</artifactId>
+                <version>${swagger.version}</version>
+                <exclusions>
+                    <!-- swagger-jaxrs drar inn gammelt og konflikterende javax.rs-api -->
+                    <exclusion>
+                        <groupId>javax.ws.rs</groupId>
+                        <artifactId>jsr311-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${swagger.version}</version>
             </dependency>
 
 
