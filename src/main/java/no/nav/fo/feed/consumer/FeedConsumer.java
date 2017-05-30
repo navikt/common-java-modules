@@ -25,6 +25,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     private static final Logger LOG = getLogger(FeedConsumer.class);
 
     private FeedConsumerConfig<DOMAINOBJECT> config;
+    private FeedResponse<DOMAINOBJECT> lastResponse;
 
     public FeedConsumer(FeedConsumerConfig<DOMAINOBJECT> config) {
         this.config = config;
@@ -98,7 +99,10 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
                     .map(FeedElement::getElement)
                     .collect(Collectors.toList());
 
-            this.config.callback.call(entity.getNextPageId(), data);
+            if (!entity.equals(lastResponse)) {
+                this.config.callback.call(entity.getNextPageId(), data);
+            }
+            this.lastResponse = entity;
         }
     }
 }
