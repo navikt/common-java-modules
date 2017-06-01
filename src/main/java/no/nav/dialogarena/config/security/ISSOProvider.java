@@ -17,13 +17,10 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.util.StringContentProvider;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.UriInfo;
 import java.net.HttpCookie;
-import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +34,6 @@ import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static no.nav.dialogarena.config.DevelopmentSecurity.DEFAULT_ISSO_RP_USER;
 import static org.eclipse.jetty.http.HttpMethod.POST;
-import static org.mockito.Mockito.when;
 
 
 public class ISSOProvider {
@@ -116,18 +112,13 @@ public class ISSOProvider {
         }
 
         private String retrieveToken(ServiceUser issoServiceUser) {
-            UriInfo uriInfoMock = Mockito.mock(UriInfo.class);
-            URI redirectUrl = URI.create(this.redirectUrl);
-            when(uriInfoMock.getBaseUri()).thenReturn(redirectUrl);
-
             synchronized (this.getClass()) {
                 // TODO Veldig kjipt at IdTokenAndRefreshTokenProvider henter dette fra system properties!
-                System.setProperty("oidc-redirect.url", redirectUrl.getPath());
                 System.setProperty("isso-host.url", "https://isso-t.adeo.no/isso/oauth2");
                 System.setProperty("isso-rp-user.username", issoServiceUser.username);
                 System.setProperty("isso-rp-user.password", issoServiceUser.password);
 
-                return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode, uriInfoMock)
+                return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode, redirectUrl)
                         .getIdToken()
                         .getToken();
             }
