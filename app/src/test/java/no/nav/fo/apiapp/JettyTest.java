@@ -29,6 +29,11 @@ import static no.nav.apiapp.ServletUtil.getContext;
 
 
 public abstract class JettyTest {
+
+    static {
+        StartJetty.setupLogging();
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
 
     protected static final String CONTEXT_NAME = JettyTest.class.getSimpleName();

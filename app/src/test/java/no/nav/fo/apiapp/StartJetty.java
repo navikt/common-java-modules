@@ -5,6 +5,7 @@ import no.nav.modig.core.context.StaticSubjectHandler;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -22,6 +23,7 @@ public class StartJetty {
     }
 
     public static Jetty nyJetty(String contextPath) {
+        setupLogging();
         setProperty(SubjectHandler.SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
         setProperty(MILJO_PROPERTY_NAME, "t");
         return Jetty.usingWar()
@@ -31,6 +33,11 @@ public class StartJetty {
                 .disableAnnotationScanning()
                 .withLoginService(DevelopmentSecurity.jaasLoginModule(SAML))
                 .buildJetty();
+    }
+
+    public static void setupLogging() {
+        System.setProperty("APP_LOG_HOME", new File("target").getAbsolutePath());
+        System.setProperty("application.name", "api-app");
     }
 
     private static int tilfeldigPort() {
