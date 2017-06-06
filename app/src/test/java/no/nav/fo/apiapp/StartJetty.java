@@ -1,6 +1,5 @@
 package no.nav.fo.apiapp;
 
-import no.nav.apiapp.ApiAppServletContextListener;
 import no.nav.dialogarena.config.DevelopmentSecurity;
 import no.nav.modig.core.context.StaticSubjectHandler;
 import no.nav.modig.core.context.SubjectHandler;
@@ -9,6 +8,7 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.EnumSet;
 
@@ -23,20 +23,22 @@ public class StartJetty {
 
     public static void main(String[] args) {
         Jetty jetty = nyJetty(null, 8765);
-        jetty.context.addFilter(RedirectToSwagger.class, "/*", EnumSet.allOf(DispatcherType.class));
         jetty.startAnd(first(waitFor(gotKeypress())).then(jetty.stop));
     }
 
     public static Jetty nyJetty(String contextPath, int jettyPort) {
+        setupLogging();
         setProperty(SubjectHandler.SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
         setProperty(MILJO_PROPERTY_NAME, "t");
-        return Jetty.usingWar()
-                .at(contextPath)
-                .port(jettyPort)
-                .overrideWebXml()
-                .disableAnnotationScanning()
-                .withLoginService(DevelopmentSecurity.jaasLoginModule(SAML))
-                .buildJetty();
+            Jetty jetty = Jetty.usingWar()
+                    .at(contextPath)
+                    .port(jettyPort)
+                    .overrideWebXml()
+                    .disableAnnotationScanning()
+                    .withLoginService(DevelopmentSecurity.jaasLoginModule(SAML))
+                    .buildJetty();
+            jetty.context.addFilter(RedirectToSwagger.class, "/*", EnumSet.allOf(DispatcherType.class));
+            return jetty;
     }
 
     public static class RedirectToSwagger implements Filter {
@@ -56,6 +58,12 @@ public class StartJetty {
 
         @Override
         public void destroy() {}
+    }
+
+
+    public static void setupLogging() {
+        System.setProperty("APP_LOG_HOME", new File("target").getAbsolutePath());
+        System.setProperty("application.name", "api-app");
     }
 
 }
