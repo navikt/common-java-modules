@@ -20,25 +20,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-
-            <!-- TODO disse skal slettes når api-app er oppdatert  -->
-            <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>common-cxf</artifactId>
-                <version>3.1.43</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wss4j</groupId>
-                <artifactId>wss4j-ws-security-common</artifactId>
-                <version>2.1.9</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wss4j</groupId>
-                <artifactId>wss4j-ws-security-dom</artifactId>
-                <version>2.1.9</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
