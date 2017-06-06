@@ -39,7 +39,7 @@
         <feed.version>1.0.6</feed.version>
 
         <!-- SOAP -->
-        <common-cxf.version>3.1.41</common-cxf.version>
+        <common-cxf.version>3.1.43</common-cxf.version>
         <neethi.version>3.0.3</neethi.version>
         <cxf-core.version>3.1.11</cxf-core.version>
         <cxf-api.version>2.7.6</cxf-api.version>
@@ -86,6 +86,15 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>no.nav.modig</groupId>
+                <artifactId>modig-security</artifactId>
+                <version>${modig-security.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>api-app</artifactId>
@@ -673,7 +682,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>test-config</artifactId>
-                <version>1.28.5</version>
+                <version>1.30.17</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
