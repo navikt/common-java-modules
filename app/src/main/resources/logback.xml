@@ -35,8 +35,14 @@
 
     <root level="${ROOT_LOG_LEVEL:-INFO}">
         <appender-ref ref="async-file"/>
-        <appender-ref ref="console"/>
         <appender-ref ref="syslog"/>
+
+        <if condition='isNull("jboss.server.name")'>
+            <!-- ønsker ikke applikasjonslogger i serverloggen på jboss  -->
+            <then>
+                <appender-ref ref="console" />
+            </then>
+        </if>
     </root>
 
     <logger name="org.apache" level="INFO"/>
