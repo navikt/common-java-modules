@@ -1,12 +1,11 @@
 package no.nav.fo.apiapp;
 
 import no.nav.apiapp.ApiApplication;
-import no.nav.fo.apiapp.rest.DatoEksempel;
-import no.nav.fo.apiapp.rest.RestEksempel;
-import no.nav.fo.apiapp.rest.SwaggerEksempel;
+import no.nav.fo.apiapp.rest.*;
 import no.nav.fo.apiapp.security.KreverSesjon;
 import no.nav.fo.apiapp.selftest.PingableEksempel;
 import no.nav.fo.apiapp.soap.SoapEksempel;
+import no.nav.fo.feed.controller.FeedController;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,6 +41,16 @@ public class ApplicationConfig implements ApiApplication {
     @Bean
     public SwaggerEksempel swaggerEksempel(){
         return new SwaggerEksempel();
+    }
+
+    @Bean
+    public InterfaceEksempelImpl interfaceEksempel(){
+        return new InterfaceEksempelImpl();
+    }
+
+    @Bean
+    public FeedController feedController(){
+        return new FeedController();
     }
 
     @Override

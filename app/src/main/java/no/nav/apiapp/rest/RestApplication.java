@@ -35,7 +35,7 @@ public class RestApplication extends Application {
                 new ExceptionMapper(),
                 new NavMetricsBinder(),
                 parameterConverterProvider(),
-                new SwaggerResource(applicationContext)
+                new SwaggerResource()
         ));
         if (apiApplication.getSone() == ApiApplication.Sone.FSS) {
             singeltons.add(new RelyingPartyCallback());

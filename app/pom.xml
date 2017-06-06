@@ -239,6 +239,11 @@
         </dependency>
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>feed</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>dial-nav-tjeneste-aktoer_v2</artifactId>
             <version>1.2</version>
             <scope>test</scope>

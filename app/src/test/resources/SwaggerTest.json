@@ -9,6 +9,10 @@
   "paths": {
     "/swagger.json": {
       "get": {
+        "tags": [
+          "SwaggerResource"
+        ],
+        "summary": "getSwaggerJSON",
         "operationId": "getSwaggerJSON",
         "parameters": [],
         "responses": {
@@ -20,6 +24,10 @@
     },
     "/login": {
       "get": {
+        "tags": [
+          "RelyingPartyCallback"
+        ],
+        "summary": "getLogin",
         "operationId": "getLogin",
         "produces": [
           "application/json"
@@ -41,25 +49,6 @@
         "responses": {
           "default": {
             "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/dato/dto": {
-      "get": {
-        "tags": [
-          "DatoEksempel"
-        ],
-        "summary": "getDTO",
-        "operationId": "getDTO",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/DTO"
-            },
-            "headers": {}
           }
         }
       }
@@ -138,6 +127,63 @@
             "description": "successful operation",
             "schema": {
               "$ref": "#/definitions/DTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/dato/dto": {
+      "get": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "getDTO",
+        "operationId": "getDTO",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/interface/impl": {
+      "get": {
+        "tags": [
+          "InterfaceEksempelImpl"
+        ],
+        "summary": "implementertGet",
+        "operationId": "implementertGet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/interface/default": {
+      "get": {
+        "tags": [
+          "InterfaceEksempelImpl"
+        ],
+        "summary": "defaultGet",
+        "operationId": "defaultGet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
             },
             "headers": {}
           }
@@ -281,6 +327,109 @@
           }
         }
       }
+    },
+    "/feed/{name}": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "get",
+        "operationId": "get",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "webhook",
+        "operationId": "webhook",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed/{name}/webhook": {
+      "put": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "putWebhook",
+        "operationId": "putWebhook",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/FeedWebhookRequest"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -397,6 +546,26 @@
             "TO",
             "TRE"
           ]
+        }
+      }
+    },
+    "FeedConsumer": {
+      "type": "object"
+    },
+    "FeedConsumerComparableObject": {
+      "type": "object"
+    },
+    "FeedProducer": {
+      "type": "object"
+    },
+    "FeedProducerComparableObject": {
+      "type": "object"
+    },
+    "FeedWebhookRequest": {
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "type": "string"
         }
       }
     }
