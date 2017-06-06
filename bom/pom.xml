@@ -53,7 +53,7 @@
         <!-- DB -->
         <ojdbc.version>11.2.0.3</ojdbc.version>
         <flyway.version>4.0.3</flyway.version>
-        <hsqldb.version>2.2.9</hsqldb.version>
+        <hsqldb.version>2.3.4</hsqldb.version>
         <h2.version>1.4.195</h2.version>
 
         <!-- REST -->
