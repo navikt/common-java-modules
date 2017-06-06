@@ -16,6 +16,7 @@ import static javax.ws.rs.core.Response.Status.fromStatusCode;
 @Provider
 public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwable> {
 
+    public static final String ESCAPE_REDIRECT_HEADER = "Escape-5xx-Redirect";
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionMapper.class);
 
     public static final String MILJO_PROPERTY_NAME = "environment.class";
@@ -33,7 +34,7 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
                 .status(status)
                 .entity(feil)
                 // TODO big-ip-header! Sjekke om denne fikser hvis applikasjonen er nede!
-//                .header("")
+                .header(ESCAPE_REDIRECT_HEADER, "true")
                 .build();
     }
 
