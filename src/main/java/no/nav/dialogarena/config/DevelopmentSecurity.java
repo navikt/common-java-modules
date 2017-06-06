@@ -34,8 +34,8 @@ import static java.lang.String.format;
 import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
-import static no.nav.dialogarena.config.fasit.FasitUtils.OERA_T_LOCAL;
 import static no.nav.dialogarena.config.fasit.FasitUtils.TEST_LOCAL;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getLdapConfig;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.dialogarena.config.util.Util.setProperty;
@@ -128,7 +128,7 @@ public class DevelopmentSecurity {
         String environment = essoSecurityConfig.environment;
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
-        assertCorrectDomain(serviceUser, OERA_T_LOCAL);
+        assertCorrectDomain(serviceUser, FasitUtils.getOeraLocal(environment));
         configureServiceUser(serviceUser);
         configureSubjectHandler(MODIG_SUBJECT_HANDLER_CLASS);
         return configureOpenAm(jettyBuilder, essoSecurityConfig);
@@ -139,14 +139,14 @@ public class DevelopmentSecurity {
         commonServerSetup(jettyBuilder);
 
         String environment = issoSecurityConfig.environment;
-        String environmentShort = environment.substring(0, 1);
+        String environmentClass = getEnvironmentClass(environment);
 
         ServiceUser issoCredentials = FasitUtils.getServiceUser(issoSecurityConfig.issoUserName, issoSecurityConfig.applicationName, environment);
         setProperty("isso-rp-user.username", issoCredentials.username);
         setProperty("isso-rp-user.password", issoCredentials.password);
-        setProperty("isso-jwks.url", format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentShort));
-        setProperty("isso-issuer.url", format("https://isso-%s.adeo.no:443/isso/oauth2", environmentShort)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
-        setProperty("isso-host.url", format("https://isso-%s.adeo.no/isso/oauth2", environmentShort));
+        setProperty("isso-jwks.url", format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentClass));
+        setProperty("isso-issuer.url", format("https://isso-%s.adeo.no:443/isso/oauth2", environmentClass)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
+        setProperty("isso-host.url", format("https://isso-%s.adeo.no/isso/oauth2", environmentClass));
         setProperty("oidc-redirect.url", format("/%s/tjenester/login", issoSecurityConfig.contextName));
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);

@@ -3,10 +3,25 @@ package no.nav.dialogarena.config.fasit;
 import org.junit.Test;
 
 import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE_NAME;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class FasitUtilsTest {
+
+    @Test
+    public void getEnvironmentClass_() {
+        assertThat(FasitUtils.getEnvironmentClass("t6"), equalTo("t"));
+        assertThat(FasitUtils.getEnvironmentClass("t"), equalTo("t"));
+        assertThat(FasitUtils.getEnvironmentClass("q6"), equalTo("q"));
+    }
+
+    @Test
+    public void getOeraLocal_() {
+        assertThat(FasitUtils.getOeraLocal("t6"), equalTo("oera-t.local"));
+        assertThat(FasitUtils.getOeraLocal("t"), equalTo("oera-t.local"));
+        assertThat(FasitUtils.getOeraLocal("q6"), equalTo("oera-q.local"));
+    }
 
     @Test
     public void getFasitPassword() {

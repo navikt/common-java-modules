@@ -27,7 +27,6 @@ public class FasitUtils {
 
     public static final String FASIT_USERNAME_VARIABLE_NAME = "domenebrukernavn";
     public static final String FASIT_PASSWORD_VARIABLE_NAME = "domenepassord";
-    public static final String OERA_T_LOCAL = "oera-t.local";
 
     private static final File fasitPropertyFile = new File(System.getProperty("user.home"), "fasit.properties");
 
@@ -103,7 +102,7 @@ public class FasitUtils {
     public static OpenAmConfig getOpenAmConfig(String environment) {
         String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=OpenAm&alias=openam&app=fasit",
                 environment,
-                OERA_T_LOCAL
+                getOeraLocal(environment)
         );
         Document document = fetchXml(resourceUrl);
         UsernameAndPassword usernameAndPassword = getUsernameAndPassword(document);
@@ -210,6 +209,14 @@ public class FasitUtils {
 
     static String getFasitUser() {
         return getVariable(FASIT_USERNAME_VARIABLE_NAME);
+    }
+
+    public static String getEnvironmentClass(String environment) {
+        return environment.substring(0, 1);
+    }
+
+    public static String getOeraLocal(String environment) {
+        return "oera-" + getEnvironmentClass(environment) + ".local";
     }
 
     private static class FasitAuthenication extends BasicAuthentication {
