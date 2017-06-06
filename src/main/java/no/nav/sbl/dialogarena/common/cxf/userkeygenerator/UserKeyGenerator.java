@@ -3,8 +3,6 @@ package no.nav.sbl.dialogarena.common.cxf.userkeygenerator;
 import no.nav.sbl.dialogarena.common.cxf.InstanceSwitcher;
 import org.springframework.cache.interceptor.SimpleKeyGenerator;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
@@ -14,23 +12,16 @@ import static java.lang.reflect.Proxy.isProxyClass;
 import static no.nav.modig.core.context.SubjectHandler.getSubjectHandler;
 import static org.springframework.aop.framework.AopProxyUtils.proxiedUserInterfaces;
 
-/**
- * For use in RESTful applications with org.springframework.web.context.request.RequestContextListener*
- */
+public class UserKeyGenerator extends SimpleKeyGenerator {
 
-public class UserSessionKeyGenerator extends SimpleKeyGenerator {
-
-    @Inject
-    private HttpServletRequest request;
-
-    public UserSessionKeyGenerator() {
+    public UserKeyGenerator() {
         super();
     }
 
     @Override
     public Object generate(Object target, Method method, Object... params) {
         String cacheKey = toHexString(super.generate(target, method, params).hashCode());
-        return "user: " + getUser() + " sessionid: " + getSessionId() + " cachekey: " + getTargetClassName(target) + "." + method.getName() + "[" + cacheKey + "]";
+        return "user: " + getUser() + " cachekey: " + getTargetClassName(target) + "." + method.getName() + "[" + cacheKey + "]";
     }
 
     private String getUser() {
@@ -47,9 +38,5 @@ public class UserSessionKeyGenerator extends SimpleKeyGenerator {
             }
         }
         return target.getClass().getName();
-    }
-
-    public String getSessionId() {
-        return request.getSession().getId();
     }
 }
