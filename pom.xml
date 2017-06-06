@@ -116,6 +116,10 @@
             <artifactId>cxf-rt-transports-http</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-security-sts</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>common-cxf</artifactId>
         </dependency>

@@ -1,28 +1,49 @@
 package no.nav.dialogarena.config.ssl;
 
+import no.nav.modig.security.sts.client.NAVSTSClient;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.ws.security.SecurityConstants;
 import org.junit.Test;
 
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.TRUST_ALL_SSL_CONTEXT_FACTORY;
+import static no.nav.dialogarena.config.util.Util.setProperty;
+import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CxfCertificateValidationDisablerTest {
 
     @Test
-    public void init(){
+    public void init() throws Exception {
+        setProperty(STS_URL_KEY, "");
+        setProperty(SYSTEMUSER_USERNAME, "");
+        setProperty(SYSTEMUSER_PASSWORD, "");
+
         CxfCertificateValidationDisabler.init();
 
-        Aktoer_v2PortType aktoer_v2PortType = new CXFClient<>(Aktoer_v2PortType.class).build();
+        Aktoer_v2PortType aktoer_v2PortType = new CXFClient<>(Aktoer_v2PortType.class)
+                .configureStsForSystemUser()
+                .build();
 
         Client client = ClientProxy.getClient(aktoer_v2PortType);
+        sjekkAtSertifikatSjekkerErDisablet(client);
+
+        NAVSTSClient navstsClient = (NAVSTSClient) client.getRequestContext().get("ws-" + SecurityConstants.STS_CLIENT);
+        sjekkAtSertifikatSjekkerErDisablet(navstsClient.getClient());
+    }
+
+    private void sjekkAtSertifikatSjekkerErDisablet(Client client) {
         HTTPConduit conduit = (HTTPConduit) client.getConduit();
-        assertThat(conduit.getTlsClientParameters().getSSLSocketFactory()).isSameAs(TRUST_ALL_SSL_CONTEXT_FACTORY);
-        assertThat(conduit.getTlsClientParameters().getHostnameVerifier()).isSameAs(ALLOW_ALL_HOSTNAME_VERIFIER);
+        TLSClientParameters tlsClientParameters = conduit.getTlsClientParameters();
+        assertThat(tlsClientParameters).isNotNull();
+        assertThat(tlsClientParameters.isDisableCNCheck()).isTrue();
+        assertThat(tlsClientParameters.getSSLSocketFactory()).isSameAs(TRUST_ALL_SSL_CONTEXT_FACTORY);
+        assertThat(tlsClientParameters.getHostnameVerifier()).isSameAs(ALLOW_ALL_HOSTNAME_VERIFIER);
     }
 
 }

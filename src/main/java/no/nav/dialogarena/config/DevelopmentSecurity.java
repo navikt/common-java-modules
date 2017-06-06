@@ -17,6 +17,7 @@ import no.nav.modig.core.domain.ConsumerId;
 import no.nav.modig.core.domain.SluttBruker;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
+import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
@@ -39,6 +40,9 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getLdapConfig;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.dialogarena.config.util.Util.setProperty;
+import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.STS_URL_KEY;
+import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.SYSTEMUSER_PASSWORD;
+import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.SYSTEMUSER_USERNAME;
 import static org.apache.commons.io.IOUtils.write;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -217,9 +221,9 @@ public class DevelopmentSecurity {
     }
 
     private static void configureServiceUser(ServiceUser serviceUser) {
-        setProperty("no.nav.modig.security.systemuser.username", serviceUser.username);
-        setProperty("no.nav.modig.security.systemuser.password", serviceUser.password);
-        setProperty("no.nav.modig.security.sts.url", format("https://sts-%s.%s/SecurityTokenServiceProvider/", serviceUser.environment, serviceUser.domain));
+        setProperty(SYSTEMUSER_USERNAME, serviceUser.username);
+        setProperty(SYSTEMUSER_PASSWORD, serviceUser.password);
+        setProperty(STS_URL_KEY, format("https://sts-%s.%s/SecurityTokenServiceProvider/", serviceUser.environment, serviceUser.domain));
     }
 
     private static Jetty.JettyBuilder configureOpenAm(Jetty.JettyBuilder jettyBuilder, ESSOSecurityConfig essoSecurityConfig) throws IOException {
