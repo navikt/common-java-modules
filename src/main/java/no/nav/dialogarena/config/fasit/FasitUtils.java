@@ -219,6 +219,10 @@ public class FasitUtils {
         return "oera-" + getEnvironmentClass(environment) + ".local";
     }
 
+    public static boolean erEksterntDomene(String domain) {
+        return domain != null && domain.contains("oera");
+    }
+
     private static class FasitAuthenication extends BasicAuthentication {
 
         private FasitAuthenication() {

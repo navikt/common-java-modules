@@ -24,6 +24,18 @@ public class FasitUtilsTest {
     }
 
     @Test
+    public void erEksterntDomene_() {
+        assertThat(FasitUtils.erEksterntDomene("adeo.no"), is(false));
+        assertThat(FasitUtils.erEksterntDomene("test.local"), is(false));
+        assertThat(FasitUtils.erEksterntDomene("devillo.no"), is(false));
+        assertThat(FasitUtils.erEksterntDomene("preprod.local"), is(false));
+
+        assertThat(FasitUtils.erEksterntDomene("oera.no"), is(true));
+        assertThat(FasitUtils.erEksterntDomene("oera-q.local"), is(true));
+        assertThat(FasitUtils.erEksterntDomene("oera-t.local"), is(true));
+    }
+
+    @Test
     public void getFasitPassword() {
         assertThat(FasitUtils.getFasitPassword(), not(nullValue()));
     }

@@ -3,13 +3,13 @@ package no.nav.dialogarena.config;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import no.nav.brukerdialog.security.context.SubjectHandler;
+import no.nav.brukerdialog.security.context.InternbrukerSubjectHandler;
+import no.nav.brukerdialog.security.context.TestSubjectHandler;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.LdapConfig;
 import no.nav.dialogarena.config.fasit.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.security.ESSOProvider;
-import no.nav.dialogarena.config.ssl.SSLTestUtils;
 import no.nav.modig.core.context.AuthenticationLevelCredential;
 import no.nav.modig.core.context.OpenAmTokenCredential;
 import no.nav.modig.core.context.StaticSubjectHandler;
@@ -17,7 +17,6 @@ import no.nav.modig.core.domain.ConsumerId;
 import no.nav.modig.core.domain.SluttBruker;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
-import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
@@ -35,23 +34,16 @@ import static java.lang.String.format;
 import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
-import static no.nav.dialogarena.config.fasit.FasitUtils.TEST_LOCAL;
-import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
-import static no.nav.dialogarena.config.fasit.FasitUtils.getLdapConfig;
+import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.dialogarena.config.util.Util.setProperty;
-import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.STS_URL_KEY;
-import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.SYSTEMUSER_PASSWORD;
-import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.SYSTEMUSER_USERNAME;
+import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static org.apache.commons.io.IOUtils.write;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class DevelopmentSecurity {
 
     private static final Logger LOG = getLogger(DevelopmentSecurity.class);
-
-    private static final Class<no.nav.modig.core.context.JettySubjectHandler> MODIG_SUBJECT_HANDLER_CLASS = no.nav.modig.core.context.JettySubjectHandler.class;
-    private static final Class<no.nav.brukerdialog.security.context.JettySubjectHandler> OIDC_SUBJECT_HANDLER_CLASS = no.nav.brukerdialog.security.context.JettySubjectHandler.class;
 
     public static final String DEFAULT_ISSO_RP_USER = "isso-rp-user";
     public static final String DEFAULT_LDAP_USER = "ldap";
@@ -120,7 +112,8 @@ public class DevelopmentSecurity {
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, TEST_LOCAL);
         configureServiceUser(serviceUser);
-        configureSubjectHandler(OIDC_SUBJECT_HANDLER_CLASS);
+        modigSubjectHandler();
+        dialogArenaSubjectHandler();
 
         LOG.info("configuring: {}", SamlLoginModule.class.getName());
         return jettyBuilder.withLoginService(jaasLoginModule(SAML));
@@ -134,7 +127,8 @@ public class DevelopmentSecurity {
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, FasitUtils.getOeraLocal(environment));
         configureServiceUser(serviceUser);
-        configureSubjectHandler(MODIG_SUBJECT_HANDLER_CLASS);
+        modigSubjectHandler();
+
         return configureOpenAm(jettyBuilder, essoSecurityConfig);
     }
 
@@ -159,7 +153,8 @@ public class DevelopmentSecurity {
         configureAbacUser(serviceUser);
         configureLdap(getLdapConfig(issoSecurityConfig.ldapUserAlias, issoSecurityConfig.applicationName, issoSecurityConfig.environment));
 
-        configureSubjectHandler(OIDC_SUBJECT_HANDLER_CLASS);
+        modigSubjectHandler();
+        dialogArenaSubjectHandler();
         return configureJaspi(jettyBuilder, issoSecurityConfig.contextName);
     }
 
@@ -180,11 +175,17 @@ public class DevelopmentSecurity {
     public static void setupIntegrationTestSecurity(ServiceUser serviceUser) {
         commonSetup();
 
+        Subject testSubject = integrationTestSubject(serviceUser);
         configureServiceUser(serviceUser);
-        configureAbacUser(serviceUser);
-        configureSubjectHandler(StaticSubjectHandler.class);
-        StaticSubjectHandler subjectHandler = (StaticSubjectHandler) StaticSubjectHandler.getSubjectHandler();
-        subjectHandler.setSubject(integrationTestSubject(serviceUser));
+        if (!erEksterntDomene(serviceUser.getDomain())) {
+            configureAbacUser(serviceUser);
+            dialogArenaSubjectHandler(InternbrukerSubjectHandler.class);
+            InternbrukerSubjectHandler internbrukerSubjectHandler = (InternbrukerSubjectHandler) TestSubjectHandler.getSubjectHandler();
+            internbrukerSubjectHandler.setSubject(testSubject);
+        }
+        modigSubjectHandler(StaticSubjectHandler.class);
+        StaticSubjectHandler staticSubjectHandler = (StaticSubjectHandler) StaticSubjectHandler.getSubjectHandler();
+        staticSubjectHandler.setSubject(testSubject);
     }
 
     private static Subject integrationTestSubject(ServiceUser serviceUser) {
@@ -244,12 +245,20 @@ public class DevelopmentSecurity {
         return loginService;
     }
 
-    @SneakyThrows
-    public static <T> T configureSubjectHandler(Class<T> subjectHandlerClass) {
-        String subjectHandlerClassName = subjectHandlerClass.getName();
-        LOG.info("{} -> {}", SubjectHandler.class.getName(), subjectHandlerClassName);
-        setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", subjectHandlerClassName);
-        return subjectHandlerClass.newInstance();
+    private static void modigSubjectHandler() {
+        modigSubjectHandler(no.nav.modig.core.context.JettySubjectHandler.class);
+    }
+
+    private static void modigSubjectHandler(Class<? extends no.nav.modig.core.context.SubjectHandler> jettySubjectHandlerClass) {
+        setProperty(no.nav.modig.core.context.JettySubjectHandler.SUBJECTHANDLER_KEY, jettySubjectHandlerClass.getName());
+    }
+
+    private static void dialogArenaSubjectHandler() {
+        dialogArenaSubjectHandler(no.nav.brukerdialog.security.context.JettySubjectHandler.class);
+    }
+
+    private static void dialogArenaSubjectHandler(Class<? extends no.nav.brukerdialog.security.context.SubjectHandler> jettySubjectHandlerClass) {
+        setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, jettySubjectHandlerClass.getName());
     }
 
     private static Jetty.JettyBuilder configureJaspi(Jetty.JettyBuilder jettyBuilder, String contextName) {

@@ -20,6 +20,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- TODO midlertidig -->
+            <dependency>
+                <groupId>no.nav.dialogarena</groupId>
+                <artifactId>oidc-security</artifactId>
+                <version>3.0.30</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
