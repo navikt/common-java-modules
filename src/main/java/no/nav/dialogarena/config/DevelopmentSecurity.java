@@ -9,6 +9,7 @@ import no.nav.dialogarena.config.fasit.LdapConfig;
 import no.nav.dialogarena.config.fasit.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.security.ESSOProvider;
+import no.nav.dialogarena.config.ssl.SSLTestUtils;
 import no.nav.modig.core.context.AuthenticationLevelCredential;
 import no.nav.modig.core.context.OpenAmTokenCredential;
 import no.nav.modig.core.context.StaticSubjectHandler;
@@ -16,7 +17,6 @@ import no.nav.modig.core.domain.ConsumerId;
 import no.nav.modig.core.domain.SluttBruker;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
-import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
@@ -37,6 +37,7 @@ import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML
 import static no.nav.dialogarena.config.fasit.FasitUtils.OERA_T_LOCAL;
 import static no.nav.dialogarena.config.fasit.FasitUtils.TEST_LOCAL;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getLdapConfig;
+import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static org.apache.commons.io.IOUtils.write;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -201,9 +202,9 @@ public class DevelopmentSecurity {
     }
 
     private static void commonSetup() {
-        TestCertificates.setupKeyAndTrustStore();
+        disableCertificateChecks();
+
         setProperty("environment.class", "t");
-        setProperty("disable.ssl.cn.check", Boolean.TRUE.toString());
         setProperty("disable.metrics.report", Boolean.TRUE.toString());
         setProperty("jetty.print.localhost", Boolean.TRUE.toString());
         setProperty(AnnotationConfiguration.MAX_SCAN_WAIT, "120");

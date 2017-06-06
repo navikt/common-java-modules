@@ -16,10 +16,29 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>api-app-bom</artifactId>
-                <version>LATEST</version>
+                <version>RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+
+            <!-- TODO disse skal slettes når api-app er oppdatert  -->
+            <dependency>
+                <groupId>no.nav.sbl.dialogarena</groupId>
+                <artifactId>common-cxf</artifactId>
+                <version>3.1.43</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-ws-security-common</artifactId>
+                <version>2.1.9</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-ws-security-dom</artifactId>
+                <version>2.1.9</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -77,11 +96,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-testcertificates</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>no.nav.dialogarena</groupId>
             <artifactId>oidc-security</artifactId>
         </dependency>
@@ -90,6 +104,32 @@
             <artifactId>oidc-security</artifactId>
             <type>test-jar</type>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- cxf -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>common-cxf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-simple</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-dom</artifactId>
         </dependency>
 
         <dependency>
@@ -112,6 +152,7 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <!-- test -->
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
@@ -123,6 +164,16 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>dial-nav-tjeneste-aktoer_v2</artifactId>
+            <version>1.2</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Transitivt -->
