@@ -1,11 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
@@ -17,6 +17,9 @@ import static java.lang.System.setProperty;
 
 public class AbacTest {
 
+    @Mock
+    CloseableHttpClient httpClient;
+
     @InjectMocks
     Abac abac;
 
@@ -24,7 +27,7 @@ public class AbacTest {
     public void canSimulateAvbrudd() throws IOException, NoSuchFieldException {
         setProperty("abac.bibliotek.simuler.avbrudd", "true");
 
-        abac.isAuthorized(RequestConfig.custom().build(), new HttpPost(), new BasicCredentialsProvider());
+        abac.isAuthorized(httpClient, new HttpPost());
     }
 
 }
