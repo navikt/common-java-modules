@@ -19,6 +19,7 @@ import java.util.List;
 
 import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
+import static java.util.Optional.ofNullable;
 import static no.nav.metrics.MetricsFactory.createTimerProxyForWebService;
 
 public class CXFClient<T> {
@@ -140,10 +141,11 @@ public class CXFClient<T> {
 
     private static void disableCNCheckIfConfigured(Client client) {
         HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
-        httpConduit.setTlsClientParameters(new TLSClientParameters());
+        TLSClientParameters tlsClientParameters = ofNullable(httpConduit.getTlsClientParameters()).orElseGet(TLSClientParameters::new);
         if (Boolean.valueOf(getProperty("disable.ssl.cn.check", "false"))) {
-            httpConduit.getTlsClientParameters().setDisableCNCheck(true);
+            tlsClientParameters.setDisableCNCheck(true);
         }
+        httpConduit.setTlsClientParameters(tlsClientParameters);
     }
 
 }
