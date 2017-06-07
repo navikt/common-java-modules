@@ -8,6 +8,7 @@ import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestJsonServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.soap.SoapServlet;
+import no.nav.apiapp.util.StringUtils;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
@@ -36,6 +37,7 @@ import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.ServletUtil.getApplicationName;
 import static no.nav.apiapp.ServletUtil.getContext;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
+import static no.nav.apiapp.util.StringUtils.of;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -68,18 +70,26 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         LOGGER.info("onStartup");
-        konfigurerSpring(servletContext);
+        if(!disablet(servletContext)){
+            konfigurerSpring(servletContext);
+        }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextDestroyed");
-        contextLoaderListener.contextDestroyed(servletContextEvent);
+        if (!disablet(servletContextEvent.getServletContext())) {
+            contextLoaderListener.contextDestroyed(servletContextEvent);
+        }
     }
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextInitialized");
+        if (disablet(servletContextEvent.getServletContext())) {
+            return;
+        }
+
         if(!erSpringSattOpp(servletContextEvent)){
             konfigurerSpring(servletContextEvent.getServletContext());
         }
@@ -225,6 +235,10 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         servletRegistration.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
         return servletRegistration;
+    }
+
+    private boolean disablet(ServletContext servletContext) {
+        return of(servletContext.getInitParameter("disableApiApp")).map(Boolean::parseBoolean).orElse(false);
     }
 
 }
