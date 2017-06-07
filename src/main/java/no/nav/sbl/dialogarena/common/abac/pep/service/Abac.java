@@ -1,9 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -19,16 +19,15 @@ public class Abac {
     private static final Logger LOG = getLogger(Abac.class);
 
 
-    HttpResponse isAuthorized(RequestConfig config, HttpPost httpPost, CredentialsProvider credentialsProvider) throws NoSuchFieldException, IOException {
+    CloseableHttpResponse isAuthorized(CloseableHttpClient client, HttpPost httpPost) throws NoSuchFieldException, IOException {
         if (isSimulateConnectionProblem()) {
             throw new SocketException("Simulating connection problem");
         }
-        final CloseableHttpClient httpClient = createHttpClient(config, credentialsProvider);
 
-        return doPost(httpPost, httpClient);
+        return doPost(httpPost, client);
     }
 
-    private HttpResponse doPost(HttpPost httpPost, CloseableHttpClient httpClient) throws IOException {
+    private CloseableHttpResponse doPost(HttpPost httpPost, CloseableHttpClient httpClient) throws IOException {
         try {
             return httpClient.execute(httpPost);
         } catch (Throwable throwable) {

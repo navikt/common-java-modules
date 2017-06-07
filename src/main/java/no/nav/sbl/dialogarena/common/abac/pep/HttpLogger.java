@@ -69,6 +69,10 @@ public class HttpLogger {
     }
 
     private void appendHeaders(Header[] headers, StringBuilder stringBuilder) {
+        if (headers == null) {
+            return;
+        }
+
         for (Header header : headers) {
             stringBuilder.append(header.getName())
                     .append(": ")
