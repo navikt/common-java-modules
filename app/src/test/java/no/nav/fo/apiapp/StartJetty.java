@@ -14,7 +14,7 @@ import java.util.EnumSet;
 
 import static java.lang.System.setProperty;
 import static no.nav.apiapp.ApiAppServletContextListener.SWAGGER_PATH;
-import static no.nav.apiapp.rest.ExceptionMapper.MILJO_PROPERTY_NAME;
+import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.sbl.dialogarena.common.jetty.JettyStarterUtils.*;
 

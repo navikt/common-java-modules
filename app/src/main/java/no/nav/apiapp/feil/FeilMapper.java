@@ -1,6 +1,6 @@
 package no.nav.apiapp.feil;
 
-import no.nav.apiapp.rest.ExceptionMapper;
+import no.nav.apiapp.Constants;
 
 import javax.xml.soap.Detail;
 import javax.xml.soap.SOAPFault;
@@ -49,7 +49,7 @@ public class FeilMapper {
     }
 
     private static boolean visDetaljer() {
-        return ofNullable(System.getProperty(ExceptionMapper.MILJO_PROPERTY_NAME)).map(MILJO_MED_DETALJER::contains).orElse(false);
+        return ofNullable(System.getProperty(Constants.MILJO_PROPERTY_NAME)).map(MILJO_MED_DETALJER::contains).orElse(false);
     }
 
 }

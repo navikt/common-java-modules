@@ -8,7 +8,6 @@ import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestJsonServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.soap.SoapServlet;
-import no.nav.apiapp.util.StringUtils;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
@@ -29,14 +28,16 @@ import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import java.util.EnumSet;
-import java.util.Set;
 
+import static ch.qos.logback.classic.Level.INFO;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static javax.servlet.SessionTrackingMode.COOKIE;
+import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.getApplicationName;
 import static no.nav.apiapp.ServletUtil.getContext;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
+import static no.nav.apiapp.util.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.util.StringUtils.of;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
@@ -52,20 +53,26 @@ import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiAppServletContextListener implements WebApplicationInitializer, ServletContextListener, HttpSessionListener {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppServletContextListener.class);
+
     public static final String SPRING_CONTEKST_KLASSE_PARAMETER_NAME = "springContekstKlasse";
     private static final String SPRING_CONTEXT_KLASSENAVN = AnnotationConfigWebApplicationContext.class.getName();
 
     public static final String INTERNAL_IS_ALIVE = "/internal/isAlive";
     public static final String INTERNAL_SELFTEST = "/internal/selftest";
     public static final String INTERNAL_SELFTEST_JSON = "/internal/selftest.json";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppServletContextListener.class);
     public static final String SWAGGER_PATH = "/internal/swagger/";
     public static final String API_PATH = "/api/";
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
     private int sesjonsLengde;
+
+    static {
+        if (System.getProperty(MILJO_PROPERTY_NAME, "").equals("t")) {
+            setGlobalLogLevel(INFO);
+        }
+    }
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {

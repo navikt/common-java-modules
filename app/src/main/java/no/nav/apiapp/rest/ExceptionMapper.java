@@ -19,8 +19,6 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     public static final String ESCAPE_REDIRECT_HEADER = "Escape-5xx-Redirect";
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionMapper.class);
 
-    public static final String MILJO_PROPERTY_NAME = "environment.class";
-
     @Inject
     javax.inject.Provider<HttpServletRequest> servletRequestProvider;
 
