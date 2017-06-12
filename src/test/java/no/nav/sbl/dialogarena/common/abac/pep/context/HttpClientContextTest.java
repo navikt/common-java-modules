@@ -11,12 +11,12 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static java.lang.System.setProperty;
+import static no.nav.sbl.dialogarena.common.abac.pep.context.HttpClientContext.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 public class HttpClientContextTest {
-    private static final String KEY_READ_TIMEOUT = "abac.bibliotek.readTimeout";
-    private static final String KEY_CONNECTION_TIMEOUT = "abac.bibliotek.connectionTimeout";
+
     private static final String SYSTEMUSER_PASSWORD = "systemuserpassword";
     private static final String SYSTEMUSER = "systemuser";
 
@@ -34,8 +34,8 @@ public class HttpClientContextTest {
 
     @Test
     public void getsDefaultTimeoutWhenNoProperty() throws IOException, NoSuchFieldException, AbacException {
-        final int expectedConnectionTimeout = 500;
-        final int expectedReadTimeout = 1500;
+        final int expectedConnectionTimeout = Integer.parseInt(DEFAULT_CONNECTION_TIMEOUT);
+        final int expectedReadTimeout = Integer.parseInt(DEFAULT_READ_TIMEOUT);
 
         final RequestConfig requestConfig = HttpClientContext.createConfigForTimeout();
 
