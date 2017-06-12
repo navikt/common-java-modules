@@ -47,6 +47,7 @@ public class HttpTest {
 
     @BeforeClass
     public static void setup() throws IOException {
+        System.setProperty("abac.bibliotek.simuler.avbrudd", "false");
         System.setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
         System.setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         System.setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
