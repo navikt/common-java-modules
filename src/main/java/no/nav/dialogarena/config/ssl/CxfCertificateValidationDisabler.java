@@ -18,7 +18,7 @@ import java.io.FileOutputStream;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
-import static no.nav.dialogarena.config.ssl.SSLTestUtils.TRUST_ALL_SSL_CONTEXT_FACTORY;
+import static no.nav.dialogarena.config.ssl.SSLTestUtils.TRUST_ALL_SSL_SOCKET_FACTORY;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static org.apache.cxf.ws.security.SecurityConstants.SAML2_TOKEN_VALIDATOR;
 
@@ -78,7 +78,7 @@ public class CxfCertificateValidationDisabler implements Feature {
                 TLSClientParameters tlsClientParameters = ofNullable(httpConduit.getTlsClientParameters()).orElseGet(TLSClientParameters::new);
                 tlsClientParameters.setDisableCNCheck(true);
                 tlsClientParameters.setHostnameVerifier(ALLOW_ALL_HOSTNAME_VERIFIER);
-                tlsClientParameters.setSSLSocketFactory(TRUST_ALL_SSL_CONTEXT_FACTORY);
+                tlsClientParameters.setSSLSocketFactory(TRUST_ALL_SSL_SOCKET_FACTORY);
                 httpConduit.setTlsClientParameters(tlsClientParameters);
             }
         }

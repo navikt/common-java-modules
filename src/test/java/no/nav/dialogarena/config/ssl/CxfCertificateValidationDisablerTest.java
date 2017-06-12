@@ -11,7 +11,7 @@ import org.apache.cxf.ws.security.SecurityConstants;
 import org.junit.Test;
 
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
-import static no.nav.dialogarena.config.ssl.SSLTestUtils.TRUST_ALL_SSL_CONTEXT_FACTORY;
+import static no.nav.dialogarena.config.ssl.SSLTestUtils.TRUST_ALL_SSL_SOCKET_FACTORY;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ public class CxfCertificateValidationDisablerTest {
         TLSClientParameters tlsClientParameters = conduit.getTlsClientParameters();
         assertThat(tlsClientParameters).isNotNull();
         assertThat(tlsClientParameters.isDisableCNCheck()).isTrue();
-        assertThat(tlsClientParameters.getSSLSocketFactory()).isSameAs(TRUST_ALL_SSL_CONTEXT_FACTORY);
+        assertThat(tlsClientParameters.getSSLSocketFactory()).isSameAs(TRUST_ALL_SSL_SOCKET_FACTORY);
         assertThat(tlsClientParameters.getHostnameVerifier()).isSameAs(ALLOW_ALL_HOSTNAME_VERIFIER);
     }
 
