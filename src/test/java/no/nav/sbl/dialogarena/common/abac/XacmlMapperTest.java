@@ -1,7 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac;
 
 import no.nav.abac.xacml.NavAttributter;
-import no.nav.sbl.dialogarena.common.abac.pep.*;
+import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.Utils;
+import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.apache.http.entity.StringEntity;
 import org.junit.Test;
@@ -11,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
-import static no.nav.sbl.dialogarena.common.abac.TestUtils.prepareResponse;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
@@ -101,7 +102,7 @@ public class XacmlMapperTest {
     @Test
     public void convertsSimpleJsonToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
-                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple.json")));
+                .mapRawResponse(getContentFromJsonFile("xacmlresponse-simple.json"));
 
         XacmlResponse expectedResponse = getXacmlResponse();
 
@@ -111,7 +112,7 @@ public class XacmlMapperTest {
     @Test
     public void convertsSimpleJsonWithArrayToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
-                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-simple-with-array.json")));
+                .mapRawResponse(getContentFromJsonFile("xacmlresponse-simple-with-array.json"));
         XacmlResponse expectedResponse = getXacmlResponse();
 
         assertThat(actualResponse, is(equalTo(expectedResponse)));
@@ -120,7 +121,7 @@ public class XacmlMapperTest {
     @Test
     public void convertsJsonWithAdvicesToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
-                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-multiple-advice.json")));
+                .mapRawResponse(getContentFromJsonFile("xacmlresponse-multiple-advice.json"));
         XacmlResponse expectedResponse = getXacmlResponseWithAdvices();
 
         assertThat(actualResponse, is(equalTo(expectedResponse)));
@@ -129,7 +130,7 @@ public class XacmlMapperTest {
     @Test
     public void convertsJsonWithAdvices2ToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
-                .mapRawResponse(prepareResponse(200, getContentFromJsonFile("xacmlresponse-with-attributeassignmentlist.json")));
+                .mapRawResponse(getContentFromJsonFile("xacmlresponse-with-attributeassignmentlist.json"));
         XacmlResponse expectedResponse = getXacmlResponseWithAdvices2();
 
         assertThat(actualResponse, is(equalTo(expectedResponse)));

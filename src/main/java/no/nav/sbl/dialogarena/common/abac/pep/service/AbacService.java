@@ -1,7 +1,5 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.metrics.MetricsFactory;
-import no.nav.metrics.Timer;
 import no.nav.sbl.dialogarena.common.abac.pep.AuditLogger;
 import no.nav.sbl.dialogarena.common.abac.pep.HttpLogger;
 import no.nav.sbl.dialogarena.common.abac.pep.Utils;
@@ -9,11 +7,13 @@ import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
-import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
+import static no.nav.sbl.dialogarena.common.abac.pep.Utils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -42,19 +42,25 @@ public class AbacService implements TilgangService {
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
-        CloseableHttpResponse rawResponse = null;
         try {
             HttpPost httpPost = getPostRequest(request);
-            Timer timer = MetricsFactory.createTimer("abac-pdp");
-            timer.start();
-            rawResponse = doPost(httpPost);
-            timer.stop();
             String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
-            timer.addTagToReport("resource-attributeid", ressursId);
-            timer.report();
+
+            CloseableHttpResponse rawResponse = timed(
+                    "abac-pdp",
+                    () -> doPost(httpPost),
+                    (timer) -> timer.addTagToReport("resource-attributeid", ressursId)
+            );
 
             final int statusCode = rawResponse.getStatusLine().getStatusCode();
             final String reasonPhrase = rawResponse.getStatusLine().getReasonPhrase();
+            final HttpEntity httpEntity = rawResponse.getEntity();
+            final String content = entityToString(httpEntity);
+
+            EntityUtils.consumeQuietly(httpEntity);
+            rawResponse.close();
+            httpPost.releaseConnection();
+
             if (statusCodeIn500Series(statusCode)) {
                 LOG.warn("ABAC returned: " + statusCode + " " + reasonPhrase);
                 httpLogger.logPostRequest(httpPost);
@@ -66,12 +72,9 @@ public class AbacService implements TilgangService {
                 httpLogger.logHttpResponse(rawResponse);
                 throw new ClientErrorException("An error has occured calling ABAC: ", statusCode);
             }
-
-            return XacmlMapper.mapRawResponse(rawResponse);
-        } finally {
-            if (rawResponse != null) {
-                rawResponse.close();
-            }
+            return XacmlMapper.mapRawResponse(content);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

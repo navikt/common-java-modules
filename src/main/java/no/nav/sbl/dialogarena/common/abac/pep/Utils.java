@@ -1,5 +1,7 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import no.nav.metrics.MetricsFactory;
+import no.nav.metrics.Timer;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.BaseAttribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
@@ -13,12 +15,34 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static java.lang.System.getProperty;
 
 
 public class Utils {
+    public static <T> T timed(String name, Callable<T> task, Consumer<Timer> additions) throws Exception {
+        Timer timer = MetricsFactory.createTimer(name);
+        try {
+            timer.start();
+            return task.call();
+        } catch (Exception e) {
+            timer.setFailed();
+            throw new Exception(e);
+        } finally {
+            timer.stop();
+            if (additions != null) {
+                additions.accept(timer);
+            }
+            timer.report();
+        }
+    }
+
+    public static <T> T timed(String name, Callable<T> task) throws Exception {
+        return timed(name, task, null);
+    }
 
     public static String entityToString(HttpEntity stringEntity) throws IOException {
         final InputStream content;
