@@ -2,6 +2,11 @@ package no.nav.dialogarena.config.fasit;
 
 import org.junit.Test;
 
+import javax.net.ssl.SSLException;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE_NAME;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
 import static org.hamcrest.CoreMatchers.*;
@@ -105,6 +110,19 @@ public class FasitUtilsTest {
         LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap", "veilarbsituasjon", "t6");
         assertThat(ldapConfig.username, equalTo("srvSSOLinux"));
         assertThat(ldapConfig.password, not(nullValue()));
+    }
+
+    @Test
+    public void httpClient() {
+        AtomicBoolean hasFailed = new AtomicBoolean();
+        FasitUtils.httpClient((c) -> {
+            if (hasFailed.get()) {
+                return "ok!";
+            } else {
+                hasFailed.set(true);
+                throw new SSLException("handshake_failure");
+            }
+        });
     }
 
 }

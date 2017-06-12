@@ -13,6 +13,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
@@ -183,7 +185,13 @@ public class FasitUtils {
     public static <T> T httpClient(Util.With<HttpClient, T> httpClientConsumer) {
         return Util.httpClient((httpClient) -> {
             httpClient.getAuthenticationStore().addAuthentication(new FasitAuthenication());
-            return httpClientConsumer.with(httpClient);
+            try {
+                return httpClientConsumer.with(httpClient);
+            } catch (SSLException sslException) {
+                LOG.warn(sslException.getMessage(), sslException);
+                Thread.sleep(5000L);
+                return httpClientConsumer.with(httpClient);
+            }
         });
     }
 
