@@ -42,40 +42,41 @@ public class AbacService implements TilgangService {
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
-        try {
-            HttpPost httpPost = getPostRequest(request);
-            String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
+        HttpPost httpPost = getPostRequest(request);
+        String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
 
-            CloseableHttpResponse rawResponse = timed(
+        CloseableHttpResponse rawResponse = null;
+        try {
+            rawResponse = timed(
                     "abac-pdp",
                     () -> doPost(httpPost),
                     (timer) -> timer.addTagToReport("resource-attributeid", ressursId)
             );
-
-            final int statusCode = rawResponse.getStatusLine().getStatusCode();
-            final String reasonPhrase = rawResponse.getStatusLine().getReasonPhrase();
-            final HttpEntity httpEntity = rawResponse.getEntity();
-            final String content = entityToString(httpEntity);
-
-            EntityUtils.consumeQuietly(httpEntity);
-            rawResponse.close();
-            httpPost.releaseConnection();
-
-            if (statusCodeIn500Series(statusCode)) {
-                LOG.warn("ABAC returned: " + statusCode + " " + reasonPhrase);
-                httpLogger.logPostRequest(httpPost);
-                httpLogger.logHttpResponse(rawResponse);
-                throw new AbacException("An error has occured calling ABAC: " + reasonPhrase);
-            } else if (statusCodeIn400Series(statusCode)) {
-                LOG.error("ABAC returned: " + statusCode + " " + reasonPhrase);
-                httpLogger.logPostRequest(httpPost);
-                httpLogger.logHttpResponse(rawResponse);
-                throw new ClientErrorException("An error has occured calling ABAC: ", statusCode);
-            }
-            return XacmlMapper.mapRawResponse(content);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new AbacException("Feil ved kall til abac", e);
         }
+
+        final int statusCode = rawResponse.getStatusLine().getStatusCode();
+        final String reasonPhrase = rawResponse.getStatusLine().getReasonPhrase();
+        final HttpEntity httpEntity = rawResponse.getEntity();
+        final String content = entityToString(httpEntity);
+
+        EntityUtils.consumeQuietly(httpEntity);
+        rawResponse.close();
+        httpPost.releaseConnection();
+
+        if (statusCodeIn500Series(statusCode)) {
+            LOG.warn("ABAC returned: " + statusCode + " " + reasonPhrase);
+            httpLogger.logPostRequest(httpPost);
+            httpLogger.logHttpResponse(rawResponse);
+            throw new AbacException("An error has occured calling ABAC: " + reasonPhrase);
+        } else if (statusCodeIn400Series(statusCode)) {
+            LOG.error("ABAC returned: " + statusCode + " " + reasonPhrase);
+            httpLogger.logPostRequest(httpPost);
+            httpLogger.logHttpResponse(rawResponse);
+            throw new ClientErrorException("An error has occured calling ABAC: ", statusCode);
+        }
+        return XacmlMapper.mapRawResponse(content);
     }
 
     private boolean statusCodeIn500Series(int statusCode) {
