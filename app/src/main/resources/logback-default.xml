@@ -9,7 +9,8 @@
             <fileNamePattern>${APP_LOG_HOME}/${application.name}-%d.log.%i.gz</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>90</maxHistory>
-            <totalSizeCap>500MB</totalSizeCap>
+            <!-- default 300 MB, da en basic server har svært lite plass til logger. Særlig når flere apper deployes på den samme serveren -->
+            <totalSizeCap>${logback.totalSizeCap:-300MB}</totalSizeCap>
         </rollingPolicy>
         <encoder>
             <pattern>${loggingPattern}</pattern>
