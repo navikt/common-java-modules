@@ -7,6 +7,7 @@ import no.nav.apiapp.rest.SwaggerUIServlet;
 import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestJsonServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
+import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
@@ -19,6 +20,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -190,7 +192,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private ApiApplication startSpring(ServletContextEvent servletContextEvent) {
         contextLoaderListener.contextInitialized(servletContextEvent);
-        return getContext(servletContextEvent.getServletContext()).getBean(ApiApplication.class);
+        AnnotationConfigWebApplicationContext webApplicationContext = (AnnotationConfigWebApplicationContext) getContext(servletContextEvent.getServletContext());
+        webApplicationContext.getBeanFactory().registerSingleton(LedigDiskPlassHelsesjekk.class.getName(), new LedigDiskPlassHelsesjekk());
+        return webApplicationContext.getBean(ApiApplication.class);
     }
 
     private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
