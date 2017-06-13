@@ -14,10 +14,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 
@@ -183,15 +183,23 @@ public class FasitUtils {
 
     @SneakyThrows
     public static <T> T httpClient(Util.With<HttpClient, T> httpClientConsumer) {
+        int attempt = 0;
+        do {
+            try {
+                return invokeHttpClient(httpClientConsumer);
+            } catch (IOException ioException) {
+                LOG.warn("ssl exception. Retry");
+                LOG.warn(ioException.getMessage(), ioException);
+                Thread.sleep(5000L);
+            }
+        } while (attempt++ < 5);
+        throw new IllegalStateException("Klarer ikke å snakke med Fasit");
+    }
+
+    private static <T> T invokeHttpClient(Util.With<HttpClient, T> httpClientConsumer) throws SSLException {
         return Util.httpClient((httpClient) -> {
             httpClient.getAuthenticationStore().addAuthentication(new FasitAuthenication());
-            try {
-                return httpClientConsumer.with(httpClient);
-            } catch (SSLException sslException) {
-                LOG.warn(sslException.getMessage(), sslException);
-                Thread.sleep(5000L);
-                return httpClientConsumer.with(httpClient);
-            }
+            return httpClientConsumer.with(httpClient);
         });
     }
 
