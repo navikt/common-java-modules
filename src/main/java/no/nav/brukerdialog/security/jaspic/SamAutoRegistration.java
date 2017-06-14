@@ -1,5 +1,7 @@
 package no.nav.brukerdialog.security.jaspic;
 
+import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextAssociation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,20 +12,38 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import static java.util.Optional.ofNullable;
+
 @WebListener
 public class SamAutoRegistration implements ServletContextListener {
-    public static final String CONTEXT_REGISTRATION_ID = "no.nav.kes.security.jaspic.security.message.registrationId";
     private static final Logger log = LoggerFactory.getLogger(SamAutoRegistration.class);
+
+    public static final String CONTEXT_REGISTRATION_ID = SamAutoRegistration.class.getName();
+    public static final String JASPI_SECURITY_DOMAIN = "jaspitest";
+    public static final String AUTO_REGISTRATION_PROPERTY_NAME = "oidc.autoRegistration";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        log.debug("Initializing JASPIC");
-        registerServerAuthModule(new OidcAuthModule(), sce.getServletContext());
+        String securityDomain = ofNullable(SecurityContextAssociation.getSecurityContext()).map(SecurityContext::getSecurityDomain).orElse(null);
+        boolean autoRegistration = Boolean.parseBoolean(ofNullable(sce.getServletContext().getInitParameter(AUTO_REGISTRATION_PROPERTY_NAME))
+                .orElse(System.getProperty(AUTO_REGISTRATION_PROPERTY_NAME, Boolean.FALSE.toString()))
+        );
+        log.info("securityDomain={} autoRegistation={}", securityDomain, autoRegistration);
+        if (JASPI_SECURITY_DOMAIN.equals(securityDomain) || autoRegistration) {
+            log.info("Initializing JASPIC");
+            registerServerAuthModule(sce);
+        } else {
+            log.info("No automatic registration of oidc auth module");
+        }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         deregisterServerAuthModule(sce.getServletContext());
+    }
+
+    public static String registerServerAuthModule(ServletContextEvent sce) {
+        return registerServerAuthModule(new OidcAuthModule(), sce.getServletContext());
     }
 
     /**
@@ -47,6 +67,9 @@ public class SamAutoRegistration implements ServletContextListener {
                 getAppContextID(servletContext),
                 "Default single SAM authentication config provider"
         );
+
+        log.info("oidc auth module registered on [{}] for servlet context [{}]", registrationId, servletContext);
+
 
         // Remember the registration ID returned by the factory, so we can unregister the JASPIC module when the web module
         // is undeployed. JASPIC being the low level API that it is won't do this automatically.
@@ -80,6 +103,8 @@ public class SamAutoRegistration implements ServletContextListener {
      * @return the app context ID for the web application corresponding to the given context
      */
     public static String getAppContextID(ServletContext context) {
+        // NB: dette må korrespondere med implementasjonen i
+        // org.wildfly.extension.undertow.security.jaspi.JASPICAuthenticationMechanism.buildApplicationIdentifier()
         return context.getVirtualServerName() + " " + context.getContextPath();
     }
 
