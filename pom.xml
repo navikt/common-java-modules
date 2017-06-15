@@ -98,6 +98,12 @@
             <artifactId>api-app</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>no.nav.sbl.dialogarena</groupId>
+                    <artifactId>feed</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
