@@ -12,10 +12,7 @@ import javax.ws.rs.ext.ParamConverterProvider;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +31,8 @@ public class DateConfiguration {
         add(new LocalDateTimeProvider());
         add(new ZonedDateTimeProvider());
         add(new DateProvider());
+        add(new TimestampProvider());
+        add(new SqlDateProvider());
     }
 
     private static <T> void add(BaseProvider<T> paramConverter) {
@@ -171,9 +170,46 @@ public class DateConfiguration {
 
         @Override
         protected ZonedDateTime from(Date value) {
-            return ZonedDateTime.ofInstant(value.toInstant(), DEFAULT_ZONE);
+            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(value.getTime()), DEFAULT_ZONE);
         }
 
+    }
+
+    private static class SqlDateProvider extends BaseProvider<java.sql.Date> {
+        private DateProvider dateProvider = new DateProvider();
+
+        public SqlDateProvider() {
+            super(java.sql.Date.class);
+        }
+
+        @Override
+        protected java.sql.Date toValue(ZonedDateTime zonedDateTime) {
+            return java.sql.Date.valueOf(zonedDateTime.toLocalDate());
+        }
+
+        @Override
+        protected ZonedDateTime from(java.sql.Date value) {
+            return dateProvider.from(value);
+        }
+    }
+
+
+    private static class TimestampProvider extends BaseProvider<java.sql.Timestamp> {
+        private DateProvider dateProvider = new DateProvider();
+
+        public TimestampProvider() {
+            super(java.sql.Timestamp.class);
+        }
+
+        @Override
+        protected java.sql.Timestamp toValue(ZonedDateTime zonedDateTime) {
+            return java.sql.Timestamp.from(zonedDateTime.toInstant());
+        }
+
+        @Override
+        protected ZonedDateTime from(java.sql.Timestamp value) {
+            return dateProvider.from(value);
+        }
     }
 
 }

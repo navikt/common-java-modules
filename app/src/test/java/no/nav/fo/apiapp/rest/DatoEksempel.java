@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp.rest;
 
 import javax.ws.rs.*;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -43,6 +44,9 @@ public class DatoEksempel {
             dto.date = queryDTO.date;
             dto.optionalDate = ofNullable(queryDTO.date);
             dto.string = queryDTO.string;
+            dto.timestamp = queryDTO.timestamp;
+            dto.sqlDate = queryDTO.sqlDate;
+            dto.string = queryDTO.string;
         }
         return dto;
     }
@@ -57,6 +61,8 @@ public class DatoEksempel {
         public Optional<Date> optionalDate = of(date);
         public Optional<Date> noOptionalDate = Optional.empty();
         public String string;
+        public Timestamp timestamp = Timestamp.from(zonedDateTime.toInstant());
+        public java.sql.Date sqlDate = java.sql.Date.valueOf(localDate);
     }
 
     public static class QueryDTO {
@@ -70,6 +76,10 @@ public class DatoEksempel {
         public Date date;
         @QueryParam("string")
         public String string;
+        @QueryParam("timestamp")
+        public Timestamp timestamp;
+        @QueryParam("sqlDate")
+        public java.sql.Date sqlDate;
     }
 
 }

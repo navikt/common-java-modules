@@ -23,7 +23,9 @@ public class DatoTest extends JettyTest {
             "\"aBoolean\":true," +
             "\"optionalDate\":\"2017-05-10T01:02:03+02:00\"," +
             "\"noOptionalDate\":null," +
-            "\"string\":null" +
+            "\"string\":null," +
+            "\"timestamp\":\"2017-05-10T01:02:03+02:00\"," +
+            "\"sqlDate\":\"2017-05-10T00:00:00+02:00\"" +
             "}";
 
     private static final String QUERY_TEST_STRING = "dette er en test";
@@ -34,7 +36,9 @@ public class DatoTest extends JettyTest {
             "\"localDateTime\":\"2017-05-12T13:47:30Z\"," +
             "\"zonedDateTime\":\"2017-05-12T13:47:30Z\"," +
             "\"date\":\"2017-05-12T13:47:30Z\"," +
-            "\"string\":\"dette er en test\"" +
+            "\"string\":\"dette er en test\"," +
+            "\"timestamp\":\"2017-05-12T13:47:30Z\"," +
+            "\"sqlDate\":\"2017-05-12T13:47:30Z\"" +
             "}";
 
     private static final String DTO_FRA_UTC_QUERY = "{" +
@@ -45,7 +49,9 @@ public class DatoTest extends JettyTest {
             "\"aBoolean\":true," +
             "\"optionalDate\":\"2017-05-12T15:47:30+02:00\"," +
             "\"noOptionalDate\":null," +
-            "\"string\":\"dette er en test\"" +
+            "\"string\":\"dette er en test\"," +
+            "\"timestamp\":\"2017-05-12T15:47:30+02:00\"," +
+            "\"sqlDate\":\"2017-05-12T00:00:00+02:00\"" +
             "}";
 
     private static final String QUERY_PARIS_DATO = "2017-05-12T15:47:30+02:00";
@@ -54,7 +60,9 @@ public class DatoTest extends JettyTest {
             "\"localDateTime\":\"2017-05-12T15:47:30+02:00\"," +
             "\"zonedDateTime\":\"2017-05-12T15:47:30+02:00\"," +
             "\"date\":\"2017-05-12T15:47:30+02:00\"," +
-            "\"string\":\"dette er en test\"" +
+            "\"string\":\"dette er en test\"," +
+            "\"timestamp\":\"2017-05-12T15:47:30+02:00\"," +
+            "\"sqlDate\":\"2017-05-12T15:47:30+02:00\"" +
             "}";
     private static final String DTO_FRA_PARIS_QUERY = "{" +
             "\"localDate\":\"2017-05-12T12:00:00+02:00\"," +
@@ -64,7 +72,9 @@ public class DatoTest extends JettyTest {
             "\"aBoolean\":true," +
             "\"optionalDate\":\"2017-05-12T15:47:30+02:00\"," +
             "\"noOptionalDate\":null," +
-            "\"string\":\"dette er en test\"" +
+            "\"string\":\"dette er en test\"," +
+            "\"timestamp\":\"2017-05-12T15:47:30+02:00\"," +
+            "\"sqlDate\":\"2017-05-12T00:00:00+02:00\"" +
             "}";
 
     private static final String NULL_JSON = "{" +
@@ -76,7 +86,9 @@ public class DatoTest extends JettyTest {
             "\"optionalDate\":null," +
             "\"noOptionalDate\":null," +
             "\"string\":" +
-            "\"dette er en test\"" +
+            "\"dette er en test\"," +
+            "\"timestamp\":null," +
+            "\"sqlDate\":null" +
             "}";
 
     @Test
@@ -129,6 +141,8 @@ public class DatoTest extends JettyTest {
                 .queryParam("localDateTime", queryDato)
                 .queryParam("localDate", queryDato)
                 .queryParam("string", QUERY_TEST_STRING)
+                .queryParam("timestamp", queryDato)
+                .queryParam("sqlDate", queryDato)
                 .request()
                 .get()
                 .readEntity(String.class);
