@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
         <artifactId>api-app-parent</artifactId>
-        <version>2</version>
+        <version>3</version>
     </parent>
     <artifactId>api-app-bom</artifactId>
     <packaging>pom</packaging>
@@ -21,7 +21,7 @@
 
         <!-- LOGGING -->
         <slf4j.version>1.7.21</slf4j.version>
-        <logback.version>1.1.7</logback.version>
+        <logback.version>1.2.3</logback.version>
 
         <!-- COMMON -->
         <metrics.version>3.2.1</metrics.version>
@@ -30,8 +30,8 @@
         <modig-security.version>3.0.4</modig-security.version>
         <modig-testcertificates.version>1.1.0</modig-testcertificates.version>
         <modig-core-test.version>1.0.0</modig-core-test.version>
-        <oidc-security.version>3.0.29</oidc-security.version>
-        <common-web.version>2.0.4</common-web.version>
+        <oidc-security.version>3.0.31</oidc-security.version>
+        <common-web.version>4.0.6</common-web.version>
         <common-abac.version>1.0.56</common-abac.version>
         <common-test.version>2.0.3</common-test.version>
         <common-jetty.version>2.0.16</common-jetty.version>
@@ -39,7 +39,7 @@
         <feed.version>1.0.10</feed.version>
 
         <!-- SOAP -->
-        <common-cxf.version>3.1.41</common-cxf.version>
+        <common-cxf.version>3.1.43</common-cxf.version>
         <neethi.version>3.0.3</neethi.version>
         <cxf-core.version>3.1.11</cxf-core.version>
         <cxf-api.version>2.7.6</cxf-api.version>
@@ -65,7 +65,9 @@
         <hk2.version>2.4.0-b34</hk2.version>
 
         <!-- DIV -->
-        <commons-lang.version>3.4</commons-lang.version>
+        <swagger.version>1.5.13</swagger.version>
+        <swagger-ui.version>2.2.10</swagger-ui.version>
+        <commons-lang.version>3.5</commons-lang.version>
         <commons-io.version>2.5</commons-io.version>
         <collections-generic.version>4.01</collections-generic.version>
         <httpclient.version>4.3.6</httpclient.version>
@@ -86,6 +88,15 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>no.nav.modig</groupId>
+                <artifactId>modig-security</artifactId>
+                <version>${modig-security.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>api-app</artifactId>
@@ -192,12 +203,13 @@
                 <groupId>no.nav.dialogarena</groupId>
                 <artifactId>oidc-security</artifactId>
                 <version>${oidc-security.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>no.nav.dialogarena</groupId>
                 <artifactId>oidc-security</artifactId>
                 <version>${oidc-security.version}</version>
+                <scope>test</scope>
+                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
@@ -413,6 +425,48 @@
                 <artifactId>jcl-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.janino</groupId>
+                <artifactId>janino</artifactId>
+                <version>3.0.7</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!-- Swagger -->
+
+            <dependency>
+                <groupId>org.webjars</groupId>
+                <artifactId>swagger-ui</artifactId>
+                <version>${swagger-ui.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-jaxrs</artifactId>
+                <version>${swagger.version}</version>
+                <exclusions>
+                    <!-- swagger-jaxrs drar inn gammelt og konflikterende javax.rs-api -->
+                    <exclusion>
+                        <groupId>javax.ws.rs</groupId>
+                        <artifactId>jsr311-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-models</artifactId>
+                <version>${swagger.version}</version>
             </dependency>
 
 
@@ -673,7 +727,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>test-config</artifactId>
-                <version>1.28.5</version>
+                <version>1.37.32</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -739,12 +793,6 @@
                 <groupId>com.github.npathai</groupId>
                 <artifactId>hamcrest-optional</artifactId>
                 <version>1.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

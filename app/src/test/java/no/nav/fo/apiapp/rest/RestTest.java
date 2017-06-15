@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp.rest;
 
 import no.nav.apiapp.feil.Feil;
+import no.nav.apiapp.rest.ExceptionMapper;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
@@ -12,7 +13,9 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static no.nav.apiapp.feil.Feil.Type.UKJENT;
 import static no.nav.apiapp.feil.Feil.Type.VERSJONSKONFLIKT;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 
@@ -46,6 +49,8 @@ public class RestTest extends JettyTest {
         assertThat(feilDTO.get("id"), notNullValue());
         assertThat(feilDTO.get("type"), equalTo(type.name()));
         assertThat(feilDTO.get("detaljer"), notNullValue());
+
+        assertThat(response.getHeaderString(ExceptionMapper.ESCAPE_REDIRECT_HEADER), not(isEmptyOrNullString()));
     }
 
 }

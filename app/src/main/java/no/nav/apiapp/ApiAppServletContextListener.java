@@ -2,9 +2,12 @@ package no.nav.apiapp;
 
 
 import no.nav.apiapp.rest.RestApplication;
+import no.nav.apiapp.rest.SwaggerResource;
+import no.nav.apiapp.rest.SwaggerUIServlet;
 import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestJsonServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
+import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
@@ -17,6 +20,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -27,12 +31,16 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import java.util.EnumSet;
 
+import static ch.qos.logback.classic.Level.INFO;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static javax.servlet.SessionTrackingMode.COOKIE;
+import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.getApplicationName;
 import static no.nav.apiapp.ServletUtil.getContext;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
+import static no.nav.apiapp.util.LogUtils.setGlobalLogLevel;
+import static no.nav.apiapp.util.StringUtils.of;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -47,34 +55,50 @@ import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiAppServletContextListener implements WebApplicationInitializer, ServletContextListener, HttpSessionListener {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppServletContextListener.class);
+
     public static final String SPRING_CONTEKST_KLASSE_PARAMETER_NAME = "springContekstKlasse";
     private static final String SPRING_CONTEXT_KLASSENAVN = AnnotationConfigWebApplicationContext.class.getName();
 
     public static final String INTERNAL_IS_ALIVE = "/internal/isAlive";
     public static final String INTERNAL_SELFTEST = "/internal/selftest";
     public static final String INTERNAL_SELFTEST_JSON = "/internal/selftest.json";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppServletContextListener.class);
+    public static final String SWAGGER_PATH = "/internal/swagger/";
+    public static final String API_PATH = "/api/";
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
     private int sesjonsLengde;
 
+    static {
+        if (System.getProperty(MILJO_PROPERTY_NAME, "").equals("t")) {
+            setGlobalLogLevel(INFO);
+        }
+    }
+
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         LOGGER.info("onStartup");
-        konfigurerSpring(servletContext);
+        if(!disablet(servletContext)){
+            konfigurerSpring(servletContext);
+        }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextDestroyed");
-        contextLoaderListener.contextDestroyed(servletContextEvent);
+        if (!disablet(servletContextEvent.getServletContext())) {
+            contextLoaderListener.contextDestroyed(servletContextEvent);
+        }
     }
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextInitialized");
+        if (disablet(servletContextEvent.getServletContext())) {
+            return;
+        }
+
         if(!erSpringSattOpp(servletContextEvent)){
             konfigurerSpring(servletContextEvent.getServletContext());
         }
@@ -97,6 +121,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         leggTilServlet(servletContextEvent, IsAliveServlet.class, INTERNAL_IS_ALIVE);
         leggTilServlet(servletContextEvent, SelfTestServlet.class, INTERNAL_SELFTEST);
         leggTilServlet(servletContextEvent, SelfTestJsonServlet.class, INTERNAL_SELFTEST_JSON);
+        leggTilServlet(servletContextEvent, SwaggerUIServlet.class, SWAGGER_PATH + "*");
 
         settOppRestApi(servletContextEvent, apiApplication);
         if (soapTjenesterEksisterer(servletContextEvent.getServletContext())) {
@@ -167,13 +192,16 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private ApiApplication startSpring(ServletContextEvent servletContextEvent) {
         contextLoaderListener.contextInitialized(servletContextEvent);
-        return getContext(servletContextEvent.getServletContext()).getBean(ApiApplication.class);
+        AnnotationConfigWebApplicationContext webApplicationContext = (AnnotationConfigWebApplicationContext) getContext(servletContextEvent.getServletContext());
+        webApplicationContext.getBeanFactory().registerSingleton(LedigDiskPlassHelsesjekk.class.getName(), new LedigDiskPlassHelsesjekk());
+        return webApplicationContext.getBean(ApiApplication.class);
     }
 
     private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
         RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()),apiApplication);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
-        leggTilServlet(servletContextEvent, servlet, "/api/*");
+        ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, API_PATH + "*");
+        SwaggerResource.setupServlet(servletRegistration);
     }
 
     private void settOppSessionOgCookie(ServletContextEvent servletContextEvent) {
@@ -207,15 +235,21 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         return dynamic;
     }
 
-    private static void leggTilServlet(ServletContextEvent servletContextEvent, Class<? extends Servlet> servletClass, String path) {
+    private static void leggTilServlet(ServletContextEvent servletContextEvent, Class<? extends Servlet> servletClass, String... path) {
         servletContextEvent.getServletContext().addServlet(servletClass.getName(), servletClass).addMapping(path);
         // TODO eksperimenter med setServletSecurity()!
         LOGGER.info("la til servlet [{}] på [{}]", servletClass.getName(), path);
     }
 
-    private void leggTilServlet(ServletContextEvent servletContextEvent, Servlet servlet, String path) {
-        servletContextEvent.getServletContext().addServlet(servlet.getClass().getName(), servlet).addMapping(path);
+    private ServletRegistration.Dynamic leggTilServlet(ServletContextEvent servletContextEvent, Servlet servlet, String path) {
+        ServletRegistration.Dynamic servletRegistration = servletContextEvent.getServletContext().addServlet(servlet.getClass().getName(), servlet);
+        servletRegistration.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
+        return servletRegistration;
+    }
+
+    private boolean disablet(ServletContext servletContext) {
+        return of(servletContext.getInitParameter("disableApiApp")).map(Boolean::parseBoolean).orElse(false);
     }
 
 }

@@ -1,0 +1,573 @@
+{
+  "swagger": "2.0",
+  "basePath": "/JettyTest/api/",
+  "tags": [
+    {
+      "name": "Eksempel"
+    }
+  ],
+  "paths": {
+    "/swagger.json": {
+      "get": {
+        "tags": [
+          "SwaggerResource"
+        ],
+        "summary": "getSwaggerJSON",
+        "operationId": "getSwaggerJSON",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "tags": [
+          "RelyingPartyCallback"
+        ],
+        "summary": "getLogin",
+        "operationId": "getLogin",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/dato/query": {
+      "get": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "queryDTO",
+        "operationId": "queryDTO",
+        "parameters": [
+          {
+            "name": "localDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "localDateTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "zonedDateTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "string",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DTO"
+            },
+            "headers": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "postQueryDTO",
+        "operationId": "postQueryDTO",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/QueryDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/dato/dto": {
+      "get": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "getDTO",
+        "operationId": "getDTO",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/interface/impl": {
+      "get": {
+        "tags": [
+          "InterfaceEksempelImpl"
+        ],
+        "summary": "implementertGet",
+        "operationId": "implementertGet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/interface/default": {
+      "get": {
+        "tags": [
+          "InterfaceEksempelImpl"
+        ],
+        "summary": "defaultGet",
+        "operationId": "defaultGet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "get",
+        "operationId": "get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/konflikt": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "konflikt",
+        "operationId": "konflikt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/ukjent-feil": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "ukjentFeil",
+        "operationId": "ukjentFeil",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/swagger": {
+      "get": {
+        "tags": [
+          "Eksempel"
+        ],
+        "summary": "eksempel-value",
+        "description": "eksempel-notes",
+        "operationId": "medEksplisittDokumentasjon",
+        "parameters": [],
+        "responses": {
+          "1234": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "Eksempel"
+        ],
+        "summary": "medDefaultDokumentasjon",
+        "operationId": "medDefaultDokumentasjon",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Eksempel"
+        ],
+        "summary": "rikRespons",
+        "operationId": "rikRespons",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/RiktObjekt"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/RiktObjekt"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/session": {
+      "get": {
+        "tags": [
+          "KreverSesjon"
+        ],
+        "summary": "getSesjonsId",
+        "operationId": "getSesjonsId",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/feed/{name}": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "get",
+        "operationId": "get",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "webhook",
+        "operationId": "webhook",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed/{name}/webhook": {
+      "put": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "putWebhook",
+        "operationId": "putWebhook",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/FeedWebhookRequest"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Dynamic": {
+      "type": "object",
+      "properties": {
+        "runAsRole": {
+          "type": "string"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "className": {
+          "type": "string"
+        },
+        "initParameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DTO": {
+      "type": "object",
+      "properties": {
+        "localDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "localDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zonedDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "aBoolean": {
+          "type": "boolean"
+        },
+        "optionalDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "noOptionalDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "string": {
+          "type": "string"
+        }
+      }
+    },
+    "QueryDTO": {
+      "type": "object",
+      "properties": {
+        "localDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "localDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zonedDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "string": {
+          "type": "string"
+        }
+      }
+    },
+    "RiktObjekt": {
+      "type": "object",
+      "properties": {
+        "dato": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zonedDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "string": {
+          "type": "string"
+        },
+        "bool": {
+          "type": "boolean"
+        },
+        "tall": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "enEnum": {
+          "type": "string",
+          "enum": [
+            "EN",
+            "TO",
+            "TRE"
+          ]
+        }
+      }
+    },
+    "FeedConsumer": {
+      "type": "object"
+    },
+    "FeedConsumerComparableObject": {
+      "type": "object"
+    },
+    "FeedProducer": {
+      "type": "object"
+    },
+    "FeedProducerComparableObject": {
+      "type": "object"
+    },
+    "FeedWebhookRequest": {
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

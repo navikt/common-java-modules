@@ -25,14 +25,15 @@ public class SelfTestTest extends JettyTest {
     public void selftest() {
         sjekkOKStatus(INTERNAL_SELFTEST);
         pingableEksempel.setOk(false);
-        sjekkFeilStatus(INTERNAL_SELFTEST);
+        sjekkFeilmelding(INTERNAL_SELFTEST);
+        sjekkFeilstatus(INTERNAL_SELFTEST);
     }
 
     @Test
     public void selftestJson() {
         sjekkOKStatus(INTERNAL_SELFTEST_JSON);
         pingableEksempel.setOk(false);
-        sjekkFeilStatus(INTERNAL_SELFTEST_JSON);
+        sjekkFeilmelding(INTERNAL_SELFTEST_JSON);
     }
 
     @Test
@@ -47,8 +48,13 @@ public class SelfTestTest extends JettyTest {
         assertThat(getString(path).toLowerCase(), not(containsString("error")));
     }
 
-    private void sjekkFeilStatus(String path) {
+    private void sjekkFeilmelding(String path) {
         assertThat(getString(path).toLowerCase(), containsString("error"));
     }
+
+    private void sjekkFeilstatus(String path) {
+        assertThat(get(path).getStatus(), is(500));
+    }
+
 
 }
