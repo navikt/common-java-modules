@@ -53,6 +53,25 @@
         }
       }
     },
+    "/dato/dto": {
+      "get": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "getDTO",
+        "operationId": "getDTO",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/dato/query": {
       "get": {
         "tags": [
@@ -94,6 +113,20 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "sqlDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
           }
         ],
         "responses": {
@@ -122,25 +155,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/DTO"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/dato/dto": {
-      "get": {
-        "tags": [
-          "DatoEksempel"
-        ],
-        "summary": "getDTO",
-        "operationId": "getDTO",
-        "parameters": [],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -209,13 +223,13 @@
         }
       }
     },
-    "/eksempel/konflikt": {
+    "/eksempel/ukjent-feil": {
       "get": {
         "tags": [
           "RestEksempel"
         ],
-        "summary": "konflikt",
-        "operationId": "konflikt",
+        "summary": "ukjentFeil",
+        "operationId": "ukjentFeil",
         "parameters": [],
         "responses": {
           "200": {
@@ -228,13 +242,13 @@
         }
       }
     },
-    "/eksempel/ukjent-feil": {
+    "/eksempel/konflikt": {
       "get": {
         "tags": [
           "RestEksempel"
         ],
-        "summary": "ukjentFeil",
-        "operationId": "ukjentFeil",
+        "summary": "konflikt",
+        "operationId": "konflikt",
         "parameters": [],
         "responses": {
           "200": {
@@ -491,6 +505,14 @@
         },
         "string": {
           "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sqlDate": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -515,6 +537,14 @@
         },
         "string": {
           "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sqlDate": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -549,18 +579,6 @@
         }
       }
     },
-    "FeedConsumer": {
-      "type": "object"
-    },
-    "FeedConsumerComparableObject": {
-      "type": "object"
-    },
-    "FeedProducer": {
-      "type": "object"
-    },
-    "FeedProducerComparableObject": {
-      "type": "object"
-    },
     "FeedWebhookRequest": {
       "type": "object",
       "properties": {
@@ -568,6 +586,18 @@
           "type": "string"
         }
       }
+    },
+    "FeedProducer": {
+      "type": "object"
+    },
+    "FeedProducerComparableObject": {
+      "type": "object"
+    },
+    "FeedConsumer": {
+      "type": "object"
+    },
+    "FeedConsumerComparableObject": {
+      "type": "object"
     }
   }
 }
