@@ -17,7 +17,6 @@ import javax.net.ssl.SSLException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 
@@ -187,9 +186,9 @@ public class FasitUtils {
         do {
             try {
                 return invokeHttpClient(httpClientConsumer);
-            } catch (IOException ioException) {
-                LOG.warn("ssl exception. Retry");
-                LOG.warn(ioException.getMessage(), ioException);
+            } catch (Throwable throwable) {
+                LOG.warn("feil mot fasit");
+                LOG.warn(throwable.getMessage(), throwable);
                 Thread.sleep(5000L);
             }
         } while (attempt++ < 5);
