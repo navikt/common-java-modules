@@ -187,6 +187,9 @@ public class FasitUtils {
             try {
                 return invokeHttpClient(httpClientConsumer);
             } catch (Throwable throwable) {
+                if (throwable instanceof IllegalStateException) {
+                    throw throwable;
+                }
                 LOG.warn("feil mot fasit");
                 LOG.warn(throwable.getMessage(), throwable);
                 Thread.sleep(5000L);
@@ -215,7 +218,7 @@ public class FasitUtils {
                 return item.getFirstChild().getTextContent();
             }
         }
-        throw new IllegalStateException();
+        throw new IllegalStateException(String.format("fant ikke property '%s' i respons", propertyName));
     }
 
     static String getFasitPassword() {
