@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 import static java.lang.Integer.toHexString;
 import static java.lang.reflect.Proxy.getInvocationHandler;
 import static java.lang.reflect.Proxy.isProxyClass;
-import static no.nav.modig.core.context.SubjectHandler.getSubjectHandler;
+import static no.nav.brukerdialog.security.context.SubjectHandler.getSubjectHandler;
 import static org.springframework.aop.framework.AopProxyUtils.proxiedUserInterfaces;
 
 /**
