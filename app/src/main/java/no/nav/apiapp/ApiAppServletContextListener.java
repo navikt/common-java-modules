@@ -39,6 +39,7 @@ import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.getApplicationName;
 import static no.nav.apiapp.ServletUtil.getContext;
+import static no.nav.apiapp.ServletUtil.leggTilServlet;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.util.StringUtils.of;
@@ -235,19 +236,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
-    }
-
-    private static void leggTilServlet(ServletContextEvent servletContextEvent, Class<? extends Servlet> servletClass, String... path) {
-        servletContextEvent.getServletContext().addServlet(servletClass.getName(), servletClass).addMapping(path);
-        // TODO eksperimenter med setServletSecurity()!
-        LOGGER.info("la til servlet [{}] på [{}]", servletClass.getName(), path);
-    }
-
-    private ServletRegistration.Dynamic leggTilServlet(ServletContextEvent servletContextEvent, Servlet servlet, String path) {
-        ServletRegistration.Dynamic servletRegistration = servletContextEvent.getServletContext().addServlet(servlet.getClass().getName(), servlet);
-        servletRegistration.addMapping(path);
-        LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
-        return servletRegistration;
     }
 
     private boolean disablet(ServletContext servletContext) {
