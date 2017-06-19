@@ -2,10 +2,7 @@ package no.nav.brukerdialog.security.context;
 
 
 
-import no.nav.brukerdialog.security.domain.AuthenticationLevelCredential;
-import no.nav.brukerdialog.security.domain.ConsumerId;
-import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.brukerdialog.security.domain.SluttBruker;
+import no.nav.brukerdialog.security.domain.*;
 
 import javax.security.auth.Subject;
 
@@ -21,8 +18,8 @@ public class SubjectHandlerUtils {
         ((TestSubjectHandler) SubjectHandler.getSubjectHandler()).reset();
     }
 
-    public static void setInternBruker(String userId) {
-        setSubject(new SubjectBuilder(userId, IdentType.InternBruker).getSubject());
+    public static void setInternBruker(String userId, String jwtToken) {
+        setSubject(new SubjectBuilder(userId, IdentType.InternBruker, jwtToken).getSubject());
     }
 
     public static void setSubject(Subject subject) {
@@ -31,12 +28,22 @@ public class SubjectHandlerUtils {
 
     public static class SubjectBuilder {
         private String userId;
+        private String jwtToken;
         private IdentType identType;
         private int authLevel;
 
         public SubjectBuilder(String userId, IdentType identType) {
             this.userId = userId;
             this.identType = identType;
+            if (IdentType.InternBruker.equals(identType)) {
+                authLevel = 4;
+            }
+        }
+
+        public SubjectBuilder(String userId, IdentType identType, String jwtToken) {
+            this.userId = userId;
+            this.identType = identType;
+            this.jwtToken = jwtToken;
             if (IdentType.InternBruker.equals(identType)) {
                 authLevel = 4;
             }
@@ -50,6 +57,7 @@ public class SubjectHandlerUtils {
         public Subject getSubject() {
             Subject subject = new Subject();
             subject.getPrincipals().add(new SluttBruker(userId, identType));
+            subject.getPublicCredentials().add(new OidcCredential(jwtToken));
             subject.getPublicCredentials().add(new AuthenticationLevelCredential(authLevel));
             subject.getPrincipals().add(new ConsumerId());
             return subject;

@@ -1,30 +1,36 @@
 package no.nav.brukerdialog.security.context;
 
-import no.nav.brukerdialog.security.domain.ConsumerId;
-import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.brukerdialog.security.domain.SluttBruker;
+import no.nav.brukerdialog.security.domain.*;
 
 import javax.security.auth.Subject;
 
-import static java.lang.System.getProperty;
-import static java.lang.System.setProperty;
-
 public class InternbrukerSubjectHandler extends TestSubjectHandler {
     private Subject subject;
+    private static OidcCredential oidcCredential;
+    private static String veilederIdent = "Z999999";
+    private static String servicebruker = "srvServicebruker";
 
-    public static void setVeilederIdent(String veilederident) {
-        setProperty("no.nav.brukerdialog.security.context.InternbrukerSubjectHandler.veilederident", veilederident);
+    public static void setVeilederIdent(String ident) {
+        veilederIdent = ident;
     }
 
-    public static void setServicebruker(String servicebruker) {
-        setProperty("no.nav.brukerdialog.security.context.InternbrukerSubjectHandler.servicebruker", servicebruker);
+    public static void setServicebruker(String bruker) {
+        servicebruker = bruker;
+    }
+    public static void setOidcCredential(OidcCredential credential) {
+        oidcCredential = credential;
     }
 
     @Override
     public Subject getSubject() {
         Subject subject = new Subject();
-        subject.getPrincipals().add(new SluttBruker(getProperty("no.nav.brukerdialog.security.context.InternbrukerSubjectHandler.veilederident", "Z999999"), IdentType.InternBruker));
-        subject.getPrincipals().add(new ConsumerId(getProperty("no.nav.brukerdialog.security.context.InternbrukerSubjectHandler.servicebruker", "srvServiceBruker")));
+
+        subject.getPrincipals().add(new SluttBruker(veilederIdent, IdentType.InternBruker));
+        subject.getPrincipals().add(new ConsumerId(servicebruker));
+        if (oidcCredential != null) {
+            subject.getPublicCredentials().add(new OidcCredential(oidcCredential.getToken()));
+        }
+
         return subject;
     }
 
