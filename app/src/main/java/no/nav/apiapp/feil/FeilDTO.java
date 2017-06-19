@@ -3,11 +3,24 @@ package no.nav.apiapp.feil;
 public class FeilDTO {
     public final String id;
     public final Feil.Type type;
-    public final String detaljer;
+    public final Detaljer detaljer;
 
-    public FeilDTO(String id, Feil.Type type, String detaljer) {
+    public FeilDTO(String id, Feil.Type type, Detaljer detaljer) {
         this.id = id;
         this.type = type;
         this.detaljer = detaljer;
     }
+
+    public static class Detaljer {
+        public final String detaljertType;
+        public final String feilMelding;
+        public final String stackTrace;
+
+        public Detaljer(String detaljertType, String feilMelding, String stackTrace) {
+            this.detaljertType = detaljertType;
+            this.feilMelding = feilMelding;
+            this.stackTrace = stackTrace;
+        }
+    }
+
 }

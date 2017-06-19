@@ -1,16 +1,14 @@
 package no.nav.apiapp.feil;
 
 import no.nav.apiapp.Constants;
+import no.nav.apiapp.soap.SoapFeilMapper;
 
-import javax.xml.soap.Detail;
-import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
-import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static no.nav.apiapp.feil.Feil.Type.UKJENT;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
@@ -35,14 +33,14 @@ public class FeilMapper {
         }
     }
 
-    private static String finnDetaljer(Throwable exception) {
+    private static FeilDTO.Detaljer finnDetaljer(Throwable exception) {
+        return new FeilDTO.Detaljer(exception.getClass().getName(), exception.getMessage(), finnStackTrace(exception));
+    }
+
+    private static String finnStackTrace(Throwable exception) {
         String stackTrace = getStackTrace(exception);
         if (exception instanceof SOAPFaultException) {
-            return of((SOAPFaultException) exception)
-                    .map(SOAPFaultException::getFault)
-                    .map(SOAPFault::getDetail)
-                    .map(Detail::getValue)
-                    .orElse(stackTrace);
+            return SoapFeilMapper.finnStackTrace((SOAPFaultException) exception);
         } else {
             return stackTrace;
         }

@@ -16,9 +16,7 @@ import org.junit.Test;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import static no.nav.fo.apiapp.soap.SoapEksempel.IDENT_FOR_UKJENT_FEIL;
-import static no.nav.fo.apiapp.soap.SoapEksempel.IDENT_FOR_VERSJONSKONFLIKT;
-import static no.nav.fo.apiapp.soap.SoapEksempel.TJENESTENAVN;
+import static no.nav.fo.apiapp.soap.SoapEksempel.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -43,6 +41,12 @@ public class SoapTest extends JettyTest {
     }
 
     @Test
+    public void tjenestePropagererSoapFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
+        sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, Feil.Type.UKJENT, SOAPFaultException.class);
+        sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, Feil.Type.UKJENT, "<SOAP-ENV:Fault");
+    }
+
+    @Test
     public void tjenestePropagererUkjenteFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
         sjekkAtTjenesteFeilerMed(IDENT_FOR_UKJENT_FEIL, Feil.Type.UKJENT, Throwable.class);
     }
@@ -60,13 +64,17 @@ public class SoapTest extends JettyTest {
     }
 
     private void sjekkAtTjenesteFeilerMed(String parameter, Feil.Type feilType, Class<? extends Throwable> internFeil) throws HentAktoerIdForIdentPersonIkkeFunnet {
+        sjekkAtTjenesteFeilerMed(parameter, feilType, internFeil.getName());
+    }
+
+    private void sjekkAtTjenesteFeilerMed(String parameter, Feil.Type feilType, String feilMelding) throws HentAktoerIdForIdentPersonIkkeFunnet {
         try {
             hentAktorId(parameter);
             fail();
         } catch (SOAPFaultException s) {
             SOAPFault fault = s.getFault();
             assertThat(fault.getFaultCodeAsQName().getLocalPart(), equalTo(feilType.name()));
-            assertThat(fault.getDetail().getTextContent(), containsString(internFeil.getName()));
+            assertThat(fault.getDetail().getTextContent(), containsString(feilMelding));
         }
     }
 

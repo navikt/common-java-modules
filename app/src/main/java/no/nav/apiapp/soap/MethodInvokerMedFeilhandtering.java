@@ -12,6 +12,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 import static no.nav.apiapp.util.EnumUtils.getName;
+import static no.nav.apiapp.util.JsonUtils.toJson;
 
 public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
 
@@ -35,7 +36,7 @@ public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
             SOAPFault fault = soapFactory.createFault();
             fault.setFaultString(feilDTO.id);
             fault.setFaultCode(getName(feilDTO.type));
-            fault.addDetail().addTextNode(feilDTO.detaljer);
+            fault.addDetail().addTextNode(toJson(feilDTO.detaljer));
             return new SOAPFaultException(fault);
         } catch (SOAPException e) {
             LOGGER.error(e.getMessage(), e);
