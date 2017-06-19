@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included scan="true" scanPeriod="30 seconds">
 
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
+
     <property name="loggingPattern" value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}, %X{userId}] ){'- \[, , \] ',''}- %m%n"/>
 
     <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">

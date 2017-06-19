@@ -9,6 +9,7 @@ import no.nav.apiapp.selftest.SelfTestJsonServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
+import no.nav.apiapp.util.LogUtils;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
@@ -89,6 +90,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         LOGGER.info("contextDestroyed");
         if (!disablet(servletContextEvent.getServletContext())) {
             contextLoaderListener.contextDestroyed(servletContextEvent);
+            LogUtils.shutDownLogback();
         }
     }
 
