@@ -51,7 +51,7 @@ public final class Get {
             public Ping transform(Pingable pingable) {
                 long start = System.currentTimeMillis();
                 Ping ping = pingable.ping();
-                ping.setTidsbruk(System.currentTimeMillis() - start);
+                ping.setResponstid(System.currentTimeMillis() - start);
                 return ping;
             }
         };
@@ -61,7 +61,7 @@ public final class Get {
         return new Predicate<Ping>() {
             @Override
             public boolean evaluate(Ping ping) {
-                return ping.isVellykket();
+                return ping.erVellykket();
             }
         };
     }

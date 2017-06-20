@@ -5,8 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import sun.security.pkcs.EncodingException;
 
+import java.io.IOException;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -32,8 +32,8 @@ public class PingableTest {
 
     @Before
     public void simulatePingResponses() {
-        when(sykTjeneste.ping()).thenReturn(Ping.feilet("windoze", new EncodingException()));
-        when(friskTjeneste.ping()).thenReturn(Ping.lyktes("linux"));
+        when(sykTjeneste.ping()).thenReturn(Ping.feilet("sykTjeneste_v1", "en SOAP-tjeneste som ikke funker", true, new IOException("tjenesten svarer ikke")));
+        when(friskTjeneste.ping()).thenReturn(Ping.lyktes("friskTjeneste_v1", "En tjeneste som funker", 51L));
     }
 
     @Test
@@ -47,8 +47,8 @@ public class PingableTest {
         List<Ping> nonWorking = on(asList(friskTjeneste, sykTjeneste)).map(pingResult()).filter(not(vellykketPing())).collect();
 
         assertThat(nonWorking, hasSize(1));
-        assertThat(nonWorking.get(0).getKomponent(), is("windoze"));
-        boolean isCorrectException = nonWorking.get(0).getAarsak() instanceof EncodingException;
+        assertThat(nonWorking.get(0).getEndepunkt(), is("sykTjeneste_v1"));
+        boolean isCorrectException = nonWorking.get(0).getFeil() instanceof IOException;
         assertTrue(isCorrectException);
     }
 }
