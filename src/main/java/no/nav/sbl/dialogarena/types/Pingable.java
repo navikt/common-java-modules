@@ -7,6 +7,12 @@ import java.io.Serializable;
  */
 public interface Pingable {
 
+    /**
+     * Denne metoden må implementeres, og brukes til å sjekke et om en avhengighet er oppe. Det er viktig
+     * at man fanger opp eventuelle exceptions i koden, da uhåndterte exceptions vil føre til at selftest-siden
+     * returnerer status 500.
+     * @return En vellykket eller feilet ping-respons.
+     */
     Ping ping();
 
     final class Ping implements Serializable {
