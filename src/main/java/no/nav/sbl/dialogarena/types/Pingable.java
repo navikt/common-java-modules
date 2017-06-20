@@ -52,6 +52,20 @@ public interface Pingable {
             return !this.harFeil();
         }
 
+        public String getAarsak() {
+            if (this.getFeilmelding() != null) {
+                return this.getFeilmelding();
+            } else if (this.getFeil() != null) {
+                return this.getFeil().getMessage();
+            }
+            return "";
+        }
+
+        public Ping setResponstid(Long responstid) {
+            this.responstid = responstid;
+            return this;
+        }
+
         public boolean erKritisk() {
             return this.kritisk;
         }
@@ -96,12 +110,10 @@ public interface Pingable {
          *                  database connection-string e.l.
          * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
          *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param responstid Sjekkens responstid.
          * @return Et vellykket pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping lyktes(String endepunkt, String beskrivelse, long responstid) {
-            return new Ping(endepunkt, beskrivelse)
-                    .setResponstid(responstid);
+        public static Ping lyktes(String endepunkt, String beskrivelse) {
+            return new Ping(endepunkt, beskrivelse);
         }
 
         /**

@@ -2,7 +2,7 @@
 
 ## Changelog
 
-### Versjon 1.4
+### Versjon 2.0
 
 Pingable-klassen har blitt skrevet om til å støtte det nye oppsettet for selftester
 definert av aura. Denne kan man lese mer om på [confluence](https://confluence.adeo.no/display/AURA/Selftest).
