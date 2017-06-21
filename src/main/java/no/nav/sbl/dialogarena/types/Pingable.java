@@ -21,7 +21,7 @@ public interface Pingable {
         private String beskrivelse;
         private String feilmelding;
         private Throwable feil;
-        private boolean kritisk = true;
+        private boolean kritisk;
         private long responstid = -1;
 
         public String getEndepunkt() {
@@ -100,8 +100,9 @@ public interface Pingable {
             return this;
         }
 
-        private Ping(String endepunkt, String beskrivelse) {
+        private Ping(String endepunkt, String beskrivelse, boolean erKritisk) {
             this.setEndepunkt(endepunkt)
+                    .setErKritisk(erKritisk)
                     .setBeskrivelse(beskrivelse);
         }
 
@@ -110,10 +111,13 @@ public interface Pingable {
          *                  database connection-string e.l.
          * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
          *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
+         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
+         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
+         *                  kun returnere warning i stede for error.
          * @return Et vellykket pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping lyktes(String endepunkt, String beskrivelse) {
-            return new Ping(endepunkt, beskrivelse);
+        public static Ping lyktes(String endepunkt, String beskrivelse, boolean erKritisk) {
+            return new Ping(endepunkt, beskrivelse, erKritisk);
         }
 
         /**
@@ -121,15 +125,14 @@ public interface Pingable {
          *                  database connection-string e.l.
          * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
          *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param kritiskFeil Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
-         *                    fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
-         *                    kun returnere warning i stede for error.
+         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
+         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
+         *                  kun returnere warning i stede for error.
          * @param feil Exceptionen som trigget feilen. I selftestene blir stacktracen vist om denne er lagt ved.
          * @return Et feilet pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping feilet(String endepunkt, String beskrivelse, boolean kritiskFeil, Throwable feil) {
-            return new Ping(endepunkt, beskrivelse)
-                    .setErKritisk(kritiskFeil)
+        public static Ping feilet(String endepunkt, String beskrivelse, boolean erKritisk, Throwable feil) {
+            return new Ping(endepunkt, beskrivelse, erKritisk)
                     .setFeil(feil);
         }
 
@@ -138,16 +141,15 @@ public interface Pingable {
          *                  database connection-string e.l.
          * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
          *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param kritiskFeil Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
-         *                    fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
-         *                    kun returnere warning i stede for error.
+         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
+         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
+         *                  kun returnere warning i stede for error.
          * @param feilmelding En beskrivende feilmelding av hva som er galt.
          * @return Et feilet pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping feilet(String endepunkt, String beskrivelse, boolean kritiskFeil, String feilmelding) {
-            return new Ping(endepunkt, beskrivelse)
-                    .setFeilmelding(feilmelding)
-                    .setErKritisk(kritiskFeil);
+        public static Ping feilet(String endepunkt, String beskrivelse, boolean erKritisk, String feilmelding) {
+            return new Ping(endepunkt, beskrivelse, erKritisk)
+                    .setFeilmelding(feilmelding);
         }
 
         /**
@@ -155,17 +157,16 @@ public interface Pingable {
          *                  database connection-string e.l.
          * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
          *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param kritiskFeil Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
-         *                    fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
-         *                    kun returnere warning i stede for error.
+         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
+         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
+         *                  kun returnere warning i stede for error.
          * @param feilmelding En beskrivende feilmelding av hva som er galt.
          * @param feil Exceptionen som trigget feilen. I selftestene blir stacktracen vist om denne er lagt ved.
          * @return Et feilet pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping feilet(String endepunkt, String beskrivelse, boolean kritiskFeil, String feilmelding, Throwable feil) {
-            return new Ping(endepunkt, beskrivelse)
+        public static Ping feilet(String endepunkt, String beskrivelse, boolean erKritisk, String feilmelding, Throwable feil) {
+            return new Ping(endepunkt, beskrivelse, erKritisk)
                     .setFeilmelding(feilmelding)
-                    .setErKritisk(kritiskFeil)
                     .setFeil(feil);
         }
     }
