@@ -33,7 +33,7 @@ public class PingableTest {
     @Before
     public void simulatePingResponses() {
         when(sykTjeneste.ping()).thenReturn(Ping.feilet("sykTjeneste_v1", "en SOAP-tjeneste som ikke funker", true, new IOException("tjenesten svarer ikke")));
-        when(friskTjeneste.ping()).thenReturn(Ping.lyktes("friskTjeneste_v1", "En tjeneste som funker"));
+        when(friskTjeneste.ping()).thenReturn(Ping.lyktes("friskTjeneste_v1", "En tjeneste som funker", true));
     }
 
     @Test
