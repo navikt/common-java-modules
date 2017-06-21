@@ -10,12 +10,12 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NAVSTSClient extends STSClient {
-    private static final Logger logger = LoggerFactory.getLogger(NAVSTSClient.class);
+public class NAVOidcSTSClient extends STSClient {
+    private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
     public static final String DISABLE_CACHE_KEY = "NAVSTSClient.DISABLE_CACHE";
     private static TokenStore tokenStore;
 
-    public NAVSTSClient(Bus b) {
+    public NAVOidcSTSClient(Bus b) {
         super(b);
     }
 

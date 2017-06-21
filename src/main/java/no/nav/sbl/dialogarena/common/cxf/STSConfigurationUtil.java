@@ -39,7 +39,7 @@ public class STSConfigurationUtil {
     }
 
     private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password) {
-        NAVSTSClient stsClient = new NAVSTSClient(bus);
+        NAVOidcSTSClient stsClient = new NAVOidcSTSClient(bus);
         stsClient.setWsdlLocation("wsdl/ws-trust-1.4-service.wsdl");
         stsClient.setServiceQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceProvider"));
         stsClient.setEndpointQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceSOAP"));
