@@ -2,9 +2,9 @@ package no.nav.dialogarena.mock;
 
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.URLResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ public class MockServer {
         }
 
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+        public void handle(String target, org.eclipse.jetty.server.Request baseRequest, HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, ServletException {
             if (contextPath.equals(target)) {
                 Response response = baseRequest.getResponse();
                 response.setContentType("text/plain");
@@ -55,7 +55,16 @@ public class MockServer {
                 }
 
                 String pathInfo = target.substring(this.contextPath.length()) + "." + baseRequest.getMethod();
+                String jsPath = pathInfo + ".js";
                 String jsonPath = pathInfo + ".json";
+
+                Resource javascript = getResource(jsPath);
+                if (javascript.exists()) {
+                    JavascriptEngine.evaluateJavascript(javascript, request, httpServletResponse);
+                    baseRequest.setHandled(true);
+                    return;
+                }
+
                 if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
                     pathInfo = jsonPath;
                 }

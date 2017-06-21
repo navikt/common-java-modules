@@ -52,6 +52,7 @@ public class MockServerTest {
         assertThat(jsonContent, equalTo("{\"text\": \"json\"}"));
     }
 
+
     @Test
     public void startMockServer_taklerAtContextNameErContextPath() throws Exception {
         mockServer.stop.run();
@@ -59,6 +60,18 @@ public class MockServerTest {
 
         startMockServer_serverMockData();
         startMockServer_finnerJsonFiler();
+    }
+
+    @Test
+    public void javascriptEngine_finnerParams() throws Exception {
+        String jsonContent = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/jscontent?fnr=123&param=noe").send().getContentAsString();
+        assertThat(jsonContent, equalTo("{\"param\":\"noe\",\"fnr\":\"123\"}"));
+    }
+
+    @Test
+    public void javascriptEngine_setterResponseStatus() throws Exception {
+        int responseStatus = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/jscontent?fnr=500").send().getStatus();
+        assertThat(responseStatus, equalTo(500));
     }
 
     private static int freePort() throws IOException {
