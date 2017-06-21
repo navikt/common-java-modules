@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import static java.util.Arrays.asList;
+import static no.nav.sbl.dialogarena.common.web.selftest.AbstractSelfTestBaseServlet.STATUS_ERROR;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
@@ -31,7 +32,6 @@ public class SelfTestServletTest {
     private SelfTestBaseServlet baseServlet;
     private ServletTester tester;
     private SelfTestJsonBaseServlet jsonBaseServlet;
-    private static char[] buffer = new char[0];
 
     @Before
     public void setUp() throws Exception {
@@ -65,15 +65,8 @@ public class SelfTestServletTest {
         assertThat(baseServlet.getApplicationName(), is("TestApp"));
         assertThat(baseServlet.getApplicationVersion(), is("unknown version"));
         assertTrue(baseServlet.getHost().endsWith(".devillo.no"));
-        assertThat(baseServlet.getStatus(), is("ERROR"));
+        assertThat(baseServlet.getAggregertStatus(), is(STATUS_ERROR));
         assertThat(baseServlet.getPingables().size(), is(3));
-    }
-
-    @Test
-    public void testJsonSelfTestBase() throws ServletException, IOException {
-        jsonBaseServlet.doGet(mockRequest, mockResponse);
-        assertNotNull(jsonBaseServlet);
-        System.out.println(jsonBaseServlet.asJson());
     }
 
     private PrintWriter createMockedPrintWriter() {
@@ -90,9 +83,9 @@ public class SelfTestServletTest {
             @Override
             protected Collection<? extends Pingable> getPingables() {
                 return asList(
-                        createPingable(Ping.lyktes("A")),
-                        createPingable(Ping.lyktes("B")),
-                        createPingable(Ping.feilet("C", new IllegalArgumentException("Cfeil")))
+                        createPingable(Ping.lyktes("A", "beskrivelse")),
+                        createPingable(Ping.lyktes("B", "beskrivelse")),
+                        createPingable(Ping.feilet("C", "beskrivelse", true, new IllegalArgumentException("Cfeil")))
                 );
             }
         };
@@ -101,10 +94,15 @@ public class SelfTestServletTest {
     private SelfTestJsonBaseServlet createJsonBaseServlet() {
         return new SelfTestJsonBaseServlet() {
             @Override
+            protected String getApplicationName() {
+                return "TEST APPLICATION";
+            }
+
+            @Override
             protected Collection<? extends Pingable> getPingables() {
                 return asList(
-                        createPingable(Ping.lyktes("A")),
-                        createPingable(Ping.feilet("B", new IllegalArgumentException("BB")))
+                        createPingable(Ping.lyktes("A", "beskrivelse")),
+                        createPingable(Ping.feilet("B", "beskrivelse", true, new IllegalArgumentException("BB")))
                 );
             }
         };
