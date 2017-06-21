@@ -7,7 +7,8 @@ import static no.nav.sbl.dialogarena.types.Pingable.Ping.lyktes;
 
 public class PingableEksempel implements Pingable {
 
-    private static final String EKSEMPEL = PingableEksempel.class.getSimpleName();
+    private static final String EKSEMPEL = "EKSEMPEL_V1";
+    private static final String EKSEMPEL_BESKRIVELSE = "En beskrivelse av endepunktet.";
 
     private boolean ok = true;
 
@@ -17,7 +18,7 @@ public class PingableEksempel implements Pingable {
 
     @Override
     public Ping ping() {
-        return ok ? lyktes(EKSEMPEL) : feilet(EKSEMPEL, new RuntimeException());
+        return ok ? lyktes(EKSEMPEL, EKSEMPEL_BESKRIVELSE) : feilet(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true, new RuntimeException());
     }
 
 }
