@@ -83,8 +83,8 @@ public class SelfTestServletTest {
             @Override
             protected Collection<? extends Pingable> getPingables() {
                 return asList(
-                        createPingable(Ping.lyktes("A", "beskrivelse")),
-                        createPingable(Ping.lyktes("B", "beskrivelse")),
+                        createPingable(Ping.lyktes("A", "beskrivelse", true)),
+                        createPingable(Ping.lyktes("B", "beskrivelse", true)),
                         createPingable(Ping.feilet("C", "beskrivelse", true, new IllegalArgumentException("Cfeil")))
                 );
             }
@@ -101,7 +101,7 @@ public class SelfTestServletTest {
             @Override
             protected Collection<? extends Pingable> getPingables() {
                 return asList(
-                        createPingable(Ping.lyktes("A", "beskrivelse")),
+                        createPingable(Ping.lyktes("A", "beskrivelse", true)),
                         createPingable(Ping.feilet("B", "beskrivelse", true, new IllegalArgumentException("BB")))
                 );
             }
