@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 public class NAVOidcSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
-    public static final String DISABLE_CACHE_KEY = "NAVSTSClient.DISABLE_CACHE";
     private static TokenStore tokenStore;
 
     public NAVOidcSTSClient(Bus b) {
@@ -26,11 +25,6 @@ public class NAVOidcSTSClient extends STSClient {
 
     @Override
     public SecurityToken requestSecurityToken(String appliesTo, String action, String requestType, String binaryExchange) throws Exception {
-        if (Boolean.getBoolean(DISABLE_CACHE_KEY)) {
-            logger.debug("Cache is disabled, fetching from STS");
-            return super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
-        }
-
         ensureTokenStoreExists();
 
         SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
