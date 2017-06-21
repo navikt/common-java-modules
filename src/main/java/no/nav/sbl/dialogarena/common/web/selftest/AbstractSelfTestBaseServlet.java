@@ -22,7 +22,15 @@ public abstract class AbstractSelfTestBaseServlet extends HttpServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractSelfTestBaseServlet.class);
 
+
     protected List<Ping> result;
+
+    /**
+     * Denne metoden må implementeres til å returnere applikasjonens navn, for bruk i tittel og overskrift
+     * på selftestsiden.
+     * @return Applikasjonens navn
+     */
+    protected abstract String getApplicationName();
 
     /**
      * Denne metoden må implementeres til å returnere en Collection av alle tjenester som skal inngå
@@ -35,10 +43,16 @@ public abstract class AbstractSelfTestBaseServlet extends HttpServlet {
         result = getPingables().stream().map(PING).collect(toList());
     }
 
-    protected String getStatus() {
-        return result.stream()
-                .filter(IKKE_VELLYKKET)
-                .findAny().isPresent() ? "ERROR" : "OK";
+    protected Integer getAggregertStatus() {
+        boolean harKritiskFeil = result.stream().anyMatch(KRITISK_FEIL);
+        boolean harFeil = result.stream().anyMatch(HAR_FEIL);
+
+        if (harKritiskFeil) {
+            return STATUS_ERROR;
+        } else if (harFeil) {
+            return STATUS_WARNING;
+        }
+        return STATUS_OK;
     }
 
     protected String getApplicationVersion() {
@@ -64,22 +78,32 @@ public abstract class AbstractSelfTestBaseServlet extends HttpServlet {
 
     protected String getMessage() {
         return result.stream()
-                .filter(IKKE_VELLYKKET)
-                .map(KOMPONENT)
+                .filter(HAR_FEIL)
+                .map(ENDEPUNKT)
                 .collect(joining(","));
+    }
+
+    private static boolean harKritiskFeil(List<Ping> resultater) {
+        return resultater.stream()
+                .anyMatch(KRITISK_FEIL);
     }
 
     private static final Function<Pingable, Ping> PING = pingable -> {
         long startTime = System.currentTimeMillis();
         Ping ping = pingable.ping();
-        ping.setTidsbruk(System.currentTimeMillis() - startTime);
-        if (!ping.isVellykket()) {
-            logger.warn("Feil ved SelfTest av " + ping.getKomponent(), ping.getAarsak());
+        ping.setResponstid(System.currentTimeMillis() - startTime);
+        if (!ping.erVellykket()) {
+            logger.warn("Feil ved SelfTest av " + ping.getEndepunkt(), ping.getFeil());
         }
         return ping;
     };
 
-    private static final Function<Ping, String> KOMPONENT = ping -> ping.getKomponent();
-    private static final Predicate<Ping> VELLYKKET = ping -> ping.isVellykket();
-    private static final Predicate<Ping> IKKE_VELLYKKET = ping -> !ping.isVellykket();
+    private static final Function<Ping, String> ENDEPUNKT = Ping::getEndepunkt;
+    private static final Predicate<Ping> VELLYKKET = Ping::erVellykket;
+    private static final Predicate<Ping> KRITISK_FEIL = ping -> ping.harFeil() && ping.erKritisk();
+    private static final Predicate<Ping> HAR_FEIL = Ping::harFeil;
+
+    static final int STATUS_OK = 0;
+    static final int STATUS_ERROR = 1;
+    static final int STATUS_WARNING = 2;
 }
