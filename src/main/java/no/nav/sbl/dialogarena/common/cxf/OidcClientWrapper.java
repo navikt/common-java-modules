@@ -29,11 +29,8 @@ public class OidcClientWrapper {
         String location = requireProperty(StsSecurityConstants.STS_URL_KEY);
         String username = requireProperty(StsSecurityConstants.SYSTEMUSER_USERNAME);
         String password = requireProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD);
-        configureStsForOnBehalfOfWithJWT(client, location, username, password);
-    }
 
-    public static void configureStsForOnBehalfOfWithJWT(Client client, String stsURL, String stsUsername, String stsPassword) {
-        STSClient stsClient = createBasicSTSClient(client.getBus(), stsURL, stsUsername, stsPassword);
+        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password);
         stsClient.setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
         client.getRequestContext().put("ws-security.sts.client", stsClient);
         client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, false);
