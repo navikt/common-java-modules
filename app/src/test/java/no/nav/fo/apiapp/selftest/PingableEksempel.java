@@ -18,7 +18,7 @@ public class PingableEksempel implements Pingable {
 
     @Override
     public Ping ping() {
-        return ok ? lyktes(EKSEMPEL, EKSEMPEL_BESKRIVELSE) : feilet(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true, new RuntimeException());
+        return ok ? lyktes(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true) : feilet(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true, new RuntimeException());
     }
 
 }

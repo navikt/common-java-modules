@@ -5,7 +5,6 @@ import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.rest.SwaggerResource;
 import no.nav.apiapp.rest.SwaggerUIServlet;
 import no.nav.apiapp.selftest.IsAliveServlet;
-import no.nav.apiapp.selftest.SelfTestJsonServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
@@ -21,7 +20,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -123,7 +121,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         leggTilServlet(servletContextEvent, IsAliveServlet.class, INTERNAL_IS_ALIVE);
         leggTilServlet(servletContextEvent, SelfTestServlet.class, INTERNAL_SELFTEST);
-        leggTilServlet(servletContextEvent, SelfTestJsonServlet.class, INTERNAL_SELFTEST_JSON);
         leggTilServlet(servletContextEvent, SwaggerUIServlet.class, SWAGGER_PATH + "*");
 
         settOppRestApi(servletContextEvent, apiApplication);
