@@ -13,17 +13,12 @@ public class LedigDiskPlassHelsesjekk implements Helsesjekk {
 
     @Override
     public void helsesjekk() {
-        throw new IllegalStateException(String.format("Mindre enn %s MB ledig diskplass for %s",
-                LIMIT / 1_000_000,
-                absoluteFile
-        ));
-
-        /*if (absoluteFile.getFreeSpace() < LIMIT) {
+        if (absoluteFile.getFreeSpace() < LIMIT) {
             throw new IllegalStateException(String.format("Mindre enn %s MB ledig diskplass for %s",
                     LIMIT / 1_000_000,
                     absoluteFile
             ));
-        }*/
+        }
     }
 
     @Override
