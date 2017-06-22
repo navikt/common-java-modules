@@ -1,134 +1,149 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
+import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestEndpoint;
+import no.nav.sbl.dialogarena.common.web.selftest.generators.SelftestHtmlGenerator;
+import no.nav.sbl.dialogarena.common.web.selftest.generators.SelftestJsonGenerator;
+import no.nav.sbl.dialogarena.types.Pingable;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.Arrays;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.jar.Manifest;
 
-import static java.util.stream.Collectors.joining;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
-import static org.apache.commons.lang3.StringUtils.join;
 
-/**
- * Base-servlet for selftestside uten bruk av Wicket.
- */
-public abstract class SelfTestBaseServlet extends AbstractSelfTestBaseServlet {
+public abstract class SelfTestBaseServlet extends HttpServlet {
 
-    private static class Result {
-        public final String html;
-        public final List<String> errors;
+    private static final Logger logger = LoggerFactory.getLogger(SelfTestBaseServlet.class);
 
-        Result(String html, List<String> errors) {
-            this.html = html;
-            this.errors = errors;
-        }
-    }
+
+    protected List<Ping> result;
 
     /**
-     * Callback for å definere egen markup som dukker opp under tabellen over tjenestestatuser. Må
-     * returnere gyldig HTML.
-     * @return Egendefinert gyldig HTML.
+     * Denne metoden må implementeres til å returnere applikasjonens navn, for bruk i tittel og overskrift
+     * på selftestsiden.
+     * @return Applikasjonens navn
      */
-    protected String getCustomMarkup() {
-        return "";
-    }
+    protected abstract String getApplicationName();
 
     /**
-     * Callback for å definere egne rader i tabellen med tjenestestatuser. Må returnere ett eller flere
-     * <code><tr></tr></code>-elementer som ikke er wrappet i noe parent-element. Disse elementene må hver
-     * inneholde nøyaktig seks <code><td></td></code>-elementer.
-     * @return Ett eller flere <code><tr></tr></code>-elementer
+     * Denne metoden må implementeres til å returnere en Collection av alle tjenester som skal inngå
+     * i selftesten. Tjenestene må implementere Pingable-grensesnittet.
+     * @return Liste over tjenester som implementerer Pingable
      */
-    protected String getCustomRows() {
-        return "";
-    }
+    protected abstract Collection<? extends Pingable> getPingables();
 
     @Override
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Result result = kjorSelfTest();
-        resp.setContentType("text/html");
-        resp.getWriter().write(result.html);
-    }
-
-    private Result kjorSelfTest() throws IOException {
         doPing();
+        Selftest selftest = lagSelftest();
 
-        List<String> feilendeKomponenter = this.result.stream()
-                .filter(Ping::harFeil)
-                .map(Ping::getEndepunkt)
-                .collect(Collectors.toList());
-
-        List<String> tabellrader = this.result.stream()
-                .map(SelfTestBaseServlet::lagTabellrad)
-                .collect(Collectors.toList());
-
-        try (InputStream template = getClass().getResourceAsStream("/selftest/SelfTestPage.html")) {
-            String html = IOUtils.toString(template);
-            html = html.replace("${app-navn}", getApplicationName());
-            html = html.replace("${aggregertStatus}", getStatusNavnElement(getAggregertStatus(), "span"));
-            html = html.replace("${resultater}", join(tabellrader, "\n"));
-            html = html.replace("${custom-rows}", StringUtils.defaultString(getCustomRows()));
-            html = html.replace("${version}", getApplicationName() + "-" + getApplicationVersion());
-            html = html.replace("${host}", "Host: " + getHost());
-            html = html.replace("${generert-tidspunkt}", DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
-            html = html.replace("${feilende-komponenter}", join(feilendeKomponenter, ", "));
-            html = html.replace("${custom-markup}", StringUtils.defaultString(getCustomMarkup()));
-
-            return new Result(html, feilendeKomponenter);
+        if ("application/json".equalsIgnoreCase(req.getHeader("accept"))) {
+            resp.setContentType("application/json");
+            resp.getWriter().write(SelftestJsonGenerator.generate(selftest));
+        } else {
+            resp.setContentType("text/html");
+            resp.getWriter().write(SelftestHtmlGenerator.generate(selftest, getHost()));
         }
     }
 
-    private static String getStatusNavnElement(Integer statuskode, String nodeType) {
-        switch(statuskode) {
-            case STATUS_ERROR:
-                return getHtmlNode(nodeType, "roundSmallBox error", "ERROR");
-            case STATUS_WARNING:
-                return getHtmlNode(nodeType, "roundSmallBox warning", "WARNING");
-            case STATUS_OK:
-            default:
-                return getHtmlNode(nodeType, "roundSmallBox ok", "OK");
+
+    protected void doPing() {
+        result = getPingables().stream().map(PING).collect(toList());
+    }
+
+    protected Integer getAggregertStatus() {
+        boolean harKritiskFeil = result.stream().anyMatch(KRITISK_FEIL);
+        boolean harFeil = result.stream().anyMatch(HAR_FEIL);
+
+        if (harKritiskFeil) {
+            return STATUS_ERROR;
+        } else if (harFeil) {
+            return STATUS_WARNING;
         }
+        return STATUS_OK;
     }
 
-    private static String getHtmlNode(String nodeType, String classes, String content) {
-        return MessageFormat.format("<{0} class=\"{1}\">{2}</{0}>", nodeType, classes, content);
-    }
-
-    private static String lagTabellrad(Ping ping) {
-        String status = getStatusNavnElement(ping.harFeil() ? STATUS_ERROR : STATUS_OK, "div");
-        String kritisk = ping.erKritisk() ? "Ja" : "Nei";
-
-        return tableRow(status, kritisk, ping.getResponstid() + " ms", ping.getBeskrivelse(), ping.getEndepunkt(), getFeilmelding(ping));
-    }
-
-    private static String getFeilmelding(Ping ping) {
-        if (ping.erVellykket()) {
-            return "";
+    protected String getApplicationVersion() {
+        String version = "unknown version";
+        try {
+            InputStream inputStream = getServletContext().getResourceAsStream(("/META-INF/MANIFEST.MF"));
+            version = new Manifest(inputStream).getMainAttributes().getValue("Implementation-Version");
+        } catch (Exception e) {
+            logger.warn("Feil ved henting av applikasjonsversjon: " + e.getMessage());
         }
+        return version;
+    }
 
-        String feilmelding = getHtmlNode("p", "feilmelding", ping.getAarsak());
-        if (ping.getFeil() != null) {
-            feilmelding += getHtmlNode("p", "stacktrace", ExceptionUtils.getStackTrace(ping.getFeil()));
+    protected String getHost() {
+        String host = "unknown host";
+        try {
+            host = InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            logger.error("Error retrieving host", e);
         }
-        return feilmelding;
+        return host;
     }
 
-    private static String tableRow(Object... tdContents) {
-        String row = Arrays.stream(tdContents)
-                .map(Object::toString)
-                .collect(joining("</td><td>"));
-        return "<tr><td>" + row +  "</td></tr>\n";
+    private static final Function<Pingable, Ping> PING = pingable -> {
+        long startTime = System.currentTimeMillis();
+        Ping ping = pingable.ping();
+        ping.setResponstid(System.currentTimeMillis() - startTime);
+        if (!ping.erVellykket()) {
+            logger.warn("Feil ved SelfTest av " + ping.getEndepunkt(), ping.getFeil());
+        }
+        return ping;
+    };
 
+    private Selftest lagSelftest() {
+        return new Selftest()
+            .setApplication(getApplicationName())
+            .setVersion(getApplicationVersion())
+            .setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+            .setAggregateResult(getAggregertStatus())
+            .setChecks(result.stream()
+                    .map(SelfTestBaseServlet::lagSelftestEndpoint)
+                    .collect(toList())
+            );
+}
+
+    private static SelftestEndpoint lagSelftestEndpoint(Pingable.Ping ping) {
+        return new SelftestEndpoint()
+                .setEndpoint(ping.getEndepunkt())
+                .setDescription(ping.getBeskrivelse())
+                .setErrorMessage(ping.getFeilmelding())
+                .setCritical(ping.erKritisk())
+                .setResult(ping.harFeil() ? STATUS_ERROR : STATUS_OK)
+                .setResponseTime(String.format("%dms", ping.getResponstid()))
+                .setStacktrace(ofNullable(ping.getFeil())
+                        .map(ExceptionUtils::getStackTrace)
+                        .orElse(null)
+                );
     }
+
+    private static final Function<Ping, String> ENDEPUNKT = Ping::getEndepunkt;
+    private static final Predicate<Ping> VELLYKKET = Ping::erVellykket;
+    private static final Predicate<Ping> KRITISK_FEIL = ping -> ping.harFeil() && ping.erKritisk();
+    private static final Predicate<Ping> HAR_FEIL = Ping::harFeil;
+
+    public static final int STATUS_OK = 0;
+    public static final int STATUS_ERROR = 1;
+    public static final int STATUS_WARNING = 2;
 }

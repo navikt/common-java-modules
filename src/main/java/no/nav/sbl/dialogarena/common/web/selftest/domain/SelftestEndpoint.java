@@ -1,4 +1,6 @@
-package no.nav.sbl.dialogarena.common.web.selftest.json;
+package no.nav.sbl.dialogarena.common.web.selftest.domain;
+
+import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_OK;
 
 public class SelftestEndpoint {
     private String endpoint;
@@ -7,6 +9,7 @@ public class SelftestEndpoint {
     private Integer result;
     private String responseTime;
     private String stacktrace;
+    private boolean critical;
 
     public String getEndpoint() {
         return endpoint;
@@ -60,5 +63,18 @@ public class SelftestEndpoint {
     public SelftestEndpoint setStacktrace(String stacktrace) {
         this.stacktrace = stacktrace;
         return this;
+    }
+
+    public boolean isCritical() {
+        return this.critical;
+    }
+
+    public SelftestEndpoint setCritical(boolean critical) {
+        this.critical = critical;
+        return this;
+    }
+
+    public boolean harFeil() {
+        return this.getResult() != STATUS_OK;
     }
 }

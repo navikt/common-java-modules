@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import static java.util.Arrays.asList;
-import static no.nav.sbl.dialogarena.common.web.selftest.AbstractSelfTestBaseServlet.STATUS_ERROR;
+import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_ERROR;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
@@ -31,24 +31,21 @@ public class SelfTestServletTest {
     private HttpServletResponse mockResponse;
     private SelfTestBaseServlet baseServlet;
     private ServletTester tester;
-    private SelfTestJsonBaseServlet jsonBaseServlet;
 
     @Before
     public void setUp() throws Exception {
         baseServlet = createBaseServlet();
-        jsonBaseServlet = createJsonBaseServlet();
 
         mockRequest = mock(HttpServletRequest.class);
         mockResponse = mock(HttpServletResponse.class);
 
-        when(mockRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
+        when(mockRequest.getParameterMap()).thenReturn(new HashMap<>());
         when(mockResponse.getWriter()).thenReturn(createMockedPrintWriter());
 
 
         tester = new ServletTester();
         tester.setContextPath("/internal");
         tester.addServlet(baseServlet.getClass(), "/selftest");
-        tester.addServlet(jsonBaseServlet.getClass(), "/selftest.json");
         tester.start();
     }
 
@@ -86,23 +83,6 @@ public class SelfTestServletTest {
                         createPingable(Ping.lyktes("A", "beskrivelse", true)),
                         createPingable(Ping.lyktes("B", "beskrivelse", true)),
                         createPingable(Ping.feilet("C", "beskrivelse", true, new IllegalArgumentException("Cfeil")))
-                );
-            }
-        };
-    }
-
-    private SelfTestJsonBaseServlet createJsonBaseServlet() {
-        return new SelfTestJsonBaseServlet() {
-            @Override
-            protected String getApplicationName() {
-                return "TEST APPLICATION";
-            }
-
-            @Override
-            protected Collection<? extends Pingable> getPingables() {
-                return asList(
-                        createPingable(Ping.lyktes("A", "beskrivelse", true)),
-                        createPingable(Ping.feilet("B", "beskrivelse", true, new IllegalArgumentException("BB")))
                 );
             }
         };

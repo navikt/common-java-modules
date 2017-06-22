@@ -1,4 +1,4 @@
-package no.nav.sbl.dialogarena.common.web.selftest.json;
+package no.nav.sbl.dialogarena.common.web.selftest.domain;
 
 import java.util.List;
 
