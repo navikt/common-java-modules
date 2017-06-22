@@ -26,14 +26,6 @@ public class SelfTestTest extends JettyTest {
         sjekkOKStatus(INTERNAL_SELFTEST);
         pingableEksempel.setOk(false);
         sjekkFeilmelding(INTERNAL_SELFTEST);
-        sjekkFeilstatus(INTERNAL_SELFTEST);
-    }
-
-    @Test
-    public void selftestJson() {
-        sjekkOKStatus(INTERNAL_SELFTEST_JSON);
-        pingableEksempel.setOk(false);
-        sjekkFeilmelding(INTERNAL_SELFTEST_JSON);
     }
 
     @Test
@@ -45,11 +37,11 @@ public class SelfTestTest extends JettyTest {
     private void sjekkOKStatus(String path) {
         Response response = get(path);
         assertThat(response.getStatus(), is(200));
-        assertThat(getString(path).toLowerCase(), not(containsString("error")));
+        assertThat(getString(path).toLowerCase(), not(containsString(">error<")));
     }
 
     private void sjekkFeilmelding(String path) {
-        assertThat(getString(path).toLowerCase(), containsString("error"));
+        assertThat(getString(path).toLowerCase(), containsString(">error<"));
     }
 
     private void sjekkFeilstatus(String path) {
