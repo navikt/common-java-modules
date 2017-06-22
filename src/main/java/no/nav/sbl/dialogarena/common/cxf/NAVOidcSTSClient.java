@@ -27,13 +27,8 @@ public class NAVOidcSTSClient extends STSClient {
     public SecurityToken requestSecurityToken(String appliesTo, String action, String requestType, String binaryExchange) throws Exception {
         ensureTokenStoreExists();
 
-        SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-        String userId = subjectHandler.getUid();
-        String key = subjectHandler.getInternSsoToken();
-        if (key == null) {
-            key = "systemSAML";
-            logger.info("Finner ingen OIDC, henter SAML som systembruker");
-        }
+        String userId = getUserId();
+        String key = getTokenStoreKey(appliesTo);
 
         SecurityToken token = tokenStore.getToken(key);
         if (token == null) {
@@ -44,6 +39,24 @@ public class NAVOidcSTSClient extends STSClient {
             logger.debug("Retrived token for user {} from tokenStore", userId);
         }
         return token;
+    }
+
+    private String getTokenStoreKey(String appliesTo) {
+        return appliesTo + "-" + getUserKey();
+    }
+
+    private String getUserKey() {
+        String internSsoToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        if (internSsoToken == null) {
+            logger.info("Finner ingen OIDC, henter SAML som systembruker");
+            return "systemSAML";
+        } else {
+            return internSsoToken;
+        }
+    }
+
+    private String getUserId() {
+        return SubjectHandler.getSubjectHandler().getUid();
     }
 
     private void ensureTokenStoreExists() {
