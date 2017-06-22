@@ -1,9 +1,9 @@
 package no.nav.dialogarena.mock;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import lombok.SneakyThrows;
-import no.nav.apiapp.util.JsonUtils;
 import org.eclipse.jetty.util.resource.Resource;
 
 import javax.script.ScriptContext;
@@ -50,7 +50,7 @@ public class JavascriptEngine {
 
         @SneakyThrows
         public static Object create(ScriptEngine scriptEngine, HttpServletRequest httpServletRequest) {
-            String requestHandlerJson = JsonUtils.toJson(new Request(httpServletRequest));
+            String requestHandlerJson = new ObjectMapper().writeValueAsString(new Request(httpServletRequest));
             ScriptObjectMirror json = (ScriptObjectMirror) scriptEngine.eval("JSON");
             return json.callMember("parse", requestHandlerJson);
         }
