@@ -107,7 +107,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
         Ping ping = pingable.ping();
         ping.setResponstid(System.currentTimeMillis() - startTime);
         if (!ping.erVellykket()) {
-            logger.warn("Feil ved SelfTest av " + ping.getEndepunkt(), ping.getFeil());
+            logger.warn("Feil ved SelfTest av " + ping.getMetadata().getEndepunkt(), ping.getFeil());
         }
         return ping;
     };
@@ -126,10 +126,10 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
 
     private static SelftestEndpoint lagSelftestEndpoint(Pingable.Ping ping) {
         return new SelftestEndpoint()
-                .setEndpoint(ping.getEndepunkt())
-                .setDescription(ping.getBeskrivelse())
+                .setEndpoint(ping.getMetadata().getEndepunkt())
+                .setDescription(ping.getMetadata().getBeskrivelse())
                 .setErrorMessage(ping.getFeilmelding())
-                .setCritical(ping.erKritisk())
+                .setCritical(ping.getMetadata().isKritisk())
                 .setResult(ping.harFeil() ? STATUS_ERROR : STATUS_OK)
                 .setResponseTime(String.format("%dms", ping.getResponstid()))
                 .setStacktrace(ofNullable(ping.getFeil())
@@ -138,9 +138,9 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
                 );
     }
 
-    private static final Function<Ping, String> ENDEPUNKT = Ping::getEndepunkt;
+    private static final Function<Ping, String> ENDEPUNKT = p -> p.getMetadata().getEndepunkt();
     private static final Predicate<Ping> VELLYKKET = Ping::erVellykket;
-    private static final Predicate<Ping> KRITISK_FEIL = ping -> ping.harFeil() && ping.erKritisk();
+    private static final Predicate<Ping> KRITISK_FEIL = ping -> ping.harFeil() && ping.getMetadata().isKritisk();
     private static final Predicate<Ping> HAR_FEIL = Ping::harFeil;
 
     public static final int STATUS_OK = 0;

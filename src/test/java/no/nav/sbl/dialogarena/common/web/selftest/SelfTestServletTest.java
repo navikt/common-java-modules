@@ -1,6 +1,7 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
 import org.eclipse.jetty.servlet.ServletTester;
 import org.junit.After;
 import org.junit.Before;
@@ -80,9 +81,9 @@ public class SelfTestServletTest {
             @Override
             protected Collection<? extends Pingable> getPingables() {
                 return asList(
-                        createPingable(Ping.lyktes("A", "beskrivelse", true)),
-                        createPingable(Ping.lyktes("B", "beskrivelse", true)),
-                        createPingable(Ping.feilet("C", "beskrivelse", true, new IllegalArgumentException("Cfeil")))
+                        createPingable(Ping.lyktes(new PingMetadata("a", "beskrivelse", true))),
+                        createPingable(Ping.lyktes(new PingMetadata("b", "beskrivelse", true))),
+                        createPingable(Ping.feilet(new PingMetadata("c", "beskrivelse", true), new IllegalArgumentException("Cfeil")))
                 );
             }
         };
