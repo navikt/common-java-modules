@@ -16,20 +16,18 @@ public interface Pingable {
     Ping ping();
 
     final class Ping implements Serializable {
-
-        private String endepunkt;
-        private String beskrivelse;
+        private PingMetadata metadata;
         private String feilmelding;
         private Throwable feil;
-        private boolean kritisk;
         private long responstid = -1;
 
-        public String getEndepunkt() {
-            return endepunkt;
+        public PingMetadata getMetadata() {
+            return metadata;
         }
 
-        public String getBeskrivelse() {
-            return beskrivelse;
+        public Ping setMetadata(PingMetadata metadata) {
+            this.metadata = metadata;
+            return this;
         }
 
         public String getFeilmelding() {
@@ -52,41 +50,13 @@ public interface Pingable {
             return !this.harFeil();
         }
 
-        public String getAarsak() {
-            if (this.getFeilmelding() != null) {
-                return this.getFeilmelding();
-            } else if (this.getFeil() != null) {
-                return this.getFeil().getMessage();
-            }
-            return "";
-        }
-
         public Ping setResponstid(Long responstid) {
             this.responstid = responstid;
             return this;
         }
 
-        public boolean erKritisk() {
-            return this.kritisk;
-        }
-
         Ping setResponstid(long responstid) {
             this.responstid = responstid;
-            return this;
-        }
-
-        Ping setEndepunkt(String endepunkt) {
-            this.endepunkt = endepunkt;
-            return this;
-        }
-
-        Ping setBeskrivelse(String beskrivelse) {
-            this.beskrivelse = beskrivelse;
-            return this;
-        }
-
-        Ping setErKritisk(boolean kritisk) {
-            this.kritisk = kritisk;
             return this;
         }
 
@@ -100,74 +70,89 @@ public interface Pingable {
             return this;
         }
 
-        private Ping(String endepunkt, String beskrivelse, boolean erKritisk) {
-            this.setEndepunkt(endepunkt)
-                    .setErKritisk(erKritisk)
-                    .setBeskrivelse(beskrivelse);
+        private Ping(PingMetadata metadata) {
+            this.setMetadata(metadata);
         }
 
         /**
-         * @param endepunkt Presis beskrivelse av endepunktet som kalles. Eksempelvis full URI ved SOAP/REST-kall,
-         *                  database connection-string e.l.
-         * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
-         *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
-         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
-         *                  kun returnere warning i stede for error.
+         * @param metadata Metadata om den pingbare-ressursen. Inneholder endepunkt, beskrivelse og om det er
+         *                 en kritisk avhengighet eller ikke.
          * @return Et vellykket pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping lyktes(String endepunkt, String beskrivelse, boolean erKritisk) {
-            return new Ping(endepunkt, beskrivelse, erKritisk);
+        public static Ping lyktes(PingMetadata metadata) {
+            return new Ping(metadata);
         }
 
         /**
-         * @param endepunkt Presis beskrivelse av endepunktet som kalles. Eksempelvis full URI ved SOAP/REST-kall,
-         *                  database connection-string e.l.
-         * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
-         *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
-         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
-         *                  kun returnere warning i stede for error.
+         * @param metadata Metadata om den pingbare-ressursen. Inneholder endepunkt, beskrivelse og om det er
+         *                 en kritisk avhengighet eller ikke.
          * @param feil Exceptionen som trigget feilen. I selftestene blir stacktracen vist om denne er lagt ved.
          * @return Et feilet pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping feilet(String endepunkt, String beskrivelse, boolean erKritisk, Throwable feil) {
-            return new Ping(endepunkt, beskrivelse, erKritisk)
+        public static Ping feilet(PingMetadata metadata, Throwable feil) {
+            return new Ping(metadata)
                     .setFeil(feil);
         }
 
         /**
-         * @param endepunkt Presis beskrivelse av endepunktet som kalles. Eksempelvis full URI ved SOAP/REST-kall,
-         *                  database connection-string e.l.
-         * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
-         *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
-         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
-         *                  kun returnere warning i stede for error.
+         * @param metadata Metadata om den pingbare-ressursen. Inneholder endepunkt, beskrivelse og om det er
+         *                 en kritisk avhengighet eller ikke.
          * @param feilmelding En beskrivende feilmelding av hva som er galt.
          * @return Et feilet pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping feilet(String endepunkt, String beskrivelse, boolean erKritisk, String feilmelding) {
-            return new Ping(endepunkt, beskrivelse, erKritisk)
+        public static Ping feilet(PingMetadata metadata, String feilmelding) {
+            return new Ping(metadata)
                     .setFeilmelding(feilmelding);
         }
 
         /**
-         * @param endepunkt Presis beskrivelse av endepunktet som kalles. Eksempelvis full URI ved SOAP/REST-kall,
-         *                  database connection-string e.l.
-         * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
-         *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
-         * @param erKritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
-         *                  fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
-         *                  kun returnere warning i stede for error.
+         * @param metadata Metadata om den pingbare-ressursen. Inneholder endepunkt, beskrivelse og om det er
+         *                 en kritisk avhengighet eller ikke.
          * @param feilmelding En beskrivende feilmelding av hva som er galt.
          * @param feil Exceptionen som trigget feilen. I selftestene blir stacktracen vist om denne er lagt ved.
          * @return Et feilet pingresultat som kan bruks til generering av selftester.
          */
-        public static Ping feilet(String endepunkt, String beskrivelse, boolean erKritisk, String feilmelding, Throwable feil) {
-            return new Ping(endepunkt, beskrivelse, erKritisk)
+        public static Ping feilet(PingMetadata metadata, String feilmelding, Throwable feil) {
+            return new Ping(metadata)
                     .setFeilmelding(feilmelding)
                     .setFeil(feil);
+        }
+
+        /**
+         * Metadata om en pingable.
+         */
+        public static class PingMetadata {
+            String endepunkt;
+            String beskrivelse;
+            boolean kritisk;
+
+            /**
+             * Metadata om en pingable.
+             * @param endepunkt Presis beskrivelse av endepunktet som kalles. Eksempelvis full URI ved SOAP/REST-kall,
+             *                  database connection-string e.l.
+             * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
+             *                    den kan forstås av folk uten detaljkunnskaper om applikasjonen.
+             * @param kritisk Hvor vidt dette er en kritisk feil eller ikke. En ukritisk feil betyr at applikasjonen
+             *                fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
+             *                kun returnere warning i stede for error.
+             */
+            public PingMetadata(String endepunkt, String beskrivelse, boolean kritisk) {
+                this.endepunkt = endepunkt;
+                this.beskrivelse = beskrivelse;
+                this.kritisk = kritisk;
+            }
+
+            public String getEndepunkt() {
+                return endepunkt;
+            }
+
+            public String getBeskrivelse() {
+                return beskrivelse;
+            }
+
+            public boolean isKritisk() {
+                return kritisk;
+            }
         }
     }
 }

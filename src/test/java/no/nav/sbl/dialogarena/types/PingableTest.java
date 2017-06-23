@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.types;
 import no.nav.sbl.dialogarena.types.Pingable.Ping;
+import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,8 +33,11 @@ public class PingableTest {
 
     @Before
     public void simulatePingResponses() {
-        when(sykTjeneste.ping()).thenReturn(Ping.feilet("sykTjeneste_v1", "en SOAP-tjeneste som ikke funker", true, new IOException("tjenesten svarer ikke")));
-        when(friskTjeneste.ping()).thenReturn(Ping.lyktes("friskTjeneste_v1", "En tjeneste som funker", true));
+        PingMetadata sykMetadata = new PingMetadata("sykTjeneste_v1", "en feilende tjeneste", false);
+        PingMetadata friskMetadata = new PingMetadata("friskTjeneste_v1", "en frisk tjeneste", false);
+
+        when(sykTjeneste.ping()).thenReturn(Ping.feilet(sykMetadata, new IOException("tjenesten svarer ikke")));
+        when(friskTjeneste.ping()).thenReturn(Ping.lyktes(friskMetadata));
     }
 
     @Test
@@ -47,7 +51,7 @@ public class PingableTest {
         List<Ping> nonWorking = on(asList(friskTjeneste, sykTjeneste)).map(pingResult()).filter(not(vellykketPing())).collect();
 
         assertThat(nonWorking, hasSize(1));
-        assertThat(nonWorking.get(0).getEndepunkt(), is("sykTjeneste_v1"));
+        assertThat(nonWorking.get(0).getMetadata().getEndepunkt(), is("sykTjeneste_v1"));
         boolean isCorrectException = nonWorking.get(0).getFeil() instanceof IOException;
         assertTrue(isCorrectException);
     }
