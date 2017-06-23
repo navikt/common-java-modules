@@ -24,8 +24,8 @@ public class LedigDiskPlassHelsesjekk implements Helsesjekk {
     @Override
     public HelsesjekkMetadata getMetadata() {
         return new HelsesjekkMetadata(
-                String.format("Diskplass for sti: %s", absoluteFile.getAbsolutePath()),
-                String.format("Sjekk for om det er mindre enn %s displass ledig", LIMIT / 1_000_000),
+                String.format("Diskplass for: %s", absoluteFile.getAbsolutePath()),
+                String.format("Sjekk for om det er mindre enn %s MB displass ledig", LIMIT / 1_000_000),
                 false
         );
     }
