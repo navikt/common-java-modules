@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp.selftest;
 
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
 
 import static no.nav.sbl.dialogarena.types.Pingable.Ping.feilet;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping.lyktes;
@@ -18,7 +19,8 @@ public class PingableEksempel implements Pingable {
 
     @Override
     public Ping ping() {
-        return ok ? lyktes(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true) : feilet(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true, new RuntimeException());
+        PingMetadata metadata = new PingMetadata(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true);
+        return ok ? lyktes(metadata) : feilet(metadata, new RuntimeException());
     }
 
 }
