@@ -1,8 +1,9 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
+import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.domain.OidcCredential;
-import no.nav.dialogarena.config.ssl.SSLTestUtils;
+import no.nav.brukerdialog.security.domain.SluttBruker;
 import no.nav.dialogarena.mock.MockHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
@@ -12,6 +13,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 
 import javax.security.auth.Subject;
+
+import java.util.Set;
 
 import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
@@ -54,35 +57,53 @@ public class NAVOidcSTSClientIntegrationTest {
     }
 
     @Test
-    public void cache_sts_token_for_hvert_baksystem_for_systemSAML() throws Exception {
-        cache_sts_token_for_hvert_baksystem();
+    public void cache_sts_token_for_hver_bruker_og_stsType() throws Exception {
+        Aktoer_v2PortType tjenesteA = new CXFClient<>(Aktoer_v2PortType.class)
+                .address(url("tjeneste-a"))
+                .configureStsForSystemUserInFSS()
+                .build();
+        Aktoer_v2PortType tjenesteB = new CXFClient<>(Aktoer_v2PortType.class)
+                .address(url("tjeneste-b"))
+                .configureStsForOnBehalfOfWithJWT()
+                .build();
+        Aktoer_v2PortType tjenesteC = new CXFClient<>(Aktoer_v2PortType.class)
+                .address(url("tjeneste-c"))
+                .configureStsForOnBehalfOfWithJWT()
+                .build();
+
+        setBrukerToken("jwt1");
+
+        ping(tjenesteA);
+        ping(tjenesteA);
+
+        ping(tjenesteB);
+        ping(tjenesteB);
+
+        ping(tjenesteC);
+        ping(tjenesteC);
+
+        setBrukerToken("jwt2");
+
+        ping(tjenesteA);
+        ping(tjenesteA);
+
+        ping(tjenesteB);
+        ping(tjenesteB);
+
+        ping(tjenesteC);
+        ping(tjenesteC);
+
+        assertThat(stsHandler.getRequestCount()).isEqualTo(
+                2 + 2  // 2 sts-typer + 2 brukere
+        );
     }
 
-    @Test
-    public void cache_sts_token_for_hvert_baksystem_for_issoToken() throws Exception {
+    private void setBrukerToken(String jwt) {
         Subject subject = new Subject();
-        subject.getPublicCredentials().add(new OidcCredential("jwt"));
+        subject.getPublicCredentials().add(new OidcCredential(jwt));
+        subject.getPrincipals().add(new SluttBruker(jwt, IdentType.InternBruker));
         new ThreadLocalSubjectHandler().setSubject(subject);
-        cache_sts_token_for_hvert_baksystem();
     }
-
-    private void cache_sts_token_for_hvert_baksystem() {
-        Aktoer_v2PortType tjenesteA = tjeneste("tjeneste-a");
-        Aktoer_v2PortType tjenesteB = tjeneste("tjeneste-b");
-        Aktoer_v2PortType tjenesteC = tjeneste("tjeneste-c");
-
-        ping(tjenesteA);
-        ping(tjenesteA);
-
-        ping(tjenesteB);
-        ping(tjenesteB);
-
-        ping(tjenesteC);
-        ping(tjenesteC);
-
-        assertThat(stsHandler.getRequestCount()).isEqualTo(3);
-    }
-
 
     private void ping(Aktoer_v2PortType aktoer_v2PortType) {
         try {
@@ -92,11 +113,8 @@ public class NAVOidcSTSClientIntegrationTest {
         }
     }
 
-    private Aktoer_v2PortType tjeneste(String tjenesteNavn) {
-        return new CXFClient<>(Aktoer_v2PortType.class)
-                .address("https://localhost:1234/path/for/" + tjenesteNavn)
-                .configureStsForSystemUserInFSS()
-                .build();
+    private String url(String tjenesteNavn) {
+        return "https://localhost:1234/path/for/" + tjenesteNavn;
     }
 
 }

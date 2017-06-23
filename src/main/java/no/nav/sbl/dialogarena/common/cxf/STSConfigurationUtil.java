@@ -23,6 +23,7 @@ import javax.xml.namespace.QName;
 import java.util.HashMap;
 
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.STS_URL_KEY;
+import static no.nav.sbl.dialogarena.common.cxf.StsType.SYSTEM_USER_IN_FSS;
 
 public class STSConfigurationUtil {
 
@@ -33,13 +34,13 @@ public class STSConfigurationUtil {
 
         new WSAddressingFeature().initialize(client, client.getBus());
 
-        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password);
-        client.getRequestContext().put("ws-security.sts.client", stsClient);
+        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, SYSTEM_USER_IN_FSS);
+        client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
         setEndpointPolicyReference(client, "classpath:stspolicy.xml");
     }
 
-    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password) {
-        NAVOidcSTSClient stsClient = new NAVOidcSTSClient(bus);
+    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password, StsType stsType) {
+        NAVOidcSTSClient stsClient = new NAVOidcSTSClient(bus, stsType);
         stsClient.setWsdlLocation("wsdl/ws-trust-1.4-service.wsdl");
         stsClient.setServiceQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceProvider"));
         stsClient.setEndpointQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceSOAP"));

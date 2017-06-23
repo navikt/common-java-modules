@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 public class NAVOidcSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
     private static TokenStore tokenStore;
+    private final StsType stsType;
 
-    public NAVOidcSTSClient(Bus b) {
-        super(b);
+    public NAVOidcSTSClient(Bus bus, StsType stsType) {
+        super(bus);
+        this.stsType = stsType;
     }
 
     @Override
@@ -28,7 +30,7 @@ public class NAVOidcSTSClient extends STSClient {
         ensureTokenStoreExists();
 
         String userId = getUserId();
-        String key = getTokenStoreKey(appliesTo);
+        String key = getTokenStoreKey();
 
         SecurityToken token = tokenStore.getToken(key);
         if (token == null) {
@@ -41,8 +43,8 @@ public class NAVOidcSTSClient extends STSClient {
         return token;
     }
 
-    private String getTokenStoreKey(String appliesTo) {
-        return appliesTo + "-" + getUserKey();
+    private String getTokenStoreKey() {
+        return stsType.name() + "-" + getUserKey();
     }
 
     private String getUserKey() {

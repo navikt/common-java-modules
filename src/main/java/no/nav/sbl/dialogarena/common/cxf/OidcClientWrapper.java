@@ -23,6 +23,8 @@ import org.apache.neethi.Policy;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 
+import static no.nav.sbl.dialogarena.common.cxf.StsType.ON_BEHALF_OF_WITH_JWT;
+
 public class OidcClientWrapper {
 
     public static void configureStsForOnBehalfOfWithJWT(Client client) {
@@ -30,9 +32,10 @@ public class OidcClientWrapper {
         String username = requireProperty(StsSecurityConstants.SYSTEMUSER_USERNAME);
         String password = requireProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD);
 
-        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password);
+
+        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, ON_BEHALF_OF_WITH_JWT);
         stsClient.setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
-        client.getRequestContext().put("ws-security.sts.client", stsClient);
+        client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
         client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, false);
         setEndpointPolicyReference(client, "classpath:JwtSTSPolicy.xml");
     }
@@ -45,8 +48,8 @@ public class OidcClientWrapper {
         return property;
     }
 
-    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password) {
-        STSClient stsClient = new NAVOidcSTSClient(bus);
+    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password, StsType stsType) {
+        STSClient stsClient = new NAVOidcSTSClient(bus, stsType);
         stsClient.setWsdlLocation("wsdl/ws-trust-1.4-service.wsdl");
         stsClient.setServiceQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceProvider"));
         stsClient.setEndpointQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceSOAP"));
