@@ -12,9 +12,9 @@ public interface Helsesjekk extends Pingable {
 
         try {
             helsesjekk();
-            return Ping.lyktes(metadata.getEndepunkt(), metadata.getBeskrivelse(), metadata.isKritisk());
+            return Ping.lyktes(metadata);
         } catch (Exception e) {
-            return Ping.feilet(metadata.getEndepunkt(), metadata.getBeskrivelse(), metadata.isKritisk(), e);
+            return Ping.feilet(metadata, e);
         }
     }
 
