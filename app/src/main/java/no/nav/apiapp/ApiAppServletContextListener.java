@@ -1,6 +1,7 @@
 package no.nav.apiapp;
 
 
+import no.nav.apiapp.log.ContextDiscriminator;
 import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.rest.SwaggerResource;
 import no.nav.apiapp.rest.SwaggerUIServlet;
@@ -8,7 +9,7 @@ import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
-import no.nav.apiapp.util.LogUtils;
+import no.nav.apiapp.log.LogUtils;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
@@ -35,11 +36,9 @@ import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
-import static no.nav.apiapp.ServletUtil.getApplicationName;
-import static no.nav.apiapp.ServletUtil.getContext;
-import static no.nav.apiapp.ServletUtil.leggTilServlet;
+import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
-import static no.nav.apiapp.util.LogUtils.setGlobalLogLevel;
+import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.util.StringUtils.of;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
@@ -79,7 +78,8 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         LOGGER.info("onStartup");
-        if(!disablet(servletContext)){
+        if (!disablet(servletContext)) {
+            konfigurerLogging(servletContext);
             konfigurerSpring(servletContext);
         }
     }
@@ -96,12 +96,14 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextInitialized");
-        if (disablet(servletContextEvent.getServletContext())) {
+        ServletContext servletContext = servletContextEvent.getServletContext();
+        if (disablet(servletContext)) {
             return;
         }
+        konfigurerLogging(servletContext);
 
-        if(!erSpringSattOpp(servletContextEvent)){
-            konfigurerSpring(servletContextEvent.getServletContext());
+        if (!erSpringSattOpp(servletContextEvent)) {
+            konfigurerSpring(servletContext);
         }
         ApiApplication apiApplication = startSpring(servletContextEvent);
 
@@ -124,7 +126,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         leggTilServlet(servletContextEvent, SwaggerUIServlet.class, SWAGGER_PATH + "*");
 
         settOppRestApi(servletContextEvent, apiApplication);
-        if (soapTjenesterEksisterer(servletContextEvent.getServletContext())) {
+        if (soapTjenesterEksisterer(servletContext)) {
             leggTilServlet(servletContextEvent, new SoapServlet(), "/ws/*");
         }
         settOppSessionOgCookie(servletContextEvent);
@@ -147,6 +149,10 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
 
+    }
+
+    private void konfigurerLogging(ServletContext servletContext) {
+        ContextDiscriminator.setContextName(getApplicationName(servletContext));
     }
 
     private void konfigurerSpring(ServletContext servletContext) {
@@ -176,7 +182,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             throw new IllegalArgumentException(String.format("Klassen '%s' er ikke en gyldig klasse", springContekstKlasseNavn));
         }
 
-        if(!erApiApplikasjon(springContekstKlasseNavn)){
+        if (!erApiApplikasjon(springContekstKlasseNavn)) {
             throw new IllegalArgumentException(String.format("Klassen '%s' må implementere %s", springContekstKlasseNavn, ApiApplication.class));
         }
         return springContekstKlasseNavn;
@@ -198,7 +204,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     }
 
     private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
-        RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()),apiApplication);
+        RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()), apiApplication);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
         ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, API_PATH + "*");
         SwaggerResource.setupServlet(servletRegistration);
@@ -211,7 +217,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         SessionCookieConfig sessionCookieConfig = servletContext.getSessionCookieConfig();
         sessionCookieConfig.setHttpOnly(true);
         sessionCookieConfig.setSecure(true);
-        LOGGER.info("SessionCookie: {}",sessionCookieName);
+        LOGGER.info("SessionCookie: {}", sessionCookieName);
         sessionCookieConfig.setName(sessionCookieName);
         servletContext.setSessionTrackingModes(singleton(COOKIE));
         sesjonsLengde = ofNullable(servletContextEvent.getServletContext().getInitParameter("maksSesjonsLengde"))
