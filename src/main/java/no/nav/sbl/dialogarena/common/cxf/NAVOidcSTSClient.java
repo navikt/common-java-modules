@@ -10,13 +10,14 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NAVSTSClient extends STSClient {
-    private static final Logger logger = LoggerFactory.getLogger(NAVSTSClient.class);
-    public static final String DISABLE_CACHE_KEY = "NAVSTSClient.DISABLE_CACHE";
+public class NAVOidcSTSClient extends STSClient {
+    private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
     private static TokenStore tokenStore;
+    private final StsType stsType;
 
-    public NAVSTSClient(Bus b) {
-        super(b);
+    public NAVOidcSTSClient(Bus bus, StsType stsType) {
+        super(bus);
+        this.stsType = stsType;
     }
 
     @Override
@@ -26,20 +27,10 @@ public class NAVSTSClient extends STSClient {
 
     @Override
     public SecurityToken requestSecurityToken(String appliesTo, String action, String requestType, String binaryExchange) throws Exception {
-        if (Boolean.getBoolean(DISABLE_CACHE_KEY)) {
-            logger.debug("Cache is disabled, fetching from STS");
-            return super.requestSecurityToken(appliesTo, action, requestType, binaryExchange);
-        }
-
         ensureTokenStoreExists();
 
-        SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-        String userId = subjectHandler.getUid();
-        String key = subjectHandler.getInternSsoToken();
-        if (key == null) {
-            key = "systemSAML";
-            logger.info("Finner ingen OIDC, henter SAML som systembruker");
-        }
+        String userId = getUserId();
+        String key = getTokenStoreKey();
 
         SecurityToken token = tokenStore.getToken(key);
         if (token == null) {
@@ -50,6 +41,24 @@ public class NAVSTSClient extends STSClient {
             logger.debug("Retrived token for user {} from tokenStore", userId);
         }
         return token;
+    }
+
+    private String getTokenStoreKey() {
+        return stsType.name() + "-" + getUserKey();
+    }
+
+    private String getUserKey() {
+        String internSsoToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
+        if (internSsoToken == null) {
+            logger.info("Finner ingen OIDC, henter SAML som systembruker");
+            return "systemSAML";
+        } else {
+            return internSsoToken;
+        }
+    }
+
+    private String getUserId() {
+        return SubjectHandler.getSubjectHandler().getUid();
     }
 
     private void ensureTokenStoreExists() {

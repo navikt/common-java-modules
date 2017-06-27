@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
+import lombok.SneakyThrows;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.BusFactory;
@@ -12,7 +13,6 @@ import org.slf4j.Logger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URI;
 
@@ -34,34 +34,36 @@ public abstract class JettyTestServer {
         return startCxfServer(serviceClass, mock(serviceClass));
     }
 
+    @SneakyThrows
     protected <T> String startCxfServer(Class<T> serviceClass, T service) {
-        try {
-            // Hvis andre tester har opprettet en bus allerede, må denne stoppes først
-            BusFactory.getThreadDefaultBus().shutdown(false);
+        // Hvis andre tester har opprettet en bus allerede, må denne stoppes først
+        BusFactory.getThreadDefaultBus().shutdown(false);
 
-            setProperty(ALLOW_INSECURE_PARSER, Boolean.TRUE.toString());
+        setProperty(ALLOW_INSECURE_PARSER, Boolean.TRUE.toString());
 
-            int port = findFreePort();
-            jetty = Jetty.usingWar().at(CONTEXT_PATH).port(port).buildJetty();
-            jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service)), "/*");
-            jetty.start();
+        int port = findFreePort();
+        jetty = Jetty.usingWar()
+                .at(CONTEXT_PATH)
+                .port(port)
+                .disableAnnotationScanning()
+                .buildJetty();
+        jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service)), "/*");
+        jetty.start();
 
-            URIBuilder uriBuilder = new URIBuilder("http://localhost").setPort(port).setPath(CONTEXT_PATH + SERVICE_PATH);
-            String path = uriBuilder.build().toString();
+        URIBuilder uriBuilder = new URIBuilder("http://localhost").setPort(port).setPath(CONTEXT_PATH + SERVICE_PATH);
+        String path = uriBuilder.build().toString();
 
-            // Sjekk at vi kan hente wsdl-en
-            LOG.info("WSDL:");
-            URI wsdlUrl = uriBuilder.addParameter("wsdl", null).build();
-            LOG.info(IOUtils.toString(wsdlUrl));
+        // Sjekk at vi kan hente wsdl-en
+        LOG.info("WSDL:");
+        URI wsdlUrl = uriBuilder.addParameter("wsdl", null).build();
+        LOG.info(IOUtils.toString(wsdlUrl));
 
-            LOG.info("{} is running at {} wsdl: {}", serviceClass, path, wsdlUrl);
-            return path;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        LOG.info("{} is running at {} wsdl: {}", serviceClass, path, wsdlUrl);
+        return path;
     }
 
-    private int findFreePort() throws IOException {
+    @SneakyThrows
+    protected static int findFreePort() {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();
         }
