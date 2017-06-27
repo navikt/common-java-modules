@@ -40,7 +40,7 @@
         <feed.version>1.0.10</feed.version>
 
         <!-- SOAP -->
-        <common-cxf.version>3.1.45</common-cxf.version>
+        <common-cxf.version>3.1.48</common-cxf.version>
         <neethi.version>3.0.3</neethi.version>
         <cxf-core.version>3.1.11</cxf-core.version>
         <cxf-api.version>2.7.6</cxf-api.version>
