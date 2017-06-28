@@ -31,6 +31,7 @@ import java.util.Optional;
 
 import static javax.security.auth.message.AuthStatus.*;
 import static no.nav.brukerdialog.security.Constants.*;
+import static no.nav.brukerdialog.tools.Utils.getRelativePath;
 import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
 
 /**
@@ -159,11 +160,10 @@ public class OidcAuthModule implements ServerAuthModule {
 
     private void addApplicationCallbackSpecificHttpOnlyCookie(HttpServletResponse response, String name, String value) {
         String redirectUrl = getSystemProperty(OIDC_REDIRECT_URL);
-
         Cookie cookie = new Cookie(name, value);
         cookie.setSecure(sslOnlyCookies);
         cookie.setHttpOnly(true);
-        cookie.setPath(redirectUrl);
+        cookie.setPath(getRelativePath(redirectUrl));
         response.addCookie(cookie);
     }
 
