@@ -15,4 +15,11 @@ public class Utils {
         }
         return property;
     }
+
+    public static String getRelativePath(String path) {
+        if(!path.contains("http")) {
+            return path;
+        }
+        return path.replaceAll(".*:\\/\\/[^\\/]*\\/","/");
+    }
 }
