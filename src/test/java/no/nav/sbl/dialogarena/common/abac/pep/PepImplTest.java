@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.setProperty;
+import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,7 +46,7 @@ public class PepImplTest {
         setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         setProperty("no.nav.modig.security.systemuser.username", "username");
         setProperty("no.nav.modig.security.systemuser.password", "password");
-        setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
+        setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
         final Subject user = new SubjectHandlerUtils.SubjectBuilder("userId", IdentType.InternBruker).withAuthLevel(3).getSubject();
         user.getPublicCredentials().add(new OidcCredential(TOKEN));
         SubjectHandlerUtils.setSubject(user);

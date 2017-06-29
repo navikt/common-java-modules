@@ -12,7 +12,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 

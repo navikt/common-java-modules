@@ -6,7 +6,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class XacmlRequestGenerator {
 
