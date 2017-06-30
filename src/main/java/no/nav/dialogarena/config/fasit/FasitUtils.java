@@ -8,7 +8,7 @@ import no.nav.dialogarena.config.util.Util;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.BasicAuthentication;
-import org.json.JSONObject;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -56,15 +56,10 @@ public class FasitUtils {
                 ));
     }
 
-    public static UsernameAndPassword getDbCredentials(TestEnvironment env, String applicationName) {
+    static UsernameAndPassword getDbCredentials(TestEnvironment env, String applicationName) {
         String url = format("https://fasit.adeo.no/api/v2/resources?type=DataSource&environmentclass=t&environment=%s&application=%s", env, applicationName);
-
         String jsonString = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
-
-        // JSONObject does not care for JSON-arrays at root level...
-        jsonString = "{ \"response\" : " + jsonString + "}";
-
-        JSONObject json = new JSONObject(jsonString);
+        JSONArray json = new JSONArray(jsonString);
 
         return
                 new UsernameAndPassword()
@@ -72,13 +67,13 @@ public class FasitUtils {
                         .setPassword(getPassword(json));
     }
 
-    private static String getPassword(JSONObject json) {
-        String ref =
-                getFirstResponseElement(json)
-                        .getJSONObject("secrets")
-                        .getJSONObject("password")
-                        .get("ref")
-                        .toString();
+    private static String getPassword(JSONArray json) {
+        String ref = json
+                .getJSONObject(0)
+                .getJSONObject("secrets")
+                .getJSONObject("password")
+                .get("ref")
+                .toString();
 
         return
                 of(httpClient(
@@ -86,15 +81,12 @@ public class FasitUtils {
                         .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord for databasebruker"));
     }
 
-    private static String getUsername(JSONObject json) {
-        return getFirstResponseElement(json)
+    private static String getUsername(JSONArray json) {
+        return json
+                .getJSONObject(0)
                 .getJSONObject("properties")
                 .get("username")
                 .toString();
-    }
-
-    private static JSONObject getFirstResponseElement(JSONObject json) {
-        return json.getJSONArray("response").getJSONObject(0);
     }
 
     public static ApplicationConfig getApplicationConfig(String applicationName, String environment) {
