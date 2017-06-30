@@ -82,6 +82,14 @@
           -->
         <aspectj.version>1.8.8</aspectj.version>
 
+
+        <!--
+           obs:
+           dependencyManagement i modig-security setter denne. (nå til 2.1.5)
+           apache cxf trenger imidlertid høyere versjon
+        -->
+        <wss4j-ws-security-dom.version>2.1.9</wss4j-ws-security-dom.version>
+
         <!-- Test -->
         <assertj.version>3.6.1</assertj.version>
         <hamcrest.version>1.3</hamcrest.version>
@@ -680,6 +688,11 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-security</artifactId>
                 <version>${cxf-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-ws-security-dom</artifactId>
+                <version>${wss4j-ws-security-dom.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
