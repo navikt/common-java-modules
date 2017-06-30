@@ -95,23 +95,28 @@ public class DevelopmentSecurity {
         private final String environment;
 
         private String serviceUserName;
+        private String ldapUserAlias;
 
         public SamlSecurityConfig(String applicationName, String environment) {
             this.applicationName = applicationName;
             this.environment = environment;
             this.serviceUserName = "srv" + applicationName;
+
+            this.ldapUserAlias = DEFAULT_LDAP_USER;
         }
     }
 
 
     @SneakyThrows
-    public static Jetty.JettyBuilder setupSamlLogin(Jetty.JettyBuilder jettyBuilder, SamlSecurityConfig essoSecurityConfig) {
+    public static Jetty.JettyBuilder setupSamlLogin(Jetty.JettyBuilder jettyBuilder, SamlSecurityConfig securityConfig) {
         commonServerSetup(jettyBuilder);
 
-        String environment = essoSecurityConfig.environment;
-        ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
+        String environment = securityConfig.environment;
+        ServiceUser serviceUser = FasitUtils.getServiceUser(securityConfig.serviceUserName, securityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, TEST_LOCAL);
         configureServiceUser(serviceUser);
+        configureAbacUser(serviceUser);
+        configureLdap(getLdapConfig(securityConfig.ldapUserAlias, securityConfig.applicationName, securityConfig.environment));
         modigSubjectHandler();
         dialogArenaSubjectHandler();
 
