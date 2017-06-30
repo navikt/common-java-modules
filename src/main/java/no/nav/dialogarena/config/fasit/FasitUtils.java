@@ -3,10 +3,12 @@ package no.nav.dialogarena.config.fasit;
 
 import lombok.Data;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import no.nav.dialogarena.config.util.Util;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.BasicAuthentication;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 
+import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -46,15 +49,48 @@ public class FasitUtils {
                 .filter(File::exists)
                 .map(Util::loadProperties)
                 .map(fasitProperties -> fasitProperties.getProperty(variableName))
-                .orElseThrow(() -> new RuntimeException(String.format(
+                .orElseThrow(() -> new RuntimeException(format(
                         "mangler variabel '%s'. Denne må settes som property, miljøvariabel eller i '%s'",
                         variableName,
                         fasitPropertyFile.getAbsolutePath())
                 ));
     }
 
+    static UsernameAndPassword getDbCredentials(TestEnvironment env, String applicationName) {
+        String url = format("https://fasit.adeo.no/api/v2/resources?type=DataSource&environmentclass=t&environment=%s&application=%s", env, applicationName);
+        String jsonString = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
+        JSONArray json = new JSONArray(jsonString);
+
+        return
+                new UsernameAndPassword()
+                        .setUsername(getUsername(json))
+                        .setPassword(getPassword(json));
+    }
+
+    private static String getPassword(JSONArray json) {
+        String ref = json
+                .getJSONObject(0)
+                .getJSONObject("secrets")
+                .getJSONObject("password")
+                .get("ref")
+                .toString();
+
+        return
+                of(httpClient(
+                        client -> client.newRequest(ref).send().getContentAsString()))
+                        .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord for databasebruker"));
+    }
+
+    private static String getUsername(JSONArray json) {
+        return json
+                .getJSONObject(0)
+                .getJSONObject("properties")
+                .get("username")
+                .toString();
+    }
+
     public static ApplicationConfig getApplicationConfig(String applicationName, String environment) {
-        Document document = fetchXml(String.format("https://fasit.adeo.no/conf/environments/%s/applications/%s", environment, applicationName));
+        Document document = fetchXml(format("https://fasit.adeo.no/conf/environments/%s/applications/%s", environment, applicationName));
         NodeList domainNodes = document.getElementsByTagName("domain");
         ApplicationConfig applicationConfig = new ApplicationConfig();
         applicationConfig.domain = domainNodes.item(0).getTextContent();
@@ -64,7 +100,7 @@ public class FasitUtils {
 
     public static LdapConfig getLdapConfig(String ldapAlias, String applicationName, String environment) {
         ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
-        String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=LDAP&alias=%s&app=%s",
+        String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=LDAP&alias=%s&app=%s",
                 environment,
                 applicationConfig.domain,
                 ldapAlias,
@@ -75,9 +111,7 @@ public class FasitUtils {
         LdapConfig ldapConfig = new LdapConfig()
                 .setUsername(usernameAndPassword.getUsername())
                 .setPassword(usernameAndPassword.getPassword())
-
-                .setEnvironment(environment)
-                ;
+                .setEnvironment(environment);
 
         LOG.info("{} = {}", ldapAlias, ldapConfig);
         return ldapConfig;
@@ -101,7 +135,7 @@ public class FasitUtils {
     }
 
     public static OpenAmConfig getOpenAmConfig(String environment) {
-        String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=OpenAm&alias=openam&app=fasit",
+        String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=OpenAm&alias=openam&app=fasit",
                 environment,
                 getOeraLocal(environment)
         );
@@ -110,16 +144,15 @@ public class FasitUtils {
         OpenAmConfig openAmConfig = new OpenAmConfig()
                 .setUsername(usernameAndPassword.getUsername())
                 .setPassword(usernameAndPassword.getPassword())
-                .setRestUrl(extractStringProperty(document,"restUrl"))
-                .setLogoutUrl(extractStringProperty(document,"logoutUrl"))
-                ;
+                .setRestUrl(extractStringProperty(document, "restUrl"))
+                .setLogoutUrl(extractStringProperty(document, "logoutUrl"));
 
-        LOG.info("openAm: {}",  openAmConfig);
+        LOG.info("openAm: {}", openAmConfig);
         return openAmConfig;
     }
 
     private static ServiceUser getServiceUser(String userAlias, String applicationName, String environment, String domain) {
-        String resourceUrl = String.format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=Credential&alias=%s&app=%s",
+        String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=Credential&alias=%s&app=%s",
                 environment,
                 domain,
                 userAlias,
@@ -130,8 +163,7 @@ public class FasitUtils {
                 .setUsername(usernameAndPassword.getUsername())
                 .setPassword(usernameAndPassword.getPassword())
                 .setEnvironment(environment)
-                .setDomain(domain)
-                ;
+                .setDomain(domain);
 
         LOG.info("{} = {}", userAlias, serviceUser);
         return serviceUser;
@@ -218,7 +250,7 @@ public class FasitUtils {
                 return item.getFirstChild().getTextContent();
             }
         }
-        throw new IllegalStateException(String.format("fant ikke property '%s' i respons", propertyName));
+        throw new IllegalStateException(format("fant ikke property '%s' i respons", propertyName));
     }
 
     static String getFasitPassword() {
@@ -255,7 +287,8 @@ public class FasitUtils {
     }
 
     @Data
-    private static class UsernameAndPassword {
+    @Accessors(chain = true)
+    static class UsernameAndPassword {
         public String username;
         public String password;
     }

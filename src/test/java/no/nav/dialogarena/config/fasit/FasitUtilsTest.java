@@ -3,14 +3,13 @@ package no.nav.dialogarena.config.fasit;
 import org.junit.Test;
 
 import javax.net.ssl.SSLException;
-
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE_NAME;
-import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getDbCredentials;
+import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class FasitUtilsTest {
 
@@ -125,4 +124,11 @@ public class FasitUtilsTest {
         });
     }
 
+    @Test
+    public void shouldReturnUsernamePasswordForDb() throws Exception {
+        String expectedUsername = "VEILARBPORTEFOLJE_T6";
+        FasitUtils.UsernameAndPassword actual = getDbCredentials(T6, "veilarbportefolje");
+        assertEquals(expectedUsername, actual.username);
+        assertNotNull(actual.password);
+    }
 }
