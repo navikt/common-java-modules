@@ -14,7 +14,11 @@ public class ESSOProvider {
     }
 
     public static ESSOCredentials getEssoCredentials(String environment) {
-        TestUser testUser = FasitUtils.getTestUser("bruker_under_oppfolging");
+        return getEssoCredentialsForUser("bruker_under_oppfolging", environment);
+    }
+
+    public static ESSOCredentials getEssoCredentialsForUser(String user, String environment){
+        TestUser testUser = FasitUtils.getTestUser(user);
         return Util.httpClient(httpClient -> {
             ContentResponse contentResponse = httpClient
                     .newRequest(String.format("https://itjenester-%s.oera.no/esso/identity/authenticate", environment))
