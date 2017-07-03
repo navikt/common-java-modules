@@ -17,9 +17,11 @@ public class Utils {
     }
 
     public static String getRelativePath(String path) {
-        if(!path.contains("http")) {
+        if (path == null) {
+            return path;
+        } else if (!path.contains("http")) {
             return path;
         }
-        return path.replaceAll(".*:\\/\\/[^\\/]*\\/","/");
+        return path.replaceAll(".*:\\/\\/[^\\/]*\\/", "/");
     }
 }
