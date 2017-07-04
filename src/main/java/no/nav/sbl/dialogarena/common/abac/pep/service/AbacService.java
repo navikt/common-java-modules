@@ -89,7 +89,7 @@ public class AbacService implements TilgangService {
 
     private HttpPost getPostRequest(XacmlRequest request) throws NoSuchFieldException, UnsupportedEncodingException {
         StringEntity postingString = XacmlMapper.mapRequestToEntity(request);
-        final String abacEndpointUrl = getApplicationProperty("abac.endpoint.url");
+        final String abacEndpointUrl = getEndpointUrl();
         HttpPost httpPost = new HttpPost(abacEndpointUrl);
         httpPost.addHeader(HttpHeaders.CONTENT_TYPE, MEDIA_TYPE);
         httpPost.setEntity(postingString);
@@ -108,6 +108,10 @@ public class AbacService implements TilgangService {
             throw new AbacException("An error has occured calling ABAC: ", e);
         }
         return response;
+    }
+
+    public static String getEndpointUrl()  {
+        return getApplicationProperty("abac.endpoint.url");
     }
 
 }

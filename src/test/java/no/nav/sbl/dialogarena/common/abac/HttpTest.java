@@ -2,7 +2,10 @@ package no.nav.sbl.dialogarena.common.abac;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.sun.webkit.dom.ElementImpl;
+import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
+import no.nav.modig.core.context.SAMLAssertionCredential;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
@@ -23,6 +26,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
+import javax.security.auth.Subject;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
@@ -85,6 +91,13 @@ public class HttpTest {
     }
 
     @Test
+    public void harInnloggetBrukerTilgangTilPerson() throws Exception {
+        gittBrukerMedSAMLAssertion();
+        BiasedDecisionResponse response = pep.harInnloggetBrukerTilgangTilPerson("10108000398", "domain");
+        assertThat(response.getBiasedDecision(), Matchers.equalTo(Decision.Permit));
+    }
+
+    @Test
     public void performance() throws Exception {
         int TESTS = 1000;
         ForkJoinPool fjp = new ForkJoinPool(32);
@@ -102,4 +115,11 @@ public class HttpTest {
             }
         });
     }
+
+    private void gittBrukerMedSAMLAssertion() throws ParserConfigurationException {
+        Subject subject = new Subject();
+        subject.getPublicCredentials().add(new SAMLAssertionCredential(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().getDocumentElement()));
+        new ThreadLocalSubjectHandler().setSubject(subject);
+    }
+
 }

@@ -17,20 +17,37 @@ import static org.junit.Assert.assertThat;
 
 public class XacmlRequestGeneratorTest {
 
-    private XacmlRequestGenerator xacmlRequestGenerator;
-    private Client client;
+    private XacmlRequestGenerator xacmlRequestGenerator = new XacmlRequestGenerator();
+    private RequestData requestData;
 
     @Before
     public void setup() throws PepException {
-        client = new Client(MockXacmlRequest.OIDC_TOKEN, MockXacmlRequest.SUBJECT_ID, MockXacmlRequest.FNR, ResourceType.Person, MockXacmlRequest.DOMAIN, MockXacmlRequest.CREDENTIAL_RESOURCE)
+        requestData = new RequestData()
+                .withOidcToken(MockXacmlRequest.OIDC_TOKEN)
+                .withSamlToken(MockXacmlRequest.SAML_TOKEN)
+                .withSubjectId(MockXacmlRequest.SUBJECT_ID)
+                .withFnr(MockXacmlRequest.FNR)
+                .withResourceType(ResourceType.Person)
+                .withDomain(MockXacmlRequest.DOMAIN)
                 .withCredentialResource(MockXacmlRequest.CREDENTIAL_RESOURCE);
-
-        xacmlRequestGenerator = new XacmlRequestGenerator(client);
     }
 
     @Test
-    public void buildsCorrectEnvironmentWithOidcToken() {
-        Environment environment = xacmlRequestGenerator.makeEnvironment();
+    public void buildsCorrectEnvironment() {
+        Environment environment = xacmlRequestGenerator.makeEnvironment(requestData);
+        List<Attribute> expectedAttributes = new ArrayList<>();
+        expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, MockXacmlRequest.OIDC_TOKEN));
+        expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, MockXacmlRequest.SAML_TOKEN));
+        expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, MockXacmlRequest.CREDENTIAL_RESOURCE));
+
+        assertThat(environment.getAttribute(), is(expectedAttributes));
+    }
+
+    @Test
+    public void buildsCorrectEnvironmentWithoutSAMLToken() throws PepException {
+        requestData.setSamlToken(null);
+
+        Environment environment = xacmlRequestGenerator.makeEnvironment(requestData);
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, MockXacmlRequest.OIDC_TOKEN));
         expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, MockXacmlRequest.CREDENTIAL_RESOURCE));
@@ -40,12 +57,11 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectEnvironmentWithoutOidcToken() throws PepException {
-        client.setOidcToken(null);
+        requestData.setOidcToken(null);
 
-        xacmlRequestGenerator = new XacmlRequestGenerator(client);
-
-        Environment environment = xacmlRequestGenerator.makeEnvironment();
+        Environment environment = xacmlRequestGenerator.makeEnvironment(requestData);
         List<Attribute> expectedAttributes = new ArrayList<>();
+        expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, MockXacmlRequest.SAML_TOKEN));
         expectedAttributes.add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, MockXacmlRequest.CREDENTIAL_RESOURCE));
 
         assertThat(environment.getAttribute(), is(expectedAttributes));
@@ -53,7 +69,7 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectResourceWithTypePerson() {
-        Resource resource = xacmlRequestGenerator.makeResource(ResourceType.Person);
+        Resource resource = xacmlRequestGenerator.makeResource(requestData);
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
@@ -64,7 +80,7 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectResourceWithTypeEgenAnsatt() {
-        Resource resource = xacmlRequestGenerator.makeResource(ResourceType.EgenAnsatt);
+        Resource resource = xacmlRequestGenerator.makeResource(requestData.setResourceType(ResourceType.EgenAnsatt));
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT));
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
@@ -74,7 +90,7 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectResourceWithTypeKode6() {
-        Resource resource = xacmlRequestGenerator.makeResource(ResourceType.Kode6);
+        Resource resource = xacmlRequestGenerator.makeResource(requestData.setResourceType(ResourceType.Kode6));
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_KODE_6));
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
@@ -84,7 +100,7 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectResourceWithTypeKode7() {
-        Resource resource = xacmlRequestGenerator.makeResource(ResourceType.Kode7);
+        Resource resource = xacmlRequestGenerator.makeResource(requestData.setResourceType(ResourceType.Kode7));
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_KODE_7));
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
@@ -94,7 +110,7 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectAccessSubject() {
-        AccessSubject accessSubject = xacmlRequestGenerator.makeAccessSubject();
+        AccessSubject accessSubject = xacmlRequestGenerator.makeAccessSubject(requestData);
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(StandardAttributter.SUBJECT_ID, MockXacmlRequest.SUBJECT_ID));
         expectedAttributes.add(new Attribute(NavAttributter.SUBJECT_FELLES_SUBJECTTYPE, "InternBruker"));
@@ -104,7 +120,7 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectAction() {
-        Action action = xacmlRequestGenerator.makeAction();
+        Action action = xacmlRequestGenerator.makeAction(requestData);
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(StandardAttributter.ACTION_ID, "read"));
 
@@ -113,21 +129,29 @@ public class XacmlRequestGeneratorTest {
 
     @Test
     public void buildsCorrectRequestWithOidcToken() throws PepException {
-        client.setSubjectId(null);
-        xacmlRequestGenerator = new XacmlRequestGenerator(client);
+        requestData.setSubjectId(null).setSamlToken(null);
 
-        Request request = xacmlRequestGenerator.makeRequest(ResourceType.Person);
+        Request request = xacmlRequestGenerator.makeRequest(requestData);
         Request expectedRequest = MockXacmlRequest.getRequest();
 
         assertThat(request, is(expectedRequest));
     }
 
     @Test
-    public void buildsCorrectRequestWithSubjectId() throws PepException {
-        client.setOidcToken(null);
-        xacmlRequestGenerator = new XacmlRequestGenerator(client);
+    public void buildsCorrectRequestWithSAMLToken() throws PepException {
+        requestData.setSubjectId(null).setOidcToken(null);
 
-        Request request = xacmlRequestGenerator.makeRequest(ResourceType.Person);
+        Request request = xacmlRequestGenerator.makeRequest(requestData);
+        Request expectedRequest = MockXacmlRequest.getSAMLRequest();
+
+        assertThat(request, is(expectedRequest));
+    }
+
+    @Test
+    public void buildsCorrectRequestWithSubjectId() throws PepException {
+        requestData.setOidcToken(null).setSamlToken(null);
+
+        Request request = xacmlRequestGenerator.makeRequest(requestData);
         Request expectedRequest = MockXacmlRequest.getRequestWithSubjectAttributes();
 
         assertThat(request, is(expectedRequest));
@@ -135,8 +159,7 @@ public class XacmlRequestGeneratorTest {
 
     @Test(expected = PepException.class)
     public void requestThrowsExceptionNonValidValues() throws PepException {
-        client.withOidcToken(null).withSubjectId(null);
-        xacmlRequestGenerator = new XacmlRequestGenerator(client);
-        xacmlRequestGenerator.makeRequest(ResourceType.Person);
+        requestData.setOidcToken(null).setSubjectId(null).setSamlToken(null);
+        xacmlRequestGenerator.makeRequest(requestData);
     }
 }

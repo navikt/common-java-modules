@@ -4,12 +4,16 @@ import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.domain.OidcCredential;
+import no.nav.modig.core.context.StaticSubjectHandler;
+import no.nav.modig.core.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
+import no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils;
+import no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtilsTest;
 import org.junit.*;
 import org.mockito.*;
 
@@ -20,6 +24,7 @@ import java.util.List;
 
 import static java.lang.System.setProperty;
 import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
+import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtilsTest.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,8 +35,6 @@ import static org.mockito.Mockito.when;
 
 public class PepImplTest {
 
-    private static final String TOKEN_BODY = "bb6--bbb";
-    private static final String TOKEN = "aa-aa_aa4aa." + TOKEN_BODY + ".ccccc-c_88c";
     @InjectMocks
     PepImpl pep;
 
@@ -46,7 +49,8 @@ public class PepImplTest {
         setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         setProperty("no.nav.modig.security.systemuser.username", "username");
         setProperty("no.nav.modig.security.systemuser.password", "password");
-        setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
+        setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
+        setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
         final Subject user = new SubjectHandlerUtils.SubjectBuilder("userId", IdentType.InternBruker).withAuthLevel(3).getSubject();
         user.getPublicCredentials().add(new OidcCredential(TOKEN));
         SubjectHandlerUtils.setSubject(user);
@@ -71,13 +75,13 @@ public class PepImplTest {
 
     @Test
     public void girRiktigTokenBodyGittHeltToken() throws PepException {
-        final String token = pep.extractTokenBody(TOKEN);
+        final String token = SecurityUtils.extractOidcTokenBody(TOKEN);
         assertThat(token, is(TOKEN_BODY));
     }
 
     @Test
     public void girRiktigTokenBodyGittBody() throws PepException {
-        final String token = pep.extractTokenBody(TOKEN_BODY);
+        final String token = SecurityUtils.extractOidcTokenBody(TOKEN_BODY);
         assertThat(token, is(TOKEN_BODY));
     }
 

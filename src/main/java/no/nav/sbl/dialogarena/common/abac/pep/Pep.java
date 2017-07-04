@@ -1,10 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
-import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
-
-import java.io.IOException;
 
 public interface Pep {
 
@@ -35,6 +33,10 @@ public interface Pep {
     BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String oidcToken, String domain) throws PepException;
 
     BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String oidcToken, String domain) throws PepException;
+
+    BiasedDecisionResponse harTilgang(Request request) throws PepException;
+
+    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException;
 
     void ping() throws PepException;
 }

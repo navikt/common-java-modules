@@ -1,9 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import lombok.SneakyThrows;
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
@@ -21,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 
 import static java.lang.Boolean.valueOf;
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -48,13 +51,8 @@ public class PepImpl implements Pep {
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
         validateFnr(fnr);
-        final String token = extractTokenBody(oidcTokenBody);
+        final String token = extractOidcTokenBody(oidcTokenBody);
         return isServiceCallAllowed(token, null, domain, fnr, ResourceType.Person);
-    }
-
-    String extractTokenBody(String oidcTokenBody) throws PepException {
-        final String[] tokenParts = oidcTokenBody.split("\\.");
-        return tokenParts.length == 1 ? tokenParts[0] : tokenParts[1];
     }
 
     @Override
@@ -65,26 +63,38 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String token, String domain) throws PepException {
-        final String tokenBody = extractTokenBody(token);
+        final String tokenBody = extractOidcTokenBody(token);
         return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.Kode7);
     }
 
     @Override
     public BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String token, String domain) throws PepException {
-        final String tokenBody = extractTokenBody(token);
+        final String tokenBody = extractOidcTokenBody(token);
         return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.Kode6);
     }
 
     @Override
     public BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String token, String domain) throws PepException {
-        final String tokenBody = extractTokenBody(token);
+        final String tokenBody = extractOidcTokenBody(token);
         return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.EgenAnsatt);
     }
 
     @Override
     public BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String token, String domain) throws PepException {
-        final String tokenBody = extractTokenBody(token);
+        final String tokenBody = extractOidcTokenBody(token);
         return isServiceCallAllowed(tokenBody, null, domain, null, ResourceType.VeilArb);
+    }
+
+    @Override
+    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException {
+        validateFnr(fnr);
+        return harTilgang(buildRequest()
+                .withSamlToken(getSamlToken().orElse(null))
+                .withOidcToken(getOidcToken().orElse(null))
+                .withFnr(fnr)
+                .withDomain(domain)
+                .withResourceType(ResourceType.Person)
+        );
     }
 
     @Override
@@ -106,14 +116,32 @@ public class PepImpl implements Pep {
         }
     }
 
-
     private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
+        return harTilgang(buildRequest()
+                .withOidcToken(oidcToken)
+                .withSubjectId(subjectId)
+                .withDomain(domain)
+                .withFnr(fnr)
+                .withResourceType(resourceType)
+        );
+    }
 
-        auditLogger.logRequestInfo(fnr);
+    @SneakyThrows
+    private RequestData buildRequest() {
+        return new RequestData().withCredentialResource(getCredentialResource());
+    }
 
-        XacmlRequestGenerator xacmlRequestGenerator = new XacmlRequestGenerator(new Client(oidcToken, subjectId, fnr, resourceType, domain, getCredentialResource()));
+    @SneakyThrows
+    private BiasedDecisionResponse harTilgang(RequestData requestData) {
+        return harTilgang(new XacmlRequestGenerator().makeRequest(requestData));
+    }
 
-        XacmlResponse response = askForPermission(xacmlRequestGenerator.getRequest());
+    @SneakyThrows
+    @Override
+    public BiasedDecisionResponse harTilgang(Request request) throws PepException {
+        auditLogger.logRequestInfo(request);
+
+        XacmlResponse response = askForPermission(new XacmlRequest().withRequest(request));
 
         if (response.getResponse().size() > NUMBER_OF_RESPONSES_ALLOWED) {
             throw new PepException("Pep is giving " + response.getResponse().size() + " responses. Only "
@@ -128,19 +156,17 @@ public class PepImpl implements Pep {
                     + "Fix policy and/or PEP to send proper attributes.");
         }
 
-        auditLogger.logResponseInfo(biasedDecision.name(), response, fnr);
+        auditLogger.logResponseInfo(biasedDecision.name(), response, request);
 
         return new BiasedDecisionResponse(biasedDecision, response);
     }
 
     private String getCredentialResource() throws PepException {
-        String credentialResource;
         try {
-            credentialResource = Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
-        } catch (NoSuchFieldException e) {
+            return Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
+        } catch (Exception e) {
             throw new PepException(e);
         }
-        return credentialResource;
     }
 
     private void validateFnr(String fnr) {
@@ -150,7 +176,6 @@ public class PepImpl implements Pep {
             throw new IllegalArgumentException(message);
         }
     }
-
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
         String ident = SubjectHandler.getSubjectHandler().getUid();
