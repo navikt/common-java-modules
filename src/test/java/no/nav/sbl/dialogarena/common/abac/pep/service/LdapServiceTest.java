@@ -23,6 +23,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.*;
 
 import static java.lang.System.setProperty;
+import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -49,7 +50,7 @@ public class LdapServiceTest {
         setProperty("no.nav.modig.security.systemuser.password", "password");
         setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
-        System.setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
         SubjectHandlerUtils.setSubject(new SubjectHandlerUtils.SubjectBuilder("userId", IdentType.InternBruker).withAuthLevel(3).getSubject());
     }
 

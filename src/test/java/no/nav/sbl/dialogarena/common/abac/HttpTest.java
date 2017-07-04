@@ -29,6 +29,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -48,7 +49,7 @@ public class HttpTest {
     @BeforeClass
     public static void setup() throws IOException {
         System.setProperty("abac.bibliotek.simuler.avbrudd", "false");
-        System.setProperty("no.nav.modig.core.context.subjectHandlerImplementationClass", ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
         System.setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         System.setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         System.setProperty("ldap.url", "ldap.url");
