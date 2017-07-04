@@ -33,7 +33,7 @@
         <modig-core-test.version>1.0.0</modig-core-test.version>
         <oidc-security.version>3.0.33</oidc-security.version>
         <common-web.version>5.0.15</common-web.version>
-        <common-abac.version>1.1.69</common-abac.version>
+        <common-abac.version>2.217.26</common-abac.version>
         <common-test.version>2.0.3</common-test.version>
         <common-jetty.version>2.0.16</common-jetty.version>
         <jetty.version>9.3.0.M2</jetty.version>

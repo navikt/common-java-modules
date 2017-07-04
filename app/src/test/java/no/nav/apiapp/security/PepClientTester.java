@@ -25,10 +25,7 @@ public interface PepClientTester {
     @BeforeEach
     default void setup() {
         setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
-        SubjectHandlerUtils.SubjectBuilder subjectBuilder = new SubjectHandlerUtils.SubjectBuilder(KJENT_VEILEDER_IDENT, IdentType.InternBruker);
-        Subject subject = subjectBuilder.getSubject();
-        subject.getPublicCredentials().add(new OidcCredential(ISSOProvider.getISSOToken()));
-        setSubject(subject);
+        setSubject(new SubjectHandlerUtils.SubjectBuilder(KJENT_VEILEDER_IDENT, IdentType.InternBruker, ISSOProvider.getISSOToken()).getSubject());
         System.setProperty("abac.bibliotek.simuler.avbrudd", Boolean.FALSE.toString());
     }
 

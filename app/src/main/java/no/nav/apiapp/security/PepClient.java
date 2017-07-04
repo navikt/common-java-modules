@@ -22,22 +22,11 @@ public class PepClient {
 
     @SneakyThrows
     public String sjekkTilgangTilFnr(String fnr) {
-        if (Decision.Permit == pep.isServiceCallAllowedWithOidcToken(getToken(), applicationDomain, fnr).getBiasedDecision()) {
+        if (Decision.Permit == pep.harInnloggetBrukerTilgangTilPerson(fnr, applicationDomain).getBiasedDecision()) {
             return fnr;
         } else {
             throw new IngenTilgang();
         }
-    }
-
-    private String getToken() {
-        return SubjectHandler.getSubjectHandler().getSubject()
-                .getPublicCredentials()
-                .stream()
-                .filter(o -> o instanceof OidcCredential)
-                .map(o -> (OidcCredential) o)
-                .findFirst()
-                .map(OidcCredential::getToken)
-                .orElseThrow(IngenTilgang::new);
     }
 
 }
