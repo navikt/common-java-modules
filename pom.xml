@@ -11,7 +11,7 @@
 
     <groupId>no.nav.sbl</groupId>
 	<artifactId>mor-pom</artifactId>
-    <version>3.5-SNAPSHOT</version>
+    <version>3.5</version>
     <packaging>pom</packaging>
 
     <prerequisites>
@@ -307,7 +307,7 @@
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/felles/mor-pom.git</developerConnection>
         <url>http://stash.devillo.no/projects/FELLES/repos/mor-pom/</url>
-        <tag>HEAD</tag>
+        <tag>mor-pom-3.5</tag>
     </scm>
 
     <distributionManagement>
