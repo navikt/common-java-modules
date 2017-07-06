@@ -11,7 +11,7 @@
 
     <groupId>no.nav.sbl</groupId>
 	<artifactId>mor-pom</artifactId>
-    <version>3.4</version>
+    <version>3.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <prerequisites>
@@ -207,7 +207,7 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>sources-jar</id>
+                        <id>attach-sources</id>
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
