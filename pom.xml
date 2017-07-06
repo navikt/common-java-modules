@@ -307,7 +307,7 @@
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/felles/mor-pom.git</developerConnection>
         <url>http://stash.devillo.no/projects/FELLES/repos/mor-pom/</url>
-        <tag>mor-pom-3.5</tag>
+        <tag>mor-pom-3.6</tag>
     </scm>
 
     <distributionManagement>
