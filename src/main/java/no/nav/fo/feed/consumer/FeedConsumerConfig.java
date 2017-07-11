@@ -14,12 +14,14 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
     String webhookPollingInterval;
     FeedCallback<DOMAINOBJECT> callback;
     List<OutInterceptor> interceptors;
+    int pageSize;
 
     public FeedConsumerConfig(Class<DOMAINOBJECT> domainobject, Supplier<String> lastEntrySupplier, String host, String feedName) {
         this.domainobject = domainobject;
         this.lastEntrySupplier = lastEntrySupplier;
         this.host = host;
         this.feedName = feedName;
+        this.pageSize = 100;
     }
 
     public FeedConsumerConfig<DOMAINOBJECT> interceptors(List<OutInterceptor> interceptors) {
@@ -39,6 +41,11 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
 
     public FeedConsumerConfig<DOMAINOBJECT> callback(FeedCallback<DOMAINOBJECT> callback) {
         this.callback = callback;
+        return this;
+    }
+
+    public FeedConsumerConfig<DOMAINOBJECT> pageSize(int pageSize) {
+        this.pageSize = pageSize;
         return this;
     }
 }

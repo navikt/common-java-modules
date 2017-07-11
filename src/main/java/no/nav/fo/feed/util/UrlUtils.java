@@ -7,6 +7,10 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 public class UrlUtils {
+
+    public final static String QUERY_PARAM_PAGE_SIZE = "page_size";
+    public final static String QUERY_PARAM_ID = "id";
+
     private static Pattern pattern = Pattern.compile("([^:]\\/)\\/+");
 
     public static String callbackUrl(String root, String feedname) {
