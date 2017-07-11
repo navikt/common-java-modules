@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static no.nav.fo.feed.util.UrlUtils.QUERY_PARAM_ID;
+import static no.nav.fo.feed.util.UrlUtils.QUERY_PARAM_PAGE_SIZE;
+
 @Component
 @Consumes("application/json")
 @Produces("application/json")
@@ -46,7 +49,7 @@ public class FeedController {
 
     @GET
     @Path("{name}")
-    public Response get(@PathParam("name") String name, @QueryParam("id") String id, @QueryParam("page_size") Integer pageSize) {
+    public Response get(@PathParam("name") String name, @QueryParam(QUERY_PARAM_ID) String id, @QueryParam(QUERY_PARAM_PAGE_SIZE) Integer pageSize) {
         String sinceId = Optional.ofNullable(id).orElseThrow(MissingIdException::new);
         int size = Optional.ofNullable(pageSize).orElse(100);
         return Optional.ofNullable(producers.get(name))
