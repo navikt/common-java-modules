@@ -59,6 +59,12 @@ public class FeedController {
                 .build();
     }
 
+    @GET
+    @Path("/feedname")
+    public Response getFeedNames() {
+        return Response.ok().entity(producers.keySet()).build();
+    }
+
     // CONSUMER CONTROLLER
 
     @HEAD
