@@ -11,7 +11,7 @@
 
     <groupId>no.nav.sbl</groupId>
 	<artifactId>mor-pom</artifactId>
-    <version>3.4</version>
+    <version>3.6</version>
     <packaging>pom</packaging>
 
     <prerequisites>
@@ -207,9 +207,9 @@
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>sources-jar</id>
+                        <id>attach-sources</id>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -307,7 +307,7 @@
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/felles/mor-pom.git</developerConnection>
         <url>http://stash.devillo.no/projects/FELLES/repos/mor-pom/</url>
-        <tag>HEAD</tag>
+        <tag>mor-pom-3.6</tag>
     </scm>
 
     <distributionManagement>
