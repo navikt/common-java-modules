@@ -11,7 +11,7 @@ import java.util.Optional;
 
 class OpenAmUtils {
 
-    static String getSessionToken(String username, String password, String authorizeUrl) throws OidcTokenException {
+    static String getSessionToken(String username, String password, String authorizeUrl) {
         Response response = ClientBuilder.newBuilder().build()
                 .target(authorizeUrl)
                 .request()
@@ -26,7 +26,7 @@ class OpenAmUtils {
                 .orElseThrow(() -> new OidcTokenException("Ingen session token i responsen"));
     }
 
-    static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) throws OidcTokenException {
+    static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) {
         String cookie = "nav-isso=" + sessionToken;
         String uri = openAmHost + "/authorize";
         String encodedRedirectUri;
