@@ -1,14 +1,18 @@
 package no.nav.dialogarena.config.fasit;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
+import no.nav.dialogarena.config.fasit.dto.ApplicationInstance;
+import no.nav.dialogarena.config.fasit.dto.DataSourceResource;
+import no.nav.dialogarena.config.fasit.dto.Resource;
 import no.nav.dialogarena.config.util.Util;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.BasicAuthentication;
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -21,7 +25,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
+import java.util.List;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -38,6 +44,11 @@ public class FasitUtils {
 
     public static final String WELL_KNOWN_APPLICATION_NAME = "fasit";
     public static final String TEST_LOCAL = "test.local";
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    static {
+        objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     public static String getVariable(String variableName) {
         return ofNullable(System.getProperty(variableName, System.getenv(variableName)))
@@ -56,38 +67,27 @@ public class FasitUtils {
                 ));
     }
 
-    public static UsernameAndPassword getDbCredentials(TestEnvironment env, String applicationName) {
-        String url = format("https://fasit.adeo.no/api/v2/resources?type=DataSource&environmentclass=t&environment=%s&application=%s", env, applicationName);
-        String jsonString = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
-        JSONArray json = new JSONArray(jsonString);
-
-        return
-                new UsernameAndPassword()
-                        .setUsername(getUsername(json))
-                        .setPassword(getPassword(json));
+    public static DbCredentials getDbCredentials(TestEnvironment testEnvironment, String applicationName) {
+        List<ApplicationInstance> applications = fetchJsonObjects(String.format("https://fasit.adeo.no/api/v2/applicationinstances/application/%s", applicationName), ApplicationInstance.class);
+        ApplicationInstance application = applications
+                .stream()
+                .filter(applicationInstance -> testEnvironment.matcher(applicationInstance.getEnvironment()))
+                .findAny()
+                .orElseThrow(IllegalStateException::new);
+        Resource dataSourceRef = application
+                .getUsedresources()
+                .stream()
+                .filter(resource -> "datasource".equals(resource.getType()))
+                .findAny()
+                .orElseThrow(IllegalStateException::new);
+        DataSourceResource dataSourceResource = fetchJsonObject(dataSourceRef.ref, DataSourceResource.class);
+        return new DbCredentials()
+                .setUrl(dataSourceResource.properties.url)
+                .setUsername(dataSourceResource.properties.username)
+                .setPassword(of(fetchJson(dataSourceResource.secrets.password.ref))
+                        .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord for databasebruker")));
     }
 
-    private static String getPassword(JSONArray json) {
-        String ref = json
-                .getJSONObject(0)
-                .getJSONObject("secrets")
-                .getJSONObject("password")
-                .get("ref")
-                .toString();
-
-        return
-                of(httpClient(
-                        client -> client.newRequest(ref).send().getContentAsString()))
-                        .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord for databasebruker"));
-    }
-
-    private static String getUsername(JSONArray json) {
-        return json
-                .getJSONObject(0)
-                .getJSONObject("properties")
-                .get("username")
-                .toString();
-    }
 
     public static ApplicationConfig getApplicationConfig(String applicationName, String environment) {
         Document document = fetchXml(format("https://fasit.adeo.no/conf/environments/%s/applications/%s", environment, applicationName));
@@ -195,6 +195,23 @@ public class FasitUtils {
         }
     }
 
+    private static String fetchJson(String url) {
+        LOG.info("Fetching json: {}", url);
+        String json = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
+        LOG.info(json);
+        return json;
+    }
+
+    @SneakyThrows
+    private static <T> T fetchJsonObject(String url, Class<T> type) {
+        return objectMapper.readValue(fetchJson(url),type);
+    }
+
+    @SneakyThrows
+    private static <T> List<T> fetchJsonObjects(String url, Class<T> type) {
+        return objectMapper.readValue(fetchJson(url), TypeFactory.defaultInstance().constructCollectionType(List.class,type));
+    }
+
     private static Document fetchXml(String resourceUrl) {
         LOG.info("Fetching xml: {}", resourceUrl);
         return httpClient(httpClient -> {
@@ -253,11 +270,11 @@ public class FasitUtils {
         throw new IllegalStateException(format("fant ikke property '%s' i respons", propertyName));
     }
 
-    static String getFasitPassword() {
+    public static String getFasitPassword() {
         return getVariable(FASIT_PASSWORD_VARIABLE_NAME);
     }
 
-    static String getFasitUser() {
+    public static String getFasitUser() {
         return getVariable(FASIT_USERNAME_VARIABLE_NAME);
     }
 
@@ -288,7 +305,7 @@ public class FasitUtils {
 
     @Data
     @Accessors(chain = true)
-    static class UsernameAndPassword {
+    public static class UsernameAndPassword {
         public String username;
         public String password;
     }

@@ -126,9 +126,9 @@ public class FasitUtilsTest {
 
     @Test
     public void shouldReturnUsernamePasswordForDb() throws Exception {
-        String expectedUsername = "VEILARBPORTEFOLJE_T6";
-        FasitUtils.UsernameAndPassword actual = getDbCredentials(T6, "veilarbportefolje");
-        assertEquals(expectedUsername, actual.username);
-        assertNotNull(actual.password);
+        DbCredentials dbCredentials = getDbCredentials(T6, "veilarbportefolje");
+        assertEquals("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=VEILARBPORTEFOLJET6)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))", dbCredentials.url);
+        assertEquals("VEILARBPORTEFOLJE_T6", dbCredentials.username);
+        assertNotNull(dbCredentials.password);
     }
 }

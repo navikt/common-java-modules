@@ -28,4 +28,9 @@ public enum TestEnvironment {
     public String toString() {
         return env;
     }
+
+    public boolean matcher(String environment) {
+        return env.equalsIgnoreCase(environment);
+    }
+
 }
