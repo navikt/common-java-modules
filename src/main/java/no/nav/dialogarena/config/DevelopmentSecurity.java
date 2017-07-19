@@ -32,9 +32,11 @@ import java.io.IOException;
 
 import static java.lang.String.format;
 import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
+import static no.nav.brukerdialog.security.Constants.*;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
+import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
@@ -145,12 +147,12 @@ public class DevelopmentSecurity {
         String environmentClass = getEnvironmentClass(environment);
 
         ServiceUser issoCredentials = FasitUtils.getServiceUser(issoSecurityConfig.issoUserName, issoSecurityConfig.applicationName, environment);
-        setProperty("isso-rp-user.username", issoCredentials.username);
-        setProperty("isso-rp-user.password", issoCredentials.password);
-        setProperty("isso-jwks.url", format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentClass));
-        setProperty("isso-issuer.url", format("https://isso-%s.adeo.no:443/isso/oauth2", environmentClass)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
-        setProperty("isso-host.url", format("https://isso-%s.adeo.no/isso/oauth2", environmentClass));
-        setProperty("oidc-redirect.url", format("/%s/tjenester/login", issoSecurityConfig.contextName));
+        setProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME, issoCredentials.username);
+        setProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME, issoCredentials.password);
+        setProperty(ISSO_JWKS_URL, format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentClass));
+        setProperty(ISSO_EXPECTED_TOKEN_ISSUER, format("https://isso-%s.adeo.no:443/isso/oauth2", environmentClass)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
+        setProperty(ISSO_HOST_URL_PROPERTY_NAME, format("https://isso-%s.adeo.no/isso/oauth2", environmentClass));
+        setProperty(OIDC_REDIRECT_URL, KJENT_LOGIN_ADRESSE);
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, TEST_LOCAL);

@@ -38,7 +38,7 @@ import static org.eclipse.jetty.http.HttpMethod.POST;
 
 public class ISSOProvider {
 
-    static final String KJENT_LOGIN_ADRESSE = "https://app-t6.adeo.no/veilarbpersonflatefs/tjenester/login";
+    public static final String KJENT_LOGIN_ADRESSE = "https://app-t6.adeo.no/veilarbpersonflatefs/tjenester/login";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ISSOProvider.class);
 
@@ -49,37 +49,49 @@ public class ISSOProvider {
     private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("description: \".*\"");
 
     public static List<HttpCookie> getISSOCookies() {
-        return getISSOCookies(getTestAuthorization(),KJENT_LOGIN_ADRESSE);
+        return getISSOCookies(getTestAuthorization(), KJENT_LOGIN_ADRESSE);
     }
 
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl) {
+        return getISSOCookies(authorization, redirectUrl, getPriveligertVeileder());
+    }
+
+    public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl, TestUser testUser) {
         LOGGER.info("getting isso-cookies: {} {}", redirectUrl, authorization);
         try {
-            return Util.httpClient(httpClient -> new ISSORequest(authorization, redirectUrl, httpClient).getCookies());
+            return Util.httpClient(httpClient -> new ISSORequest(authorization, redirectUrl, httpClient, testUser).getCookies());
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn med isso mot: [%s]\n > %s", redirectUrl, e.getMessage()), e);
         }
+    }
+
+    public static TestUser getPriveligertVeileder() {
+        return FasitUtils.getTestUser("priveligert_veileder");
     }
 
     public static String getISSOToken() {
         return getISSOToken(getTestUser(), getTestAuthorization());
     }
 
-    private static ServiceUser getTestUser() {
-        return FasitUtils.getServiceUser(DEFAULT_ISSO_RP_USER, "veilarbpersonflatefs", "t6");
-    }
-
-    private static String getTestAuthorization() {
-        return FasitUtils.getTestUser("kerberos_test_token").password;
+    public static String getISSOToken(ServiceUser testUser) {
+        return getISSOToken(testUser, getTestAuthorization());
     }
 
     public static String getISSOToken(ServiceUser issoServiceUser, String authorization) {
         LOGGER.info("getting isso-token: {}");
         try {
-            return Util.httpClient(httpClient -> new ISSORequest(authorization, KJENT_LOGIN_ADRESSE, httpClient).getToken(issoServiceUser));
+            return Util.httpClient(httpClient -> new ISSORequest(authorization, KJENT_LOGIN_ADRESSE, httpClient, getPriveligertVeileder()).getToken(issoServiceUser));
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn med isso mot: [%s]\n > %s", KJENT_LOGIN_ADRESSE, e.getMessage()), e);
         }
+    }
+
+    public static String getTestAuthorization() {
+        return FasitUtils.getTestUser("kerberos_test_token").password;
+    }
+
+    public static ServiceUser getTestUser() {
+        return FasitUtils.getServiceUser(DEFAULT_ISSO_RP_USER, "veilarbpersonflatefs", "t6");
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -92,16 +104,18 @@ public class ISSOProvider {
         private final String redirectUrl;
         private final String state = UUID.randomUUID().toString();
         private final HttpClient httpClient;
+        private final TestUser testUser;
 
         private ObjectNode authJson;
         private String tokenId;
         private String appLoginUrl;
         private String authorizationCode;
 
-        private ISSORequest(String authorization, String redirectUrl, HttpClient httpClient) {
+        private ISSORequest(String authorization, String redirectUrl, HttpClient httpClient, TestUser testUser) {
             this.httpClient = httpClient;
             this.authorization = authorization;
             this.redirectUrl = redirectUrl;
+            this.testUser = testUser;
         }
 
         private String getToken(ServiceUser issoServiceUser) {
@@ -145,7 +159,6 @@ public class ISSOProvider {
         }
 
         private String buildLoginJson() {
-            TestUser testUser = FasitUtils.getTestUser("priveligert_veileder");
             JsonNode callbacks = authJson.get("callbacks");
             setInputValue(callbacks.get(0), testUser.username);
             setInputValue(callbacks.get(1), testUser.password);
