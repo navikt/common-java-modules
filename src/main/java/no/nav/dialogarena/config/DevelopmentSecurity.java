@@ -212,6 +212,8 @@ public class DevelopmentSecurity {
     }
 
     private static void commonSetup() {
+        System.setProperty("APP_LOG_HOME", new File("target").getAbsolutePath());
+        System.setProperty("application.name", "app");
         disableCertificateChecks();
 
         setProperty("environment.class", "t");
