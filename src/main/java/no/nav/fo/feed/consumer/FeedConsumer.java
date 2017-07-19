@@ -2,6 +2,10 @@ package no.nav.fo.feed.consumer;
 
 import no.nav.fo.feed.common.*;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.fo.feed.common.FeedElement;
+import no.nav.fo.feed.common.FeedParameterizedType;
+import no.nav.fo.feed.common.FeedResponse;
+import no.nav.fo.feed.common.FeedWebhookRequest;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
@@ -16,8 +20,7 @@ import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
-import static no.nav.fo.feed.util.UrlUtils.asUrl;
-import static no.nav.fo.feed.util.UrlUtils.callbackUrl;
+import static no.nav.fo.feed.util.UrlUtils.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -78,7 +81,8 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         String lastEntry = this.config.lastEntrySupplier.get();
         Invocation.Builder request = ClientBuilder.newBuilder().build()
                 .target(getTargetUrl())
-                .queryParam("id", lastEntry)
+                .queryParam(QUERY_PARAM_ID, lastEntry)
+                .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
                 .request();
 
         config.interceptors.forEach( interceptor -> interceptor.apply(request));
