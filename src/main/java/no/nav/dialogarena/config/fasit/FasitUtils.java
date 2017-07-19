@@ -56,7 +56,7 @@ public class FasitUtils {
                 ));
     }
 
-    static UsernameAndPassword getDbCredentials(TestEnvironment env, String applicationName) {
+    public static UsernameAndPassword getDbCredentials(TestEnvironment env, String applicationName) {
         String url = format("https://fasit.adeo.no/api/v2/resources?type=DataSource&environmentclass=t&environment=%s&application=%s", env, applicationName);
         String jsonString = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
         JSONArray json = new JSONArray(jsonString);
