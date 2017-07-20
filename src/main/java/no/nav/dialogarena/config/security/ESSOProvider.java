@@ -17,16 +17,22 @@ public class ESSOProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ESSOProvider.class);
 
+    public static final String BRUKER_UNDER_OPPFOLGING = "bruker_under_oppfolging";
+
     public static HttpCookie getHttpCookie(TestEnvironment environment) {
         return getHttpCookie(environment.toString());
     }
 
     public static HttpCookie getHttpCookie(String environment) {
-        return new HttpCookie("nav-esso", getEssoCredentials(environment).sso);
+        return getEssoCredentials(environment).cookie;
     }
 
     public static ESSOCredentials getEssoCredentials(String environment) {
-        return getEssoCredentialsForUser("bruker_under_oppfolging", environment);
+        return getEssoCredentialsForUser(BRUKER_UNDER_OPPFOLGING, environment);
+    }
+
+    public static ESSOCredentials getEssoCredentialsForUser(String user, TestEnvironment testEnvironment) {
+        return getEssoCredentialsForUser(user, testEnvironment.toString());
     }
 
     public static ESSOCredentials getEssoCredentialsForUser(String user, String environment){
@@ -52,10 +58,12 @@ public class ESSOProvider {
     public static class ESSOCredentials{
         public final TestUser testUser;
         public final String sso;
+        public final HttpCookie cookie;
 
         private ESSOCredentials(TestUser testUser, String sso) {
             this.testUser = testUser;
             this.sso = sso;
+            this.cookie = new HttpCookie("nav-esso", sso);
         }
     }
 

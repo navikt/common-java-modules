@@ -42,6 +42,7 @@ import static org.eclipse.jetty.http.HttpMethod.POST;
 
 public class ISSOProvider {
 
+    public static final String PRIVELIGERT_VEILEDER = "priveligert_veileder";
     public static final String KJENT_LOGIN_ADRESSE = "https://app-t6.adeo.no/veilarbpersonflatefs/tjenester/login";
     public static final String KJENT_LOGIN_ADRESSE_Q = "https://app-q6.adeo.no/veilarbpersonflatefs/tjenester/login";
 
@@ -81,7 +82,7 @@ public class ISSOProvider {
     }
 
     public static TestUser getPriveligertVeileder() {
-        return FasitUtils.getTestUser("priveligert_veileder");
+        return FasitUtils.getTestUser(PRIVELIGERT_VEILEDER);
     }
 
     public static String getISSOToken() {

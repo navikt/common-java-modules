@@ -19,6 +19,15 @@ public class ESSOProviderIntegrationTest {
         sjekkCookie(ESSOProvider.getHttpCookie(Q6));
     }
 
+    @Test
+    public void getEssoCredentialsForUser() {
+        sjekkCredentials(ESSOProvider.getEssoCredentialsForUser(ESSOProvider.BRUKER_UNDER_OPPFOLGING, T6));
+    }
+
+    private void sjekkCredentials(ESSOProvider.ESSOCredentials essoCredentialsForUser) {
+        sjekkCookie(essoCredentialsForUser.cookie);
+    }
+
     private void sjekkCookie(HttpCookie httpCookie) {
         assertThat(httpCookie.getName(), equalTo("nav-esso"));
         assertThat(httpCookie.getValue(), notNullValue());
