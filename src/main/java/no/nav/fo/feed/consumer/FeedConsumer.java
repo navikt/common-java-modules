@@ -1,6 +1,5 @@
 package no.nav.fo.feed.consumer;
 
-import no.nav.fo.feed.common.*;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.common.FeedParameterizedType;
@@ -32,11 +31,13 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
     public FeedConsumer(FeedConsumerConfig<DOMAINOBJECT> config) {
         String feedName = config.feedName;
+        String host = config.host;
+
         this.config = config;
         this.pingMetadata = new Ping.PingMetadata(getTargetUrl(), String.format("feed-consumer av '%s'", feedName), false);
 
-        createScheduledJob(feedName, this.config.host, this.config.pollingInterval, this::poll);
-        createScheduledJob(feedName + "/webhook", this.config.host, this.config.webhookPollingInterval, this::registerWebhook);
+        createScheduledJob(feedName, host, config.pollingInterval, this::poll);
+        createScheduledJob(feedName + "/webhook", host, config.webhookPollingInterval, this::registerWebhook);
     }
 
     public boolean webhookCallback() {
@@ -55,7 +56,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     void registerWebhook() {
         Client client = ClientBuilder.newBuilder().build();
 
-        String callbackUrl = callbackUrl(null, this.config.feedName);
+        String callbackUrl = callbackUrl(this.config.apiRootPath, this.config.feedName);
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
 
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
