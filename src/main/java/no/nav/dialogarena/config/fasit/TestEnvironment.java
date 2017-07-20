@@ -1,5 +1,6 @@
 package no.nav.dialogarena.config.fasit;
 
+@SuppressWarnings("unused")
 public enum TestEnvironment {
 
     T1("t1"),
@@ -16,7 +17,9 @@ public enum TestEnvironment {
     T12("t12"),
     TA("ta"),
     TX("tx"),
-    TY("ty");
+    TY("ty"),
+
+    Q6("q6");
 
     private final String env;
 

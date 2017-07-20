@@ -129,6 +129,10 @@ public class FasitUtils {
                 .setPassword(serviceUser.password);
     }
 
+    public static ServiceUser getServiceUser(String userAlias, String applicationName, TestEnvironment environment) {
+        return getServiceUser(userAlias, applicationName, environment.toString());
+    }
+
     public static ServiceUser getServiceUser(String userAlias, String applicationName, String environment) {
         ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
         return getServiceUser(userAlias, applicationName, environment, applicationConfig.domain);

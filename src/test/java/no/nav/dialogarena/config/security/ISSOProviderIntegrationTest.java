@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static no.nav.dialogarena.config.fasit.TestEnvironment.Q6;
 import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
+import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE_Q;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -21,10 +23,22 @@ public class ISSOProviderIntegrationTest {
     }
 
     @Test
+    public void getISSOCookies_q() {
+        sjekkIssoCookies(ISSOProvider.getISSOCookies(KJENT_LOGIN_ADRESSE_Q, Q6));
+    }
+
+    @Test
     public void getISSOToken() {
         sjekkIssoToken(ISSOProvider.getISSOToken());
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser()));
-        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(),ISSOProvider.getTestAuthorization()));
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), KJENT_LOGIN_ADRESSE));
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), KJENT_LOGIN_ADRESSE));
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), KJENT_LOGIN_ADRESSE, ISSOProvider.getTestAuthorization()));
+    }
+
+    @Test
+    public void getISSOToken_q() {
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(Q6), KJENT_LOGIN_ADRESSE_Q));
     }
 
     private void sjekkIssoToken(String issoToken) {
