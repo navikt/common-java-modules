@@ -1,5 +1,6 @@
 package no.nav.fo.feed.consumer;
 
+import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.common.FeedParameterizedType;
 import no.nav.fo.feed.common.FeedResponse;
@@ -22,17 +23,21 @@ import static no.nav.fo.feed.util.UrlUtils.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
-    public static String applicationApiroot;
+public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Pingable {
     private static final Logger LOG = getLogger(FeedConsumer.class);
 
-    private FeedConsumerConfig<DOMAINOBJECT> config;
+    private final FeedConsumerConfig<DOMAINOBJECT> config;
+    private final Ping.PingMetadata pingMetadata;
 
     public FeedConsumer(FeedConsumerConfig<DOMAINOBJECT> config) {
-        this.config = config;
+        String feedName = config.feedName;
+        String host = config.host;
 
-        createScheduledJob(this.config.feedName, this.config.host, this.config.pollingInterval, this::poll);
-        createScheduledJob(this.config.feedName + "/webhook", this.config.host, this.config.webhookPollingInterval, this::registerWebhook);
+        this.config = config;
+        this.pingMetadata = new Ping.PingMetadata(getTargetUrl(), String.format("feed-consumer av '%s'", feedName), false);
+
+        createScheduledJob(feedName, host, config.pollingInterval, this::poll);
+        createScheduledJob(feedName + "/webhook", host, config.webhookPollingInterval, this::registerWebhook);
     }
 
     public boolean webhookCallback() {
@@ -51,7 +56,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     void registerWebhook() {
         Client client = ClientBuilder.newBuilder().build();
 
-        String callbackUrl = callbackUrl(FeedConsumer.applicationApiroot, this.config.feedName);
+        String callbackUrl = callbackUrl(this.config.apiRootPath, this.config.feedName);
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
 
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
@@ -76,7 +81,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     void poll() {
         String lastEntry = this.config.lastEntrySupplier.get();
         Invocation.Builder request = ClientBuilder.newBuilder().build()
-                .target(asUrl(this.config.host, "feed", this.config.feedName))
+                .target(getTargetUrl())
                 .queryParam(QUERY_PARAM_ID, lastEntry)
                 .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
                 .request();
@@ -93,15 +98,28 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
 
         ParameterizedType type = new FeedParameterizedType(this.config.domainobject);
         FeedResponse<DOMAINOBJECT> entity = response.readEntity(new GenericType<>(type));
-
-        if (entity.getElements() != null && !entity.getElements().isEmpty()) {
-            List<DOMAINOBJECT> data = entity
-                    .getElements()
+        List<FeedElement<DOMAINOBJECT>> elements = entity.getElements();
+        if (elements != null && !elements.isEmpty()) {
+            List<DOMAINOBJECT> data = elements
                     .stream()
                     .map(FeedElement::getElement)
                     .collect(Collectors.toList());
 
             this.config.callback.call(entity.getNextPageId(), data);
+        }
+    }
+
+    private String getTargetUrl() {
+        return asUrl(this.config.host, "feed", this.config.feedName);
+    }
+
+    @Override
+    public Ping ping() {
+        try {
+            poll();
+            return Ping.lyktes(pingMetadata);
+        } catch (Throwable e) {
+            return Ping.feilet(pingMetadata, e);
         }
     }
 }
