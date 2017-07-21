@@ -44,23 +44,17 @@ public class SystemUserTokenProvider {
     }
 
     private void refreshToken() {
+        idToken = null;
+        String openAmSessionToken = OpenAmUtils.getSessionToken(srvUsername, srvPassword, konstruerFullstendingAuthUri(openAmHost, authenticateUri));
+        String authorizationCode = OpenAmUtils.getAuthorizationCode(openAmHost, openAmSessionToken, openamClientUsername, oidcRedirectUrl);
+        IdTokenAndRefreshToken idTokenAndRefreshToken = idTokenAndRefreshTokenProvider.getToken(authorizationCode, oidcRedirectUrl);
+        OidcTokenValidatorResult validationResult = validator.validate(idTokenAndRefreshToken.getIdToken().getToken());
 
-            try {
-                String openAmSessionToken = OpenAmUtils.getSessionToken(srvUsername,srvPassword,konstruerFullstendingAuthUri(openAmHost,authenticateUri));
-                String authorizationCode = OpenAmUtils.getAuthorizationCode(openAmHost, openAmSessionToken, openamClientUsername,oidcRedirectUrl);
-                IdTokenAndRefreshToken idTokenAndRefreshToken = idTokenAndRefreshTokenProvider.getToken(authorizationCode,oidcRedirectUrl);
-                OidcTokenValidatorResult validationResult = validator.validate(idTokenAndRefreshToken.getIdToken().getToken());
+        if (!validationResult.isValid()) {
+            log.error("Kunne ikke valider token: " + idTokenAndRefreshToken.getIdToken().getToken(), validationResult.getErrorMessage());
+        }
 
-                if(!validationResult.isValid()) {
-                    log.error("Kunne ikke valider token: "+ idTokenAndRefreshToken.getIdToken().getToken(), validationResult.getErrorMessage());
-                    idToken = null;
-                }
-
-                idToken = new IdToken(idTokenAndRefreshToken.getIdToken(),validationResult.getExpSeconds());
-            } catch (OidcTokenException e) {
-                log.error("Feil ved henting av nytt token: ",e.getMessage());
-                idToken = null;
-            }
+        idToken = new IdToken(idTokenAndRefreshToken.getIdToken(), validationResult.getExpSeconds());
     }
 
     static String konstruerFullstendingAuthUri(String openAmHost, String authUri ) {
