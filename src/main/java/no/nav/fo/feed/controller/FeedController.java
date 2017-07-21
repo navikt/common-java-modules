@@ -5,13 +5,17 @@ import no.nav.fo.feed.common.FeedWebhookRequest;
 import no.nav.fo.feed.consumer.FeedConsumer;
 import no.nav.fo.feed.exception.MissingIdException;
 import no.nav.fo.feed.producer.FeedProducer;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
+import static no.nav.fo.feed.util.UrlUtils.QUERY_PARAM_ID;
+import static no.nav.fo.feed.util.UrlUtils.QUERY_PARAM_PAGE_SIZE;
 
 import static no.nav.fo.feed.util.MetricsUtils.timed;
 
@@ -21,21 +25,30 @@ import static no.nav.fo.feed.util.MetricsUtils.timed;
 @Path("feed")
 public class FeedController {
 
+    private static final Logger LOG = getLogger(FeedController.class);
+
     private Map<String, FeedProducer> producers = new HashMap<>();
     private Map<String, FeedConsumer> consumers = new HashMap<>();
 
     public <DOMAINOBJECT extends Comparable<DOMAINOBJECT>> void addFeed(String serverFeedname, FeedProducer<DOMAINOBJECT> producer) {
+        LOG.info("ny feed. navn={}", serverFeedname);
         producers.put(serverFeedname, producer);
     }
 
     public <DOMAINOBJECT extends Comparable<DOMAINOBJECT>> void addFeed(String clientFeedname, FeedConsumer<DOMAINOBJECT> consumer) {
+        LOG.info("ny feed-klient. navn={}", clientFeedname);
         consumers.put(clientFeedname, consumer);
     }
 
     public FeedController() {
-        System.out.println("Starter");
+        LOG.info("starter");
     }
     // PRODUCER CONTROLLER
+
+    @GET
+    public List<String> getFeeds() {
+        return new ArrayList<>(producers.keySet());
+    }
 
     @PUT
     @Path("{name}/webhook")
@@ -48,7 +61,7 @@ public class FeedController {
 
     @GET
     @Path("{name}")
-    public Response get(@PathParam("name") String name, @QueryParam("id") String id, @QueryParam("page_size") Integer pageSize) {
+    public Response get(@PathParam("name") String name, @QueryParam(QUERY_PARAM_ID) String id, @QueryParam(QUERY_PARAM_PAGE_SIZE) Integer pageSize) {
         return timed(String.format("feed.%s.poll", name), () -> {
             String sinceId = Optional.ofNullable(id).orElseThrow(MissingIdException::new);
             int size = Optional.ofNullable(pageSize).orElse(100);
@@ -58,7 +71,12 @@ public class FeedController {
                     .orElse(Response.status(Response.Status.BAD_REQUEST))
                     .build();
         });
+    }
 
+    @GET
+    @Path("/feedname")
+    public Response getFeedNames() {
+        return Response.ok().entity(producers.keySet()).build();
     }
 
     // CONSUMER CONTROLLER

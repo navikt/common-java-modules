@@ -66,13 +66,18 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     }
 
     public void activateWebhook() {
-        callbackUrls
-                .forEach((url) -> {
-                    Client client = ClientBuilder.newBuilder().build();
-                    Invocation.Builder request = client.target(url).request();
-                    this.interceptors.forEach( interceptor -> interceptor.apply(request));
-                    request.build(HEAD).invoke();
-                });
+        callbackUrls.forEach(this::tryActivateWebHook);
+    }
+
+    private void tryActivateWebHook(String url) {
+        try {
+            Client client = ClientBuilder.newBuilder().build();
+            Invocation.Builder request = client.target(url).request();
+            this.interceptors.forEach( interceptor -> interceptor.apply(request));
+            request.build(HEAD).invoke();
+        } catch(Exception e) {
+            LOG.error("Feil ved activate webhook til url {}, {}", url, e.getMessage());
+        }
     }
 
     public boolean createWebhook(FeedWebhookRequest request) {
