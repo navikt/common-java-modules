@@ -11,6 +11,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
@@ -23,9 +24,12 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
 
     private static final Logger LOG = getLogger(FeedProducer.class);
 
-    @Builder.Default private int maxPageSize = 10000;
-    @Builder.Default private List<String> callbackUrls = new ArrayList<>();
-    @Builder.Default private List<OutInterceptor> interceptors = null;
+    @Builder.Default
+    private int maxPageSize = 10000;
+    @Builder.Default
+    private List<String> callbackUrls = new ArrayList<>();
+    @Builder.Default
+    private List<OutInterceptor> interceptors = new ArrayList<>();
     private FeedProvider<DOMAINOBJECT> provider;
 
 
@@ -65,18 +69,21 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
         return new FeedResponse<DOMAINOBJECT>().setNextPageId(nextPageId).setElements(pageElements);
     }
 
-    public void activateWebhook() {
-        callbackUrls.forEach(this::tryActivateWebHook);
+    public Map<String, Integer> activateWebhook() {
+        return callbackUrls
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), this::tryActivateWebHook));
     }
 
-    private void tryActivateWebHook(String url) {
+    private int tryActivateWebHook(String url) {
         try {
             Client client = ClientBuilder.newBuilder().build();
             Invocation.Builder request = client.target(url).request();
-            this.interceptors.forEach( interceptor -> interceptor.apply(request));
-            request.build(HEAD).invoke();
-        } catch(Exception e) {
+            this.interceptors.forEach(interceptor -> interceptor.apply(request));
+            return request.build(HEAD).invoke().getStatus();
+        } catch (Exception e) {
             LOG.error("Feil ved activate webhook til url {}, {}", url, e.getMessage());
+            return 500;
         }
     }
 
