@@ -10,16 +10,10 @@
     <groupId>no.nav.dialogarena</groupId>
     <artifactId>oidc-security</artifactId>
     <version>3</version>
-
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    <description>
-        Fellesfunksjonalitet for sikkerthet basert på oidc
-    </description>
 
     <properties>
         <jose4j.version>0.5.0</jose4j.version>
-        <picketbox.version>4.9.2.Final</picketbox.version>
         <jee.version>7.0</jee.version>
     </properties>
 
@@ -40,6 +34,10 @@
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>feed</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>common-types</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -67,7 +65,6 @@
         <dependency>
             <groupId>org.picketbox</groupId>
             <artifactId>picketbox</artifactId>
-            <version>${picketbox.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
