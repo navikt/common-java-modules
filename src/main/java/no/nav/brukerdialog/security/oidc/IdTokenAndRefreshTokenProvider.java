@@ -21,6 +21,9 @@ public class IdTokenAndRefreshTokenProvider {
 
     static final String ENCODING = "UTF-8";
 
+    public static final String ID_TOKEN = "id_token";
+    public static final String REFRESH_TOKEN = "refresh_token";
+
     private final Parameters parameters;
 
     public IdTokenAndRefreshTokenProvider() {
@@ -63,8 +66,8 @@ public class IdTokenAndRefreshTokenProvider {
     }
 
     private IdTokenAndRefreshToken extractToken(String responseString) {
-        OidcCredential token = new OidcCredential(TokenProviderUtil.findToken(responseString, "id_token"));
-        String refreshToken = TokenProviderUtil.findToken(responseString, "refresh_token");
+        OidcCredential token = new OidcCredential(TokenProviderUtil.findToken(responseString, ID_TOKEN));
+        String refreshToken = TokenProviderUtil.findToken(responseString, REFRESH_TOKEN);
         return new IdTokenAndRefreshToken(token, refreshToken);
     }
 

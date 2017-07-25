@@ -3,6 +3,7 @@ package no.nav.brukerdialog.security.oidc;
 
 import no.nav.brukerdialog.security.domain.IdToken;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
+import no.nav.brukerdialog.security.domain.OidcCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,17 +45,18 @@ public class SystemUserTokenProvider {
     }
 
     private void refreshToken() {
-        idToken = null;
         String openAmSessionToken = OpenAmUtils.getSessionToken(srvUsername, srvPassword, konstruerFullstendingAuthUri(openAmHost, authenticateUri));
         String authorizationCode = OpenAmUtils.getAuthorizationCode(openAmHost, openAmSessionToken, openamClientUsername, oidcRedirectUrl);
         IdTokenAndRefreshToken idTokenAndRefreshToken = idTokenAndRefreshTokenProvider.getToken(authorizationCode, oidcRedirectUrl);
-        OidcTokenValidatorResult validationResult = validator.validate(idTokenAndRefreshToken.getIdToken().getToken());
+        OidcCredential idToken = idTokenAndRefreshToken.getIdToken();
+        String jwtToken = idToken.getToken();
+        OidcTokenValidatorResult validationResult = validator.validate(jwtToken);
 
-        if (!validationResult.isValid()) {
-            log.error("Kunne ikke valider token: " + idTokenAndRefreshToken.getIdToken().getToken(), validationResult.getErrorMessage());
+        if (validationResult.isValid()) {
+            this.idToken = new IdToken(idToken, validationResult.getExpSeconds());
+        } else {
+            throw new OidcTokenException("Kunne ikke validere token: "+validationResult.getErrorMessage());
         }
-
-        idToken = new IdToken(idTokenAndRefreshToken.getIdToken(), validationResult.getExpSeconds());
     }
 
     static String konstruerFullstendingAuthUri(String openAmHost, String authUri ) {

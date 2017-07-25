@@ -2,6 +2,7 @@ package no.nav.brukerdialog.security.oidc;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -38,20 +39,16 @@ class TokenProviderUtil {
                 .collect(Collectors.joining("\n"));
     }
 
+    @SneakyThrows
     static String findToken(String responseString, String tokenName) {
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            JsonNode json = mapper.readTree(responseString);
-            JsonNode token = json.get(tokenName);
-            if (token == null) {
-                return null;
-            }
-            return token.textValue();
-        } catch (IOException e) {
-            return null;
+        JsonNode json = mapper.readTree(responseString);
+        JsonNode token = json.get(tokenName);
+        if (token == null) {
+            throw new OidcTokenException("mangler attributt i respons: " + tokenName);
         }
+        return token.textValue();
     }
-
 
     static String basicCredentials(String username, String password) {
         return "Basic " + Base64.getEncoder().encodeToString(String.format("%s:%s", username, password).getBytes());

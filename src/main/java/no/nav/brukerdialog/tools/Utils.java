@@ -1,17 +1,16 @@
 package no.nav.brukerdialog.tools;
 
 
+import no.nav.brukerdialog.security.oidc.OidcTokenException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Utils {
-    private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     public static String getSystemProperty(String propertyName) {
         String property = System.getProperty(propertyName);
-        if(property == null) {
-            log.error("System property " + propertyName + " er ikke definert");
-            return null;
+        if (property == null) {
+            throw new OidcTokenException("Mangler system property: " + propertyName);
         }
         return property;
     }
