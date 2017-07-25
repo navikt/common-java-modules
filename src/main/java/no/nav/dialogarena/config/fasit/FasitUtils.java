@@ -290,6 +290,21 @@ public class FasitUtils {
         return "oera-" + getEnvironmentClass(environment) + ".local";
     }
 
+    public static String getFSSLocal(String environment) {
+        return getFSSClass(environment) + ".local";
+    }
+
+    private static String getFSSClass(String environment) {
+        switch (getEnvironmentClass(environment)) {
+            case "t":
+                return "test";
+            case "q":
+                return "preprod";
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
     public static boolean erEksterntDomene(String domain) {
         return domain != null && domain.contains("oera");
     }

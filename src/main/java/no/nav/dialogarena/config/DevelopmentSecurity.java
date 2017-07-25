@@ -115,7 +115,7 @@ public class DevelopmentSecurity {
 
         String environment = securityConfig.environment;
         ServiceUser serviceUser = FasitUtils.getServiceUser(securityConfig.serviceUserName, securityConfig.applicationName, environment);
-        assertCorrectDomain(serviceUser, TEST_LOCAL);
+        assertCorrectDomain(serviceUser, FasitUtils.getFSSLocal(environment));
         configureServiceUser(serviceUser);
         configureAbacUser(serviceUser);
         configureLdap(getLdapConfig(securityConfig.ldapUserAlias, securityConfig.applicationName, securityConfig.environment));
@@ -155,7 +155,7 @@ public class DevelopmentSecurity {
         setProperty(OIDC_REDIRECT_URL, KJENT_LOGIN_ADRESSE);
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);
-        assertCorrectDomain(serviceUser, TEST_LOCAL);
+        assertCorrectDomain(serviceUser, FasitUtils.getFSSLocal(environment));
         configureServiceUser(serviceUser);
         configureAbacUser(serviceUser);
         configureLdap(getLdapConfig(issoSecurityConfig.ldapUserAlias, issoSecurityConfig.applicationName, issoSecurityConfig.environment));
@@ -225,8 +225,8 @@ public class DevelopmentSecurity {
     }
 
     private static void assertCorrectDomain(ServiceUser serviceUser, String expectedDomain) {
-        if(!expectedDomain.equals(serviceUser.domain)){
-            throw new IllegalStateException();
+        if (!expectedDomain.equals(serviceUser.domain)) {
+            throw new IllegalStateException(String.format("%s != %s", serviceUser.domain, expectedDomain));
         }
     }
 

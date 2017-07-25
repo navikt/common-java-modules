@@ -28,6 +28,13 @@ public class FasitUtilsTest {
     }
 
     @Test
+    public void getFSSLocal() {
+        assertThat(FasitUtils.getFSSLocal("t6"), equalTo("test.local"));
+        assertThat(FasitUtils.getFSSLocal("t"), equalTo("test.local"));
+        assertThat(FasitUtils.getFSSLocal("q6"), equalTo("preprod.local"));
+    }
+
+    @Test
     public void erEksterntDomene_() {
         assertThat(FasitUtils.erEksterntDomene("adeo.no"), is(false));
         assertThat(FasitUtils.erEksterntDomene("test.local"), is(false));
