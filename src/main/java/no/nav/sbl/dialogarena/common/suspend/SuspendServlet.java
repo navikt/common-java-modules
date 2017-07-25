@@ -2,6 +2,7 @@ package no.nav.sbl.dialogarena.common.suspend;
 
 import org.slf4j.Logger;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,7 +16,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class SuspendServlet extends HttpServlet {
 
-    public static final long SIGNAL_READY_FOR_SHUTDOWN_IN_MS = 3000L;
+    public static final String SHUTDOWN_TIME = "shutdownTimeMs";
+    public static final long DEFAULT_SIGNAL_READY_FOR_SHUTDOWN_IN_MS = 3000L;
 
     public enum ApplicationStatus {
         RUNNING, TO_BE_SUSPENDED, SUSPENDED;
@@ -23,6 +25,14 @@ public class SuspendServlet extends HttpServlet {
 
     private static final Logger LOGGER = getLogger(SuspendServlet.class);
     private static ApplicationStatus status = ApplicationStatus.RUNNING;
+    private long signalReadyForShutdownInMs;
+
+    @Override
+    public void init() throws ServletException {
+        String shutdownTime = getInitParameter(SHUTDOWN_TIME);
+
+        signalReadyForShutdownInMs = shutdownTime != null ? Long.parseLong(shutdownTime) : DEFAULT_SIGNAL_READY_FOR_SHUTDOWN_IN_MS;
+    }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         LOGGER.info("[GET] Suspend-request mottatt - appen er i status {} ", status);
@@ -37,7 +47,7 @@ public class SuspendServlet extends HttpServlet {
         if (status.equals(ApplicationStatus.RUNNING)) {
             LOGGER.info("[PUT] Suspend-request mottat - starter å klargjøre for shutdown");
             status = ApplicationStatus.TO_BE_SUSPENDED;
-            scheduleReadyForShutdown(SIGNAL_READY_FOR_SHUTDOWN_IN_MS);
+            scheduleReadyForShutdown(signalReadyForShutdownInMs);
         }
         response.setStatus(SC_OK);
     }

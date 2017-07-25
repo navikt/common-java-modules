@@ -14,7 +14,7 @@ public class IsAliveServlet extends HttpServlet {
             response.sendError(SC_SERVICE_UNAVAILABLE, "Service is suspended for application update");
         }
         else{
-            response.getWriter().write("{status : \"ok\", message: \"AAP fungerer\"}");
+            response.getWriter().write("{status : \"ok\", message: \"Appen fungerer\"}");
         }
     }
 }

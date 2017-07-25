@@ -11,6 +11,9 @@ import java.util.StringTokenizer;
 
 public class BasicAuthenticationFilter implements Filter {
 
+    public static final String AUTH_PROPERTY_NAME = "authProperty";
+    public static final String DEFAULT_AUTH_PROPERTY = "suspender";
+
     private String username = "";
 
     private String password = "";
@@ -19,8 +22,11 @@ public class BasicAuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        username = System.getProperty("suspender.username");
-        password = System.getProperty("suspender.password");
+        String authProperty = filterConfig.getInitParameter(AUTH_PROPERTY_NAME);
+        authProperty = authProperty != null ? authProperty : DEFAULT_AUTH_PROPERTY;
+
+        username = System.getProperty(authProperty + ".username");
+        password = System.getProperty(authProperty + ".password");
     }
 
     @Override

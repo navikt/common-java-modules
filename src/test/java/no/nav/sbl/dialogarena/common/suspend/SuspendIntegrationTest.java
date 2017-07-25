@@ -3,7 +3,9 @@ package no.nav.sbl.dialogarena.common.suspend;
 
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.junit.After;
@@ -18,6 +20,8 @@ import java.util.EnumSet;
 import java.util.Properties;
 
 import static javax.servlet.http.HttpServletResponse.*;
+import static no.nav.sbl.dialogarena.common.suspend.BasicAuthenticationFilter.AUTH_PROPERTY_NAME;
+import static no.nav.sbl.dialogarena.common.suspend.SuspendServlet.SHUTDOWN_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SuspendIntegrationTest {
@@ -29,6 +33,7 @@ public class SuspendIntegrationTest {
 
     public static final String IS_ALIVE_URL = LOCALHOST + SERVLET_IS_ALIVE;
     public static final String SUSPEND_URL = LOCALHOST + SERVLET_SUSPEND;
+    public static final String AUTH_PROPERTY = "authyauthy";
     public static final String USERNAME = "suspender";
     public static final String PASSWORD = "pwd";
     public static final String AUTH = USERNAME+":"+PASSWORD;
@@ -40,8 +45,8 @@ public class SuspendIntegrationTest {
     public void setup() throws Exception {
         server = new Server(8080);
         final Properties properties = new Properties();
-        properties.setProperty("suspender.username", USERNAME);
-        properties.setProperty("suspender.password", PASSWORD);
+        properties.setProperty(AUTH_PROPERTY + ".username", USERNAME);
+        properties.setProperty(AUTH_PROPERTY + ".password", PASSWORD);
         server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
                                         @Override
                                         public void lifeCycleStarting(LifeCycle event) {
@@ -49,9 +54,16 @@ public class SuspendIntegrationTest {
                                         }
                                     });
         ServletContextHandler context = new ServletContextHandler();
-        context.addFilter(BasicAuthenticationFilter.class, "/management/suspend", EnumSet.of(DispatcherType.REQUEST));
+
+        FilterHolder authFilter = new FilterHolder(BasicAuthenticationFilter.class);
+        authFilter.setInitParameter(AUTH_PROPERTY_NAME, AUTH_PROPERTY);
+        context.addFilter(authFilter, SERVLET_SUSPEND, EnumSet.of(DispatcherType.REQUEST));
+
         context.addServlet(IsAliveServlet.class, SERVLET_IS_ALIVE);
-        context.addServlet(SuspendServlet.class, SERVLET_SUSPEND);
+
+        ServletHolder suspendServlet = new ServletHolder(SuspendServlet.class);
+        suspendServlet.setInitParameter(SHUTDOWN_TIME, "500");
+        context.addServlet(suspendServlet, SERVLET_SUSPEND);
 
         server.setHandler(context);
         server.start();
