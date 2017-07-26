@@ -16,7 +16,7 @@ Dra inn i maven `pom.xml`. Om koden bare brukes i web.xml og man har analyze-dep
 ```
 
 
-Dra inn Servlets+filter i `web.xml`.
+Dra inn Servlets+filter i `web.xml`. Her dras det inn en IsAlive-servlet, så slett en evt. eksisterende IsAlive. Evt. kan en eksisterende IsAlive implementere sjekking av suspend-servleten.
 
 ```
 <servlet>
