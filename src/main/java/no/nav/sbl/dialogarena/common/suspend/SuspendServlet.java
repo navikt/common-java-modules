@@ -39,7 +39,7 @@ public class SuspendServlet extends HttpServlet {
         if (status.equals(ApplicationStatus.SUSPENDED)) {
             response.setStatus(SC_OK);
         } else {
-            response.sendError(SC_SERVICE_UNAVAILABLE, String.format("Service soknadaap er i status %s", status) );
+            response.sendError(SC_SERVICE_UNAVAILABLE, String.format("Appen er i status %s", status) );
         }
     }
 
