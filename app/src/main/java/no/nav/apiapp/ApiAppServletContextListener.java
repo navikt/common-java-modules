@@ -17,6 +17,8 @@ import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
+import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextAssociation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -43,9 +45,8 @@ import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
-import static no.nav.apiapp.util.StringUtils.notNullOrEmpty;
 import static no.nav.apiapp.util.StringUtils.of;
-import static no.nav.brukerdialog.security.jaspic.SamAutoRegistration.CONTEXT_REGISTRATION_ID;
+import static no.nav.brukerdialog.security.jaspic.SamAutoRegistration.JASPI_SECURITY_DOMAIN;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -146,10 +147,12 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
     }
 
-    private boolean issoBrukes(ServletContextEvent servletContextEvent) {
-        ServletContext servletContext = servletContextEvent.getServletContext();
+    private boolean issoBrukes() {
         boolean jaspiAuthProvider = getProperty(DEFAULT_FACTORY_SECURITY_PROPERTY, "").contains("jaspi"); // på jetty
-        boolean autoRegistration = notNullOrEmpty((String) servletContext.getAttribute(CONTEXT_REGISTRATION_ID)); // på jboss
+        boolean autoRegistration = ofNullable(SecurityContextAssociation.getSecurityContext()) // på jboss
+                .map(SecurityContext::getSecurityDomain)
+                .map(JASPI_SECURITY_DOMAIN::equals)
+                .orElse(false);
         LOGGER.info("isso? jaspi={} auto={}", jaspiAuthProvider, autoRegistration);
         return jaspiAuthProvider || autoRegistration;
     }
@@ -213,7 +216,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         contextLoaderListener.contextInitialized(servletContextEvent);
         AnnotationConfigWebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
-        if (issoBrukes(servletContextEvent)) {
+        if (issoBrukes()) {
             leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
         }
