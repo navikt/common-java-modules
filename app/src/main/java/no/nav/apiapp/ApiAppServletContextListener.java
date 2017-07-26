@@ -10,6 +10,7 @@ import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
+import no.nav.apiapp.util.JbossUtil;
 import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
 import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.modig.core.context.SubjectHandler;
@@ -17,8 +18,6 @@ import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityContextAssociation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -46,7 +45,6 @@ import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
-import static no.nav.brukerdialog.security.jaspic.SamAutoRegistration.JASPI_SECURITY_DOMAIN;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -149,10 +147,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private boolean issoBrukes() {
         boolean jaspiAuthProvider = getProperty(DEFAULT_FACTORY_SECURITY_PROPERTY, "").contains("jaspi"); // på jetty
-        boolean autoRegistration = ofNullable(SecurityContextAssociation.getSecurityContext()) // på jboss
-                .map(SecurityContext::getSecurityDomain)
-                .map(JASPI_SECURITY_DOMAIN::equals)
-                .orElse(false);
+        boolean autoRegistration = JbossUtil.brukerJaspi(); // på jboss
         LOGGER.info("isso? jaspi={} auto={}", jaspiAuthProvider, autoRegistration);
         return jaspiAuthProvider || autoRegistration;
     }
