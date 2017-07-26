@@ -13,6 +13,7 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.support.StaticApplicationContext;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -85,7 +86,7 @@ public class IntegrationTest {
                 DomainObject.class,
                 () -> "0",
                 basePath("31337").toString(),
-                "producer"
+                "webhook-producer"
         );
         FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "");
         FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, webhookPollingConfig);
@@ -148,6 +149,7 @@ public class IntegrationTest {
         public Server(String port) {
             this.controller = new FeedController();
             ResourceConfig config = new ResourceConfig();
+            config.property("contextConfig", new StaticApplicationContext());
             config.register(this.controller);
             this.server = GrizzlyHttpServerFactory.createHttpServer(basePath(port), config);
         }
