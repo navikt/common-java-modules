@@ -145,16 +145,8 @@ public class DevelopmentSecurity {
         commonServerSetup(jettyBuilder);
 
         String environment = issoSecurityConfig.environment;
-        String environmentClass = getEnvironmentClass(environment);
 
-        ServiceUser issoCredentials = FasitUtils.getServiceUser(issoSecurityConfig.issoUserName, issoSecurityConfig.applicationName, environment);
-        setProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME, issoCredentials.username);
-        setProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME, issoCredentials.password);
-        setProperty(ISSO_JWKS_URL, format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentClass));
-        setProperty(ISSO_EXPECTED_TOKEN_ISSUER, format("https://isso-%s.adeo.no:443/isso/oauth2", environmentClass)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
-        setProperty(ISSO_HOST_URL_PROPERTY_NAME, format("https://isso-%s.adeo.no/isso/oauth2", environmentClass));
-        setProperty("isso.isalive.url", format("https://isso-%s.adeo.no/isso/isAlive.jsp", environmentClass));
-        setProperty(OIDC_REDIRECT_URL, getRedirectUrl(environment));
+        configureIsso(FasitUtils.getServiceUser(issoSecurityConfig.issoUserName, issoSecurityConfig.applicationName, environment));
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, FasitUtils.getFSSLocal(environment));
@@ -165,6 +157,17 @@ public class DevelopmentSecurity {
         modigSubjectHandler();
         dialogArenaSubjectHandler();
         return configureJaspi(jettyBuilder, issoSecurityConfig.contextName);
+    }
+
+    private static void configureIsso(ServiceUser issoCredentials) {
+        setProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME, issoCredentials.username);
+        setProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME, issoCredentials.password);
+        String environmentClass = getEnvironmentClass(issoCredentials.environment);
+        setProperty(ISSO_JWKS_URL, format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentClass));
+        setProperty(ISSO_EXPECTED_TOKEN_ISSUER, format("https://isso-%s.adeo.no:443/isso/oauth2", environmentClass)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
+        setProperty(ISSO_HOST_URL_PROPERTY_NAME, format("https://isso-%s.adeo.no/isso/oauth2", environmentClass));
+        setProperty("isso.isalive.url", format("https://isso-%s.adeo.no/isso/isAlive.jsp", environmentClass));
+        setProperty(OIDC_REDIRECT_URL, getRedirectUrl(issoCredentials.environment));
     }
 
     private static String getRedirectUrl(String environment) {
@@ -198,7 +201,11 @@ public class DevelopmentSecurity {
         Subject testSubject = integrationTestSubject(serviceUser);
         configureServiceUser(serviceUser);
         if (!erEksterntDomene(serviceUser.getDomain())) {
+            // Her jukser vi litt, denne brukeren er nok ikke gyldig
             configureAbacUser(serviceUser);
+            configureIsso(serviceUser);
+            //
+
             dialogArenaSubjectHandler(InternbrukerSubjectHandler.class);
             InternbrukerSubjectHandler internbrukerSubjectHandler = (InternbrukerSubjectHandler) TestSubjectHandler.getSubjectHandler();
             internbrukerSubjectHandler.setSubject(testSubject);
