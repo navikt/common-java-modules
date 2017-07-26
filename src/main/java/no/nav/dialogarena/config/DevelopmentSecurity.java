@@ -37,6 +37,7 @@ import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
+import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE_Q;
 import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
@@ -152,7 +153,8 @@ public class DevelopmentSecurity {
         setProperty(ISSO_JWKS_URL, format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentClass));
         setProperty(ISSO_EXPECTED_TOKEN_ISSUER, format("https://isso-%s.adeo.no:443/isso/oauth2", environmentClass)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
         setProperty(ISSO_HOST_URL_PROPERTY_NAME, format("https://isso-%s.adeo.no/isso/oauth2", environmentClass));
-        setProperty(OIDC_REDIRECT_URL, KJENT_LOGIN_ADRESSE);
+        setProperty("isso.isalive.url", format("https://isso-%s.adeo.no/isso/isAlive.jsp", environmentClass));
+        setProperty(OIDC_REDIRECT_URL, getRedirectUrl(environment));
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, FasitUtils.getFSSLocal(environment));
@@ -163,6 +165,17 @@ public class DevelopmentSecurity {
         modigSubjectHandler();
         dialogArenaSubjectHandler();
         return configureJaspi(jettyBuilder, issoSecurityConfig.contextName);
+    }
+
+    private static String getRedirectUrl(String environment) {
+        switch (getEnvironmentClass(environment)) {
+            case "t":
+                return KJENT_LOGIN_ADRESSE;
+            case "q":
+                return KJENT_LOGIN_ADRESSE_Q;
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     private static void configureAbacUser(ServiceUser serviceUser) {
