@@ -3,7 +3,6 @@ package no.nav.fo.apiapp;
 import no.nav.apiapp.rest.JsonProvider;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.server.ServerConnector;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public abstract class JettyTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
 
     protected static final String CONTEXT_NAME = JettyTest.class.getSimpleName();
-    protected static final Jetty JETTY = StartJetty.nyJetty(CONTEXT_NAME, tilfeldigPort());
+    protected static final Jetty JETTY = StartJetty.nyJettyForTest(CONTEXT_NAME, tilfeldigPort());
 
     private Client client = ClientBuilder.newBuilder().register(new JsonProvider()).build();
     private Map<String, NewCookie> cookies = new HashMap<>();
@@ -44,11 +43,7 @@ public abstract class JettyTest {
     @BeforeClass
     public static void startJetty() {
         JETTY.start();
-    }
-
-    @AfterClass
-    public static void stopJetty() {
-        JETTY.stop.run();
+        Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
     }
 
     @BeforeClass

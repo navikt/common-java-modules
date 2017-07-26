@@ -55,7 +55,7 @@ public class ApplicationConfig implements ApiApplication {
 
     @Override
     public Sone getSone() {
-        return Sone.values()[0];
+        return Sone.FSS;
     }
 
 }

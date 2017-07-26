@@ -3,6 +3,7 @@ package no.nav.apiapp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
@@ -27,6 +28,9 @@ public class ServletUtil {
         return getContext(servletContextEvent.getServletContext());
     }
 
+    public static AnnotationConfigWebApplicationContext getSpringContext(ServletContextEvent servletContextEvent) {
+        return (AnnotationConfigWebApplicationContext) getContext(servletContextEvent.getServletContext());
+    }
 
     public static ServletRegistration.Dynamic leggTilServlet(ServletContextEvent servletContextEvent, Class<? extends Servlet> servletClass, String... path) {
         ServletRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addServlet(servletClass.getName(), servletClass);
