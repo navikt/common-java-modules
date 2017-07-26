@@ -769,15 +769,14 @@
                 <version>${flyway.version}</version>
                 <scope>test</scope>
             </dependency>
+
+            <!--Testing-->
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-grizzly2-http</artifactId>
                 <version>${jersey.version}</version>
                 <scope>test</scope>
             </dependency>
-
-
-            <!--Testing-->
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>test-config</artifactId>
