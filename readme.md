@@ -4,6 +4,18 @@ Modul som lar en få nedetidsfri deploys
 
 ## Hvordan ta i bruk
 
+Dra inn i maven `pom.xml`. Om koden bare brukes i web.xml og man har analyze-dependencies i maven på, må man ha scope runtime for at det skal fungere.
+
+```
+<dependency>
+    <groupId>no.nav.sbl.dialogarena</groupId>
+    <artifactId>common-suspend</artifactId>
+    <version>1.0.1</version>
+    <scope>runtime</scope>
+</dependency>
+```
+
+
 Dra inn Servlets+filter i `web.xml`.
 
 ```
