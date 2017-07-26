@@ -11,5 +11,6 @@ public class Constants {
     public static final String OIDC_REDIRECT_URL = "oidc-redirect.url";
     public static final String REFRESH_TIME = "no.nav.brukerdialog.security.oidc.minimum_time_to_expire_before_refresh.seconds";
     public static final String ISSO_JWKS_URL = "isso-jwks.url";
+    public static final String ISSO_ISALIVE_URL = "isso.isalive.url";
 
 }
