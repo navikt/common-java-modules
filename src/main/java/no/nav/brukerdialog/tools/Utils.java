@@ -9,7 +9,7 @@ public class Utils {
 
     public static String getSystemProperty(String propertyName) {
         String property = System.getProperty(propertyName);
-        if (property == null) {
+        if (property == null || property.trim().length() == 0) {
             throw new OidcTokenException("Mangler system property: " + propertyName);
         }
         return property;
