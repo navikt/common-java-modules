@@ -20,7 +20,7 @@ public class SystemUserTokenProvider {
     private static final Logger log = LoggerFactory.getLogger(SystemUserTokenProvider.class);
 
 
-    private final String openAmHost = getSystemProperty(ISSO_HOST_URL_PROPERTY_NAME);
+    public final String openAmHost = getSystemProperty(ISSO_HOST_URL_PROPERTY_NAME);
     private final String openamClientUsername = getSystemProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME);
     private final String oidcRedirectUrl = getSystemProperty(OIDC_REDIRECT_URL);
     private final String srvUsername = getSystemProperty(SYSTEMUSER_USERNAME);
