@@ -25,10 +25,6 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
         this(baseConfig, pollingConfig, null);
     }
 
-    public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, WebhookPollingConfig webhookPollingConfig) {
-        this(baseConfig, null, webhookPollingConfig);
-    }
-
     public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, PollingConfig pollingConfig, WebhookPollingConfig webhookPollingConfig) {
         this.domainobject = baseConfig.domainobject;
         this.lastEntrySupplier = baseConfig.lastEntrySupplier;

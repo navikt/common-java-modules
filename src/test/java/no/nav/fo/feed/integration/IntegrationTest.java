@@ -89,7 +89,7 @@ public class IntegrationTest {
                 "webhook-producer"
         );
         FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "");
-        FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, webhookPollingConfig);
+        FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, null, webhookPollingConfig);
         FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null);
         FeedConsumer<DomainObject> consumerUtenConfig = new FeedConsumer<>(configUtenConfig);
         FeedConsumer<DomainObject> consumerMedConfig = new FeedConsumer<>(configMedConfig);
