@@ -12,6 +12,11 @@
     <artifactId>common-suspend</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
+
+    <properties>
+        <java.jdk.version>1.7</java.jdk.version>
+    </properties>
+
     <dependencies>
 
         <!-- Third party dependencies -->
