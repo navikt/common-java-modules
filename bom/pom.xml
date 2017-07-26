@@ -782,7 +782,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>test-config</artifactId>
-                <version>1.56.72</version>
+                <version>1.57.74</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
