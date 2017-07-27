@@ -3,8 +3,6 @@ package no.nav.apiapp.util;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Properties;
-
 import static java.lang.System.setProperty;
 import static no.nav.apiapp.util.PropertyUtils.getOptionalObjectProperty;
 import static no.nav.apiapp.util.PropertyUtils.getRequiredProperty;
@@ -18,9 +16,7 @@ public class PropertyUtilsTest {
 
     @Before
     public void setup() {
-        Properties systemProperties = System.getProperties();
-        systemProperties.remove(PROPERTY_NAME);
-        systemProperties.remove(PropertyUtilsTest.class);
+        System.clearProperty(PROPERTY_NAME);
     }
 
     @Test
@@ -35,13 +31,6 @@ public class PropertyUtilsTest {
         assertThatThrownBy(() -> getRequiredProperty(PROPERTY_NAME))
                 .isExactlyInstanceOf(IllegalStateException.class)
                 .hasMessageEndingWith(PROPERTY_NAME);
-    }
-
-    @Test
-    public void getOptionalObjectProperty_kanHenteObjekterFraSystemProperties() {
-        assertThat(getOptionalObjectProperty(PropertyUtilsTest.class)).isEmpty();
-        System.getProperties().put(PropertyUtilsTest.class, this);
-        assertThat(getOptionalObjectProperty(PropertyUtilsTest.class)).hasValue(this);
     }
 
     @Test
