@@ -3,7 +3,7 @@ package no.nav.apiapp.selftest;
 import no.nav.sbl.dialogarena.types.Pingable;
 
 public interface Helsesjekk extends Pingable {
-    void helsesjekk();
+    void helsesjekk() throws Throwable;
     HelsesjekkMetadata getMetadata();
 
     @Override
@@ -13,7 +13,7 @@ public interface Helsesjekk extends Pingable {
         try {
             helsesjekk();
             return Ping.lyktes(metadata);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return Ping.feilet(metadata, e);
         }
     }

@@ -342,6 +342,55 @@
         }
       }
     },
+    "/feed/feedname": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeedNames",
+        "operationId": "getFeedNames",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeeds",
+        "operationId": "getFeeds",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/feed/{name}": {
       "get": {
         "tags": [
