@@ -79,9 +79,7 @@ public class SSLTestUtils {
     }
 
     private static <T> void systemPropertyObject(Class<T> aClass, T value) {
-        Properties systemProperties = System.getProperties();
-        systemProperties.put(aClass, value);
-        systemProperties.put(aClass.getName(), value);
+        System.getProperties().put(aClass.getName(), value);
     }
 
 }
