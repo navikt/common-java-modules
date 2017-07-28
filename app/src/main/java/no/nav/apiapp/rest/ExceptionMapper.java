@@ -2,6 +2,8 @@ package no.nav.apiapp.rest;
 
 import no.nav.apiapp.feil.FeilDTO;
 import no.nav.apiapp.feil.FeilMapper;
+import no.nav.metrics.Event;
+import no.nav.metrics.MetricsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +28,26 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     public Response toResponse(Throwable exception) {
         FeilDTO feil = FeilMapper.somFeilDTO(exception);
         Response.Status status = getStatus(exception);
-        LOGGER.error("{} - {} - {}", servletRequestProvider.get().getRequestURI(), status, feil);
+        String path = servletRequestProvider.get().getRequestURI();
+        LOGGER.error("{} - {} - {}", path, status, feil);
         LOGGER.error(exception.getMessage(), exception);
+        logToMetrics(status, path, feil);
         return Response
                 .status(status)
                 .entity(feil)
                 // TODO big-ip-header! Sjekke om denne fikser hvis applikasjonen er nede!
                 .header(ESCAPE_REDIRECT_HEADER, "true")
                 .build();
+    }
+
+    private void logToMetrics(Response.Status status, String path, FeilDTO feilDTO) {
+        Event error = MetricsFactory.createEvent("rest-api-error");
+        error.addFieldToReport("status", status);
+        error.addFieldToReport("path", path);
+        error.addFieldToReport("type", feilDTO.type);
+        error.addFieldToReport("id", feilDTO.id);
+        error.setFailed();
+        error.report();
     }
 
     private Response.Status getStatus(Throwable throwable) {
