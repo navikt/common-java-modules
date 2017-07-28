@@ -95,21 +95,21 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
         if (response.getStatus() != 200) {
             LOG.warn("Endepunkt for polling av feed returnerte feilkode {}", response.getStatus());
-        }
+        } else {
+            ParameterizedType type = new FeedParameterizedType(this.config.domainobject);
+            FeedResponse<DOMAINOBJECT> entity = response.readEntity(new GenericType<>(type));
+            List<FeedElement<DOMAINOBJECT>> elements = entity.getElements();
+            if (elements != null && !elements.isEmpty()) {
+                List<DOMAINOBJECT> data = elements
+                        .stream()
+                        .map(FeedElement::getElement)
+                        .collect(Collectors.toList());
 
-        ParameterizedType type = new FeedParameterizedType(this.config.domainobject);
-        FeedResponse<DOMAINOBJECT> entity = response.readEntity(new GenericType<>(type));
-        List<FeedElement<DOMAINOBJECT>> elements = entity.getElements();
-        if (elements != null && !elements.isEmpty()) {
-            List<DOMAINOBJECT> data = elements
-                    .stream()
-                    .map(FeedElement::getElement)
-                    .collect(Collectors.toList());
-
-            if (!entity.equals(lastResponse)) {
-                this.config.callback.call(entity.getNextPageId(), data);
+                if (!entity.equals(lastResponse)) {
+                    this.config.callback.call(entity.getNextPageId(), data);
+                }
+                this.lastResponse = entity;
             }
-            this.lastResponse = entity;
         }
     }
 
