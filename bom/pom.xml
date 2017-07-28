@@ -95,9 +95,9 @@
         <!-- Test -->
         <assertj.version>3.6.1</assertj.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <junit.jupiter.version>5.0.0-M3</junit.jupiter.version>
-        <junit.platform.version>1.0.0-M3</junit.platform.version>
-        <junit.vintage.version>4.12.0-M3</junit.vintage.version>
+        <junit.jupiter.version>5.0.0-M6</junit.jupiter.version>
+        <junit.platform.version>1.0.0-M6</junit.platform.version>
+        <junit.vintage.version>4.12.0-M6</junit.vintage.version>
         <junit.version>4.12</junit.version>
         <mockito.version>2.2.27</mockito.version>
         <mockito-all.version>1.10.19</mockito-all.version>
@@ -841,6 +841,11 @@
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-surefire-provider</artifactId>
+                <version>${junit.platform.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-launcher</artifactId>
                 <version>${junit.platform.version}</version>
             </dependency>
             <dependency>
