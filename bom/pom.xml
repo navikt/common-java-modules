@@ -585,7 +585,7 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.glassfish.grizzy</groupId>
+                <groupId>org.glassfish.grizzly</groupId>
                 <artifactId>grizzly-http-server</artifactId>
                 <version>${grizzly.version}</version>
                 <scope>test</scope>
