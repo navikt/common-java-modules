@@ -2,6 +2,7 @@ package no.nav.fo.feed.consumer;
 
 import no.nav.fo.feed.common.OutInterceptor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -17,15 +18,11 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
     public final String apiRootPath;
 
     FeedCallback<DOMAINOBJECT> callback;
-    List<OutInterceptor> interceptors;
+    List<OutInterceptor> interceptors = new ArrayList<>();
     int pageSize;
 
     public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, PollingConfig pollingConfig) {
         this(baseConfig, pollingConfig, null);
-    }
-
-    public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, WebhookPollingConfig webhookPollingConfig) {
-        this(baseConfig, null, webhookPollingConfig);
     }
 
     public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, PollingConfig pollingConfig, WebhookPollingConfig webhookPollingConfig) {
