@@ -18,25 +18,25 @@ public class DatoEksempel {
 
     @GET
     @Path("/dto")
-    public DTO getDTO() {
-        return new DTO();
+    public DateDTO getDTO() {
+        return new DateDTO();
     }
 
     @GET
     @Path("/query")
-    public DTO queryDTO(@BeanParam QueryDTO queryDTO) {
+    public DateDTO queryDTO(@BeanParam QueryDTO queryDTO) {
         return tilDTO(queryDTO);
     }
 
     @POST
     @Path("/query")
-    public DTO postQueryDTO(QueryDTO queryDTO) {
+    public DateDTO postQueryDTO(QueryDTO queryDTO) {
         return tilDTO(queryDTO);
     }
 
 
-    private DTO tilDTO(QueryDTO queryDTO) {
-        DTO dto = new DTO();
+    private DateDTO tilDTO(QueryDTO queryDTO) {
+        DateDTO dto = new DateDTO();
         if (queryDTO != null) {
             dto.localDate = queryDTO.localDate;
             dto.localDateTime = queryDTO.localDateTime;
@@ -52,7 +52,7 @@ public class DatoEksempel {
     }
 
     @SuppressWarnings("unused")
-    public static class DTO {
+    public static class DateDTO {
         public LocalDate localDate = LocalDate.of(2017, 5, 10);
         public LocalDateTime localDateTime = localDate.atTime(1, 2, 3, 4);
         public ZonedDateTime zonedDateTime = localDateTime.atZone(DEFAULT_ZONE);

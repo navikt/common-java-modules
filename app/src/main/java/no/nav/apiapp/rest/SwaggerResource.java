@@ -56,11 +56,25 @@ public class SwaggerResource extends BaseApiListingResource {
     }
 
     private void leggTilStandardDokumentasjon(Swagger swagger, Class<?> contextClass) {
-        Method[] methods = contextClass.getMethods();
         ofNullable(findAnnotation(contextClass, Path.class))
                 .map(Path::value)
                 .map(this::prependSlash)
-                .ifPresent(resourcePath -> Arrays.stream(methods).forEach(method -> leggTilStandardDokumentasjon(swagger, method, resourcePath, contextClass)));
+                .ifPresent(resourcePath -> leggTilStandardDokumentasjon(swagger, contextClass, contextClass, resourcePath));
+    }
+
+    private void leggTilStandardDokumentasjon(Swagger swagger, Class<?> methodsClass, Class<?> contextClass, String resourcePath) {
+        if (!skalIkkeHaEkstraDokumentasjon(methodsClass)) {
+            Arrays.stream(methodsClass.getMethods())
+                    .filter(method -> method.getDeclaringClass() != Object.class)
+                    .forEach(method -> leggTilStandardDokumentasjon(swagger, method, resourcePath, contextClass));
+        }
+    }
+
+    private boolean skalIkkeHaEkstraDokumentasjon(Class<?> methodsClass) {
+        return methodsClass == Object.class
+                || methodsClass.getName().startsWith("java") // java.lang, java.util, javax.*
+                || methodsClass.isEnum()
+                ;
     }
 
     private void leggTilStandardDokumentasjon(Swagger swagger, Method method, String resourcePath, Class<?> contextClass) {
@@ -68,7 +82,8 @@ public class SwaggerResource extends BaseApiListingResource {
                 .map(Path::value)
                 .map(this::prependSlash)
                 .orElse("");
-        String path = resourcePath + methodPath;
+        String path = resourcePath + ("/".equals(methodPath) ? "" : methodPath);
+        leggTilStandardDokumentasjon(swagger, method.getReturnType(), contextClass, path);
         ofNullable(swagger.getPath(path))
                 .flatMap(swaggerPath -> getOperation(swaggerPath, method))
                 .ifPresent(operation -> {

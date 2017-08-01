@@ -28,11 +28,13 @@ public class RestApplication extends Application {
     @Override
     public Set<Object> getSingletons() {
         HashSet<Object> singeltons = new HashSet<>();
+        ExceptionMapper exceptionMapper = new ExceptionMapper();
         singeltons.addAll(asList(
                 new JsonProvider(),
                 new AlltidJsonFilter(),
+                new ReadExceptionHandler(exceptionMapper),
                 new CacheBusterFilter(),
-                new ExceptionMapper(),
+                exceptionMapper,
                 new NavMetricsBinder(),
                 parameterConverterProvider(),
                 new SwaggerResource()

@@ -4,6 +4,7 @@ import no.nav.apiapp.Constants;
 import no.nav.apiapp.soap.SoapFeilMapper;
 import org.apache.commons.codec.binary.Hex;
 
+import javax.ws.rs.NotFoundException;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.security.SecureRandom;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
+import static no.nav.apiapp.feil.Feil.Type.FINNES_IKKE;
 import static no.nav.apiapp.feil.Feil.Type.UKJENT;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
@@ -21,7 +23,10 @@ public class FeilMapper {
     private static final SecureRandom secureRandom = new SecureRandom();
 
     public static FeilDTO somFeilDTO(Throwable exception) {
-        Feil.Type type = getType(exception);
+        return somFeilDTO(exception, getType(exception));
+    }
+
+    public static FeilDTO somFeilDTO(Throwable exception, Feil.Type type) {
         return new FeilDTO(nyFeilId(), type, visDetaljer() ? finnDetaljer(exception) : null);
     }
 
@@ -36,6 +41,8 @@ public class FeilMapper {
             return ((Feil) throwable).getType();
         } else if (throwable instanceof SOAPFaultException) {
             return valueOfOptional(Feil.Type.class, ((SOAPFaultException) throwable).getFault().getFaultCodeAsName().getLocalName()).orElse(UKJENT);
+        } else if (throwable instanceof NotFoundException) {
+            return FINNES_IKKE;
         } else {
             return UKJENT;
         }

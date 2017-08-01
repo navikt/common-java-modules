@@ -13,4 +13,8 @@ public class JsonUtils {
         return o != null ? objectMapper.writeValueAsString(o) : null;
     }
 
+    @SneakyThrows
+    public static <T> T fromJson(String json, Class<T> valueClass) {
+        return objectMapper.readValue(json, valueClass);
+    }
 }
