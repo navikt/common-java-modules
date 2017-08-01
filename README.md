@@ -8,7 +8,7 @@ Hvordan bruke biblioteket og hvordan alt henger sammen.
 ## Changelog
 Endringer / breaking changes
 
-### 3.3.0
+### 3.3.1
 
 **Fluent API**
 
