@@ -9,6 +9,11 @@ Hvordan bruke biblioteket og hvordan alt henger sammen.
 ## Changelog
 Endringer / breaking changes
 
+### 3.3.2.152.2
+
+* Pipeline bygging
+* Kan sende inn enums som fields uten at det tryner
+
 ### 3.3.1
 
 **Fluent API** 🎉🎉
