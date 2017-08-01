@@ -33,14 +33,14 @@
         <modig-core-test.version>1.0.0</modig-core-test.version>
         <oidc-security.version>3.63.13</oidc-security.version>
         <common-web.version>5.0.15</common-web.version>
-        <common-abac.version>1.1.69</common-abac.version>
+        <common-abac.version>2.213.8</common-abac.version>
         <common-test.version>2.0.3</common-test.version>
         <common-jetty.version>2.0.16</common-jetty.version>
         <jetty.version>9.3.0.M2</jetty.version>
-        <feed.version>2.28.11</feed.version>
+        <feed.version>2.39.18</feed.version>
 
         <!-- SOAP -->
-        <common-cxf.version>3.1.48</common-cxf.version>
+        <common-cxf.version>1.0.81.3</common-cxf.version>
         <neethi.version>3.0.3</neethi.version>
         <cxf-core.version>3.1.11</cxf-core.version>
         <cxf-api.version>2.7.6</cxf-api.version>
