@@ -2,6 +2,8 @@ package no.nav.metrics.handlers;
 
 import java.util.Map;
 
+import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
+
 public class InfluxHandler {
     public static String createLineProtocolPayload(String metricName, Map<String, String> tags, Map<String, Object> fields, long metricTimestamp) {
         String tagsString = convertTagsToCSVString(tags);
@@ -24,12 +26,16 @@ public class InfluxHandler {
         for (Map.Entry<String, Object> field : fields.entrySet()) {
             String key = field.getKey();
             Object rawValue = field.getValue();
-            Object value = rawValue instanceof String ? createStringValue(rawValue) : rawValue;
+            Object value = shouldCreateStringValue(rawValue) ? createStringValue(rawValue) : rawValue;
 
             fieldString.append(",").append(key).append("=").append(value);
         }
 
         return fieldString.substring(1);
+    }
+
+    private static boolean shouldCreateStringValue(Object rawValue) {
+        return rawValue != null && !isPrimitiveOrWrapper(rawValue.getClass());
     }
 
     private static String createStringValue(Object value) {
