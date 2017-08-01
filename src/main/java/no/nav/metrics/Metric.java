@@ -3,7 +3,7 @@ package no.nav.metrics;
 import java.util.HashMap;
 import java.util.Map;
 
-abstract class Metric {
+abstract class Metric<T extends Metric> {
     protected final MetricsClient metricsClient;
     protected final String name;
     protected Map<String, Object> fields = new HashMap<>();
@@ -15,22 +15,28 @@ abstract class Metric {
         setSuccess();
     }
 
-    public void addFieldToReport(String fieldName, Object value) {
+    public T addFieldToReport(String fieldName, Object value) {
         fields.put(fieldName, value);
+        return self();
     }
 
-    public void addTagToReport(String tagName, String value) {
+    public T addTagToReport(String tagName, String value) {
         tags.put(tagName, value);
+        return self();
     }
 
-    public void setSuccess() {
+    public T setSuccess() {
         addFieldToReport("success", true);
+        return self();
     }
 
-    public void setFailed() {
+    public T setFailed() {
         addFieldToReport("success", false);
+        return self();
     }
 
-    public abstract void report();
+    public abstract T report();
+
+    protected abstract T self();
 
 }

@@ -51,8 +51,7 @@ public class TimerTest {
             }
         };
 
-        timer.start();
-        timer.stop();
+        timer.start().stop();
 
         long elpasedTimeInMillis = Deencapsulation.invoke(timer, "getElpasedTimeInMillis");
 
@@ -73,8 +72,6 @@ public class TimerTest {
             }
         };
 
-        timer.start();
-        timer.stop();
-        timer.report();
+        timer.start().stop().report();
     }
 }

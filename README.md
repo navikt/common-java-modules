@@ -8,6 +8,36 @@ Hvordan bruke biblioteket og hvordan alt henger sammen.
 ## Changelog
 Endringer / breaking changes
 
+### 3.3.0
+
+**Fluent API**
+
+```
+// Før
+Event event = MetricsFactory.createEvent("yo");
+event.setFailed();
+event.report();
+
+// Nå
+MetricsFactory.createEvent("yo").setFailed().report();
+
+
+// Før
+Timer timer = MetricsFactory.createTimer("yo");
+timer.start();
+// masse kode
+timer.stop();
+timer.addFieldToReport("field", "value");
+timer.report();
+
+// Nå
+Timer timer = MetricsFactory.createTimer("yo").start();
+// masse kode
+timer.stop().addFieldToReport("field", "value").report();
+```
+
+Skal ikke være noen knekkende endringer. 
+
 ### 3.2.1
 Gjør det mulig å rapportere tags ved hjelp av metoden addTagToReport(), ettersom tags blir indeksert av influxDB. 
 Dersom du ønsker å kjøre GROUP BY på rapportert data må tags benyttes.

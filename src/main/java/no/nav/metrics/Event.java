@@ -1,6 +1,6 @@
 package no.nav.metrics;
 
-public class Event extends Metric {
+public class Event extends Metric<Event> {
 
     Event(MetricsClient metricsClient, String name) {
         super(metricsClient, name + ".event");
@@ -8,7 +8,13 @@ public class Event extends Metric {
     }
 
     @Override
-    public void report() {
+    protected Event self() {
+        return this;
+    }
+
+    @Override
+    public Event report() {
         metricsClient.report(name, fields, tags, System.currentTimeMillis());
+        return this;
     }
 }

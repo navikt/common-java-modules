@@ -12,8 +12,7 @@ public class MetodeTimer {
             timer.setFailed();
             throw throwable;
         } finally {
-            timer.stop();
-            timer.report();
+            timer.stop().report();
         }
 
     }
