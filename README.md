@@ -1,6 +1,7 @@
 # Metrics
 
-###[Dokumentasjon i Confluence](http://confluence.adeo.no/pages/viewpage.action?pageId=209466509)
+### [Dokumentasjon i Confluence](http://confluence.adeo.no/pages/viewpage.action?pageId=209466509)
+### 👆👆👆👆👆👆👆👆👆👆👆👆👆👆
 
 Hvordan bruke biblioteket og hvordan alt henger sammen.
 
@@ -10,7 +11,7 @@ Endringer / breaking changes
 
 ### 3.3.1
 
-**Fluent API**
+**Fluent API** 🎉🎉
 
 ```
 // Før
