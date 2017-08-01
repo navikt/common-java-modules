@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp;
 
 import no.nav.dialogarena.config.DevelopmentSecurity;
+import no.nav.dialogarena.config.util.Util;
 import no.nav.modig.core.context.StaticSubjectHandler;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
@@ -27,6 +28,7 @@ public class StartJetty {
     public static void main(String[] args) {
         setupLogging();
         Jetty jetty = nyJetty(null, 8765);
+        Util.setProperty("disable.metrics.report", Boolean.FALSE.toString());
         jetty.startAnd(first(waitFor(gotKeypress())).then(jetty.stop));
     }
 

@@ -41,13 +41,13 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     }
 
     private void logToMetrics(Response.Status status, String path, FeilDTO feilDTO) {
-        Event error = MetricsFactory.createEvent("rest-api-error");
-        error.addFieldToReport("httpStatus", status.getStatusCode());
-        error.addFieldToReport("path", path);
-        error.addFieldToReport("errorId", feilDTO.id);
-        error.addFieldToReport("errorType", feilDTO.type);
-        error.setFailed();
-        error.report();
+        MetricsFactory.createEvent("rest-api-error")
+                .addFieldToReport("httpStatus", status.getStatusCode())
+                .addFieldToReport("path", path)
+                .addFieldToReport("errorId", feilDTO.id)
+                .addFieldToReport("errorType", feilDTO.type)
+                .setFailed()
+                .report();
     }
 
     private Response.Status getStatus(Throwable throwable) {
