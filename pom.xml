@@ -10,7 +10,7 @@
 
     <groupId>no.nav</groupId>
     <artifactId>metrics</artifactId>
-    <version>3.3.2-SNAPSHOT</version>
+    <version>4.0-SNAPSHOT</version>
     <name>${project.artifactId}</name>
 
     <properties>

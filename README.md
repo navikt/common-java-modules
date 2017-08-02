@@ -9,14 +9,11 @@ Hvordan bruke biblioteket og hvordan alt henger sammen.
 ## Changelog
 Endringer / breaking changes
 
-### 3.3.2.152.2
+### 4.0.X
 
 * Pipeline bygging
 * Kan sende inn enums som fields uten at det tryner
-
-### 3.3.1
-
-**Fluent API** 🎉🎉
+* **Fluent API** 🎉🎉
 
 ```
 // Før
@@ -42,7 +39,7 @@ Timer timer = MetricsFactory.createTimer("yo").start();
 timer.stop().addFieldToReport("field", "value").report();
 ```
 
-Skal ikke være noen knekkende endringer. 
+Kodemessig ingen knekkende endringer. Men kompilert bytecode litt ulik, så evt. biblioteker som bruker metrics må også oppdateres/kompileres mot samme versjon (cxf, abac)
 
 ### 3.2.1
 Gjør det mulig å rapportere tags ved hjelp av metoden addTagToReport(), ettersom tags blir indeksert av influxDB. 
