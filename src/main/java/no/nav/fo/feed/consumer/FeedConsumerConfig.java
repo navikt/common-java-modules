@@ -1,5 +1,6 @@
 package no.nav.fo.feed.consumer;
 
+import no.nav.fo.feed.common.FeedAuthorizationModule;
 import no.nav.fo.feed.common.OutInterceptor;
 
 import java.util.ArrayList;
@@ -19,7 +20,9 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
 
     FeedCallback<DOMAINOBJECT> callback;
     List<OutInterceptor> interceptors = new ArrayList<>();
+    FeedAuthorizationModule authorizationModule = (feedname) -> true;
     int pageSize;
+
 
     public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, PollingConfig pollingConfig) {
         this(baseConfig, pollingConfig, null);
@@ -46,6 +49,11 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
         }
 
         this.pageSize = 100;
+    }
+
+    public FeedConsumerConfig<DOMAINOBJECT> authorizatioModule(FeedAuthorizationModule authorizationModule) {
+        this.authorizationModule = authorizationModule;
+        return this;
     }
 
     public FeedConsumerConfig<DOMAINOBJECT> interceptors(List<OutInterceptor> interceptors) {

@@ -20,7 +20,7 @@ import static no.nav.fo.feed.util.UrlValidator.validateUrl;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Builder
-public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
+public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Authorization {
 
     private static final Logger LOG = getLogger(FeedProducer.class);
 
@@ -30,6 +30,8 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
     private List<String> callbackUrls = new ArrayList<>();
     @Builder.Default
     private List<OutInterceptor> interceptors = new ArrayList<>();
+    @Builder.Default
+    private FeedAuthorizationModule authorizationModule = (feedname) -> true;
     private FeedProvider<DOMAINOBJECT> provider;
 
 
@@ -91,6 +93,11 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> {
         return Optional.ofNullable(request.callbackUrl)
                 .map(this::createWebhook)
                 .orElseThrow(InvalidUrlException::new);
+    }
+
+    @Override
+    public FeedAuthorizationModule getAuthorizationModule() {
+        return authorizationModule;
     }
 
     private boolean createWebhook(String callbackUrl) {

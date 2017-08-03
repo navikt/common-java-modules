@@ -1,10 +1,7 @@
 package no.nav.fo.feed.consumer;
 
+import no.nav.fo.feed.common.*;
 import no.nav.sbl.dialogarena.types.Pingable;
-import no.nav.fo.feed.common.FeedElement;
-import no.nav.fo.feed.common.FeedParameterizedType;
-import no.nav.fo.feed.common.FeedResponse;
-import no.nav.fo.feed.common.FeedWebhookRequest;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
@@ -23,7 +20,7 @@ import static no.nav.fo.feed.util.UrlUtils.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Pingable {
+public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Pingable, Authorization {
     private static final Logger LOG = getLogger(FeedConsumer.class);
 
     private final FeedConsumerConfig<DOMAINOBJECT> config;
@@ -125,5 +122,10 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         } catch (Throwable e) {
             return Ping.feilet(pingMetadata, e);
         }
+    }
+
+    @Override
+    public FeedAuthorizationModule getAuthorizationModule() {
+        return config.authorizationModule;
     }
 }

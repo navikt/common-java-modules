@@ -1,5 +1,6 @@
 package no.nav.fo.feed.controller;
 
+import no.nav.fo.feed.common.Authorization;
 import no.nav.fo.feed.common.FeedRequest;
 import no.nav.fo.feed.common.FeedWebhookRequest;
 import no.nav.fo.feed.consumer.FeedConsumer;
@@ -54,6 +55,7 @@ public class FeedController {
     @Path("{name}/webhook")
     public Response putWebhook(FeedWebhookRequest request, @PathParam("name") String name) {
         return timed(String.format("feed.%s.createwebhook", name), () -> Optional.ofNullable(producers.get(name))
+                .map((producer) -> authorizeRequest(producer, name))
                 .map((feed) -> feed.createWebhook(request))
                 .map((created) -> Response.status(created ? 201 : 200))
                 .orElse(Response.status(Response.Status.BAD_REQUEST)).build());
@@ -66,6 +68,7 @@ public class FeedController {
             String sinceId = Optional.ofNullable(id).orElseThrow(MissingIdException::new);
             int size = Optional.ofNullable(pageSize).orElse(100);
             return Optional.ofNullable(producers.get(name))
+                    .map((producer) -> authorizeRequest(producer, name))
                     .map((feed) -> feed.getFeedPage(name, new FeedRequest().setPageSize(size).setSinceId(sinceId)))
                     .map(Response::ok)
                     .orElse(Response.status(Response.Status.BAD_REQUEST))
@@ -86,10 +89,20 @@ public class FeedController {
     public Response webhook(@PathParam("name") String feedname) {
         return timed(String.format("feed.%s.webhook", feedname), () -> Optional.ofNullable(feedname)
                 .map((name) -> consumers.get(name))
+                .map((consumer) -> authorizeRequest(consumer,feedname))
                 .map(FeedConsumer::webhookCallback)
                 .map((hadCallback) -> Response.status(hadCallback ? 200 : 404))
                 .orElse(Response.status(404))
                 .build());
     }
+
+    private <T extends Authorization> T authorizeRequest(T feed, String name) {
+        if(!feed.getAuthorizationModule().isRequestAuthorized(name)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        return feed;
+    }
+
+
 
 }
