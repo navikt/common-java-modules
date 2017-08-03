@@ -5,10 +5,15 @@ import no.nav.fo.apiapp.rest.*;
 import no.nav.fo.apiapp.security.KreverSesjon;
 import no.nav.fo.apiapp.selftest.PingableEksempel;
 import no.nav.fo.apiapp.soap.SoapEksempel;
+import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.controller.FeedController;
+import no.nav.fo.feed.producer.FeedProducer;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Random;
+import java.util.stream.Stream;
 
 @Configuration
 public class ApplicationConfig implements ApiApplication {
@@ -54,13 +59,22 @@ public class ApplicationConfig implements ApiApplication {
     }
 
     @Bean
-    public FeedController feedController(){
-        return new FeedController();
+    public FeedController feedController() {
+        FeedController feedController = new FeedController();
+        FeedProducer.FeedProducerBuilder<Integer> feedProducerBuilder = FeedProducer.<Integer>builder().provider((id, pageSize) -> streamTilfeldigInt());
+        feedController.addFeed("tilfeldigetall", feedProducerBuilder.build());
+        feedController.addFeed("beskyttetStream", feedProducerBuilder.authorizationModule((a) -> false).build());
+        return feedController;
     }
 
     @Override
     public Sone getSone() {
         return Sone.FSS;
     }
+
+    private static Stream<FeedElement<Integer>> streamTilfeldigInt() {
+        return Stream.of(new Random().nextInt()).map(i -> new FeedElement<Integer>().setId(Integer.toString(i)).setElement(i));
+    }
+
 
 }

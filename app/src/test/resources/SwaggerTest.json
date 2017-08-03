@@ -912,17 +912,40 @@
         }
       }
     },
-    "FeedProducer": {
+    "FeedAuthorizationModule": {
       "type": "object"
+    },
+    "FeedProducer": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
     },
     "FeedProducerComparableObject": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
     },
     "FeedConsumer": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
     },
     "FeedConsumerComparableObject": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
     }
   }
 }
