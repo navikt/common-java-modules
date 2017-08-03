@@ -1,5 +1,6 @@
 package no.nav.apiapp.rest;
 
+import no.nav.apiapp.feil.Feil;
 import no.nav.apiapp.feil.FeilDTO;
 import no.nav.apiapp.feil.FeilMapper;
 import no.nav.metrics.Event;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
+import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 
 @Provider
 public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwable> {
@@ -26,8 +28,22 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
 
     @Override
     public Response toResponse(Throwable exception) {
-        FeilDTO feil = FeilMapper.somFeilDTO(exception);
-        Response.Status status = getStatus(exception);
+        return toResponse(
+                exception,
+                getStatus(exception),
+                somFeilDTO(exception)
+        );
+    }
+
+    public Response toResponse(Throwable exception, Feil.Type type) {
+        return toResponse(
+                exception,
+                type.getStatus(),
+                FeilMapper.somFeilDTO(exception, type)
+        );
+    }
+
+    private Response toResponse(Throwable exception, Response.Status status, FeilDTO feil) {
         String path = servletRequestProvider.get().getRequestURI();
         LOGGER.error("{} - {} - {}", path, status, feil);
         LOGGER.error(exception.getMessage(), exception);

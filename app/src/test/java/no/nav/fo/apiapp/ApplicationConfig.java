@@ -24,6 +24,11 @@ public class ApplicationConfig implements ApiApplication {
     }
 
     @Bean
+    public EnumEksempel enumEksempel() {
+        return new EnumEksempel();
+    }
+
+    @Bean
     public DatoEksempel datoEksempel(){
         return new DatoEksempel();
     }

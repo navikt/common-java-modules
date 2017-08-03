@@ -65,7 +65,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/DTO"
+              "$ref": "#/definitions/DateDTO"
             },
             "headers": {}
           }
@@ -133,7 +133,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/DTO"
+              "$ref": "#/definitions/DateDTO"
             },
             "headers": {}
           }
@@ -159,7 +159,150 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/DTO"
+              "$ref": "#/definitions/DateDTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/enum/dto/{ordinal}": {
+      "get": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "dtoForOrdinal",
+        "operationId": "dtoForOrdinal",
+        "parameters": [
+          {
+            "name": "ordinal",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/enum": {
+      "get": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "getEnumer",
+        "operationId": "getEnumer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ABC",
+                  "DEF",
+                  "GHI"
+                ]
+              }
+            },
+            "headers": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "pipeDto",
+        "operationId": "pipeDto",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            },
+            "headers": {}
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "pipeEnum",
+        "operationId": "pipeEnum",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ABC",
+                "DEF",
+                "GHI"
+              ]
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/enum/{ordinal}": {
+      "get": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "enumForOrdinal",
+        "operationId": "enumForOrdinal",
+        "parameters": [
+          {
+            "name": "ordinal",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ABC",
+                "DEF",
+                "GHI"
+              ]
             },
             "headers": {}
           }
@@ -236,6 +379,112 @@
             "description": "successful operation",
             "schema": {
               "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/pipe": {
+      "put": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "pipeData",
+        "operationId": "pipeData",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {}
+              }
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/tall/{grunnTall}/minus/{tall}": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "minus",
+        "operationId": "minus",
+        "parameters": [
+          {
+            "name": "tall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "grunnTall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/tall/{grunnTall}/pluss/{tall}": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "pluss",
+        "operationId": "pluss",
+        "parameters": [
+          {
+            "name": "tall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "grunnTall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             },
             "headers": {}
           }
@@ -522,7 +771,7 @@
         }
       }
     },
-    "DTO": {
+    "DateDTO": {
       "type": "object",
       "properties": {
         "localDate": {
@@ -596,6 +845,33 @@
           "format": "date-time"
         }
       }
+    },
+    "EnumDTO": {
+      "type": "object",
+      "properties": {
+        "enEnum": {
+          "type": "string",
+          "enum": [
+            "ABC",
+            "DEF",
+            "GHI"
+          ]
+        },
+        "enums": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ABC",
+              "DEF",
+              "GHI"
+            ]
+          }
+        }
+      }
+    },
+    "TallRessurs": {
+      "type": "object"
     },
     "RiktObjekt": {
       "type": "object",

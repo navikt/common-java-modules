@@ -90,7 +90,7 @@
            dependencyManagement i modig-security setter denne. (nå til 2.1.5)
            apache cxf trenger imidlertid høyere versjon
         -->
-        <wss4j-ws-security-dom.version>2.1.9</wss4j-ws-security-dom.version>
+        <wss4j.version>2.1.9</wss4j.version>
 
         <!-- Test -->
         <assertj.version>3.6.1</assertj.version>
@@ -709,7 +709,12 @@
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
                 <artifactId>wss4j-ws-security-dom</artifactId>
-                <version>${wss4j-ws-security-dom.version}</version>
+                <version>${wss4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-policy</artifactId>
+                <version>${wss4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -847,6 +852,7 @@
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-launcher</artifactId>
                 <version>${junit.platform.version}</version>
+                <scope>provided</scope> <!-- brukes for å kunne kjøre tester i intellij -->
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>

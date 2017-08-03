@@ -9,6 +9,7 @@ import no.nav.apiapp.rest.SwaggerUIServlet;
 import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
+import no.nav.apiapp.selftest.impl.STSHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.util.JbossUtil;
 import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
@@ -40,6 +41,7 @@ import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
 import static javax.servlet.SessionTrackingMode.COOKIE;
+import static no.nav.apiapp.ApiApplication.Sone.SBS;
 import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
@@ -111,7 +113,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
         ApiApplication apiApplication = startSpring(servletContextEvent);
 
-        if (apiApplication.getSone() == ApiApplication.Sone.SBS) {
+        if (apiApplication.getSone() == SBS) {
             leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
         }
 
@@ -210,12 +212,14 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private ApiApplication startSpring(ServletContextEvent servletContextEvent) {
         contextLoaderListener.contextInitialized(servletContextEvent);
         AnnotationConfigWebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
+        ApiApplication apiApplication = webApplicationContext.getBean(ApiApplication.class);
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
         if (issoBrukes()) {
             leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
         }
-        return webApplicationContext.getBean(ApiApplication.class);
+        leggTilBonne(servletContextEvent, new STSHelsesjekk(apiApplication.getSone()));
+        return apiApplication;
     }
 
     private void leggTilBonne(ServletContextEvent servletContextEvent, Object bonne) {
