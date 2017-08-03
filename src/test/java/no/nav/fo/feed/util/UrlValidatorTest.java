@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static no.nav.fo.feed.util.UrlValidator.isInvalidUrl;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class UrlValidatorTest {
 
@@ -15,12 +15,12 @@ public class UrlValidatorTest {
 
     @Test
     public void shouldNotBeValid() {
-        assertTrue(isInvalidUrl("htp://veilarb.com"));
+        assertThat(isInvalidUrl("htp://veilarb.com")).isTrue();
     }
 
     @Test
     public void shouldBeValid() {
-        assertTrue(UrlValidator.isValidUrl("https://veilarb.com"));
+        assertThat(UrlValidator.isValidUrl("https://veilarb.com")).isTrue();
     }
 
     @Test

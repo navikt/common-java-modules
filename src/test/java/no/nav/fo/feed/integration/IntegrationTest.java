@@ -1,6 +1,7 @@
 package no.nav.fo.feed.integration;
 
 import no.nav.fo.feed.common.FeedElement;
+import no.nav.fo.feed.common.FeedWebhookRequest;
 import no.nav.fo.feed.common.OutInterceptor;
 import no.nav.fo.feed.consumer.FeedConsumer;
 import no.nav.fo.feed.consumer.FeedConsumerConfig;
@@ -17,6 +18,7 @@ import org.springframework.context.support.StaticApplicationContext;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
@@ -140,6 +142,43 @@ public class IntegrationTest {
 
         assertThat(respLastId[0], is("7"));
         assertThat(respSize[0], is(8));
+    }
+
+    @Test
+    public void getSkalReturnereForbidden() {
+        producerServer.controller.addFeed("testfeed", FeedProducer.<DomainObject>builder().authorizationModule((feedname) -> false).build());
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(basePath("31337")).path("feed/testfeed").queryParam("id","0").request().get();
+
+        assertThat(response.getStatus(), is(403));
+    }
+
+    @Test
+    public void putWebhookSkalReturnereForbidden() {
+        producerServer.controller.addFeed("testfeed", FeedProducer.<DomainObject>builder().authorizationModule((feedname) -> false).build());
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(basePath("31337")).path("feed/testfeed/webhook").request().buildPut(Entity.json(new FeedWebhookRequest())).invoke();
+
+        assertThat(response.getStatus(), is(403));
+    }
+
+    @Test
+    public void consumerSkalReturnerForbidden() {
+        FeedConsumerConfig.BaseConfig<DomainObject> baseConfig = new FeedConsumerConfig.BaseConfig<>(
+                DomainObject.class,
+                null,
+                basePath("31338").toString(),
+                "webhook-producer"
+        );
+
+        FeedConsumerConfig<DomainObject> config = new FeedConsumerConfig<DomainObject>(baseConfig, null).authorizatioModule((feedname)-> false);
+
+        consumerServer.controller.addFeed("testfeed", new FeedConsumer<DomainObject>(config));
+
+        Client client = ClientBuilder.newClient();
+        Response response = client.target(basePath("31338")).path("feed/testfeed").request().head();
+
+        assertThat(response.getStatus(), is(403));
     }
 
     static class Server {
