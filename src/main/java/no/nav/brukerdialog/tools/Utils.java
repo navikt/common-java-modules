@@ -2,8 +2,10 @@ package no.nav.brukerdialog.tools;
 
 
 import no.nav.brukerdialog.security.oidc.OidcTokenException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static java.util.Arrays.asList;
 
 public class Utils {
 
@@ -13,6 +15,10 @@ public class Utils {
             throw new OidcTokenException("Mangler system property: " + propertyName);
         }
         return property;
+    }
+
+    public static List<String> getCommaSeparatedUsers(String users) {
+        return asList(users.trim().toLowerCase().split(","));
     }
 
     public static String getRelativePath(String path) {
