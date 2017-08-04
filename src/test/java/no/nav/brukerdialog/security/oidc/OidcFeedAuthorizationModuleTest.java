@@ -11,7 +11,6 @@ public class OidcFeedAuthorizationModuleTest {
     @Test
     public void skalGiTilgang() {
         System.setProperty("test.feed.brukertilgang","bruker1,bruker2");
-        System.setProperty("no.nav.modig.security.systemuser.username", "systemuser");
         System.setProperty("no.nav.brukerdialog.security.context.subjectHandlerImplementationClass", InternbrukerSubjectHandler.class.getName());
 
         InternbrukerSubjectHandler.setVeilederIdent("bruker1");
@@ -22,7 +21,6 @@ public class OidcFeedAuthorizationModuleTest {
     @Test
     public void skalIkkeGiTilgang() {
         System.setProperty("test.feed.brukertilgang","bruker1,bruker2");
-        System.setProperty("no.nav.modig.security.systemuser.username", "systemuser");
         System.setProperty("no.nav.brukerdialog.security.context.subjectHandlerImplementationClass", InternbrukerSubjectHandler.class.getName());
 
         InternbrukerSubjectHandler.setVeilederIdent("bruker3");
