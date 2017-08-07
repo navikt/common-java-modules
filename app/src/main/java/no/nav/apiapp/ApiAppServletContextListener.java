@@ -47,6 +47,7 @@ import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
+import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -69,7 +70,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     public static final String INTERNAL_IS_ALIVE = "/internal/isAlive";
     public static final String INTERNAL_SELFTEST = "/internal/selftest";
     public static final String SWAGGER_PATH = "/internal/swagger/";
-    public static final String API_PATH = "/api/";
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
@@ -129,7 +129,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         leggTilServlet(servletContextEvent, IsAliveServlet.class, INTERNAL_IS_ALIVE);
         leggTilServlet(servletContextEvent, SelfTestServlet.class, INTERNAL_SELFTEST);
-        leggTilServlet(servletContextEvent, SwaggerUIServlet.class, SWAGGER_PATH + "*");
+        leggTilServlet(servletContextEvent, new SwaggerUIServlet(apiApplication), SWAGGER_PATH + "*");
 
         settOppRestApi(servletContextEvent, apiApplication);
         if (soapTjenesterEksisterer(servletContext)) {
@@ -229,7 +229,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
         RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()), apiApplication);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
-        ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, API_PATH + "*");
+        ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, sluttMedSlash(apiApplication.getApiBasePath()) + "*");
         SwaggerResource.setupServlet(servletRegistration);
     }
 

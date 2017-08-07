@@ -6,6 +6,7 @@ import io.swagger.jaxrs.config.ReaderConfigUtils;
 import io.swagger.jaxrs.listing.BaseApiListingResource;
 import io.swagger.models.Operation;
 import io.swagger.models.Swagger;
+import no.nav.apiapp.ApiApplication;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletConfig;
@@ -22,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
-import static no.nav.apiapp.ApiAppServletContextListener.API_PATH;
+import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 @Component
@@ -31,8 +32,14 @@ public class SwaggerResource extends BaseApiListingResource {
 
     public static final String SWAGGER_JSON = "swagger.json";
 
+    private final ApiApplication apiApplication;
+
     public static void setupServlet(ServletRegistration.Dynamic servletRegistration) {
         servletRegistration.setInitParameter("scan.all.resources", "true");
+    }
+
+    public SwaggerResource(ApiApplication apiApplication) {
+        this.apiApplication = apiApplication;
     }
 
     @GET
@@ -50,7 +57,7 @@ public class SwaggerResource extends BaseApiListingResource {
     @Override
     protected Swagger process(Application app, ServletContext servletContext, ServletConfig sc, HttpHeaders headers, UriInfo uriInfo) {
         Swagger swagger = super.process(app, servletContext, sc, headers, uriInfo);
-        swagger.setBasePath(servletContext.getContextPath() + API_PATH);
+        swagger.setBasePath(servletContext.getContextPath() + sluttMedSlash(apiApplication.getApiBasePath()));
         new DefaultJaxrsScanner().classesFromContext(app, sc).forEach(res -> leggTilStandardDokumentasjon(swagger, res));
         return swagger;
     }
