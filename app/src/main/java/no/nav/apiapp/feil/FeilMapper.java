@@ -13,6 +13,7 @@ import java.util.Set;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static no.nav.apiapp.feil.Feil.Type.FINNES_IKKE;
+import static no.nav.apiapp.feil.Feil.Type.UGYLDIG_REQUEST;
 import static no.nav.apiapp.feil.Feil.Type.UKJENT;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
@@ -41,6 +42,8 @@ public class FeilMapper {
             return ((Feil) throwable).getType();
         } else if (throwable instanceof SOAPFaultException) {
             return valueOfOptional(Feil.Type.class, ((SOAPFaultException) throwable).getFault().getFaultCodeAsName().getLocalName()).orElse(UKJENT);
+        } else if (throwable instanceof IllegalArgumentException) {
+            return UGYLDIG_REQUEST;
         } else if (throwable instanceof NotFoundException) {
             return FINNES_IKKE;
         } else {
