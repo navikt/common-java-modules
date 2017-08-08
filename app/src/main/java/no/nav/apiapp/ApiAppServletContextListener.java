@@ -218,7 +218,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
         }
-        leggTilBonne(servletContextEvent, new STSHelsesjekk(apiApplication.getSone()));
+        if (apiApplication.brukSTSHelsesjekk()){
+            leggTilBonne(servletContextEvent, new STSHelsesjekk(apiApplication.getSone()));
+        }
         return apiApplication;
     }
 
