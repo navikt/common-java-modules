@@ -26,6 +26,13 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     @Inject
     javax.inject.Provider<HttpServletRequest> servletRequestProvider;
 
+    public ExceptionMapper() {}
+
+    @SuppressWarnings("unused")
+    public ExceptionMapper(javax.inject.Provider<HttpServletRequest> servletRequestProvider) {
+        this.servletRequestProvider = servletRequestProvider;
+    }
+
     @Override
     public Response toResponse(Throwable exception) {
         return toResponse(
