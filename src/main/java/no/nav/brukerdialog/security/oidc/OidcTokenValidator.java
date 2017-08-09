@@ -9,14 +9,15 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.List;
 
 import static no.nav.brukerdialog.security.Constants.ISSO_EXPECTED_TOKEN_ISSUER;
-import static no.nav.brukerdialog.security.Constants.ISSO_RP_USER_USERNAME_PROPERTY_NAME;
 import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
 
 public class OidcTokenValidator {
@@ -98,17 +99,19 @@ public class OidcTokenValidator {
         if (expectedIssuer == null) {
             return OidcTokenValidatorResult.invalid("Expected issuer must be configured.");
         }
-        String expectedAudience = getSystemProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME);
-        if (expectedAudience == null) {
-            return OidcTokenValidatorResult.invalid("Expected audience must be configured.");
-        }
+
+
+        //Biblioteket støtter ikke at man disabler expected audience sjekken dersom den finnes en "aud"-claim i tokenet.
+        //Henter dermed ut aud fra tokenet og setter det som expected.
+        String expectedAud = getTokenAud(token);
+
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime()
                 .setAllowedClockSkewInSeconds(30) //TODO set to 0. Clocks should be synchronized.
                 .setRequireSubject()
                 .setExpectedIssuer(expectedIssuer)
+                .setExpectedAudience(false,expectedAud) //requireAudienceClaim til false slik at det funker om openAM fjerner aud fra token.
                 .setVerificationKey(key)
-                .setExpectedAudience(expectedAudience)
                 .build();
 
         try {
@@ -140,6 +143,19 @@ public class OidcTokenValidator {
             kid = "";
         }
         return new JwtHeader(kid, wstruct.getAlgorithmHeaderValue());
+    }
+
+    private String getTokenAud(String jwt) {
+        try {
+            Base64.Decoder decoder = Base64.getUrlDecoder();
+            String body = jwt.split("\\.")[1];
+            String bodyDecoded = new String(decoder.decode(body));
+            return new JSONObject(bodyDecoded).getString("aud");
+
+        } catch(Exception e ) {
+            logger.warn("Kunne ikke hente aud fra token");
+            return null;
+        }
     }
 
 }
