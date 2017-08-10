@@ -38,7 +38,7 @@
         <common-test.version>2.0.3</common-test.version>
         <common-jetty.version>2.0.16</common-jetty.version>
         <jetty.version>9.3.0.M2</jetty.version>
-        <feed.version>2.43.22</feed.version>
+        <feed.version>2.44.28</feed.version>
 
         <!-- SOAP -->
         <common-cxf.version>1.0.81.3</common-cxf.version>
