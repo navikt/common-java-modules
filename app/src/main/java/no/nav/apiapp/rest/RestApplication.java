@@ -2,6 +2,7 @@ package no.nav.apiapp.rest;
 
 import no.nav.apiapp.ApiApplication;
 import no.nav.brukerdialog.isso.RelyingPartyCallback;
+import no.nav.json.JsonProvider;
 import org.springframework.context.ApplicationContext;
 
 import javax.ws.rs.Path;
@@ -13,7 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static no.nav.apiapp.rest.DateConfiguration.parameterConverterProvider;
+import static no.nav.json.DateConfiguration.parameterConverterProvider;
 
 public class RestApplication extends Application {
 

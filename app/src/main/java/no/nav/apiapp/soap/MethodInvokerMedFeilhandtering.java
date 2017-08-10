@@ -12,7 +12,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 import static no.nav.apiapp.util.EnumUtils.getName;
-import static no.nav.apiapp.util.JsonUtils.toJson;
+import static no.nav.json.JsonUtils.toJson;
 
 public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
 

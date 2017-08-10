@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
-import static no.nav.apiapp.rest.DateConfiguration.DEFAULT_ZONE;
+import static no.nav.json.DateConfiguration.DEFAULT_ZONE;
 
 @Path("/dato")
 public class DatoEksempel {

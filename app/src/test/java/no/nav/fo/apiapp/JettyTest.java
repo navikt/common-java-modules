@@ -1,6 +1,6 @@
 package no.nav.fo.apiapp;
 
-import no.nav.apiapp.rest.JsonProvider;
+import no.nav.json.JsonProvider;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.BeforeClass;

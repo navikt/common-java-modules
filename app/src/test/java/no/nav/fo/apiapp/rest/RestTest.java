@@ -2,11 +2,9 @@ package no.nav.fo.apiapp.rest;
 
 import no.nav.apiapp.feil.Feil;
 import no.nav.apiapp.rest.ExceptionMapper;
-import no.nav.apiapp.util.JsonUtils;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -17,7 +15,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static no.nav.apiapp.feil.Feil.Type.*;
-import static no.nav.apiapp.util.JsonUtils.fromJson;
+import static no.nav.json.JsonUtils.fromJson;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
