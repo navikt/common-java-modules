@@ -19,8 +19,9 @@
                     <fileNamePattern>${APP_LOG_HOME}/${contextName}-%d.log.%i.gz</fileNamePattern>
                     <maxFileSize>50MB</maxFileSize>
                     <maxHistory>90</maxHistory>
-                    <!-- default 200 MB, da en basic server har svært lite plass til logger. Særlig når flere apper deployes på den samme serveren -->
-                    <totalSizeCap>${logback.totalSizeCap:-200MB}</totalSizeCap>
+                    <!-- default 150 MB, da en basic server har svært lite plass til logger. Særlig når flere apper deployes på den samme serveren -->
+                    <!-- aksesslogger tar også potensielt opp stor plass, ref ATOM-2749 -->
+                    <totalSizeCap>${logback.totalSizeCap:-150MB}</totalSizeCap>
                 </rollingPolicy>
                 <encoder>
                     <pattern>${loggingPattern}</pattern>
