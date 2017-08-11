@@ -1,27 +1,32 @@
 package no.nav.apiapp.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.jaxrs.config.DefaultJaxrsScanner;
 import io.swagger.jaxrs.config.ReaderConfigUtils;
 import io.swagger.jaxrs.listing.BaseApiListingResource;
 import io.swagger.models.Operation;
 import io.swagger.models.Swagger;
+import io.swagger.util.Json;
+import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.*;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import static java.util.Arrays.stream;
 import static java.util.Optional.ofNullable;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
@@ -31,6 +36,7 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 public class SwaggerResource extends BaseApiListingResource {
 
     public static final String SWAGGER_JSON = "swagger.json";
+    public static final String IKKE_BERIK = "ikke_berik";
 
     private final ApiApplication apiApplication;
 
@@ -42,13 +48,17 @@ public class SwaggerResource extends BaseApiListingResource {
         this.apiApplication = apiApplication;
     }
 
+    @Inject
+    private Provider<HttpServletRequest> httpServletRequestProvider;
+
     @GET
     public Response getSwaggerJSON(
             @Context Application application,
             @Context ServletConfig servletConfig,
             @Context ServletContext servletContext,
             @Context HttpHeaders httpHeaders,
-            @Context UriInfo uriInfo
+            @Context UriInfo uriInfo,
+            @QueryParam(IKKE_BERIK) String ikkeBerik
     ) throws JsonProcessingException {
         ReaderConfigUtils.initReaderConfig(servletConfig);
         return getListingJsonResponse(application, servletContext, servletConfig, httpHeaders, uriInfo);
@@ -57,41 +67,57 @@ public class SwaggerResource extends BaseApiListingResource {
     @Override
     protected Swagger process(Application app, ServletContext servletContext, ServletConfig sc, HttpHeaders headers, UriInfo uriInfo) {
         Swagger swagger = super.process(app, servletContext, sc, headers, uriInfo);
-        swagger.setBasePath(servletContext.getContextPath() + sluttMedSlash(apiApplication.getApiBasePath()));
-        new DefaultJaxrsScanner().classesFromContext(app, sc).forEach(res -> leggTilStandardDokumentasjon(swagger, res));
-        return swagger;
-    }
-
-    private void leggTilStandardDokumentasjon(Swagger swagger, Class<?> contextClass) {
-        ofNullable(findAnnotation(contextClass, Path.class))
-                .map(Path::value)
-                .map(this::prependSlash)
-                .ifPresent(resourcePath -> leggTilStandardDokumentasjon(swagger, contextClass, contextClass, resourcePath));
-    }
-
-    private void leggTilStandardDokumentasjon(Swagger swagger, Class<?> methodsClass, Class<?> contextClass, String resourcePath) {
-        if (!skalIkkeHaEkstraDokumentasjon(methodsClass)) {
-            Arrays.stream(methodsClass.getMethods())
-                    .filter(method -> method.getDeclaringClass() != Object.class)
-                    .forEach(method -> leggTilStandardDokumentasjon(swagger, method, resourcePath, contextClass));
+        if (!httpServletRequestProvider.get().getParameterMap().containsKey(IKKE_BERIK)) {
+            return berik(
+                    kopier(swagger), //  BaseApiListingResource cacher swagger-objektet, kopierer derfor for å ikke mutere på dette
+                    app,
+                    servletContext,
+                    sc
+            );
+        } else {
+            return swagger;
         }
     }
 
-    private boolean skalIkkeHaEkstraDokumentasjon(Class<?> methodsClass) {
-        return methodsClass == Object.class
-                || methodsClass.getName().startsWith("java") // java.lang, java.util, javax.*
-                || methodsClass.isEnum()
-                ;
+    @SneakyThrows
+    private Swagger kopier(Swagger swagger) {
+        ObjectMapper mapper = Json.mapper();
+        return mapper.readValue(mapper.writeValueAsString(swagger), Swagger.class);
     }
 
-    private void leggTilStandardDokumentasjon(Swagger swagger, Method method, String resourcePath, Class<?> contextClass) {
-        String methodPath = ofNullable(findAnnotation(method,Path.class))
+    private Swagger berik(Swagger swagger, Application app, ServletContext servletContext, ServletConfig sc) {
+        swagger.setBasePath(servletContext.getContextPath() + sluttMedSlash(apiApplication.getApiBasePath()));
+        SwaggerRequest swaggerRequest = new SwaggerRequest(swagger);
+        new DefaultJaxrsScanner().classesFromContext(app, sc).forEach(res -> leggTilStandardDokumentasjon(swaggerRequest, res));
+        return swagger;
+    }
+
+    private void leggTilStandardDokumentasjon(SwaggerRequest swaggerRequest, Class<?> contextClass) {
+        ofNullable(findAnnotation(contextClass, Path.class))
+                .map(Path::value)
+                .map(this::prependSlash)
+                .ifPresent(resourcePath -> leggTilStandardDokumentasjon(swaggerRequest, contextClass, contextClass, resourcePath));
+    }
+
+    private void leggTilStandardDokumentasjon(SwaggerRequest swaggerRequest, Class<?> methodsClass, Class<?> contextClass, String resourcePath) {
+        stream(methodsClass.getMethods()).forEach(method -> leggTilStandardDokumentasjon(swaggerRequest, method, resourcePath, contextClass));
+    }
+
+    private void leggTilStandardDokumentasjon(SwaggerRequest swaggerRequest, Method method, String resourcePath, Class<?> contextClass) {
+        if (swaggerRequest.methods.contains(method)) {
+            return;
+        } else {
+            swaggerRequest.methods.add(method);
+        }
+
+        String methodPath = ofNullable(findAnnotation(method, Path.class))
                 .map(Path::value)
                 .map(this::prependSlash)
                 .orElse("");
         String path = resourcePath + ("/".equals(methodPath) ? "" : methodPath);
-        leggTilStandardDokumentasjon(swagger, method.getReturnType(), contextClass, path);
-        ofNullable(swagger.getPath(path))
+        leggTilStandardDokumentasjon(swaggerRequest, method.getReturnType(), contextClass, path);
+
+        ofNullable(swaggerRequest.swagger.getPath(path))
                 .flatMap(swaggerPath -> getOperation(swaggerPath, method))
                 .ifPresent(operation -> {
                     if (ofNullable(operation.getTags()).map(List::isEmpty).orElse(true)) {
@@ -113,6 +139,15 @@ public class SwaggerResource extends BaseApiListingResource {
 
     private String prependSlash(String path) {
         return path.startsWith("/") ? path : "/" + path;
+    }
+
+    private static class SwaggerRequest {
+        private Set<Method> methods = new HashSet<>();
+        private final Swagger swagger;
+
+        private SwaggerRequest(Swagger swagger) {
+            this.swagger = swagger;
+        }
     }
 
 }

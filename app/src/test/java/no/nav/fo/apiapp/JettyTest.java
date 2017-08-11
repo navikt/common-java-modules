@@ -74,7 +74,11 @@ public abstract class JettyTest {
     }
 
     protected static URI uri(String path) {
-        return UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("http").port(getPort()).build();
+        return buildUri(path).build();
+    }
+
+    protected static UriBuilder buildUri(String path) {
+        return UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("http").port(getPort());
     }
 
     protected String getString(String path) {

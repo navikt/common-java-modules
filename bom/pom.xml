@@ -38,7 +38,7 @@
         <common-test.version>2.0.3</common-test.version>
         <common-jetty.version>2.0.16</common-jetty.version>
         <jetty.version>9.3.0.M2</jetty.version>
-        <feed.version>2.44.28</feed.version>
+        <feed.version>2.46.38</feed.version>
 
         <!-- SOAP -->
         <common-cxf.version>1.0.81.3</common-cxf.version>
@@ -135,6 +135,13 @@
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>feed</artifactId>
                 <version>${feed.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.sbl.dialogarena</groupId>
+                <artifactId>feed</artifactId>
+                <version>${feed.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
             </dependency>
 
             <!-- modig -->
