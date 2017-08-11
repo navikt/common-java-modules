@@ -13,6 +13,7 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+@DisallowConcurrentExecution
 public class FeedPoller implements Job {
 
     private static Scheduler scheduler;
