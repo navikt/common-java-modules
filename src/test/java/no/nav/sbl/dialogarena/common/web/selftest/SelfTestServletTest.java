@@ -1,9 +1,8 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
+import lombok.SneakyThrows;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
-import org.eclipse.jetty.servlet.ServletTester;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,23 +14,32 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
+import static java.util.concurrent.Executors.newFixedThreadPool;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_ERROR;
+import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestServletTest.TestPingable.PING_TID;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SelfTestServletTest {
 
+    private TestPingable pingA = new TestPingable(Ping.lyktes(new PingMetadata("a", "beskrivelse", true)));
+    private TestPingable pingB = new TestPingable(Ping.lyktes(new PingMetadata("b", "beskrivelse", true)));
+    private TestPingable pingC = new TestPingable(Ping.feilet(new PingMetadata("c", "beskrivelse", true), new IllegalArgumentException("Cfeil")));
+
     private HttpServletRequest mockRequest;
     private HttpServletResponse mockResponse;
     private SelfTestBaseServlet baseServlet;
-    private ServletTester tester;
 
     @Before
     public void setUp() throws Exception {
@@ -42,17 +50,6 @@ public class SelfTestServletTest {
 
         when(mockRequest.getParameterMap()).thenReturn(new HashMap<>());
         when(mockResponse.getWriter()).thenReturn(createMockedPrintWriter());
-
-
-        tester = new ServletTester();
-        tester.setContextPath("/internal");
-        tester.addServlet(baseServlet.getClass(), "/selftest");
-        tester.start();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        tester.stop();
     }
 
     @Test
@@ -67,6 +64,26 @@ public class SelfTestServletTest {
         assertThat(baseServlet.getPingables().size(), is(3));
     }
 
+    @Test(timeout = PING_TID * 10)
+    public void beskyttPingablesMotMangeSamtidigeRequesterMenBevarHoyThroughput() throws ServletException, IOException {
+        ExecutorService executorService = newFixedThreadPool(100);
+        range(0, 100)
+                .mapToObj((i) -> executorService.submit(this::get))
+                .collect(toList()).stream() // tvinger alle submits før vi resolver
+                .forEach(SelfTestServletTest::resolveFuture);
+
+        assertThat(pingA.counter.get(), lessThan(5));
+        assertThat(pingB.counter.get(), lessThan(5));
+        assertThat(pingC.counter.get(), lessThan(5));
+        executorService.shutdown();
+    }
+
+    @SneakyThrows
+    private void get() {
+        System.out.println(Thread.currentThread());
+        baseServlet.doGet(mockRequest, mockResponse);
+    }
+
     private PrintWriter createMockedPrintWriter() {
         return new PrintWriter(new CharArrayWriter());
     }
@@ -79,22 +96,39 @@ public class SelfTestServletTest {
             }
 
             @Override
-            protected Collection<? extends Pingable> getPingables() {
+            protected Collection<TestPingable> getPingables() {
                 return asList(
-                        createPingable(Ping.lyktes(new PingMetadata("a", "beskrivelse", true))),
-                        createPingable(Ping.lyktes(new PingMetadata("b", "beskrivelse", true))),
-                        createPingable(Ping.feilet(new PingMetadata("c", "beskrivelse", true), new IllegalArgumentException("Cfeil")))
+                        pingA,
+                        pingB,
+                        pingC
                 );
             }
         };
     }
 
-    private Pingable createPingable(final Ping ping) {
-        return new Pingable() {
-            @Override
-            public Ping ping() {
-                return ping;
-            }
-        };
+    static class TestPingable implements Pingable {
+
+        static final long PING_TID = 100L;
+
+        private Ping ping;
+        private AtomicInteger counter = new AtomicInteger();
+
+        private TestPingable(Ping ping) {
+            this.ping = ping;
+        }
+
+        @Override
+        @SneakyThrows
+        public Ping ping() {
+            Thread.sleep(PING_TID);
+            counter.incrementAndGet();
+            return ping;
+        }
     }
+
+    @SneakyThrows
+    private static void resolveFuture(Future future) {
+        future.get();
+    }
+
 }
