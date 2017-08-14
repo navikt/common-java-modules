@@ -67,7 +67,7 @@ public class HttpTest {
                 return MOCK_RESPONSE;
             }
         });
-        server.start(31337);
+        server.start();
 
         HttpUrl url = server.url("/asm-pdp/authorize");
         System.setProperty("abac.endpoint.url", url.toString());
