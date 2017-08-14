@@ -202,7 +202,7 @@ public class FasitUtils {
     private static String fetchJson(String url) {
         LOG.info("Fetching json: {}", url);
         String json = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
-        LOG.info(json);
+        LOG.info(json.replaceAll("\n", ""));
         return json;
     }
 
