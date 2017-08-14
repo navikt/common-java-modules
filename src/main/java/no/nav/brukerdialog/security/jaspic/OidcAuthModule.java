@@ -5,6 +5,7 @@ import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.domain.SluttBruker;
 import no.nav.brukerdialog.security.oidc.IdTokenProvider;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
+import no.nav.brukerdialog.security.oidc.TokenUtils;
 import no.nav.brukerdialog.tools.HostUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,8 @@ public class OidcAuthModule implements ServerAuthModule {
         OidcTokenValidator.OidcTokenValidatorResult validateResult = tokenValidator.validate(token.get());
         Optional<String> refreshToken = tokenLocator.getRefreshToken(request);
         if (needToRefreshToken(validateResult, refreshToken)) {
-            token = fetchUpdatedToken(refreshToken.get());
+            String openamClient = TokenUtils.getOpenamClientFromToken(token.get());
+            token = fetchUpdatedToken(refreshToken.get(), openamClient);
             if (token.isPresent()) {
                 validateResult = tokenValidator.validate(token.get());
                 if (validateResult.isValid()) {
@@ -136,10 +138,10 @@ public class OidcAuthModule implements ServerAuthModule {
         return Integer.parseInt(System.getProperty(REFRESH_TIME, "60")) * 1000;
     }
 
-    private Optional<String> fetchUpdatedToken(String refreshToken) {
+    private Optional<String> fetchUpdatedToken(String refreshToken, String openamClient) {
         log.debug("Refreshing token"); //Do not log token
         try {
-            return Optional.of(tokenProvider.getToken(refreshToken).getToken());
+            return Optional.of(tokenProvider.getToken(refreshToken, openamClient).getToken());
         } catch (Exception e) {
             log.warn("Could not refresh token", e);
             return Optional.empty();
