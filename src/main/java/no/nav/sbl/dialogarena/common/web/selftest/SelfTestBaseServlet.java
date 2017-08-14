@@ -84,7 +84,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
     protected String getApplicationVersion() {
         String version = "unknown version";
         try {
-            InputStream inputStream = getServletContext().getResourceAsStream(("/META-INF/MANIFEST.MF"));
+            InputStream inputStream = getServletContext().getResourceAsStream("/META-INF/MANIFEST.MF");
             version = new Manifest(inputStream).getMainAttributes().getValue("Implementation-Version");
         } catch (Exception e) {
             logger.warn("Feil ved henting av applikasjonsversjon: " + e.getMessage());

@@ -25,7 +25,7 @@ public class XFrameOptionsFilter implements Filter {
     static final String DENY_OPTION = "DENY";
     static final String SAMEORIGIN_OPTION = "SAMEORIGIN";
 
-    private Set<String> availableOptions = new HashSet<String>();
+    private Set<String> availableOptions = new HashSet<>();
 
     {
         availableOptions.add(DENY_OPTION);
