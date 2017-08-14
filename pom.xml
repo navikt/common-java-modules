@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>no.nav.sbl.dialogarena</groupId>
-        <artifactId>dialogarena</artifactId>
-        <version>4</version>
+        <groupId>no.nav.sbl</groupId>
+        <artifactId>mor-pom</artifactId>
+        <version>3.6</version>
     </parent>
     <artifactId>json</artifactId>
     <version>1</version>
