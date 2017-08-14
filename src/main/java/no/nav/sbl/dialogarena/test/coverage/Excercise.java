@@ -35,7 +35,7 @@ public final class Excercise {
                 for (@SuppressWarnings("rawtypes") Enum constant : enumClass.getEnumConstants()) {
                     LOG.info("Excercising " + enumClass.getName() + ".valueOf(\"" + constant.name() + "\")");
                     Object returnedFromValueOf = valueOfMethod.invoke(enumClass, constant.name());
-                    if (returnedFromValueOf != constant) {
+                    if (!constant.equals(returnedFromValueOf)) {
                         throw new RuntimeException(
                                 "Should have got " + constant + " from invoking valueOf(" + constant.name() +
                                 "), but got " + returnedFromValueOf);
