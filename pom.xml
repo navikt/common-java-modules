@@ -7,7 +7,7 @@
     <parent>
         <groupId>no.nav.sbl</groupId>
         <artifactId>mor-pom</artifactId>
-        <version>3.2</version>
+        <version>3.6</version>
     </parent>
 
     <groupId>no.nav.sbl.dialogarena</groupId>
@@ -28,6 +28,10 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
         <dependency>
             <groupId>no.nav</groupId>
             <artifactId>metrics</artifactId>
@@ -63,6 +67,10 @@
         </dependency>
 
         <!--TEST-->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>

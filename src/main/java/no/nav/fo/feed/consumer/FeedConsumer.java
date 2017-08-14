@@ -1,11 +1,11 @@
 package no.nav.fo.feed.consumer;
 
 import no.nav.fo.feed.common.*;
+import no.nav.fo.feed.util.RestUtils;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
@@ -52,7 +52,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     void registerWebhook() {
-        Client client = ClientBuilder.newBuilder().build();
+        Client client = RestUtils.getClient();
 
         String callbackUrl = callbackUrl(this.config.apiRootPath, this.config.feedName);
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
@@ -78,7 +78,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
     void poll() {
         String lastEntry = this.config.lastEntrySupplier.get();
-        Invocation.Builder request = ClientBuilder.newBuilder().build()
+        Invocation.Builder request = RestUtils.getClient()
                 .target(getTargetUrl())
                 .queryParam(QUERY_PARAM_ID, lastEntry)
                 .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)

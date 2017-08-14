@@ -3,12 +3,10 @@ package no.nav.fo.feed.producer;
 import lombok.Builder;
 import no.nav.fo.feed.common.*;
 import no.nav.fo.feed.exception.InvalidUrlException;
-import no.nav.metrics.Event;
-import no.nav.metrics.MetricsFactory;
+import no.nav.fo.feed.util.MetricsUtils;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import java.util.*;
 import java.util.function.Function;
@@ -16,6 +14,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.HttpMethod.HEAD;
+import static no.nav.fo.feed.util.RestUtils.getClient;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -42,8 +41,14 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         List<FeedElement<DOMAINOBJECT>> pageElements = provider
                 .fetchData(id, pageSize)
                 .sorted()
-                .limit(pageSize)
+                .limit(pageSize + 1) // se fetchnotlimited
                 .collect(Collectors.toList());
+
+        if (pageElements.size() > pageSize) {
+            MetricsUtils.metricEvent("fetchnotlimited", feedname);
+            LOG.warn("Provider retrieved more than <pageSize> elements in response to {} for feed {}", request, feedname);
+            LOG.info("This can lead to excessive resource consumption by the producer...");
+        }
 
         Set<String> ids = pageElements
                 .stream()
@@ -51,11 +56,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 .collect(toSet());
 
         if (pageElements.size() != ids.size()) {
-            // Found duplicate ids
-            Event event = MetricsFactory.createEvent("feed.duplicateid");
-            event.addTagToReport("feedname", feedname);
-            event.report();
-
+            MetricsUtils.metricEvent("duplicateid", feedname);
             LOG.warn("Found duplicate IDs in response to {} for feed {}", request, feedname);
             LOG.info("This can lead to excessive network usage between the producer and its consumers...");
         }
@@ -79,7 +80,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
     private int tryActivateWebHook(String url) {
         try {
-            Client client = ClientBuilder.newBuilder().build();
+            Client client = getClient();
             Invocation.Builder request = client.target(url).request();
             this.interceptors.forEach(interceptor -> interceptor.apply(request));
             return request.build(HEAD).invoke().getStatus();
