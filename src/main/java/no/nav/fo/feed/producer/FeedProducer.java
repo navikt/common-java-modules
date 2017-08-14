@@ -27,7 +27,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     @Builder.Default
     private int maxPageSize = 10000;
     @Builder.Default
-    private List<String> callbackUrls = new ArrayList<>();
+    private Set<String> callbackUrls = new HashSet<>();
     @Builder.Default
     private List<OutInterceptor> interceptors = new ArrayList<>();
     @Builder.Default
@@ -101,14 +101,8 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     private boolean createWebhook(String callbackUrl) {
-        if (callbackUrls.contains(callbackUrl)) {
-            return false;
-        }
         validateUrl(callbackUrl);
-
-        callbackUrls.add(callbackUrl);
-
-        return true;
+        return callbackUrls.add(callbackUrl);
     }
 
     private static int getPageSize(int pageSize, int maxPageSize) {
