@@ -75,6 +75,9 @@ public class TestUtil {
     }
 
     public static int getSensuClientPort() {
-        return Integer.parseInt(System.getProperty("sensu_client_port", "3030"));
+        return Integer.parseInt(System.getProperty(
+                "sensu_client_port",
+                "0" // tilfelding port som default
+        ));
     }
 }

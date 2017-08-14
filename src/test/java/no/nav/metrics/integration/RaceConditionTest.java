@@ -2,19 +2,30 @@ package no.nav.metrics.integration;
 
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.TestUtil;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static no.nav.metrics.TestUtil.getSensuClientPort;
 import static no.nav.metrics.TestUtil.lesLinjeFraSocket;
+import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertThat;
 
 public class RaceConditionTest {
+
+    private ServerSocket serverSocket;
+
+    @Before
+    public void setup() throws IOException {
+        serverSocket = new ServerSocket(getSensuClientPort());
+        System.setProperty(SENSU_CLIENT_PORT, Integer.toString(serverSocket.getLocalPort()));
+    }
 
     @Test
     public void testStuff() throws Exception {
@@ -89,8 +100,6 @@ public class RaceConditionTest {
 
 
         long start = System.currentTimeMillis();
-
-        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         String line1 = lesLinjeFraSocket(serverSocket);
         String line2 = lesLinjeFraSocket(serverSocket);

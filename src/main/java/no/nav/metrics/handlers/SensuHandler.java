@@ -21,8 +21,9 @@ import static no.nav.metrics.MetricsClient.DISABLE_METRICS_REPORT;
 
 public class SensuHandler {
 
+    public static final String SENSU_CLIENT_PORT = "sensu_client_port";
+
     private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
-    private static final int SENSU_PORT = Integer.parseInt(System.getProperty("sensu_client_port", "3030")); // System property'en sensu_client_port settes av plattformen
     private static final int RETRY_INTERVAL = Integer.parseInt(System.getProperty("metrics.sensu.report.retryInterval", "1000"));
     private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.queueSize", "5000"));
     private static final int BATCHES_PER_SECOND = Integer.parseInt(System.getProperty("metrics.sensu.report.batchesPerSecond", "50"));
@@ -31,13 +32,15 @@ public class SensuHandler {
 
     private final LinkedBlockingQueue<String> reportQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
     private final String application;
+    private final int sensuPort;
     private long queueSisteGangFullTimestamp = 0;
 
     public SensuHandler(String application) {
         this.application = application;
+        this.sensuPort = Integer.parseInt(System.getProperty(SENSU_CLIENT_PORT, "3030")); // System property'en sensu_client_port settes av plattformen
         if (!DISABLE_METRICS_REPORT) {
             logger.info("Metrics aktivert med parametre: batch size: {}, batches per second: {}, gir batch delay: {}ms, queue size: {}, retry interval: {}ms, sensu port: {}",
-                    BATCH_SIZE, BATCHES_PER_SECOND, BATCH_DELAY, QUEUE_SIZE, RETRY_INTERVAL, SENSU_PORT);
+                    BATCH_SIZE, BATCHES_PER_SECOND, BATCH_DELAY, QUEUE_SIZE, RETRY_INTERVAL, this.sensuPort);
             ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
             scheduledExecutorService.execute(new SensuReporter());
         }
@@ -85,7 +88,7 @@ public class SensuHandler {
         }
 
         private BufferedWriter connectToSensu(Socket socket) throws IOException {
-            InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", SENSU_PORT);
+            InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost", sensuPort);
             socket.connect(inetSocketAddress, 500);
             return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         }

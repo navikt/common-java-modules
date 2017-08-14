@@ -6,16 +6,27 @@ import no.nav.metrics.aspects.Count;
 import no.nav.metrics.aspects.CountAspect;
 import no.nav.metrics.aspects.Timed;
 import no.nav.metrics.aspects.TimerAspect;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 
 import static no.nav.metrics.TestUtil.getSensuClientPort;
 import static no.nav.metrics.TestUtil.lesUtAlleMeldingerSendtPaSocket;
+import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
 import static org.junit.Assert.assertEquals;
 
 public class MetricReportTest {
+
+    private ServerSocket serverSocket;
+
+    @Before
+    public void setup() throws IOException {
+        serverSocket = new ServerSocket(getSensuClientPort());
+        System.setProperty(SENSU_CLIENT_PORT, Integer.toString(serverSocket.getLocalPort()));
+    }
 
     @Test
     public void aspectOgProxySkalRapportereLikeDataForTimer() throws Exception {
@@ -56,7 +67,6 @@ public class MetricReportTest {
     }
 
     private void sjekkLiktPaSocketData() throws Exception {
-        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         List<String> meldinger = lesUtAlleMeldingerSendtPaSocket(serverSocket);
 

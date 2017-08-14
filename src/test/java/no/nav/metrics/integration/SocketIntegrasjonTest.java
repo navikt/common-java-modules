@@ -1,8 +1,10 @@
 package no.nav.metrics.integration;
 
 import no.nav.metrics.handlers.SensuHandler;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +16,16 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class SocketIntegrasjonTest {
+
+    private ServerSocket serverSocket;
+    private int sensuClientPort;
+
+    @Before
+    public void setup() throws IOException {
+        serverSocket = new ServerSocket(getSensuClientPort());
+        sensuClientPort = serverSocket.getLocalPort();
+    }
+
     @Test
     public void senderJsonOverSocket() throws Exception {
         Thread.sleep(100);
@@ -30,7 +42,6 @@ public class SocketIntegrasjonTest {
             }
         }).start();
 
-        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         String linje = lesLinjeFraSocket(serverSocket);
 
@@ -46,7 +57,6 @@ public class SocketIntegrasjonTest {
         new SensuHandler("testApp").report("data567");
 
         Thread.sleep(600); // Venter med å lage socket en stund
-        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         String linje = lesLinjeFraSocket(serverSocket);
 
@@ -76,8 +86,6 @@ public class SocketIntegrasjonTest {
                 }
             });
         }
-
-        ServerSocket serverSocket = new ServerSocket(getSensuClientPort());
 
         // Kan lese ut alle meldingene igjen
         List<String> meldinger = lesUtAlleMeldingerSendtPaSocket(serverSocket);

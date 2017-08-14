@@ -37,6 +37,7 @@ public class SensuHandlerTest {
 
     }
 
+    @Test
     public void senderDataPaNyNarSocketConnectionFeiler(@Mocked final Socket socket, @Mocked final BufferedWriter writer) throws Exception {
         new Expectations() {{
             socket.connect((SocketAddress) any, anyInt);
