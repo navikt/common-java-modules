@@ -17,10 +17,11 @@
                 <file>${APP_LOG_HOME}/${contextName}.log</file>
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                     <fileNamePattern>${APP_LOG_HOME}/${contextName}-%d.log.%i.gz</fileNamePattern>
-                    <maxFileSize>50MB</maxFileSize>
+                    <maxFileSize>30MB</maxFileSize>
                     <maxHistory>90</maxHistory>
-                    <!-- default 200 MB, da en basic server har svært lite plass til logger. Særlig når flere apper deployes på den samme serveren -->
-                    <totalSizeCap>${logback.totalSizeCap:-200MB}</totalSizeCap>
+                    <!-- default 100 MB, da en basic server har svært lite plass til logger. Særlig når flere apper deployes på den samme serveren -->
+                    <!-- aksesslogger og sensulogger tar også potensielt opp stor plass, ref ATOM-2749 -->
+                    <totalSizeCap>${logback.totalSizeCap:-100MB}</totalSizeCap>
                 </rollingPolicy>
                 <encoder>
                     <pattern>${loggingPattern}</pattern>

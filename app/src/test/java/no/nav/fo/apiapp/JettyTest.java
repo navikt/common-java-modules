@@ -1,18 +1,14 @@
 package no.nav.fo.apiapp;
 
-import no.nav.apiapp.rest.JsonProvider;
+import no.nav.json.JsonProvider;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.server.ServerConnector;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.*;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -23,7 +19,9 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.apiapp.ServletUtil.getContext;
 
 
@@ -36,7 +34,7 @@ public abstract class JettyTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
 
     protected static final String CONTEXT_NAME = JettyTest.class.getSimpleName();
-    protected static final Jetty JETTY = StartJetty.nyJetty(CONTEXT_NAME, tilfeldigPort());
+    protected static final Jetty JETTY = StartJetty.nyJettyForTest(CONTEXT_NAME, tilfeldigPort());
 
     private Client client = ClientBuilder.newBuilder().register(new JsonProvider()).build();
     private Map<String, NewCookie> cookies = new HashMap<>();
@@ -44,17 +42,7 @@ public abstract class JettyTest {
     @BeforeClass
     public static void startJetty() {
         JETTY.start();
-    }
-
-    @AfterClass
-    public static void stopJetty() {
-        JETTY.stop.run();
-    }
-
-    @BeforeClass
-    public static void systemUser() {
-        System.setProperty("no.nav.modig.security.systemuser.username","username");
-        System.setProperty("no.nav.modig.security.systemuser.password","password");
+        Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
     }
 
     private static int tilfeldigPort() {
@@ -66,11 +54,15 @@ public abstract class JettyTest {
     }
 
     protected Response get(String path) {
+        return request(path, SyncInvoker::get);
+    }
+
+    protected Response request(String path, Function<Invocation.Builder, Response> ex) {
         URI uri = uri(path);
-        LOGGER.info("get: {}", uri);
+        LOGGER.info("request: {}", uri);
         Invocation.Builder request = client.target(uri).request();
         cookies.forEach((k, v) -> request.cookie(k, v.getValue()));
-        Response response = request.get();
+        Response response = ex.apply(request);
         response.getCookies().forEach((k, v) -> cookies.put(k, v));
         LOGGER.info("[response] status={} cookies={}", response.getStatus(), cookies);
         return response;
@@ -82,11 +74,27 @@ public abstract class JettyTest {
     }
 
     protected static URI uri(String path) {
-        return UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("http").port(getPort()).build();
+        return buildUri(path).build();
+    }
+
+    protected static UriBuilder buildUri(String path) {
+        return UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("http").port(getPort());
     }
 
     protected String getString(String path) {
         return get(path).readEntity(String.class);
+    }
+
+    protected String putJson(String path, String jsonPayload) {
+        return put(path, Entity.entity(jsonPayload, APPLICATION_JSON_TYPE)).readEntity(String.class);
+    }
+
+    protected Response put(String path, Entity<String> entity) {
+        return request(path, r -> r.put(entity));
+    }
+
+    protected String postJson(String path, String jsonPayload) {
+        return request(path, r -> r.post(Entity.entity(jsonPayload, APPLICATION_JSON_TYPE))).readEntity(String.class);
     }
 
     protected <T> T getBean(Class<T> aClass) {

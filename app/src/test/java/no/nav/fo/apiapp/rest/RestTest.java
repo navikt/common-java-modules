@@ -5,14 +5,17 @@ import no.nav.apiapp.rest.ExceptionMapper;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.Map;
 
+import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static no.nav.apiapp.feil.Feil.Type.UKJENT;
-import static no.nav.apiapp.feil.Feil.Type.VERSJONSKONFLIKT;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static no.nav.apiapp.feil.Feil.Type.*;
+import static no.nav.json.JsonUtils.fromJson;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -24,6 +27,26 @@ public class RestTest extends JettyTest {
     @Test
     public void get() {
         assertThat(getString("/api/eksempel"), equalTo("eksempel"));
+    }
+
+    @Test
+    public void notFoundFeil() {
+        Response notFoundResponse = get("/api/asdf/asdf/asdf");
+        sjekkStatus(notFoundResponse, NOT_FOUND);
+        sjekkFeilInformasjon(notFoundResponse, FINNES_IKKE);
+    }
+
+    @Test
+    public void pipe() {
+        String jsonPayload = "{\"a\":\"123\"}";
+        assertThat(putJson("/api/eksempel/pipe", jsonPayload), equalTo(jsonPayload));
+    }
+
+    @Test
+    public void deserialiseringsFeil() {
+        Response response = put("/api/eksempel/pipe", entity("dette er ikke gyldig json!", MediaType.APPLICATION_JSON_TYPE));
+        sjekkStatus(response, BAD_REQUEST);
+        sjekkFeilInformasjon(response, UGYLDIG_REQUEST);
     }
 
     @Test
@@ -45,7 +68,8 @@ public class RestTest extends JettyTest {
     }
 
     private void sjekkFeilInformasjon(Response response, Feil.Type type) {
-        Map<String, Object> feilDTO = response.readEntity(Map.class);
+        String json = response.readEntity(String.class);
+        Map<String, Object> feilDTO = fromJson(json, Map.class);
         assertThat(feilDTO.get("id"), notNullValue());
         assertThat(feilDTO.get("type"), equalTo(type.name()));
         assertThat(feilDTO.get("detaljer"), notNullValue());

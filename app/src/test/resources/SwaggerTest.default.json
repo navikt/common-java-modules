@@ -60,25 +60,6 @@
         }
       }
     },
-    "/dato/dto": {
-      "get": {
-        "tags": [
-          "DatoEksempel"
-        ],
-        "summary": "getDTO",
-        "operationId": "getDTO",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/DateDTO"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
     "/dato/query": {
       "get": {
         "tags": [
@@ -173,27 +154,19 @@
         }
       }
     },
-    "/enum/dto/{ordinal}": {
+    "/dato/dto": {
       "get": {
         "tags": [
-          "EnumEksempel"
+          "DatoEksempel"
         ],
-        "summary": "dtoForOrdinal",
-        "operationId": "dtoForOrdinal",
-        "parameters": [
-          {
-            "name": "ordinal",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
+        "summary": "getDTO",
+        "operationId": "getDTO",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/EnumDTO"
+              "$ref": "#/definitions/DateDTO"
             },
             "headers": {}
           }
@@ -278,6 +251,33 @@
                 "DEF",
                 "GHI"
               ]
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/enum/dto/{ordinal}": {
+      "get": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "dtoForOrdinal",
+        "operationId": "dtoForOrdinal",
+        "parameters": [
+          {
+            "name": "ordinal",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
             },
             "headers": {}
           }
@@ -373,25 +373,6 @@
         }
       }
     },
-    "/eksempel/ukjent-feil": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "ukjentFeil",
-        "operationId": "ukjentFeil",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
     "/eksempel/pipe": {
       "put": {
         "tags": [
@@ -422,6 +403,25 @@
                 "type": "object",
                 "properties": {}
               }
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/konflikt": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "konflikt",
+        "operationId": "konflikt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
             },
             "headers": {}
           }
@@ -498,13 +498,13 @@
         }
       }
     },
-    "/eksempel/konflikt": {
+    "/eksempel/ukjent-feil": {
       "get": {
         "tags": [
           "RestEksempel"
         ],
-        "summary": "konflikt",
-        "operationId": "konflikt",
+        "summary": "ukjentFeil",
+        "operationId": "ukjentFeil",
         "parameters": [],
         "responses": {
           "200": {
@@ -598,55 +598,6 @@
         }
       }
     },
-    "/feed/feedname": {
-      "get": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "getFeedNames",
-        "operationId": "getFeedNames",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/feed": {
-      "get": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "getFeeds",
-        "operationId": "getFeeds",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
     "/feed/{name}": {
       "get": {
         "tags": [
@@ -718,6 +669,27 @@
         }
       }
     },
+    "/feed/feedname": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeedNames",
+        "operationId": "getFeedNames",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
     "/feed/{name}/webhook": {
       "put": {
         "tags": [
@@ -750,6 +722,34 @@
         "responses": {
           "default": {
             "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeeds",
+        "operationId": "getFeeds",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {}
           }
         }
       }
@@ -997,14 +997,14 @@
     "FeedController": {
       "type": "object",
       "properties": {
+        "feedNames": {
+          "$ref": "#/definitions/Response"
+        },
         "feeds": {
           "type": "array",
           "items": {
             "type": "string"
           }
-        },
-        "feedNames": {
-          "$ref": "#/definitions/Response"
         }
       }
     },
@@ -1014,18 +1014,18 @@
         "type": {
           "type": "string"
         },
-        "uri": {
-          "type": "string",
-          "format": "uri"
-        },
-        "uriBuilder": {
-          "$ref": "#/definitions/UriBuilder"
-        },
         "params": {
           "type": "object",
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "uriBuilder": {
+          "$ref": "#/definitions/UriBuilder"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
         },
         "rel": {
           "type": "string"
@@ -1203,9 +1203,6 @@
           "type": "integer",
           "format": "int32"
         },
-        "statusInfo": {
-          "$ref": "#/definitions/StatusType"
-        },
         "allowedMethods": {
           "type": "array",
           "uniqueItems": true,
@@ -1213,8 +1210,8 @@
             "type": "string"
           }
         },
-        "entityTag": {
-          "$ref": "#/definitions/EntityTag"
+        "mediaType": {
+          "$ref": "#/definitions/MediaType"
         },
         "links": {
           "type": "array",
@@ -1223,14 +1220,8 @@
             "$ref": "#/definitions/Link"
           }
         },
-        "stringHeaders": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
+        "statusInfo": {
+          "$ref": "#/definitions/StatusType"
         },
         "metadata": {
           "type": "object",
@@ -1242,12 +1233,21 @@
             }
           }
         },
-        "mediaType": {
-          "$ref": "#/definitions/MediaType"
+        "stringHeaders": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         },
         "entity": {
           "type": "object",
           "properties": {}
+        },
+        "entityTag": {
+          "$ref": "#/definitions/EntityTag"
         }
       }
     },

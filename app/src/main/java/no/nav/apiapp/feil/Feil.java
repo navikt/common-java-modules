@@ -2,9 +2,7 @@ package no.nav.apiapp.feil;
 
 import javax.ws.rs.core.Response;
 
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.FORBIDDEN;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.*;
 
 public class Feil extends RuntimeException {
 
@@ -19,6 +17,8 @@ public class Feil extends RuntimeException {
     }
 
     public enum Type {
+        UGYLDIG_REQUEST(BAD_REQUEST),
+        FINNES_IKKE(NOT_FOUND),
         VERSJONSKONFLIKT(BAD_REQUEST),
         INGEN_TILGANG(FORBIDDEN),
         UKJENT(INTERNAL_SERVER_ERROR);

@@ -1,7 +1,10 @@
 package no.nav.apiapp.rest;
 
+import no.nav.apiapp.feil.Feil;
 import no.nav.apiapp.feil.FeilDTO;
 import no.nav.apiapp.feil.FeilMapper;
+import no.nav.metrics.Event;
+import no.nav.metrics.MetricsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
+import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 
 @Provider
 public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwable> {
@@ -22,18 +26,51 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     @Inject
     javax.inject.Provider<HttpServletRequest> servletRequestProvider;
 
+    public ExceptionMapper() {}
+
+    @SuppressWarnings("unused")
+    public ExceptionMapper(javax.inject.Provider<HttpServletRequest> servletRequestProvider) {
+        this.servletRequestProvider = servletRequestProvider;
+    }
+
     @Override
     public Response toResponse(Throwable exception) {
-        FeilDTO feil = FeilMapper.somFeilDTO(exception);
-        Response.Status status = getStatus(exception);
-        LOGGER.error("{} - {} - {}", servletRequestProvider.get().getRequestURI(), status, feil);
+        return toResponse(
+                exception,
+                getStatus(exception),
+                somFeilDTO(exception)
+        );
+    }
+
+    public Response toResponse(Throwable exception, Feil.Type type) {
+        return toResponse(
+                exception,
+                type.getStatus(),
+                FeilMapper.somFeilDTO(exception, type)
+        );
+    }
+
+    private Response toResponse(Throwable exception, Response.Status status, FeilDTO feil) {
+        String path = servletRequestProvider.get().getRequestURI();
+        LOGGER.error("{} - {} - {}", path, status, feil);
         LOGGER.error(exception.getMessage(), exception);
+        logToMetrics(status, path, feil);
         return Response
                 .status(status)
                 .entity(feil)
                 // TODO big-ip-header! Sjekke om denne fikser hvis applikasjonen er nede!
                 .header(ESCAPE_REDIRECT_HEADER, "true")
                 .build();
+    }
+
+    private void logToMetrics(Response.Status status, String path, FeilDTO feilDTO) {
+        MetricsFactory.createEvent("rest-api-error")
+                .addFieldToReport("httpStatus", status.getStatusCode())
+                .addFieldToReport("path", path)
+                .addFieldToReport("errorId", feilDTO.id)
+                .addFieldToReport("errorType", feilDTO.type)
+                .setFailed()
+                .report();
     }
 
     private Response.Status getStatus(Throwable throwable) {

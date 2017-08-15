@@ -2,14 +2,18 @@ package no.nav.apiapp;
 
 
 import no.nav.apiapp.log.ContextDiscriminator;
+import no.nav.apiapp.log.LogUtils;
 import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.rest.SwaggerResource;
 import no.nav.apiapp.rest.SwaggerUIServlet;
 import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
+import no.nav.apiapp.selftest.impl.STSHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
-import no.nav.apiapp.log.LogUtils;
+import no.nav.apiapp.util.JbossUtil;
+import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
+import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
@@ -32,14 +36,18 @@ import javax.servlet.http.HttpSessionListener;
 import java.util.EnumSet;
 
 import static ch.qos.logback.classic.Level.INFO;
+import static java.lang.System.getProperty;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
+import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
 import static javax.servlet.SessionTrackingMode.COOKIE;
+import static no.nav.apiapp.ApiApplication.Sone.SBS;
 import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.*;
-import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
+import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
+import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -61,16 +69,14 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     public static final String INTERNAL_IS_ALIVE = "/internal/isAlive";
     public static final String INTERNAL_SELFTEST = "/internal/selftest";
-    public static final String INTERNAL_SELFTEST_JSON = "/internal/selftest.json";
     public static final String SWAGGER_PATH = "/internal/swagger/";
-    public static final String API_PATH = "/api/";
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
     private int sesjonsLengde;
 
     static {
-        if (System.getProperty(MILJO_PROPERTY_NAME, "").equals("t")) {
+        if (getProperty(MILJO_PROPERTY_NAME, "").equals("t")) {
             setGlobalLogLevel(INFO);
         }
     }
@@ -107,7 +113,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
         ApiApplication apiApplication = startSpring(servletContextEvent);
 
-        if (apiApplication.getSone() == ApiApplication.Sone.SBS) {
+        if (apiApplication.getSone() == SBS) {
             leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
         }
 
@@ -123,7 +129,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         leggTilServlet(servletContextEvent, IsAliveServlet.class, INTERNAL_IS_ALIVE);
         leggTilServlet(servletContextEvent, SelfTestServlet.class, INTERNAL_SELFTEST);
-        leggTilServlet(servletContextEvent, SwaggerUIServlet.class, SWAGGER_PATH + "*");
+        leggTilServlet(servletContextEvent, new SwaggerUIServlet(apiApplication), SWAGGER_PATH + "*");
 
         settOppRestApi(servletContextEvent, apiApplication);
         if (soapTjenesterEksisterer(servletContext)) {
@@ -139,6 +145,13 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         } catch (RuntimeException e) {
             return false;
         }
+    }
+
+    private boolean issoBrukes() {
+        boolean jaspiAuthProvider = getProperty(DEFAULT_FACTORY_SECURITY_PROPERTY, "").contains("jaspi"); // på jetty
+        boolean autoRegistration = JbossUtil.brukerJaspi(); // på jboss
+        LOGGER.info("isso? jaspi={} auto={}", jaspiAuthProvider, autoRegistration);
+        return jaspiAuthProvider || autoRegistration;
     }
 
     @Override
@@ -198,15 +211,27 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private ApiApplication startSpring(ServletContextEvent servletContextEvent) {
         contextLoaderListener.contextInitialized(servletContextEvent);
-        AnnotationConfigWebApplicationContext webApplicationContext = (AnnotationConfigWebApplicationContext) getContext(servletContextEvent.getServletContext());
-        webApplicationContext.getBeanFactory().registerSingleton(LedigDiskPlassHelsesjekk.class.getName(), new LedigDiskPlassHelsesjekk());
-        return webApplicationContext.getBean(ApiApplication.class);
+        AnnotationConfigWebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
+        ApiApplication apiApplication = webApplicationContext.getBean(ApiApplication.class);
+        leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
+        if (issoBrukes()) {
+            leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
+            leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
+        }
+        if (apiApplication.brukSTSHelsesjekk()){
+            leggTilBonne(servletContextEvent, new STSHelsesjekk(apiApplication.getSone()));
+        }
+        return apiApplication;
+    }
+
+    private void leggTilBonne(ServletContextEvent servletContextEvent, Object bonne) {
+        getSpringContext(servletContextEvent).getBeanFactory().registerSingleton(bonne.getClass().getName(), bonne);
     }
 
     private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
         RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()), apiApplication);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
-        ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, API_PATH + "*");
+        ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, sluttMedSlash(apiApplication.getApiBasePath()) + "*");
         SwaggerResource.setupServlet(servletRegistration);
     }
 

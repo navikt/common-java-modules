@@ -12,4 +12,7 @@ public class StringUtils {
         return Optional.ofNullable(string).filter(StringUtils::notNullOrEmpty);
     }
 
+    public static boolean nullOrEmpty(String string) {
+        return !notNullOrEmpty(string);
+    }
 }
