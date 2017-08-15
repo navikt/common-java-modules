@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.HttpMethod.HEAD;
 import static no.nav.fo.feed.util.RestUtils.getClient;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
