@@ -27,6 +27,9 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     @Builder.Default
     private int maxPageSize = 10000;
 
+    // Trådsikkert Set. Er final slik at ikke brukere av FeedProducer kan velge å sette inn et annet Set som 
+    // ikke er trådsikkert. Det bør ikke være noen grunn til at de som bruker FeedProducer skal behøve å forholde 
+    // seg direkte til dette Set-et.
     private final Set<String> callbackUrls = ConcurrentHashMap.newKeySet();
 
     @Builder.Default
