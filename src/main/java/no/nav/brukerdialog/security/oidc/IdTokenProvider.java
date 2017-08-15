@@ -11,18 +11,18 @@ public class IdTokenProvider {
 
     private static final Logger log = LoggerFactory.getLogger(IdTokenProvider.class);
 
-    public OidcCredential getToken(String refreshToken) {
-        return TokenProviderUtil.getToken(() -> createTokenRequest(refreshToken), s -> extractToken(s));
+    public OidcCredential getToken(String refreshToken, String openamClient) {
+        return TokenProviderUtil.getToken(() -> createTokenRequest(refreshToken, openamClient), s -> extractToken(s));
     }
 
-    protected HttpUriRequest createTokenRequest(String refreshToken) {
+    protected HttpUriRequest createTokenRequest(String refreshToken, String openamClient) {
         String host = System.getProperty("isso-host.url");
         String realm = "/";
-        String username = System.getProperty("isso-rp-user.username");
+
         String password = System.getProperty("isso-rp-user.password");
 
         HttpPost request = new HttpPost(host + "/access_token");
-        request.setHeader("Authorization", TokenProviderUtil.basicCredentials(username, password));
+        request.setHeader("Authorization", TokenProviderUtil.basicCredentials(openamClient, password));
         request.setHeader("Cache-Control", "no-cache");
         request.setHeader("Content-type", "application/x-www-form-urlencoded");
         String data = "grant_type=refresh_token"

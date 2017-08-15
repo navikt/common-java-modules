@@ -9,15 +9,15 @@ import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.jwx.JsonWebStructure;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.Key;
-import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 import static no.nav.brukerdialog.security.Constants.ISSO_EXPECTED_TOKEN_ISSUER;
+import static no.nav.brukerdialog.security.oidc.TokenUtils.getTokenAud;
 import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
 
 public class OidcTokenValidator {
@@ -105,6 +105,7 @@ public class OidcTokenValidator {
         //Henter dermed ut aud fra tokenet og setter det som expected.
         String expectedAud = getTokenAud(token);
 
+
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime()
                 .setAllowedClockSkewInSeconds(30) //TODO set to 0. Clocks should be synchronized.
@@ -144,18 +145,4 @@ public class OidcTokenValidator {
         }
         return new JwtHeader(kid, wstruct.getAlgorithmHeaderValue());
     }
-
-    private String getTokenAud(String jwt) {
-        try {
-            Base64.Decoder decoder = Base64.getUrlDecoder();
-            String body = jwt.split("\\.")[1];
-            String bodyDecoded = new String(decoder.decode(body));
-            return new JSONObject(bodyDecoded).getString("aud");
-
-        } catch(Exception e ) {
-            logger.warn("Kunne ikke hente aud fra token");
-            return null;
-        }
-    }
-
 }
