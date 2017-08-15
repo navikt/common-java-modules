@@ -1,8 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac.pep.domain;
 
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@ToString
 public class BaseAttribute {
 
     private List<Attribute> attribute;

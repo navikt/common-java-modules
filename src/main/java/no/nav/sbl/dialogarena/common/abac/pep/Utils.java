@@ -64,15 +64,17 @@ public class Utils {
 
     }
 
-    static boolean invalidClientValues(Client client) {
-        return client.getDomain() == null || client.getCredentialResource() == null ||
-                (client.getOidcToken() == null && client.getSubjectId() == null);
+    static boolean invalidClientValues(RequestData requestData) {
+        return requestData.getDomain() == null
+                || requestData.getCredentialResource() == null
+                || (requestData.getOidcToken() == null && requestData.getSamlToken() == null && requestData.getSubjectId() == null)
+                ;
     }
 
-    public static String getApplicationProperty(String propertyKey) throws NoSuchFieldException {
+    public static String getApplicationProperty(String propertyKey) {
         final String property = getProperty(propertyKey);
         if (StringUtils.isEmpty(property)) {
-            throw new NoSuchFieldException("Cannot find property. Verify that property \"" + propertyKey + "\" is set.");
+            throw new IllegalStateException("Cannot find property. Verify that property \"" + propertyKey + "\" is set.");
         }
         return property;
     }
