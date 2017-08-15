@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toSet;
 import static javax.ws.rs.HttpMethod.HEAD;
 import static no.nav.fo.feed.util.RestUtils.getClient;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
@@ -25,8 +25,12 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
     @Builder.Default
     private int maxPageSize = 10000;
-    @Builder.Default
-    private List<String> callbackUrls = new ArrayList<>();
+
+    // Trådsikkert Set. Er final slik at ikke brukere av FeedProducer kan velge å sette inn et annet Set som 
+    // ikke er trådsikkert. Det bør ikke være noen grunn til at de som bruker FeedProducer skal behøve å forholde 
+    // seg direkte til dette Set-et.
+    private final Set<String> callbackUrls = ConcurrentHashMap.newKeySet();
+
     @Builder.Default
     private List<OutInterceptor> interceptors = new ArrayList<>();
     @Builder.Default
@@ -103,14 +107,8 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     private boolean createWebhook(String callbackUrl) {
-        if (callbackUrls.contains(callbackUrl)) {
-            return false;
-        }
         validateUrl(callbackUrl);
-
-        callbackUrls.add(callbackUrl);
-
-        return true;
+        return callbackUrls.add(callbackUrl);
     }
 
     private static int getPageSize(int pageSize, int maxPageSize) {
