@@ -41,7 +41,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         List<FeedElement<DOMAINOBJECT>> pageElements = provider
                 .fetchData(id, pageSize)
                 .sorted()
-                .limit(pageSize + 1) // se fetchnotlimited
+                .limit(pageSize + 1) // dette er med god grunn: se fetchnotlimited og FeedControllerTester
                 .collect(Collectors.toList());
 
         if (pageElements.size() > pageSize) {
@@ -50,12 +50,13 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
             LOG.info("This can lead to excessive resource consumption by the producer...");
         }
 
-        Set<String> ids = pageElements
+        long antallUnikeIder = pageElements
                 .stream()
                 .map(FeedElement::getId)
-                .collect(toSet());
+                .distinct()
+                .count();
 
-        if (pageElements.size() != ids.size()) {
+        if (pageElements.size() != antallUnikeIder) {
             MetricsUtils.metricEvent("duplicateid", feedname);
             LOG.warn("Found duplicate IDs in response to {} for feed {}", request, feedname);
             LOG.info("This can lead to excessive network usage between the producer and its consumers...");
