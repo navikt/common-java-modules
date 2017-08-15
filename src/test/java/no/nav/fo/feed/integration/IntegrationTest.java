@@ -21,7 +21,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -96,9 +95,10 @@ public class IntegrationTest {
         FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null);
         FeedConsumer<DomainObject> consumerUtenConfig = new FeedConsumer<>(configUtenConfig);
         FeedConsumer<DomainObject> consumerMedConfig = new FeedConsumer<>(configMedConfig);
-        FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder()
-                .callbackUrls(new HashSet<String>(asList(callbackUrlUtenWebhookKonfig, callbackSomIkkeFinnes, callbackMedWebhook)))
-                .build();
+        FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder().build();
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackUrlUtenWebhookKonfig));
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackSomIkkeFinnes));
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackMedWebhook));
         consumerServer.controller.addFeed("utenwebhook", consumerUtenConfig);
         consumerServer.controller.addFeed("medwebhook", consumerMedConfig);
 
@@ -131,10 +131,9 @@ public class IntegrationTest {
         FeedConsumer<DomainObject> consumer = new FeedConsumer<>(consumerConfig);
 
         FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder()
-                .callbackUrls(new HashSet<String>(asList(basePath("31338") + "feed/consumer")))
                 .provider((id, pageSize) -> mockData.stream())
                 .build();
-
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(basePath("31338") + "feed/consumer"));
         producerServer.controller.addFeed("producer", producer);
         consumerServer.controller.addFeed("consumer", consumer);
 

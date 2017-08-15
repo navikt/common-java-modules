@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,8 +26,9 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
     @Builder.Default
     private int maxPageSize = 10000;
-    @Builder.Default
-    private Set<String> callbackUrls = new HashSet<>();
+
+    private final Set<String> callbackUrls = ConcurrentHashMap.newKeySet();
+
     @Builder.Default
     private List<OutInterceptor> interceptors = new ArrayList<>();
     @Builder.Default
