@@ -35,7 +35,6 @@ import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static no.nav.dialogarena.config.DevelopmentSecurity.DEFAULT_ISSO_RP_USER;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
-import static no.nav.dialogarena.config.fasit.TestEnvironment.T1;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.eclipse.jetty.http.HttpMethod.POST;
 
@@ -43,8 +42,11 @@ import static org.eclipse.jetty.http.HttpMethod.POST;
 public class ISSOProvider {
 
     public static final String PRIVELIGERT_VEILEDER = "priveligert_veileder";
-    public static final String KJENT_LOGIN_ADRESSE = "https://app-t6.adeo.no/veilarbpersonflatefs/tjenester/login";
-    public static final String KJENT_LOGIN_ADRESSE_Q = "https://app-q6.adeo.no/veilarbpersonflatefs/tjenester/login";
+
+    public static final String LOGIN_APPLIKASJON = "veilarblogin";
+    public static final String KJENT_LOGIN_ADRESSE = String.format("https://app-t6.adeo.no/%s/api/login", LOGIN_APPLIKASJON);
+    public static final String KJENT_LOGIN_ADRESSE_Q = String.format("https://app-q6.adeo.no/%s/api/login", LOGIN_APPLIKASJON);
+    public static final TestEnvironment DEFAULT_ENVIRONMENT = T6;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ISSOProvider.class);
 
@@ -67,14 +69,18 @@ public class ISSOProvider {
     }
 
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl, TestUser testUser) {
-        return getISSOCookies(authorization, redirectUrl, testUser, T1);
+        return getISSOCookies(authorization, redirectUrl, testUser, DEFAULT_ENVIRONMENT);
     }
 
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl, TestUser testUser, TestEnvironment testEnvironment) {
+        return getISSOCookies(getTestUser(testEnvironment), authorization, redirectUrl, testUser, testEnvironment);
+    }
+
+    public static List<HttpCookie> getISSOCookies(ServiceUser issoServiceUser, String authorization, String redirectUrl, TestUser testUser, TestEnvironment testEnvironment) {
         LOGGER.info("getting isso-cookies: {} {}", redirectUrl, authorization);
         try {
             return Util.httpClient(httpClient -> {
-                return new ISSORequest(authorization, redirectUrl, httpClient, testUser, testEnvironment).getCookies();
+                return new ISSORequest(issoServiceUser, authorization, redirectUrl, httpClient, testUser, testEnvironment).getCookies();
             });
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn i [%s] med isso mot: [%s]\n > %s", testEnvironment, redirectUrl, e.getMessage()), e);
@@ -106,7 +112,7 @@ public class ISSOProvider {
         String environment = issoServiceUser.environment;
         try {
             return Util.httpClient(httpClient -> {
-                return new ISSORequest(authorization, redirectUrl, httpClient, testUser, environment).getToken(issoServiceUser);
+                return new ISSORequest(issoServiceUser, authorization, redirectUrl, httpClient, testUser, environment).getToken();
             });
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn i [%s] med isso mot: [%s]\n > %s", environment, redirectUrl, e.getMessage()), e);
@@ -122,7 +128,7 @@ public class ISSOProvider {
     }
 
     public static ServiceUser getTestUser(TestEnvironment testEnvironment) {
-        return FasitUtils.getServiceUser(DEFAULT_ISSO_RP_USER, "veilarbpersonflatefs", testEnvironment);
+        return FasitUtils.getServiceUser(DEFAULT_ISSO_RP_USER, LOGIN_APPLIKASJON, testEnvironment);
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -136,6 +142,7 @@ public class ISSOProvider {
         private final String state = UUID.randomUUID().toString();
         private final HttpClient httpClient;
         private final TestUser testUser;
+        private final ServiceUser issoServiceUser;
         private final String issoBasePath;
 
         private ObjectNode authJson;
@@ -143,11 +150,12 @@ public class ISSOProvider {
         private String appLoginUrl;
         private String authorizationCode;
 
-        private ISSORequest(String authorization, String redirectUrl, HttpClient httpClient, TestUser testUser, TestEnvironment environment) {
-            this(authorization, redirectUrl, httpClient, testUser, environment.toString());
+        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, HttpClient httpClient, TestUser testUser, TestEnvironment environment) {
+            this(issoServiceUser, authorization, redirectUrl, httpClient, testUser, environment.toString());
         }
 
-        private ISSORequest(String authorization, String redirectUrl, HttpClient httpClient, TestUser testUser, String environment) {
+        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, HttpClient httpClient, TestUser testUser, String environment) {
+            this.issoServiceUser = issoServiceUser;
             this.httpClient = httpClient;
             this.authorization = authorization;
             this.redirectUrl = redirectUrl;
@@ -155,26 +163,26 @@ public class ISSOProvider {
             this.issoBasePath = String.format("https://isso-%s.adeo.no/isso", getEnvironmentClass(environment));
         }
 
-        private String getToken(ServiceUser issoServiceUser) {
+        private String getToken() {
             startAuth();
             fetchTokenId();
             authorizeWithOauth();
-            return retrieveToken(issoServiceUser);
+            return retrieveToken();
         }
 
-        private String retrieveToken(ServiceUser issoServiceUser) {
+        private String retrieveToken() {
             String issoHostUrl = issoUrl("/oauth2");
             LOGGER.info("retrieving token from: {}", issoHostUrl);
-            synchronized (this.getClass()) {
-                // TODO Veldig kjipt at IdTokenAndRefreshTokenProvider henter dette fra system properties!
-                System.setProperty("isso-host.url", issoHostUrl);
-                System.setProperty("isso-rp-user.username", issoServiceUser.username);
-                System.setProperty("isso-rp-user.password", issoServiceUser.password);
+            IdTokenAndRefreshTokenProvider.Parameters parameters = IdTokenAndRefreshTokenProvider.Parameters.builder()
+                    .host(issoHostUrl)
+                    .username(issoServiceUser.username)
+                    .password(issoServiceUser.password)
+                    .build();
 
-                return new IdTokenAndRefreshTokenProvider().getToken(authorizationCode, redirectUrl)
-                        .getIdToken()
-                        .getToken();
-            }
+            return new IdTokenAndRefreshTokenProvider(parameters)
+                    .getToken(authorizationCode, redirectUrl)
+                    .getIdToken()
+                    .getToken();
         }
 
         private String issoUrl(String path) {
@@ -228,7 +236,7 @@ public class ISSOProvider {
                     .param("authIndexValue", "winssochain")
                     .param("response_type", "code")
                     .param("scope", "openid")
-                    .param("client_id", "OIDC")
+                    .param("client_id", getClientId())
                     .param("state", state)
                     .param("redirect_uri", redirectUrl)
                     .header("Authorization", authorization);
@@ -248,7 +256,7 @@ public class ISSOProvider {
                     .param("authIndexValue", "winssochain")
                     .param("response_type", "code")
                     .param("scope", "openid")
-                    .param("client_id", "OIDC")
+                    .param("client_id", getClientId())
                     .param("state", state)
                     .param("redirect_uri", redirectUrl)
                     .cookie(new HttpCookie("nav-isso", tokenId))
@@ -263,6 +271,11 @@ public class ISSOProvider {
                     .map(NameValuePair::getValue)
                     .findFirst()
                     .get();
+        }
+
+
+        private String getClientId() {
+            return issoServiceUser.getUsername();
         }
 
         @SneakyThrows

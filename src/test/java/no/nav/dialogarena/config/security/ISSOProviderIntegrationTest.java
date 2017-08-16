@@ -3,6 +3,7 @@ package no.nav.dialogarena.config.security;
 import org.junit.Test;
 
 import java.net.HttpCookie;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESS
 import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE_Q;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 public class ISSOProviderIntegrationTest {
 
@@ -24,6 +26,9 @@ public class ISSOProviderIntegrationTest {
 
     @Test
     public void getISSOCookies_q() {
+        // godtar at dette ikke fungerer før vi er i q med veilarblogin
+        assumeFalse(LocalDate.of(2017, 8, 26).isAfter(LocalDate.now()));
+
         sjekkIssoCookies(ISSOProvider.getISSOCookies(KJENT_LOGIN_ADRESSE_Q, Q6));
     }
 
@@ -38,6 +43,9 @@ public class ISSOProviderIntegrationTest {
 
     @Test
     public void getISSOToken_q() {
+        // godtar at dette ikke fungerer før vi er i q med veilarblogin
+        assumeFalse(LocalDate.of(2017, 8, 26).isAfter(LocalDate.now()));
+
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(Q6), KJENT_LOGIN_ADRESSE_Q));
     }
 
