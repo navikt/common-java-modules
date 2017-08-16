@@ -11,12 +11,11 @@ import javax.ws.rs.client.Invocation;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.HttpMethod.HEAD;
+import static no.nav.fo.feed.util.AsyncRunner.runAsync;
 import static no.nav.fo.feed.util.RestUtils.getClient;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -82,15 +81,6 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     
     public void activateWebhook() {
         runAsync(callbackUrls.stream().map(this::toRunnable).collect(toList()));
-    }
-
-    private <T> void runAsync(Collection<Runnable> collect) {
-        ExecutorService pool = Executors.newCachedThreadPool();
-        try {
-            collect.stream().forEach(c -> pool.submit(c));
-        } finally {
-            pool.shutdown();
-        }
     }
 
     private Runnable toRunnable(String str) {
