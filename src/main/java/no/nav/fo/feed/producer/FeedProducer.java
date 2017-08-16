@@ -8,11 +8,14 @@ import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.HttpMethod.HEAD;
 import static no.nav.fo.feed.util.RestUtils.getClient;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
@@ -76,22 +79,42 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
         return new FeedResponse<DOMAINOBJECT>().setNextPageId(nextPageId).setElements(pageElements);
     }
-
-    public Map<String, Integer> activateWebhook() {
-        return callbackUrls
-                .stream()
-                .collect(Collectors.toMap(Function.identity(), this::tryActivateWebHook));
+    
+    public void activateWebhook() {
+        runAsync(callbackUrls.stream().map(this::toRunnable).collect(toList()));
     }
 
-    private int tryActivateWebHook(String url) {
+    private <T> void runAsync(Collection<Runnable> collect) {
+        ExecutorService pool = Executors.newCachedThreadPool();
+        try {
+            collect.stream().forEach(c -> pool.submit(c));
+        } finally {
+            pool.shutdown();
+        }
+    }
+
+    private Runnable toRunnable(String str) {
+        return new Runnable() {
+
+            @Override
+            public void run() {
+                tryActivateWebHook(str);
+            }
+        };
+    }
+
+    private void tryActivateWebHook(String url) {
         try {
             Client client = getClient();
             Invocation.Builder request = client.target(url).request();
             this.interceptors.forEach(interceptor -> interceptor.apply(request));
-            return request.build(HEAD).invoke().getStatus();
+            LOG.debug("activate webhook til url {}", url);
+            int status = request.build(HEAD).invoke().getStatus();
+            if(status != 200) {
+                LOG.warn("Fikk ikke forventet status fra kall til webhook. Url {}, returnert status {}", url, status);
+            }
         } catch (Exception e) {
-            LOG.error("Feil ved activate webhook til url {}, {}", url, e.getMessage());
-            return 500;
+            LOG.warn("Feil ved activate webhook til url {}, {}", url, e.getMessage(), e);
         }
     }
 

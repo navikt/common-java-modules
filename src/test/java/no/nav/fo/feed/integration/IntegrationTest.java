@@ -7,6 +7,7 @@ import no.nav.fo.feed.consumer.FeedConsumer;
 import no.nav.fo.feed.consumer.FeedConsumerConfig;
 import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
+
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -16,13 +17,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.StaticApplicationContext;
 
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 public class IntegrationTest {
+
+    private static final String PRODUCER_PORT = "31337";
+    private static final String CONSUMER_PORT = "31338";
+
     private static List<OutInterceptor> outInterceptors = asList(
             (OutInterceptor) builder -> builder.header("interceptor1", "intercepted1"),
             (OutInterceptor) builder -> builder.header("interceptor2", "intercepted2")
@@ -50,8 +55,8 @@ public class IntegrationTest {
 
     @Before
     public void before() {
-        producerServer = new Server("31337");
-        consumerServer = new Server("31338");
+        producerServer = new Server(PRODUCER_PORT);
+        consumerServer = new Server(CONSUMER_PORT);
 
         producerServer.controller.addFeed("testfeed", FeedProducer.<DomainObject>builder()
                 .interceptors(outInterceptors)
@@ -72,7 +77,7 @@ public class IntegrationTest {
         producerServer.controller.addFeed("anotherfeed", FeedProducer.<DomainObject>builder().build());
 
         Client client = ClientBuilder.newClient();
-        Response response = client.target(basePath("31337")).path("feed/feedname").request().get();
+        Response response = client.target(basePath(PRODUCER_PORT)).path("feed/feedname").request().get();
         String body = response.readEntity(String.class);
 
         assertThat(body, Matchers.containsString("testfeed"));
@@ -80,32 +85,30 @@ public class IntegrationTest {
     }
 
     @Test
-    public void girRiktigStatusForWebhooks() throws Exception {
-        String callbackMedWebhook = basePath("31338") + "feed/medwebhook";
-        String callbackUrlUtenWebhookKonfig = basePath("31338") + "feed/utenwebhook";
-        String callbackSomIkkeFinnes = basePath("31338") + "feed/finnesikke";
+    public void girRiktigStatusForWebhooks() {
+        String callbackMedWebhook = basePath(CONSUMER_PORT) + "feed/medwebhook";
+        String callbackUrlUtenWebhookKonfig = basePath(CONSUMER_PORT) + "feed/utenwebhook";
+        String callbackSomIkkeFinnes = basePath(CONSUMER_PORT) + "feed/finnesikke";
         FeedConsumerConfig.BaseConfig<DomainObject> baseConfig = new FeedConsumerConfig.BaseConfig<>(
                 DomainObject.class,
                 () -> "0",
-                basePath("31337").toString(),
+                basePath(PRODUCER_PORT).toString(),
                 "webhook-producer"
         );
         FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "");
         FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, null, webhookPollingConfig);
-        FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null);
-        FeedConsumer<DomainObject> consumerUtenConfig = new FeedConsumer<>(configUtenConfig);
+        FeedConsumerConfig<DomainObject> configUtenConfig1 = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null, null);
+        FeedConsumer<DomainObject> consumerUtenConfig1 = new FeedConsumer<>(configUtenConfig1);
         FeedConsumer<DomainObject> consumerMedConfig = new FeedConsumer<>(configMedConfig);
-        FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder().build();
-        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackUrlUtenWebhookKonfig));
-        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackSomIkkeFinnes));
-        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackMedWebhook));
-        consumerServer.controller.addFeed("utenwebhook", consumerUtenConfig);
+
+        consumerServer.controller.addFeed("utenwebhook", consumerUtenConfig1);
         consumerServer.controller.addFeed("medwebhook", consumerMedConfig);
 
-        Map<String, Integer> res = producer.activateWebhook();
-        assertThat(res.get(callbackUrlUtenWebhookKonfig), is(404));
-        assertThat(res.get(callbackSomIkkeFinnes), is(404));
-        assertThat(res.get(callbackMedWebhook), is(200));
+        Client client = ClientBuilder.newClient();
+        assertThat(client.target(callbackUrlUtenWebhookKonfig).request().head().getStatus(), is(404));
+        assertThat(client.target(callbackSomIkkeFinnes).request().head().getStatus(), is(404));
+        assertThat(client.target(callbackMedWebhook).request().head().getStatus(), is(200));
+        
     }
 
     @Test
@@ -114,7 +117,7 @@ public class IntegrationTest {
         FeedConsumerConfig.BaseConfig<DomainObject> baseConfig = new FeedConsumerConfig.BaseConfig<>(
                 DomainObject.class,
                 () -> "0",
-                basePath("31337").toString(),
+                basePath(PRODUCER_PORT).toString(),
                 "producer"
         );
         FeedConsumerConfig.PollingConfig pollingConfig = new FeedConsumerConfig.PollingConfig("*/10 * * * * ?");
@@ -133,7 +136,7 @@ public class IntegrationTest {
         FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder()
                 .provider((id, pageSize) -> mockData.stream())
                 .build();
-        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(basePath("31338") + "feed/consumer"));
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(basePath(CONSUMER_PORT) + "feed/consumer"));
         producerServer.controller.addFeed("producer", producer);
         consumerServer.controller.addFeed("consumer", consumer);
 
@@ -148,7 +151,7 @@ public class IntegrationTest {
     public void getSkalReturnereForbidden() {
         producerServer.controller.addFeed("testfeed", FeedProducer.<DomainObject>builder().authorizationModule((feedname) -> false).build());
         Client client = ClientBuilder.newClient();
-        Response response = client.target(basePath("31337")).path("feed/testfeed").queryParam("id","0").request().get();
+        Response response = client.target(basePath(PRODUCER_PORT)).path("feed/testfeed").queryParam("id","0").request().get();
 
         assertThat(response.getStatus(), is(403));
     }
@@ -157,7 +160,7 @@ public class IntegrationTest {
     public void putWebhookSkalReturnereForbidden() {
         producerServer.controller.addFeed("testfeed", FeedProducer.<DomainObject>builder().authorizationModule((feedname) -> false).build());
         Client client = ClientBuilder.newClient();
-        Response response = client.target(basePath("31337")).path("feed/testfeed/webhook").request().buildPut(Entity.json(new FeedWebhookRequest())).invoke();
+        Response response = client.target(basePath(PRODUCER_PORT)).path("feed/testfeed/webhook").request().buildPut(Entity.json(new FeedWebhookRequest())).invoke();
 
         assertThat(response.getStatus(), is(403));
     }
@@ -167,7 +170,7 @@ public class IntegrationTest {
         FeedConsumerConfig.BaseConfig<DomainObject> baseConfig = new FeedConsumerConfig.BaseConfig<>(
                 DomainObject.class,
                 null,
-                basePath("31338").toString(),
+                basePath(CONSUMER_PORT).toString(),
                 "webhook-producer"
         );
 
@@ -176,7 +179,7 @@ public class IntegrationTest {
         consumerServer.controller.addFeed("testfeed", new FeedConsumer<DomainObject>(config));
 
         Client client = ClientBuilder.newClient();
-        Response response = client.target(basePath("31338")).path("feed/testfeed").request().head();
+        Response response = client.target(basePath(CONSUMER_PORT)).path("feed/testfeed").request().head();
 
         assertThat(response.getStatus(), is(403));
     }
