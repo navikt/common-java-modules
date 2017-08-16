@@ -823,7 +823,7 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>test-config</artifactId>
-                <version>1.60.80</version>
+                <version>1.62.3</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
