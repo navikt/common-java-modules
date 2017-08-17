@@ -7,16 +7,16 @@
     <parent>
         <groupId>no.nav.sbl.dialogarena</groupId>
         <artifactId>api-app-parent</artifactId>
-        <version>3</version>
+        <version>1-SNAPSHOT</version>
     </parent>
     <artifactId>api-app</artifactId>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>api-app-bom</artifactId>
-                <version>${project.version}</version>
+                <groupId>no.nav.sbl</groupId>
+                <artifactId>bom</artifactId>
+                <version>${project.parent.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -62,7 +62,7 @@
 
         <!-- dialogarena -->
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.sbl</groupId>
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
