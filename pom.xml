@@ -3,15 +3,16 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <name>SBL - Felles Maven-oppsett</name>
     <description>
+        SBL - Felles Maven-oppsett
+
         Felles topnivå-POM for alle SBL-prosjekter. Definerer versjoner av kjerne-plugins, og
         konfigurasjon av kodekvalitetsmetrikker, Jenkins-URL, og distributionManagement for deploy av artifakter.
     </description>
 
     <groupId>no.nav.sbl</groupId>
 	<artifactId>mor-pom</artifactId>
-    <version>3.6</version>
+    <version>1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <prerequisites>
