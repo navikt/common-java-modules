@@ -23,7 +23,7 @@ public interface PepClientTester {
     PepClient getPepClient();
 
     @BeforeEach
-    default void setup() {
+    default void setupPepClientTest() {
         setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
         setSubject(new SubjectHandlerUtils.SubjectBuilder(KJENT_VEILEDER_IDENT, IdentType.InternBruker, ISSOProvider.getISSOToken()).getSubject());
         System.setProperty("abac.bibliotek.simuler.avbrudd", Boolean.FALSE.toString());
