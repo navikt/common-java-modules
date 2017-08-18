@@ -76,7 +76,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         }
     }
 
-    synchronized void poll() {
+    synchronized Response poll() {
         String lastEntry = this.config.lastEntrySupplier.get();
         Invocation.Builder request = RestUtils.getClient()
                 .target(getTargetUrl())
@@ -108,6 +108,8 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 this.lastResponseHash = entity.hashCode();
             }
         }
+
+        return response;
     }
 
     private String getTargetUrl() {
@@ -117,8 +119,12 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     @Override
     public Ping ping() {
         try {
-            poll();
-            return Ping.lyktes(pingMetadata);
+            int status = poll().getStatus();
+            if (status == 200) {
+                return Ping.lyktes(pingMetadata);
+            } else {
+                return Ping.feilet(pingMetadata, "HTTP status " + status);
+            }
         } catch (Throwable e) {
             return Ping.feilet(pingMetadata, e);
         }
