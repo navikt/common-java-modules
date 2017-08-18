@@ -4,19 +4,19 @@
     <parent>
         <groupId>no.nav.sbl</groupId>
         <artifactId>mor-pom</artifactId>
-        <version>3.6</version>
+        <version>1-SNAPSHOT</version>
     </parent>
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>test-config</artifactId>
-    <version>1</version>
+    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>api-app-bom</artifactId>
-                <version>RELEASE</version>
+                <groupId>no.nav.sbl</groupId>
+                <artifactId>bom</artifactId>
+                <version>${project.parent.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -58,11 +58,6 @@
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>common-jetty</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.components</groupId>
-            <artifactId>geronimo-jaspi</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -234,8 +229,9 @@
             <artifactId>javax.security.auth.message</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaspic_1.0_spec</artifactId>
+            <groupId>org.apache.geronimo.components</groupId>
+            <artifactId>geronimo-jaspi</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
