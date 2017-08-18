@@ -26,7 +26,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
     private final FeedConsumerConfig<DOMAINOBJECT> config;
     private final Ping.PingMetadata pingMetadata;
-    private FeedResponse<DOMAINOBJECT> lastResponse;
+    private int lastResponseHash;
 
     public FeedConsumer(FeedConsumerConfig<DOMAINOBJECT> config) {
         String feedName = config.feedName;
@@ -76,7 +76,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         }
     }
 
-    void poll() {
+    synchronized void poll() {
         String lastEntry = this.config.lastEntrySupplier.get();
         Invocation.Builder request = RestUtils.getClient()
                 .target(getTargetUrl())
@@ -102,10 +102,10 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                         .map(FeedElement::getElement)
                         .collect(Collectors.toList());
 
-                if (!entity.equals(lastResponse)) {
+                if (!(entity.hashCode() == lastResponseHash)) {
                     this.config.callback.call(entity.getNextPageId(), data);
                 }
-                this.lastResponse = entity;
+                this.lastResponseHash = entity.hashCode();
             }
         }
     }
