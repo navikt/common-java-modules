@@ -2,6 +2,7 @@ package no.nav.dialogarena.config.ssl;
 
 import no.nav.modig.security.sts.client.NAVSTSClient;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
+import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
@@ -10,10 +11,10 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.junit.Test;
 
-import static no.nav.dialogarena.config.ssl.SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
-import static no.nav.dialogarena.config.ssl.SSLTestUtils.TRUST_ALL_SSL_SOCKET_FACTORY;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
+import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER;
+import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.TRUST_ALL_SSL_SOCKET_FACTORY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CxfCertificateValidationDisablerTest {
@@ -24,7 +25,7 @@ public class CxfCertificateValidationDisablerTest {
         setProperty(SYSTEMUSER_USERNAME, "");
         setProperty(SYSTEMUSER_PASSWORD, "");
 
-        CxfCertificateValidationDisabler.init();
+        SSLTestUtils.disableCertificateChecks();
 
         Aktoer_v2PortType aktoer_v2PortType = new CXFClient<>(Aktoer_v2PortType.class)
                 .configureStsForSystemUser()

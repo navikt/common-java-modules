@@ -38,9 +38,9 @@ import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
 import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE_Q;
-import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
+import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
 import static org.apache.commons.io.IOUtils.write;
 import static org.slf4j.LoggerFactory.getLogger;
 
