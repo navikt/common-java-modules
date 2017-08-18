@@ -4,13 +4,12 @@
     <parent>
         <groupId>no.nav.sbl</groupId>
         <artifactId>mor-pom</artifactId>
-        <version>3.6</version>
+        <version>1-SNAPSHOT</version>
     </parent>
 
     <groupId>no.nav.dialogarena</groupId>
     <artifactId>oidc-security</artifactId>
-    <version>3</version>
-    <packaging>jar</packaging>
+    <version>${project.parent.version}</version>
 
     <properties>
         <jose4j.version>0.5.0</jose4j.version>
@@ -20,9 +19,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>api-app-bom</artifactId>
-                <version>RELEASE</version>
+                <groupId>no.nav.sbl</groupId>
+                <artifactId>bom</artifactId>
+                <version>${project.parent.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
