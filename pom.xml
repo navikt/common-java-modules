@@ -325,6 +325,9 @@
                 <configuration>
                     <!--suppress MavenModelInspection -->
                     <argLine>${jacoco.agent.argLine}</argLine>
+
+                    <!-- fjerner edge-caser ved nøstede classloadere, som f.eks. hvis man tester med jetty -->
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
             <plugin>
