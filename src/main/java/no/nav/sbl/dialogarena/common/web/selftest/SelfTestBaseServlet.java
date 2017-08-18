@@ -35,6 +35,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
 
 
     protected List<Ping> result;
+    private volatile long lastResultTime;
 
     /**
      * Denne metoden må implementeres til å returnere applikasjonens navn, for bruk i tittel og overskrift
@@ -64,9 +65,16 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
         }
     }
 
-
     protected void doPing() {
-        result = getPingables().stream().map(PING).collect(toList());
+        long requestTime = System.currentTimeMillis();
+        // Beskytter pingables mot mange samtidige/tette requester.
+        // Særlig viktig hvis det tar lang tid å utføre alle pingables
+        synchronized (this) {
+            if (requestTime > lastResultTime) {
+                result = getPingables().stream().map(PING).collect(toList());
+                lastResultTime = System.currentTimeMillis();
+            }
+        }
     }
 
     protected Integer getAggregertStatus() {
