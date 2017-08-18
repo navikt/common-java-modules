@@ -9,7 +9,6 @@
         <artifactId>mor-pom</artifactId>
         <version>1-SNAPSHOT</version>
     </parent>
-    <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>api-app</artifactId>
     <version>${project.parent.version}</version>
 
