@@ -28,7 +28,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.sbl</groupId>
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
@@ -78,19 +78,6 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>api-app</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>no.nav.sbl.dialogarena</groupId>
-                    <artifactId>feed</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>test-config</artifactId>
