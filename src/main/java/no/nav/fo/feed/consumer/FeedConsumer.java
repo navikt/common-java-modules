@@ -12,12 +12,11 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static java.util.Arrays.asList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
-import static no.nav.fo.feed.util.AsyncRunner.runAsync;
 import static no.nav.fo.feed.util.UrlUtils.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -44,13 +43,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         if (isBlank(this.config.webhookPollingInterval)) {
             return false;
         }
-
-        runAsync(asList(new Runnable() {
-            @Override
-            public void run() {
-                poll();
-            }
-        }));
+        CompletableFuture.runAsync(() -> poll());
         return true;
     }
 

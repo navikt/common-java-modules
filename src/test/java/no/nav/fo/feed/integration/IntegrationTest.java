@@ -24,7 +24,10 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Arrays.asList;
@@ -97,11 +100,11 @@ public class IntegrationTest {
         );
         FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "");
         FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, null, webhookPollingConfig);
-        FeedConsumerConfig<DomainObject> configUtenConfig1 = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null, null);
-        FeedConsumer<DomainObject> consumerUtenConfig1 = new FeedConsumer<>(configUtenConfig1);
+        FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null, null);
+        FeedConsumer<DomainObject> consumerUtenConfig = new FeedConsumer<>(configUtenConfig);
         FeedConsumer<DomainObject> consumerMedConfig = new FeedConsumer<>(configMedConfig);
 
-        consumerServer.controller.addFeed("utenwebhook", consumerUtenConfig1);
+        consumerServer.controller.addFeed("utenwebhook", consumerUtenConfig);
         consumerServer.controller.addFeed("medwebhook", consumerMedConfig);
 
         Client client = ClientBuilder.newClient();
@@ -111,6 +114,36 @@ public class IntegrationTest {
         
     }
 
+    @Test
+    public void girRiktigStatusForWebhooksGjennomProducer() throws InterruptedException, ExecutionException {
+        String callbackMedWebhook = basePath(CONSUMER_PORT) + "feed/medwebhook";
+        String callbackUrlUtenWebhookKonfig = basePath(CONSUMER_PORT) + "feed/utenwebhook";
+        String callbackSomIkkeFinnes = basePath(CONSUMER_PORT) + "feed/finnesikke";
+        FeedConsumerConfig.BaseConfig<DomainObject> baseConfig = new FeedConsumerConfig.BaseConfig<>(
+                DomainObject.class,
+                () -> "0",
+                basePath(PRODUCER_PORT).toString(),
+                "webhook-producer2"
+        );
+        FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "");
+        FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, null, webhookPollingConfig);
+        FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null, null);
+        FeedConsumer<DomainObject> consumerUtenConfig = new FeedConsumer<>(configUtenConfig);
+        FeedConsumer<DomainObject> consumerMedConfig = new FeedConsumer<>(configMedConfig);
+        
+        FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder().build();
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackUrlUtenWebhookKonfig));
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackSomIkkeFinnes));
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackMedWebhook));
+        consumerServer.controller.addFeed("utenwebhook", consumerUtenConfig);
+        consumerServer.controller.addFeed("medwebhook", consumerMedConfig);
+
+        Map<String, Future<Integer>> res = producer.activateWebhook();
+        assertThat(res.get(callbackUrlUtenWebhookKonfig).get(), is(404));
+        assertThat(res.get(callbackSomIkkeFinnes).get(), is(404));
+        assertThat(res.get(callbackMedWebhook).get(), is(200));
+    }
+    
     @Test
     public void fullstendigOppsett() throws Exception {
         CountDownLatch lock = new CountDownLatch(1);

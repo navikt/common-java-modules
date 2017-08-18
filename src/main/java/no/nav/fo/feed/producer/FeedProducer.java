@@ -10,12 +10,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.HttpMethod.HEAD;
-import static no.nav.fo.feed.util.AsyncRunner.runAsync;
 import static no.nav.fo.feed.util.RestUtils.getClient;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -79,21 +81,13 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         return new FeedResponse<DOMAINOBJECT>().setNextPageId(nextPageId).setElements(pageElements);
     }
     
-    public void activateWebhook() {
-        runAsync(callbackUrls.stream().map(this::toRunnable).collect(toList()));
+    public Map<String, Future<Integer>> activateWebhook() {
+        return callbackUrls
+                .stream()
+                .collect(toMap(Function.identity(), str -> CompletableFuture.supplyAsync(() -> tryActivateWebHook(str))));
     }
 
-    private Runnable toRunnable(String str) {
-        return new Runnable() {
-
-            @Override
-            public void run() {
-                tryActivateWebHook(str);
-            }
-        };
-    }
-
-    private void tryActivateWebHook(String url) {
+    private int tryActivateWebHook(String url) {
         try {
             Client client = getClient();
             Invocation.Builder request = client.target(url).request();
@@ -103,8 +97,10 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
             if(status != 200) {
                 LOG.warn("Fikk ikke forventet status fra kall til webhook. Url {}, returnert status {}", url, status);
             }
+            return status;
         } catch (Exception e) {
             LOG.warn("Feil ved activate webhook til url {}, {}", url, e.getMessage(), e);
+            return 500;
         }
     }
 

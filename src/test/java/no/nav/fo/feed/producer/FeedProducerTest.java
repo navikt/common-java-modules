@@ -8,6 +8,11 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import static org.mockito.Mockito.any;
 
 import javax.ws.rs.client.Invocation;
@@ -53,7 +58,7 @@ public class FeedProducerTest {
     }
 
     @Test
-    public void activateWebhookErAsynkron() throws InterruptedException {
+    public void activateWebhookErAsynkron() throws InterruptedException, ExecutionException {
         // Bruker en mock interceptor både for å sikre at prosessering av webhookene tar litt tid og til å 
         // verifisere at de har blitt prosessert.
         OutInterceptor outInterceptor = mock(OutInterceptor.class);
@@ -68,15 +73,14 @@ public class FeedProducerTest {
         producer.createWebhook(new FeedWebhookRequest().setCallbackUrl("http://url2"));
 
         long startTime = System.currentTimeMillis();
-        producer.activateWebhook();
+        Map<String, Future<Integer>> responses = producer.activateWebhook();
 
         // Sjekker at kallet til activateWebHook blir ferdig "med det samme" - dvs. før de faktiske prosesseringene av kall
         // til webhookene er ferdig
         assertThat(new Long(System.currentTimeMillis() - startTime), lessThan(sleepTime));
 
-        // Sover for å gi trådene tid til å kalle interceptorene, og verifiserer deretter at interceptoren har blitt kalt 
-        // to ganger (én for hver webhook-url)
-        Thread.sleep(sleepTime + 500);
+        assertThat(responses.get("http://url1").get(), is(500));
+        assertThat(responses.get("http://url2").get(), is(500));
         verify(outInterceptor, times(2)).apply(any(Invocation.Builder.class));
     }
 }
