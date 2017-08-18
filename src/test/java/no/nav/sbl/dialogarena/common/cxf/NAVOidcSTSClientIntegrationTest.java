@@ -14,12 +14,10 @@ import org.slf4j.Logger;
 
 import javax.security.auth.Subject;
 
-import java.util.Set;
-
 import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
-import static no.nav.dialogarena.config.ssl.SSLTestUtils.disableCertificateChecks;
 import static no.nav.sbl.dialogarena.common.cxf.JettyTestServer.findFreePort;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
+import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 

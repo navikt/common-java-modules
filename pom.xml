@@ -193,13 +193,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>test-config</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>no.nav.sbl.dialogarena</groupId>
-                    <artifactId>common-cxf</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>common-test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
