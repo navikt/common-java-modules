@@ -20,6 +20,13 @@
     </prerequisites>
 
     <properties>
+
+        <!-- unntak fra bom-versjonering siden vi gjør oppsett i denne pommen -->
+        <junit.jupiter.version>5.0.0-M6</junit.jupiter.version>
+        <junit.platform.version>1.0.0-M6</junit.platform.version>
+        <junit.vintage.version>4.12.0-M6</junit.vintage.version>
+
+
         <java.jdk.version>1.8</java.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>http://sonar.devillo.no/sonar/profiles/export?format=checkstyle&amp;language=java&amp;name=nav-mod</checkstyle.config.location>
@@ -29,6 +36,16 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
     </properties>
+
+    <!-- tilgjengeliggjør riktig versjon i test-scope slik at junit5-tester kjører i intellij -->
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<pluginManagement>
@@ -291,7 +308,20 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18</version>
+                <version>2.19</version>
+                <!-- tilgjengeliggjør junit5 for surefire slik at slike tester kjøres  -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>${junit.platform.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                        <version>${junit.vintage.version}</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <!--suppress MavenModelInspection -->
                     <argLine>${jacoco.agent.argLine}</argLine>
