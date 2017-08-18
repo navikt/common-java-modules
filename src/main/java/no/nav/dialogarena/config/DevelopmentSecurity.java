@@ -17,6 +17,7 @@ import no.nav.modig.core.domain.ConsumerId;
 import no.nav.modig.core.domain.SluttBruker;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
+import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
@@ -39,6 +40,7 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
 import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE_Q;
 import static no.nav.dialogarena.config.util.Util.setProperty;
+import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
 import static org.apache.commons.io.IOUtils.write;
@@ -237,6 +239,10 @@ public class DevelopmentSecurity {
         System.setProperty("APP_LOG_HOME", new File("target").getAbsolutePath());
         System.setProperty("application.name", "app");
         disableCertificateChecks();
+
+        // selve keystore/truststore bør være unødvendig siden vi disabler serifikatsjekker,
+        // men det settes også system-properties som vi ofte må ha i test/utvikling
+        setupKeyAndTrustStore();
 
         setProperty("environment.class", "t");
         setProperty("disable.metrics.report", Boolean.TRUE.toString());
