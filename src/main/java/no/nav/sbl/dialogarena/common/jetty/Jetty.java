@@ -33,10 +33,8 @@ import java.net.URL;
 import java.util.*;
 
 import static java.lang.System.setProperty;
-import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -185,10 +183,6 @@ public final class Jetty {
         }
 
         public final Jetty buildJetty() {
-            setProperty("u", "true");
-            setProperty("disable.ssl.cn.check", "true");
-            setupKeyAndTrustStore();
-
             try {
                 if (context == null) {
                     context = new WebAppContext();
