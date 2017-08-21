@@ -31,8 +31,8 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
             if (stream(request.getCookies()).noneMatch(cookie -> cookie.getName().equals(CSRF_COOKIE_NAVN))) {
                 response.addCookie(createCsrfProtectionCookie(request));
             }
-        } else if ("POST".equals(request.getMethod())) {
-            if (request.getHeader(CSRF_COOKIE_NAVN).equals(navCsrfCookieVerdi(request))) {
+        } else if ("POST".equals(request.getMethod()) || "DELETE".equals(request.getMethod()) || "PUT".equals(request.getMethod())) {
+            if (navCsrfCookieVerdi(request).equals(request.getHeader(CSRF_COOKIE_NAVN))) {
                 filterChain.doFilter(request, response);
             } else {
                 response.sendError(SC_UNAUTHORIZED);
