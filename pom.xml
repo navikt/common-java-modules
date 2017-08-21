@@ -193,6 +193,11 @@
             <artifactId>junit-platform-launcher</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-core-test</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- test-avhengigheter som vi tilgjengeliggjør transitivt for alle som vil bruke test-config ved å overstyre scope=runtime -->
 
 
