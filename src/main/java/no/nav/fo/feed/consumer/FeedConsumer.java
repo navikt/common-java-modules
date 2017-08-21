@@ -43,7 +43,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         if (isBlank(this.config.webhookPollingInterval)) {
             return false;
         }
-        CompletableFuture.runAsync(() -> poll());
+        CompletableFuture.runAsync(this::poll);
         return true;
     }
 
