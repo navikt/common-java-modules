@@ -172,6 +172,10 @@
 
         <!-- test -->
         <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-testcertificates</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>test</scope>

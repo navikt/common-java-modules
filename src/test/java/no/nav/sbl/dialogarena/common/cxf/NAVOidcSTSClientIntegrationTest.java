@@ -5,6 +5,7 @@ import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.domain.SluttBruker;
 import no.nav.dialogarena.mock.MockHandler;
+import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.junit.After;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import javax.security.auth.Subject;
 
 import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
+import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.JettyTestServer.findFreePort;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
@@ -31,6 +33,7 @@ public class NAVOidcSTSClientIntegrationTest {
     @Before
     public void setup() {
         disableCertificateChecks();
+        setupKeyAndTrustStore();
         int port = findFreePort();
         Jetty jetty = Jetty.usingWar()
                 .at("sts")
