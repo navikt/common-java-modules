@@ -9,6 +9,8 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE
 import static no.nav.dialogarena.config.fasit.FasitUtils.getDbCredentials;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.*;
 
 public class FasitUtilsTest {
@@ -137,5 +139,34 @@ public class FasitUtilsTest {
         assertEquals("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=d26dbfl020.test.local)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=VEILARBPORTEFOLJET6)(INSTANCE_NAME=cctf01)(UR=A)(SERVER=DEDICATED)))", dbCredentials.url);
         assertEquals("VEILARBPORTEFOLJE_T6", dbCredentials.username);
         assertNotNull(dbCredentials.password);
+    }
+
+    @Test
+    public void getTCertificate() throws Exception {
+        ServiceUserCertificate serviceUserCertificate = FasitUtils.getServiceUserCertificate("srvHenvendelse", "t");
+        testServiceUserCertificate(serviceUserCertificate);
+    }
+
+    @Test
+    public void getQCertificate() throws Exception {
+        ServiceUserCertificate serviceUserCertificate = FasitUtils.getServiceUserCertificate("srvHenvendelse", "q");
+        testServiceUserCertificate(serviceUserCertificate);
+    }
+
+    @Test
+    public void getPCertificate() throws Exception {
+        ServiceUserCertificate serviceUserCertificate = FasitUtils.getServiceUserCertificate("srvHenvendelse", "p");
+        testServiceUserCertificate(serviceUserCertificate);
+        assertThat(serviceUserCertificate.getKeystorepassword(), containsString("No access"));
+    }
+
+    public static void testServiceUserCertificate(ServiceUserCertificate certificate) {
+        assertThat(certificate.getKeystorealias(), isOneOf("host-key", "app-key"));
+
+        assertThat(certificate.getKeystorepassword(), notNullValue());
+        assertThat(certificate.getKeystorepassword().length(), greaterThan(0));
+
+        assertThat(certificate.getKeystore(), notNullValue());
+        assertThat(certificate.getKeystore().length, greaterThan(1000));
     }
 }
