@@ -220,8 +220,7 @@ public class FasitUtils {
     }
 
     private static byte[] fetchBytes(String url) {
-        byte[] binary = httpClient(httpClient -> httpClient.newRequest(url).send().getContent());
-        return binary;
+        return httpClient(httpClient -> httpClient.newRequest(url).send().getContent());
     }
 
     @SneakyThrows
