@@ -26,7 +26,7 @@ import static no.nav.fo.feed.util.MetricsUtils.timed;
 public class FeedController {
 
     private static final Logger LOG = getLogger(FeedController.class);
-    public static final int DEFAULT_PAGE_SIZE = 100;
+    private static final int DEFAULT_PAGE_SIZE = 100;
 
     private Map<String, FeedProducer> producers = new HashMap<>();
     private Map<String, FeedConsumer> consumers = new HashMap<>();

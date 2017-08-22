@@ -12,6 +12,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
@@ -42,8 +43,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         if (isBlank(this.config.webhookPollingInterval)) {
             return false;
         }
-
-        poll();
+        CompletableFuture.runAsync(this::poll);
         return true;
     }
 
