@@ -48,7 +48,7 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
         return stream(request.getCookies())
                 .filter(cookie -> cookie.getName().equals(CSRF_COOKIE_NAVN))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Mangler NAV_CSRF_PROTECTION-cookie!! Du må inkludere cookien-verdien i en header med navn NAV_CSRF_PROTECTION"))
+                .orElseThrow(() -> new RuntimeException("Mangler NAV_CSRF_PROTECTION-cookie. Det betyr at brukeren ikke har gjort et GET-request til en applikasjon med dette filteret før POST/PUT/DELETE, eller at brukeren har slettet tokenet fra browseren."))
                 .getValue();
     }
 
