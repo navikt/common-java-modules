@@ -1,5 +1,8 @@
 package no.nav.apiapp.feil;
 
+import lombok.ToString;
+
+@ToString
 public class FeilDTO {
     public final String id;
     public final Feil.Type type;
@@ -11,6 +14,7 @@ public class FeilDTO {
         this.detaljer = detaljer;
     }
 
+    @ToString
     public static class Detaljer {
         public final String detaljertType;
         public final String feilMelding;
