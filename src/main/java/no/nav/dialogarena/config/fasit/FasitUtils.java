@@ -46,6 +46,7 @@ public class FasitUtils {
     public static final String TEST_LOCAL = "test.local";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     static {
         objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -88,6 +89,18 @@ public class FasitUtils {
                         .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord for databasebruker")));
     }
 
+    public static ServiceUserCertificate getServiceUserCertificate(String serviceUser, String environmentClass) {
+        Document document = fetchXml(String.format("https://fasit.adeo.no/conf/resources?envClass=%s&type=Certificate&alias=%s&bestmatch=true", environmentClass, serviceUser));
+
+        String alias = extractStringProperty(document, "keystorealias");
+        String password = fetchJson(extractStringProperty(document, "keystorepassword"));
+        byte[] keystore = fetchBytes(extractStringProperty(document, "keystore"));
+
+        return new ServiceUserCertificate()
+                .setKeystorealias(alias)
+                .setKeystorepassword(password)
+                .setKeystore(keystore);
+    }
 
     public static ApplicationConfig getApplicationConfig(String applicationName, String environment) {
         Document document = fetchXml(format("https://fasit.adeo.no/conf/environments/%s/applications/%s", environment, applicationName));
@@ -206,14 +219,19 @@ public class FasitUtils {
         return json;
     }
 
+    private static byte[] fetchBytes(String url) {
+        byte[] binary = httpClient(httpClient -> httpClient.newRequest(url).send().getContent());
+        return binary;
+    }
+
     @SneakyThrows
     private static <T> T fetchJsonObject(String url, Class<T> type) {
-        return objectMapper.readValue(fetchJson(url),type);
+        return objectMapper.readValue(fetchJson(url), type);
     }
 
     @SneakyThrows
     private static <T> List<T> fetchJsonObjects(String url, Class<T> type) {
-        return objectMapper.readValue(fetchJson(url), TypeFactory.defaultInstance().constructCollectionType(List.class,type));
+        return objectMapper.readValue(fetchJson(url), TypeFactory.defaultInstance().constructCollectionType(List.class, type));
     }
 
     private static Document fetchXml(String resourceUrl) {
