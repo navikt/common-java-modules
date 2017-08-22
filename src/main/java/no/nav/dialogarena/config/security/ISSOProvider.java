@@ -60,6 +60,10 @@ public class ISSOProvider {
         return getISSOCookies(getTestAuthorization(), KJENT_LOGIN_ADRESSE);
     }
 
+    public static List<HttpCookie> getISSOCookies(TestUser testUser) {
+        return getISSOCookies(getTestAuthorization(), KJENT_LOGIN_ADRESSE, testUser);
+    }
+
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl) {
         return getISSOCookies(authorization, redirectUrl, getPriveligertVeileder());
     }

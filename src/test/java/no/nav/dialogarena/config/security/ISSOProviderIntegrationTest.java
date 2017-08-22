@@ -20,6 +20,7 @@ public class ISSOProviderIntegrationTest {
     @Test
     public void getISSOCookies() {
         sjekkIssoCookies(ISSOProvider.getISSOCookies());
+        sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getPriveligertVeileder()));
         sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), KJENT_LOGIN_ADRESSE));
         sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), KJENT_LOGIN_ADRESSE, ISSOProvider.getPriveligertVeileder()));
     }
