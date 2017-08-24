@@ -37,6 +37,7 @@ public class FasitUtils {
 
     public static final String FASIT_USERNAME_VARIABLE_NAME = "domenebrukernavn";
     public static final String FASIT_PASSWORD_VARIABLE_NAME = "domenepassord";
+    public static final String DEFAULT_ENVIRONMENT_VARIABLE_NAME = "testmiljo";
 
     private static final File fasitPropertyFile = new File(System.getProperty("user.home"), "fasit.properties");
 
@@ -140,6 +141,10 @@ public class FasitUtils {
         return new TestUser()
                 .setUsername(serviceUser.username)
                 .setPassword(serviceUser.password);
+    }
+
+    public static ServiceUser getServiceUser(String userAlias, String applicationName) {
+        return getServiceUser(userAlias, applicationName, getDefaultEnvironment());
     }
 
     public static ServiceUser getServiceUser(String userAlias, String applicationName, TestEnvironment environment) {
@@ -297,6 +302,10 @@ public class FasitUtils {
 
     public static String getFasitUser() {
         return getVariable(FASIT_USERNAME_VARIABLE_NAME);
+    }
+
+    public static String getDefaultEnvironment() {
+        return getVariable(DEFAULT_ENVIRONMENT_VARIABLE_NAME);
     }
 
     public static String getEnvironmentClass(String environment) {

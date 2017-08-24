@@ -69,7 +69,7 @@ public class FasitUtilsTest {
 
     @Test
     public void getServiceUser() {
-        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon", "t6");
+        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon");
         assertThat(serviceUser.username, equalTo("srvveilarbsituasjon"));
         assertThat(serviceUser.password, not(nullValue()));
     }
