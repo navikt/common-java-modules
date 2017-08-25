@@ -159,6 +159,11 @@
                 <version>${common.version}</version>
             </dependency>
             <dependency>
+                <groupId>no.nav.sbl</groupId>
+                <artifactId>rest</artifactId>
+                <version>${common.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>common-web</artifactId>
                 <version>${common.version}</version>
