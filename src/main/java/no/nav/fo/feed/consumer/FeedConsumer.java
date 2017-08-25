@@ -1,7 +1,6 @@
 package no.nav.fo.feed.consumer;
 
 import no.nav.fo.feed.common.*;
-import no.nav.fo.feed.util.RestUtils;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.slf4j.Logger;
 
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
 import static no.nav.fo.feed.util.UrlUtils.*;
+import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -52,8 +52,10 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     void registerWebhook() {
-        Client client = RestUtils.getClient();
+        withClient(this::registerWebhook);
+    }
 
+    private int registerWebhook(Client client) {
         String callbackUrl = callbackUrl(this.config.apiRootPath, this.config.feedName);
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
 
@@ -69,16 +71,22 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 .buildPut(entity)
                 .invoke();
 
-        if (response.getStatus() == 201) {
+        int responseStatus = response.getStatus();
+        if (responseStatus == 201) {
             LOG.info("Webhook opprettet hos produsent!");
-        } else if (response.getStatus() != 200) {
-            LOG.warn("Endepunkt for opprettelse av webhook returnerte feilkode {}", response.getStatus());
+        } else if (responseStatus != 200) {
+            LOG.warn("Endepunkt for opprettelse av webhook returnerte feilkode {}", responseStatus);
         }
+        return responseStatus;
     }
 
     synchronized Response poll() {
+        return withClient(this::poll);
+    }
+
+    private Response poll(Client client) {
         String lastEntry = this.config.lastEntrySupplier.get();
-        Invocation.Builder request = RestUtils.getClient()
+        Invocation.Builder request = client
                 .target(getTargetUrl())
                 .queryParam(QUERY_PARAM_ID, lastEntry)
                 .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
