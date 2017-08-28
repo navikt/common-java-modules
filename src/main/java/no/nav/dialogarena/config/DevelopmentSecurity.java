@@ -58,17 +58,17 @@ public class DevelopmentSecurity {
     public static class ISSOSecurityConfig {
 
         private final String applicationName;
-        private final String environment;
 
+        private String environment;
         private String issoUserName;
         private String serviceUserName;
         private String contextName;
         private String ldapUserAlias;
 
-        public ISSOSecurityConfig(String applicationName, String environment) {
+        public ISSOSecurityConfig(String applicationName) {
             this.applicationName = applicationName;
-            this.environment = environment;
 
+            this.environment = getDefaultEnvironment();
             this.contextName = applicationName;
             this.issoUserName = DEFAULT_ISSO_RP_USER;
             this.serviceUserName = "srv" + applicationName;
@@ -81,13 +81,14 @@ public class DevelopmentSecurity {
     public static class ESSOSecurityConfig {
 
         private final String applicationName;
-        private final String environment;
 
+        private String environment;
         private String serviceUserName;
 
-        public ESSOSecurityConfig(String applicationName, String environment) {
+        public ESSOSecurityConfig(String applicationName) {
             this.applicationName = applicationName;
-            this.environment = environment;
+
+            this.environment = getDefaultEnvironment();
             this.serviceUserName = "srv" + applicationName;
         }
     }
@@ -102,11 +103,11 @@ public class DevelopmentSecurity {
         private String serviceUserName;
         private String ldapUserAlias;
 
-        public SamlSecurityConfig(String applicationName, String environment) {
+        public SamlSecurityConfig(String applicationName) {
             this.applicationName = applicationName;
-            this.environment = environment;
-            this.serviceUserName = "srv" + applicationName;
 
+            this.environment = getDefaultEnvironment();
+            this.serviceUserName = "srv" + applicationName;
             this.ldapUserAlias = DEFAULT_LDAP_USER;
         }
     }

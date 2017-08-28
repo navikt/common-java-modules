@@ -28,7 +28,7 @@ public class DevelopmentSecurityTest {
     public void setupJettyWithISSO() {
         Jetty jetty = DevelopmentSecurity.setupISSO(
                 jettyBuilder(),
-                new ISSOSecurityConfig("veilarbsituasjon", "t6")
+                new ISSOSecurityConfig("veilarbsituasjon")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
@@ -38,7 +38,7 @@ public class DevelopmentSecurityTest {
     public void setupJettyWithESSO() {
         Jetty jetty = DevelopmentSecurity.setupESSO(
                 jettyBuilder(),
-                new ESSOSecurityConfig("veilarbsituasjonproxy", "t6")
+                new ESSOSecurityConfig("veilarbsituasjonproxy")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
@@ -48,7 +48,7 @@ public class DevelopmentSecurityTest {
     public void setupJettyWithSamlLogin() {
         Jetty jetty = DevelopmentSecurity.setupSamlLogin(
                 jettyBuilder(),
-                new SamlSecurityConfig("veilarbsituasjon", "t6")
+                new SamlSecurityConfig("veilarbsituasjon")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
