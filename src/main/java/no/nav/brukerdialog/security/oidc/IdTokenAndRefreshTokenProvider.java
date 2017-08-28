@@ -3,16 +3,19 @@ package no.nav.brukerdialog.security.oidc;
 import lombok.Builder;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import static java.lang.System.getProperty;
-import static javax.ws.rs.core.HttpHeaders.*;
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
+import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
 import static no.nav.brukerdialog.security.Constants.*;
 
 public class IdTokenAndRefreshTokenProvider {
@@ -40,10 +43,10 @@ public class IdTokenAndRefreshTokenProvider {
     }
 
     public IdTokenAndRefreshToken getToken(String authorizationCode, String redirectUri) {
-        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, redirectUri), this::extractToken);
+        return TokenProviderUtil.getToken((client) -> createTokenRequest(authorizationCode, redirectUri, client), this::extractToken);
     }
 
-    HttpPost createTokenRequest(String authorizationCode, String redirectUri) {
+    Response createTokenRequest(String authorizationCode, String redirectUri, Client client) {
         String urlEncodedRedirectUri;
 
         try {
@@ -52,17 +55,18 @@ public class IdTokenAndRefreshTokenProvider {
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
 
-        HttpPost request = new HttpPost(parameters.host + "/access_token");
-        request.setHeader(AUTHORIZATION, TokenProviderUtil.basicCredentials(parameters.username, parameters.password));
-        request.setHeader(CACHE_CONTROL, "no-cache");
-        request.setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded");
+        String host = parameters.host;
         String data = "grant_type=authorization_code"
                 + "&realm=/"
                 + "&redirect_uri=" + urlEncodedRedirectUri
                 + "&code=" + authorizationCode;
-        log.debug("Requesting tokens by POST to " + parameters.host);
-        request.setEntity(new StringEntity(data, ENCODING));
-        return request;
+        log.debug("Requesting tokens by POST to " + host);
+        return client.target(host + "/access_token")
+                .request()
+                .header(AUTHORIZATION, TokenProviderUtil.basicCredentials(parameters.username, parameters.password))
+                .header(CACHE_CONTROL, "no-cache")
+                .post(Entity.entity(data, APPLICATION_FORM_URLENCODED_TYPE))
+                ;
     }
 
     private IdTokenAndRefreshToken extractToken(String responseString) {

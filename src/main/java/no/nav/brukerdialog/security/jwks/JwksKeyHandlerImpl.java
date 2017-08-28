@@ -1,21 +1,18 @@
 package no.nav.brukerdialog.security.jwks;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.JsonWebKeySet;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.ws.rs.core.Response;
 import java.security.Key;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+
+import static javax.ws.rs.core.HttpHeaders.ACCEPT;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.sbl.rest.RestUtils.withClient;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
@@ -78,22 +75,20 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
             throw new IllegalArgumentException("Missing URL to JWKs location");
         }
         log.info("Starting JWKS update from " + url);
-        HttpGet httpGet = new HttpGet(url);
-        httpGet.addHeader("accept", "application/json");
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    String error = "jwks cache update failed : HTTP error code : " + response.getStatusLine().getStatusCode();
-                    log.error(error);
-                    throw new RuntimeException(error);
-                }
-                return new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
-                        .lines()
-                        .collect(Collectors.joining("\n"));
+        return withClient(client -> {
+            Response response = client.target(url)
+                    .request()
+                    .header(ACCEPT, APPLICATION_JSON)
+                    .get();
+
+            int responseStatus = response.getStatus();
+            if (responseStatus != 200) {
+                String error = "jwks cache update failed : HTTP error code : " + responseStatus;
+                log.error(error);
+                throw new RuntimeException(error);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            return response.readEntity(String.class);
+        });
     }
 
 }
