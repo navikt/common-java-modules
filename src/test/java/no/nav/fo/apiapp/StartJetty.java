@@ -18,7 +18,6 @@ import static no.nav.sbl.dialogarena.common.jetty.JettyStarterUtils.*;
 public class StartJetty {
 
     private static final String KJENT_APP = "veilarbaktivitet";
-    private static final String KJENT_MILJO = "t6";
 
     public static void main(String[] args) {
         setupLogging();
@@ -30,14 +29,14 @@ public class StartJetty {
     public static Jetty nyJetty(String contextPath, int jettyPort) {
         return DevelopmentSecurity.setupISSO(
                 defaultJetty(contextPath, jettyPort)
-                , new DevelopmentSecurity.ISSOSecurityConfig(KJENT_APP, KJENT_MILJO)
+                , new DevelopmentSecurity.ISSOSecurityConfig(KJENT_APP)
         ).buildJetty();
     }
 
     public static Jetty nyJettyForTest(String contextPath, int jettyPort) {
         return DevelopmentSecurity.setupSamlLogin(
                 defaultJetty(contextPath, jettyPort)
-                , new DevelopmentSecurity.SamlSecurityConfig(KJENT_APP, KJENT_MILJO)
+                , new DevelopmentSecurity.SamlSecurityConfig(KJENT_APP)
         ).buildJetty();
     }
 
