@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.HttpMethod.HEAD;
-import static no.nav.fo.feed.util.RestUtils.getClient;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
+import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Builder
@@ -88,8 +88,11 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     private int tryActivateWebHook(String url) {
+        return withClient(client -> tryActivateWebHook(url, client));
+    }
+
+    private int tryActivateWebHook(String url, Client client) {
         try {
-            Client client = getClient();
             Invocation.Builder request = client.target(url).request();
             this.interceptors.forEach(interceptor -> interceptor.apply(request));
             LOG.debug("activate webhook til url {}", url);
