@@ -1,11 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.nav.abac.xacml.NavAttributter;
+import no.nav.json.JsonUtils;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
-import no.nav.sbl.dialogarena.common.abac.pep.Utils;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
-import org.apache.http.entity.StringEntity;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,7 +15,6 @@ import java.util.List;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 
@@ -26,78 +25,60 @@ public class XacmlMapperTest {
 
     @Test
     public void convertsRequestToJson() throws IOException {
-
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequest());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+        final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequest());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withtoken.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        assertJson(stringEntity, expectedContent);
     }
 
     @Test
     public void convertRequestWithSubjectAttributesToJson() throws IOException {
-
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjectAttributes());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+        final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjectAttributes());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjectattributes.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        assertJson(stringEntity, expectedContent);
     }
 
     @Test
     public void convertRequestWithSubjAttrWithoutEnvironmentToJson() throws IOException {
-
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjAttrWithoutEnvironment());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+        final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjAttrWithoutEnvironment());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjattrwithoutenvironment.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        assertJson(stringEntity, expectedContent);
     }
 
     @Test
     public void convertRequestWithSubjectAndKode6() throws IOException {
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode6Resource());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+        final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode6Resource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-kode6.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        assertJson(stringEntity, expectedContent);
 
     }
 
     @Test
     public void convertRequestWithSubjectAndKode7() throws IOException {
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode7Resource());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+        final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode7Resource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-kode7.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        assertJson(stringEntity, expectedContent);
     }
 
     @Test
     public void convertRequestWithSubjectAndVeilarb() throws IOException {
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithVeilArbResource());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+        final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithVeilArbResource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-veilarb.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        assertJson(stringEntity, expectedContent);
     }
 
     @Test
     public void convertRequestWithSubjectAndEgenAnsatt() throws IOException {
-        final StringEntity stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithEgenAnsattResource());
-
-        assertThat(stringEntity.getContentLength(), greaterThan(0L));
+        final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithEgenAnsattResource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-egenAnsatt.json");
-        assertThat(Utils.entityToString(stringEntity), is(expectedContent));
+        assertJson(stringEntity,expectedContent);
     }
-
 
     @Test
     public void convertsSimpleJsonToResponse() throws IOException {
@@ -186,6 +167,12 @@ public class XacmlMapperTest {
         responses.add(new Response().withDecision(Decision.Deny).withAssociatedAdvice(associatedAdvice));
 
         return new XacmlResponse().withResponse(responses);
+    }
+
+    private void assertJson(String json, String expectedJson) {
+        ObjectNode objectNode = JsonUtils.fromJson(json, ObjectNode.class);
+        ObjectNode expectedObjectNode = JsonUtils.fromJson(expectedJson, ObjectNode.class);
+        assertThat(objectNode, equalTo(expectedObjectNode));
     }
 
 }

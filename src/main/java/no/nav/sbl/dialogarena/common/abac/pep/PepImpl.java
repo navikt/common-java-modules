@@ -13,7 +13,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
-import no.nav.sbl.dialogarena.common.abac.pep.service.LdapService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -38,12 +37,10 @@ public class PepImpl implements Pep {
         Permit, Deny
     }
 
-    private final LdapService ldapService;
     private final AbacService abacService;
     private final AuditLogger auditLogger;
 
-    public PepImpl(LdapService ldapService, AbacService abacService) {
-        this.ldapService = ldapService;
+    public PepImpl(AbacService abacService) {
         this.abacService = abacService;
         auditLogger = new AuditLogger();
     }
@@ -178,18 +175,10 @@ public class PepImpl implements Pep {
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
-        String ident = SubjectHandler.getSubjectHandler().getUid();
         try {
             return abacService.askForPermission(request);
         } catch (AbacException e) {
-            if (!valueOf(System.getProperty("ldap.fallback", "true"))) {
-                throw new PepException(e);
-            }
-            Event event = MetricsFactory.createEvent("abac.fallback.used");
-            String ressurs = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
-            event.addTagToReport("resource-attributeid", ressurs);
-            event.report();
-            return ldapService.askForPermission(ident);
+            throw new PepException(e);
         } catch (UnsupportedEncodingException e) {
             throw new PepException("Cannot parse object to json request. ", e);
         } catch (IOException | NoSuchFieldException e) {

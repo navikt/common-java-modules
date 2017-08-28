@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import lombok.SneakyThrows;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
@@ -7,12 +8,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.BaseAttribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -23,14 +19,16 @@ import static java.lang.System.getProperty;
 
 
 public class Utils {
-    public static <T> T timed(String name, Callable<T> task, Consumer<Timer> additions) throws Exception {
+
+    @SneakyThrows
+    public static <T> T timed(String name, Callable<T> task, Consumer<Timer> additions) {
         Timer timer = MetricsFactory.createTimer(name);
         try {
             timer.start();
             return task.call();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             timer.setFailed();
-            throw new Exception(e);
+            throw e;
         } finally {
             timer.stop();
             if (additions != null) {
@@ -42,26 +40,6 @@ public class Utils {
 
     public static <T> T timed(String name, Callable<T> task) throws Exception {
         return timed(name, task, null);
-    }
-
-    public static String entityToString(HttpEntity stringEntity) throws IOException {
-        final InputStream content;
-        String result;
-        try {
-            content = stringEntity.getContent();
-            BufferedReader br = new BufferedReader(new InputStreamReader(content));
-            String line;
-            StringBuilder sb = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            br.close();
-            result = sb.toString();
-        } catch (IOException e) {
-            throw new IOException("Failed to parse json content to string", e);
-        }
-        return result;
-
     }
 
     static boolean invalidClientValues(RequestData requestData) {

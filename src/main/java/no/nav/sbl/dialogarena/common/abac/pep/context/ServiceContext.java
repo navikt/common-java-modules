@@ -1,7 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep.context;
 
-import no.nav.sbl.dialogarena.common.abac.pep.service.*;
-import org.apache.http.impl.client.CloseableHttpClient;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,12 +8,8 @@ import org.springframework.context.annotation.Configuration;
 public class ServiceContext {
 
     @Bean
-    public LdapService ldapService(Ldap ldap) {
-        return new LdapService(ldap);
+    public AbacService abacService() {
+        return new AbacService();
     }
 
-    @Bean
-    public AbacService abacService(Abac abac, CloseableHttpClient httpClient) {
-        return new AbacService(abac, httpClient);
-    }
 }

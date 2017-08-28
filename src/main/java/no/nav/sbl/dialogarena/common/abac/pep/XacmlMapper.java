@@ -6,7 +6,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
-import org.apache.http.entity.StringEntity;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -40,11 +39,11 @@ public class XacmlMapper {
                 .create();
     }
 
-    public static XacmlResponse mapRawResponse(String content) throws IOException {
+    public static XacmlResponse mapRawResponse(String content) {
         return gsonUnserialize.fromJson(content, XacmlResponse.class);
     }
 
-    public static StringEntity mapRequestToEntity(XacmlRequest request) throws UnsupportedEncodingException {
-        return new StringEntity(gsonSerialize.toJson(request));
+    public static String mapRequestToEntity(XacmlRequest request) {
+        return gsonSerialize.toJson(request);
     }
 }
