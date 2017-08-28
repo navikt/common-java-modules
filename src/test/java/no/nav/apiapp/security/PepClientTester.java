@@ -4,12 +4,9 @@ import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.dialogarena.config.security.ISSOProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import javax.security.auth.Subject;
 
 import static no.nav.apiapp.TestData.*;
 import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
@@ -26,7 +23,6 @@ public interface PepClientTester {
     default void setupPepClientTest() {
         setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
         setSubject(new SubjectHandlerUtils.SubjectBuilder(KJENT_VEILEDER_IDENT, IdentType.InternBruker, ISSOProvider.getISSOToken()).getSubject());
-        System.setProperty("abac.bibliotek.simuler.avbrudd", Boolean.FALSE.toString());
     }
 
     @Test
@@ -37,12 +33,6 @@ public interface PepClientTester {
     @Test
     default void sjekkTilgangTilFnr_veilederHarIkkeTilgang() {
         assertThatThrownBy(() -> getPepClient().sjekkTilgangTilFnr(KJENT_IDENT)).isExactlyInstanceOf(IngenTilgang.class);
-    }
-
-    @Test
-    default void sjekkTilgangTilFnr_veilederHarIkkeTilgangMenAvbrudd() {
-        System.setProperty("abac.bibliotek.simuler.avbrudd", Boolean.TRUE.toString());
-        getPepClient().sjekkTilgangTilFnr(KJENT_IDENT);
     }
 
 }
