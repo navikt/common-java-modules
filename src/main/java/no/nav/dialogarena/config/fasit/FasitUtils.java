@@ -69,6 +69,10 @@ public class FasitUtils {
                 ));
     }
 
+    public static DbCredentials getDbCredentials(String applicationName) {
+        return getDbCredentials(getDefaultTestEnvironment(), applicationName);
+    }
+
     public static DbCredentials getDbCredentials(TestEnvironment testEnvironment, String applicationName) {
         List<ApplicationInstance> applications = fetchJsonObjects(String.format("https://fasit.adeo.no/api/v2/applicationinstances/application/%s", applicationName), ApplicationInstance.class);
         ApplicationInstance application = applications
@@ -306,6 +310,10 @@ public class FasitUtils {
 
     public static String getDefaultEnvironment() {
         return getVariable(DEFAULT_ENVIRONMENT_VARIABLE_NAME);
+    }
+
+    public static TestEnvironment getDefaultTestEnvironment() {
+        return TestEnvironment.valueOf(getDefaultEnvironment().toUpperCase());
     }
 
     public static String getEnvironmentClass(String environment) {
