@@ -3,40 +3,25 @@ package no.nav.brukerdialog.security.oidc;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import no.nav.sbl.rest.RestUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 class TokenProviderUtil {
 
-    public static <T> T getToken(Supplier<HttpUriRequest> tokenRequestSupplier, Function<String, T> tokenExtractor) {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpUriRequest request = tokenRequestSupplier.get();
-            try (CloseableHttpResponse response = client.execute(request)) {
-                String responseString = responseText(response);
-                if (response.getStatusLine().getStatusCode() == 200) {
-                    return tokenExtractor.apply(responseString);
-                }
-                throw new IllegalArgumentException("Could not refresh token with auth.server, got " + response.getStatusLine().getStatusCode() + " and response " + responseString);
+    public static <T> T getToken(Function<Client,Response> tokenRequestSupplier, Function<String, T> tokenExtractor) {
+        return RestUtils.withClient(client -> {
+            Response response = tokenRequestSupplier.apply(client);
+            String responseString = response.readEntity(String.class);
+            int status = response.getStatus();
+            if (status == 200) {
+                return tokenExtractor.apply(responseString);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static String responseText(CloseableHttpResponse response) throws IOException {
-        return new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
-                .lines()
-                .collect(Collectors.joining("\n"));
+            throw new IllegalArgumentException("Could not refresh token with auth.server, got " + status + " and response " + responseString);
+        });
     }
 
     @SneakyThrows
