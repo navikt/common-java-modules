@@ -2,9 +2,6 @@ package no.nav.sbl.dialogarena.common.abac;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.sun.webkit.dom.ElementImpl;
-import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.modig.core.context.SAMLAssertionCredential;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
@@ -35,13 +32,13 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {AbacContext.class})
 public class HttpTest {
+
     @Inject
     Pep pep;
 
@@ -55,7 +52,8 @@ public class HttpTest {
     @BeforeClass
     public static void setup() throws IOException {
         System.setProperty("abac.bibliotek.simuler.avbrudd", "false");
-        System.setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
         System.setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         System.setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         System.setProperty("ldap.url", "ldap.url");
@@ -119,7 +117,7 @@ public class HttpTest {
     private void gittBrukerMedSAMLAssertion() throws ParserConfigurationException {
         Subject subject = new Subject();
         subject.getPublicCredentials().add(new SAMLAssertionCredential(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().getDocumentElement()));
-        new ThreadLocalSubjectHandler().setSubject(subject);
+        new no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler().setSubject(subject);
     }
 
 }

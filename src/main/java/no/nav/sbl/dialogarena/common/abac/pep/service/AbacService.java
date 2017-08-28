@@ -1,82 +1,74 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.sbl.dialogarena.common.abac.pep.AuditLogger;
-import no.nav.sbl.dialogarena.common.abac.pep.HttpLogger;
 import no.nav.sbl.dialogarena.common.abac.pep.Utils;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
+import static javax.ws.rs.client.Entity.entity;
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
-import static no.nav.sbl.dialogarena.common.abac.pep.Utils.*;
+import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_PASSWORD;
+import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_USERNAME;
+import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
+import static no.nav.sbl.dialogarena.common.abac.pep.Utils.timed;
+import static no.nav.sbl.rest.RestUtils.withClient;
+import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class AbacService implements TilgangService {
 
+    public static final String ABAC_ENDPOINT_URL_PROPERTY_NAME = "abac.endpoint.url";
+
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = getLogger(AbacService.class);
-    private final HttpLogger httpLogger = new HttpLogger();
-    private final AuditLogger auditLogger = new AuditLogger();
-    private final Abac abac;
-    private final CloseableHttpClient httpClient;
-
-    public AbacService(Abac abac, CloseableHttpClient httpClient) {
-        this.abac = abac;
-        this.httpClient = httpClient;
-    }
+    private final HttpAuthenticationFeature httpAuthenticationFeature = basic(getApplicationProperty(SYSTEMUSER_USERNAME), getApplicationProperty(SYSTEMUSER_PASSWORD));
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
-        HttpPost httpPost = getPostRequest(request);
+        return withClient((Client client) -> {
+            client.register(httpAuthenticationFeature);
+            return askForPermission(request, client);
+        });
+    }
+
+    XacmlResponse askForPermission(XacmlRequest request, Client client) {
         String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
+        Response response = timed(
+                "abac-pdp",
+                () -> request(request, client),
+                (timer) -> timer.addTagToReport("resource-attributeid", ressursId)
+        );
 
-        CloseableHttpResponse rawResponse = null;
-        try {
-            rawResponse = timed(
-                    "abac-pdp",
-                    () -> doPost(httpPost),
-                    (timer) -> timer.addTagToReport("resource-attributeid", ressursId)
-            );
-        } catch (Exception e) {
-            throw new AbacException("Feil ved kall til abac", e);
-        }
-
-        final int statusCode = rawResponse.getStatusLine().getStatusCode();
-        final String reasonPhrase = rawResponse.getStatusLine().getReasonPhrase();
-        final HttpEntity httpEntity = rawResponse.getEntity();
-        final String content = entityToString(httpEntity);
-
-        EntityUtils.consumeQuietly(httpEntity);
-        rawResponse.close();
-        httpPost.releaseConnection();
+        final int statusCode = response.getStatus();
+        final String reasonPhrase = response.getStatusInfo().getReasonPhrase();
+        final String content = response.readEntity(String.class);
 
         if (statusCodeIn500Series(statusCode)) {
             LOG.warn("ABAC returned: " + statusCode + " " + reasonPhrase);
-            httpLogger.logPostRequest(httpPost);
-            httpLogger.logHttpResponse(rawResponse);
             throw new AbacException("An error has occured calling ABAC: " + reasonPhrase);
         } else if (statusCodeIn400Series(statusCode)) {
             LOG.error("ABAC returned: " + statusCode + " " + reasonPhrase);
-            httpLogger.logPostRequest(httpPost);
-            httpLogger.logHttpResponse(rawResponse);
             throw new ClientErrorException("An error has occured calling ABAC: ", statusCode);
         }
         return XacmlMapper.mapRawResponse(content);
+    }
+
+    private Response request(XacmlRequest request, Client client) {
+        String postingString = XacmlMapper.mapRequestToEntity(request);
+        final String abacEndpointUrl = getEndpointUrl();
+        return client.target(abacEndpointUrl)
+                .request()
+                .post(entity(postingString, MEDIA_TYPE));
     }
 
     private boolean statusCodeIn500Series(int statusCode) {
@@ -87,31 +79,8 @@ public class AbacService implements TilgangService {
         return statusCode >= 400 && statusCode < 500;
     }
 
-    private HttpPost getPostRequest(XacmlRequest request) throws NoSuchFieldException, UnsupportedEncodingException {
-        StringEntity postingString = XacmlMapper.mapRequestToEntity(request);
-        final String abacEndpointUrl = getEndpointUrl();
-        HttpPost httpPost = new HttpPost(abacEndpointUrl);
-        httpPost.addHeader(HttpHeaders.CONTENT_TYPE, MEDIA_TYPE);
-        httpPost.setEntity(postingString);
-        return httpPost;
-    }
-
-    private CloseableHttpResponse doPost(HttpPost httpPost) throws AbacException, NoSuchFieldException {
-
-        CloseableHttpResponse response;
-        try {
-            response = abac.isAuthorized(this.httpClient, httpPost);
-            auditLogger.log("HTTP response code from ABAC: " + response.getStatusLine().getStatusCode());
-        } catch (IOException e) {
-            httpLogger.logPostRequest(httpPost);
-            httpLogger.logException("Error calling ABAC ", e);
-            throw new AbacException("An error has occured calling ABAC: ", e);
-        }
-        return response;
-    }
-
-    public static String getEndpointUrl()  {
-        return getApplicationProperty("abac.endpoint.url");
+    public static String getEndpointUrl() {
+        return getApplicationProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME);
     }
 
 }
