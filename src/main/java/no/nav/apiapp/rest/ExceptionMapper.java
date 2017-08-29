@@ -21,6 +21,8 @@ import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwable> {
 
     public static final String ESCAPE_REDIRECT_HEADER = "Escape-5xx-Redirect";
+    public static final String ESCAPE_REDIRECT_X_HEADER = "X-Escape-5xx-Redirect";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionMapper.class);
 
     @Inject
@@ -60,6 +62,7 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
                 .entity(feil)
                 // TODO big-ip-header! Sjekke om denne fikser hvis applikasjonen er nede!
                 .header(ESCAPE_REDIRECT_HEADER, "true")
+                .header(ESCAPE_REDIRECT_X_HEADER, "true")
                 .build();
     }
 
