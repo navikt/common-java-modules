@@ -42,7 +42,11 @@ public class SamlPropagatingOutInterceptor extends AbstractSoapInterceptor {
             DocumentBuilder builder;
             Document document;
             builder = factory.newDocumentBuilder();
-            document = builder.parse(new InputSource(new StringReader("<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"></wsse:Security>")));
+            document = builder.parse(new InputSource(
+                    new StringReader("<wsse:Security " +
+                            "xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" " +
+                            "xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">" +
+                            "</wsse:Security>")));
             Node node = document.importNode(samlAssertion, true);
             Element documentElement = document.getDocumentElement();
             documentElement.appendChild(node);
