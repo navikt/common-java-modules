@@ -247,6 +247,13 @@ public class FasitUtils {
         return json;
     }
 
+    private static String fetchPlainText(String url) {
+        LOG.info("Fetching text: {}", url);
+        String text = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
+        LOG.info(text);
+        return text;
+    }
+
     private static byte[] fetchBytes(String url) {
         return httpClient(httpClient -> httpClient.newRequest(url).send().getContent());
     }
@@ -363,7 +370,7 @@ public class FasitUtils {
     }
 
     private static String getPassword(String passwordRef) {
-        return of(fetchJson(passwordRef))
+        return of(fetchPlainText(passwordRef))
                 .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord"));
     }
 
