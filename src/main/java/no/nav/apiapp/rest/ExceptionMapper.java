@@ -14,6 +14,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
+import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
 import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 
@@ -67,13 +68,18 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     }
 
     private void logToMetrics(Response.Status status, String path, FeilDTO feilDTO) {
-        MetricsFactory.createEvent("rest-api-error")
+        Event event = MetricsFactory.createEvent("rest-api-error")
                 .addFieldToReport("httpStatus", status.getStatusCode())
                 .addFieldToReport("path", path)
                 .addFieldToReport("errorId", feilDTO.id)
-                .addFieldToReport("errorType", feilDTO.type)
-                .setFailed()
-                .report();
+                .addFieldToReport("errorType", feilDTO.type);
+
+        ofNullable(feilDTO.detaljer).ifPresent(detaljer -> event
+                .addTagToReport("detaljertType", detaljer.detaljertType)
+                .addTagToReport("feilMelding", detaljer.feilMelding)
+        );
+
+        event.setFailed().report();
     }
 
     private Response.Status getStatus(Throwable throwable) {
