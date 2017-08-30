@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.modig.core.context.SubjectHandler;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
@@ -17,6 +16,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 
+import static no.nav.modig.core.context.SubjectHandler.getSubjectHandler;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -34,7 +34,7 @@ public class SamlPropagatingOutInterceptor extends AbstractSoapInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
-        Element samlAssertion = SubjectHandler.getSubjectHandler().getSAMLAssertion();
+        Element samlAssertion = getSubjectHandler().getSAMLAssertion();
         QName qName = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security");
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -42,7 +42,11 @@ public class SamlPropagatingOutInterceptor extends AbstractSoapInterceptor {
             DocumentBuilder builder;
             Document document;
             builder = factory.newDocumentBuilder();
-            document = builder.parse(new InputSource(new StringReader("<wsse:Security xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"></wsse:Security>")));
+            document = builder.parse(new InputSource(
+                    new StringReader("<wsse:Security " +
+                            "xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\" " +
+                            "xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\">" +
+                            "</wsse:Security>")));
             Node node = document.importNode(samlAssertion, true);
             Element documentElement = document.getDocumentElement();
             documentElement.appendChild(node);
