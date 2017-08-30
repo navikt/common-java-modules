@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider;
+import no.nav.dialogarena.config.DevelopmentSecurity;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.fasit.TestEnvironment;
@@ -34,6 +35,8 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
 import static no.nav.dialogarena.config.DevelopmentSecurity.DEFAULT_ISSO_RP_USER;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultEnvironment;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultTestEnvironment;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.eclipse.jetty.http.HttpMethod.POST;
@@ -44,9 +47,6 @@ public class ISSOProvider {
     public static final String PRIVELIGERT_VEILEDER = "priveligert_veileder";
 
     public static final String LOGIN_APPLIKASJON = "veilarblogin";
-    public static final String KJENT_LOGIN_ADRESSE = String.format("https://app-t6.adeo.no/%s/api/login", LOGIN_APPLIKASJON);
-    public static final String KJENT_LOGIN_ADRESSE_Q = String.format("https://app-q6.adeo.no/%s/api/login", LOGIN_APPLIKASJON);
-    public static final TestEnvironment DEFAULT_ENVIRONMENT = T6;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ISSOProvider.class);
 
@@ -57,11 +57,11 @@ public class ISSOProvider {
     private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("description: \".*\"");
 
     public static List<HttpCookie> getISSOCookies() {
-        return getISSOCookies(getTestAuthorization(), KJENT_LOGIN_ADRESSE);
+        return getISSOCookies(getTestAuthorization(), getDefaultRedirectUrl());
     }
 
     public static List<HttpCookie> getISSOCookies(TestUser testUser) {
-        return getISSOCookies(getTestAuthorization(), KJENT_LOGIN_ADRESSE, testUser);
+        return getISSOCookies(getTestAuthorization(), getDefaultRedirectUrl(), testUser);
     }
 
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl) {
@@ -73,7 +73,7 @@ public class ISSOProvider {
     }
 
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl, TestUser testUser) {
-        return getISSOCookies(authorization, redirectUrl, testUser, DEFAULT_ENVIRONMENT);
+        return getISSOCookies(authorization, redirectUrl, testUser, getDefaultTestEnvironment());
     }
 
     public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl, TestUser testUser, TestEnvironment testEnvironment) {
@@ -100,7 +100,7 @@ public class ISSOProvider {
     }
 
     public static String getISSOToken(ServiceUser issoServiceUser) {
-        return getISSOToken(issoServiceUser, KJENT_LOGIN_ADRESSE);
+        return getISSOToken(issoServiceUser, getDefaultRedirectUrl());
     }
 
     public static String getISSOToken(ServiceUser issoServiceUser, String redirectUrl) {
@@ -128,11 +128,15 @@ public class ISSOProvider {
     }
 
     public static ServiceUser getTestUser() {
-        return getTestUser(T6);
+        return getTestUser(getDefaultTestEnvironment());
     }
 
     public static ServiceUser getTestUser(TestEnvironment testEnvironment) {
         return FasitUtils.getServiceUser(DEFAULT_ISSO_RP_USER, LOGIN_APPLIKASJON, testEnvironment);
+    }
+
+    public static String getDefaultRedirectUrl() {
+        return DevelopmentSecurity.getRedirectUrl(getDefaultEnvironment());
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();

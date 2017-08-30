@@ -17,7 +17,6 @@ import no.nav.modig.core.domain.ConsumerId;
 import no.nav.modig.core.domain.SluttBruker;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
-import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
@@ -37,8 +36,7 @@ import static no.nav.brukerdialog.security.Constants.*;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
-import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
-import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE_Q;
+import static no.nav.dialogarena.config.security.ISSOProvider.LOGIN_APPLIKASJON;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
@@ -173,15 +171,8 @@ public class DevelopmentSecurity {
         setProperty(OIDC_REDIRECT_URL, getRedirectUrl(issoCredentials.environment));
     }
 
-    private static String getRedirectUrl(String environment) {
-        switch (getEnvironmentClass(environment)) {
-            case "t":
-                return KJENT_LOGIN_ADRESSE;
-            case "q":
-                return KJENT_LOGIN_ADRESSE_Q;
-            default:
-                throw new IllegalStateException();
-        }
+    public static String getRedirectUrl(String environment) {
+        return String.format("https://app-%s.adeo.no/%s/api/login", environment, LOGIN_APPLIKASJON);
     }
 
     private static void configureAbacUser(ServiceUser serviceUser) {

@@ -1,47 +1,48 @@
 package no.nav.dialogarena.config.security;
 
+import no.nav.dialogarena.config.DevelopmentSecurity;
 import org.junit.Test;
 
 import java.net.HttpCookie;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static no.nav.dialogarena.config.fasit.TestEnvironment.Q6;
-import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE;
-import static no.nav.dialogarena.config.security.ISSOProvider.KJENT_LOGIN_ADRESSE_Q;
+import static no.nav.dialogarena.config.security.ISSOProvider.getDefaultRedirectUrl;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeFalse;
 
 public class ISSOProviderIntegrationTest {
+
+    private static final String DEFAULT_REDIRECT_URL = getDefaultRedirectUrl();
+    private static final String REDIRECT_URL_Q = DevelopmentSecurity.getRedirectUrl(Q6.toString());
 
     @Test
     public void getISSOCookies() {
         sjekkIssoCookies(ISSOProvider.getISSOCookies());
         sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getPriveligertVeileder()));
-        sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), KJENT_LOGIN_ADRESSE));
-        sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), KJENT_LOGIN_ADRESSE, ISSOProvider.getPriveligertVeileder()));
+        sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), DEFAULT_REDIRECT_URL));
+        sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), DEFAULT_REDIRECT_URL, ISSOProvider.getPriveligertVeileder()));
     }
 
     @Test
     public void getISSOCookies_q() {
-        sjekkIssoCookies(ISSOProvider.getISSOCookies(KJENT_LOGIN_ADRESSE_Q, Q6));
+        sjekkIssoCookies(ISSOProvider.getISSOCookies(REDIRECT_URL_Q, Q6));
     }
 
     @Test
     public void getISSOToken() {
         sjekkIssoToken(ISSOProvider.getISSOToken());
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser()));
-        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), KJENT_LOGIN_ADRESSE));
-        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), KJENT_LOGIN_ADRESSE));
-        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), KJENT_LOGIN_ADRESSE, ISSOProvider.getTestAuthorization()));
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL));
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL));
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL, ISSOProvider.getTestAuthorization()));
     }
 
     @Test
     public void getISSOToken_q() {
-        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(Q6), KJENT_LOGIN_ADRESSE_Q));
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(Q6), REDIRECT_URL_Q));
     }
 
     private void sjekkIssoToken(String issoToken) {
