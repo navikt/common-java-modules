@@ -19,13 +19,13 @@ public class FeedPoller implements Job {
     private static Scheduler scheduler;
     private static Map<String, Runnable> jobs = new HashMap<>();
 
-    static {
-        try {
+    @SneakyThrows
+    public synchronized static Scheduler getScheduler() {
+        if (scheduler == null) {
             scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
-        } catch (SchedulerException e) {
-            throw new RuntimeException("Could not create schduler", e);
         }
+        return scheduler;
     }
 
     @Override
@@ -47,10 +47,20 @@ public class FeedPoller implements Job {
                     .withSchedule(cronSchedule(cron))
                     .build();
 
-            scheduler.scheduleJob(job, trigger);
+            getScheduler().scheduleJob(job, trigger);
 
             String jobname = asUrl(group, name);
             jobs.putIfAbsent(jobname, jobImpl);
         }
     }
+
+    @SneakyThrows
+    public static void shutdown() {
+        if (scheduler != null) {
+            scheduler.shutdown();
+            jobs.clear();
+            scheduler = null;
+        }
+    }
+
 }

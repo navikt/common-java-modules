@@ -3,6 +3,8 @@ package no.nav.fo.feed.consumer;
 import no.nav.fo.feed.common.*;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.slf4j.Logger;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -21,7 +23,7 @@ import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Pingable, Authorization {
+public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Pingable, Authorization, ApplicationListener<ContextClosedEvent> {
     private static final Logger LOG = getLogger(FeedConsumer.class);
 
     private final FeedConsumerConfig<DOMAINOBJECT> config;
@@ -37,6 +39,11 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
         createScheduledJob(feedName, host, config.pollingInterval, this::poll);
         createScheduledJob(feedName + "/webhook", host, config.webhookPollingInterval, this::registerWebhook);
+    }
+
+    @Override
+    public void onApplicationEvent(ContextClosedEvent event) {
+        FeedPoller.shutdown();
     }
 
     public boolean webhookCallback() {
