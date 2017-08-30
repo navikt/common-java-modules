@@ -1,8 +1,12 @@
 package no.nav.dialogarena.config.fasit;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -13,6 +17,7 @@ import no.nav.dialogarena.config.util.Util;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.util.BasicAuthentication;
+import org.eclipse.jetty.http.HttpHeader;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -20,17 +25,23 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.net.ssl.SSLException;
+import javax.ws.rs.core.MediaType;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.awt.*;
 import java.io.File;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.List;
+import java.util.Properties;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static java.lang.Boolean.FALSE;
 import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.eclipse.jetty.http.HttpHeader.ACCEPT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class FasitUtils {
@@ -90,8 +101,7 @@ public class FasitUtils {
         return new DbCredentials()
                 .setUrl(dataSourceResource.properties.url)
                 .setUsername(dataSourceResource.properties.username)
-                .setPassword(of(fetchJson(dataSourceResource.secrets.password.ref))
-                        .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord for databasebruker")));
+                .setPassword(getPassword(dataSourceResource.secrets.password.ref));
     }
 
     public static ServiceUserCertificate getServiceUserCertificate(String serviceUser, String environmentClass) {
@@ -107,11 +117,20 @@ public class FasitUtils {
                 .setKeystore(keystore);
     }
 
+    @SneakyThrows
     public static ApplicationConfig getApplicationConfig(String applicationName, String environment) {
-        Document document = fetchXml(format("https://fasit.adeo.no/conf/environments/%s/applications/%s", environment, applicationName));
-        NodeList domainNodes = document.getElementsByTagName("domain");
         ApplicationConfig applicationConfig = new ApplicationConfig();
-        applicationConfig.domain = domainNodes.item(0).getTextContent();
+        JsonNode jsonNode = objectMapper.readTree(fetchJson(format("https://fasit.adeo.no/conf/environments/%s/applications/%s", environment, applicationName)));
+        JsonNode cluster = jsonNode.get("cluster");
+        applicationConfig.domain = cluster.get("domain").textValue();
+
+        JsonNode nodes = cluster.get("nodes");
+        for (JsonNode node : nodes) {
+            applicationConfig.hostname = node.get("hostname").textValue();
+            applicationConfig.deployerUsername = node.get("username").textValue();
+            applicationConfig.deployerPasswordUrl = node.get("passwordRef").textValue();
+        }
+
         LOG.info("{} = {}", applicationName, applicationConfig);
         return applicationConfig;
     }
@@ -223,7 +242,7 @@ public class FasitUtils {
 
     private static String fetchJson(String url) {
         LOG.info("Fetching json: {}", url);
-        String json = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
+        String json = httpClient(httpClient -> httpClient.newRequest(url).header(ACCEPT, APPLICATION_JSON).send().getContentAsString());
         LOG.info(json.replaceAll("\n", ""));
         return json;
     }
@@ -341,6 +360,61 @@ public class FasitUtils {
 
     public static boolean erEksterntDomene(String domain) {
         return domain != null && domain.contains("oera");
+    }
+
+    private static String getPassword(String passwordRef) {
+        return of(fetchJson(passwordRef))
+                .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord"));
+    }
+
+    @SneakyThrows
+    public static Properties getApplicationEnvironment(String applicationName, String environment) {
+        ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
+
+        JSch.setLogger(new com.jcraft.jsch.Logger() {
+            @Override
+            public boolean isEnabled(int level) {
+                return true;
+            }
+
+            @Override
+            public void log(int level, String message) {
+                LOG.info(message);
+            }
+        });
+
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(applicationConfig.deployerUsername, applicationConfig.hostname);
+        try {
+            session.setPassword(getPassword(applicationConfig.deployerPasswordUrl));
+
+            session.setConfig("StrictHostKeyChecking", FALSE.toString());
+            session.setConfig("PreferredAuthentications", "password");
+            session.connect();
+
+            ChannelExec shell = (ChannelExec) session.openChannel("exec");
+            try {
+                shell.setCommand(String.format("sudo cat /app/%s/configuration/environment.properties", applicationName));
+                shell.setErrStream(System.err);
+                LOG.info("connecting...");
+                shell.connect();
+                int attempt = 0;
+                while (!shell.isConnected() && attempt++ < 5) {
+                    Thread.sleep(100L);
+                }
+                if (!shell.isConnected()) {
+                    throw new IllegalStateException();
+                }
+                LOG.info("connected!");
+                Properties properties = new Properties();
+                properties.load(shell.getInputStream());
+                return properties;
+            } finally {
+                shell.disconnect();
+            }
+        } finally {
+            session.disconnect();
+        }
     }
 
     private static class FasitAuthenication extends BasicAuthentication {

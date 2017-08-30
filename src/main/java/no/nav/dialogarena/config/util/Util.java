@@ -43,6 +43,10 @@ public class Util {
         }
     }
 
+    public static void setProperties(Properties properties) {
+        properties.forEach((k, v) -> setProperty(k.toString(), v.toString()));
+    }
+
     @FunctionalInterface
     public interface With<T, R> {
 

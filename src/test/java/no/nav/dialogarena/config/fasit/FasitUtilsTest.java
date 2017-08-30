@@ -3,6 +3,7 @@ package no.nav.dialogarena.config.fasit;
 import org.junit.Test;
 
 import javax.net.ssl.SSLException;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE_NAME;
@@ -169,4 +170,14 @@ public class FasitUtilsTest {
         assertThat(certificate.getKeystore(), notNullValue());
         assertThat(certificate.getKeystore().length, greaterThan(1000));
     }
+
+    @Test
+    public void getApplicationEnvironment() throws Exception {
+        Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("veilarbsituasjon", "t6");
+        assertThat(applicationEnvironment.size(), greaterThan(10));
+
+        Properties veilarbsituasjonproxyEnvironment = FasitUtils.getApplicationEnvironment("veilarbsituasjonproxy", "t6");
+        assertThat(veilarbsituasjonproxyEnvironment.size(), greaterThan(10));
+    }
+
 }

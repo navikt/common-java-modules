@@ -6,10 +6,10 @@ import lombok.experimental.Accessors;
 import no.nav.brukerdialog.security.context.InternbrukerSubjectHandler;
 import no.nav.brukerdialog.security.context.TestSubjectHandler;
 import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.LdapConfig;
 import no.nav.dialogarena.config.fasit.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.security.ESSOProvider;
+import no.nav.dialogarena.config.util.Util;
 import no.nav.modig.core.context.AuthenticationLevelCredential;
 import no.nav.modig.core.context.OpenAmTokenCredential;
 import no.nav.modig.core.context.StaticSubjectHandler;
@@ -17,6 +17,7 @@ import no.nav.modig.core.domain.ConsumerId;
 import no.nav.modig.core.domain.SluttBruker;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
+import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
@@ -49,7 +50,6 @@ public class DevelopmentSecurity {
     private static final Logger LOG = getLogger(DevelopmentSecurity.class);
 
     public static final String DEFAULT_ISSO_RP_USER = "isso-rp-user";
-    public static final String DEFAULT_LDAP_USER = "ldap";
 
     @Setter
     @Accessors(chain = true)
@@ -61,7 +61,6 @@ public class DevelopmentSecurity {
         private String issoUserName;
         private String serviceUserName;
         private String contextName;
-        private String ldapUserAlias;
 
         public ISSOSecurityConfig(String applicationName) {
             this.applicationName = applicationName;
@@ -70,7 +69,6 @@ public class DevelopmentSecurity {
             this.contextName = applicationName;
             this.issoUserName = DEFAULT_ISSO_RP_USER;
             this.serviceUserName = "srv" + applicationName;
-            this.ldapUserAlias = DEFAULT_LDAP_USER;
         }
     }
 
@@ -96,17 +94,34 @@ public class DevelopmentSecurity {
     public static class SamlSecurityConfig {
 
         private final String applicationName;
-        private final String environment;
 
+        private String environment;
         private String serviceUserName;
-        private String ldapUserAlias;
 
         public SamlSecurityConfig(String applicationName) {
             this.applicationName = applicationName;
 
             this.environment = getDefaultEnvironment();
             this.serviceUserName = "srv" + applicationName;
-            this.ldapUserAlias = DEFAULT_LDAP_USER;
+        }
+    }
+
+    @Setter
+    @Accessors(chain = true)
+    public static class IntegrationTestConfig {
+
+        private final String applicationName;
+        private String environment;
+
+        private String serviceUserName;
+        private String issoUserName;
+
+        public IntegrationTestConfig(String applicationName) {
+            this.applicationName = applicationName;
+
+            this.environment = getDefaultEnvironment();
+            this.serviceUserName = "srv" + applicationName;
+            this.issoUserName = DEFAULT_ISSO_RP_USER;
         }
     }
 
@@ -114,23 +129,24 @@ public class DevelopmentSecurity {
     @SneakyThrows
     public static Jetty.JettyBuilder setupSamlLogin(Jetty.JettyBuilder jettyBuilder, SamlSecurityConfig securityConfig) {
         commonServerSetup(jettyBuilder);
-
-        String environment = securityConfig.environment;
-        ServiceUser serviceUser = FasitUtils.getServiceUser(securityConfig.serviceUserName, securityConfig.applicationName, environment);
-        assertCorrectDomain(serviceUser, FasitUtils.getFSSLocal(environment));
-        configureServiceUser(serviceUser);
-        configureAbacUser(serviceUser);
-        configureLdap(getLdapConfig(securityConfig.ldapUserAlias, securityConfig.applicationName, securityConfig.environment));
+        appSetup(securityConfig.applicationName,securityConfig.environment);
         modigSubjectHandler();
         dialogArenaSubjectHandler();
-
         LOG.info("configuring: {}", SamlLoginModule.class.getName());
         return jettyBuilder.withLoginService(jaasLoginModule(SAML));
     }
 
     @SneakyThrows
+    public static void setupESSO(ESSOSecurityConfig essoSecurityConfig) {
+        commonSetup();
+        appSetup(essoSecurityConfig.applicationName, essoSecurityConfig.environment);
+        modigSubjectHandler();
+    }
+
+    @SneakyThrows
     public static Jetty.JettyBuilder setupESSO(Jetty.JettyBuilder jettyBuilder, ESSOSecurityConfig essoSecurityConfig) {
         commonServerSetup(jettyBuilder);
+        appSetup(essoSecurityConfig.applicationName, essoSecurityConfig.environment);
         String environment = essoSecurityConfig.environment;
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
@@ -144,62 +160,39 @@ public class DevelopmentSecurity {
     @SneakyThrows
     public static Jetty.JettyBuilder setupISSO(Jetty.JettyBuilder jettyBuilder, ISSOSecurityConfig issoSecurityConfig) {
         commonServerSetup(jettyBuilder);
-
-        String environment = issoSecurityConfig.environment;
-
-        configureIsso(FasitUtils.getServiceUser(issoSecurityConfig.issoUserName, issoSecurityConfig.applicationName, environment));
-
-        ServiceUser serviceUser = FasitUtils.getServiceUser(issoSecurityConfig.serviceUserName, issoSecurityConfig.applicationName, environment);
-        assertCorrectDomain(serviceUser, FasitUtils.getFSSLocal(environment));
-        configureServiceUser(serviceUser);
-        configureAbacUser(serviceUser);
-        configureLdap(getLdapConfig(issoSecurityConfig.ldapUserAlias, issoSecurityConfig.applicationName, issoSecurityConfig.environment));
-
+        appSetup(issoSecurityConfig.applicationName, issoSecurityConfig.environment);
         modigSubjectHandler();
         dialogArenaSubjectHandler();
         return configureJaspi(jettyBuilder, issoSecurityConfig.contextName);
     }
 
-    private static void configureIsso(ServiceUser issoCredentials) {
-        setProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME, issoCredentials.username);
-        setProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME, issoCredentials.password);
-        String environmentClass = getEnvironmentClass(issoCredentials.environment);
-        setProperty(ISSO_JWKS_URL, format("https://isso-%s.adeo.no/isso/oauth2/connect/jwk_uri", environmentClass));
-        setProperty(ISSO_EXPECTED_TOKEN_ISSUER, format("https://isso-%s.adeo.no:443/isso/oauth2", environmentClass)); // OBS OBS, må sette port 443 her av en eller annen merkelig grunn!
-        setProperty(ISSO_HOST_URL_PROPERTY_NAME, format("https://isso-%s.adeo.no/isso/oauth2", environmentClass));
-        setProperty("isso.isalive.url", format("https://isso-%s.adeo.no/isso/isAlive.jsp", environmentClass));
-        setProperty(OIDC_REDIRECT_URL, getRedirectUrl(issoCredentials.environment));
+    @SneakyThrows
+    public static void setupISSO(ISSOSecurityConfig issoSecurityConfig) {
+        commonSetup();
+        appSetup(issoSecurityConfig.applicationName,issoSecurityConfig.environment);
+        modigSubjectHandler();
+        dialogArenaSubjectHandler();
+    }
+
+    @Deprecated
+    public static void setupIntegrationTestSecurity(ServiceUser serviceUser) {
+        String applicationName = serviceUser.username.substring(3); // fjern 'srv'
+        setupIntegrationTestSecurity(new IntegrationTestConfig(applicationName).setEnvironment(serviceUser.environment));
     }
 
     public static String getRedirectUrl(String environment) {
         return String.format("https://app-%s.adeo.no/%s/api/login", environment, LOGIN_APPLIKASJON);
     }
 
-    private static void configureAbacUser(ServiceUser serviceUser) {
-        setProperty("no.nav.abac.systemuser.username", serviceUser.username);
-        setProperty("no.nav.abac.systemuser.password", serviceUser.password);
-    }
 
-    public static void configureLdap(LdapConfig ldapConfig) {
-        setProperty("abac.endpoint.url", String.format("https://wasapp-%s.adeo.no/asm-pdp/authorize", ldapConfig.environment));
-        setProperty("ldap.username", ldapConfig.username);
-        setProperty("ldap.password", ldapConfig.password);
-        setProperty("ldap.url", "ldaps://ldapgw.test.local");
-        setProperty("ldap.basedn", "dc=test,dc=local");
-        setProperty("role", "0000-GA-Modia-Oppfolging");
-    }
-
-    public static void setupIntegrationTestSecurity(ServiceUser serviceUser) {
+    public static void setupIntegrationTestSecurity(IntegrationTestConfig integrationTestConfig) {
         commonSetup();
+        appSetup(integrationTestConfig.applicationName,integrationTestConfig.environment);
 
+        ServiceUser serviceUser = FasitUtils.getServiceUser(integrationTestConfig.serviceUserName, integrationTestConfig.applicationName, integrationTestConfig.environment);
         Subject testSubject = integrationTestSubject(serviceUser);
         configureServiceUser(serviceUser);
         if (!erEksterntDomene(serviceUser.getDomain())) {
-            // Her jukser vi litt, denne brukeren er nok ikke gyldig
-            configureAbacUser(serviceUser);
-            configureIsso(serviceUser);
-            //
-
             dialogArenaSubjectHandler(InternbrukerSubjectHandler.class);
             InternbrukerSubjectHandler internbrukerSubjectHandler = (InternbrukerSubjectHandler) TestSubjectHandler.getSubjectHandler();
             internbrukerSubjectHandler.setSubject(testSubject);
@@ -207,6 +200,12 @@ public class DevelopmentSecurity {
         modigSubjectHandler(StaticSubjectHandler.class);
         StaticSubjectHandler staticSubjectHandler = (StaticSubjectHandler) StaticSubjectHandler.getSubjectHandler();
         staticSubjectHandler.setSubject(testSubject);
+    }
+
+    public static void appSetup(String applicationName, String environment) {
+        Util.setProperties(FasitUtils.getApplicationEnvironment(applicationName, environment));
+        // reset keystore siden dette kan ha blitt endret
+        TestCertificates.setupKeyAndTrustStore();
     }
 
     private static Subject integrationTestSubject(ServiceUser serviceUser) {

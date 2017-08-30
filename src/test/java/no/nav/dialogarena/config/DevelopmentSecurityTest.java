@@ -20,7 +20,14 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupIntegrationTestSecurity() {
         DevelopmentSecurity.setupIntegrationTestSecurity(
-               FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon", "t6")
+                new DevelopmentSecurity.IntegrationTestConfig("veilarbsituasjon")
+        );
+    }
+
+    @Test
+    public void setupIntegrationTestSecurity_bakoverkompatibel() {
+        DevelopmentSecurity.setupIntegrationTestSecurity(
+               FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon")
         );
     }
 
@@ -33,6 +40,12 @@ public class DevelopmentSecurityTest {
         jetty.start();
         jetty.stop.run();
     }
+    @Test
+    public void setupISSO() {
+        DevelopmentSecurity.setupISSO(
+                new ISSOSecurityConfig("veilarbsituasjon")
+        );
+    }
 
     @Test
     public void setupJettyWithESSO() {
@@ -42,6 +55,13 @@ public class DevelopmentSecurityTest {
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
+    }
+
+    @Test
+    public void setupESSO() {
+        DevelopmentSecurity.setupESSO(
+                new ESSOSecurityConfig("veilarbsituasjonproxy")
+        );
     }
 
     @Test
