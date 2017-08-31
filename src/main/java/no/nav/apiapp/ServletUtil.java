@@ -33,14 +33,22 @@ public class ServletUtil {
     }
 
     public static ServletRegistration.Dynamic leggTilServlet(ServletContextEvent servletContextEvent, Class<? extends Servlet> servletClass, String... path) {
-        ServletRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addServlet(servletClass.getName(), servletClass);
+        return leggTilServlet(servletContextEvent.getServletContext(), servletClass, path);
+    }
+
+    public static ServletRegistration.Dynamic leggTilServlet(ServletContext servletContext, Class<? extends Servlet> servletClass, String... path) {
+        ServletRegistration.Dynamic dynamic = servletContext.addServlet(servletClass.getName(), servletClass);
         dynamic.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servletClass.getName(), path);
         return dynamic;
     }
 
     public static ServletRegistration.Dynamic leggTilServlet(ServletContextEvent servletContextEvent, Servlet servlet, String path) {
-        ServletRegistration.Dynamic servletRegistration = servletContextEvent.getServletContext().addServlet(servlet.getClass().getName(), servlet);
+        return leggTilServlet(servletContextEvent.getServletContext(), servlet, path);
+    }
+
+    public static ServletRegistration.Dynamic leggTilServlet(ServletContext servletContext, Servlet servlet, String path) {
+        ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(servlet.getClass().getName(), servlet);
         servletRegistration.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
         return servletRegistration;

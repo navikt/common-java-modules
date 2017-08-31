@@ -1,5 +1,7 @@
 package no.nav.apiapp;
 
+import javax.servlet.ServletContext;
+
 public interface ApiApplication {
 
     String DEFAULT_API_PATH = "/api/";
@@ -13,6 +15,10 @@ public interface ApiApplication {
     default boolean brukSTSHelsesjekk() {
         return STSHelsesjekkDefault;
     }
+
+    default void startup(ServletContext servletContext){}
+
+    default void shutdown(ServletContext servletContext){}
 
     enum Sone{
         FSS,

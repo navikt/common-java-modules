@@ -86,17 +86,20 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         LOGGER.info("onStartup");
         if (!disablet(servletContext)) {
             konfigurerLogging(servletContext);
-            konfigurerSpring(servletContext);
         }
+            konfigurerSpring(servletContext);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextDestroyed");
-        if (!disablet(servletContextEvent.getServletContext())) {
+        ServletContext servletContext = servletContextEvent.getServletContext();
+        if (!disablet(servletContext)) {
+            getContext(servletContext).getBean(ApiApplication.class).shutdown(servletContext);
             contextLoaderListener.contextDestroyed(servletContextEvent);
             LogUtils.shutDownLogback();
         }
+        LOGGER.info("contextDestroyed - slutt");
     }
 
     @Override
@@ -137,6 +140,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
         settOppSessionOgCookie(servletContextEvent);
         LOGGER.info("contextInitialized - slutt");
+        apiApplication.startup(servletContext);
     }
 
     private boolean modigSecurityBrukes() {
