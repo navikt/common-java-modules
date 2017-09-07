@@ -31,19 +31,17 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         if ("GET".equals(request.getMethod())) {
-            if (stream(request.getCookies()).noneMatch(cookie -> cookie.getName().equals(CSRF_COOKIE_NAVN))) {
+            if (request.getCookies() == null || stream(request.getCookies()).noneMatch(cookie -> cookie.getName().equals(CSRF_COOKIE_NAVN))) {
                 response.addCookie(createCsrfProtectionCookie(request));
             }
-        } else if ("POST".equals(request.getMethod()) || "DELETE".equals(request.getMethod()) || "PUT".equals(request.getMethod())) {
-            if (navCsrfCookieVerdi(request).equals(request.getHeader(CSRF_COOKIE_NAVN))) {
-                filterChain.doFilter(request, response);
-            } else {
+        } else {
+            if (!navCsrfCookieVerdi(request).equals(request.getHeader(CSRF_COOKIE_NAVN))) {
                 LOG.error("Feil i CSRF-sjekk. " +
-                        "Bruker du dette filteren må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien"
-                );
+                        "Bruker du dette filteren må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien");
                 response.sendError(SC_UNAUTHORIZED, "Mangler NAV_CSRF_PROTECTION-cookie!! Du må inkludere cookien-verdien i en header med navn NAV_CSRF_PROTECTION");
             }
         }
+        filterChain.doFilter(request, response);
     }
 
     private String navCsrfCookieVerdi(HttpServletRequest request) {
@@ -65,7 +63,7 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
         Cookie cookie = new Cookie(CSRF_COOKIE_NAVN, UUID.randomUUID().toString());
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge(-1);
+        cookie.setMaxAge(3600 * 24 * 7);
         cookie.setDomain(request.getServerName());
         return cookie;
     }
