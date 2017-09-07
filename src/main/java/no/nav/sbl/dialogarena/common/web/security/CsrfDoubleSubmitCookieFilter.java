@@ -36,7 +36,8 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
             }
         } else {
             if (!navCsrfCookieVerdi(request).equals(request.getHeader(CSRF_COOKIE_NAVN))) {
-                LOG.error("Feil i CSRF-sjekk. Bruker du dette filteren må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien");
+                LOG.error("Feil i CSRF-sjekk. " +
+                        "Bruker du dette filteren må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien");
                 response.sendError(SC_UNAUTHORIZED, "Mangler NAV_CSRF_PROTECTION-cookie!! Du må inkludere cookien-verdien i en header med navn NAV_CSRF_PROTECTION");
             }
         }
