@@ -56,7 +56,6 @@ public class PepImplTest {
 
     @Before
     public void setup() {
-        System.setProperty("ldap.fallback", "true");
         MockitoAnnotations.initMocks(this);
     }
 

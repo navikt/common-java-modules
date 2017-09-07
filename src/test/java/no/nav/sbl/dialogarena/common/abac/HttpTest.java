@@ -56,10 +56,6 @@ public class HttpTest {
         System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
         System.setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         System.setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
-        System.setProperty("ldap.url", "ldap.url");
-        System.setProperty("ldap.username", "ldap.username");
-        System.setProperty("ldap.password", "ldap.password");
-        System.setProperty("ldap.fallback", "false");
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.INFO);
 
