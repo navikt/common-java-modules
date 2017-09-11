@@ -3,9 +3,9 @@ package no.nav.apiapp.feil;
 import static no.nav.apiapp.feil.Feil.Type.UGYLDIG_HANDLING;
 
 @SuppressWarnings("unused")
-public class UgyldigHandling extends Feil {
+public class UlovligHandling extends Feil {
 
-    public UgyldigHandling() {
+    public UlovligHandling() {
         super(UGYLDIG_HANDLING);
     }
 
