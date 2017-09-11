@@ -46,4 +46,11 @@ public class Resources {
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
         return resource;
     }
+
+    public static Resource makeVeilArbPersonResource(RequestData requestData) {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, "no.nav.abac.attributter.resource.veilarb.person"));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        return resource;
+    }
 }
