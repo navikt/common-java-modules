@@ -35,7 +35,7 @@ class XacmlRequestGenerator {
 
     Action makeAction(RequestData requestData) {
         Action action = new Action();
-        action.getAttribute().add(new Attribute(StandardAttributter.ACTION_ID, "read"));
+        action.getAttribute().add(new Attribute(StandardAttributter.ACTION_ID, requestData.getAction().getId()));
         return action;
     }
 
