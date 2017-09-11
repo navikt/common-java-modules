@@ -119,6 +119,11 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.sbl</groupId>
+                <artifactId>jdbc</artifactId>
+                <version>${common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.sbl</groupId>
                 <artifactId>api-app</artifactId>
                 <version>${common.version}</version>
             </dependency>
