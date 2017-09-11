@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import static no.nav.dialogarena.config.util.Util.Mode.IKKE_OVERSKRIV;
+import static no.nav.dialogarena.config.util.Util.Mode.OVERSKRIV;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class Util {
@@ -17,10 +19,18 @@ public class Util {
     private static final Logger LOG = getLogger(Util.class);
 
     public static void setProperty(String propertyName, String value) {
-        LOG.info("property {} = {}", propertyName, value);
-        System.setProperty(propertyName, value);
+        setProperty(propertyName, value, OVERSKRIV);
     }
 
+    public static void setProperty(String propertyName, String value, Mode mode) {
+        String property = System.getProperty(propertyName);
+        if (mode == IKKE_OVERSKRIV && property != null && property.trim().length() > 0) {
+            LOG.warn("property {} er allerede satt til {}", propertyName, property);
+        } else {
+            LOG.info("property {} = {}", propertyName, value);
+            System.setProperty(propertyName, value);
+        }
+    }
 
     @SneakyThrows
     public static <T> T httpClient(With<HttpClient, T> httpClientConsumer) {
@@ -43,8 +53,8 @@ public class Util {
         }
     }
 
-    public static void setProperties(Properties properties) {
-        properties.forEach((k, v) -> setProperty(k.toString(), v.toString()));
+    public static void setProperties(Properties properties, Mode mode) {
+        properties.forEach((k, v) -> setProperty(k.toString(), v.toString(), mode));
     }
 
     @FunctionalInterface
@@ -52,6 +62,11 @@ public class Util {
 
         R with(T t) throws Exception;
 
+    }
+
+    public enum  Mode {
+        OVERSKRIV,
+        IKKE_OVERSKRIV
     }
 
 }

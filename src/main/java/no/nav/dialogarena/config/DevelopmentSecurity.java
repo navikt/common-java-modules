@@ -38,6 +38,7 @@ import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.security.ISSOProvider.LOGIN_APPLIKASJON;
+import static no.nav.dialogarena.config.util.Util.Mode.IKKE_OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
@@ -203,7 +204,7 @@ public class DevelopmentSecurity {
     }
 
     public static void appSetup(String applicationName, String environment) {
-        Util.setProperties(FasitUtils.getApplicationEnvironment(applicationName, environment));
+        Util.setProperties(FasitUtils.getApplicationEnvironment(applicationName, environment), IKKE_OVERSKRIV);
         // reset keystore siden dette kan ha blitt endret
         TestCertificates.setupKeyAndTrustStore();
     }
