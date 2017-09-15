@@ -14,10 +14,7 @@ import no.nav.dialogarena.config.fasit.dto.ApplicationInstance;
 import no.nav.dialogarena.config.fasit.dto.DataSourceResource;
 import no.nav.dialogarena.config.fasit.dto.Resource;
 import no.nav.dialogarena.config.util.Util;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.util.BasicAuthentication;
-import org.eclipse.jetty.http.HttpHeader;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -25,13 +22,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.net.ssl.SSLException;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.awt.*;
 import java.io.File;
 import java.io.StringReader;
-import java.net.URI;
 import java.util.List;
 import java.util.Properties;
 
@@ -41,8 +38,9 @@ import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.eclipse.jetty.http.HttpHeader.ACCEPT;
 import static org.slf4j.LoggerFactory.getLogger;
+
+
 
 public class FasitUtils {
 
@@ -155,10 +153,14 @@ public class FasitUtils {
     }
 
     public static TestUser getTestUser(String userAlias) {
+        return getTestUser(userAlias, getDefaultEnvironment());
+    }
+
+    public static TestUser getTestUser(String userAlias, String environment) {
         ServiceUser serviceUser = getServiceUser(
                 userAlias,
                 WELL_KNOWN_APPLICATION_NAME,
-                "t1",
+                environment,
                 TEST_LOCAL
         );
         return new TestUser()
@@ -223,16 +225,22 @@ public class FasitUtils {
         usernameAndPassword.setUsername(extractStringProperty(document, "username"));
 
         String passwordUrl = extractStringProperty(document, "password");
-        LOG.info("fetching password from: {}", passwordUrl);
-        usernameAndPassword.setPassword(httpClient(httpClient -> getContent(httpClient
-                .newRequest(passwordUrl)
-                .send()))
-        );
+        usernameAndPassword.setPassword(getPassword(passwordUrl));
         return usernameAndPassword;
     }
 
-    private static String getContent(ContentResponse contentResponse) {
-        String contentAsString = contentResponse.getContentAsString();
+    private static String getPassword(String passwordUrl) {
+        LOG.info("fetching password from: {}", passwordUrl);
+        return httpClient(httpClient -> getContent(httpClient
+                .target(passwordUrl)
+                .request()
+                .get()
+        ));
+    }
+
+
+    private static String getContent(Response contentResponse) {
+        String contentAsString = contentResponse.readEntity(String.class);
         if (contentResponse.getStatus() != 200) {
             throw new IllegalStateException(contentAsString);
         } else {
@@ -242,20 +250,20 @@ public class FasitUtils {
 
     private static String fetchJson(String url) {
         LOG.info("Fetching json: {}", url);
-        String json = httpClient(httpClient -> httpClient.newRequest(url).header(ACCEPT, APPLICATION_JSON).send().getContentAsString());
+        String json = httpClient(httpClient -> httpClient.target(url).request(APPLICATION_JSON).get(String.class));
         LOG.info(json.replaceAll("\n", ""));
         return json;
     }
 
     private static String fetchPlainText(String url) {
         LOG.info("Fetching text: {}", url);
-        String text = httpClient(httpClient -> httpClient.newRequest(url).send().getContentAsString());
+        String text = httpClient(httpClient -> httpClient.target(url).request().get().readEntity(String.class));
         LOG.info(text);
         return text;
     }
 
     private static byte[] fetchBytes(String url) {
-        return httpClient(httpClient -> httpClient.newRequest(url).send().getContent());
+        return httpClient(httpClient -> httpClient.target(url).request().get(byte[].class));
     }
 
     @SneakyThrows
@@ -271,9 +279,10 @@ public class FasitUtils {
     private static Document fetchXml(String resourceUrl) {
         LOG.info("Fetching xml: {}", resourceUrl);
         return httpClient(httpClient -> {
-            ContentResponse contentResponse = httpClient
-                    .newRequest(resourceUrl)
-                    .send();
+            Response contentResponse = httpClient
+                    .target(resourceUrl)
+                    .request()
+                    .get();
 
             String resourceXml = getContent(contentResponse);
 
@@ -286,13 +295,13 @@ public class FasitUtils {
     }
 
     @SneakyThrows
-    public static <T> T httpClient(Util.With<HttpClient, T> httpClientConsumer) {
+    public static <T> T httpClient(Util.With<Client, T> httpClientConsumer) {
         int attempt = 0;
         do {
             try {
                 return invokeHttpClient(httpClientConsumer);
             } catch (Throwable throwable) {
-                if (throwable instanceof IllegalStateException) {
+                if (throwable instanceof IllegalStateException || throwable instanceof NotAuthorizedException) {
                     throw throwable;
                 }
                 LOG.warn("feil mot fasit");
@@ -303,9 +312,9 @@ public class FasitUtils {
         throw new IllegalStateException("Klarer ikke å snakke med Fasit");
     }
 
-    private static <T> T invokeHttpClient(Util.With<HttpClient, T> httpClientConsumer) throws SSLException {
+    private static <T> T invokeHttpClient(Util.With<Client, T> httpClientConsumer) throws SSLException {
         return Util.httpClient((httpClient) -> {
-            httpClient.getAuthenticationStore().addAuthentication(new FasitAuthenication());
+            httpClient.register(HttpAuthenticationFeature.basic(getFasitUser(), getFasitPassword()));
             return httpClientConsumer.with(httpClient);
         });
     }
@@ -369,11 +378,6 @@ public class FasitUtils {
         return domain != null && domain.contains("oera");
     }
 
-    private static String getPassword(String passwordRef) {
-        return of(fetchPlainText(passwordRef))
-                .orElseThrow(() -> new RuntimeException("Kunne ikke finne passord"));
-    }
-
     @SneakyThrows
     public static Properties getApplicationEnvironment(String applicationName, String environment) {
         ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
@@ -422,19 +426,6 @@ public class FasitUtils {
         } finally {
             session.disconnect();
         }
-    }
-
-    private static class FasitAuthenication extends BasicAuthentication {
-
-        private FasitAuthenication() {
-            super(URI.create("https://fasit.adeo.no"), null, getFasitUser(), getFasitPassword());
-        }
-
-        @Override
-        public boolean matches(String type, URI uri, String realm) {
-            return true;
-        }
-
     }
 
     @Data

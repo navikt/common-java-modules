@@ -3,6 +3,7 @@ package no.nav.dialogarena.config.fasit;
 import org.junit.Test;
 
 import javax.net.ssl.SSLException;
+import javax.ws.rs.NotAuthorizedException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -75,7 +76,7 @@ public class FasitUtilsTest {
         assertThat(serviceUser.password, not(nullValue()));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = NotAuthorizedException.class)
     public void getServiceUser_invalidFasitPassword() {
         String property = System.getProperty(FASIT_USERNAME_VARIABLE_NAME);
         try {
@@ -112,6 +113,10 @@ public class FasitUtilsTest {
         TestUser serviceUser = FasitUtils.getTestUser("priveligert_veileder");
         assertThat(serviceUser.username, equalTo("Z990761"));
         assertThat(serviceUser.password, not(nullValue()));
+
+        TestUser serviceUserT4 = FasitUtils.getTestUser("privat_bruker", "t4");
+        assertThat(serviceUserT4.username, equalTo("27078449247"));
+        assertThat(serviceUserT4.password, not(nullValue()));
     }
 
     @Test
@@ -154,11 +159,9 @@ public class FasitUtilsTest {
         testServiceUserCertificate(serviceUserCertificate);
     }
 
-    @Test
+    @Test(expected = NotAuthorizedException.class)
     public void getPCertificate() throws Exception {
-        ServiceUserCertificate serviceUserCertificate = FasitUtils.getServiceUserCertificate("srvHenvendelse", "p");
-        testServiceUserCertificate(serviceUserCertificate);
-        assertThat(serviceUserCertificate.getKeystorepassword(), containsString("No access"));
+        FasitUtils.getServiceUserCertificate("srvHenvendelse", "p");
     }
 
     public static void testServiceUserCertificate(ServiceUserCertificate certificate) {

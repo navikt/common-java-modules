@@ -15,18 +15,18 @@ import no.nav.dialogarena.config.fasit.TestUser;
 import no.nav.dialogarena.config.util.Util;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.StringContentProvider;
+import org.glassfish.jersey.client.ClientRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientRequestFilter;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
 import java.net.HttpCookie;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +40,7 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultTestEnvironme
 import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.eclipse.jetty.http.HttpMethod.POST;
+import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 
 
 public class ISSOProvider {
@@ -148,7 +149,7 @@ public class ISSOProvider {
         private final String authorization;
         private final String redirectUrl;
         private final String state = UUID.randomUUID().toString();
-        private final HttpClient httpClient;
+        private final Client httpClient;
         private final TestUser testUser;
         private final ServiceUser issoServiceUser;
         private final String issoBasePath;
@@ -157,18 +158,25 @@ public class ISSOProvider {
         private String tokenId;
         private String appLoginUrl;
         private String authorizationCode;
+        private Map<String, NewCookie> cookies = new HashMap<>();
 
-        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, HttpClient httpClient, TestUser testUser, TestEnvironment environment) {
+        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, Client httpClient, TestUser testUser, TestEnvironment environment) {
             this(issoServiceUser, authorization, redirectUrl, httpClient, testUser, environment.toString());
         }
 
-        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, HttpClient httpClient, TestUser testUser, String environment) {
+        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, Client httpClient, TestUser testUser, String environment) {
             this.issoServiceUser = issoServiceUser;
             this.httpClient = httpClient;
             this.authorization = authorization;
             this.redirectUrl = redirectUrl;
             this.testUser = testUser;
             this.issoBasePath = String.format("https://isso-%s.adeo.no/isso", getEnvironmentClass(environment));
+
+            // innlogging er statefull (!) så viktig at vi sender cookies
+            this.httpClient.register((ClientRequestFilter) requestContext -> {
+                ClientRequest clientRequest = (ClientRequest) requestContext;
+                ISSORequest.this.cookies.forEach((s, newCookie) -> clientRequest.cookie(new Cookie(newCookie.getName(), newCookie.getValue())));
+            });
         }
 
         private String getToken() {
@@ -201,18 +209,13 @@ public class ISSOProvider {
             startAuth();
             fetchTokenId();
             authorizeWithOauth();
-            appLogin();
-            return httpClient.getCookieStore()
-                    .getCookies()
-                    .stream()
-                    .filter(httpCookie -> ISSO_COOKIE_NAMES.contains(httpCookie.getName()))
-                    .collect(toList());
+            return appLogin();
         }
 
         private void fetchTokenId() {
             String loginJson = buildLoginJson();
-            ContentResponse response = sjekk(authRequest(loginJson));
-            String responseString = response.getContentAsString();
+            Response response = sjekk(authRequest(loginJson));
+            String responseString = response.readEntity(String.class);
             JsonNode responseJson = read(responseString);
             this.tokenId = responseJson.get("tokenId").asText();
         }
@@ -230,47 +233,44 @@ public class ISSOProvider {
         }
 
         private void startAuth() {
-            ContentResponse response = sjekk(authRequest(null));
-            authJson = read(response.getContentAsString());
+            Response response = sjekk(authRequest(null));
+            authJson = read(response.readEntity(String.class));
         }
 
         @SneakyThrows
-        private ContentResponse authRequest(String json) {
-            Request request = httpClient.newRequest(issoUrl("/json/authenticate"))
-                    .method(POST)
-                    .param("realm", "/")
-                    .param("goto", issoUrl("/oauth2/authorize?session=winssochain"))
-                    .param("authIndexType", "service")
-                    .param("authIndexValue", "winssochain")
-                    .param("response_type", "code")
-                    .param("scope", "openid")
-                    .param("client_id", getClientId())
-                    .param("state", state)
-                    .param("redirect_uri", redirectUrl)
-                    .header("Authorization", authorization);
-            if (json != null) {
-                request.header("Content-Type", "application/json");
-                request.content(new StringContentProvider(json));
-            }
-            return request.send();
+        private Response authRequest(String json) {
+            return httpClient.target(issoUrl("/json/authenticate"))
+                    .queryParam("realm", "/")
+                    .queryParam("goto", issoUrl("/oauth2/authorize?session=winssochain"))
+                    .queryParam("authIndexType", "service")
+                    .queryParam("authIndexValue", "winssochain")
+                    .queryParam("response_type", "code")
+                    .queryParam("scope", "openid")
+                    .queryParam("client_id", getClientId())
+                    .queryParam("state", state)
+                    .queryParam("redirect_uri", redirectUrl)
+                    .request()
+                    .header("Authorization", authorization)
+                    .post(json != null ? Entity.json(json) : null);
         }
 
         @SneakyThrows
         private void authorizeWithOauth() {
-            ContentResponse response = httpClient
-                    .newRequest(issoUrl("/oauth2/authorize"))
-                    .param("session", "winssochain")
-                    .param("authIndexType", "service")
-                    .param("authIndexValue", "winssochain")
-                    .param("response_type", "code")
-                    .param("scope", "openid")
-                    .param("client_id", getClientId())
-                    .param("state", state)
-                    .param("redirect_uri", redirectUrl)
-                    .cookie(new HttpCookie("nav-isso", tokenId))
-                    .send();
+            Response response = httpClient
+                    .target(issoUrl("/oauth2/authorize"))
+                    .queryParam("session", "winssochain")
+                    .queryParam("authIndexType", "service")
+                    .queryParam("authIndexValue", "winssochain")
+                    .queryParam("response_type", "code")
+                    .queryParam("scope", "openid")
+                    .queryParam("client_id", getClientId())
+                    .queryParam("state", state)
+                    .queryParam("redirect_uri", redirectUrl)
+                    .request()
+                    .cookie("nav-isso", tokenId)
+                    .get();
             sjekk(response, 302);
-            String redirectUrl = response.getHeaders().get(LOCATION);
+            String redirectUrl = response.getHeaderString(LOCATION);
             this.appLoginUrl = redirectUrl;
             this.authorizationCode = new URIBuilder(redirectUrl)
                     .getQueryParams()
@@ -287,21 +287,28 @@ public class ISSOProvider {
         }
 
         @SneakyThrows
-        private void appLogin() {
-            ContentResponse loginResponse = httpClient.newRequest(appLoginUrl)
-                    .cookie(new HttpCookie(state, redirectUrl))
-                    .send();
+        private List<HttpCookie> appLogin() {
+            Response loginResponse = httpClient.target(appLoginUrl)
+                    .request()
+                    .cookie(state, redirectUrl)
+                    .get();
             sjekk(loginResponse, 307);
+            return loginResponse.getCookies().values()
+                    .stream()
+                    .filter(httpCookie -> ISSO_COOKIE_NAMES.contains(httpCookie.getName()))
+                    .map(n -> new HttpCookie(n.getName(), n.getValue()))
+                    .collect(toList());
         }
 
-        private ContentResponse sjekk(ContentResponse response) {
+        private Response sjekk(Response response) {
             return sjekk(response, 200);
         }
 
-        private ContentResponse sjekk(ContentResponse response, int expectedStatus) {
+        private Response sjekk(Response response, int expectedStatus) {
+            cookies.putAll(response.getCookies());
             int status = response.getStatus();
             if (status != expectedStatus) {
-                String errorMessage = response.getContentAsString();
+                String errorMessage = response.readEntity(String.class);
                 Matcher matcher = DESCRIPTION_PATTERN.matcher(errorMessage);
                 if (matcher.find()) {
                     errorMessage = matcher.group();
