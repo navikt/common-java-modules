@@ -19,7 +19,9 @@ public enum TestEnvironment {
     TX("tx"),
     TY("ty"),
 
-    Q6("q6");
+    Q4("q4"),
+    Q6("q6")
+    ;
 
     private final String env;
 
