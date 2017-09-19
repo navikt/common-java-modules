@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.Wither;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 
 @Getter
 @Setter
@@ -19,6 +20,7 @@ public class RequestData {
     private String subjectId;
     private String domain;
     private String fnr;
+    private Action.ActionId action = Action.ActionId.READ;
     private ResourceType resourceType;
     private String credentialResource;
 

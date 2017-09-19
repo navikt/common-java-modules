@@ -5,6 +5,7 @@ import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
@@ -83,15 +84,21 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException {
+    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain, Action.ActionId action, ResourceType resourceType) throws PepException {
         validateFnr(fnr);
         return harTilgang(buildRequest()
                 .withSamlToken(getSamlToken().orElse(null))
                 .withOidcToken(getOidcToken().orElse(null))
                 .withFnr(fnr)
+                .withAction(action)
                 .withDomain(domain)
-                .withResourceType(ResourceType.Person)
+                .withResourceType(resourceType)
         );
+    }
+
+    @Override
+    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException {
+        return harInnloggetBrukerTilgangTilPerson(fnr, domain, Action.ActionId.READ, ResourceType.Person);
     }
 
     @Override
