@@ -4,6 +4,7 @@ import no.nav.apiapp.Constants;
 import no.nav.apiapp.soap.SoapFeilMapper;
 import org.apache.commons.codec.binary.Hex;
 
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.security.SecureRandom;
@@ -12,9 +13,7 @@ import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
-import static no.nav.apiapp.feil.Feil.Type.FINNES_IKKE;
-import static no.nav.apiapp.feil.Feil.Type.UGYLDIG_REQUEST;
-import static no.nav.apiapp.feil.Feil.Type.UKJENT;
+import static no.nav.apiapp.feil.Feil.Type.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
@@ -46,6 +45,8 @@ public class FeilMapper {
             return UGYLDIG_REQUEST;
         } else if (throwable instanceof NotFoundException) {
             return FINNES_IKKE;
+        } else if (throwable instanceof NotAuthorizedException) {
+            return INGEN_TILGANG;
         } else {
             return UKJENT;
         }

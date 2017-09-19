@@ -18,6 +18,7 @@ public class Feil extends RuntimeException {
 
     public enum Type {
         UGYLDIG_REQUEST(BAD_REQUEST),
+        UGYLDIG_HANDLING(CONFLICT),
         FINNES_IKKE(NOT_FOUND),
         VERSJONSKONFLIKT(BAD_REQUEST),
         INGEN_TILGANG(FORBIDDEN),
