@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
+import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
 
 import java.util.HashMap;
@@ -17,12 +18,13 @@ public class CXFEndpoint {
 	public final JaxWsServerFactoryBean factoryBean;
 
 	public CXFEndpoint() {
+		boolean loggTokenIHeader = "true".equals(getProperty("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader"));
 		factoryBean = new JaxWsServerFactoryBean();
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("schema-validation-enabled", true);
 		factoryBean.setProperties(properties);
 		factoryBean.getInInterceptors().add(new SAMLInInterceptor());
-		factoryBean.setFeatures(asList(new LoggingFeature(), new WSAddressingFeature()));
+		factoryBean.setFeatures(asList(new LoggingFeatureUtenTokenLogging(!loggTokenIHeader), new WSAddressingFeature()));
 	}
 
 	public CXFEndpoint enableMtom() {
