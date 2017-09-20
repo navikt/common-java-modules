@@ -80,6 +80,15 @@ public class OidcAuthModule implements ServerAuthModule {
 
     @Override
     public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) throws AuthException {
+        try {
+            return doValidateRequest(messageInfo, clientSubject);
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            throw t;
+        }
+    }
+
+    private AuthStatus doValidateRequest(MessageInfo messageInfo, Subject clientSubject) {
         if (!isProtected(messageInfo)) {
             ensureStatelessApplication(messageInfo);
             return handleUnprotectedResource(clientSubject);
