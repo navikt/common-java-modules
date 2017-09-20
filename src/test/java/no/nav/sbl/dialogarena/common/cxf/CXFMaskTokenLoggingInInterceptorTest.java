@@ -15,9 +15,12 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(PowerMockRunner.class)
@@ -34,14 +37,23 @@ public class CXFMaskTokenLoggingInInterceptorTest {
     }
 
     @Test
-    public void skalFjerneAlleHttpHeaders() throws java.lang.Exception {
+    public void skalFjerneCookieFraHttpHeaders() throws java.lang.Exception {
         CXFMaskTokenLoggingInInterceptor loggingInInterceptor =  new CXFMaskTokenLoggingInInterceptor();
         ArgumentCaptor<LogRecord> captor = ArgumentCaptor.forClass(LogRecord.class);
         when(logger.isLoggable(any())).thenReturn(true);
         Message message = createMessage();
+        TreeMap<String, List<String>> headers = new TreeMap<>();
+        List<String> cookieHeader = new ArrayList<>();
+        cookieHeader.add("ID_Token=ekjfbsd");
+        cookieHeader.add("refresh_token=ekjfdbsd");
+        List<String> acceptHeader = new ArrayList<>();
+        acceptHeader.add("text/html");
+        headers.put("Cookie", cookieHeader);
+        headers.put("Accept", acceptHeader);
+        message.put(Message.PROTOCOL_HEADERS, headers);
         loggingInInterceptor.logging(logger, message);
-        verify(logger, times(1)).log(captor.capture());
-
+        verify(logger).log(captor.capture());
+        assertEquals(false, captor.getValue().getMessage().contains("Cookie"));
     }
 
     private Message createMessage() throws Exception {

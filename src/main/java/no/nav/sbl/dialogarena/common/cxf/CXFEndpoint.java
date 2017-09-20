@@ -18,7 +18,7 @@ public class CXFEndpoint {
 	public final JaxWsServerFactoryBean factoryBean;
 
 	public CXFEndpoint() {
-		boolean loggTokenIHeader = "true".equals(getProperty("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader"));
+		boolean loggTokenIHeader = Boolean.getBoolean("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader");
 		factoryBean = new JaxWsServerFactoryBean();
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("schema-validation-enabled", true);
