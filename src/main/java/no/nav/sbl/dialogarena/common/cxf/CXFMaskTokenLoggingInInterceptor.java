@@ -55,9 +55,8 @@ public class CXFMaskTokenLoggingInInterceptor extends LoggingInInterceptor{
         if (ct != null) {
             buffer.getContentType().append(ct);
         }
-        Object headersObject = message.get(Message.PROTOCOL_HEADERS);
-        if (headersObject != null) {
-            TreeMap headers = getHeaders(headersObject);
+        TreeMap headers = getHeaders(message);
+        if (headers != null && !headers.isEmpty()) {
             buffer.getHeader().append(headers);
         }
         String uri = getUri(message);
@@ -99,8 +98,9 @@ public class CXFMaskTokenLoggingInInterceptor extends LoggingInInterceptor{
         return null;
     }
 
-    private TreeMap getHeaders(Object headersObject) {
+    private TreeMap getHeaders(Message message) {
         ObjectMapper objectMapper = new ObjectMapper();
+        Object headersObject = message.get(Message.PROTOCOL_HEADERS);
         TreeMap headers = objectMapper.convertValue(headersObject, TreeMap.class);
         if (headers != null) {
             if (maskerToken) {
