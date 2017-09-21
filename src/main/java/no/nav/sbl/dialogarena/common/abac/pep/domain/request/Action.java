@@ -6,7 +6,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.BaseAttribute;
 public class Action extends BaseAttribute {
 
     public enum ActionId {
-        READ("read"), WRITE("write");
+        READ("read"), WRITE("update");
 
         private String id;
 
