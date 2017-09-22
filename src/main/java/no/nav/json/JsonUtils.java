@@ -7,8 +7,12 @@ public class JsonUtils {
 
     private static final ObjectMapper objectMapper = JsonProvider.createObjectMapper();
 
-    @SneakyThrows
     public static String toJson(Object o) {
+        return toJson(o, objectMapper);
+    }
+
+    @SneakyThrows
+    static String toJson(Object o, ObjectMapper objectMapper) {
         return o != null ? objectMapper.writeValueAsString(o) : null;
     }
 
