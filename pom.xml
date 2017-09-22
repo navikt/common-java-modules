@@ -113,6 +113,11 @@
 
             <!-- START COMMON -->
             <dependency>
+                <groupId>no.nav.sbl</groupId>
+                <artifactId>util</artifactId>
+                <version>${common.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav</groupId>
                 <artifactId>metrics</artifactId>
                 <version>${common.version}</version>
