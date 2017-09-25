@@ -64,7 +64,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppServletContextListener.class);
 
-    public static final String SPRING_CONTEKST_KLASSE_PARAMETER_NAME = "springContekstKlasse";
+    public static final String SPRING_CONTEKST_KLASSE_PARAMETER_NAME = "springKontekstKlasse";
     private static final String SPRING_CONTEXT_KLASSENAVN = AnnotationConfigWebApplicationContext.class.getName();
 
     public static final String INTERNAL_IS_ALIVE = "/internal/isAlive";
@@ -191,23 +191,23 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         /////////////////
         // TODO validering ????
         /////////////////
-        String springContekstKlasseNavn = servletContext.getInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME);
-        if (isEmpty(springContekstKlasseNavn)) {
-            throw new IllegalArgumentException(String.format("Vennligst oppgi din annoterte spring-contekst-klasse som parameter '%s'", SPRING_CONTEKST_KLASSE_PARAMETER_NAME));
+        String springKontekstKlasseNavn = servletContext.getInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME);
+        if (isEmpty(springKontekstKlasseNavn)) {
+            throw new IllegalArgumentException(String.format("Vennligst oppgi din annoterte spring-kontekst-klasse som parameter '%s'", SPRING_CONTEKST_KLASSE_PARAMETER_NAME));
         }
-        if (!erGyldigKlasse(springContekstKlasseNavn)) {
-            throw new IllegalArgumentException(String.format("Klassen '%s' er ikke en gyldig klasse", springContekstKlasseNavn));
+        if (!erGyldigKlasse(springKontekstKlasseNavn)) {
+            throw new IllegalArgumentException(String.format("Klassen '%s' er ikke en gyldig klasse", springKontekstKlasseNavn));
         }
 
-        if (!erApiApplikasjon(springContekstKlasseNavn)) {
-            throw new IllegalArgumentException(String.format("Klassen '%s' må implementere %s", springContekstKlasseNavn, ApiApplication.class));
+        if (!erApiApplikasjon(springKontekstKlasseNavn)) {
+            throw new IllegalArgumentException(String.format("Klassen '%s' må implementere %s", springKontekstKlasseNavn, ApiApplication.class));
         }
-        return springContekstKlasseNavn;
+        return springKontekstKlasseNavn;
     }
 
-    private boolean erApiApplikasjon(String springContekstKlasseNavn) {
+    private boolean erApiApplikasjon(String springKontekstKlasseNavn) {
         try {
-            return ApiApplication.class.isAssignableFrom(Class.forName(springContekstKlasseNavn));
+            return ApiApplication.class.isAssignableFrom(Class.forName(springKontekstKlasseNavn));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

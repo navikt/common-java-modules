@@ -6,7 +6,7 @@
          version="3.1">
 
     <context-param>
-        <param-name>springContekstKlasse</param-name>
+        <param-name>springKontekstKlasse</param-name>
         <param-value>no.nav.fo.apiapp.ApplicationConfig</param-value>
     </context-param>
 
