@@ -64,6 +64,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppServletContextListener.class);
 
+    @Deprecated
+    public static final String SPRING_CONTEKST_KLASSE_PARAMETER_NAME_DEPRECATED = "springContekstKlasse";
+
     public static final String SPRING_CONTEKST_KLASSE_PARAMETER_NAME = "springKontekstKlasse";
     private static final String SPRING_CONTEXT_KLASSENAVN = AnnotationConfigWebApplicationContext.class.getName();
 
@@ -192,6 +195,12 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         // TODO validering ????
         /////////////////
         String springKontekstKlasseNavn = servletContext.getInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME);
+        if(isEmpty(springKontekstKlasseNavn)){
+            springKontekstKlasseNavn = servletContext.getInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME_DEPRECATED);
+            if(!isEmpty(springKontekstKlasseNavn)) {
+                LOGGER.warn("Appen din benytter 'springContekstKlasse' som context-param name. Denne er deprecated. Vennligst bytt til 'springKontekstKlasse' (skrivefeil rettet)");
+            }
+        }
         if (isEmpty(springKontekstKlasseNavn)) {
             throw new IllegalArgumentException(String.format("Vennligst oppgi din annoterte spring-kontekst-klasse som parameter '%s'", SPRING_CONTEKST_KLASSE_PARAMETER_NAME));
         }
