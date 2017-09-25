@@ -170,6 +170,12 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.sbl</groupId>
+                <artifactId>json</artifactId>
+                <version>${common.version}</version>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.sbl</groupId>
                 <artifactId>rest</artifactId>
                 <version>${common.version}</version>
             </dependency>
