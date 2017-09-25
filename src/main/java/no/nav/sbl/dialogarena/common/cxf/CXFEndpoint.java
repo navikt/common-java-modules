@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
 
 import java.util.HashMap;
@@ -8,7 +7,6 @@ import java.util.Map;
 
 import no.nav.modig.security.ws.SAMLInInterceptor;
 
-import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.cxf.ws.security.wss4j.KerberosTokenInterceptor;
@@ -16,15 +14,19 @@ import org.apache.cxf.ws.security.wss4j.KerberosTokenInterceptor;
 public class CXFEndpoint {
 
 	public final JaxWsServerFactoryBean factoryBean;
+	public static final String tokenProperty = "no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader";
 
 	public CXFEndpoint() {
-		boolean loggTokenIHeader = Boolean.getBoolean("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader");
+		boolean loggTokenIHeader = Boolean.getBoolean(tokenProperty);
+		boolean maskerTokenIHeader = !loggTokenIHeader;
 		factoryBean = new JaxWsServerFactoryBean();
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("schema-validation-enabled", true);
 		factoryBean.setProperties(properties);
 		factoryBean.getInInterceptors().add(new SAMLInInterceptor());
-		factoryBean.setFeatures(asList(new LoggingFeatureUtenTokenLogging(!loggTokenIHeader), new WSAddressingFeature()));
+		LoggingFeatureUtenTokenLogging loggingFeatureUtenTokenLogging = new LoggingFeatureUtenTokenLogging();
+		loggingFeatureUtenTokenLogging.setMaskerTokenIHeader(maskerTokenIHeader);
+		factoryBean.setFeatures(asList(loggingFeatureUtenTokenLogging, new WSAddressingFeature()));
 	}
 
 	public CXFEndpoint enableMtom() {

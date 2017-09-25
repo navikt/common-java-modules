@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import static org.junit.Assert.assertEquals;
+
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -29,6 +31,18 @@ public class CXFMaskTokenLoggingInInterceptorTest {
         ArgumentCaptor<LogRecord> captor = ArgumentCaptor.forClass(LogRecord.class);
         when(logger.isLoggable(any())).thenReturn(true);
         Message message = createMessage();
+        assertTrue(message.toString().contains("Cookie"));
+        loggingInInterceptor.logging(logger, message);
+        verify(logger).log(captor.capture());
+        assertFalse(captor.getValue().getMessage().contains("Cookie"));
+    }
+
+    public Message createMessage() throws Exception {
+        Exchange exchange = new ExchangeImpl();
+        exchange.put(Endpoint.class, null);
+        Message message = new MessageImpl();
+        message.setExchange(exchange);
+
         TreeMap<String, List<String>> headers = new TreeMap<>();
         List<String> cookieHeader = new ArrayList<>();
         cookieHeader.add("ID_Token=ekjfbsd");
@@ -38,16 +52,7 @@ public class CXFMaskTokenLoggingInInterceptorTest {
         headers.put("Cookie", cookieHeader);
         headers.put("Accept", acceptHeader);
         message.put(Message.PROTOCOL_HEADERS, headers);
-        loggingInInterceptor.logging(logger, message);
-        verify(logger).log(captor.capture());
-        assertEquals(false, captor.getValue().getMessage().contains("Cookie"));
-    }
 
-    private Message createMessage() throws Exception {
-        Exchange exchange = new ExchangeImpl();
-        exchange.put(Endpoint.class, null);
-        Message message = new MessageImpl();
-        message.setExchange(exchange);
         return message;
     }
 

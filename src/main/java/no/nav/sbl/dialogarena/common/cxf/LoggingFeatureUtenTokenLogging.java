@@ -16,8 +16,8 @@ public class LoggingFeatureUtenTokenLogging extends AbstractFeature{
     public LoggingFeatureUtenTokenLogging() {
     }
 
-    public LoggingFeatureUtenTokenLogging(boolean maskerTokenLogging) {
-        IN.setMaskerTokenLogging(maskerTokenLogging);
+    public void setMaskerTokenIHeader(boolean maskerTokenIHeader) {
+        IN.setMaskerTokenLogging(maskerTokenIHeader);
     }
 
     @Override

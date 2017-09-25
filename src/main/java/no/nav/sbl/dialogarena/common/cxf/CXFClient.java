@@ -33,7 +33,7 @@ public class CXFClient<T> {
     private boolean metrics;
 
     public CXFClient(Class<T> serviceClass) {
-        boolean loggSecurityHeader = "true".equals(getProperty("no.nav.sbl.dialogarena.common.cxf.cxfclient.logging.logg-securityheader"));
+        boolean loggSecurityHeader = Boolean.getBoolean("no.nav.sbl.dialogarena.common.cxf.cxfclient.logging.logg-securityheader");
         factoryBean.getFeatures().add(new LoggingFeatureUtenBinaryOgUtenSamlTokenLogging(!loggSecurityHeader));
         factoryBean.getFeatures().add(new WSAddressingFeature());
         factoryBean.setProperties(new HashMap<String, Object>());
