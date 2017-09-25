@@ -2,6 +2,7 @@ package no.nav.apiapp.util;
 
 import no.nav.apiapp.security.SubjectService;
 import no.nav.brukerdialog.security.context.InternbrukerSubjectHandler;
+import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.modig.core.context.StaticSubjectHandler;
 import org.junit.Before;
@@ -14,12 +15,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SubjectUtilsTest {
 
+    private static final String BRUKERDIALOG_SUBJECTHANDLER_KEY = SubjectHandler.SUBJECTHANDLER_KEY;
+    private static final String MODIG_SUBJECTHANDLER_KEY = no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY;
+
     private SubjectService subjectService = new SubjectService();
 
     @Before
     public void setup() {
-        System.setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler.class.getName());
-        System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(MODIG_SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
+
+        new no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler().setSubject(null);
+        new no.nav.modig.core.context.ThreadLocalSubjectHandler().setSubject(null);
+
+        new StaticSubjectHandler().reset();
+        new InternbrukerSubjectHandler().reset();
     }
 
     @Test
@@ -30,14 +40,14 @@ public class SubjectUtilsTest {
 
     @Test
     public void getIdentType_internBruker() {
-        System.setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, InternbrukerSubjectHandler.class.getName());
+        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, InternbrukerSubjectHandler.class.getName());
         assertThat(getIdentType()).hasValue(IdentType.InternBruker);
         assertThat(subjectService.getIdentType()).hasValue(IdentType.InternBruker);
     }
 
     @Test
     public void getIdentType_modigSecurityBruker() {
-        System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
+        System.setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
         assertThat(getIdentType()).hasValue(IdentType.EksternBruker);
         assertThat(subjectService.getIdentType()).hasValue(IdentType.EksternBruker);
     }
@@ -50,14 +60,14 @@ public class SubjectUtilsTest {
 
     @Test
     public void getUserId_internBruker() {
-        System.setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, InternbrukerSubjectHandler.class.getName());
+        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, InternbrukerSubjectHandler.class.getName());
         assertThat(getUserId()).hasValue("Z999999");
         assertThat(subjectService.getUserId()).hasValue("Z999999");
     }
 
     @Test
     public void getUserId_modigSecurityBruker() {
-        System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
+        System.setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
         assertThat(getUserId()).hasValue("01015245464");
         assertThat(subjectService.getUserId()).hasValue("01015245464");
     }

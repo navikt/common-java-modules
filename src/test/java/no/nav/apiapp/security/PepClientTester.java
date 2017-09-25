@@ -4,7 +4,10 @@ import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
 import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.dialogarena.config.fasit.FasitUtils;
+import no.nav.dialogarena.config.fasit.TestUser;
 import no.nav.dialogarena.config.security.ISSOProvider;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,17 +25,38 @@ public interface PepClientTester {
     @BeforeEach
     default void setupPepClientTest() {
         setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
-        setSubject(new SubjectHandlerUtils.SubjectBuilder(KJENT_VEILEDER_IDENT, IdentType.InternBruker, ISSOProvider.getISSOToken()).getSubject());
+    }
+
+    @AfterEach
+    default void cleanupPepClientTest() {
+        setSubject(null);
+    }
+
+    default void setVeilederFraFasitAlias(String fasitAlias) {
+        TestUser veileder = FasitUtils.getTestUser(fasitAlias);
+        setSubject(new SubjectHandlerUtils.SubjectBuilder(
+                veileder.getUsername(),
+                IdentType.InternBruker,
+                ISSOProvider.getISSOToken(veileder)
+        ).getSubject());
+    }
+
+    default String hentFnrFraFasit() {
+        return FasitUtils.getTestUser(BRUKER_UNDER_OPPFOLGING_ALIAS).getUsername();
     }
 
     @Test
     default void sjekkTilgangTilFnr_veilederHarTilgang() {
-        getPepClient().sjekkTilgangTilFnr(KJENT_IDENT_FOR_KJENT_VEILEDER);
+        setVeilederFraFasitAlias(PRIVELIGERT_VEILEDER_ALIAS);
+        PepClient pepClient = getPepClient();
+        pepClient.sjekkLeseTilgangTilFnr(hentFnrFraFasit());
     }
 
     @Test
     default void sjekkTilgangTilFnr_veilederHarIkkeTilgang() {
-        assertThatThrownBy(() -> getPepClient().sjekkTilgangTilFnr(KJENT_IDENT)).isExactlyInstanceOf(IngenTilgang.class);
+        setVeilederFraFasitAlias(LITE_PRIVELIGERT_VEILEDER_ALIAS);
+        PepClient pepClient = getPepClient();
+        assertThatThrownBy(() -> pepClient.sjekkLeseTilgangTilFnr(hentFnrFraFasit())).isExactlyInstanceOf(IngenTilgang.class);
     }
 
 }
