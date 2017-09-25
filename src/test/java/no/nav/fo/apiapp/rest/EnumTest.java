@@ -3,6 +3,8 @@ package no.nav.fo.apiapp.rest;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
+import static no.nav.json.TestUtils.assertEqualJson;
+import static no.nav.json.TestUtils.assertEqualJsonArray;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -14,7 +16,7 @@ public class EnumTest extends JettyTest {
 
     @Test
     public void getEnumer() {
-        assertThat(getString("/api/enum"), equalTo(ENUMER_JSON));
+        assertEqualJsonArray(getString("/api/enum"), ENUMER_JSON);
     }
 
     @Test
@@ -24,7 +26,7 @@ public class EnumTest extends JettyTest {
 
     @Test
     public void getEnumDTO() {
-        assertThat(getString("/api/enum/dto/0"), equalTo(DTO_PAYLOAD));
+        assertEqualJson(getString("/api/enum/dto/0"), DTO_PAYLOAD);
     }
 
     @Test
@@ -37,7 +39,7 @@ public class EnumTest extends JettyTest {
 
     @Test
     public void pipeDTO() {
-        assertThat(postJson("/api/enum", DTO_PAYLOAD), equalTo(DTO_PAYLOAD));
+        assertEqualJson(postJson("/api/enum", DTO_PAYLOAD), DTO_PAYLOAD);
     }
 
 }

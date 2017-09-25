@@ -16,6 +16,7 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static no.nav.apiapp.feil.Feil.Type.*;
 import static no.nav.json.JsonUtils.fromJson;
+import static no.nav.json.TestUtils.assertEqualJson;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -39,7 +40,7 @@ public class RestTest extends JettyTest {
     @Test
     public void pipe() {
         String jsonPayload = "{\"a\":\"123\"}";
-        assertThat(putJson("/api/eksempel/pipe", jsonPayload), equalTo(jsonPayload));
+        assertEqualJson(putJson("/api/eksempel/pipe", jsonPayload), jsonPayload);
     }
 
     @Test

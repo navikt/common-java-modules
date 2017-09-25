@@ -4,13 +4,9 @@ import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import java.net.URI;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static no.nav.json.TestUtils.assertEqualJson;
 
 public class DatoTest extends JettyTest {
 
@@ -93,7 +89,7 @@ public class DatoTest extends JettyTest {
 
     @Test
     public void getDTO() {
-        assertThat(getString("/api/dato/dto"), equalTo(DTO_JSON));
+        assertEqualJson(getString("/api/dato/dto"), DTO_JSON);
     }
 
     @Test
@@ -131,7 +127,7 @@ public class DatoTest extends JettyTest {
                 .request()
                 .post(Entity.entity(queryParis, APPLICATION_JSON_TYPE))
                 .readEntity(String.class);
-        assertThat(response, equalTo(dtoFraParisQuery));
+        assertEqualJson(response, dtoFraParisQuery);
     }
 
     private void testQuery(String queryDato, String forventetRespons) {
@@ -146,7 +142,7 @@ public class DatoTest extends JettyTest {
                 .request()
                 .get()
                 .readEntity(String.class);
-        assertThat(response, equalTo(forventetRespons));
+        assertEqualJson(forventetRespons, response);
     }
 
 }

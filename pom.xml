@@ -67,6 +67,11 @@
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>json</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>common-web</artifactId>
         </dependency>
