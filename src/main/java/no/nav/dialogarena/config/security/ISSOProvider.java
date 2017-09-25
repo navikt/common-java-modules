@@ -100,6 +100,10 @@ public class ISSOProvider {
         return getISSOToken(getTestUser());
     }
 
+    public static String getISSOToken(TestUser testUser) {
+        return getISSOToken(getTestUser(), getDefaultRedirectUrl(), getTestAuthorization(), testUser);
+    }
+
     public static String getISSOToken(ServiceUser issoServiceUser) {
         return getISSOToken(issoServiceUser, getDefaultRedirectUrl());
     }

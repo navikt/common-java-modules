@@ -111,11 +111,11 @@ public class FasitUtilsTest {
     @Test
     public void getTestUser() {
         TestUser serviceUser = FasitUtils.getTestUser("priveligert_veileder");
-        assertThat(serviceUser.username, equalTo("Z990761"));
+        assertThat(serviceUser.username, equalTo("Z990281"));
         assertThat(serviceUser.password, not(nullValue()));
 
         TestUser serviceUserT4 = FasitUtils.getTestUser("privat_bruker", "t4");
-        assertThat(serviceUserT4.username, equalTo("27078449247"));
+        assertThat(serviceUserT4.username, equalTo("10108000398"));
         assertThat(serviceUserT4.password, not(nullValue()));
     }
 

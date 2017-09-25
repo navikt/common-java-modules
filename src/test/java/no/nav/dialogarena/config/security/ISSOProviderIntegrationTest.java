@@ -1,6 +1,7 @@
 package no.nav.dialogarena.config.security;
 
 import no.nav.dialogarena.config.DevelopmentSecurity;
+import no.nav.dialogarena.config.fasit.FasitUtils;
 import org.junit.Test;
 
 import java.net.HttpCookie;
@@ -34,6 +35,7 @@ public class ISSOProviderIntegrationTest {
     @Test
     public void getISSOToken() {
         sjekkIssoToken(ISSOProvider.getISSOToken());
+        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getPriveligertVeileder()));
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser()));
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL));
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL));
