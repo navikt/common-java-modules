@@ -45,7 +45,7 @@ public abstract class JettyTest {
         Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
     }
 
-    private static int tilfeldigPort() {
+    public static int tilfeldigPort() {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();
         } catch (IOException e) {
