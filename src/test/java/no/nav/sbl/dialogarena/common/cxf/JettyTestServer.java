@@ -33,15 +33,15 @@ public abstract class JettyTestServer {
     private Jetty jetty;
 
     protected <T> String startCxfServer(Class<T> serviceClass) {
-        return startCxfServer(serviceClass, mock(serviceClass), true);
+        return startCxfServer(serviceClass, mock(serviceClass), false, false);
     }
 
-    protected <T> String startCxfServer(Class<T> serviceClass, boolean maskerToken) {
-        return startCxfServer(serviceClass, mock(serviceClass), maskerToken);
+    protected <T> String startCxfServer(Class<T> serviceClass, boolean aktiverLogging, boolean maskerToken) {
+        return startCxfServer(serviceClass, mock(serviceClass), aktiverLogging, maskerToken);
     }
 
     @SneakyThrows
-    protected <T> String startCxfServer(Class<T> serviceClass, T service, boolean maskerToken) {
+    protected <T> String startCxfServer(Class<T> serviceClass, T service, boolean aktiverLogging, boolean maskerToken) {
         // Hvis andre tester har opprettet en bus allerede, må denne stoppes først
         BusFactory.getThreadDefaultBus().shutdown(false);
 
@@ -53,7 +53,7 @@ public abstract class JettyTestServer {
                 .port(port)
                 .disableAnnotationScanning()
                 .buildJetty();
-        jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service, maskerToken)), "/*");
+        jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service, aktiverLogging, maskerToken)), "/*");
         jetty.start();
 
         URIBuilder uriBuilder = new URIBuilder("http://localhost").setPort(port).setPath(CONTEXT_PATH + SERVICE_PATH);
@@ -86,11 +86,13 @@ public abstract class JettyTestServer {
 
         private final Class<?> serviceClass;
         private final Object service;
+        private final boolean aktiverLogging;
         private final boolean maskerToken;
 
-        private <T> CxfServlet(Class<T> serviceClass, T service, boolean maskerToken) {
+        private <T> CxfServlet(Class<T> serviceClass, T service, boolean aktiverLogging, boolean maskerToken) {
             this.serviceClass = serviceClass;
             this.service = service;
+            this.aktiverLogging = aktiverLogging;
             this.maskerToken = maskerToken;
         }
 
@@ -98,11 +100,11 @@ public abstract class JettyTestServer {
         public void init(ServletConfig sc) throws ServletException {
             super.init(sc);
             JaxWsServerFactoryBean jaxWsServerFactoryBean = new JaxWsServerFactoryBean();
-
-            LoggingFeatureUtenTokenLogging loggingFeature = new LoggingFeatureUtenTokenLogging();
-            loggingFeature.setMaskerTokenIHeader(maskerToken);
-            jaxWsServerFactoryBean.setFeatures(asList(loggingFeature, new WSAddressingFeature()));
-
+            if (aktiverLogging) {
+                LoggingFeatureUtenTokenLogging loggingFeature = new LoggingFeatureUtenTokenLogging();
+                loggingFeature.setMaskerTokenIHeader(maskerToken);
+                jaxWsServerFactoryBean.setFeatures(asList(loggingFeature, new WSAddressingFeature()));
+            }
             jaxWsServerFactoryBean.setServiceBean(service);
             jaxWsServerFactoryBean.setAddress(SERVICE_PATH);
             jaxWsServerFactoryBean.create();

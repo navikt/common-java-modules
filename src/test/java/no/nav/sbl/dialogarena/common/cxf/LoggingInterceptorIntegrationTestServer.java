@@ -38,7 +38,7 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
 
     @Test
     public void skal_fjerne_cookie_i_header() throws Exception {
-        String url = startCxfServer(Aktoer_v2PortType.class, true);
+        String url = startCxfServer(Aktoer_v2PortType.class, true, true);
         sendRequest(url);
         String logline = builder.toString();
         boolean containsCookie = logline.contains("Cookie");
@@ -50,7 +50,7 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
     @Test
     public void skal_logge_cookie_i_header() throws Exception {
 
-        String url = startCxfServer(Aktoer_v2PortType.class, false);
+        String url = startCxfServer(Aktoer_v2PortType.class, true, false);
         sendRequest(url);
         String logline = builder.toString();
         boolean containsCookie = logline.contains("Cookie");
