@@ -27,6 +27,7 @@ import org.eclipse.jetty.security.DefaultIdentityService;
 import org.slf4j.Logger;
 
 import javax.security.auth.Subject;
+import javax.security.auth.message.config.AuthConfigFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -302,6 +303,7 @@ public class DevelopmentSecurity {
         setProperty("org.apache.geronimo.jaspic.configurationFile", absolutePath);
         // NB hvis man kjører på appserver med annotasjons-scanning, blir denne oppdaget automatisk
         setProperty(DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
+        AuthConfigFactory.setFactory(new AuthConfigFactoryImpl());
         return jettyBuilder.configureForJaspic();
     }
 
