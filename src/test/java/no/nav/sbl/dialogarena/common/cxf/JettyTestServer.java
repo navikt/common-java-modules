@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
+import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
@@ -17,6 +18,7 @@ import java.net.ServerSocket;
 import java.net.URI;
 
 import static java.lang.System.setProperty;
+import static java.util.Arrays.asList;
 import static org.apache.cxf.staxutils.StaxUtils.ALLOW_INSECURE_PARSER;
 import static org.mockito.Mockito.mock;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -31,11 +33,15 @@ public abstract class JettyTestServer {
     private Jetty jetty;
 
     protected <T> String startCxfServer(Class<T> serviceClass) {
-        return startCxfServer(serviceClass, mock(serviceClass));
+        return startCxfServer(serviceClass, mock(serviceClass), true);
+    }
+
+    protected <T> String startCxfServer(Class<T> serviceClass, boolean maskerToken) {
+        return startCxfServer(serviceClass, mock(serviceClass), maskerToken);
     }
 
     @SneakyThrows
-    protected <T> String startCxfServer(Class<T> serviceClass, T service) {
+    protected <T> String startCxfServer(Class<T> serviceClass, T service, boolean maskerToken) {
         // Hvis andre tester har opprettet en bus allerede, må denne stoppes først
         BusFactory.getThreadDefaultBus().shutdown(false);
 
@@ -47,7 +53,7 @@ public abstract class JettyTestServer {
                 .port(port)
                 .disableAnnotationScanning()
                 .buildJetty();
-        jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service)), "/*");
+        jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service, maskerToken)), "/*");
         jetty.start();
 
         URIBuilder uriBuilder = new URIBuilder("http://localhost").setPort(port).setPath(CONTEXT_PATH + SERVICE_PATH);
@@ -80,21 +86,28 @@ public abstract class JettyTestServer {
 
         private final Class<?> serviceClass;
         private final Object service;
+        private final boolean maskerToken;
 
-        private <T> CxfServlet(Class<T> serviceClass, T service) {
+        private <T> CxfServlet(Class<T> serviceClass, T service, boolean maskerToken) {
             this.serviceClass = serviceClass;
             this.service = service;
+            this.maskerToken = maskerToken;
         }
 
         @Override
         public void init(ServletConfig sc) throws ServletException {
             super.init(sc);
             JaxWsServerFactoryBean jaxWsServerFactoryBean = new JaxWsServerFactoryBean();
-            jaxWsServerFactoryBean.setServiceClass(serviceClass);
+
+            LoggingFeatureUtenTokenLogging loggingFeature = new LoggingFeatureUtenTokenLogging();
+            loggingFeature.setMaskerTokenIHeader(maskerToken);
+            jaxWsServerFactoryBean.setFeatures(asList(loggingFeature, new WSAddressingFeature()));
+
             jaxWsServerFactoryBean.setServiceBean(service);
             jaxWsServerFactoryBean.setAddress(SERVICE_PATH);
             jaxWsServerFactoryBean.create();
         }
+
     }
 
 }
