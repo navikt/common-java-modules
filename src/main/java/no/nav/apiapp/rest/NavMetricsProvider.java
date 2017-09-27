@@ -15,7 +15,7 @@ public class NavMetricsProvider implements ResourceMethodInvocationHandlerProvid
     }
 
     private String timerNavn(Method method) {
-        return method.getDeclaringClass().getSimpleName() + "." + method.getName() + ".rest";
+        return "rest.server." + method.getDeclaringClass().getSimpleName() + "." + method.getName();
     }
 
 }
