@@ -17,8 +17,7 @@ import java.util.TreeMap;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,10 +30,10 @@ public class CXFMaskTokenLoggingInInterceptorTest {
         ArgumentCaptor<LogRecord> captor = ArgumentCaptor.forClass(LogRecord.class);
         when(logger.isLoggable(any())).thenReturn(true);
         Message message = createMessage();
-        assertTrue(message.toString().contains("Cookie"));
+        assertThat(message.toString()).contains("Cookie");
         loggingInInterceptor.logging(logger, message);
         verify(logger).log(captor.capture());
-        assertFalse(captor.getValue().getMessage().contains("Cookie"));
+        assertThat(captor.getValue().getMessage()).doesNotContain("Cookie");
     }
 
     public Message createMessage() throws Exception {

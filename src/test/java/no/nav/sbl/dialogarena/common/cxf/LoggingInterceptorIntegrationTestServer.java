@@ -6,20 +6,23 @@ import ch.qos.logback.core.AppenderBase;
 import no.nav.sbl.rest.RestUtils;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.System.setProperty;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
 
     final StringBuilder builder = new StringBuilder();
+    AppenderBase<ILoggingEvent> appender;
 
     @Before
     public void setUp() throws Exception {
         LoggerContext iLoggerFactory = (LoggerContext) LoggerFactory.getILoggerFactory();
         ch.qos.logback.classic.Logger rootLogger = iLoggerFactory.getLogger("ROOT");
-        AppenderBase<ILoggingEvent> appender = new AppenderBase<ILoggingEvent>() {
+        appender = new AppenderBase<ILoggingEvent>() {
             @Override
             protected void append(ILoggingEvent iLoggingEvent) {
                 if (iLoggingEvent.getMessage().contains("Headers")) {
@@ -33,31 +36,27 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
 
     @After
     public void tearDown() throws Exception {
-        builder.delete(0, builder.length());
+        appender.stop();
     }
 
     @Test
     public void skal_fjerne_cookie_i_header() throws Exception {
-        String url = startCxfServer(Aktoer_v2PortType.class, true, true);
+        setProperty("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader", "false");
+        String url = startCxfServer(Aktoer_v2PortType.class);
         sendRequest(url);
         String logline = builder.toString();
-        boolean containsCookie = logline.contains("Cookie");
-        boolean containsLoggerTest = logline.contains("LoggeTest");
-        Assert.assertFalse(containsCookie);
-        Assert.assertTrue(containsLoggerTest);
+        assertThat(logline).doesNotContain("Cookie");
+        assertThat(logline).contains("LoggeTest");
     }
 
     @Test
     public void skal_logge_cookie_i_header() throws Exception {
-
-        String url = startCxfServer(Aktoer_v2PortType.class, true, false);
+        setProperty("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader", "true");
+        String url = startCxfServer(Aktoer_v2PortType.class);
         sendRequest(url);
         String logline = builder.toString();
-        boolean containsCookie = logline.contains("Cookie");
-        boolean containsLoggerTest = logline.contains("LoggeTest");
-        Assert.assertTrue(containsCookie);
-        Assert.assertTrue(containsLoggerTest);
-
+        assertThat(logline).contains("Cookie");
+        assertThat(logline).contains("LoggeTest");
     }
 
     private void sendRequest(String url) {
