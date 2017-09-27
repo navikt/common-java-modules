@@ -30,6 +30,10 @@
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.modig</groupId>
+            <artifactId>modig-log-common</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
