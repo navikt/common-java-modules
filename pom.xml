@@ -340,6 +340,9 @@
                     <!--suppress MavenModelInspection -->
                     <argLine>${jacoco.agent.argLine}</argLine>
 
+                    <!-- litt mer minne å rutte med i test -->
+                    <argLine>-Xmx2g</argLine>
+
                     <!-- fjerner edge-caser ved nøstede classloadere, som f.eks. hvis man tester med jetty -->
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
