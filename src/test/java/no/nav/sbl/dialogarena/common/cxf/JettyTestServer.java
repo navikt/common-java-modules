@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -89,12 +88,12 @@ public abstract class JettyTestServer {
         @Override
         public void init(ServletConfig sc) throws ServletException {
             super.init(sc);
-            JaxWsServerFactoryBean jaxWsServerFactoryBean = new JaxWsServerFactoryBean();
-            jaxWsServerFactoryBean.setServiceClass(serviceClass);
-            jaxWsServerFactoryBean.setServiceBean(service);
-            jaxWsServerFactoryBean.setAddress(SERVICE_PATH);
-            jaxWsServerFactoryBean.create();
+            CXFEndpoint endpoint = new CXFEndpoint();
+            endpoint.serviceBean(service)
+            .address(SERVICE_PATH)
+            .create();
         }
+
     }
 
 }
