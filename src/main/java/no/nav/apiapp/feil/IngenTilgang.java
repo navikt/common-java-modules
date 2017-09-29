@@ -8,4 +8,9 @@ public class IngenTilgang extends Feil {
         super(INGEN_TILGANG);
     }
 
+    @SuppressWarnings("unused")
+    public IngenTilgang(Throwable e) {
+        super(INGEN_TILGANG, e);
+    }
+
 }
