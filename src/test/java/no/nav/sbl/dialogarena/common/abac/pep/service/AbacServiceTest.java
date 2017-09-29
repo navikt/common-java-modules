@@ -37,18 +37,17 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AbacServiceTest {
-
-    @InjectMocks
-    AbacService abacService;
 
     private static final String SYSTEMUSER_PASSWORD = "systemuserpassword";
     private static final String SYSTEMUSER = "systemuser";
+
     private Client client = mock(Client.class);
     private WebTarget webTarget = mock(WebTarget.class);
     private Builder requestBuilder = mock(Builder.class);
     private javax.ws.rs.core.Response response = mock(javax.ws.rs.core.Response.class);
+
+    private AbacService abacService = new AbacService(client);
 
     @BeforeClass
     public static void setupClass() {
@@ -69,7 +68,7 @@ public class AbacServiceTest {
         gitt_response(200);
         gitt_responseEntity(getContentFromJsonFile("xacmlresponse.json"));
 
-        final XacmlResponse actualXacmlResponse = abacService.askForPermission(MockXacmlRequest.getXacmlRequest(), client);
+        final XacmlResponse actualXacmlResponse = abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
 
         final XacmlResponse expectedXacmlResponse = getExpectedXacmlResponse();
 
@@ -79,13 +78,13 @@ public class AbacServiceTest {
     @Test(expected = AbacException.class)
     public void throwsExceptionAt500Error() throws IOException, AbacException, NoSuchFieldException {
         gitt_response(INTERNAL_SERVER_ERROR_500);
-        abacService.askForPermission(MockXacmlRequest.getXacmlRequest(), client);
+        abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
     }
 
     @Test(expected = ClientErrorException.class)
     public void throwsExceptionAt400Error() throws IOException, AbacException, NoSuchFieldException {
         gitt_response(UNAUTHORIZED_401);
-        abacService.askForPermission(MockXacmlRequest.getXacmlRequest(), client);
+        abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
     }
 
     private XacmlResponse getExpectedXacmlResponse() {

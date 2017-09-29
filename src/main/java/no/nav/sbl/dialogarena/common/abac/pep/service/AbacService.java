@@ -30,18 +30,25 @@ public class AbacService implements TilgangService {
 
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = getLogger(AbacService.class);
-    private final Client client = RestUtils.createClient();
+    private final Client client;
+
 
     public AbacService() {
+        this(createClient());
+    }
+
+    AbacService(Client client) {
+        this.client = client;
+    }
+
+    private static Client createClient() {
+        Client client = RestUtils.createClient();
         client.register(basic(getApplicationProperty(SYSTEMUSER_USERNAME), getApplicationProperty(SYSTEMUSER_PASSWORD)));
+        return client;
     }
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
-        return askForPermission(request, client);
-    }
-
-    XacmlResponse askForPermission(XacmlRequest request, Client client) {
         String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
         Response response = timed(
                 "abac-pdp",
