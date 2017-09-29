@@ -10,7 +10,7 @@ import static no.nav.brukerdialog.security.jaspic.SamAutoRegistration.JASPI_SECU
 
 public class JbossUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JbossUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JbossUtil.class);
 
     public static boolean brukerJaspi() {
         try {
@@ -20,7 +20,7 @@ public class JbossUtil {
                     .orElse(false);
         } catch (NoClassDefFoundError e) {
             // org.jboss-klasser er provided og dermed kun tilgjengelige på jboss
-            LOG.warn("mangler jboss-klasse: " + e.getMessage());
+            LOGGER.warn("mangler jboss-klasse: " + e.getMessage());
             return false;
         }
     }
