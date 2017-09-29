@@ -5,7 +5,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,6 @@ import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMU
 import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_USERNAME;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.timed;
-import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -31,14 +30,15 @@ public class AbacService implements TilgangService {
 
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = getLogger(AbacService.class);
-    private final HttpAuthenticationFeature httpAuthenticationFeature = basic(getApplicationProperty(SYSTEMUSER_USERNAME), getApplicationProperty(SYSTEMUSER_PASSWORD));
+    private final Client client = RestUtils.createClient();
+
+    public AbacService() {
+        client.register(basic(getApplicationProperty(SYSTEMUSER_USERNAME), getApplicationProperty(SYSTEMUSER_PASSWORD)));
+    }
 
     @Override
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
-        return withClient((Client client) -> {
-            client.register(httpAuthenticationFeature);
-            return askForPermission(request, client);
-        });
+        return askForPermission(request, client);
     }
 
     XacmlResponse askForPermission(XacmlRequest request, Client client) {
