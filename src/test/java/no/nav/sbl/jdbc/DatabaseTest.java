@@ -1,8 +1,6 @@
 package no.nav.sbl.jdbc;
 
-import org.h2.jdbcx.JdbcDataSource;
 import org.junit.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DatabaseTest {
 
-    private static int counter;
-    private Database database = new Database(jdbcTemplate());
+    private Database database = new Database(TestUtils.jdbcTemplate());
 
     @Test
     public void update_og_query() {
@@ -34,16 +31,6 @@ public class DatabaseTest {
     public void nesteFraSekvens() {
         database.update("CREATE SEQUENCE MIN_SEKVENS");
         assertThat(database.nesteFraSekvens("MIN_SEKVENS") + 1).isEqualTo(database.nesteFraSekvens("MIN_SEKVENS"));
-    }
-
-    private static JdbcTemplate jdbcTemplate() {
-        JdbcDataSource jdbcDataSource = new JdbcDataSource();
-        String url = "jdbc:h2:mem:" + DatabaseTest.class.getSimpleName() + (counter++) + ";MODE=Oracle;DB_CLOSE_DELAY=-1";
-        jdbcDataSource.setUrl(url);
-        jdbcDataSource.setUser("sa");
-        jdbcDataSource.setPassword("");
-        System.out.println(url);
-        return new JdbcTemplate(jdbcDataSource);
     }
 
 }
