@@ -55,8 +55,14 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
 
     private Response toResponse(Throwable exception, Response.Status status, FeilDTO feil) {
         String path = servletRequestProvider.get().getRequestURI();
-        LOGGER.error("{} - {} - {}", path, status, feil);
-        LOGGER.error(exception.getMessage(), exception);
+        if(status.getStatusCode() < 500) {
+            LOGGER.warn("{} - {} - {}", path, status, feil);
+            LOGGER.warn(exception.getMessage(), exception);
+        }
+        else {
+            LOGGER.error("{} - {} - {}", path, status, feil);
+            LOGGER.error(exception.getMessage(), exception);
+        }
         logToMetrics(status, path, feil);
         return Response
                 .status(status)
