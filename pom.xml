@@ -25,7 +25,7 @@
         <!-- Hele denne pomen er et forsøk på å samkjøre forskjellige avhengigheter til et sett av fungerende versjoner -->
 
         <!--KOTLIN-->
-        <kotlin.version>1.1.50</kotlin.version>
+        <kotlin.version>1.1.51</kotlin.version>
         <jackson-module-kotlin.version>2.9.1</jackson-module-kotlin.version>
 
         <!-- LOGGING -->
@@ -123,15 +123,21 @@
                 <version>${kotlin.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-kotlin</artifactId>
+                <version>${jackson-module-kotlin.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-test</artifactId>
                 <version>${kotlin.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-kotlin</artifactId>
-                <version>${jackson-module-kotlin.version}</version>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test-junit</artifactId>
+                <version>${kotlin.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <!-- START COMMON -->
