@@ -4,6 +4,9 @@ import lombok.SneakyThrows;
 import no.nav.json.JsonProvider;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.glassfish.jersey.apache.connector.ApacheClientProperties;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 
@@ -13,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.function.Function;
 
+import static org.glassfish.jersey.apache.connector.ApacheClientProperties.CONNECTION_MANAGER;
 import static org.glassfish.jersey.client.ClientProperties.*;
 
 public class RestUtils {
@@ -25,6 +29,14 @@ public class RestUtils {
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, 5000);
         clientConfig.property(READ_TIMEOUT, 15000);
+
+
+        PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+        poolingHttpClientConnectionManager.setMaxTotal(100);
+        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(20);
+        clientConfig.property(CONNECTION_MANAGER,poolingHttpClientConnectionManager);
+        clientConfig.connectorProvider(new ApacheConnectorProvider());
+
         return new JerseyClientBuilder()
                 .sslContext(SSLContext.getDefault())
                 .withConfig(clientConfig)
