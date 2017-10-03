@@ -3,15 +3,10 @@ package no.nav.sbl.dialogarena.common.abac.pep.service;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Client;
@@ -23,12 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.setProperty;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static javax.ws.rs.core.Response.Status.Family.familyOf;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_USERNAME;
 import static no.nav.sbl.dialogarena.common.abac.pep.service.AbacService.ABAC_ENDPOINT_URL_PROPERTY_NAME;
-import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500;
-import static org.eclipse.jetty.http.HttpStatus.UNAUTHORIZED_401;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -77,13 +72,13 @@ public class AbacServiceTest {
 
     @Test(expected = AbacException.class)
     public void throwsExceptionAt500Error() throws IOException, AbacException, NoSuchFieldException {
-        gitt_response(INTERNAL_SERVER_ERROR_500);
+        gitt_response(SC_INTERNAL_SERVER_ERROR);
         abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
     }
 
     @Test(expected = ClientErrorException.class)
     public void throwsExceptionAt400Error() throws IOException, AbacException, NoSuchFieldException {
-        gitt_response(UNAUTHORIZED_401);
+        gitt_response(SC_UNAUTHORIZED);
         abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
     }
 
