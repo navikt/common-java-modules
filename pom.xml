@@ -83,17 +83,19 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- test -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <!-- For JettySubjectHandler. Må inkluderes manuelt -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- test -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>

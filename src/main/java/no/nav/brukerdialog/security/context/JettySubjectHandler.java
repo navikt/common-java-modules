@@ -8,7 +8,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.security.auth.Subject;
 
 /**
- * SubjectHandler som kan benyttes til testing lokalt på Jetty.
+ * SubjectHandler som kan benyttes på Jetty.
  * <p/>
  * For å benytte denne subjecthandleren på følgende system property settes:
  * JettySubjectHandler
