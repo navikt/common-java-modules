@@ -18,10 +18,11 @@ import static no.nav.sbl.dialogarena.common.jetty.JettyStarterUtils.*;
 public class StartJetty {
 
     private static final String KJENT_APP = "veilarbaktivitet";
+    public static final int JETTY_PORT = 8765;
 
     public static void main(String[] args) {
         setupLogging();
-        Jetty jetty = nyJetty(null, 8765);
+        Jetty jetty = nyJetty(null, JETTY_PORT);
         Util.setProperty("disable.metrics.report", Boolean.FALSE.toString());
         jetty.startAnd(first(waitFor(gotKeypress())).then(jetty.stop));
     }

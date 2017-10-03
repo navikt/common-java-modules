@@ -7,6 +7,11 @@ public interface ApiApplication {
     String DEFAULT_API_PATH = "/api/";
     boolean STSHelsesjekkDefault = true;
 
+    default String getApplicationName(){
+        // TODO gjør denne non-breaking nå, men blir snart påkrevd
+        return "minapp";
+    }
+
     Sone getSone();
     default String getApiBasePath(){
         return DEFAULT_API_PATH;
