@@ -200,10 +200,9 @@ steg "mvn verify", {
     shell "${mvn} verify -DskipTests"
 }
 
-// TODO test når disse er stabilisert!
-//steg "mvn test", {
-//    shell "${mvn} test"
-//}
+steg "mvn test", {
+    shell "${mvn} test"
+}
 
 steg "mvn deploy", {
     shell "${mvn} deploy -DskipTests"
