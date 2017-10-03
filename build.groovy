@@ -191,6 +191,9 @@ steg "oppdater versjon", {
     def pomXml = new XmlSlurper().parse(pomXmlFile)
     pomXmlFile.text = pomXmlFile.text.replaceAll('<common.version>.*</common.version>', "<common.version>${pomXml.parent.version}</common.version>")
 }
+steg "mvn dependency:tree", {
+    shell "${mvn} dependency:tree -U"
+}
 
 // prosjektet er nå klart for bygg, test og deploy!
 steg "mvn verify", {
