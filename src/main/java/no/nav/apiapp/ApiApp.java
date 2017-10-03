@@ -1,5 +1,6 @@
 package no.nav.apiapp;
 
+import lombok.SneakyThrows;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -16,7 +17,8 @@ public class ApiApp {
 
     static final int DEFAULT_HTTP_PORT = 8080;
 
-    public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) throws Exception {
+    @SneakyThrows
+    public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
         int httpPort = httpPort(args);
 
