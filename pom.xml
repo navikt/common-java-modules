@@ -78,6 +78,7 @@
         <collections-generic.version>4.01</collections-generic.version>
         <httpclient.version>4.5</httpclient.version>
         <httpcore.version>4.4</httpcore.version>
+        <ehcache.version>2.10.3</ehcache.version>
 
         <!--
           obs:
@@ -698,6 +699,11 @@
                 <artifactId>grizzly-http-server</artifactId>
                 <version>${grizzly.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>${ehcache.version}</version>
             </dependency>
 
             <!-- jetty -->
