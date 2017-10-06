@@ -16,7 +16,7 @@ public class GZIPFilter implements Filter {
             if (ae != null && ae.indexOf("gzip") != -1) {
                 GZIPResponseWrapper wrappedResponse = new GZIPResponseWrapper(response);
                 chain.doFilter(req, wrappedResponse);
-                wrappedResponse.finishResponse();
+                wrappedResponse.finish();
                 return;
             }
             chain.doFilter(req, res);

@@ -8,64 +8,67 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 public class GZIPResponseWrapper extends HttpServletResponseWrapper {
-    protected HttpServletResponse origResponse = null;
-    protected ServletOutputStream stream = null;
-    protected PrintWriter writer = null;
+    private GZIPResponseStream gzipStream;
+    private ServletOutputStream outputStream;
+    private PrintWriter printWriter;
 
-    public GZIPResponseWrapper(HttpServletResponse response) {
+    public GZIPResponseWrapper(HttpServletResponse response) throws IOException {
         super(response);
-        origResponse = response;
+        response.addHeader("Content-Encoding", "gzip");
     }
 
-    public ServletOutputStream createOutputStream() throws IOException {
-        return new GZIPResponseStream(origResponse);
-    }
-
-    public void finishResponse() {
-        try {
-            if (writer != null) {
-                writer.close();
-            } else {
-                if (stream != null) {
-                    stream.close();
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public void finish() throws IOException {
+        if (printWriter != null) {
+            printWriter.close();
+        }
+        if (outputStream != null) {
+            outputStream.close();
+        }
+        if (gzipStream != null) {
+            gzipStream.close();
         }
     }
 
+    @Override
     public void flushBuffer() throws IOException {
-        if (stream != null) {
-            stream.flush();
+        if (printWriter != null) {
+            printWriter.flush();
         }
+        if (outputStream != null) {
+            outputStream.flush();
+        }
+        super.flushBuffer();
     }
 
+    @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        if (writer != null) {
-            throw new IllegalStateException("getWriter() has already been called!");
+        if (printWriter != null) {
+            throw new IllegalStateException("printWriter already defined");
         }
-
-        if (stream == null) {
-            stream = createOutputStream();
+        if (outputStream == null) {
+            initGzip();
+            outputStream = gzipStream;
         }
-        return stream;
+        return outputStream;
     }
 
+    @Override
     public PrintWriter getWriter() throws IOException {
-        if (writer != null) {
-            return writer;
+        if (outputStream != null) {
+            throw new IllegalStateException("printWriter already defined");
         }
-
-        if (stream != null) {
-            throw new IllegalStateException("getOutputStream() has already been called!");
+        if (printWriter == null) {
+            initGzip();
+            printWriter = new PrintWriter(new OutputStreamWriter(gzipStream, getResponse().getCharacterEncoding()));
         }
-
-        stream = createOutputStream();
-        writer = new PrintWriter(new OutputStreamWriter(stream, "UTF-8"));
-        return writer;
+        return printWriter;
     }
 
-    public void setContentLength(int length) {
+    @Override
+    public void setContentLength(int len) {
+    }
+
+    private void initGzip() throws IOException {
+        gzipStream = new GZIPResponseStream(getResponse().getOutputStream());
     }
 }
