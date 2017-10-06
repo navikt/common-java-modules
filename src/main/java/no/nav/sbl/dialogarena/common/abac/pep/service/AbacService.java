@@ -2,11 +2,13 @@ package no.nav.sbl.dialogarena.common.abac.pep.service;
 
 import no.nav.sbl.dialogarena.common.abac.pep.Utils;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
+import no.nav.sbl.dialogarena.common.abac.pep.context.CacheConfig;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.ClientErrorException;
@@ -48,6 +50,7 @@ public class AbacService implements TilgangService {
     }
 
     @Override
+    @Cacheable(CacheConfig.ASK_FOR_PERMISSION)
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
         String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
         Response response = timed(
