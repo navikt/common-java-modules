@@ -18,7 +18,7 @@ public class GZIPResponseWrapper extends HttpServletResponseWrapper {
     }
 
     public ServletOutputStream createOutputStream() throws IOException {
-        return (new GZIPResponseStream(origResponse));
+        return new GZIPResponseStream(origResponse);
     }
 
     public void finishResponse() {
@@ -49,12 +49,12 @@ public class GZIPResponseWrapper extends HttpServletResponseWrapper {
         if (stream == null) {
             stream = createOutputStream();
         }
-        return (stream);
+        return stream;
     }
 
     public PrintWriter getWriter() throws IOException {
         if (writer != null) {
-            return (writer);
+            return writer;
         }
 
         if (stream != null) {
@@ -63,7 +63,7 @@ public class GZIPResponseWrapper extends HttpServletResponseWrapper {
 
         stream = createOutputStream();
         writer = new PrintWriter(new OutputStreamWriter(stream, "UTF-8"));
-        return (writer);
+        return writer;
     }
 
     public void setContentLength(int length) {
