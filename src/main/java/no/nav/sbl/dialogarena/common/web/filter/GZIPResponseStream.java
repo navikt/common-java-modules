@@ -65,7 +65,7 @@ public class GZIPResponseStream extends ServletOutputStream {
     }
 
     public boolean closed() {
-        return (this.closed);
+        return this.closed;
     }
 
     public void reset() {
