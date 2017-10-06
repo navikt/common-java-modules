@@ -143,6 +143,11 @@
 
             <!-- START COMMON -->
             <dependency>
+                <groupId>no.nav.sbl.dialogarena</groupId>
+                <artifactId>aktor-klient</artifactId>
+                <version>${common.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.sbl</groupId>
                 <artifactId>util</artifactId>
                 <version>${common.version}</version>
