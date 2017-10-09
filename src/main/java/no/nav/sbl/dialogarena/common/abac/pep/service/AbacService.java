@@ -26,7 +26,7 @@ import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeatu
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class AbacService implements TilgangService {
+public class AbacService  {
 
     public static final String ABAC_ENDPOINT_URL_PROPERTY_NAME = "abac.endpoint.url";
 
@@ -49,7 +49,6 @@ public class AbacService implements TilgangService {
         return client;
     }
 
-    @Override
     @Cacheable(ASK_FOR_PERMISSION)
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
         String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
