@@ -21,7 +21,7 @@ import static net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU;
 public class AbacContext {
 
     public static final String ASK_FOR_PERMISSION = "askForPermission";
-    public static final CacheConfiguration ABAC_CAHE = new CacheConfiguration(ASK_FOR_PERMISSION, 10000)
+    public static final CacheConfiguration ABAC_CACHE = new CacheConfiguration(ASK_FOR_PERMISSION, 10000)
             .memoryStoreEvictionPolicy(LRU)
             .timeToIdleSeconds(3600)
             .timeToLiveSeconds(3600)
