@@ -5,7 +5,6 @@ import no.nav.json.JsonProvider;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
@@ -21,8 +20,7 @@ import static org.glassfish.jersey.client.ClientProperties.*;
 
 public class RestUtils {
 
-    @SneakyThrows
-    public static Client createClient() {
+    public static ClientConfig createClientConfig() {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
         clientConfig.register(new MetricsProvider());
@@ -36,10 +34,14 @@ public class RestUtils {
         poolingHttpClientConnectionManager.setDefaultMaxPerRoute(20);
         clientConfig.property(CONNECTION_MANAGER,poolingHttpClientConnectionManager);
         clientConfig.connectorProvider(new ApacheConnectorProvider());
+        return clientConfig;
+    }
 
+    @SneakyThrows
+    public static Client createClient() {
         return new JerseyClientBuilder()
                 .sslContext(SSLContext.getDefault())
-                .withConfig(clientConfig)
+                .withConfig(createClientConfig())
                 .build();
     }
 
