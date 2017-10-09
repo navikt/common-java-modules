@@ -59,12 +59,10 @@ public class RestUtils {
         return clientConfig;
     }
 
-    @SneakyThrows
     public static Client createClient() {
         return createClient(DEFAULT_CONFIG);
     }
 
-    @SneakyThrows
     public static Client createClient(RestConfig restConfig) {
         return new JerseyClientBuilder()
                 .sslContext(riktigSSLContext())
@@ -77,9 +75,12 @@ public class RestUtils {
         return SSLContext.getDefault();
     }
 
-    @SneakyThrows
     public static <T> T withClient(Function<Client, T> function) {
-        Client client = createClient();
+        return withClient(DEFAULT_CONFIG, function);
+    }
+
+    public static <T> T withClient(RestConfig restConfig, Function<Client, T> function) {
+        Client client = createClient(restConfig);
         try {
             return function.apply(client);
         } finally {
