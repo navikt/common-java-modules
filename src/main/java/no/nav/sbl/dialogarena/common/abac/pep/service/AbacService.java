@@ -2,7 +2,6 @@ package no.nav.sbl.dialogarena.common.abac.pep.service;
 
 import no.nav.sbl.dialogarena.common.abac.pep.Utils;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
-import no.nav.sbl.dialogarena.common.abac.pep.context.CacheConfig;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
@@ -22,6 +21,7 @@ import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMU
 import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_USERNAME;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.timed;
+import static no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext.ASK_FOR_PERMISSION;
 import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -50,7 +50,7 @@ public class AbacService implements TilgangService {
     }
 
     @Override
-    @Cacheable(CacheConfig.ASK_FOR_PERMISSION)
+    @Cacheable(ASK_FOR_PERMISSION)
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
         String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
         Response response = timed(
