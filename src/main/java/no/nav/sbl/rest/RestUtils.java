@@ -6,6 +6,11 @@ import lombok.Value;
 import no.nav.json.JsonProvider;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -40,7 +45,12 @@ public class RestUtils {
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
 
         if (!restConfig.disableConnectionPooling) {
-            PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+            Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
+                    .register("https", new SSLConnectionSocketFactory(riktigSSLContext()))
+                    .build();
+
+            PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
             poolingHttpClientConnectionManager.setMaxTotal(100);
             poolingHttpClientConnectionManager.setDefaultMaxPerRoute(20);
             clientConfig.property(CONNECTION_MANAGER, poolingHttpClientConnectionManager);
@@ -57,9 +67,14 @@ public class RestUtils {
     @SneakyThrows
     public static Client createClient(RestConfig restConfig) {
         return new JerseyClientBuilder()
-                .sslContext(SSLContext.getDefault())
+                .sslContext(riktigSSLContext())
                 .withConfig(createClientConfig(restConfig))
                 .build();
+    }
+
+    @SneakyThrows
+    private static SSLContext riktigSSLContext() {
+        return SSLContext.getDefault();
     }
 
     @SneakyThrows
