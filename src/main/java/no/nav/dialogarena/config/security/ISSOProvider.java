@@ -147,7 +147,7 @@ public class ISSOProvider {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
 
-    @ToString
+    @ToString(doNotUseGetters = true)
     private static class ISSORequest {
 
         private final String authorization;
