@@ -1,6 +1,8 @@
 package no.nav.sbl.rest;
 
+import lombok.Builder;
 import lombok.SneakyThrows;
+import lombok.Value;
 import no.nav.json.JsonProvider;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
@@ -20,28 +22,43 @@ import static org.glassfish.jersey.client.ClientProperties.*;
 
 public class RestUtils {
 
+    public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
+
+    @SuppressWarnings("unused")
     public static ClientConfig createClientConfig() {
+        return createClientConfig(DEFAULT_CONFIG);
+    }
+
+    public static ClientConfig createClientConfig(RestConfig restConfig) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
-        clientConfig.register(new MetricsProvider());
+        if (!restConfig.disableMetrics) {
+            clientConfig.register(new MetricsProvider());
+        }
         clientConfig.property(FOLLOW_REDIRECTS, false);
-        clientConfig.property(CONNECT_TIMEOUT, 5000);
-        clientConfig.property(READ_TIMEOUT, 15000);
+        clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
+        clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
 
-
-        PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
-        poolingHttpClientConnectionManager.setMaxTotal(100);
-        poolingHttpClientConnectionManager.setDefaultMaxPerRoute(20);
-        clientConfig.property(CONNECTION_MANAGER,poolingHttpClientConnectionManager);
-        clientConfig.connectorProvider(new ApacheConnectorProvider());
+        if (!restConfig.disableConnectionPooling) {
+            PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+            poolingHttpClientConnectionManager.setMaxTotal(100);
+            poolingHttpClientConnectionManager.setDefaultMaxPerRoute(20);
+            clientConfig.property(CONNECTION_MANAGER, poolingHttpClientConnectionManager);
+            clientConfig.connectorProvider(new ApacheConnectorProvider());
+        }
         return clientConfig;
     }
 
     @SneakyThrows
     public static Client createClient() {
+        return createClient(DEFAULT_CONFIG);
+    }
+
+    @SneakyThrows
+    public static Client createClient(RestConfig restConfig) {
         return new JerseyClientBuilder()
                 .sslContext(SSLContext.getDefault())
-                .withConfig(createClientConfig())
+                .withConfig(createClientConfig(restConfig))
                 .build();
     }
 
@@ -53,6 +70,19 @@ public class RestUtils {
         } finally {
             client.close();
         }
+    }
+
+    @Value
+    @Builder
+    public static class RestConfig {
+
+        @Builder.Default
+        public int connectTimeout = 5000;
+        @Builder.Default
+        public int readTimeout = 15000;
+
+        public boolean disableConnectionPooling;
+        public boolean disableMetrics;
     }
 
     private static class MetricsProvider implements ClientResponseFilter, ClientRequestFilter {
