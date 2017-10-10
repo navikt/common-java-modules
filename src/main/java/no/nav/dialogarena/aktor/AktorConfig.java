@@ -27,7 +27,7 @@ public class AktorConfig {
 
     @Bean
     public AktorService aktoerService() {
-        return new AktorService();
+        return new AktorServiceImpl();
     }
 
     @Bean
