@@ -3,7 +3,6 @@ package no.nav.dialogarena.aktor;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
-
 import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +13,7 @@ import static net.sf.ehcache.config.PersistenceConfiguration.Strategy.LOCALTEMPS
 import static net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU;
 
 @Configuration
-@Import({AktorHelsesjekk.class})
+@Import({AktorHelsesjekk.class, AktorServiceImpl.class})
 public class AktorConfig {
 
     public static final String AKTOER_ENDPOINT_URL = "aktoer.endpoint.url";
@@ -26,11 +25,6 @@ public class AktorConfig {
     public static final CacheConfiguration FNR_FROM_AKTOR_ID_CACHE = setupCache(FNR_FROM_AKTOR_ID);
 
     @Bean
-    public AktorService aktoerService() {
-        return new AktorServiceImpl();
-    }
-
-    @Bean
     public AktoerV2 aktoerV2() {
         return new CXFClient<>(AktoerV2.class)
                 .address(getProperty(AKTOER_ENDPOINT_URL))
@@ -38,7 +32,6 @@ public class AktorConfig {
                 .withMetrics()
                 .build();
     }
-
 
     private static CacheConfiguration setupCache(String name) {
         return new CacheConfiguration(name, 100000)
