@@ -153,6 +153,11 @@
                 <version>${common.version}</version>
             </dependency>
             <dependency>
+                <groupId>no.nav.sbl</groupId>
+                <artifactId>feature-toggle</artifactId>
+                <version>${common.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav</groupId>
                 <artifactId>metrics</artifactId>
                 <version>${common.version}</version>
