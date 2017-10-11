@@ -2,6 +2,7 @@ package no.nav.fo.feed.consumer;
 
 import no.nav.fo.feed.common.*;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
 import static no.nav.fo.feed.util.UrlUtils.*;
-import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -29,6 +29,8 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     private final FeedConsumerConfig<DOMAINOBJECT> config;
     private final Ping.PingMetadata pingMetadata;
     private int lastResponseHash;
+
+    private static final Client REST_CLIENT = RestUtils.createClient();
 
     public FeedConsumer(FeedConsumerConfig<DOMAINOBJECT> config) {
         String feedName = config.feedName;
@@ -59,7 +61,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     void registerWebhook() {
-        withClient(this::registerWebhook);
+        registerWebhook(REST_CLIENT);
     }
 
     private int registerWebhook(Client client) {
@@ -88,7 +90,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     synchronized Response poll() {
-        return withClient(this::poll);
+        return poll(REST_CLIENT);
     }
 
     private Response poll(Client client) {

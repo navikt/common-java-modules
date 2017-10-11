@@ -4,6 +4,7 @@ import lombok.Builder;
 import no.nav.fo.feed.common.*;
 import no.nav.fo.feed.exception.InvalidUrlException;
 import no.nav.fo.feed.util.MetricsUtils;
+import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
@@ -19,13 +20,13 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toMap;
 import static javax.ws.rs.HttpMethod.HEAD;
 import static no.nav.fo.feed.util.UrlValidator.validateUrl;
-import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Builder
 public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Authorization {
 
     private static final Logger LOG = getLogger(FeedProducer.class);
+    private static final Client REST_CLIENT = RestUtils.createClient();
 
     @Builder.Default
     private int maxPageSize = 10000;
@@ -88,7 +89,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     private int tryActivateWebHook(String url) {
-        return withClient(client -> tryActivateWebHook(url, client));
+        return tryActivateWebHook(url, REST_CLIENT);
     }
 
     private int tryActivateWebHook(String url, Client client) {
