@@ -10,8 +10,12 @@ import java.io.IOException;
 
 public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServlet {
 
-    protected void doGet(final HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public PrometheusServlet() {
+        super();
         DefaultExports.initialize();
+    }
+
+    protected void doGet(final HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         io.prometheus.client.exporter.common.TextFormat.write004(
                 response.getWriter(),
                 CollectorRegistry.defaultRegistry.metricFamilySamples()
