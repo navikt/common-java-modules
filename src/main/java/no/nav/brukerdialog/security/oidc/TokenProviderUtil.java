@@ -3,25 +3,24 @@ package no.nav.brukerdialog.security.oidc;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import no.nav.sbl.rest.RestUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.function.Function;
 
+import static no.nav.brukerdialog.security.oidc.OpenAmUtils.REST_CLIENT;
+
 class TokenProviderUtil {
 
     public static <T> T getToken(Function<Client,Response> tokenRequestSupplier, Function<String, T> tokenExtractor) {
-        return RestUtils.withClient(client -> {
-            Response response = tokenRequestSupplier.apply(client);
+            Response response = tokenRequestSupplier.apply(REST_CLIENT);
             String responseString = response.readEntity(String.class);
             int status = response.getStatus();
             if (status == 200) {
                 return tokenExtractor.apply(responseString);
             }
             throw new IllegalArgumentException("Could not refresh token with auth.server, got " + status + " and response " + responseString);
-        });
     }
 
     @SneakyThrows

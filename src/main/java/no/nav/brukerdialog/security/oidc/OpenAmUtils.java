@@ -1,5 +1,7 @@
 package no.nav.brukerdialog.security.oidc;
 
+import no.nav.sbl.rest.RestUtils;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -9,12 +11,14 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
-import static no.nav.sbl.rest.RestUtils.withClient;
+import static no.nav.sbl.rest.RestUtils.DEFAULT_CONFIG;
 
 class OpenAmUtils {
 
+    public static final Client REST_CLIENT = RestUtils.createClient(DEFAULT_CONFIG);
+
     static String getSessionToken(String username, String password, String authorizeUrl) {
-        return withClient(client -> getSessionToken(username, password, authorizeUrl, client)) ;
+        return getSessionToken(username, password, authorizeUrl, REST_CLIENT) ;
     }
 
     private static String getSessionToken(String username, String password, String authorizeUrl, Client build) {
@@ -33,7 +37,7 @@ class OpenAmUtils {
     }
 
     static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) {
-        return withClient(client -> getAuthorizationCode(openAmHost, sessionToken, clientId, redirectUri, client));
+        return getAuthorizationCode(openAmHost, sessionToken, clientId, redirectUri, REST_CLIENT);
     }
 
     private static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri, Client client) {
