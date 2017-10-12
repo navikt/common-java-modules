@@ -5,6 +5,7 @@ import lombok.Value;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.util.Date;
 
 import static java.lang.System.lineSeparator;
@@ -69,6 +70,12 @@ public class JsonUtilsTest {
         public void objekt() {
             assertThat(fromJson(TEST_OBJECT_JSON, TestObject.class)).isEqualTo(new TestObject());
         }
+
+        @Test
+        public void inputstream() {
+            assertThat(fromJson(new ByteArrayInputStream(TEST_OBJECT_JSON.getBytes()), TestObject.class)).isEqualTo(new TestObject());
+        }
+
 
         @Test
         public void emptyEnumString_null() {
