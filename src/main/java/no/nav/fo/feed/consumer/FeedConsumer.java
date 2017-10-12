@@ -2,6 +2,7 @@ package no.nav.fo.feed.consumer;
 
 import no.nav.fo.feed.common.*;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
 import static no.nav.fo.feed.util.UrlUtils.*;
-import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -29,6 +29,8 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     private final FeedConsumerConfig<DOMAINOBJECT> config;
     private final Ping.PingMetadata pingMetadata;
     private int lastResponseHash;
+
+    private static final Client REST_CLIENT = RestUtils.createClient();
 
     public FeedConsumer(FeedConsumerConfig<DOMAINOBJECT> config) {
         String feedName = config.feedName;
@@ -59,16 +61,12 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     void registerWebhook() {
-        withClient(this::registerWebhook);
-    }
-
-    private int registerWebhook(Client client) {
         String callbackUrl = callbackUrl(this.config.apiRootPath, this.config.feedName);
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
 
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
 
-        Invocation.Builder request = client
+        Invocation.Builder request = REST_CLIENT
                 .target(asUrl(this.config.host, "feed", this.config.feedName, "webhook"))
                 .request();
 
@@ -84,16 +82,11 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         } else if (responseStatus != 200) {
             LOG.warn("Endepunkt for opprettelse av webhook returnerte feilkode {}", responseStatus);
         }
-        return responseStatus;
     }
 
     synchronized Response poll() {
-        return withClient(this::poll);
-    }
-
-    private Response poll(Client client) {
         String lastEntry = this.config.lastEntrySupplier.get();
-        Invocation.Builder request = client
+        Invocation.Builder request = REST_CLIENT
                 .target(getTargetUrl())
                 .queryParam(QUERY_PARAM_ID, lastEntry)
                 .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
