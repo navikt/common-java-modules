@@ -2,6 +2,7 @@ package no.nav.metrics;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static no.nav.modig.common.MDCOperations.*;
 
@@ -22,7 +23,10 @@ abstract class Metric<T extends Metric> {
         this.name = name;
         setSuccess();
         for (String mdcVariable : MDC_VARIABLES) {
-            addFieldToReport(mdcVariable, getFromMDC(mdcVariable));
+            String mdcValue = getFromMDC(mdcVariable);
+            if(Objects.nonNull(mdcValue)) {
+                addFieldToReport(mdcVariable, mdcValue);
+            }
         }
     }
 
