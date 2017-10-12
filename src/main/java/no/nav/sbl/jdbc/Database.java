@@ -41,7 +41,7 @@ public class Database {
     }
 
     public <T> List<T> queryWithNamedParam(String sql, Mapper<T> mapper, Map<String, Object> map) {
-        return namedParameterJdbcTemplate.query(sql, map, mapper);
+        return time(sql, () -> namedParameterJdbcTemplate.query(sql, map, mapper));
     }
 
     public long nesteFraSekvens(String sekvensNavn) {
