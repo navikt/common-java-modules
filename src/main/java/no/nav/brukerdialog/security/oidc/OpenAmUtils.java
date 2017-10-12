@@ -36,11 +36,7 @@ class OpenAmUtils {
                 .orElseThrow(() -> new OidcTokenException("Ingen session token i responsen"));
     }
 
-    static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) {
-        return getAuthorizationCode(openAmHost, sessionToken, clientId, redirectUri, REST_CLIENT);
-    }
-
-    private static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri, Client client) {
+    public static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) {
         String cookie = "nav-isso=" + sessionToken;
         String uri = openAmHost + "/authorize";
         String encodedRedirectUri;
@@ -50,7 +46,7 @@ class OpenAmUtils {
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
 
-        Response response = client
+        Response response = REST_CLIENT
                 .target(uri)
                 .queryParam("response_type", "code")
                 .queryParam("scope", "openid")
