@@ -89,12 +89,8 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     private int tryActivateWebHook(String url) {
-        return tryActivateWebHook(url, REST_CLIENT);
-    }
-
-    private int tryActivateWebHook(String url, Client client) {
         try {
-            Invocation.Builder request = client.target(url).request();
+            Invocation.Builder request = REST_CLIENT.target(url).request();
             this.interceptors.forEach(interceptor -> interceptor.apply(request));
             LOG.debug("activate webhook til url {}", url);
             int status = request.build(HEAD).invoke().getStatus();

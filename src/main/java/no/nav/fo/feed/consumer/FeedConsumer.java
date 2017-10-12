@@ -61,16 +61,12 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     void registerWebhook() {
-        registerWebhook(REST_CLIENT);
-    }
-
-    private int registerWebhook(Client client) {
         String callbackUrl = callbackUrl(this.config.apiRootPath, this.config.feedName);
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
 
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
 
-        Invocation.Builder request = client
+        Invocation.Builder request = REST_CLIENT
                 .target(asUrl(this.config.host, "feed", this.config.feedName, "webhook"))
                 .request();
 
@@ -86,16 +82,11 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         } else if (responseStatus != 200) {
             LOG.warn("Endepunkt for opprettelse av webhook returnerte feilkode {}", responseStatus);
         }
-        return responseStatus;
     }
 
     synchronized Response poll() {
-        return poll(REST_CLIENT);
-    }
-
-    private Response poll(Client client) {
         String lastEntry = this.config.lastEntrySupplier.get();
-        Invocation.Builder request = client
+        Invocation.Builder request = REST_CLIENT
                 .target(getTargetUrl())
                 .queryParam(QUERY_PARAM_ID, lastEntry)
                 .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
