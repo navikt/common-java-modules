@@ -1,5 +1,7 @@
 package no.nav.brukerdialog.security.oidc;
 
+import no.nav.sbl.rest.RestUtils;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -9,12 +11,14 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
-import static no.nav.sbl.rest.RestUtils.withClient;
+import static no.nav.sbl.rest.RestUtils.DEFAULT_CONFIG;
 
 class OpenAmUtils {
 
+    public static final Client REST_CLIENT = RestUtils.createClient(DEFAULT_CONFIG);
+
     static String getSessionToken(String username, String password, String authorizeUrl) {
-        return withClient(client -> getSessionToken(username, password, authorizeUrl, client)) ;
+        return getSessionToken(username, password, authorizeUrl, REST_CLIENT) ;
     }
 
     private static String getSessionToken(String username, String password, String authorizeUrl, Client build) {
@@ -32,11 +36,7 @@ class OpenAmUtils {
                 .orElseThrow(() -> new OidcTokenException("Ingen session token i responsen"));
     }
 
-    static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) {
-        return withClient(client -> getAuthorizationCode(openAmHost, sessionToken, clientId, redirectUri, client));
-    }
-
-    private static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri, Client client) {
+    public static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) {
         String cookie = "nav-isso=" + sessionToken;
         String uri = openAmHost + "/authorize";
         String encodedRedirectUri;
@@ -46,7 +46,7 @@ class OpenAmUtils {
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
 
-        Response response = client
+        Response response = REST_CLIENT
                 .target(uri)
                 .queryParam("response_type", "code")
                 .queryParam("scope", "openid")
