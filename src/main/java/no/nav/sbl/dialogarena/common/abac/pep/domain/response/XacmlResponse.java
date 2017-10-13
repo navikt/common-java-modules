@@ -15,10 +15,6 @@ public class XacmlResponse {
         return response;
     }
 
-    public boolean isFallbackUsed() {
-        return fallbackUsed;
-    }
-
     public void setResponse(List<Response> response) {
         this.response = response;
     }
@@ -28,8 +24,4 @@ public class XacmlResponse {
         return this;
     }
 
-    public XacmlResponse withFallbackUsed() {
-        fallbackUsed = true;
-        return this;
-    }
 }

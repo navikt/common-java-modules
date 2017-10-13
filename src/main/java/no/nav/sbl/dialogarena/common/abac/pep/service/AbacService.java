@@ -49,7 +49,7 @@ public class AbacService  {
         return client;
     }
 
-    @Cacheable(ASK_FOR_PERMISSION)
+    @Cacheable(value = ASK_FOR_PERMISSION, keyGenerator = "abacKeyGenerator")
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
         String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
         Response response = timed(
