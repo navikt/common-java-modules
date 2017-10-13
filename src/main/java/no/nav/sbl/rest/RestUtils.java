@@ -6,13 +6,6 @@ import lombok.Value;
 import no.nav.json.JsonProvider;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 
@@ -22,7 +15,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.function.Function;
 
-import static org.glassfish.jersey.apache.connector.ApacheClientProperties.CONNECTION_MANAGER;
 import static org.glassfish.jersey.client.ClientProperties.*;
 
 public class RestUtils {
@@ -44,18 +36,6 @@ public class RestUtils {
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
 
-        if (!restConfig.disableConnectionPooling) {
-            Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-                    .register("http", PlainConnectionSocketFactory.getSocketFactory())
-                    .register("https", new SSLConnectionSocketFactory(riktigSSLContext()))
-                    .build();
-
-            PoolingHttpClientConnectionManager poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-            poolingHttpClientConnectionManager.setMaxTotal(100);
-            poolingHttpClientConnectionManager.setDefaultMaxPerRoute(20);
-            clientConfig.property(CONNECTION_MANAGER, poolingHttpClientConnectionManager);
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-        }
         return clientConfig;
     }
 
@@ -97,7 +77,6 @@ public class RestUtils {
         @Builder.Default
         public int readTimeout = 15000;
 
-        public boolean disableConnectionPooling;
         public boolean disableMetrics;
     }
 
