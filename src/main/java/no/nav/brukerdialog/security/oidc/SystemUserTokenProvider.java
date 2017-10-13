@@ -4,9 +4,11 @@ package no.nav.brukerdialog.security.oidc;
 import no.nav.brukerdialog.security.domain.IdToken;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
+import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.client.Client;
 import java.time.Instant;
 
 import static no.nav.brukerdialog.security.Constants.*;
@@ -30,6 +32,8 @@ public class SystemUserTokenProvider {
     private IdToken idToken;
     private IdTokenAndRefreshTokenProvider idTokenAndRefreshTokenProvider;
 
+    private final Client client = RestUtils.createClient();
+
     private OidcTokenValidator validator;
 
     public SystemUserTokenProvider() {
@@ -45,8 +49,8 @@ public class SystemUserTokenProvider {
     }
 
     private void refreshToken() {
-        String openAmSessionToken = OpenAmUtils.getSessionToken(srvUsername, srvPassword, konstruerFullstendingAuthUri(openAmHost, authenticateUri));
-        String authorizationCode = OpenAmUtils.getAuthorizationCode(openAmHost, openAmSessionToken, openamClientUsername, oidcRedirectUrl);
+        String openAmSessionToken = OpenAmUtils.getSessionToken(srvUsername, srvPassword, konstruerFullstendingAuthUri(openAmHost, authenticateUri), client);
+        String authorizationCode = OpenAmUtils.getAuthorizationCode(openAmHost, openAmSessionToken, openamClientUsername, oidcRedirectUrl, client);
         IdTokenAndRefreshToken idTokenAndRefreshToken = idTokenAndRefreshTokenProvider.getToken(authorizationCode, oidcRedirectUrl);
         OidcCredential idToken = idTokenAndRefreshToken.getIdToken();
         String jwtToken = idToken.getToken();

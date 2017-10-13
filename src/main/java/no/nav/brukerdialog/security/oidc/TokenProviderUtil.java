@@ -4,17 +4,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-import static no.nav.brukerdialog.security.oidc.OpenAmUtils.REST_CLIENT;
 
 class TokenProviderUtil {
 
-    public static <T> T getToken(Function<Client,Response> tokenRequestSupplier, Function<String, T> tokenExtractor) {
-            Response response = tokenRequestSupplier.apply(REST_CLIENT);
+    public static <T> T getToken(Supplier<Response> tokenRequestSupplier, Function<String, T> tokenExtractor) {
+            Response response = tokenRequestSupplier.get();
             String responseString = response.readEntity(String.class);
             int status = response.getStatus();
             if (status == 200) {

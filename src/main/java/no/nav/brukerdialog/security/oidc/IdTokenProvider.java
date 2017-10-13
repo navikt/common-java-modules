@@ -1,6 +1,7 @@
 package no.nav.brukerdialog.security.oidc;
 
 import no.nav.brukerdialog.security.domain.OidcCredential;
+import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +16,11 @@ import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
 public class IdTokenProvider {
 
     private static final Logger log = LoggerFactory.getLogger(IdTokenProvider.class);
+    private final Client client = RestUtils.createClient();
+
 
     public OidcCredential getToken(String refreshToken, String openamClient) {
-        return TokenProviderUtil.getToken((client) -> createTokenRequest(refreshToken, openamClient, client), this::extractToken);
+        return TokenProviderUtil.getToken(() -> createTokenRequest(refreshToken, openamClient, client), this::extractToken);
     }
 
     protected Response createTokenRequest(String refreshToken, String openamClient, Client client) {

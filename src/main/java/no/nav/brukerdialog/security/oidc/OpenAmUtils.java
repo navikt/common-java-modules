@@ -1,6 +1,5 @@
 package no.nav.brukerdialog.security.oidc;
 
-import no.nav.sbl.rest.RestUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -11,18 +10,11 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
-import static no.nav.sbl.rest.RestUtils.DEFAULT_CONFIG;
 
 class OpenAmUtils {
 
-    public static final Client REST_CLIENT = RestUtils.createClient(DEFAULT_CONFIG);
-
-    static String getSessionToken(String username, String password, String authorizeUrl) {
-        return getSessionToken(username, password, authorizeUrl, REST_CLIENT) ;
-    }
-
-    private static String getSessionToken(String username, String password, String authorizeUrl, Client build) {
-        Response response = build
+    public static String getSessionToken(String username, String password, String authorizeUrl, Client client) {
+        Response response = client
                 .target(authorizeUrl)
                 .request()
                 .header("X-OpenAM-Username", username)
@@ -36,7 +28,7 @@ class OpenAmUtils {
                 .orElseThrow(() -> new OidcTokenException("Ingen session token i responsen"));
     }
 
-    public static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri) {
+    public static String getAuthorizationCode(String openAmHost, String sessionToken, String clientId, String redirectUri, Client client) {
         String cookie = "nav-isso=" + sessionToken;
         String uri = openAmHost + "/authorize";
         String encodedRedirectUri;
@@ -46,7 +38,7 @@ class OpenAmUtils {
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
 
-        Response response = REST_CLIENT
+        Response response = client
                 .target(uri)
                 .queryParam("response_type", "code")
                 .queryParam("scope", "openid")

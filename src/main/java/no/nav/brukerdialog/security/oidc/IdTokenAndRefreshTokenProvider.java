@@ -3,6 +3,7 @@ package no.nav.brukerdialog.security.oidc;
 import lombok.Builder;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
+import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,8 @@ public class IdTokenAndRefreshTokenProvider {
 
     public static final String ID_TOKEN = "id_token";
     public static final String REFRESH_TOKEN = "refresh_token";
+    private final Client client = RestUtils.createClient();
+
 
     private final Parameters parameters;
 
@@ -43,7 +46,7 @@ public class IdTokenAndRefreshTokenProvider {
     }
 
     public IdTokenAndRefreshToken getToken(String authorizationCode, String redirectUri) {
-        return TokenProviderUtil.getToken((client) -> createTokenRequest(authorizationCode, redirectUri, client), this::extractToken);
+        return TokenProviderUtil.getToken(() -> createTokenRequest(authorizationCode, redirectUri, client), this::extractToken);
     }
 
     Response createTokenRequest(String authorizationCode, String redirectUri, Client client) {
