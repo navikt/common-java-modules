@@ -1,8 +1,12 @@
 package no.nav.sbl.dialogarena.common.abac.pep.domain.request;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 @EqualsAndHashCode
+@Getter
+@ToString
 public class Request {
 
     private AccessSubject accessSubject;
@@ -30,15 +34,4 @@ public class Request {
         return this;
     }
 
-    public Resource getResource() {
-        return resource;
-    }
-
-    public Environment getEnvironment() {
-        return environment;
-    }
-
-    public AccessSubject getAccessSubject() {
-        return accessSubject;
-    }
 }

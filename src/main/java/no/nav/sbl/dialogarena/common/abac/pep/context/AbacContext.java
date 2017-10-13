@@ -3,11 +3,17 @@ package no.nav.sbl.dialogarena.common.abac.pep.context;
 import net.sf.ehcache.config.CacheConfiguration;
 import no.nav.sbl.dialogarena.common.abac.pep.AbacHelsesjekker;
 import no.nav.sbl.dialogarena.common.abac.pep.PepImpl;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
+import no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils;
+import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import static java.util.Arrays.asList;
 import static net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU;
 
 @Configuration
@@ -27,6 +33,22 @@ public class AbacContext {
     @Bean
     public PepImpl pep(AbacService abacService) {
         return new PepImpl(abacService);
+    }
+
+    @Bean
+    public KeyGenerator abacKeyGenerator() {
+        return (target, method, params) -> {
+            for (Object o : params) {
+                if (o instanceof XacmlRequest) {
+                    Request request = ((XacmlRequest) o).getRequest();
+                    return asList(SecurityUtils.getIdent().orElseThrow(() -> new AbacException("Klarte ikke å utlede Ident")),
+                            request.getAccessSubject(),
+                            request.getAction(),
+                            request.getResource());
+                }
+            }
+            throw new AbacException("Cache nøkkel må være et gyldig XacmlRequest object");
+        };
     }
 
 }
