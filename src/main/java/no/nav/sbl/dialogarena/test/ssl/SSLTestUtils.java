@@ -1,6 +1,7 @@
 package no.nav.sbl.dialogarena.test.ssl;
 
 import lombok.SneakyThrows;
+import no.nav.modig.testcertificates.TestCertificates;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
 import javax.net.ssl.*;
@@ -11,6 +12,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import static java.lang.System.setProperty;
+import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 
 public class SSLTestUtils {
 
@@ -66,6 +68,7 @@ public class SSLTestUtils {
     Bruk alle triks i boka for å disable sertifikat-sjekker
      */
     public static void disableCertificateChecks() {
+        setupKeyAndTrustStore();
         setProperty("disable.ssl.cn.check", Boolean.TRUE.toString());
         Security.setProperty("ssl.SocketFactory.provider", TrustAllSSLSocketFactory.class.getName());
         CxfCertificateValidationDisabler.init();
