@@ -41,7 +41,7 @@ public class AbacContext {
             for (Object o : params) {
                 if (o instanceof XacmlRequest) {
                     Request request = ((XacmlRequest) o).getRequest();
-                    return asList(SecurityUtils.getIdent().orElseThrow(() -> new AbacException("Klarte ikke å utlede Ident")),
+                    return asList(SecurityUtils.getIdent().orElse(null),
                             request.getAccessSubject(),
                             request.getAction(),
                             request.getResource());
