@@ -338,6 +338,14 @@
                     </dependency>
                 </dependencies>
                 <configuration>
+
+                    <!-- Ellers vil maven kun kjøre tester som slutter på 'Test' (!) -->
+                    <includes>
+                        <include>*</include>
+                    </includes>
+
+                    <excludedGroups>no.nav.sbl.dialogarena.test.junit.Smoketest</excludedGroups>
+
                     <!--suppress MavenModelInspection -->
                     <argLine>${jacoco.agent.argLine}</argLine>
 
@@ -355,6 +363,23 @@
             </plugin>
         </plugins>
 	</build>
+
+    <profiles>
+        <profile>
+            <id>smoketest</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <groups>no.nav.sbl.dialogarena.test.junit.Smoketest</groups>
+                            <excludedGroups/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/felles/mor-pom.git</developerConnection>
