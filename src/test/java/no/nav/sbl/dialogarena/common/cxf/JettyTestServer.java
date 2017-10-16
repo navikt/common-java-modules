@@ -88,10 +88,11 @@ public abstract class JettyTestServer {
         @Override
         public void init(ServletConfig sc) throws ServletException {
             super.init(sc);
-            CXFEndpoint endpoint = new CXFEndpoint();
-            endpoint.serviceBean(service)
-            .address(SERVICE_PATH)
-            .create();
+            new CXFEndpoint()
+                    .serviceBean(service)
+                    .disableSAMLIn()
+                    .address(SERVICE_PATH)
+                    .create();
         }
 
     }

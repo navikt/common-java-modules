@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 
-public class MetricsIntegrationTestServer extends JettyTestServer {
+public class MetricsIntegrationTest extends JettyTestServer {
 
     @Test
     public void metrikkerSendesTilSensuSocket() throws Exception {
@@ -22,7 +22,7 @@ public class MetricsIntegrationTestServer extends JettyTestServer {
             String url = startCxfServer(Aktoer_v2PortType.class);
 
             new CXFClient<>(Aktoer_v2PortType.class)
-                    .withMetrics() // TODO true by default ?
+                    .withMetrics()
                     .address(url)
                     .build()
                     .ping();

@@ -29,6 +29,11 @@ public class CXFEndpoint {
 		factoryBean.setFeatures(asList(loggingFeatureUtenTokenLogging, new WSAddressingFeature()));
 	}
 
+	public CXFEndpoint disableSAMLIn() {
+		factoryBean.getInInterceptors().clear();
+		return this;
+	}
+
 	public CXFEndpoint enableMtom() {
 		factoryBean.getProperties().put("mtom-enabled", true);
 		factoryBean.getOutInterceptors().add(new AttachmentCleanupInterceptor());
