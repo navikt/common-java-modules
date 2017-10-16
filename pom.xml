@@ -37,13 +37,23 @@
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
     </properties>
 
-    <!-- tilgjengeliggjør riktig versjon i test-scope slik at junit5-tester kjører i intellij -->
     <dependencies>
+        <!-- tilgjengeliggjør riktig versjon i test-scope slik at junit5-tester kjører i intellij -->
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
             <version>${junit.platform.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!--
+        slik at vi unngår "groups/excludedGroups require TestNG or JUnit48+ on project test classpath" for prosjekter
+        som kun bruker junit5
+         -->
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.vintage.version}</version>
         </dependency>
     </dependencies>
 
