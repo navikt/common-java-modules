@@ -32,23 +32,22 @@ public class UserTokenProvider {
     }
 
 
-    public String getIdToken() {
+    public OidcCredential getIdToken() {
         TestUser testUser = FasitUtils.getTestUser(USERNAME);
         return getIdToken(testUser.getUsername(), testUser.getPassword());
 
     }
 
-    public String getIdToken(String username, String password) {
+    public OidcCredential getIdToken(String username, String password) {
         String openAmSessionToken = withClient(client ->
                 OpenAmUtils.getSessionToken(username, password, konstruerFullstendingAuthUri(openAmHost, authenticateUri), client));
         String authorizationCode = withClient(client -> OpenAmUtils.getAuthorizationCode(openAmHost, openAmSessionToken, openamClientUsername, oidcRedirectUrl, client));
         IdTokenAndRefreshToken idTokenAndRefreshToken = idTokenAndRefreshTokenProvider.getToken(authorizationCode, oidcRedirectUrl);
         OidcCredential idToken = idTokenAndRefreshToken.getIdToken();
-        String jwtToken = idToken.getToken();
-        OidcTokenValidator.OidcTokenValidatorResult validationResult = validator.validate(jwtToken);
+        OidcTokenValidator.OidcTokenValidatorResult validationResult = validator.validate(idToken.getToken());
 
         if (validationResult.isValid()) {
-            return jwtToken;
+            return idToken;
         } else {
             throw new OidcTokenException("Kunne ikke validere token: "+validationResult.getErrorMessage());
         }
