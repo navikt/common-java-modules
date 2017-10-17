@@ -101,6 +101,17 @@
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>test-config</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>no.nav.dialogarena</groupId>
+                    <artifactId>oidc-security</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
