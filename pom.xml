@@ -122,6 +122,7 @@
                     <version>2.6</version>
                     <configuration>
                         <failOnMissingWebXml>false</failOnMissingWebXml>
+                        <attachClasses>true</attachClasses>
                         <archive>
                             <manifest>
                                 <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
