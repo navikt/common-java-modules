@@ -26,8 +26,8 @@ public class Util {
 
     public static void setProperty(String propertyName, String value, Mode mode) {
         String property = System.getProperty(propertyName);
-        if (mode == IKKE_OVERSKRIV && property != null && property.trim().length() > 0) {
-            LOG.warn("property {} er allerede satt til {}", propertyName, property);
+        if (mode == IKKE_OVERSKRIV && property != null && property.trim().length() > 0 && !property.equals(value)) {
+            LOG.warn("property {} er allerede satt til [{}] (ignorerer [{}])", propertyName, property, value);
         } else {
             LOG.info("property {} = {}", propertyName, value);
             System.setProperty(propertyName, value);

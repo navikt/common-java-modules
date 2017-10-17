@@ -34,12 +34,12 @@ import java.io.IOException;
 
 import static java.lang.String.format;
 import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
-import static no.nav.brukerdialog.security.Constants.*;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.security.ISSOProvider.LOGIN_APPLIKASJON;
 import static no.nav.dialogarena.config.util.Util.Mode.IKKE_OVERSKRIV;
+import static no.nav.dialogarena.config.util.Util.Mode.OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
@@ -117,6 +117,7 @@ public class DevelopmentSecurity {
 
         private String serviceUserName;
         private String issoUserName;
+        private boolean overskrivSystemProperties = true;
 
         public IntegrationTestConfig(String applicationName) {
             this.applicationName = applicationName;
@@ -189,7 +190,11 @@ public class DevelopmentSecurity {
 
     public static void setupIntegrationTestSecurity(IntegrationTestConfig integrationTestConfig) {
         commonSetup();
-        appSetup(integrationTestConfig.applicationName,integrationTestConfig.environment);
+        appSetup(
+                integrationTestConfig.applicationName,
+                integrationTestConfig.environment,
+                integrationTestConfig.overskrivSystemProperties ? OVERSKRIV : IKKE_OVERSKRIV
+        );
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(integrationTestConfig.serviceUserName, integrationTestConfig.applicationName, integrationTestConfig.environment);
         Subject testSubject = integrationTestSubject(serviceUser);
@@ -205,7 +210,11 @@ public class DevelopmentSecurity {
     }
 
     public static void appSetup(String applicationName, String environment) {
-        Util.setProperties(FasitUtils.getApplicationEnvironment(applicationName, environment), IKKE_OVERSKRIV);
+        appSetup(applicationName, environment, IKKE_OVERSKRIV);
+    }
+
+    private static void appSetup(String applicationName, String environment, Util.Mode mode) {
+        Util.setProperties(FasitUtils.getApplicationEnvironment(applicationName, environment), mode);
         // reset keystore siden dette kan ha blitt endret
         TestCertificates.setupKeyAndTrustStore();
     }
