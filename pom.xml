@@ -358,11 +358,7 @@
                     <excludedGroups>no.nav.sbl.dialogarena.test.junit.Smoketest</excludedGroups>
 
                     <!--suppress MavenModelInspection -->
-                    <argLine>${jacoco.agent.argLine}</argLine>
-
-                    <!-- litt mer minne å rutte med i test -->
-                    <argLine>-Xmx2g</argLine>
-
+                    <argLine>${jacoco.agent.argLine} -Xmx2g</argLine>
 
                     <!--
                      maven-surefire default er forkCount=1 + reuseForks=true
