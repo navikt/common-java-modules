@@ -63,7 +63,7 @@ public class SystemUserTokenProvider {
         }
     }
 
-    static String konstruerFullstendingAuthUri(String openAmHost, String authUri ) {
+    public static String konstruerFullstendingAuthUri(String openAmHost, String authUri ) {
         return openAmHost.replace("oauth2",authUri);
     }
 
