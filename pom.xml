@@ -363,6 +363,13 @@
                     <!-- litt mer minne å rutte med i test -->
                     <argLine>-Xmx2g</argLine>
 
+
+                    <!--
+                     maven-surefire default er forkCount=1 + reuseForks=true
+                     dvs at surefire vil kjøre alle testene i en og samme jvm pr maven-modul
+                    -->
+                    <reuseForks>false</reuseForks> <!-- fører til at hver test-klasse kjøres i egen jvm. Dermed oppnår vi bedre isolasjon mellom potensielt skjøre tester, som kan finne på å mutere på global state etc -->
+
                     <!-- fjerner edge-caser ved nøstede classloadere, som f.eks. hvis man tester med jetty -->
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
