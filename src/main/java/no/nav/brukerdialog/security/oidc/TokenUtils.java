@@ -31,14 +31,22 @@ public class TokenUtils {
         }
     }
 
-    static String getTokenAzp(String token) {
+    public static String getTokenAzp(String token) {
+        return getFieldFromToken(token, "azp");
+    }
+
+    public static String getTokenSub(String token) {
+        return getFieldFromToken(token, "sub");
+    }
+
+    private static String getFieldFromToken(String token, String field) {
         try {
             String tokenBody = token.split("\\.")[1];
             Base64.Decoder decoder = Base64.getUrlDecoder();
             String bodyDecoded = new String(decoder.decode(tokenBody));
-            return new JSONObject(bodyDecoded).getString("azp");
+            return new JSONObject(bodyDecoded).getString(field);
         } catch(Exception e ) {
-            log.warn("Kunne ikke hente azp fra token");
+            log.warn("Kunne ikke hente {} fra token", field);
             return null;
         }
     }
