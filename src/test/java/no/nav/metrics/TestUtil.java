@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
+
 public class TestUtil {
 
     public static <T> T lagAspectProxy(T target, Object aspect) {
@@ -76,7 +78,7 @@ public class TestUtil {
 
     public static int getSensuClientPort() {
         return Integer.parseInt(System.getProperty(
-                "sensu_client_port",
+                SENSU_CLIENT_PORT,
                 "0" // tilfelding port som default
         ));
     }
