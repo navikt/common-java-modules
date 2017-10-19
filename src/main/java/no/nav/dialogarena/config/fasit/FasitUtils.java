@@ -399,7 +399,8 @@ public class FasitUtils {
         });
 
         JSch jsch = new JSch();
-        Session session = jsch.getSession(applicationConfig.deployerUsername, applicationConfig.hostname);
+        String hostname = applicationConfig.hostname;
+        Session session = jsch.getSession(applicationConfig.deployerUsername, hostname);
         try {
             session.setPassword(getPassword(applicationConfig.deployerPasswordUrl));
 
@@ -409,7 +410,8 @@ public class FasitUtils {
 
             ChannelExec shell = (ChannelExec) session.openChannel("exec");
             try {
-                shell.setCommand(String.format("sudo cat /app/%s/configuration/environment.properties", applicationName));
+                String command = String.format("sudo cat /app/%s/configuration/environment.properties", applicationName);
+                shell.setCommand(command);
                 shell.setErrStream(System.err);
                 LOG.info("connecting...");
                 shell.connect();
@@ -423,6 +425,9 @@ public class FasitUtils {
                 LOG.info("connected!");
                 Properties properties = new Properties();
                 properties.load(shell.getInputStream());
+                if (properties.isEmpty()) {
+                    throw new IllegalStateException(String.format("[%s] mot %s gav ingen properties", command, hostname));
+                }
                 return properties;
             } finally {
                 shell.disconnect();
