@@ -1,6 +1,6 @@
 package no.nav.brukerdialog.security.pingable;
 
-import no.nav.dialogarena.config.DevelopmentSecurity;
+import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.util.ExceptionUtils;
 import org.junit.BeforeClass;
@@ -17,7 +17,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static no.nav.brukerdialog.security.Constants.REFRESH_TIME;
-import static no.nav.dialogarena.config.DevelopmentSecurity.setupIntegrationTestSecurity;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getApplicationEnvironment;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,9 +30,9 @@ public class IssoSystemBrukerTokenHelsesjekkTest {
 
     @BeforeClass
     public static void setup() {
+        System.getProperties().putAll(getApplicationEnvironment("veilarbaktivitet"));
         setGlobalLogLevel(INFO);
         setProperty(REFRESH_TIME, Integer.toString(MAX_VALUE / 2000)); // slik at hver ping fører til refresh, se SystemUserTokenProvider.tokenIsSoonExpired()
-        setupIntegrationTestSecurity(new DevelopmentSecurity.IntegrationTestConfig("veilarbaktivitet"));
     }
 
     @Test
