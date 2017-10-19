@@ -25,6 +25,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>fasit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
         </dependency>
@@ -37,11 +42,6 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-security</artifactId>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.1.54</version>
         </dependency>
 
         <!--Sikkerhet-->
