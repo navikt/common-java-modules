@@ -355,7 +355,14 @@
                         <include>*</include>
                     </includes>
 
-                    <excludedGroups>no.nav.sbl.dialogarena.test.junit.Smoketest</excludedGroups>
+                    <!--
+                     NB:
+                     @Category (junit4) fungerer ikke i kombinasjon med junit-platform-surefire-provider
+                     Løsningen er å skrive smoketester i junit5 med @Tag
+                     -->
+                    <properties>
+                        <excludeTags>smoketest</excludeTags>
+                    </properties>
 
                     <!--suppress MavenModelInspection -->
                     <argLine>${jacoco.agent.argLine} -Xmx2g</argLine>
@@ -386,8 +393,10 @@
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <groups>no.nav.sbl.dialogarena.test.junit.Smoketest</groups>
-                            <excludedGroups/>
+                            <properties>
+                                <includeTags>smoketest</includeTags>
+                                <excludeTags>overskriv_default_exclude_tags</excludeTags>
+                            </properties>
                         </configuration>
                     </plugin>
                 </plugins>
