@@ -14,6 +14,7 @@ import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.*;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -24,7 +25,10 @@ import javax.jms.Queue;
 import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
 import javax.sql.DataSource;
+import javax.websocket.DeploymentException;
+import javax.websocket.server.ServerContainer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +71,7 @@ public final class Jetty {
         private File overridewebXmlFile;
         private JAASLoginService loginService;
         private Boolean developmentMode = true;
+        private List<Class<?>> websocketEndpoints = new ArrayList<>();
         private Map<String, DataSource> dataSources = new HashMap<>();
         private Map<String, UserCredentialsConnectionFactoryAdapter> connectionSources = new HashMap<>();
         private Map<String, Queue> queueSources = new HashMap<>();
@@ -111,6 +116,11 @@ public final class Jetty {
             } catch (IOException e) {
                 LOG.error("Kunne ikke laste {}", propertyFile, e);
             }
+            return this;
+        }
+
+        public final JettyBuilder websocketEndpoint(Class<?> endpointClass) {
+            this.websocketEndpoints.add(endpointClass);
             return this;
         }
 
@@ -221,12 +231,12 @@ public final class Jetty {
     public final Server server;
     public final WebAppContext context;
     private final Map<String, DataSource> dataSources;
+    private final List<Class<?>> websocketEndpoints;
     private final Map<String, UserCredentialsConnectionFactoryAdapter> connections;
     private final Map<String, Queue> queues;
     private final Boolean developmentMode;
     private final String extraClasspath;
     private final Boolean configureForJaspic;
-
 
 
     public final Runnable stop = new Runnable() {
@@ -257,6 +267,7 @@ public final class Jetty {
         this.overrideWebXmlFile = builder.overridewebXmlFile;
         this.dataSources = builder.dataSources;
         this.connections = builder.connectionSources;
+        this.websocketEndpoints = builder.websocketEndpoints;
         this.queues = builder.queueSources;
         this.port = builder.port;
         this.sslPort = builder.sslPort;
@@ -290,8 +301,8 @@ public final class Jetty {
             securityHandler.setRealmName(loginService.getName());
         }
 
-        if(configureForJaspic != null) {
-            if(loginService != null) {
+        if (configureForJaspic != null) {
+            if (loginService != null) {
                 LOG.warn("loginService shoudld be null when configured for jaspic");
             }
 
@@ -327,6 +338,24 @@ public final class Jetty {
                 } catch (NamingException e) {
                     throw new RuntimeException("Kunne ikke legge til datasource " + e, e);
                 }
+            }
+        }
+    }
+
+    private void addWebsocketEndpoints(WebAppContext webAppContext) {
+        if (!websocketEndpoints.isEmpty()) {
+            try {
+                ServerContainer wscontainer = WebSocketServerContainerInitializer.configureContext(webAppContext);
+                websocketEndpoints.forEach(endpoint -> {
+                    try {
+                        wscontainer.addEndpoint(endpoint);
+                    } catch (DeploymentException e) {
+                        throw new RuntimeException("Kunne ikke adde websocket endpoint " + e, e);
+                    }
+                });
+
+            } catch (ServletException e) {
+                throw new RuntimeException("Kunne ikke adde websocket endpoint " + e, e);
             }
         }
     }
@@ -369,13 +398,12 @@ public final class Jetty {
         List<Connector> liste = new ArrayList<>();
         liste.add(httpConnector);
 
-        if (sslConnector.isPresent()) {
-            liste.add(sslConnector.get());
-        }
+        sslConnector.ifPresent(liste::add);
 
         Connector[] connectors = liste.toArray(new Connector[liste.size()]);
         jetty.setConnectors(connectors);
         context.setServer(jetty);
+        addWebsocketEndpoints(context);
         jetty.setHandler(context);
         return jetty;
     }
@@ -396,9 +424,7 @@ public final class Jetty {
             LOG.info(" * WAR: " + warPath);
             LOG.info(" * Context path: " + contextPath);
             LOG.info(" * Http port: " + port);
-            if (sslPort.isPresent()) {
-                LOG.info(" * Https port: " + sslPort.get());
-            }
+            sslPort.ifPresent(integer -> LOG.info(" * Https port: " + integer));
             for (URL url : getBaseUrls()) {
                 LOG.info(" * " + url);
             }
@@ -412,9 +438,7 @@ public final class Jetty {
     public List<URL> getBaseUrls() {
         List<URL> urls = new ArrayList<>();
         urls.add(new ToUrl("http", contextPath).apply(port));
-        if (sslPort.isPresent()) {
-            urls.add(new ToUrl("https", contextPath).apply(sslPort.get()));
-        }
+        sslPort.ifPresent(integer -> urls.add(new ToUrl("https", contextPath).apply(integer)));
         return urls;
     }
 
