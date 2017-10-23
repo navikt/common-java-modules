@@ -63,5 +63,6 @@
     <logger name="org.apache.cxf" level="ERROR"/>
     <logger name="no.nav.sbl.dialogarena.common.cxf" level="ERROR"/>
     <logger name="org.apache.http.client.protocol.ResponseProcessCookies" level="ERROR"/>
+    <logger name="org.apache.wss4j.common.crypto.CryptoBase" level="ERROR"/>
 
 </included>
