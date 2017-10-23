@@ -51,21 +51,22 @@ public class OidcAuthModule implements ServerAuthModule {
     private final OidcTokenValidator tokenValidator;
     private final IdTokenProvider tokenProvider;
     private final TokenLocator tokenLocator;
+    private final boolean statelessApplication;
     private CallbackHandler handler;
 
     public OidcAuthModule() {
-        tokenValidator = new OidcTokenValidator();
-        tokenProvider = new IdTokenProvider();
-        tokenLocator = new TokenLocator();
+        this(new OidcTokenValidator(), new IdTokenProvider(), new TokenLocator(), true);
     }
 
-    /**
-     * used for unit-testing
-     */
-    OidcAuthModule(OidcTokenValidator tokenValidator, IdTokenProvider tokenProvider, TokenLocator tokenLocator) {
+    public OidcAuthModule(boolean statelessApplication) {
+        this(new OidcTokenValidator(), new IdTokenProvider(), new TokenLocator(), statelessApplication);
+    }
+
+    OidcAuthModule(OidcTokenValidator tokenValidator, IdTokenProvider tokenProvider, TokenLocator tokenLocator, boolean statelessApplication) {
         this.tokenValidator = tokenValidator;
         this.tokenProvider = tokenProvider;
         this.tokenLocator = tokenLocator;
+        this.statelessApplication = statelessApplication;
     }
 
     @Override
@@ -126,7 +127,9 @@ public class OidcAuthModule implements ServerAuthModule {
      * @throws IllegalArgumentException
      */
     private void ensureStatelessApplication(MessageInfo messageInfo) {
-        messageInfo.setRequestMessage(new StatelessHttpServletRequest((HttpServletRequest) messageInfo.getRequestMessage()));
+        if (this.statelessApplication) {
+            messageInfo.setRequestMessage(new StatelessHttpServletRequest((HttpServletRequest) messageInfo.getRequestMessage()));
+        }
     }
 
     private boolean needToRefreshToken(OidcTokenValidator.OidcTokenValidatorResult validateResult, Optional<String> refreshToken) {
