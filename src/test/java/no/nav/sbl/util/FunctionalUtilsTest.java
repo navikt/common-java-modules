@@ -8,17 +8,23 @@ import java.util.HashMap;
 import static java.util.Arrays.asList;
 import static java.util.Optional.ofNullable;
 import static no.nav.sbl.util.FunctionalUtils.sneaky;
+import static no.nav.sbl.util.FunctionalUtils.sneakyFunction;
 
 public class FunctionalUtilsTest {
 
     @Test
-    public void sneaky_() {
+    public void sneaky_lambdaer_og_metodereferanser_kompilerer_utvetydig() {
         new HashMap<String, String>().forEach(sneaky(this::biConsumerMedCheckedException));
-        new HashMap<String, String>().forEach(sneaky((k, v) -> System.out.println(v)));
+        new HashMap<String, String>().forEach(sneaky((k, v) -> biConsumerMedCheckedException(k,v)));
+
         asList().forEach(sneaky(this::consumerMedCheckedException));
-        asList().forEach(sneaky((k) -> System.out.println(k)));
-        ofNullable("not null").orElseGet(sneaky(this::supplierMedCheckedException));
-        ofNullable("not null").orElseGet(sneaky(() -> "test"));
+        asList().forEach(sneaky((k) -> consumerMedCheckedException(k)));
+
+        ofNullable("").orElseGet(sneaky(this::supplierMedCheckedException));
+        ofNullable("").orElseGet(sneaky(() -> supplierMedCheckedException()));
+
+        ofNullable("").map(this::alltidNull).map(sneakyFunction((s) -> functionMedCheckedException(s)));
+        ofNullable("").map(this::alltidNull).map(sneakyFunction(this::functionMedCheckedException));
     }
 
     @SuppressWarnings("unused")
@@ -31,8 +37,17 @@ public class FunctionalUtilsTest {
     }
 
     @SuppressWarnings("unused")
+    private String functionMedCheckedException(String s) throws IOException {
+        throw new IOException();
+    }
+
+    @SuppressWarnings("unused")
     private String supplierMedCheckedException() throws IOException {
         throw new IOException();
+    }
+
+    private <T> T alltidNull(T t) {
+        return null;
     }
 
 }
