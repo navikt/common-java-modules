@@ -21,6 +21,7 @@ public class SamAutoRegistration implements ServletContextListener {
     public static final String CONTEXT_REGISTRATION_ID = SamAutoRegistration.class.getName();
     public static final String JASPI_SECURITY_DOMAIN = "jaspitest";
     public static final String AUTO_REGISTRATION_PROPERTY_NAME = "oidc.autoRegistration";
+    public static final String OIDC_STATELESS_APPLICATION = "oidc.statelessApplication";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -28,10 +29,13 @@ public class SamAutoRegistration implements ServletContextListener {
         boolean autoRegistration = Boolean.parseBoolean(ofNullable(sce.getServletContext().getInitParameter(AUTO_REGISTRATION_PROPERTY_NAME))
                 .orElse(System.getProperty(AUTO_REGISTRATION_PROPERTY_NAME, Boolean.FALSE.toString()))
         );
+        boolean stateApplication = Boolean.parseBoolean(ofNullable(sce.getServletContext().getInitParameter(OIDC_STATELESS_APPLICATION))
+                .orElse(System.getProperty(OIDC_STATELESS_APPLICATION, Boolean.TRUE.toString()))
+        );
         log.info("securityDomain={} autoRegistation={}", securityDomain, autoRegistration);
         if (JASPI_SECURITY_DOMAIN.equals(securityDomain) || autoRegistration) {
             log.info("Initializing JASPIC");
-            registerServerAuthModule(sce);
+            registerServerAuthModule(sce, stateApplication);
         } else {
             log.info("No automatic registration of oidc auth module");
         }
@@ -42,8 +46,8 @@ public class SamAutoRegistration implements ServletContextListener {
         deregisterServerAuthModule(sce.getServletContext());
     }
 
-    public static String registerServerAuthModule(ServletContextEvent sce) {
-        return registerServerAuthModule(new OidcAuthModule(), sce.getServletContext());
+    public static String registerServerAuthModule(ServletContextEvent sce, boolean statelessApplication) {
+        return registerServerAuthModule(new OidcAuthModule(statelessApplication), sce.getServletContext());
     }
 
     /**
