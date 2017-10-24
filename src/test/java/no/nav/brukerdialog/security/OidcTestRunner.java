@@ -20,7 +20,7 @@ public class OidcTestRunner {
         System.setProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME,"!!CHANGEME!!");
         System.setProperty(ISSO_JWKS_URL,"https://isso-t.adeo.no/isso/oauth2/connect/jwk_uri");
         System.setProperty(ISSO_EXPECTED_TOKEN_ISSUER,"https://isso-t.adeo.no:443/isso/oauth2");
-        System.setProperty(OIDC_REDIRECT_URL,"https://localhost:9592/veilarbportefoljeflatefs/tjenester/login");
+        System.setProperty(OIDC_REDIRECT_URL,"https://localhost:9592/veilarbportefoljeflatefs/api/login");
         System.setProperty(SYSTEMUSER_USERNAME,"!!CHANGEME!!");
         System.setProperty(SYSTEMUSER_PASSWORD,"!!CHANGEME!!");
 
