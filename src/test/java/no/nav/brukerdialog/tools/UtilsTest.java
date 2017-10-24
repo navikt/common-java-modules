@@ -9,14 +9,14 @@ public class UtilsTest {
 
     @Test
     public void skalKutteVekkDomene() {
-        String path = "https://app.adeo.no/veilarbportefoljeflatefs/tjenester/login";
-        assertThat(Utils.getRelativePath(path)).isEqualTo("/veilarbportefoljeflatefs/tjenester/login");
+        String path = "https://app.adeo.no/veilarbportefoljeflatefs/api/login";
+        assertThat(Utils.getRelativePath(path)).isEqualTo("/veilarbportefoljeflatefs/api/login");
     }
 
     @Test
     public void skalKutteVekkDomene2() {
-        String path = "https://localhost:9592/veilarbportefoljeflatefs/tjenester/login";
-        assertThat(Utils.getRelativePath(path)).isEqualTo("/veilarbportefoljeflatefs/tjenester/login");
+        String path = "https://localhost:9592/veilarbportefoljeflatefs/api/login";
+        assertThat(Utils.getRelativePath(path)).isEqualTo("/veilarbportefoljeflatefs/api/login");
     }
 
 
