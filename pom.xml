@@ -256,6 +256,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>no.nav.dialogarena</groupId>
+                <artifactId>smoketest</artifactId>
+                <version>${common.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>common-cxf</artifactId>
                 <version>${common.version}</version>
