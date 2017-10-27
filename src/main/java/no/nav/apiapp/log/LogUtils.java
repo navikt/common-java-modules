@@ -6,6 +6,8 @@ import ch.qos.logback.core.ContextBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class LogUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogUtils.class);
@@ -27,4 +29,8 @@ public class LogUtils {
         return (LoggerContext) contextBase;
     }
 
+    public static List<ch.qos.logback.classic.Logger> getAllLoggers() {
+        LoggerContext loggerContext = getLoggerContext();
+        return loggerContext.getLoggerList();
+    }
 }

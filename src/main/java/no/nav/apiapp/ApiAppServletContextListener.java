@@ -3,6 +3,7 @@ package no.nav.apiapp;
 
 import no.nav.apiapp.log.ContextDiscriminator;
 import no.nav.apiapp.log.LogUtils;
+import no.nav.apiapp.logging.LoginfoServlet;
 import no.nav.apiapp.metrics.PrometheusServlet;
 import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.rest.SwaggerResource;
@@ -75,6 +76,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     public static final String INTERNAL_SELFTEST = "/internal/selftest";
     public static final String INTERNAL_METRICS = "/internal/metrics";
     public static final String SWAGGER_PATH = "/internal/swagger/";
+    public static final String LOGINFO_PATH = "/internal/loginfo";
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
@@ -139,6 +141,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         leggTilServlet(servletContextEvent, SelfTestServlet.class, INTERNAL_SELFTEST);
         leggTilServlet(servletContextEvent, PrometheusServlet.class, INTERNAL_METRICS);
         leggTilServlet(servletContextEvent, new SwaggerUIServlet(apiApplication), SWAGGER_PATH + "*");
+        leggTilServlet(servletContextEvent, LoginfoServlet.class, LOGINFO_PATH);
 
         settOppRestApi(servletContextEvent, apiApplication);
         if (soapTjenesterEksisterer(servletContext)) {
