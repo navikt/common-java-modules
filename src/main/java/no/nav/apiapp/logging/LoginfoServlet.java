@@ -20,8 +20,10 @@ public class LoginfoServlet extends HttpServlet{
         List<Logger> loggers = LogUtils.getAllLoggers();
         String loggerAndLevel = loggers.stream().map(LoginfoServlet::createLogstring).collect(Collectors.joining(""));
         resp.setContentType("text/html");
+        resp.getWriter().write("<html><head></head><body>");
         resp.getWriter().write("<h1>Liste over alle loggere og loglevel</h1>");
         resp.getWriter().write(loggerAndLevel);
+        resp.getWriter().write("<body></html>");
     }
 
     private static String createLogstring(Logger logger) {
