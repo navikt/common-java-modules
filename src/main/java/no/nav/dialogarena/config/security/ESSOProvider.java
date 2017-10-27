@@ -50,7 +50,10 @@ public class ESSOProvider {
     }
 
     public static ESSOCredentials getEssoCredentialsForUser(String user, String environment) {
-        TestUser testUser = FasitUtils.getTestUser(user, environment);
+        return getEssoCredentialsForUser(FasitUtils.getTestUser(user, environment), environment);
+    }
+
+    public static ESSOCredentials getEssoCredentialsForUser(TestUser testUser, String environment) {
         return Util.httpClient(httpClient -> {
             String uri = String.format("https://tjenester-%s.nav.no/esso/UI/Login?service=level4Service&goto=https://tjenester-%s.nav.no/aktivitetsplan/", environment, environment);
             LOGGER.info(uri);
