@@ -12,6 +12,8 @@ public class LogUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogUtils.class);
 
+    public static final String ROOT = "ROOT";
+
     public static void setGlobalLogLevel(Level newLevel) {
         LOGGER.info("global log level: {}", newLevel);
         LoggerContext loggerContext = getLoggerContext();
@@ -32,5 +34,10 @@ public class LogUtils {
     public static List<ch.qos.logback.classic.Logger> getAllLoggers() {
         LoggerContext loggerContext = getLoggerContext();
         return loggerContext.getLoggerList();
+    }
+
+    public static Level getRootLevel() {
+        LoggerContext loggerContext = getLoggerContext();
+        return loggerContext.getLogger(ROOT).getLevel();
     }
 }

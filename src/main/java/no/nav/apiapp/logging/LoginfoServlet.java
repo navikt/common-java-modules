@@ -1,5 +1,6 @@
 package no.nav.apiapp.logging;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import no.nav.apiapp.log.LogUtils;
 
@@ -12,18 +13,31 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static no.nav.apiapp.log.LogUtils.getRootLevel;
+
 
 public class LoginfoServlet extends HttpServlet{
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         List<Logger> loggers = LogUtils.getAllLoggers();
-        String loggerAndLevel = loggers.stream().map(LoginfoServlet::createLogstring).collect(Collectors.joining(""));
+        Level rootLevel = loggers.get(0).getLevel();
+
+        String loggerAndLevel = loggers.stream()
+                .filter(LoginfoServlet::differentThatRootLevell)
+                .map(LoginfoServlet::createLogstring)
+                .collect(Collectors.joining(""));
+
         resp.setContentType("text/html");
         resp.getWriter().write("<html><head></head><body>");
-        resp.getWriter().write("<h1>Liste over alle loggere og loglevel</h1>");
+        resp.getWriter().write(String.format("<h1>ROOT log level: %s</h1>", rootLevel.toString()));
+        resp.getWriter().write("<h1>Loggere med annen log level enn ROOT</h1>");
         resp.getWriter().write(loggerAndLevel);
         resp.getWriter().write("<body></html>");
+    }
+
+    private static boolean differentThatRootLevell(Logger logger) {
+        return !logger.getEffectiveLevel().equals(getRootLevel());
     }
 
     private static String createLogstring(Logger logger) {
