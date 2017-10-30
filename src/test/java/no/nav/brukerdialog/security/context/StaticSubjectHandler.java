@@ -18,7 +18,7 @@ import javax.security.auth.Subject;
  *
  * @see ThreadLocalSubjectHandler
  */
-class StaticSubjectHandler extends TestSubjectHandler {
+public class StaticSubjectHandler extends TestSubjectHandler {
     private static final Subject DEFAULT_SUBJECT;
 
     static {
