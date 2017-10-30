@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import javax.net.ssl.SSLException;
 import javax.ws.rs.NotAuthorizedException;
+import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -184,6 +185,11 @@ public class FasitUtilsTest {
 
         Properties veilarbsituasjonproxyEnvironment = FasitUtils.getApplicationEnvironment("veilarbsituasjonproxy", "t6");
         assertThat(veilarbsituasjonproxyEnvironment.size(), greaterThan(10));
+    }
+
+    @Test
+    public void getBaseUrl() throws Exception {
+        new URL(FasitUtils.getBaseUrl("bekkci_slack_webhook_url"));
     }
 
 }

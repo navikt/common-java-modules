@@ -167,6 +167,20 @@ public class FasitUtils {
                 .setPassword(serviceUser.password);
     }
 
+    public static String getBaseUrl(String baseUrlAlias) {
+        return getBaseUrl(baseUrlAlias,getDefaultEnvironment());
+    }
+
+    public static String getBaseUrl(String baseUrlAlias, String environment) {
+        String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=BaseUrl&alias=%s&app=fasit",
+                environment,
+                getOeraLocal(environment),
+                baseUrlAlias
+        );
+        Document document = fetchXml(resourceUrl);
+        return extractStringProperty(document,"url");
+    }
+
     public static ServiceUser getServiceUser(String userAlias, String applicationName) {
         return getServiceUser(userAlias, applicationName, getDefaultEnvironment());
     }
