@@ -24,7 +24,7 @@ public class LoginfoServlet extends HttpServlet{
         Level rootLevel = loggers.get(0).getLevel();
 
         String loggerAndLevel = loggers.stream()
-                .filter(LoginfoServlet::differentThatRootLevell)
+                .filter(LoginfoServlet::differentThanRootLevel)
                 .map(LoginfoServlet::createLogstring)
                 .collect(Collectors.joining(""));
 
@@ -36,7 +36,7 @@ public class LoginfoServlet extends HttpServlet{
         resp.getWriter().write("<body></html>");
     }
 
-    private static boolean differentThatRootLevell(Logger logger) {
+    private static boolean differentThanRootLevel(Logger logger) {
         return !logger.getEffectiveLevel().equals(getRootLevel());
     }
 
