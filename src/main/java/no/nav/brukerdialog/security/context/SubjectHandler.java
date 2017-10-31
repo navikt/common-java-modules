@@ -92,7 +92,7 @@ public abstract class SubjectHandler {
         return null;
     }
 
-    String getConsumerId() {
+    public String getConsumerId() {
         if (!hasSubject()) {
             return null;
         }
