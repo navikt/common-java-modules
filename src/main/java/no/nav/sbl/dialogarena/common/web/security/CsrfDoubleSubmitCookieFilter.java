@@ -21,8 +21,12 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
     private static final Logger LOG = getLogger(SelfTestBaseServlet.class);
     private static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
+    private String[] ignoredUrls;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        String param = filterConfig.getInitParameter("ignoredUrls");
+        ignoredUrls = (param != null) ? param.split(",") : new String[] {};
     }
 
     @Override
@@ -30,15 +34,18 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        if ("GET".equals(request.getMethod())) {
-            if (request.getCookies() == null || stream(request.getCookies()).noneMatch(cookie -> cookie.getName().equals(CSRF_COOKIE_NAVN))) {
-                response.addCookie(createCsrfProtectionCookie(request));
-            }
-        } else {
-            if (!navCsrfCookieVerdi(request).equals(request.getHeader(CSRF_COOKIE_NAVN))) {
-                LOG.error("Feil i CSRF-sjekk. " +
-                        "Bruker du dette filteren må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien");
-                response.sendError(SC_UNAUTHORIZED, "Mangler NAV_CSRF_PROTECTION-cookie!! Du må inkludere cookien-verdien i en header med navn NAV_CSRF_PROTECTION");
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        if (stream(ignoredUrls).noneMatch(path::startsWith)) {
+            if ("GET".equals(request.getMethod())) {
+                if (request.getCookies() == null || stream(request.getCookies()).noneMatch(cookie -> cookie.getName().equals(CSRF_COOKIE_NAVN))) {
+                    response.addCookie(createCsrfProtectionCookie(request));
+                }
+            } else {
+                if (!navCsrfCookieVerdi(request).equals(request.getHeader(CSRF_COOKIE_NAVN))) {
+                    LOG.error("Feil i CSRF-sjekk. " +
+                            "Bruker du dette filteret må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien");
+                    response.sendError(SC_UNAUTHORIZED, "Mangler NAV_CSRF_PROTECTION-cookie!! Du må inkludere cookie-verdien i en header med navn NAV_CSRF_PROTECTION");
+                }
             }
         }
         filterChain.doFilter(request, response);
@@ -54,7 +61,7 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
 
     private RuntimeException manglerCsrfCookie() {
         return new RuntimeException("Mangler NAV_CSRF_PROTECTION-cookie. " +
-                "Det betyr at brukeren ikke har gjort et GET-request til en applikasjon med dette filteret før POST/PUT/DELETE, " +
+                "Det betyr at brukeren ikke har gjort en GET-request til en applikasjon med dette filteret før POST/PUT/DELETE, " +
                 "eller at brukeren har slettet tokenet fra browseren."
         );
     }
