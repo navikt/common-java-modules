@@ -9,6 +9,7 @@ public class InternbrukerSubjectHandler extends TestSubjectHandler {
     private static OidcCredential oidcCredential;
     private static String veilederIdent = "Z999999";
     private static String servicebruker = "srvServicebruker";
+    private static int authenticationLevel = 4;
 
     public static void setVeilederIdent(String ident) {
         veilederIdent = ident;
@@ -20,6 +21,9 @@ public class InternbrukerSubjectHandler extends TestSubjectHandler {
     public static void setOidcCredential(OidcCredential credential) {
         oidcCredential = credential;
     }
+    public static void setAuthLevel(int authLevel) {
+        authenticationLevel = authLevel;
+    }
 
     @Override
     public Subject getSubject() {
@@ -27,6 +31,7 @@ public class InternbrukerSubjectHandler extends TestSubjectHandler {
 
         subject.getPrincipals().add(new SluttBruker(veilederIdent, IdentType.InternBruker));
         subject.getPrincipals().add(new ConsumerId(servicebruker));
+        subject.getPublicCredentials().add(new AuthenticationLevelCredential(authenticationLevel));
         if (oidcCredential != null) {
             subject.getPublicCredentials().add(new OidcCredential(oidcCredential.getToken()));
         }
