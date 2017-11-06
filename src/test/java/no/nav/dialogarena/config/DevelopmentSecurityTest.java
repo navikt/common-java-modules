@@ -20,14 +20,14 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupIntegrationTestSecurity() {
         DevelopmentSecurity.setupIntegrationTestSecurity(
-                new DevelopmentSecurity.IntegrationTestConfig("veilarbsituasjon")
+                new DevelopmentSecurity.IntegrationTestConfig("veilarbaktivitet")
         );
     }
 
     @Test
     public void setupIntegrationTestSecurity_bakoverkompatibel() {
         DevelopmentSecurity.setupIntegrationTestSecurity(
-               FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon")
+               FasitUtils.getServiceUser("srvveilarbaktivitet", "veilarbaktivitet")
         );
     }
 
@@ -35,7 +35,7 @@ public class DevelopmentSecurityTest {
     public void setupJettyWithISSO() {
         Jetty jetty = DevelopmentSecurity.setupISSO(
                 jettyBuilder(),
-                new ISSOSecurityConfig("veilarbsituasjon")
+                new ISSOSecurityConfig("veilarbaktivitet")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
@@ -43,7 +43,7 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupISSO() {
         DevelopmentSecurity.setupISSO(
-                new ISSOSecurityConfig("veilarbsituasjon")
+                new ISSOSecurityConfig("veilarbaktivitet")
         );
     }
 
@@ -51,7 +51,7 @@ public class DevelopmentSecurityTest {
     public void setupJettyWithESSO() {
         Jetty jetty = DevelopmentSecurity.setupESSO(
                 jettyBuilder(),
-                new ESSOSecurityConfig("veilarbsituasjonproxy")
+                new ESSOSecurityConfig("veilarbaktivitetproxy")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
@@ -60,7 +60,7 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupESSO() {
         DevelopmentSecurity.setupESSO(
-                new ESSOSecurityConfig("veilarbsituasjonproxy")
+                new ESSOSecurityConfig("veilarbaktivitetproxy")
         );
     }
 
@@ -68,7 +68,7 @@ public class DevelopmentSecurityTest {
     public void setupJettyWithSamlLogin() {
         Jetty jetty = DevelopmentSecurity.setupSamlLogin(
                 jettyBuilder(),
-                new SamlSecurityConfig("veilarbsituasjon")
+                new SamlSecurityConfig("veilarbaktivitet")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
