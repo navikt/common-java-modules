@@ -9,6 +9,11 @@ public class IngenTilgang extends Feil {
     }
 
     @SuppressWarnings("unused")
+    public IngenTilgang(String feilmelding) {
+        super(INGEN_TILGANG, feilmelding);
+    }
+
+    @SuppressWarnings("unused")
     public IngenTilgang(Throwable e) {
         super(INGEN_TILGANG, e);
     }

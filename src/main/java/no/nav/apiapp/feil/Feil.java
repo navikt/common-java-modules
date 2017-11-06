@@ -12,6 +12,11 @@ public class Feil extends RuntimeException {
         this.type = type;
     }
 
+    public Feil(Type type, String feilmelding) {
+        super(feilmelding);
+        this.type = type;
+    }
+
     public Feil(Type type, Throwable throwable) {
         super(throwable);
         this.type = type;
