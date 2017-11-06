@@ -66,14 +66,14 @@ public class FasitUtilsTest {
         ApplicationConfig aktivitetsplanApplicationConfig = FasitUtils.getApplicationConfig("aktivitetsplan", "t6");
         assertThat(aktivitetsplanApplicationConfig.domain, equalTo("oera-t.local"));
 
-        ApplicationConfig situasjonApplicationConfig = FasitUtils.getApplicationConfig("veilarbsituasjon", "t6");
+        ApplicationConfig situasjonApplicationConfig = FasitUtils.getApplicationConfig("veilarbaktivitet", "t6");
         assertThat(situasjonApplicationConfig.domain, equalTo("test.local"));
     }
 
     @Test
     public void getServiceUser() {
-        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon");
-        assertThat(serviceUser.username, equalTo("srvveilarbsituasjon"));
+        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbaktivitet", "veilarbaktivitet");
+        assertThat(serviceUser.username, equalTo("srvveilarbaktivitet"));
         assertThat(serviceUser.password, not(nullValue()));
     }
 
@@ -82,7 +82,7 @@ public class FasitUtilsTest {
         String property = System.getProperty(FASIT_USERNAME_VARIABLE_NAME);
         try {
             System.setProperty(FASIT_USERNAME_VARIABLE_NAME, "invalidpassword");
-            FasitUtils.getServiceUser("srvveilarbsituasjon", "veilarbsituasjon", "t6");
+            FasitUtils.getServiceUser("srvveilarbaktivitet", "veilarbaktivitet", "t6");
         } finally {
             if (property != null) {
                 System.setProperty(FASIT_USERNAME_VARIABLE_NAME, property);
@@ -94,8 +94,8 @@ public class FasitUtilsTest {
 
     @Test
     public void getServiceUser_aliasDifferentFromUsername() {
-        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbsituasjonproxy", "veilarbsituasjonproxy", "t6");
-        assertThat(serviceUser.username, equalTo("srvveilarbsituasjo"));
+        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbaktivitetproxy", "veilarbaktivitetproxy", "t6");
+        assertThat(serviceUser.username, equalTo("srvveilarbaktivite"));
         assertThat(serviceUser.password, not(nullValue()));
     }
 
@@ -122,7 +122,7 @@ public class FasitUtilsTest {
 
     @Test
     public void getLdapConfig() {
-        LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap", "veilarbsituasjon", "t6");
+        LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap", "veilarbaktivitet", "t6");
         assertThat(ldapConfig.username, equalTo("srvSSOLinux"));
         assertThat(ldapConfig.password, not(nullValue()));
     }
@@ -180,11 +180,11 @@ public class FasitUtilsTest {
         Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("veilarbdialog");
         assertThat(applicationEnvironment.size(), greaterThan(10));
 
-        Properties veilarbsituasjonEnvironment = FasitUtils.getApplicationEnvironment("veilarbsituasjon", "t6");
-        assertThat(veilarbsituasjonEnvironment.size(), greaterThan(10));
+        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitet", "t6");
+        assertThat(veilarbaktivitetEnvironment.size(), greaterThan(10));
 
-        Properties veilarbsituasjonproxyEnvironment = FasitUtils.getApplicationEnvironment("veilarbsituasjonproxy", "t6");
-        assertThat(veilarbsituasjonproxyEnvironment.size(), greaterThan(10));
+        Properties veilarbaktivitetproxyEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitetproxy", "t6");
+        assertThat(veilarbaktivitetproxyEnvironment.size(), greaterThan(10));
     }
 
     @Test
