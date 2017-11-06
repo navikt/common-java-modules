@@ -9,7 +9,7 @@ import static no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType.VeilArb
 
 public class PepClientIntegrationTest implements PepClientTester {
 
-    public static final String EKSEMPEL_APPLIKASJON = "veilarbsituasjon";
+    public static final String EKSEMPEL_APPLIKASJON = "veilarbaktivitet";
 
     @BeforeAll
     public static void setup() {
