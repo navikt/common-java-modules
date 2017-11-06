@@ -28,6 +28,9 @@ public class JsonUtilsTest {
             + "}";
     private static final String EMPTY_ENUM_VALUE_JSON = "{\"aString\":\"test\",\"enEnum\":\"\"}";
     private static final String ELDGAMMEL_DATE = "{\"date\":\"0201-09-08T23:09:21+00:09:21\"}";
+    // eldgamle datoer med sekund-offset skaper problemer for bl.a. moment js.
+    // velger derfor å formattere gamle datoer uten offset
+    private static final String SERIALISERT_ELDGAMMEL_DATE = "\"0201-09-08T23:09:21\"";
 
     @Nested
     class toJson {
@@ -85,7 +88,9 @@ public class JsonUtilsTest {
 
         @Test
         public void eldgammelDate() {
-            assertThat(fromJson(ELDGAMMEL_DATE, TestObject.class).date).isEqualTo(new Date(-55802566800000L));
+            Date date = fromJson(ELDGAMMEL_DATE, TestObject.class).date;
+            assertThat(date).isEqualTo(new Date(-55802566800000L));
+            assertThat(toJson(date)).isEqualTo(SERIALISERT_ELDGAMMEL_DATE);
         }
 
     }

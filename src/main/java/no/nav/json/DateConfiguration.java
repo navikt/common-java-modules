@@ -13,15 +13,19 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.*;
+import java.time.chrono.ChronoZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.time.LocalTime.NOON;
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+import static java.time.ZoneId.systemDefault;
+import static java.time.format.DateTimeFormatter.*;
 import static no.nav.json.StringUtils.of;
 
 public class DateConfiguration {
+
+    private static final ZonedDateTime _1800 = ZonedDateTime.of(1800,1,1,0,0, 0, 0, systemDefault());
 
     private static final Map<Class, BaseProvider<?>> converters = new HashMap<>();
     public static final ZoneId DEFAULT_ZONE = ZoneId.of("Europe/Paris");
@@ -97,7 +101,10 @@ public class DateConfiguration {
 
         @Override
         public String toString(T value) {
-            return from(value).format(ISO_OFFSET_DATE_TIME);
+            ZonedDateTime zonedDateTime = from(value);
+            // eldgamle datoer med sekund-offset skaper problemer for bl.a. moment js.
+            // velger derfor å formattere gamle datoer uten offset
+            return zonedDateTime.isBefore(_1800) ? zonedDateTime.format(ISO_LOCAL_DATE_TIME) : zonedDateTime.format(ISO_OFFSET_DATE_TIME);
         }
 
     }
