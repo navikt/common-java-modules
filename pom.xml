@@ -44,8 +44,18 @@
 
         <!-- SOAP -->
         <neethi.version>3.0.3</neethi.version>
-        <cxf-core.version>3.1.11</cxf-core.version>
-        <cxf-api.version>2.7.6</cxf-api.version>
+
+
+        <!--
+        NB:
+        3.1.x versjoner av cxf medførte ssl handshake_failure / SSLHandshakeException
+        Det kunne virke som dette hadde sammenheng med: https://support.f5.com/csp/article/K10433354
+        Men vi kom aldri helt til bunns i nøyaktig hva som trigget feilen.
+        Vær obs på dette ved oppgradering av cxf
+        Ref https://jira.adeo.no/browse/F17HL4-565
+        -->
+        <cxf-core.version>3.2.1</cxf-core.version>
+
         <xml-apis.version>1.4.01</xml-apis.version>
 
         <!-- JMS -->
@@ -819,11 +829,6 @@
             </dependency>
 
             <!-- SOAP -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-api</artifactId>
-                <version>${cxf-api.version}</version>
-            </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-core</artifactId>
