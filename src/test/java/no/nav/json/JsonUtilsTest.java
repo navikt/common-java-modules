@@ -27,10 +27,16 @@ public class JsonUtilsTest {
             + "  \"date\" : \"2017-08-09T13:49:13.816+02:00\"" + lineSeparator()
             + "}";
     private static final String EMPTY_ENUM_VALUE_JSON = "{\"aString\":\"test\",\"enEnum\":\"\"}";
-    private static final String ELDGAMMEL_DATE = "{\"date\":\"0201-09-08T23:09:21+00:09:21\"}";
+
     // eldgamle datoer med sekund-offset skaper problemer for bl.a. moment js.
     // velger derfor å formattere gamle datoer uten offset
-    private static final String SERIALISERT_ELDGAMMEL_DATE = "\"0201-09-08T23:09:21\"";
+    private static final String ELDGAMMEL_DATE_MED_SAER_OFFSET = "{\"date\":\"0201-09-08T23:31:54+00:09:21\"}";
+    private static final String ELDGAMMEL_DATE_MED_ZULU = "{\"date\":\"0201-09-08T23:22:33Z\"}";
+    private static final String SERIALISERT_ELDGAMMEL_DATE = "\"0201-09-08T23:22:33Z\"";
+    // ELDGAMMEL_DATE_MED_SAER_OFFSET -> SERIALISERT_ELDGAMMEL_DATE: minutter/sekunder endrer seg fordi vi flytter datoen fra sært offset til zulu
+    // ELDGAMMEL_DATE_MED_ZULU -> SERIALISERT_ELDGAMMEL_DATE: minutter/sekunder endrer seg ikke
+
+
 
     @Nested
     class toJson {
@@ -88,8 +94,15 @@ public class JsonUtilsTest {
 
         @Test
         public void eldgammelDate() {
-            Date date = fromJson(ELDGAMMEL_DATE, TestObject.class).date;
-            assertThat(date).isEqualTo(new Date(-55802566800000L));
+            Date date = fromJson(ELDGAMMEL_DATE_MED_SAER_OFFSET, TestObject.class).date;
+            assertThat(date).isEqualTo(new Date(-55802565447000L));
+            assertThat(toJson(date)).isEqualTo(SERIALISERT_ELDGAMMEL_DATE);
+        }
+
+        @Test
+        public void eldgammelDateUtenOffset() {
+            Date date = fromJson(ELDGAMMEL_DATE_MED_ZULU, TestObject.class).date;
+            assertThat(date).isEqualTo(new Date(-55802565447000L));
             assertThat(toJson(date)).isEqualTo(SERIALISERT_ELDGAMMEL_DATE);
         }
 
