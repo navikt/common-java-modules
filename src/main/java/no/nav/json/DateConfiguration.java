@@ -104,7 +104,7 @@ public class DateConfiguration {
             ZonedDateTime zonedDateTime = from(value);
             // eldgamle datoer med sekund-offset skaper problemer for bl.a. moment js.
             // velger derfor å formattere gamle datoer uten offset
-            return zonedDateTime.isBefore(_1800) ? zonedDateTime.format(ISO_LOCAL_DATE_TIME) : zonedDateTime.format(ISO_OFFSET_DATE_TIME);
+            return zonedDateTime.isBefore(_1800) ? Instant.from(zonedDateTime).toString() : zonedDateTime.format(ISO_OFFSET_DATE_TIME);
         }
 
     }
