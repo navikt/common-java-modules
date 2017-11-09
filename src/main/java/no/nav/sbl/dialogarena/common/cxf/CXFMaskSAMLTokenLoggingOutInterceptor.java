@@ -27,11 +27,11 @@ public class CXFMaskSAMLTokenLoggingOutInterceptor extends LoggingOutInterceptor
     }
 
     @Override
-    protected void writePayload(StringBuilder builder, CachedOutputStream cos, String encoding, String contentType) throws Exception {
+    protected void writePayload(StringBuilder builder, CachedOutputStream cos, String encoding, String contentType, boolean truncated) throws Exception {
         if(contentType.contains("xml") && maskerSAMLToken) {
-            super.writePayload(builder, getMaskedOutputStream(cos), encoding, contentType);
+            super.writePayload(builder, getMaskedOutputStream(cos), encoding, contentType, truncated);
         } else {
-            super.writePayload(builder, cos, encoding, contentType);
+            super.writePayload(builder, cos, encoding, contentType, truncated);
         }
     }
 
