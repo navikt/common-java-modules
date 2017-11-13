@@ -62,12 +62,10 @@ public class SensuHandlerTest {
     }
 
     private String finnJsonString(List<String> writtenStrings) {
-        int index = 0;
-        String string = writtenStrings.get(index++);
-        while (!string.startsWith("{")) {
-            string = writtenStrings.get(index++);
-        }
-        return string;
+        return writtenStrings.stream()
+                .filter(s -> s.startsWith("{"))
+                .findFirst()
+                .orElseThrow(()-> new IllegalArgumentException(writtenStrings.toString()));
     }
 
 }
