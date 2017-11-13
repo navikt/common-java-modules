@@ -3,6 +3,8 @@ package no.nav.sbl.dialogarena.common.web.selftest;
 import lombok.SneakyThrows;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
+import org.assertj.core.api.Assertions;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,9 +27,8 @@ import static java.util.stream.IntStream.range;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_ERROR;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestServletTest.TestPingable.PING_TID;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
-import static org.hamcrest.Matchers.lessThan;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,25 +57,27 @@ public class SelfTestServletTest {
     public void testSelfTestBase() throws ServletException, IOException {
         baseServlet.doGet(mockRequest, mockResponse);
 
-        assertNotNull(baseServlet);
-        assertThat(baseServlet.getApplicationName(), is("TestApp"));
-        assertThat(baseServlet.getApplicationVersion(), is("unknown version"));
-        assertTrue(baseServlet.getHost().endsWith(".devillo.no"));
-        assertThat(baseServlet.getAggregertStatus(), is(STATUS_ERROR));
-        assertThat(baseServlet.getPingables().size(), is(3));
+        assertThat(baseServlet).isNotNull();
+        assertThat(baseServlet.getApplicationName()).isEqualTo("TestApp");
+        assertThat(baseServlet.getApplicationVersion()).isEqualTo("unknown version");
+        assertThat(baseServlet.getHost()).isNotBlank();
+        assertThat(baseServlet.getAggregertStatus()).isEqualTo(STATUS_ERROR);
+        assertThat(baseServlet.getPingables().size()).isEqualTo(3);
     }
 
-    @Test(timeout = PING_TID * 10)
+    public static final int THREADS = 100;
+
+    @Test(timeout = PING_TID * THREADS)
     public void beskyttPingablesMotMangeSamtidigeRequesterMenBevarHoyThroughput() throws ServletException, IOException {
-        ExecutorService executorService = newFixedThreadPool(100);
+        ExecutorService executorService = newFixedThreadPool(THREADS);
         range(0, 100)
                 .mapToObj((i) -> executorService.submit(this::get))
                 .collect(toList()).stream() // tvinger alle submits før vi resolver
                 .forEach(SelfTestServletTest::resolveFuture);
 
-        assertThat(pingA.counter.get(), lessThan(5));
-        assertThat(pingB.counter.get(), lessThan(5));
-        assertThat(pingC.counter.get(), lessThan(5));
+        assertThat(pingA.counter.get()).isLessThan(5);
+        assertThat(pingB.counter.get()).isLessThan(5);
+        assertThat(pingC.counter.get()).isLessThan(5);
         executorService.shutdown();
     }
 
