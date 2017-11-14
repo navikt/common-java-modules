@@ -22,7 +22,7 @@ public class SensuHandlerTest {
         SensuHandler sensuHandler = new SensuHandler("testApp");
         sensuHandler.report("testOutput");
 
-        Thread.sleep(100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
+        Thread.sleep(500); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
 
         final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
 
