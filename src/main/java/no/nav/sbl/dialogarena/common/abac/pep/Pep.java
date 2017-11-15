@@ -36,6 +36,9 @@ public interface Pep {
 
     BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String oidcToken, String domain) throws PepException;
 
+    RequestData nyRequest() throws PepException;
+
+    BiasedDecisionResponse harTilgang(RequestData requestData) throws PepException;
     BiasedDecisionResponse harTilgang(Request request) throws PepException;
 
     BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException;

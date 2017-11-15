@@ -9,7 +9,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 
 @Getter
-@Setter
 @Wither
 @Accessors(chain = true)
 @AllArgsConstructor
@@ -24,6 +23,5 @@ public class RequestData {
     private ResourceType resourceType;
     private String credentialResource;
 
-    RequestData() {}
-
+    public RequestData() { }
 }
