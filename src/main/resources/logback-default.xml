@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included scan="true" scanPeriod="30 seconds">
+    <include resource="logback-abac.xml"/>
 
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
 
