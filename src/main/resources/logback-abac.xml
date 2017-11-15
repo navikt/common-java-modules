@@ -16,24 +16,8 @@
             <pattern>%date{ISO8601} ${applicationName} %level %mdc %m%n%rEx</pattern>
         </encoder>
     </appender>
-    <appender name="sporinglog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${APP_LOG_HOME}/${THIS_LIBRARY}-sporing.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${APP_LOG_HOME}/${THIS_LIBRARY}-sporing-%d{yyyy-MM-dd}.gz</fileNamePattern>
-            <maxHistory>365</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d [%-5level] [%thread] %logger{5} - %m%n</pattern>
-        </encoder>
-    </appender>
 
-    <logger name="auditlog" level="INFO">
-        <appender-ref ref="sporinglog"/>
-    </logger>
-
-
-    <logger name="httplog" level="${ABAC_TJENESTEKALL_LOG_LEVEL:-INFO}">
+    <logger name="AuditLogger" level="${ABAC_TJENESTEKALL_LOG_LEVEL:-INFO}" additivity="false">
         <appender-ref ref="tjenestekall-abac"/>
     </logger>
-
 </included>

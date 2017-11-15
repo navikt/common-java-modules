@@ -1,14 +1,16 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import lombok.extern.slf4j.Slf4j;
-import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils;
+import org.slf4j.Logger;
 
-@Slf4j
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class AuditLogger {
+
+    private static final Logger log = getLogger("AuditLogger");
 
     void logRequestInfo(Request request) {
         log.info("NAV-ident: " + SecurityUtils.getIdent().orElse("-") +
