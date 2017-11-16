@@ -17,7 +17,13 @@
         </encoder>
     </appender>
 
-    <logger name="AuditLogger" level="${ABAC_TJENESTEKALL_LOG_LEVEL:-INFO}" additivity="false">
+
+    <appender name="tjenestekall-abac-async-file" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="tjenestekall-abac"/>
+    </appender>
+
+    <logger name="AuditLogger" level="${ABAC_TJENESTEKALL_LOG_LEVEL:-INFO}" additivity="false">
+        <appender-ref ref="tjenestekall-abac-async-file"/>
     </logger>
+
 </included>
