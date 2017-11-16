@@ -86,9 +86,7 @@ public class PepImpl implements Pep {
     @Override
     public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain, Action.ActionId action, ResourceType resourceType) throws PepException {
         validateFnr(fnr);
-        return harTilgang(buildRequest()
-                .withSamlToken(getSamlToken().orElse(null))
-                .withOidcToken(getOidcToken().orElse(null))
+        return harTilgang(nyRequest()
                 .withFnr(fnr)
                 .withAction(action)
                 .withDomain(domain)
@@ -130,13 +128,21 @@ public class PepImpl implements Pep {
         );
     }
 
+    @Override
+    public RequestData nyRequest() throws PepException {
+        return buildRequest()
+                .withSamlToken(getSamlToken().orElse(null))
+                .withOidcToken(getOidcToken().orElse(null));
+    }
+
     @SneakyThrows
     private RequestData buildRequest() {
         return new RequestData().withCredentialResource(getCredentialResource());
     }
 
     @SneakyThrows
-    private BiasedDecisionResponse harTilgang(RequestData requestData) {
+    @Override
+    public BiasedDecisionResponse harTilgang(RequestData requestData) {
         return harTilgang(new XacmlRequestGenerator().makeRequest(requestData));
     }
 
