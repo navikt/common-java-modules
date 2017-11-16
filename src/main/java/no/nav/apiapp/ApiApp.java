@@ -1,6 +1,7 @@
 package no.nav.apiapp;
 
 import lombok.SneakyThrows;
+import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -54,6 +55,7 @@ public class ApiApp {
         }
 
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(jetty));
+        System.setProperty(MetricsFactory.DISABLE_METRICS_REPORT_KEY,Boolean.TRUE.toString());
         LOGGER.info("oppstartstid: {} ms", System.currentTimeMillis() - start);
         jetty.server.join();
     }
