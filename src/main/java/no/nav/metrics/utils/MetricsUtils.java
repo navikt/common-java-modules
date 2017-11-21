@@ -18,10 +18,9 @@ public class MetricsUtils {
         return (S s) -> {
             boolean hasFailed = false;
             Timer timer = MetricsFactory.createTimer(navn);
-            T t;
             try {
                 timer.start();
-                t = function.apply(s);
+                return function.apply(s);
             } catch (Throwable e) {
                 hasFailed = true;
                 timer.setFailed();
@@ -35,7 +34,6 @@ public class MetricsUtils {
 
                 timer.report();
             }
-            return t;
         };
     }
 
