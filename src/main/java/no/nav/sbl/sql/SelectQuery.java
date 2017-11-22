@@ -3,6 +3,7 @@ package no.nav.sbl.sql;
 import io.vavr.Tuple;
 import io.vavr.Tuple3;
 import lombok.SneakyThrows;
+import no.nav.sbl.sql.order.OrderClause;
 import no.nav.sbl.sql.where.WhereClause;
 
 import javax.sql.DataSource;
@@ -25,6 +26,7 @@ public class SelectQuery<T> {
     private List<String> columnNames;
     private Function<ResultSet, T> mapper;
     private WhereClause where;
+    private OrderClause order;
     private Tuple3<String, String, String> leftJoinOn;
 
     SelectQuery(DataSource ds, String tableName, Function<ResultSet, T> mapper) {
@@ -49,6 +51,11 @@ public class SelectQuery<T> {
         return this;
     }
 
+    public SelectQuery<T> orderBy(OrderClause order) {
+        this.order = order;
+        return this;
+    }
+
     @SneakyThrows
     public T execute() {
         validate();
@@ -56,7 +63,9 @@ public class SelectQuery<T> {
         try (Connection conn = ds.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            where.applyTo(ps, 1);
+            if (where != null) {
+                where.applyTo(ps, 1);
+            }
             ResultSet resultSet = timedPreparedStatement(sql, ps::executeQuery);
             if(!resultSet.next()) {
                 return null;
@@ -76,7 +85,9 @@ public class SelectQuery<T> {
         try (Connection conn = ds.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            where.applyTo(ps, 1);
+            if (where != null) {
+                where.applyTo(ps, 1);
+            }
             ResultSet resultSet = timedPreparedStatement(sql, ps::executeQuery);
 
             while(resultSet.next()) {
@@ -90,10 +101,10 @@ public class SelectQuery<T> {
     }
 
     private void validate() {
-        if (tableName == null || columnNames.isEmpty()|| this.where == null) {
+        if (tableName == null || columnNames.isEmpty()) {
             throw new SqlUtilsException(
                     "I need more data to create a sql-statement. " +
-                    "Did you remember to specify table, columns or a where clause?"
+                    "Did you remember to specify table and columns?"
             );
         }
 
@@ -125,11 +136,17 @@ public class SelectQuery<T> {
                     leftJoinOn._3) );
         }
 
-        sqlBuilder
-                .append(" WHERE ");
+        if (this.where != null) {
+            sqlBuilder
+                    .append(" WHERE ");
 
-        sqlBuilder
-                .append(this.where.toSql());
+            sqlBuilder
+                    .append(this.where.toSql());
+        }
+
+        if (this.order != null) {
+            sqlBuilder.append(this.order.toSql());
+        }
 
         return sqlBuilder.toString();
     }
