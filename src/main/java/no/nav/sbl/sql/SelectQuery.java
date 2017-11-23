@@ -27,6 +27,8 @@ public class SelectQuery<T> {
     private Function<ResultSet, T> mapper;
     private WhereClause where;
     private OrderClause order;
+    private Integer offset;
+    private Integer rowCount;
     private Tuple3<String, String, String> leftJoinOn;
 
     SelectQuery(DataSource ds, String tableName, Function<ResultSet, T> mapper) {
@@ -54,6 +56,16 @@ public class SelectQuery<T> {
     public SelectQuery<T> orderBy(OrderClause order) {
         this.order = order;
         return this;
+    }
+
+    public SelectQuery<T> limit(int offset, int rowCount) {
+        this.offset = offset;
+        this.rowCount = rowCount;
+        return this;
+    }
+
+    public SelectQuery<T> limit(int rowCount) {
+        return limit(0, rowCount);
     }
 
     @SneakyThrows
@@ -146,6 +158,10 @@ public class SelectQuery<T> {
 
         if (this.order != null) {
             sqlBuilder.append(this.order.toSql());
+        }
+
+        if (this.offset != null) {
+            sqlBuilder.append(String.format(" OFFSET %d ROWS FETCH NEXT %d ROWS ONLY", offset, rowCount));
         }
 
         return sqlBuilder.toString();
