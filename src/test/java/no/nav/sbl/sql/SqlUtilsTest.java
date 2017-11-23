@@ -266,6 +266,27 @@ public class SqlUtilsTest {
         assertThat(birthdayNull.get(0).getBirthday()).isNull();
     }
 
+    @Test
+    public void fetchFirst() {
+        getTestobjectWithId("003").setDead(true).setNumberOfPets(2).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("004").setDead(true).setNumberOfPets(3).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("009").setDead(true).setNumberOfPets(8).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("007").setDead(true).setNumberOfPets(6).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("002").setDead(true).setNumberOfPets(1).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("008").setDead(true).setNumberOfPets(7).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("001").setDead(true).setNumberOfPets(0).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("006").setDead(true).setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("005").setDead(true).setNumberOfPets(4).toInsertQuery(db, TESTTABLE1).execute();
+
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .orderBy(OrderClause.asc(NUMBER_OF_PETS))
+                .fetchFirst(5)
+                .executeToList();
+
+        assertThat(testobjects.stream()
+                .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(0,1,2,3,4));
+    }
+
     private Testobject getTestobjectWithId(String id) {
         return new Testobject()
                 .setNavn("navn navnesen")

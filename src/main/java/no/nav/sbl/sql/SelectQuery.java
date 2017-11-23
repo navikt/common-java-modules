@@ -27,6 +27,7 @@ public class SelectQuery<T> {
     private Function<ResultSet, T> mapper;
     private WhereClause where;
     private OrderClause order;
+    private Integer fetchFirst;
     private Tuple3<String, String, String> leftJoinOn;
 
     SelectQuery(DataSource ds, String tableName, Function<ResultSet, T> mapper) {
@@ -53,6 +54,11 @@ public class SelectQuery<T> {
 
     public SelectQuery<T> orderBy(OrderClause order) {
         this.order = order;
+        return this;
+    }
+
+    public SelectQuery<T> fetchFirst(int first) {
+        this.fetchFirst = first;
         return this;
     }
 
@@ -146,6 +152,10 @@ public class SelectQuery<T> {
 
         if (this.order != null) {
             sqlBuilder.append(this.order.toSql());
+        }
+
+        if (this.fetchFirst != null) {
+            sqlBuilder.append(String.format(" FETCH FIRST %d ROWS ONLY", fetchFirst));
         }
 
         return sqlBuilder.toString();
