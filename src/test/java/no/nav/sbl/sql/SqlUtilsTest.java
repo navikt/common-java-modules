@@ -267,7 +267,7 @@ public class SqlUtilsTest {
     }
 
     @Test
-    public void fetchFirst() {
+    public void limit() {
         getTestobjectWithId("003").setDead(true).setNumberOfPets(2).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("004").setDead(true).setNumberOfPets(3).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("009").setDead(true).setNumberOfPets(8).toInsertQuery(db, TESTTABLE1).execute();
@@ -280,11 +280,32 @@ public class SqlUtilsTest {
 
         List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
                 .orderBy(OrderClause.asc(NUMBER_OF_PETS))
-                .fetchFirst(5)
+                .limit(5)
                 .executeToList();
 
         assertThat(testobjects.stream()
                 .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(0,1,2,3,4));
+    }
+
+    @Test
+    public void limitWithOffset() {
+        getTestobjectWithId("003").setDead(true).setNumberOfPets(2).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("004").setDead(true).setNumberOfPets(3).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("009").setDead(true).setNumberOfPets(8).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("007").setDead(true).setNumberOfPets(6).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("002").setDead(true).setNumberOfPets(1).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("008").setDead(true).setNumberOfPets(7).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("001").setDead(true).setNumberOfPets(0).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("006").setDead(true).setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("005").setDead(true).setNumberOfPets(4).toInsertQuery(db, TESTTABLE1).execute();
+
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .orderBy(OrderClause.asc(NUMBER_OF_PETS))
+                .limit(2, 5)
+                .executeToList();
+
+        assertThat(testobjects.stream()
+                .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(2,3,4,5,6));
     }
 
     private Testobject getTestobjectWithId(String id) {
