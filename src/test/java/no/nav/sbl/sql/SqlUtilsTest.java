@@ -1,6 +1,7 @@
 package no.nav.sbl.sql;
 
 import no.nav.sbl.jdbc.TestUtils;
+import no.nav.sbl.sql.order.OrderClause;
 import no.nav.sbl.sql.where.WhereClause;
 import no.nav.sbl.sql.where.WhereIn;
 import no.nav.sbl.sql.where.WhereIsNotNull;
@@ -190,6 +191,64 @@ public class SqlUtilsTest {
                 .execute();
 
         assertThat(retrieved.getAddress()).isEqualTo("andeby");
+    }
+
+    @Test
+    public void selectAll() {
+        getTestobjectWithId("001").toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("002").toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("003").toInsertQuery(db, TESTTABLE1).execute();
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+
+        assertThat(testobjects.size()).isEqualTo(3);
+    }
+
+    @Test
+    public void orderByDesc() {
+        getTestobjectWithId("001").setNumberOfPets(0).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("002").setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("003").setNumberOfPets(10).toInsertQuery(db, TESTTABLE1).execute();
+
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .orderBy(OrderClause.desc("NUMBER_OF_PETS"))
+                .executeToList();
+
+        assertThat(testobjects.size()).isEqualTo(3);
+        assertThat(testobjects.get(0).numberOfPets).isEqualTo(10);
+        assertThat(testobjects.get(0).id).isEqualTo("003");
+    }
+
+    @Test
+    public void orderByAsc() {
+        getTestobjectWithId("001").setNumberOfPets(10).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("002").setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("003").setNumberOfPets(0).toInsertQuery(db, TESTTABLE1).execute();
+
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .orderBy(OrderClause.asc("NUMBER_OF_PETS"))
+                .executeToList();
+
+        assertThat(testobjects.size()).isEqualTo(3);
+        assertThat(testobjects.get(0).numberOfPets).isEqualTo(0);
+        assertThat(testobjects.get(0).id).isEqualTo("003");
+    }
+
+    @Test
+    public void orderAndWhere() {
+        getTestobjectWithId("001").setDead(true).setNumberOfPets(0).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("002").setDead(true).setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("003").setDead(true).setNumberOfPets(10).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("004").setNumberOfPets(20).toInsertQuery(db, TESTTABLE1).execute();
+        getTestobjectWithId("005").setNumberOfPets(25).toInsertQuery(db, TESTTABLE1).execute();
+
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.equals("DEAD", true))
+                .orderBy(OrderClause.desc("NUMBER_OF_PETS"))
+                .executeToList();
+
+        assertThat(testobjects.size()).isEqualTo(3);
+        assertThat(testobjects.get(0).numberOfPets).isEqualTo(10);
+        assertThat(testobjects.get(0).id).isEqualTo("003");
     }
 
     @Test
