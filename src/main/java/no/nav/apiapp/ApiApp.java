@@ -6,11 +6,13 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.ServletContextListener;
 import java.io.File;
 
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
+import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 
 public class ApiApp {
 
@@ -20,6 +22,8 @@ public class ApiApp {
 
     @SneakyThrows
     public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
+        System.setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString());
+
         long start = System.currentTimeMillis();
         int httpPort = httpPort(args);
 
@@ -35,8 +39,10 @@ public class ApiApp {
         File file = devPath.exists() ? devPath : runtimePath;
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
+        ApiApplication apiApplication = apiAppClass.newInstance();
+        String contextPath = apiApplication.brukContextPath() ? "/" + apiApplication.getApplicationName() : "/";
         Jetty jetty = Jetty.usingWar(file)
-                .at("/" + apiAppClass.newInstance().getApplicationName())
+                .at(contextPath)
                 .port(httpPort)
                 .disableAnnotationScanning()
                 .buildJetty();
@@ -55,7 +61,6 @@ public class ApiApp {
         }
 
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(jetty));
-        System.setProperty(MetricsFactory.DISABLE_METRICS_REPORT_KEY,Boolean.TRUE.toString());
         LOGGER.info("oppstartstid: {} ms", System.currentTimeMillis() - start);
         jetty.server.join();
     }

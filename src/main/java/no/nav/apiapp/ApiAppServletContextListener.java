@@ -91,10 +91,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         LOGGER.info("onStartup");
-        if (!disablet(servletContext)) {
-            konfigurerLogging(servletContext);
-        }
-            konfigurerSpring(servletContext);
+        konfigurerSpring(servletContext);
     }
 
     @Override
@@ -116,12 +113,12 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         if (disablet(servletContext)) {
             return;
         }
-        konfigurerLogging(servletContext);
 
         if (!erSpringSattOpp(servletContextEvent)) {
             konfigurerSpring(servletContext);
         }
         ApiApplication apiApplication = startSpring(servletContextEvent);
+        konfigurerLogging(apiApplication);
 
         if (apiApplication.getSone() == SBS) {
             leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
@@ -147,7 +144,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         if (soapTjenesterEksisterer(servletContext)) {
             leggTilServlet(servletContextEvent, new SoapServlet(), "/ws/*");
         }
-        settOppSessionOgCookie(servletContextEvent);
+        settOppSessionOgCookie(servletContextEvent, apiApplication);
         LOGGER.info("contextInitialized - slutt");
         apiApplication.startup(servletContext);
     }
@@ -177,8 +174,8 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     }
 
-    private void konfigurerLogging(ServletContext servletContext) {
-        ContextDiscriminator.setContextName(getApplicationName(servletContext));
+    private void konfigurerLogging(ApiApplication apiApplication) {
+        ContextDiscriminator.setContextName(apiApplication.getApplicationName());
     }
 
     private void konfigurerSpring(ServletContext servletContext) {
@@ -254,9 +251,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         SwaggerResource.setupServlet(servletRegistration);
     }
 
-    private void settOppSessionOgCookie(ServletContextEvent servletContextEvent) {
+    private void settOppSessionOgCookie(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
         ServletContext servletContext = servletContextEvent.getServletContext();
-        String sessionCookieName = getApplicationName(servletContext).toUpperCase() + "_JSESSIONID";
+        String sessionCookieName = apiApplication.getApplicationName().toUpperCase() + "_JSESSIONID";
 
         SessionCookieConfig sessionCookieConfig = servletContext.getSessionCookieConfig();
         sessionCookieConfig.setHttpOnly(true);

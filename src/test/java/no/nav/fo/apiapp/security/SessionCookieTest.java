@@ -1,18 +1,20 @@
 package no.nav.fo.apiapp.security;
 
+import no.nav.fo.apiapp.ApplicationConfig;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
 import javax.ws.rs.core.NewCookie;
 
 import static java.lang.Thread.sleep;
+import static no.nav.fo.apiapp.ApplicationConfig.APPLICATION_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 
 public class SessionCookieTest extends JettyTest {
 
-    private static final String SESJONS_COOKIE_NAVN = CONTEXT_NAME.toUpperCase() + "_JSESSIONID";
+    private static final String SESJONS_COOKIE_NAVN = APPLICATION_NAME.toUpperCase() + "_JSESSIONID";
     private static final String KREVER_SESJON_API = "/api/session";
 
     @Test

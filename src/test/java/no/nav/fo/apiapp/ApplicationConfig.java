@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 @Configuration
 public class ApplicationConfig implements ApiApplication {
 
+    public static final String APPLICATION_NAME = "api-app";
+
     @Bean
     public Pingable pingable() {
         return new PingableEksempel();
@@ -70,6 +72,11 @@ public class ApplicationConfig implements ApiApplication {
     @Override
     public Sone getSone() {
         return Sone.FSS;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return APPLICATION_NAME;
     }
 
     private static Stream<FeedElement<Integer>> streamTilfeldigInt() {
