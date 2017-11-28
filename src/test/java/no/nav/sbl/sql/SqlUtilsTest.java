@@ -308,6 +308,42 @@ public class SqlUtilsTest {
                 .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(2,3,4,5,6));
     }
 
+    @Test
+    public void whereComparativTest() {
+        List<Testobject> objects = new ArrayList<>();
+        objects.add(getTestobjectWithId("001"));
+        objects.add(getTestobjectWithId("002"));
+        objects.add(getTestobjectWithId("003"));
+        objects.add(getTestobjectWithId("004"));
+
+        Testobject.getInsertBatchQuery(db, TESTTABLE1).execute(objects);
+
+        int greaterThenTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.gt("ID", "002"))
+                .executeToList()
+                .size();
+
+        int greaterThenOrEqualTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.gteq("ID", "002"))
+                .executeToList()
+                .size();
+
+        int lessThenTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.lt("ID", "002"))
+                .executeToList()
+                .size();
+
+        int lessThenOrEqualTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.lteq("ID", "002"))
+                .executeToList()
+                .size();
+
+        assertThat(greaterThenTwo).isEqualTo(2);
+        assertThat(greaterThenOrEqualTwo).isEqualTo(3);
+        assertThat(lessThenTwo).isEqualTo(1);
+        assertThat(lessThenOrEqualTwo).isEqualTo(2);
+    }
+
     private Testobject getTestobjectWithId(String id) {
         return new Testobject()
                 .setNavn("navn navnesen")
