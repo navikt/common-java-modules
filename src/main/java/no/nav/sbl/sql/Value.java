@@ -1,5 +1,10 @@
 package no.nav.sbl.sql;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+
+import java.util.function.Function;
+
 public abstract class Value<T> {
     public final T sql;
 
@@ -7,7 +12,7 @@ public abstract class Value<T> {
         this.sql = sql;
     }
 
-    public Object getSql() {
+    public T getSql() {
         return this.sql;
     }
 
@@ -35,6 +40,23 @@ public abstract class Value<T> {
     static class ObjectValue extends Value<Object> {
         ObjectValue(Object value) {
             super(value);
+        }
+
+        @Override
+        public boolean hasPlaceholder() {
+            return true;
+        }
+
+        @Override
+        public String getValuePlaceholder() {
+            return "?";
+        }
+    }
+
+    static class FunctionValue<T> extends Value<Tuple2<Class, Function<T, Object>>> {
+
+        public FunctionValue(Class type, Function<T, Object> paramValue) {
+            super(Tuple.of(type, paramValue));
         }
 
         @Override

@@ -1,6 +1,5 @@
 package no.nav.sbl.sql;
 
-import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -14,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static java.util.Collections.nCopies;
+import static java.util.stream.Collectors.joining;
 import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 public class InsertBatchQuery<T> {
     private final JdbcTemplate db;
     private final String tableName;
-    private final Map<String, Tuple2<Class, Function<T, Object>>> values;
+    private final Map<String, Value> values;
 
     public InsertBatchQuery(JdbcTemplate db, String tableName) {
         this.db = db;
@@ -29,10 +28,18 @@ public class InsertBatchQuery<T> {
     }
 
     public InsertBatchQuery<T> add(String param, Function<T, Object> paramValue, Class type) {
+        return this.add(param, new Value.FunctionValue(type, paramValue));
+    }
+
+    public InsertBatchQuery<T> add(String param, DbConstants value) {
+        return this.add(param, Value.of(value));
+    }
+
+    public InsertBatchQuery<T> add(String param, Value value) {
         if (this.values.containsKey(param)) {
             throw new IllegalArgumentException(String.format("Param[%s] was already set.", param));
         }
-        this.values.put(param, Tuple.of(type, paramValue));
+        this.values.put(param, value);
         return this;
     }
 
@@ -47,8 +54,14 @@ public class InsertBatchQuery<T> {
                 T t = data.get(i);
 
                 int j = 1;
-                for (Tuple2<Class, Function<T, Object>> param : values.values()) {
-                    setParam(ps, j++, param._1(), param._2.apply(t));
+                for (Value param : values.values()) {
+                    if (param instanceof Value.FunctionValue) {
+                        Value.FunctionValue<T> functionValue = (Value.FunctionValue) param;
+                        Tuple2<Class, Function<T, Object>> config = functionValue.getSql();
+
+                        setParam(ps, j++, config._1(), config._2.apply(t));
+
+                    }
                 }
             }
 
@@ -73,7 +86,11 @@ public class InsertBatchQuery<T> {
 
     private String createSqlStatement() {
         String columns = StringUtils.join(values.keySet(), ",");
-        String valueParms = StringUtils.join(nCopies(values.size(), "?"), ",");
-        return String.format("insert into %s (%s) values (%s)", tableName, columns, valueParms);
+        String valueParams = values
+                .values()
+                .stream()
+                .map(Value::getValuePlaceholder)
+                .collect(joining(","));
+        return String.format("insert into %s (%s) values (%s)", tableName, columns, valueParams);
     }
 }

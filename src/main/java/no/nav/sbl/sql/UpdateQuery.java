@@ -3,15 +3,17 @@ package no.nav.sbl.sql;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 public class UpdateQuery {
     private final JdbcTemplate db;
     private final String tableName;
-    private final Map<String, Object> setParams;
+    private final Map<String, Value> setParams;
     private String whereParam;
     private Object whereValue;
 
@@ -22,12 +24,22 @@ public class UpdateQuery {
     }
 
     public UpdateQuery set(String param, Object value) {
+        return this.set(param, Value.of(value));
+    }
+
+    public UpdateQuery set(String param, DbConstants value) {
+        return this.set(param, Value.of(value));
+    }
+
+    public UpdateQuery set(String param, Value value) {
         if (this.setParams.containsKey(param)) {
             throw new IllegalArgumentException(String.format("Param[%s] was already set.", param));
         }
+
         this.setParams.put(param, value);
         return this;
     }
+
 
     public UpdateQuery whereEquals(String whereParam, Object whereValue) {
         this.whereParam = whereParam;
@@ -53,25 +65,23 @@ public class UpdateQuery {
     }
 
     private Object[] createSqlArgumentArray() {
-        int argumentsSize = whereValue != null ? setParams.size() + 1 : setParams.size();
-        Object[] arguments = new Object[argumentsSize];
+        List<Object> args = setParams
+                .values()
+                .stream()
+                .filter(Value::hasPlaceholder)
+                .map(Value::getSql)
+                .collect(toList());
 
-        int index = 0;
-        for (Object value : setParams.values()) {
-            arguments[index] = value;
-            index = index + 1;
-        }
         if (whereValue != null) {
-            arguments[index] = whereValue;
+            args.add(whereValue);
         }
 
-        return arguments;
+        return args.toArray();
     }
 
     private String createSetStatement() {
         return " set " + setParams.entrySet().stream()
-                .map(Map.Entry::getKey)
-                .map(SqlUtils.append(" = ?"))
+                .map(entry -> entry.getKey() + " = " + entry.getValue().getValuePlaceholder())
                 .collect(joining(", "));
     }
 

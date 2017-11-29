@@ -355,6 +355,71 @@ public class SqlUtilsTest {
         assertThat(object.getBirthday()).isNotNull();
     }
 
+    @Test
+    public void updateCurrentTimestamp() {
+        Timestamp epoch0 = new Timestamp(0);
+        SqlUtils.insert(db, TESTTABLE1)
+                .value(ID, "001")
+                .value(NAVN, "navn")
+                .value(BIRTHDAY, epoch0)
+                .execute();
+
+        SqlUtils.update(db, TESTTABLE1)
+                .set(BIRTHDAY, DbConstants.CURRENT_TIMESTAMP)
+                .whereEquals(ID, "001")
+                .execute();
+
+        Testobject object = Testobject.getSelectQuery(ds, TESTTABLE1).execute();
+        assertThat(object.getBirthday()).isAfter(new Timestamp(0));
+    }
+
+    @Test
+    public void batchInsertWithCurrentTimestamp() {
+        InsertBatchQuery<Testobject> insertBatchQuery = new InsertBatchQuery<>(db, TESTTABLE1);
+        insertBatchQuery
+                .add(ID, Testobject::getId, String.class)
+                .add(NAVN, Testobject::getNavn, String.class)
+                .add(BIRTHDAY, DbConstants.CURRENT_TIMESTAMP);
+
+        List<Testobject> objects = new ArrayList<>();
+        objects.add(getTestobjectWithId("001"));
+        objects.add(getTestobjectWithId("002"));
+
+        insertBatchQuery.execute(objects);
+
+        List<Testobject> retrievedObjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        assertThat(retrievedObjects.get(0)).isNotNull();
+        assertThat(retrievedObjects.get(1)).isNotNull();
+    }
+
+    @Test
+    public void batchUpdateWithCurrentTimestamp() {
+        InsertBatchQuery<Testobject> insertBatchQuery = new InsertBatchQuery<>(db, TESTTABLE1);
+        insertBatchQuery
+                .add(ID, Testobject::getId, String.class)
+                .add(NAVN, Testobject::getNavn, String.class)
+                .add(BIRTHDAY, Testobject::getBirthday, Timestamp.class);
+
+        List<Testobject> objects = new ArrayList<>();
+        objects.add(getTestobjectWithId("001"));
+        objects.add(getTestobjectWithId("002"));
+
+        insertBatchQuery.execute(objects);
+
+        UpdateBatchQuery<Testobject> updateBatchQuery = new UpdateBatchQuery<>(db, TESTTABLE1);
+        updateBatchQuery.add(BIRTHDAY, DbConstants.CURRENT_TIMESTAMP);
+
+        List<Testobject> updateobjects = new ArrayList<>();
+        updateobjects.add(getTestobjectWithId("001"));
+        updateobjects.add(getTestobjectWithId("002"));
+
+        updateBatchQuery.execute(updateobjects);
+
+        List<Testobject> retrievedObjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        assertThat(retrievedObjects.get(0).getBirthday()).isAfter(new Timestamp(0));
+        assertThat(retrievedObjects.get(1).getBirthday()).isAfter(new Timestamp(0));
+    }
+
     private Testobject getTestobjectWithId(String id) {
         return new Testobject()
                 .setNavn("navn navnesen")
