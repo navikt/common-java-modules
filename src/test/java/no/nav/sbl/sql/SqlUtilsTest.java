@@ -343,6 +343,18 @@ public class SqlUtilsTest {
         assertThat(lessThenOrEqualTwo).isEqualTo(2);
     }
 
+    @Test
+    public void insertCurrentTimestamp() {
+        SqlUtils.insert(db, TESTTABLE1)
+                .value(ID, "001")
+                .value(NAVN, "navn")
+                .value(BIRTHDAY, DbConstants.CURRENT_TIMESTAMP)
+                .execute();
+
+        Testobject object = Testobject.getSelectQuery(ds, TESTTABLE1).execute();
+        assertThat(object.getBirthday()).isNotNull();
+    }
+
     private Testobject getTestobjectWithId(String id) {
         return new Testobject()
                 .setNavn("navn navnesen")
