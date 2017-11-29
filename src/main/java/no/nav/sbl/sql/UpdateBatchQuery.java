@@ -71,6 +71,9 @@ public class UpdateBatchQuery<T> {
 
                     }
                 }
+                if(Objects.nonNull(whereClause)) {
+                    whereClause.apply(t).applyTo(ps, j);
+                }
             }
 
             @Override
