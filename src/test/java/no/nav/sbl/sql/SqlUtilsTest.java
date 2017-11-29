@@ -3,7 +3,6 @@ package no.nav.sbl.sql;
 import no.nav.sbl.jdbc.TestUtils;
 import no.nav.sbl.sql.order.OrderClause;
 import no.nav.sbl.sql.where.WhereClause;
-import no.nav.sbl.sql.where.WhereIn;
 import no.nav.sbl.sql.where.WhereIsNotNull;
 import no.nav.sbl.sql.where.WhereIsNull;
 import org.junit.Before;
@@ -139,7 +138,7 @@ public class SqlUtilsTest {
                 .addWhereClause(object -> WhereClause.equals(ID, object.getId())).execute(updateObjects);
 
         List<Testobject> retrieved = Testobject.getSelectQuery(ds, TESTTABLE1)
-                .where(WhereIn.of(ID, asList("001", "002", "003", "004", "005", "006", "007"))).executeToList();
+                .where(WhereClause.in(ID, asList("001", "002", "003", "004", "005", "006", "007"))).executeToList();
 
         assertThat(retrieved.stream().map(Testobject::getNavn).distinct().collect(Collectors.toList())).containsOnly(oppdatertNavn);
     }
@@ -174,7 +173,7 @@ public class SqlUtilsTest {
                 .column(BIRTHDAY)
                 .column(DEAD)
                 .column(NUMBER_OF_PETS)
-                .where(WhereIn.of(ID, asList("001", "002", "003", "004", "005", "006", "007")))
+                .where(WhereClause.in(ID, asList("001", "002", "003", "004", "005", "006", "007")))
                 .executeToList();
 
         assertThat(retrieved).isEqualTo(objects);
@@ -306,6 +305,42 @@ public class SqlUtilsTest {
 
         assertThat(testobjects.stream()
                 .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(2,3,4,5,6));
+    }
+
+    @Test
+    public void whereComparativTest() {
+        List<Testobject> objects = new ArrayList<>();
+        objects.add(getTestobjectWithId("001"));
+        objects.add(getTestobjectWithId("002"));
+        objects.add(getTestobjectWithId("003"));
+        objects.add(getTestobjectWithId("004"));
+
+        Testobject.getInsertBatchQuery(db, TESTTABLE1).execute(objects);
+
+        int greaterThenTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.gt("ID", "002"))
+                .executeToList()
+                .size();
+
+        int greaterThenOrEqualTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.gteq("ID", "002"))
+                .executeToList()
+                .size();
+
+        int lessThenTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.lt("ID", "002"))
+                .executeToList()
+                .size();
+
+        int lessThenOrEqualTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+                .where(WhereClause.lteq("ID", "002"))
+                .executeToList()
+                .size();
+
+        assertThat(greaterThenTwo).isEqualTo(2);
+        assertThat(greaterThenOrEqualTwo).isEqualTo(3);
+        assertThat(lessThenTwo).isEqualTo(1);
+        assertThat(lessThenOrEqualTwo).isEqualTo(2);
     }
 
     private Testobject getTestobjectWithId(String id) {

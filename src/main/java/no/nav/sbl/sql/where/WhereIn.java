@@ -16,7 +16,7 @@ public class WhereIn extends WhereClause {
         this.objects = objects;
     }
 
-    public static WhereIn of(String field, Collection<? extends Object> objects) {
+    static WhereIn of(String field, Collection<? extends Object> objects) {
         return new WhereIn(field, objects);
     }
 
