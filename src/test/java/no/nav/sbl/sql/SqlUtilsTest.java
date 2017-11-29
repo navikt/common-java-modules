@@ -3,7 +3,6 @@ package no.nav.sbl.sql;
 import no.nav.sbl.jdbc.TestUtils;
 import no.nav.sbl.sql.order.OrderClause;
 import no.nav.sbl.sql.where.WhereClause;
-import no.nav.sbl.sql.where.WhereIn;
 import no.nav.sbl.sql.where.WhereIsNotNull;
 import no.nav.sbl.sql.where.WhereIsNull;
 import org.junit.Before;
@@ -139,7 +138,7 @@ public class SqlUtilsTest {
                 .addWhereClause(object -> WhereClause.equals(ID, object.getId())).execute(updateObjects);
 
         List<Testobject> retrieved = Testobject.getSelectQuery(ds, TESTTABLE1)
-                .where(WhereIn.of(ID, asList("001", "002", "003", "004", "005", "006", "007"))).executeToList();
+                .where(WhereClause.in(ID, asList("001", "002", "003", "004", "005", "006", "007"))).executeToList();
 
         assertThat(retrieved.stream().map(Testobject::getNavn).distinct().collect(Collectors.toList())).containsOnly(oppdatertNavn);
     }
@@ -174,7 +173,7 @@ public class SqlUtilsTest {
                 .column(BIRTHDAY)
                 .column(DEAD)
                 .column(NUMBER_OF_PETS)
-                .where(WhereIn.of(ID, asList("001", "002", "003", "004", "005", "006", "007")))
+                .where(WhereClause.in(ID, asList("001", "002", "003", "004", "005", "006", "007")))
                 .executeToList();
 
         assertThat(retrieved).isEqualTo(objects);

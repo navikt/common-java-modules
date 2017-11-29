@@ -2,6 +2,7 @@ package no.nav.sbl.sql.where;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 
 public abstract class WhereClause {
     public static WhereClause equals(String field, Object value) {
@@ -18,6 +19,9 @@ public abstract class WhereClause {
     }
     public static WhereClause lteq(String field, Object value) {
         return new ComparativeWhereClause(WhereOperator.LTEQ, field, value);
+    }
+    public static WhereClause in(String field, Collection<?> objects) {
+        return WhereIn.of(field, objects);
     }
 
     public WhereClause and(WhereClause other) {
