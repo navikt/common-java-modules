@@ -1,6 +1,9 @@
 package no.nav.sbl.dialogarena.common.web.selftest.domain;
 
+import java.util.Collections;
 import java.util.List;
+
+import static java.util.Optional.ofNullable;
 
 public class Selftest {
     private String application;
@@ -46,7 +49,7 @@ public class Selftest {
     }
 
     public List<SelftestEndpoint> getChecks() {
-        return checks;
+        return ofNullable(checks).orElseGet(Collections::emptyList);
     }
 
     public Selftest setChecks(List<SelftestEndpoint> checks) {

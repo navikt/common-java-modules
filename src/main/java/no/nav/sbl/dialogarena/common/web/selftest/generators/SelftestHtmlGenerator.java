@@ -11,31 +11,33 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_ERROR;
-import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_OK;
-import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_WARNING;
+import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.*;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class SelftestHtmlGenerator {
     public static String generate(Selftest selftest, String host) throws IOException {
-        List<String> feilendeKomponenter = selftest.getChecks().stream()
+        Selftest selftestNullSafe = ofNullable(selftest).orElseGet(Selftest::new);
+        List<SelftestEndpoint> checks = selftestNullSafe.getChecks();
+        List<String> feilendeKomponenter = checks.stream()
                 .filter(SelftestEndpoint::harFeil)
                 .map(SelftestEndpoint::getEndpoint)
                 .collect(Collectors.toList());
 
-        List<String> tabellrader = selftest.getChecks().stream()
+        List<String> tabellrader = checks.stream()
                 .map(SelftestHtmlGenerator::lagTabellrad)
                 .collect(Collectors.toList());
 
         InputStream template = SelftestHtmlGenerator.class.getResourceAsStream("/selftest/SelfTestPage.html");
         String html = IOUtils.toString(template);
-        html = html.replace("${app-navn}", selftest.getApplication());
-        html = html.replace("${aggregertStatus}", getStatusNavnElement(selftest.getAggregateResult(), "span"));
+        html = html.replace("${app-navn}", ofNullable(selftestNullSafe).map(s -> selftestNullSafe.getApplication()).orElse("?"));
+        html = html.replace("${aggregertStatus}", getStatusNavnElement(selftestNullSafe.getAggregateResult(), "span"));
         html = html.replace("${resultater}", join(tabellrader, "\n"));
-        html = html.replace("${version}", selftest.getApplication() + "-" + selftest.getVersion());
+        html = html.replace("${version}", selftestNullSafe.getApplication() + "-" + selftestNullSafe.getVersion());
         html = html.replace("${host}", "Host: " + host);
         html = html.replace("${generert-tidspunkt}", DateTime.now().toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")));
         html = html.replace("${feilende-komponenter}", join(feilendeKomponenter, ", "));
@@ -93,7 +95,7 @@ public class SelftestHtmlGenerator {
 
     private static String tableRow(Object... tdContents) {
         String row = Arrays.stream(tdContents)
-                .map(Object::toString)
+                .map(o -> ofNullable(o).map(Object::toString).orElse(""))
                 .collect(joining("</td><td>"));
         return "<tr><td>" + row +  "</td></tr>\n";
 
