@@ -11,7 +11,7 @@ public class WhereIn extends WhereClause {
     private String field;
     private Collection<? extends Object> objects;
 
-    public WhereIn(String field, Collection<? extends Object> objects) {
+    WhereIn(String field, Collection<? extends Object> objects) {
         this.field = field;
         this.objects = objects;
     }

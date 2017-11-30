@@ -255,8 +255,8 @@ public class SqlUtilsTest {
         getTestobjectWithId("007").setBirthday(null).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("006").toInsertQuery(db, TESTTABLE1).execute();
 
-        List<Testobject> birthdayNotNull = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereIsNotNull.of(BIRTHDAY)).executeToList();
-        List<Testobject> birthdayNull = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereIsNull.of(BIRTHDAY)).executeToList();
+        List<Testobject> birthdayNotNull = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.isNotNull(BIRTHDAY)).executeToList();
+        List<Testobject> birthdayNull = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.isNull(BIRTHDAY)).executeToList();
 
         assertThat(birthdayNotNull.size()).isEqualTo(1);
         assertThat(birthdayNull.size()).isEqualTo(1);

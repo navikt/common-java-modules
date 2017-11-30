@@ -24,6 +24,14 @@ public abstract class WhereClause {
         return WhereIn.of(field, objects);
     }
 
+    public static WhereClause isNotNull(String field) {
+        return WhereIsNotNull.of(field);
+    }
+
+    public static WhereClause isNull(String field) {
+        return WhereIsNull.of(field);
+    }
+
     public WhereClause and(WhereClause other) {
         return new LogicalWhereClause(WhereOperator.AND, this, other);
     }
