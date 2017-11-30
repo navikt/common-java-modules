@@ -1,6 +1,8 @@
 package no.nav.sbl.sql;
 
 import io.vavr.Tuple2;
+import no.nav.sbl.sql.value.FunctionValue;
+import no.nav.sbl.sql.value.Value;
 import no.nav.sbl.sql.where.WhereClause;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,7 +32,7 @@ public class UpdateBatchQuery<T> {
     }
 
     public UpdateBatchQuery<T> add(String param, Function<T, Object> paramValue, Class type) {
-        return this.add(param, new Value.FunctionValue(type, paramValue));
+        return this.add(param, new FunctionValue<>(type, paramValue));
     }
 
     public UpdateBatchQuery<T> add(String param, DbConstants value) {
@@ -55,7 +57,7 @@ public class UpdateBatchQuery<T> {
             return null;
         }
         String sql = createSql(data.get(0));
-        return timedPreparedStatement(sql, ()-> db.batchUpdate(sql, new BatchPreparedStatementSetter() {
+        return timedPreparedStatement(sql, () -> db.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -63,15 +65,14 @@ public class UpdateBatchQuery<T> {
 
                 int j = 1;
                 for (Value param : setParams.values()) {
-                    if (param instanceof Value.FunctionValue) {
-                        Value.FunctionValue<T> functionValue = (Value.FunctionValue) param;
+                    if (param instanceof FunctionValue) {
+                        FunctionValue<T> functionValue = (FunctionValue) param;
                         Tuple2<Class, Function<T, Object>> config = functionValue.getSql();
 
                         setParam(ps, j++, config._1(), config._2.apply(t));
-
                     }
                 }
-                if(Objects.nonNull(whereClause)) {
+                if (Objects.nonNull(whereClause)) {
                     whereClause.apply(t).applyTo(ps, j);
                 }
             }
