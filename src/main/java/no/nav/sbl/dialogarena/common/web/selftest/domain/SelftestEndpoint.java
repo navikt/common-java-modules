@@ -1,5 +1,7 @@
 package no.nav.sbl.dialogarena.common.web.selftest.domain;
 
+import static java.util.Optional.ofNullable;
+import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_ERROR;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_OK;
 
 public class SelftestEndpoint {
@@ -39,7 +41,7 @@ public class SelftestEndpoint {
     }
 
     public int getResult() {
-        return result;
+        return ofNullable(result).orElse(STATUS_ERROR);
     }
 
     public SelftestEndpoint setResult(int result) {
