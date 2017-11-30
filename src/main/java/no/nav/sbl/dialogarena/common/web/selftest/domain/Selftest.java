@@ -7,7 +7,7 @@ public class Selftest {
     private String version;
     private String timestamp;
     private int aggregateResult;
-    List<SelftestEndpoint> checks;
+    private List<SelftestEndpoint> checks;
 
     public String getApplication() {
         return application;
