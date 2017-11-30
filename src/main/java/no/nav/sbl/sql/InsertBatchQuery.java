@@ -1,6 +1,8 @@
 package no.nav.sbl.sql;
 
 import io.vavr.Tuple2;
+import no.nav.sbl.sql.value.FunctionValue;
+import no.nav.sbl.sql.value.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,7 +30,7 @@ public class InsertBatchQuery<T> {
     }
 
     public InsertBatchQuery<T> add(String param, Function<T, Object> paramValue, Class type) {
-        return this.add(param, new Value.FunctionValue(type, paramValue));
+        return this.add(param, new FunctionValue(type, paramValue));
     }
 
     public InsertBatchQuery<T> add(String param, DbConstants value) {
@@ -55,12 +57,11 @@ public class InsertBatchQuery<T> {
 
                 int j = 1;
                 for (Value param : values.values()) {
-                    if (param instanceof Value.FunctionValue) {
-                        Value.FunctionValue<T> functionValue = (Value.FunctionValue) param;
+                    if (param instanceof FunctionValue) {
+                        FunctionValue<T> functionValue = (FunctionValue) param;
                         Tuple2<Class, Function<T, Object>> config = functionValue.getSql();
 
                         setParam(ps, j++, config._1(), config._2.apply(t));
-
                     }
                 }
             }

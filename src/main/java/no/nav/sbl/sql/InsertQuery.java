@@ -1,5 +1,6 @@
 package no.nav.sbl.sql;
 
+import no.nav.sbl.sql.value.Value;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
