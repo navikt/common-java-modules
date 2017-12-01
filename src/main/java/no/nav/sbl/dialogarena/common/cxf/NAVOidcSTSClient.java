@@ -2,11 +2,11 @@ package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import org.apache.cxf.Bus;
+import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.MemoryTokenStoreFactory;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
-import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,20 +62,18 @@ public class NAVOidcSTSClient extends STSClient {
         return SubjectHandler.getSubjectHandler().getUid();
     }
 
-    private void ensureTokenStoreExists() {
-        if (tokenStore == null) {
-            createTokenStore();
-        }
-    }
-
-    private synchronized void createTokenStore() {
-        if (tokenStore == null) {
-            if ("true".equals(System.getProperty("common.cxf.NAVOidcSTSClient.useMemoryTokenStore"))) {
-                logger.debug("Creating MemoryTokenStore");
-                tokenStore = new MemoryTokenStoreFactory().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
+    private synchronized void ensureTokenStoreExists() {
+        synchronized (message) {
+            EndpointInfo info = message.getExchange().getEndpoint().getEndpointInfo();
+            TokenStore ts = (TokenStore) message.getContextualProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+            if (ts != null) {
+                tokenStore = ts;
             } else {
-                logger.debug("Creating tokenStore");
-                tokenStore = TokenStoreFactory.newInstance().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
+                tokenStore = new MemoryTokenStoreFactory().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
+            }
+            synchronized (info) {
+                message.put(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, tokenStore);
+                info.setProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, tokenStore);
             }
         }
     }
