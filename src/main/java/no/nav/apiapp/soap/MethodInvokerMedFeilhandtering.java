@@ -31,6 +31,7 @@ public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
 
     @Override
     protected SOAPFaultException findSoapFaultException(Throwable throwable) {
+        LOGGER.error(throwable.getMessage(), throwable);
         FeilDTO feilDTO = somFeilDTO(throwable);
         try {
             SOAPFault fault = soapFactory.createFault();
