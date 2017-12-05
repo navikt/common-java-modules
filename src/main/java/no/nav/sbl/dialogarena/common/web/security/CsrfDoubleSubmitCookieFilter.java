@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.web.security;
 
-import no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet;
 import org.slf4j.Logger;
 
 import javax.servlet.*;
@@ -18,7 +17,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Laget etter https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#Double_Submit_Cookie
  **/
 public class CsrfDoubleSubmitCookieFilter implements Filter {
-    private static final Logger LOG = getLogger(SelfTestBaseServlet.class);
+    private static final Logger LOG = getLogger(CsrfDoubleSubmitCookieFilter.class);
     private static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
     private String[] ignoredUrls;
