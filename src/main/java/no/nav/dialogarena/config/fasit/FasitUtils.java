@@ -172,13 +172,17 @@ public class FasitUtils {
     }
 
     public static String getBaseUrl(String baseUrlAlias, String environment) {
+        return getBaseUrl(baseUrlAlias, environment, getOeraLocal(environment));
+    }
+
+    public static String getBaseUrl(String baseUrlAlias, String environment, String domain) {
         String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=BaseUrl&alias=%s&app=fasit",
-                environment,
-                getOeraLocal(environment),
-                baseUrlAlias
+            environment,
+            domain,
+            baseUrlAlias
         );
         Document document = fetchXml(resourceUrl);
-        return extractStringProperty(document,"url");
+        return extractStringProperty(document, "url");
     }
 
     public static ServiceUser getServiceUser(String userAlias, String applicationName) {
@@ -211,7 +215,7 @@ public class FasitUtils {
         return openAmConfig;
     }
 
-    private static ServiceUser getServiceUser(String userAlias, String applicationName, String environment, String domain) {
+    public static ServiceUser getServiceUser(String userAlias, String applicationName, String environment, String domain) {
         String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=Credential&alias=%s&app=%s",
                 environment,
                 domain,
