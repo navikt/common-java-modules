@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import static java.util.Arrays.stream;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -42,7 +43,8 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
             } else {
                 if (!navCsrfCookieVerdi(request).equals(request.getHeader(CSRF_COOKIE_NAVN))) {
                     LOG.error("Feil i CSRF-sjekk. " +
-                            "Bruker du dette filteret må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien");
+                            "Bruker du dette filteret må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien. " +
+                            "Er headeren satt? " + isNotBlank(request.getHeader(CSRF_COOKIE_NAVN)));
                     response.sendError(SC_UNAUTHORIZED, "Mangler NAV_CSRF_PROTECTION-cookie!! Du må inkludere cookie-verdien i en header med navn NAV_CSRF_PROTECTION");
                     return;
                 }

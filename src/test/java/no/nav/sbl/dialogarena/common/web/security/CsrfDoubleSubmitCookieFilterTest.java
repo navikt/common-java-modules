@@ -77,6 +77,22 @@ public class CsrfDoubleSubmitCookieFilterTest {
         verify(mockFilterChain, times(0)).doFilter(any(), any());
     }
 
+    @Test
+    public void skal_kaste_feil_og_avbryte_dersom_header_mangler() throws IOException, ServletException {
+        when(mockHttpServletRequest.getHeader(NAV_CSRF_PROTECTION)).thenReturn("");
+
+        filter.doFilter(mockHttpServletRequest, mockHttpServletResponse, mockFilterChain);
+        verify(mockFilterChain, never()).doFilter(mockHttpServletRequest, mockHttpServletResponse);
+    }
+
+    @Test
+    public void skal_kaste_feil_og_avbryte_dersom_header_ikke_matcher_cookieverdi() throws IOException, ServletException {
+        when(mockHttpServletRequest.getHeader(NAV_CSRF_PROTECTION)).thenReturn("Matcher ikke");
+
+        filter.doFilter(mockHttpServletRequest, mockHttpServletResponse, mockFilterChain);
+        verify(mockFilterChain, never()).doFilter(mockHttpServletRequest, mockHttpServletResponse);
+    }
+
     private Cookie createCsrfProtectionCookie() {
         return new Cookie(NAV_CSRF_PROTECTION, UUID.randomUUID().toString());
     }
