@@ -28,10 +28,12 @@ import java.util.jar.Manifest;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public abstract class SelfTestBaseServlet extends HttpServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(SelfTestBaseServlet.class);
+    static final String APP_VERSION_PROPERTY_NAME = "APP_VERSION";
 
 
     protected List<Ping> result;
@@ -90,6 +92,10 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
     }
 
     protected String getApplicationVersion() {
+        return getOptionalProperty(APP_VERSION_PROPERTY_NAME).orElseGet(this::getApplicationVersjonFromManifest);
+    }
+
+    private String getApplicationVersjonFromManifest() {
         String version = "unknown version";
         try {
             InputStream inputStream = getServletContext().getResourceAsStream("/META-INF/MANIFEST.MF");
