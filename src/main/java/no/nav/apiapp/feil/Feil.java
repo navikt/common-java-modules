@@ -3,12 +3,14 @@ package no.nav.apiapp.feil;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.Response.Status.*;
+import static no.nav.apiapp.util.EnumUtils.getName;
 
 public class Feil extends RuntimeException {
 
     private final Type type;
 
     public Feil(Type type) {
+        super(getName(type));
         this.type = type;
     }
 
