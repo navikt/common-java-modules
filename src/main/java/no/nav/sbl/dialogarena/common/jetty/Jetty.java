@@ -70,7 +70,7 @@ public final class Jetty {
         private WebAppContext context;
         private File overridewebXmlFile;
         private JAASLoginService loginService;
-        private Boolean developmentMode = true;
+        private boolean developmentMode;
         private List<Class<?>> websocketEndpoints = new ArrayList<>();
         private Map<String, DataSource> dataSources = new HashMap<>();
         private Map<String, UserCredentialsConnectionFactoryAdapter> connectionSources = new HashMap<>();
@@ -472,17 +472,19 @@ public final class Jetty {
     }
 
     private void disableSecureCookies() {
-        LOG.warn("Forcing session cookies to be insecure. DO NOT USE IN PRODUCTION!");
-        context.addEventListener(new ServletContextListener() {
-            @Override
-            public void contextInitialized(ServletContextEvent sce) {
-                sce.getServletContext().getSessionCookieConfig().setSecure(false);
-            }
+        if (developmentMode) {
+            LOG.warn("Forcing session cookies to be insecure. DO NOT USE IN PRODUCTION!");
+            context.addEventListener(new ServletContextListener() {
+                @Override
+                public void contextInitialized(ServletContextEvent sce) {
+                    sce.getServletContext().getSessionCookieConfig().setSecure(false);
+                }
 
-            @Override
-            public void contextDestroyed(ServletContextEvent sce) {
-            }
-        });
+                @Override
+                public void contextDestroyed(ServletContextEvent sce) {
+                }
+            });
+        }
     }
 
     private void setRunMode() {
