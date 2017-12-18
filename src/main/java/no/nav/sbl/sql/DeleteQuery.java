@@ -6,7 +6,6 @@ import no.nav.sbl.sql.where.WhereClause;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
