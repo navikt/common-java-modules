@@ -43,9 +43,6 @@ public class DeleteQuery {
             where.applyTo(ps, 1);
 
             result = ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new SqlUtilsException(e);
         }
         return result;
     }

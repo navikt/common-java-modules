@@ -83,9 +83,6 @@ public class SelectQuery<T> {
                 return null;
             }
             return mapper.apply(resultSet);
-
-        } catch (SQLException e) {
-            throw new SqlUtilsException(e);
         }
     }
 
@@ -106,9 +103,6 @@ public class SelectQuery<T> {
                 data.add(mapper.apply(resultSet));
             }
             return data;
-
-        } catch (SQLException e) {
-            throw new SqlUtilsException(e);
         }
     }
 
