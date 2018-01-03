@@ -70,6 +70,8 @@ public class SSLTestUtils {
     Bruk alle triks i boka for å disable sertifikat-sjekker
      */
     public static void disableCertificateChecks() {
+        LOG.warn("disabling certificate checks. YOU SHOULD NOT SEE THIS IN PRODUCTION");
+
         setupKeyAndTrustStore();
         setProperty("disable.ssl.cn.check", Boolean.TRUE.toString());
         Security.setProperty("ssl.SocketFactory.provider", TrustAllSSLSocketFactory.class.getName());
