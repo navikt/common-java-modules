@@ -6,7 +6,6 @@ import no.nav.sbl.sql.where.WhereClause;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
@@ -43,9 +42,6 @@ public class DeleteQuery {
             where.applyTo(ps, 1);
 
             result = ps.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new SqlUtilsException(e);
         }
         return result;
     }

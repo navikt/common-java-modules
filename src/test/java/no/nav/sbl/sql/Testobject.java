@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import static no.nav.sbl.sql.SqlUtilsTest.*;
@@ -23,8 +24,7 @@ public class Testobject {
     boolean dead;
     int numberOfPets;
 
-    @SneakyThrows
-    public static Testobject mapper(ResultSet rs) {
+    public static Testobject mapper(ResultSet rs) throws SQLException {
         return new Testobject()
                 .setBirthday(rs.getTimestamp(BIRTHDAY))
                 .setDead(rs.getBoolean(DEAD))

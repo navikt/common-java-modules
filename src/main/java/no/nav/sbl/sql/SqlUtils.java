@@ -27,7 +27,7 @@ public class SqlUtils {
         return new UpsertQuery(db, tableName);
     }
 
-    public static <T> SelectQuery<T> select(DataSource ds, String tableName, Function<ResultSet, T> mapper) {
+    public static <T> SelectQuery<T> select(DataSource ds, String tableName, SQLFunction<ResultSet, T> mapper) {
         return new SelectQuery<>(ds, tableName, mapper);
     }
 
