@@ -7,15 +7,20 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Resource;
 
 public class Resources {
 
+    public static Resource makeEnhetResource(RequestData requestData) {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_ENHET_EIENDEL));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_VEILARB_KONTOR_LAAS, requestData.getEnhet()));
+        return resource;
+    }
 
     public static Resource makePersonResource(RequestData requestData) {
-
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, requestData.getFnr()));
         return resource;
-
     }
 
     public static Resource makeKode7Resource(RequestData requestData) {

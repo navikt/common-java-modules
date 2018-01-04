@@ -55,6 +55,8 @@ class XacmlRequestGenerator {
                 return Resources.makeVeilArbPersonResource(requestData);
             case Modia:
                 return Resources.makeModiaResource(requestData);
+            case Enhet:
+                return Resources.makeEnhetResource(requestData);
             default:
                 return null;
         }
