@@ -8,11 +8,11 @@ public class WhereIsNull extends WhereClause{
     private String field;
 
 
-    public WhereIsNull(String field) {
+    WhereIsNull(String field) {
         this.field = field;
     }
 
-    public static WhereIsNull of(String field) {
+    static WhereIsNull of(String field) {
         return new WhereIsNull(field);
     }
 
