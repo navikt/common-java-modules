@@ -10,7 +10,7 @@ import java.util.GregorianCalendar;
 
 import static java.util.Optional.ofNullable;
 
-public class DateUtils {
+public class XMLCalendarUtils {
     private static final DatatypeFactory datatypeFactory = getDatatypeFactory();
 
     @SneakyThrows
@@ -18,7 +18,7 @@ public class DateUtils {
         return DatatypeFactory.newInstance();
     }
 
-    public static XMLGregorianCalendar getXmlCalendar(Date date) {
+    public static XMLGregorianCalendar fromDate(Date date) {
         return ofNullable(date).map(d->{
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTime(date);
@@ -26,15 +26,15 @@ public class DateUtils {
         }).orElse(null);
     }
 
-    public static Date getDate(XMLGregorianCalendar xmlGregorianCalendar){
+    public static Date toDate(XMLGregorianCalendar xmlGregorianCalendar){
         return ofNullable(xmlGregorianCalendar)
             .map(XMLGregorianCalendar::toGregorianCalendar)
             .map(GregorianCalendar::getTime)
             .orElse(null);
     }
 
-    public static Timestamp getTimestamp(XMLGregorianCalendar xmlGregorianCalendar) {
-        Date date = getDate(xmlGregorianCalendar);
+    public static Timestamp toTimestamp(XMLGregorianCalendar xmlGregorianCalendar) {
+        Date date = toDate(xmlGregorianCalendar);
         return new Timestamp(date.getTime());
     }
 }
