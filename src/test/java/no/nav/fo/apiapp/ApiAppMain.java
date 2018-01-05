@@ -8,7 +8,7 @@ public class ApiAppMain {
 
     public static final String[] DEFAULT_ARGS = {Integer.toString(JETTY_PORT)};
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String... args) throws Exception {
         ApiApp.startApp(ApplicationConfig.class, DEFAULT_ARGS);
     }
 
