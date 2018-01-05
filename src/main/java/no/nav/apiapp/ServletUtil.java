@@ -16,10 +16,6 @@ public class ServletUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletUtil.class);
 
-    public static String getApplicationName(ServletContext servletContext) {
-        return servletContext.getContextPath().substring(1);
-    }
-
     public static WebApplicationContext getContext(ServletContext servletContext) {
         return findWebApplicationContext(servletContext);
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<included scan="true" scanPeriod="30 seconds">
+<included>
     <include resource="logback-abac.xml"/>
 
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
@@ -38,25 +38,26 @@
         <suffixPattern>${application.name} %mdc %logger{30} %m %n%rEx</suffixPattern>
     </appender>
 
-    <appender class="ch.qos.logback.core.ConsoleAppender" name="console">
-        <encoder>
-            <pattern>${loggingPattern}</pattern>
-        </encoder>
-    </appender>
-
     <appender name="async-file" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="file"/>
     </appender>
 
-    <root level="${ROOT_LOG_LEVEL:-INFO}">
-        <appender-ref ref="async-file"/>
-        <appender-ref ref="syslog"/>
+    <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+    </appender>
 
+    <root level="${ROOT_LOG_LEVEL:-INFO}">
         <if condition='isNull("jboss.server.name")'>
-            <!-- ønsker ikke applikasjonslogger i serverloggen på jboss  -->
             <then>
-                <appender-ref ref="console"/>
+                <!-- nais+local -->
+                <appender-ref ref="stdout_json"/>
             </then>
+
+            <else>
+                <!-- jboss/skya -->
+                <appender-ref ref="async-file"/>
+                <appender-ref ref="syslog"/>
+            </else>
         </if>
     </root>
 
