@@ -8,5 +8,6 @@ public enum ResourceType {
     EgenAnsatt,
     VeilArb,
     VeilArbPerson,
-    Modia
+    Modia,
+    Enhet
 }
