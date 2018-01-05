@@ -34,7 +34,9 @@ public class XMLCalendarUtils {
     }
 
     public static Timestamp toTimestamp(XMLGregorianCalendar xmlGregorianCalendar) {
-        Date date = toDate(xmlGregorianCalendar);
-        return new Timestamp(date.getTime());
+        return ofNullable(xmlGregorianCalendar)
+            .map(XMLCalendarUtils::toDate)
+            .map(date -> new Timestamp(date.getTime()))
+            .orElse(null);
     }
 }
