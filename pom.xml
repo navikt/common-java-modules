@@ -67,6 +67,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.sbl</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
             <artifactId>json</artifactId>
         </dependency>
         <dependency>

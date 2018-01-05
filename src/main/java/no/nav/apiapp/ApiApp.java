@@ -11,11 +11,19 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 
+import static java.lang.System.setProperty;
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
 import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_HOST;
 import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 public class ApiApp {
+
+    public static final String TRUSTSTORE = "javax.net.ssl.trustStore";
+    public static final String TRUSTSTOREPASSWORD = "javax.net.ssl.trustStorePassword";
+    public static final String NAV_TRUSTSTORE_PATH = "NAV_TRUSTSTORE_PATH";
+    public static final String NAV_TRUSTSTORE_PASSWORD = "NAV_TRUSTSTORE_PASSWORD";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiApp.class);
 
@@ -25,8 +33,14 @@ public class ApiApp {
     public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
 
-        System.setProperty(SENSU_CLIENT_HOST, "sensu.nais");
-        System.setProperty(SENSU_CLIENT_PORT, "3030");
+        setProperty(SENSU_CLIENT_HOST, "sensu.nais");
+        setProperty(SENSU_CLIENT_PORT, "3030");
+
+        if (!getOptionalProperty(TRUSTSTORE).isPresent()) {
+            setProperty(TRUSTSTORE, getRequiredProperty(NAV_TRUSTSTORE_PATH));
+            setProperty(TRUSTSTOREPASSWORD, getRequiredProperty(NAV_TRUSTSTORE_PASSWORD));
+        }
+        setProperty("java.security.egd", "file:/dev/./urandom");
 
         int httpPort = httpPort(args);
 
