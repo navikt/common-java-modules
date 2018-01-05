@@ -1,18 +1,19 @@
 package no.nav.apiapp;
 
 import lombok.SneakyThrows;
+import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 import javax.servlet.ServletContextListener;
 import java.io.File;
 
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
-import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
+import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_HOST;
+import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
 
 public class ApiApp {
 
@@ -22,9 +23,11 @@ public class ApiApp {
 
     @SneakyThrows
     public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
-        System.setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString());
-
         long start = System.currentTimeMillis();
+
+        System.setProperty(SENSU_CLIENT_HOST, "sensu.nais");
+        System.setProperty(SENSU_CLIENT_PORT, "3030");
+
         int httpPort = httpPort(args);
 
         // TODO disable logging til fil!
@@ -61,8 +64,16 @@ public class ApiApp {
         }
 
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(jetty));
-        LOGGER.info("oppstartstid: {} ms", System.currentTimeMillis() - start);
+        reportStartupTime(start);
         jetty.server.join();
+    }
+
+    private static void reportStartupTime(long start) {
+        long startupTime = System.currentTimeMillis() - start;
+        LOGGER.info("oppstartstid: {} ms", startupTime);
+        Event event = MetricsFactory.createEvent("startup");
+        event.addFieldToReport("time",startupTime);
+        event.report();
     }
 
     private static int httpPort(String[] args) {

@@ -97,7 +97,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test-config</artifactId>
         </dependency>
 
         <dependency>
