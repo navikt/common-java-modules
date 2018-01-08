@@ -6,8 +6,11 @@ import org.junit.Test;
 import static java.lang.System.setProperty;
 import static no.nav.sbl.util.EnvironmentUtils.ENVIRONMENT_CLASS_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.*;
+import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.getEnvironmentClass;
 import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
+import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 import static no.nav.sbl.util.PropertyUtils.getOptionalProperty;
 import static no.nav.sbl.util.PropertyUtils.getRequiredProperty;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,6 +71,14 @@ public class EnvironmentUtilsTest {
     public void getOptionalProperty__tom_streng_regnes_som_fraverende() {
         setProperty(PROPERTY_NAME, "   \n   \t  ");
         assertThat(getOptionalProperty(PROPERTY_NAME)).isEmpty();
+    }
+
+    @Test
+    public void setProperty__logges() {
+        String value = "123";
+        setProperty(PROPERTY_NAME, value, PUBLIC);
+        setProperty(PROPERTY_NAME, value, SECRET);
+        assertThat(getOptionalProperty(PROPERTY_NAME)).hasValue(value);
     }
 
     private void assertGetEnvironmentClass(String verdi, EnvironmentUtils.EnviromentClass enviromentClass) {
