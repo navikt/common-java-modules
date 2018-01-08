@@ -12,7 +12,6 @@ import org.glassfish.jersey.client.JerseyClientBuilder;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.*;
 import java.io.IOException;
-import java.net.URI;
 import java.util.function.Function;
 
 import static org.glassfish.jersey.client.ClientProperties.*;
@@ -23,14 +22,18 @@ public class RestUtils {
 
     @SuppressWarnings("unused")
     public static ClientConfig createClientConfig() {
-        return createClientConfig(DEFAULT_CONFIG);
+        return createClientConfig(DEFAULT_CONFIG, getMetricName());
     }
 
     public static ClientConfig createClientConfig(RestConfig restConfig) {
+        return createClientConfig(restConfig, getMetricName());
+    }
+
+    private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
         if (!restConfig.disableMetrics) {
-            clientConfig.register(new MetricsProvider());
+            clientConfig.register(new MetricsProvider(metricName));
         }
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
@@ -40,32 +43,40 @@ public class RestUtils {
     }
 
     public static Client createClient() {
-        return createClient(DEFAULT_CONFIG);
+        return createClient(DEFAULT_CONFIG, getMetricName());
     }
 
     public static Client createClient(RestConfig restConfig) {
+        return createClient(restConfig, getMetricName());
+    }
+
+    private static Client createClient(RestConfig restConfig, String metricName) {
         return new JerseyClientBuilder()
                 .sslContext(riktigSSLContext())
-                .withConfig(createClientConfig(restConfig))
+                .withConfig(createClientConfig(restConfig, metricName))
                 .build();
     }
 
-    @SneakyThrows
-    private static SSLContext riktigSSLContext() {
-        return SSLContext.getDefault();
-    }
-
     public static <T> T withClient(Function<Client, T> function) {
-        return withClient(DEFAULT_CONFIG, function);
+        return withClient(DEFAULT_CONFIG, function, getMetricName());
     }
 
     public static <T> T withClient(RestConfig restConfig, Function<Client, T> function) {
-        Client client = createClient(restConfig);
+        return withClient(restConfig, function, getMetricName());
+    }
+
+    private static <T> T withClient(RestConfig restConfig, Function<Client, T> function, String metricName) {
+        Client client = createClient(restConfig, metricName);
         try {
             return function.apply(client);
         } finally {
             client.close();
         }
+    }
+
+    @SneakyThrows
+    private static SSLContext riktigSSLContext() {
+        return SSLContext.getDefault();
     }
 
     @Value
@@ -80,9 +91,19 @@ public class RestUtils {
         public boolean disableMetrics;
     }
 
+    private static String getMetricName() {
+        StackTraceElement element = Thread.currentThread().getStackTrace()[3];
+        return String.format("rest.client.%s.%s", element.getClassName(), element.getMethodName());
+    }
+
     private static class MetricsProvider implements ClientResponseFilter, ClientRequestFilter {
 
         public static final String NAME = MetricsProvider.class.getName();
+        private final String metricName;
+
+        public MetricsProvider(String metricName) {
+            this.metricName = metricName;
+        }
 
         @Override
         public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
@@ -90,23 +111,16 @@ public class RestUtils {
             timer
                     .stop()
                     .addFieldToReport("httpStatus", clientResponseContext.getStatus())
+                    .addFieldToReport("host", clientRequestContext.getUri().getHost())
+                    .addFieldToReport("path", clientRequestContext.getUri().getPath())
                     .report();
         }
 
         @Override
         public void filter(ClientRequestContext clientRequestContext) throws IOException {
-            Timer timer = MetricsFactory.createTimer(timerNavn(clientRequestContext.getUri()));
+            Timer timer = MetricsFactory.createTimer(this.metricName);
             timer.start();
             clientRequestContext.setProperty(NAME, timer);
         }
-
-        private String timerNavn(URI uri) {
-            return String.format("rest.client.%s%s",
-                    uri.getHost(),
-                    uri.getPath()
-            );
-        }
-
     }
-
 }
