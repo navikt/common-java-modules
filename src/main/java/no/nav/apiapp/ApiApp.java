@@ -12,12 +12,12 @@ import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.io.IOException;
 
-import static java.lang.System.setProperty;
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
 import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_HOST;
 import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
+import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
+import static no.nav.sbl.util.EnvironmentUtils.*;
 
 public class ApiApp {
 
@@ -82,14 +82,14 @@ public class ApiApp {
 
     private static void setupTrustStore() {
         if (!getOptionalProperty(TRUSTSTORE).isPresent()) {
-            setProperty(TRUSTSTORE, getRequiredProperty(NAV_TRUSTSTORE_PATH));
-            setProperty(TRUSTSTOREPASSWORD, getRequiredProperty(NAV_TRUSTSTORE_PASSWORD));
+            setProperty(TRUSTSTORE, getRequiredProperty(NAV_TRUSTSTORE_PATH), PUBLIC);
+            setProperty(TRUSTSTOREPASSWORD, getRequiredProperty(NAV_TRUSTSTORE_PASSWORD), SECRET);
         }
     }
 
     private static void setupSensu() {
-        setProperty(SENSU_CLIENT_HOST, "sensu.nais");
-        setProperty(SENSU_CLIENT_PORT, "3030");
+        setProperty(SENSU_CLIENT_HOST, "sensu.nais", PUBLIC);
+        setProperty(SENSU_CLIENT_PORT, "3030", PUBLIC);
     }
 
     private static void reportStartupTime(long start) {
