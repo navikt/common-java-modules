@@ -3,6 +3,7 @@ package no.nav.apiapp.soap;
 import no.nav.apiapp.ServletUtil;
 import no.nav.sbl.dialogarena.common.cxf.CXFEndpoint;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.logging.FaultListener;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 
 import javax.servlet.ServletConfig;
@@ -24,7 +25,10 @@ public class SoapServlet extends CXFNonSpringServlet {
             CXFEndpoint cxfEndpoint = new CXFEndpoint()
                     .address(serviceBean.getClass().getAnnotation(SoapTjeneste.class).value())
                     .serviceBean(serviceBean);
+
             cxfEndpoint.factoryBean.setInvoker(new MethodInvokerMedFeilhandtering(serviceBean));
+            cxfEndpoint.setProperty(FaultListener.class.getName(), new SoapFaultListener());
+
             cxfEndpoint.create();
         });
     }

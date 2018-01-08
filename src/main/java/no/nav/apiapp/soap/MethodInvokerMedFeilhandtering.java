@@ -1,7 +1,12 @@
 package no.nav.apiapp.soap;
 
+import lombok.SneakyThrows;
 import no.nav.apiapp.feil.FeilDTO;
+import no.nav.metrics.MetodeTimer;
+import no.nav.metrics.MetricsClient;
+import no.nav.metrics.MetricsFactory;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
+import org.apache.cxf.message.Exchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +14,8 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
+
+import java.lang.reflect.Method;
 
 import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 import static no.nav.apiapp.util.EnumUtils.getName;
@@ -31,7 +38,6 @@ public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
 
     @Override
     protected SOAPFaultException findSoapFaultException(Throwable throwable) {
-        LOGGER.error(throwable.getMessage(), throwable);
         FeilDTO feilDTO = somFeilDTO(throwable);
         try {
             SOAPFault fault = soapFactory.createFault();
@@ -43,6 +49,12 @@ public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
             LOGGER.error(e.getMessage(), e);
             return super.findSoapFaultException(throwable);
         }
+    }
+
+    @Override
+    @SneakyThrows
+    protected Object performInvocation(Exchange exchange, Object serviceObject, Method m, Object[] paramArray) throws Exception {
+        return MetodeTimer.timeMetode(() -> super.performInvocation(exchange, serviceObject, m, paramArray), "ws." + m.getName());
     }
 
 }
