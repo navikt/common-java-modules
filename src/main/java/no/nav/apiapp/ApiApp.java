@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextListener;
 import java.io.File;
+import java.io.IOException;
 
 import static java.lang.System.setProperty;
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
@@ -32,16 +33,14 @@ public class ApiApp {
     @SneakyThrows
     public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
+        setupSensu();
+        setupTrustStore();
+        Jetty jetty = setupJetty(apiAppClass, args);
+        reportStartupTime(start);
+        jetty.server.join();
+    }
 
-        setProperty(SENSU_CLIENT_HOST, "sensu.nais");
-        setProperty(SENSU_CLIENT_PORT, "3030");
-
-        if (!getOptionalProperty(TRUSTSTORE).isPresent()) {
-            setProperty(TRUSTSTORE, getRequiredProperty(NAV_TRUSTSTORE_PATH));
-            setProperty(TRUSTSTOREPASSWORD, getRequiredProperty(NAV_TRUSTSTORE_PASSWORD));
-        }
-        setProperty("java.security.egd", "file:/dev/./urandom");
-
+    private static Jetty setupJetty(Class<? extends ApiApplication> apiAppClass, String[] args) throws IOException, InstantiationException, IllegalAccessException {
         int httpPort = httpPort(args);
 
         // TODO disable logging til fil!
@@ -78,8 +77,19 @@ public class ApiApp {
         }
 
         Runtime.getRuntime().addShutdownHook(new ShutdownHook(jetty));
-        reportStartupTime(start);
-        jetty.server.join();
+        return jetty;
+    }
+
+    private static void setupTrustStore() {
+        if (!getOptionalProperty(TRUSTSTORE).isPresent()) {
+            setProperty(TRUSTSTORE, getRequiredProperty(NAV_TRUSTSTORE_PATH));
+            setProperty(TRUSTSTOREPASSWORD, getRequiredProperty(NAV_TRUSTSTORE_PASSWORD));
+        }
+    }
+
+    private static void setupSensu() {
+        setProperty(SENSU_CLIENT_HOST, "sensu.nais");
+        setProperty(SENSU_CLIENT_PORT, "3030");
     }
 
     private static void reportStartupTime(long start) {
@@ -97,4 +107,5 @@ public class ApiApp {
             return DEFAULT_HTTP_PORT;
         }
     }
+
 }
