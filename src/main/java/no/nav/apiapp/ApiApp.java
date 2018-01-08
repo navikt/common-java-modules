@@ -35,12 +35,21 @@ public class ApiApp {
         long start = System.currentTimeMillis();
         setupSensu();
         setupTrustStore();
-        Jetty jetty = setupJetty(apiAppClass, args);
+        ApiApplication apiApplication = apiAppClass.newInstance();
+        setupSubjectHandler(apiApplication);
+        Jetty jetty = setupJetty(apiApplication, args);
         reportStartupTime(start);
         jetty.server.join();
     }
 
-    private static Jetty setupJetty(Class<? extends ApiApplication> apiAppClass, String[] args) throws IOException, InstantiationException, IllegalAccessException {
+    private static void setupSubjectHandler(ApiApplication apiApplication) {
+        setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.apiapp.modigsecurity.JettySubjectHandler.class.getName(), PUBLIC);
+        if (apiApplication.getSone() == ApiApplication.Sone.FSS) {
+            setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.JettySubjectHandler.class.getName(), PUBLIC);
+        }
+    }
+
+    private static Jetty setupJetty(ApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {
         int httpPort = httpPort(args);
 
         // TODO disable logging til fil!
@@ -55,7 +64,6 @@ public class ApiApp {
         File file = devPath.exists() ? devPath : runtimePath;
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
-        ApiApplication apiApplication = apiAppClass.newInstance();
         String contextPath = apiApplication.brukContextPath() ? "/" + apiApplication.getApplicationName() : "/";
         Jetty jetty = Jetty.usingWar(file)
                 .at(contextPath)
@@ -64,7 +72,7 @@ public class ApiApp {
                 .buildJetty();
 
         WebAppContext webAppContext = jetty.context;
-        webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiAppClass.getName());
+        webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
         ServletContextListener listener = new ApiAppServletContextListener();
         webAppContext.addEventListener(listener);
         webAppContext.setClassLoader(Thread.currentThread().getContextClassLoader());
@@ -96,7 +104,7 @@ public class ApiApp {
         long startupTime = System.currentTimeMillis() - start;
         LOGGER.info("oppstartstid: {} ms", startupTime);
         Event event = MetricsFactory.createEvent("startup");
-        event.addFieldToReport("time",startupTime);
+        event.addFieldToReport("time", startupTime);
         event.report();
     }
 
