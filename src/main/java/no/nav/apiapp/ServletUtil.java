@@ -5,10 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletRegistration;
+import javax.servlet.*;
+
+import java.util.EnumSet;
 
 import static org.springframework.web.context.support.WebApplicationContextUtils.findWebApplicationContext;
 
@@ -50,4 +49,10 @@ public class ServletUtil {
         return servletRegistration;
     }
 
+    public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass) {
+        FilterRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addFilter(filterClass.getName(), filterClass);
+        dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        LOGGER.info("la til filter [{}]", filterClass.getName());
+        return dynamic;
+    }
 }

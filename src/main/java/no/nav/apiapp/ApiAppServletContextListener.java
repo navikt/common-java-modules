@@ -5,6 +5,7 @@ import no.nav.apiapp.log.ContextDiscriminator;
 import no.nav.apiapp.log.LogUtils;
 import no.nav.apiapp.logging.LoginfoServlet;
 import no.nav.apiapp.metrics.PrometheusServlet;
+import no.nav.apiapp.rest.NavCorsFilter;
 import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.rest.SwaggerResource;
 import no.nav.apiapp.rest.SwaggerUIServlet;
@@ -35,7 +36,6 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import java.util.EnumSet;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.lang.System.getProperty;
@@ -129,6 +129,8 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         } else {
             // TODO hva ellers? - virker ikke som det finnes en dialogarena-ekvivalent.
         }
+
+        leggTilFilter(servletContextEvent, NavCorsFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
@@ -273,13 +275,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             LOGGER.warn(e.getMessage(), e);
             return false;
         }
-    }
-
-    private static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass) {
-        FilterRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addFilter(filterClass.getName(), filterClass);
-        dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
-        LOGGER.info("la til filter [{}]", filterClass.getName());
-        return dynamic;
     }
 
     private boolean disablet(ServletContext servletContext) {
