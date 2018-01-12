@@ -6,10 +6,12 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public class NavCorsFilter implements Filter {
@@ -18,7 +20,16 @@ public class NavCorsFilter implements Filter {
     public static final String CORS_ALLOWED_ORIGINS = "cors.allowed.origins";
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 
-    private List<String> allowedOrigins = getAllowedOrigins();
+    public static final List<String> ALLOWED_ORIGINS = getAllowedOrigins();
+    public static final String ALLOWED_METHODS = Arrays.asList(
+            "GET",
+            "HEAD",
+            "POST",
+            "PATCH",
+            "PUT",
+            "DELETE",
+            "OPTIONS"
+    ).stream().collect(joining(", "));
 
     static List<String> getAllowedOrigins() {
         return getOptionalProperty(CORS_ALLOWED_ORIGINS)
@@ -43,12 +54,14 @@ public class NavCorsFilter implements Filter {
         if (validOrigin(originHeader)) {
             HttpServletResponse httpServletResponse = (HttpServletResponse) response;
             httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, originHeader);
+            httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");
+            httpServletResponse.setHeader("Access-Control-Allow-Methods", ALLOWED_METHODS);
         }
         chain.doFilter(request, response);
     }
 
     private boolean validOrigin(String originHeader) {
-        return validOrigin(originHeader, allowedOrigins);
+        return validOrigin(originHeader, ALLOWED_ORIGINS);
     }
 
     static boolean validOrigin(String originHeader, List<String> allowedOrigins) {
