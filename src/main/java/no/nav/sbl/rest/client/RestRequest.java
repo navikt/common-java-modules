@@ -1,7 +1,5 @@
 package no.nav.sbl.rest.client;
 
-import org.slf4j.Logger;
-
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -12,11 +10,8 @@ import java.util.function.Function;
 
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.slf4j.LoggerFactory.getLogger;
 
 public class RestRequest {
-
-    private static final Logger LOG = getLogger(RestRequest.class);
 
     private final Function<Invocation.Builder, Invocation.Builder> decorator;
     private WebTarget webTarget;
@@ -32,7 +27,6 @@ public class RestRequest {
     }
 
     public <ELEMENT> List<ELEMENT> getList(Class<ELEMENT> responseClass) {
-        LOG.info("{}", webTarget);
         return decorator.apply(webTarget.request()
                 .header(ACCEPT, APPLICATION_JSON)
         ).get(new GenericType<>(new ListType(responseClass)));

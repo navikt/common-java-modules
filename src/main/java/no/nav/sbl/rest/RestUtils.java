@@ -7,8 +7,10 @@ import lombok.experimental.Wither;
 import no.nav.json.JsonProvider;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
+import no.nav.sbl.rest.client.RestRequest;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
+import org.slf4j.Logger;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.*;
@@ -16,8 +18,11 @@ import java.io.IOException;
 import java.util.function.Function;
 
 import static org.glassfish.jersey.client.ClientProperties.*;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class RestUtils {
+
+    private static final Logger LOG = getLogger(RestRequest.class);
 
     public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
     public static final RestConfig LONG_READ_CONFIG = DEFAULT_CONFIG.withReadTimeout(DEFAULT_CONFIG.readTimeout * 4);
@@ -121,6 +126,7 @@ public class RestUtils {
 
         @Override
         public void filter(ClientRequestContext clientRequestContext) throws IOException {
+            LOG.info("{} {}", clientRequestContext.getMethod(), clientRequestContext.getUri());
             Timer timer = MetricsFactory.createTimer(this.metricName);
             timer.start();
             clientRequestContext.setProperty(NAME, timer);
