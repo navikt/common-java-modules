@@ -1,6 +1,7 @@
 package no.nav.brukerdialog.security.jaspic;
 
 import no.nav.brukerdialog.security.domain.AuthenticationLevelCredential;
+import no.nav.brukerdialog.security.domain.ConsumerId;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.domain.SluttBruker;
 import no.nav.brukerdialog.security.oidc.IdTokenProvider;
@@ -224,6 +225,7 @@ public class OidcAuthModule implements ServerAuthModule {
     private void notifyContainerAboutLogin(Subject clientSubject, CallbackHandler handler, String username, String token) {
         if (username != null && !username.isEmpty()) {
             clientSubject.getPrincipals().add(SluttBruker.internBruker(username));
+            clientSubject.getPrincipals().add(new ConsumerId());
             clientSubject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
             clientSubject.getPublicCredentials().add(new OidcCredential(token));
         }
