@@ -3,6 +3,7 @@ package no.nav.sbl.rest;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
+import lombok.experimental.Wither;
 import no.nav.json.JsonProvider;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
@@ -19,6 +20,7 @@ import static org.glassfish.jersey.client.ClientProperties.*;
 public class RestUtils {
 
     public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
+    public static final RestConfig LONG_READ_CONFIG = DEFAULT_CONFIG.withReadTimeout(DEFAULT_CONFIG.readTimeout * 4);
 
     @SuppressWarnings("unused")
     public static ClientConfig createClientConfig() {
@@ -80,6 +82,7 @@ public class RestUtils {
     }
 
     @Value
+    @Wither
     @Builder
     public static class RestConfig {
 
