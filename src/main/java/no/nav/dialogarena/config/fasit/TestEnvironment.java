@@ -20,7 +20,8 @@ public enum TestEnvironment {
     TY("ty"),
 
     Q4("q4"),
-    Q6("q6")
+    Q6("q6"),
+    Q0("q0")
     ;
 
     private final String env;
