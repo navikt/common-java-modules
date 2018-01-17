@@ -3,8 +3,6 @@ package no.nav.sbl.sql;
 import no.nav.sbl.jdbc.TestUtils;
 import no.nav.sbl.sql.order.OrderClause;
 import no.nav.sbl.sql.where.WhereClause;
-import no.nav.sbl.sql.where.WhereIsNotNull;
-import no.nav.sbl.sql.where.WhereIsNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -85,30 +83,6 @@ public class SqlUtilsTest {
     }
 
     @Test
-    public void upsertQuery() {
-        String oppdatertNavn1 = "oppdatert navn1";
-        String oppdatertNavn2 = "oppdatert navn2";
-
-        SqlUtils.upsert(db, TESTTABLE1)
-                .set(NAVN, oppdatertNavn1)
-                .set(ID, "007")
-                .where(WhereClause.equals(ID, "007"))
-                .execute();
-
-        Testobject retrieved1 = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
-        assertThat(retrieved1.getNavn()).isEqualTo(oppdatertNavn1);
-
-        SqlUtils.upsert(db, TESTTABLE1)
-                .set(NAVN, oppdatertNavn2)
-                .set(ID, "007")
-                .where(WhereClause.equals(ID, "007"))
-                .execute();
-
-        Testobject retrieved2 = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
-        assertThat(retrieved2.getNavn()).isEqualTo(oppdatertNavn2);
-    }
-
-    @Test
     public void updateBatchQuery() {
         String oppdatertNavn = "oppdatert navn";
         List<Testobject> objects = new ArrayList<>();
@@ -123,7 +97,7 @@ public class SqlUtilsTest {
         Testobject.getInsertBatchQuery(db, TESTTABLE1)
                 .execute(objects);
 
-        UpdateBatchQuery<Testobject> updateBatchQuery =  new UpdateBatchQuery<>(db, TESTTABLE1);
+        UpdateBatchQuery<Testobject> updateBatchQuery = new UpdateBatchQuery<>(db, TESTTABLE1);
         List<Testobject> updateObjects = new ArrayList<>();
         updateObjects.add(getTestobjectWithId("001").setNavn(oppdatertNavn));
         updateObjects.add(getTestobjectWithId("002").setNavn(oppdatertNavn));
@@ -283,7 +257,7 @@ public class SqlUtilsTest {
                 .executeToList();
 
         assertThat(testobjects.stream()
-                .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(0,1,2,3,4));
+                .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(0, 1, 2, 3, 4));
     }
 
     @Test
@@ -304,7 +278,7 @@ public class SqlUtilsTest {
                 .executeToList();
 
         assertThat(testobjects.stream()
-                .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(2,3,4,5,6));
+                .map(Testobject::getNumberOfPets).collect(Collectors.toList())).isEqualTo(asList(2, 3, 4, 5, 6));
     }
 
     @Test
