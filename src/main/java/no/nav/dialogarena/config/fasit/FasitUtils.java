@@ -70,7 +70,7 @@ public class FasitUtils {
                 .filter(File::exists)
                 .map(Util::loadProperties)
                 .map(fasitProperties -> fasitProperties.getProperty(variableName))
-                .orElseThrow(() -> new RuntimeException(format(
+                .orElseThrow(() -> new IllegalStateException(format(
                         "mangler variabel '%s'. Denne må settes som property, miljøvariabel eller i '%s'",
                         variableName,
                         fasitPropertyFile.getAbsolutePath())
