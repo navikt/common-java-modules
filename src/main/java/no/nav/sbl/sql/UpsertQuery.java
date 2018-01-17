@@ -36,8 +36,8 @@ public class UpsertQuery {
             this.appliesTo = appliesTo;
         }
 
-        public boolean appliesTo(ApplyTo update) {
-            return this.equals(update) || Arrays.binarySearch(this.appliesTo, update) >= 0;
+        public boolean appliesTo(ApplyTo applyTo) {
+            return this.equals(applyTo) || Arrays.binarySearch(this.appliesTo, applyTo) >= 0;
         }
     }
 
