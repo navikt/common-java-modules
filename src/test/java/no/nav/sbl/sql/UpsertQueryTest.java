@@ -91,10 +91,10 @@ public class UpsertQueryTest {
 
         SqlUtils.upsert(db, TESTTABLE1)
                 .set(NAVN, oppdatertnavn)
-                .set(DEAD, false, UpsertQuery.Match.INSERT)
-                .set(CREATED, later, UpsertQuery.Match.INSERT)
-                .set(UPDATED, later, UpsertQuery.Match.UPDATE)
-                .set(ID, id, UpsertQuery.Match.BOTH) // Redundant to explicitly say BOTH...
+                .set(DEAD, false, UpsertQuery.ApplyTo.INSERT)
+                .set(CREATED, later, UpsertQuery.ApplyTo.INSERT)
+                .set(UPDATED, later, UpsertQuery.ApplyTo.UPDATE)
+                .set(ID, id, UpsertQuery.ApplyTo.BOTH) // Redundant to explicitly say BOTH...
                 .where(WhereClause.equals(ID, id))
                 .execute();
 
@@ -150,11 +150,11 @@ public class UpsertQueryTest {
 
     private void upsert(Testobject testobject) {
         SqlUtils.upsert(db, TESTTABLE1)
-                .set(ID, testobject.id, UpsertQuery.Match.INSERT)
-                .set(NAVN, testobject.navn, UpsertQuery.Match.BOTH) // Redundant to explicitly say BOTH...
-                .set(DEAD,  testobject.dead, UpsertQuery.Match.BOTH)
-                .set(CREATED, testobject.created, UpsertQuery.Match.INSERT)
-                .set(UPDATED, testobject.updated, UpsertQuery.Match.BOTH)
+                .set(ID, testobject.id, UpsertQuery.ApplyTo.INSERT)
+                .set(NAVN, testobject.navn, UpsertQuery.ApplyTo.BOTH) // Redundant to explicitly say BOTH...
+                .set(DEAD,  testobject.dead, UpsertQuery.ApplyTo.BOTH)
+                .set(CREATED, testobject.created, UpsertQuery.ApplyTo.INSERT)
+                .set(UPDATED, testobject.updated, UpsertQuery.ApplyTo.BOTH)
                 .where(WhereClause.equals(ID, testobject.id))
                 .execute();
     }

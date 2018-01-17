@@ -15,8 +15,8 @@ import java.util.function.Predicate;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
-import static no.nav.sbl.sql.UpsertQuery.Match.INSERT;
-import static no.nav.sbl.sql.UpsertQuery.Match.UPDATE;
+import static no.nav.sbl.sql.UpsertQuery.ApplyTo.INSERT;
+import static no.nav.sbl.sql.UpsertQuery.ApplyTo.UPDATE;
 import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 @Slf4j
@@ -24,20 +24,20 @@ public class UpsertQuery {
     private final String upsertTemplate = "MERGE INTO %s USING dual ON (%s) WHEN MATCHED THEN %s WHEN NOT MATCHED THEN %s";
     private final JdbcTemplate db;
     private final String tableName;
-    private final Map<String, Tuple2<Match, Object>> setParams;
+    private final Map<String, Tuple2<ApplyTo, Object>> setParams;
     private WhereClause where;
 
-    public enum Match {
+    public enum ApplyTo {
         UPDATE, INSERT, BOTH(UPDATE, INSERT);
 
-        public Match[] matches;
+        public ApplyTo[] appliesTo;
 
-        Match(Match... matches) {
-            this.matches = matches;
+        ApplyTo(ApplyTo... appliesTo) {
+            this.appliesTo = appliesTo;
         }
 
-        public boolean appliesTo(Match update) {
-            return this.equals(update) || Arrays.binarySearch(this.matches, update) >= 0;
+        public boolean appliesTo(ApplyTo update) {
+            return this.equals(update) || Arrays.binarySearch(this.appliesTo, update) >= 0;
         }
     }
 
@@ -48,14 +48,14 @@ public class UpsertQuery {
     }
 
     public UpsertQuery set(String param, Object value) {
-        return set(param, value, Match.BOTH);
+        return set(param, value, ApplyTo.BOTH);
     }
 
-    public UpsertQuery set(String param, Object value, Match match) {
+    public UpsertQuery set(String param, Object value, ApplyTo applyTo) {
         if (this.setParams.containsKey(param)) {
             throw new IllegalArgumentException(format("Param[%s] was already set.", param));
         }
-        this.setParams.put(param, Tuple.of(match, value));
+        this.setParams.put(param, Tuple.of(applyTo, value));
         return this;
     }
 
@@ -81,14 +81,14 @@ public class UpsertQuery {
                     index = this.where.applyTo(ps, index);
 
                     // For updatequery
-                    for (Map.Entry<String, Tuple2<Match, Object>> entry : this.setParams.entrySet()) {
+                    for (Map.Entry<String, Tuple2<ApplyTo, Object>> entry : this.setParams.entrySet()) {
                         if (!this.where.appliesTo(entry.getKey()) && skalSetParamVareMed(UPDATE).test(entry)) {
                             ps.setObject(index++, entry.getValue()._2());
                         }
                     }
 
                     // For insertquery
-                    for (Map.Entry<String, Tuple2<Match, Object>> entry : this.setParams.entrySet()) {
+                    for (Map.Entry<String, Tuple2<ApplyTo, Object>> entry : this.setParams.entrySet()) {
                         if (skalSetParamVareMed(INSERT).test(entry)) {
                             ps.setObject(index++, entry.getValue()._2());
                         }
@@ -129,8 +129,8 @@ public class UpsertQuery {
                 .collect(joining(", "));
     }
 
-    private Predicate<Map.Entry<String, Tuple2<Match, Object>>> skalSetParamVareMed(Match match) {
-        return (Map.Entry<String, Tuple2<Match, Object>> entry) -> entry.getValue()._1().appliesTo(match);
+    private Predicate<Map.Entry<String, Tuple2<ApplyTo, Object>>> skalSetParamVareMed(ApplyTo applyTo) {
+        return (Map.Entry<String, Tuple2<ApplyTo, Object>> entry) -> entry.getValue()._1().appliesTo(applyTo);
     }
 
     private String createInsertStatement() {
