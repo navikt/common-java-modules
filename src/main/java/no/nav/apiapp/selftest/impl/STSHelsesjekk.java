@@ -47,6 +47,7 @@ public class STSHelsesjekk implements Helsesjekk {
     @Override
     public HelsesjekkMetadata getMetadata() {
         return new HelsesjekkMetadata(
+                "sts",
                 System.getProperty(STS_URL_KEY),
                 "Sjekker at systembruker kan hente token fra STS",
                 true

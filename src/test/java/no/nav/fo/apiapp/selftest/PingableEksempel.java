@@ -8,7 +8,8 @@ import static no.nav.sbl.dialogarena.types.Pingable.Ping.lyktes;
 
 public class PingableEksempel implements Pingable {
 
-    private static final String EKSEMPEL = "EKSEMPEL_V1";
+    private static final String EKSEMPEL_ID = "eksempel";
+    private static final String EKSEMPEL_ENDEOUNKT = "EKSEMPEL_V1";
     private static final String EKSEMPEL_BESKRIVELSE = "En beskrivelse av endepunktet.";
 
     private boolean ok = true;
@@ -19,7 +20,7 @@ public class PingableEksempel implements Pingable {
 
     @Override
     public Ping ping() {
-        PingMetadata metadata = new PingMetadata(EKSEMPEL, EKSEMPEL_BESKRIVELSE, true);
+        PingMetadata metadata = new PingMetadata(EKSEMPEL_ID, EKSEMPEL_ENDEOUNKT, EKSEMPEL_BESKRIVELSE, true);
         return ok ? lyktes(metadata) : feilet(metadata, new RuntimeException());
     }
 
