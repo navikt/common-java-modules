@@ -1,10 +1,12 @@
 package no.nav.sbl.dialogarena.types;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 /**
  * Implementeres av komponenter skal overvåkes av selftest
  */
+@SuppressWarnings("unused")
 public interface Pingable {
 
     /**
@@ -122,12 +124,14 @@ public interface Pingable {
          * Metadata om en pingable.
          */
         public static class PingMetadata {
+            String id;
             String endepunkt;
             String beskrivelse;
             boolean kritisk;
 
             /**
              * Metadata om en pingable.
+             * @param id Unik id for pingable
              * @param endepunkt Presis beskrivelse av endepunktet som kalles. Eksempelvis full URI ved SOAP/REST-kall,
              *                  database connection-string e.l.
              * @param beskrivelse En kort beskrivelse av hva selftesten gjør. Denne beskrivelsen bør være god nok til at
@@ -136,10 +140,20 @@ public interface Pingable {
              *                fint kan kjøre selv om tjenesten er nede. Har en selftest ingen kritiske feil vil den
              *                kun returnere warning i stede for error.
              */
-            public PingMetadata(String endepunkt, String beskrivelse, boolean kritisk) {
+            public PingMetadata(String id, String endepunkt, String beskrivelse, boolean kritisk) {
+                this.id = id;
                 this.endepunkt = endepunkt;
                 this.beskrivelse = beskrivelse;
                 this.kritisk = kritisk;
+            }
+
+            @Deprecated
+            public PingMetadata(String endepunkt, String beskrivelse, boolean kritisk) {
+                this(UUID.randomUUID().toString(),endepunkt,beskrivelse,kritisk);
+            }
+
+            public String getId() {
+                return id;
             }
 
             public String getEndepunkt() {
