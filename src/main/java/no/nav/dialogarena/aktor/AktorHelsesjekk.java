@@ -24,6 +24,7 @@ public class AktorHelsesjekk implements Helsesjekk {
     public HelsesjekkMetadata getMetadata() {
         String aktoerUrl = System.getProperty(AKTOER_ENDPOINT_URL);
         return new HelsesjekkMetadata(
+                "aktoer",
                 "virksomhet:Aktoer_v2 via " + aktoerUrl,
                 "Ping av aktoer_v2 (konvertere mellom aktorId og Fnr).",
                 true
