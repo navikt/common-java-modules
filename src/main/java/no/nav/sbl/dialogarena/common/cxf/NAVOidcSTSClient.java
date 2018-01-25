@@ -78,10 +78,7 @@ public class NAVOidcSTSClient extends STSClient {
             if (tokenStore == null) {
                 TokenStore ts = (TokenStore) message.getContextualProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
                 if (ts == null) {
-                    ts = (TokenStore) info.map(i -> i.getProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE)).orElse(null);
-                }
-                if (ts == null) {
-                    ts = new MemoryTokenStore();
+                    ts = (TokenStore) info.map(i -> i.getProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE)).orElseGet(MemoryTokenStore::new);
                 }
                 tokenStore = ts;
             }
