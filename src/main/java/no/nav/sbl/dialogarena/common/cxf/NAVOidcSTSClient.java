@@ -2,6 +2,9 @@ package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import org.apache.cxf.Bus;
+import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.message.Exchange;
+import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.MemoryTokenStore;
@@ -11,9 +14,13 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
+
 public class NAVOidcSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
-    private static TokenStore tokenStore;
+    private static volatile TokenStore tokenStore;
     private final StsType stsType;
 
     public NAVOidcSTSClient(Bus bus, StsType stsType) {
@@ -63,12 +70,15 @@ public class NAVOidcSTSClient extends STSClient {
     }
 
     private void ensureTokenStoreExists() {
-        EndpointInfo info = message.getExchange().getEndpoint().getEndpointInfo();
-        synchronized (info) {
+        synchronized (NAVOidcSTSClient.class) {
+            Optional<EndpointInfo> info = ofNullable(message)
+                    .map(Message::getExchange)
+                    .map(Exchange::getEndpoint)
+                    .map(Endpoint::getEndpointInfo);
             if (tokenStore == null) {
                 TokenStore ts = (TokenStore) message.getContextualProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
                 if (ts == null) {
-                    ts = (TokenStore) info.getProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE);
+                    ts = (TokenStore) info.map(i -> i.getProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE)).orElse(null);
                 }
                 if (ts == null) {
                     ts = new MemoryTokenStore();
@@ -76,7 +86,7 @@ public class NAVOidcSTSClient extends STSClient {
                 tokenStore = ts;
             }
             message.put(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, tokenStore);
-            info.setProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, tokenStore);
+            info.ifPresent(i -> i.setProperty(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, tokenStore));
         }
     }
 }
