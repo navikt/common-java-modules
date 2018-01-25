@@ -29,37 +29,6 @@
         }
       }
     },
-    "/login": {
-      "get": {
-        "tags": [
-          "RelyingPartyCallback"
-        ],
-        "summary": "getLogin",
-        "operationId": "getLogin",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "code",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "state",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
     "/dato/query": {
       "get": {
         "tags": [

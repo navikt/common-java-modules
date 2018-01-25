@@ -1,7 +1,6 @@
 package no.nav.apiapp.rest;
 
 import no.nav.apiapp.ApiApplication;
-import no.nav.brukerdialog.isso.RelyingPartyCallback;
 import no.nav.json.JsonProvider;
 import org.springframework.context.ApplicationContext;
 
@@ -40,9 +39,6 @@ public class RestApplication extends Application {
                 parameterConverterProvider(),
                 new SwaggerResource(apiApplication)
         ));
-        if (apiApplication.getSone() == ApiApplication.Sone.FSS) {
-            singeltons.add(new RelyingPartyCallback());
-        }
         singeltons.addAll(getBeansWithAnnotation(Provider.class));
         singeltons.addAll(getBeansWithAnnotation(Path.class));
         return singeltons;
