@@ -20,4 +20,16 @@
         <param-value>5</param-value>
     </context-param>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Beskyttet</web-resource-name>
+            <url-pattern>/api/openam</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <!-- From Servlet spec 3.1 "**" means any authenticated user
+            ref: https://community.oracle.com/blogs/swchan2/2013/04/19/role-servlet-31-security-constraint -->
+            <role-name>**</role-name>
+        </auth-constraint>
+    </security-constraint>
+
 </web-app>

@@ -20,6 +20,7 @@ import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.ApiApplication.Sone.SBS;
 import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.*;
+import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
 import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
@@ -120,7 +122,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         ApiApplication apiApplication = startSpring(servletContextEvent);
         konfigurerLogging(apiApplication);
 
-        if (apiApplication.getSone() == SBS) {
+        if (skalHaOpenAm(apiApplication)) {
             leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
         }
 
@@ -149,6 +151,14 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         settOppSessionOgCookie(servletContextEvent, apiApplication);
         LOGGER.info("contextInitialized - slutt");
         apiApplication.startup(servletContext);
+    }
+
+    private boolean skalHaOpenAm(ApiApplication apiApplication) {
+        if (apiApplication instanceof ApiApplication.NaisApiApplication) {
+            return EnvironmentUtils.getOptionalProperty(OPENAM_RESTURL).isPresent();
+        } else {
+            return apiApplication.getSone() == SBS;
+        }
     }
 
     private boolean modigSecurityBrukes() {
@@ -200,9 +210,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         // TODO validering ????
         /////////////////
         String springKontekstKlasseNavn = servletContext.getInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME);
-        if(isEmpty(springKontekstKlasseNavn)){
+        if (isEmpty(springKontekstKlasseNavn)) {
             springKontekstKlasseNavn = servletContext.getInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME_DEPRECATED);
-            if(!isEmpty(springKontekstKlasseNavn)) {
+            if (!isEmpty(springKontekstKlasseNavn)) {
                 LOGGER.warn("Appen din benytter 'springContekstKlasse' som context-param name. Denne er deprecated. Vennligst bytt til 'springKontekstKlasse' (skrivefeil rettet)");
             }
         }
@@ -236,7 +246,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
         }
-        if (apiApplication.brukSTSHelsesjekk()){
+        if (apiApplication.brukSTSHelsesjekk()) {
             leggTilBonne(servletContextEvent, new STSHelsesjekk(apiApplication.getSone()));
         }
         return apiApplication;

@@ -323,6 +323,25 @@
         }
       }
     },
+    "/openam": {
+      "get": {
+        "tags": [
+          "OpenAmEksempel"
+        ],
+        "summary": "getIdent",
+        "operationId": "getIdent",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/eksempel": {
       "get": {
         "tags": [

@@ -1,6 +1,8 @@
 package no.nav.apiapp;
 
 import lombok.SneakyThrows;
+import no.nav.apiapp.ApiApplication.NaisApiApplication;
+import no.nav.apiapp.config.Konfigurator;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
 import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_HOST;
 import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
+import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -31,11 +34,11 @@ public class ApiApp {
     static final int DEFAULT_HTTP_PORT = 8080;
 
     @SneakyThrows
-    public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
+    public static void startApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
         setupSensu();
         setupTrustStore();
-        ApiApplication apiApplication = apiAppClass.newInstance();
+        NaisApiApplication apiApplication = apiAppClass.newInstance();
         setupSubjectHandler(apiApplication);
         Jetty jetty = setupJetty(apiApplication, args);
         reportStartupTime(start);
@@ -49,7 +52,7 @@ public class ApiApp {
         }
     }
 
-    private static Jetty setupJetty(ApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {
+    private static Jetty setupJetty(NaisApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {
         int httpPort = httpPort(args);
 
         // TODO disable logging til fil!
@@ -65,11 +68,13 @@ public class ApiApp {
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
         String contextPath = apiApplication.brukContextPath() ? "/" + apiApplication.getApplicationName() : "/";
-        Jetty jetty = Jetty.usingWar(file)
+
+        Jetty.JettyBuilder jettyBuilder = usingWar(file)
                 .at(contextPath)
                 .port(httpPort)
-                .disableAnnotationScanning()
-                .buildJetty();
+                .disableAnnotationScanning();
+        apiApplication.configure(new Konfigurator(jettyBuilder, apiApplication));
+        Jetty jetty = jettyBuilder.buildJetty();
 
         WebAppContext webAppContext = jetty.context;
         webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
