@@ -1,9 +1,11 @@
 package no.nav.sbl.util;
 
+import no.nav.sbl.dialogarena.test.SystemProperties;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.lang.System.setProperty;
+import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
 import static no.nav.sbl.util.EnvironmentUtils.ENVIRONMENT_CLASS_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.*;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
@@ -44,6 +46,18 @@ public class EnvironmentUtilsTest {
     @Test
     public void getRequiredProperty__finner_verdi_ogsa_i_environment() {
         System.getenv().keySet().forEach(k -> assertThat(getRequiredProperty(k)).isNotEmpty());
+    }
+
+    @Test
+    public void getRequiredProperty__sjekk_alle_properties_i_rekkefolge() {
+        setTemporaryProperty("b", "", () -> {
+            setTemporaryProperty("c", "c", () -> { // dette er den vi vil ha!
+                setTemporaryProperty("d", "d", () -> {
+                    assertThat(getRequiredProperty("a", "b", "c", "d", "e"))
+                            .isEqualTo("c");
+                });
+            });
+        });
     }
 
     @Test
