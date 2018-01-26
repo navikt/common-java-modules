@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 
 import static no.nav.dialogarena.aktor.AktorConfig.AKTOER_ENDPOINT_URL;
+import static no.nav.dialogarena.aktor.AktorConfig.getAktorEndpointUrl;
 
 @Component
 public class AktorHelsesjekk implements Helsesjekk {
@@ -22,7 +23,7 @@ public class AktorHelsesjekk implements Helsesjekk {
 
     @Override
     public HelsesjekkMetadata getMetadata() {
-        String aktoerUrl = System.getProperty(AKTOER_ENDPOINT_URL);
+        String aktoerUrl = getAktorEndpointUrl();
         return new HelsesjekkMetadata(
                 "aktoer",
                 "virksomhet:Aktoer_v2 via " + aktoerUrl,

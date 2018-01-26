@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import static java.lang.System.getProperty;
 import static net.sf.ehcache.config.PersistenceConfiguration.Strategy.LOCALTEMPSWAP;
 import static net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU;
+import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 @Configuration
 @Import({AktorHelsesjekk.class, AktorServiceImpl.class})
@@ -27,7 +28,7 @@ public class AktorConfig {
     @Bean
     public AktoerV2 aktoerV2() {
         return new CXFClient<>(AktoerV2.class)
-                .address(getProperty(AKTOER_ENDPOINT_URL))
+                .address(getAktorEndpointUrl())
                 .configureStsForSystemUserInFSS()
                 .withMetrics()
                 .build();
@@ -40,4 +41,9 @@ public class AktorConfig {
                 .timeToLiveSeconds(86400)
                 .persistence(new PersistenceConfiguration().strategy(LOCALTEMPSWAP));
     }
+
+    static String getAktorEndpointUrl() {
+        return getRequiredProperty(AKTOER_ENDPOINT_URL);
+    }
+
 }
