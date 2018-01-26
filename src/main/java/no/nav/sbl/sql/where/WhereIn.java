@@ -5,7 +5,10 @@ import lombok.SneakyThrows;
 
 import java.sql.PreparedStatement;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.singletonList;
 
 public class WhereIn extends WhereClause {
     private String field;
@@ -39,5 +42,10 @@ public class WhereIn extends WhereClause {
     @Override
     public boolean appliesTo(String key) {
         return key.equals(field);
+    }
+
+    @Override
+    public List<String> getFields() {
+        return singletonList(field);
     }
 }

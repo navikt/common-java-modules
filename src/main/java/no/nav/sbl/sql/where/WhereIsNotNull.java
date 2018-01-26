@@ -3,6 +3,9 @@ package no.nav.sbl.sql.where;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
+
+import static java.util.Collections.singletonList;
 
 public class WhereIsNotNull extends WhereClause{
     private String field;
@@ -29,5 +32,10 @@ public class WhereIsNotNull extends WhereClause{
     @Override
     public boolean appliesTo(String key) {
         return key.equals(field);
+    }
+
+    @Override
+    public List<String> getFields() {
+        return singletonList(field);
     }
 }

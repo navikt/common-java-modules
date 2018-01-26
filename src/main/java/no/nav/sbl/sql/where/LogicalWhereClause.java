@@ -2,6 +2,8 @@ package no.nav.sbl.sql.where;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LogicalWhereClause extends WhereClause {
     private final WhereOperator operator;
@@ -29,5 +31,12 @@ public class LogicalWhereClause extends WhereClause {
     @Override
     public boolean appliesTo(String key) {
         return wc1.appliesTo(key) || wc2.appliesTo(key);
+    }
+
+    @Override
+    public List<String> getFields() {
+        ArrayList<String> fields = new ArrayList<>(wc1.getFields());
+        fields.addAll(wc2.getFields());
+        return fields;
     }
 }

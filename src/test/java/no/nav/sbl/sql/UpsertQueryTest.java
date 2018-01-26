@@ -148,6 +148,63 @@ public class UpsertQueryTest {
         assertThat(retrieved.getId()).isEqualTo(id);
     }
 
+    @Test(expected = SqlUtilsException.class)
+    public void failIfWhereClauseIsntSet() {
+        SqlUtils.upsert(db, TESTTABLE1)
+                .set("field2", "")
+                .where(WhereClause.equals("field", ""))
+                .execute();
+    }
+
+    @Test(expected = SqlUtilsException.class)
+    public void failIfWhereClauseIsntSet2() {
+        SqlUtils.upsert(db, TESTTABLE1)
+                .set(ID, "")
+                .set(DEAD, true)
+                .where(WhereClause.equals(ID, "").and(WhereClause.equals(NAVN, "a")))
+                .execute();
+    }
+
+    @Test(expected = SqlUtilsException.class)
+    public void failIfWhereClauseFieldIsSetToUpdate() {
+        SqlUtils.upsert(db, TESTTABLE1)
+                .set("field", "", UpsertQuery.ApplyTo.UPDATE)
+                .where(WhereClause.equals("field", ""))
+                .execute();
+    }
+
+    @Test(expected = SqlUtilsException.class)
+    public void failIfNoFieldsArePresentForUpdate() {
+        SqlUtils.upsert(db, TESTTABLE1)
+                .set(ID, "ID1", UpsertQuery.ApplyTo.INSERT)
+                .set(NAVN, "navn", UpsertQuery.ApplyTo.BOTH)
+                .where(WhereClause.equals(ID, "").and(WhereClause.equals(NAVN, "a")))
+                .execute();
+    }
+
+    @Test
+    public void testBasicFuksjonalitet() {
+        String id = "ID1";
+        String navn = "navn";
+        Timestamp created = new Timestamp(0);
+        Timestamp updated = new Timestamp(120);
+
+        SqlUtils.upsert(db, TESTTABLE1)
+                .set(ID, id, UpsertQuery.ApplyTo.INSERT)
+                .set(NAVN, navn, UpsertQuery.ApplyTo.BOTH)
+                .set(UPDATED, updated, UpsertQuery.ApplyTo.BOTH)
+                .set(CREATED, created, UpsertQuery.ApplyTo.INSERT)
+                .where(WhereClause.equals(ID, "").and(WhereClause.equals(NAVN, "a")))
+                .execute();
+
+        Testobject retrieved = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
+        assertThat(retrieved.isDead()).isFalse();
+        assertThat(retrieved.getNavn()).isEqualTo(navn);
+        assertThat(retrieved.getCreated()).isEqualTo(created);
+        assertThat(retrieved.getUpdated()).isEqualTo(updated);
+        assertThat(retrieved.getId()).isEqualTo(id);
+    }
+
     private void upsert(Testobject testobject) {
         SqlUtils.upsert(db, TESTTABLE1)
                 .set(ID, testobject.id, UpsertQuery.ApplyTo.INSERT)

@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -72,6 +73,7 @@ public class UpsertQuery {
                             "what columns to set and a where clause?"
             );
         }
+        checkThatPrimarykeyAppliesToBoth();
 
         String upsertStatement = createUpsertStatement();
         return
@@ -105,6 +107,19 @@ public class UpsertQuery {
                 });
     }
 
+    private void checkThatPrimarykeyAppliesToBoth() {
+        List<String> fields = this.where.getFields();
+
+        boolean foundUpdateWhereClauseFields = fields
+                .stream()
+                .map((field) -> this.setParams.getOrDefault(field, Tuple.of(UPDATE, null)))
+                .anyMatch((fieldConfig) -> fieldConfig._1().equals(UPDATE));
+
+        if (foundUpdateWhereClauseFields) {
+            throw new SqlUtilsException("All fields mentioned in the where-clause must apply to the either `INSERT` or `BOTH`.");
+        }
+    }
+
     private String createUpsertStatement() {
         return format(
                 upsertTemplate,
@@ -120,13 +135,19 @@ public class UpsertQuery {
     }
 
     private String createSetStatement() {
-        return setParams
+        String setStatement =  setParams
                 .entrySet().stream()
                 .filter(skalSetParamVareMed(UPDATE))
                 .map(Map.Entry::getKey)
                 .filter((key) -> !this.where.appliesTo(key))
                 .map(SqlUtils.append(" = ?"))
                 .collect(joining(", "));
+
+        if (setStatement.isEmpty()) {
+            throw new SqlUtilsException("No fields set for update-statement. Fields present in the where-clause are automagically filtered out. Consider using `SqlUtils.insert`.");
+        }
+
+        return setStatement;
     }
 
     private Predicate<Map.Entry<String, Tuple2<ApplyTo, Object>>> skalSetParamVareMed(ApplyTo applyTo) {
