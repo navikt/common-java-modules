@@ -17,6 +17,26 @@ public final class SystemProperties {
 
     private static final Logger LOG = LoggerFactory.getLogger(SystemProperties.class);
 
+    public static void setTemporaryProperty(String name, String value, Runnable runnable) {
+        String originalProperty = System.getProperty(name);
+        try {
+            if (value != null) {
+                System.setProperty(name, value);
+            } else {
+                System.clearProperty(name);
+            }
+
+            LOG.info("{} = {}", name, value);
+            runnable.run();
+        } finally {
+            if (originalProperty != null) {
+                System.setProperty(name, originalProperty);
+            } else {
+                System.clearProperty(name);
+            }
+        }
+    }
+
     public static void setFrom(String resource) {
         InputStream propsResource = SystemProperties.class.getClassLoader().getResourceAsStream(resource);
         if (propsResource == null) {
@@ -52,6 +72,7 @@ public final class SystemProperties {
         }
     }
 
-    private SystemProperties() { }
+    private SystemProperties() {
+    }
 
 }
