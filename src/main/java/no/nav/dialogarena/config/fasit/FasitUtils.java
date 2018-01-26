@@ -176,10 +176,15 @@ public class FasitUtils {
     }
 
     public static String getBaseUrl(String baseUrlAlias, String environment, String domain) {
-        String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=BaseUrl&alias=%s&app=fasit",
+        return getBaseUrl(baseUrlAlias, environment, domain, "fasit");
+    }
+
+    public static String getBaseUrl(String baseUrlAlias, String environment, String domain, String application) {
+        String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=BaseUrl&alias=%s&app=%s",
             environment,
             domain,
-            baseUrlAlias
+            baseUrlAlias,
+            application
         );
         Document document = fetchXml(resourceUrl);
         return extractStringProperty(document, "url");
