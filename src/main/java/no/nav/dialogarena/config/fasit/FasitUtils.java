@@ -28,8 +28,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.StringReader;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static java.lang.Boolean.FALSE;
@@ -38,7 +37,6 @@ import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.slf4j.LoggerFactory.getLogger;
-
 
 
 public class FasitUtils {
@@ -52,12 +50,30 @@ public class FasitUtils {
     private static final Logger LOG = getLogger(FasitUtils.class);
 
     public static final String WELL_KNOWN_APPLICATION_NAME = "fasit";
-    public static final String TEST_LOCAL = "test.local";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    public static final String TEST_LOCAL = "test.local";
+    public static final String OERA_T_LOCAL = "oera-t.local";
+    public static final String OERA_Q_LOCAL = "oera-q.local";
+    public static final String PREPROD_LOCAL = "preprod.local";
+
+    private static final Map<String, List<String>> domainsByEnvironmentClass = new HashMap<>();
+    private static final Map<String, Zone> zoneByDomain = new HashMap<>();
+
+    private static final List<String> T_DOMAINS = Arrays.asList(OERA_T_LOCAL, TEST_LOCAL);
+    private static final List<String> Q_DOMAINS = Arrays.asList(OERA_Q_LOCAL, PREPROD_LOCAL);
+
     static {
         objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        domainsByEnvironmentClass.put("t", T_DOMAINS);
+        domainsByEnvironmentClass.put("q", Q_DOMAINS);
+
+        zoneByDomain.put(OERA_Q_LOCAL, Zone.SBS);
+        zoneByDomain.put(OERA_T_LOCAL, Zone.SBS);
+        zoneByDomain.put(PREPROD_LOCAL, Zone.FSS);
+        zoneByDomain.put(TEST_LOCAL, Zone.FSS);
     }
 
     public static String getVariable(String variableName) {
@@ -168,7 +184,11 @@ public class FasitUtils {
     }
 
     public static String getBaseUrl(String baseUrlAlias) {
-        return getBaseUrl(baseUrlAlias,getDefaultEnvironment());
+        return getBaseUrl(baseUrlAlias, getDefaultEnvironment());
+    }
+
+    public static String getBaseUrl(String baseUrlAlias, Zone zone) {
+        return getBaseUrl(baseUrlAlias, getDefaultEnvironment(),getDefaultDomain(zone));
     }
 
     public static String getBaseUrl(String baseUrlAlias, String environment) {
@@ -181,10 +201,10 @@ public class FasitUtils {
 
     public static String getBaseUrl(String baseUrlAlias, String environment, String domain, String application) {
         String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=BaseUrl&alias=%s&app=%s",
-            environment,
-            domain,
-            baseUrlAlias,
-            application
+                environment,
+                domain,
+                baseUrlAlias,
+                application
         );
         Document document = fetchXml(resourceUrl);
         return extractStringProperty(document, "url");
@@ -198,9 +218,35 @@ public class FasitUtils {
         return getServiceUser(userAlias, applicationName, environment.toString());
     }
 
+    public static ServiceUser getServiceUser(String userAlias, String applicationName, Zone zone) {
+        String defaultEnvironment = getDefaultEnvironment();
+        return getServiceUser(userAlias, applicationName, defaultEnvironment, zone.getDomain(defaultEnvironment));
+    }
+
     public static ServiceUser getServiceUser(String userAlias, String applicationName, String environment) {
+        return getServiceUser(userAlias, applicationName, environment, resolveDomain(applicationName, environment));
+    }
+
+    static String resolveDomain(String applicationName, String environment) {
         ApplicationConfig applicationConfig = getApplicationConfig(applicationName, environment);
-        return getServiceUser(userAlias, applicationName, environment, applicationConfig.domain);
+        String domain = applicationConfig.domain;
+        List<String> domains = getDomains(environment);
+        if (domains.contains(domain)) {
+            return domain;
+        } else {
+            // nais-apper i sbs-sonen registeres under fss-domener (!)
+            // så dermed følgende omvei for at dette skal bli riktig:
+            Zone zone = zoneByDomain.get(domain);
+            return zone.getDomain(environment);
+        }
+    }
+
+    public static String getDefaultDomain(Zone zone){
+        return zone.getDomain(getDefaultEnvironment());
+    }
+
+    private static List<String> getDomains(String environment) {
+        return domainsByEnvironmentClass.get(getEnvironmentClass(environment));
     }
 
     public static OpenAmConfig getOpenAmConfig(String environment) {
@@ -393,6 +439,22 @@ public class FasitUtils {
                 return "preprod";
             default:
                 throw new IllegalStateException();
+        }
+    }
+
+    public enum Zone {
+        FSS,
+        SBS;
+
+        public String getDomain(String environment) {
+            switch (this) {
+                case FSS:
+                    return getFSSLocal(environment);
+                case SBS:
+                    return getOeraLocal(environment);
+                default:
+                    throw new IllegalStateException();
+            }
         }
     }
 

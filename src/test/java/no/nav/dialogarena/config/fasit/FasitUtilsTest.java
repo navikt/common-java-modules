@@ -8,9 +8,12 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE_NAME;
-import static no.nav.dialogarena.config.fasit.FasitUtils.getDbCredentials;
+import static no.nav.dialogarena.config.fasit.FasitUtils.*;
+import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
+import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.SBS;
+import static no.nav.dialogarena.config.fasit.TestEnvironment.Q6;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
+import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.isOneOf;
@@ -74,6 +77,16 @@ public class FasitUtilsTest {
     public void getServiceUser() {
         ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbaktivitet", "veilarbaktivitet");
         assertThat(serviceUser.username, equalTo("srvveilarbaktivitet"));
+        assertThat(serviceUser.password, not(nullValue()));
+    }
+
+    @Test
+    public void getServiceUser_nais_app() {
+        ServiceUser serviceUser = FasitUtils.getServiceUser(
+                "srvveilarbdemo",
+                "veilarbdemo"
+        );
+        assertThat(serviceUser.username, equalTo("srvveilarbdemo"));
         assertThat(serviceUser.password, not(nullValue()));
     }
 
@@ -188,8 +201,35 @@ public class FasitUtilsTest {
     }
 
     @Test
-    public void getBaseUrl() throws Exception {
-        new URL(FasitUtils.getBaseUrl("bekkci_slack_webhook_url"));
+    public void getBaseUrl_() throws Exception {
+        new URL(getBaseUrl("bekkci_slack_webhook_url"));
+        new URL(getBaseUrl("securityTokenService"));
+        new URL(getBaseUrl("securityTokenService", FSS));
+        new URL(getBaseUrl("securityTokenService", SBS));
+    }
+
+    @Test
+    public void getDefaultDomain_() throws Exception {
+        setTemporaryProperty(DEFAULT_ENVIRONMENT_VARIABLE_NAME, T6.toString(),()->{
+            assertThat(getDefaultDomain(SBS),equalTo(OERA_T_LOCAL));
+            assertThat(getDefaultDomain(FSS),equalTo(TEST_LOCAL));
+        });
+
+        setTemporaryProperty(DEFAULT_ENVIRONMENT_VARIABLE_NAME, Q6.toString(),()->{
+            assertThat(getDefaultDomain(SBS),equalTo(OERA_Q_LOCAL));
+            assertThat(getDefaultDomain(FSS),equalTo(PREPROD_LOCAL));
+        });
+    }
+
+    @Test
+    public void resolveDomain_() throws Exception {
+        assertThat(resolveDomain("feature", "t6"), equalTo(TEST_LOCAL));
+        assertThat(resolveDomain("feature", "q6"), equalTo(PREPROD_LOCAL));
+        assertThat(resolveDomain("veilarbaktivitet", "t6"), equalTo(TEST_LOCAL));
+        assertThat(resolveDomain("veilarbaktivitet", "q6"), equalTo(PREPROD_LOCAL));
+
+        assertThat(resolveDomain("aktivitetsplan", "t6"), equalTo(OERA_T_LOCAL));
+        assertThat(resolveDomain("aktivitetsplan", "q6"), equalTo(OERA_Q_LOCAL));
     }
 
 }
