@@ -34,7 +34,8 @@ public class Feil extends RuntimeException {
         FINNES_IKKE(NOT_FOUND),
         VERSJONSKONFLIKT(BAD_REQUEST),
         INGEN_TILGANG(FORBIDDEN),
-        UKJENT(INTERNAL_SERVER_ERROR);
+        UKJENT(INTERNAL_SERVER_ERROR),
+        SERVICE_UNAVAILABLE(Response.Status.SERVICE_UNAVAILABLE);
 
         private final Response.Status status;
 
