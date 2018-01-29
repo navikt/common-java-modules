@@ -9,6 +9,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 
+import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.READ;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.WRITE;
@@ -46,6 +47,20 @@ public class PepClient {
     @SneakyThrows
     public String sjekkSkriveTilgangTilFnr(String fnr) {
         return sjekkTilgang(fnr, WRITE);
+    }
+
+    public void sjekkTilgangTilEnhet(String enhet) throws IngenTilgang, PepException {
+        if (!harTilgangTilEnhet(enhet)) {
+            throw new IngenTilgang(format("Veileder har ikke tilgang til enhet '%s'", enhet));
+        }
+    }
+
+    public boolean harTilgangTilEnhet(String enhet) throws PepException {
+        BiasedDecisionResponse r = pep.harTilgang(pep.nyRequest()
+                .withResourceType(ResourceType.Enhet)
+                .withDomain(applicationDomain)
+                .withEnhet(enhet));
+        return erPermit(r);
     }
 
     private String sjekkTilgang(String fnr, Action.ActionId action) throws PepException {
