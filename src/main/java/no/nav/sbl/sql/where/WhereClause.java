@@ -3,6 +3,7 @@ package no.nav.sbl.sql.where;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 
 public abstract class WhereClause {
     public static WhereClause equals(String field, Object value) {
@@ -49,4 +50,6 @@ public abstract class WhereClause {
     public abstract String toSql();
 
     public abstract boolean appliesTo(String key);
+
+    public abstract List<String> getFields();
 }
