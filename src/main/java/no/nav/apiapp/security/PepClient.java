@@ -51,11 +51,11 @@ public class PepClient {
 
     public void sjekkTilgangTilEnhet(String enhet) throws IngenTilgang, PepException {
         if (!harTilgangTilEnhet(enhet)) {
-            throw new IngenTilgang(format("Veileder har ikke tilgang til enhet '%s'", enhet));
+            throw new IngenTilgang(format("Ingen tilgang til enhet '%s'", enhet));
         }
     }
 
-    public boolean harTilgangTilEnhet(String enhet) throws PepException {
+    private boolean harTilgangTilEnhet(String enhet) throws PepException {
         BiasedDecisionResponse r = pep.harTilgang(pep.nyRequest()
                 .withResourceType(ResourceType.Enhet)
                 .withDomain(applicationDomain)
