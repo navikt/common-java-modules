@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp;
 
-import no.nav.apiapp.ApiApplication;
+import no.nav.apiapp.ApiApplication.NaisApiApplication;
+import no.nav.apiapp.config.ApiAppConfigurator;
 import no.nav.fo.apiapp.rest.*;
 import no.nav.fo.apiapp.security.KreverSesjon;
 import no.nav.fo.apiapp.selftest.PingableEksempel;
@@ -16,7 +17,7 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 @Configuration
-public class ApplicationConfig implements ApiApplication {
+public class ApplicationConfig implements NaisApiApplication {
 
     public static final String APPLICATION_NAME = "api-app";
 
@@ -36,7 +37,7 @@ public class ApplicationConfig implements ApiApplication {
     }
 
     @Bean
-    public DatoEksempel datoEksempel(){
+    public DatoEksempel datoEksempel() {
         return new DatoEksempel();
     }
 
@@ -51,13 +52,18 @@ public class ApplicationConfig implements ApiApplication {
     }
 
     @Bean
-    public SwaggerEksempel swaggerEksempel(){
+    public SwaggerEksempel swaggerEksempel() {
         return new SwaggerEksempel();
     }
 
     @Bean
-    public InterfaceEksempelImpl interfaceEksempel(){
+    public InterfaceEksempelImpl interfaceEksempel() {
         return new InterfaceEksempelImpl();
+    }
+
+    @Bean
+    public OpenAmEksempel openAmEksempel() {
+        return new OpenAmEksempel();
     }
 
     @Bean
@@ -72,6 +78,15 @@ public class ApplicationConfig implements ApiApplication {
     @Override
     public Sone getSone() {
         return Sone.FSS;
+    }
+
+    @Override
+    public void configure(ApiAppConfigurator apiAppConfigurator) {
+        apiAppConfigurator
+//                .samlLogin()
+                .sts()
+                .openAmLogin();
+
     }
 
     @Override
