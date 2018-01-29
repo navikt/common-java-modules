@@ -55,7 +55,7 @@ public class PepClient {
         }
     }
 
-    private boolean harTilgangTilEnhet(String enhet) throws PepException {
+    public boolean harTilgangTilEnhet(String enhet) throws PepException {
         BiasedDecisionResponse r = pep.harTilgang(pep.nyRequest()
                 .withResourceType(ResourceType.Enhet)
                 .withDomain(applicationDomain)
