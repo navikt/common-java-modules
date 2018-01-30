@@ -30,12 +30,15 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator sts() {
-        return sts(StsConfig.builder()
+        return sts(defaultStsConfig());
+    }
+
+    StsConfig defaultStsConfig() {
+        return StsConfig.builder()
                 .url(getConfigProperty(StsSecurityConstants.STS_URL_KEY, "SECURITYTOKENSERVICE_URL"))
-                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, "SRVVEILARB" + getAppName() + "_USERNAME"))
-                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, "SRVVEILARB" + getAppName() + "_PASSWORD"))
-                .build()
-        );
+                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, "SRV" + getAppName() + "_USERNAME"))
+                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, "SRV" + getAppName() + "_PASSWORD"))
+                .build();
     }
 
     @Override
