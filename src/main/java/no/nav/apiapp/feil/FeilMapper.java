@@ -12,13 +12,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static java.util.Optional.ofNullable;
 import static no.nav.apiapp.feil.Feil.Type.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 public class FeilMapper {
 
+    public static final String VIS_DETALJER_VED_FEIL = "VIS_DETALJER_VED_FEIL";
     private static final Set<String> MILJO_MED_DETALJER = new HashSet<>(asList("t", "u", "q"));
     private static final SecureRandom secureRandom = new SecureRandom();
 
@@ -66,7 +67,8 @@ public class FeilMapper {
     }
 
     private static boolean visDetaljer() {
-        return ofNullable(System.getProperty(Constants.MILJO_PROPERTY_NAME)).map(MILJO_MED_DETALJER::contains).orElse(false);
+        return getOptionalProperty(VIS_DETALJER_VED_FEIL).map(Boolean::parseBoolean).orElse(false)
+                || getOptionalProperty(Constants.MILJO_PROPERTY_NAME).map(MILJO_MED_DETALJER::contains).orElse(false);
     }
 
 }
