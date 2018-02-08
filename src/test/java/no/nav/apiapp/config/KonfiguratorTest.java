@@ -1,6 +1,7 @@
 package no.nav.apiapp.config;
 
 import no.nav.apiapp.ApiApplication;
+import no.nav.apiapp.TestContext;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
 import org.junit.Test;
 
@@ -11,6 +12,9 @@ import static org.mockito.Mockito.when;
 
 public class KonfiguratorTest {
 
+    static {
+        TestContext.setup();
+    }
 
     private JettyBuilder jettyBuilder = mock(JettyBuilder.class);
     private ApiApplication apiApplication = mock(ApiApplication.class);
