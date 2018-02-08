@@ -2,6 +2,7 @@ package no.nav.apiapp.soap;
 
 import lombok.SneakyThrows;
 import no.nav.apiapp.feil.FeilDTO;
+import no.nav.apiapp.util.StringUtils;
 import no.nav.metrics.MetodeTimer;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsFactory;
@@ -19,6 +20,7 @@ import java.lang.reflect.Method;
 
 import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
 import static no.nav.apiapp.util.EnumUtils.getName;
+import static no.nav.apiapp.util.StringUtils.notNullOrEmpty;
 import static no.nav.json.JsonUtils.toJson;
 
 public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
@@ -43,7 +45,10 @@ public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
             SOAPFault fault = soapFactory.createFault();
             fault.setFaultString(feilDTO.id);
             fault.setFaultCode(getName(feilDTO.type));
-            fault.addDetail().addTextNode(toJson(feilDTO.detaljer));
+            String detaljerJson = toJson(feilDTO.detaljer);
+            if (notNullOrEmpty(detaljerJson)) {
+                fault.addDetail().addTextNode(detaljerJson);
+            }
             return new SOAPFaultException(fault);
         } catch (SOAPException e) {
             LOGGER.error(e.getMessage(), e);
