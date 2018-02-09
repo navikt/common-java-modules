@@ -20,7 +20,8 @@ import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
-import static no.nav.sbl.util.EnvironmentUtils.*;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 
 public class ApiApp {
 
@@ -95,8 +96,12 @@ public class ApiApp {
 
     private static void setupTrustStore() {
         if (!getOptionalProperty(TRUSTSTORE).isPresent()) {
-            setProperty(TRUSTSTORE, getRequiredProperty(NAV_TRUSTSTORE_PATH), PUBLIC);
-            setProperty(TRUSTSTOREPASSWORD, getRequiredProperty(NAV_TRUSTSTORE_PASSWORD), SECRET);
+
+            String truststorePath = getOptionalProperty(NAV_TRUSTSTORE_PATH).orElse("LOCAL_TRUSTSTORE");
+            String truststorePasswd = getOptionalProperty(NAV_TRUSTSTORE_PASSWORD).orElse("LOCAL_TRUSTSTORE_PASSWD");
+
+            setProperty(TRUSTSTORE, truststorePath, PUBLIC);
+            setProperty(TRUSTSTOREPASSWORD, truststorePasswd, SECRET);
         }
     }
 
