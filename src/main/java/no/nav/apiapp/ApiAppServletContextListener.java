@@ -13,6 +13,7 @@ import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.selftest.impl.STSHelsesjekk;
+import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.util.JbossUtil;
 import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
@@ -242,6 +243,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         AnnotationConfigWebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
         ApiApplication apiApplication = webApplicationContext.getBean(ApiApplication.class);
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
+        leggTilBonne(servletContextEvent, new TruststoreHelsesjekk());
         if (issoBrukes()) {
             leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
