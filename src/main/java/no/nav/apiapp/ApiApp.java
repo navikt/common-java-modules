@@ -95,14 +95,11 @@ public class ApiApp {
     }
 
     private static void setupTrustStore() {
-        if (!getOptionalProperty(TRUSTSTORE).isPresent()) {
-
-            String truststorePath = getOptionalProperty(NAV_TRUSTSTORE_PATH).orElse("LOCAL_TRUSTSTORE");
-            String truststorePasswd = getOptionalProperty(NAV_TRUSTSTORE_PASSWORD).orElse("LOCAL_TRUSTSTORE_PASSWD");
-
-            setProperty(TRUSTSTORE, truststorePath, PUBLIC);
-            setProperty(TRUSTSTOREPASSWORD, truststorePasswd, SECRET);
+        if (getOptionalProperty(TRUSTSTORE).isPresent()) {
+            return;
         }
+        getOptionalProperty(NAV_TRUSTSTORE_PATH).ifPresent(path -> setProperty(TRUSTSTORE, path, PUBLIC));
+        getOptionalProperty(NAV_TRUSTSTORE_PASSWORD).ifPresent(passwd -> setProperty(TRUSTSTOREPASSWORD, passwd, SECRET));
     }
 
     private static void setupSensu() {
