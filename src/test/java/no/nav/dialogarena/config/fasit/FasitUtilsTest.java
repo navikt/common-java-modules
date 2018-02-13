@@ -114,6 +114,8 @@ public class FasitUtilsTest {
 
     @Test
     public void getOpenAmConfig() {
+        assertThat(FasitUtils.getOpenAmConfig(), notNullValue());
+
         OpenAmConfig openAmConfig = FasitUtils.getOpenAmConfig("t6");
         assertThat(openAmConfig.username, equalTo("srvOpenam_test"));
         assertThat(openAmConfig.password, not(nullValue()));

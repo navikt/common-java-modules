@@ -249,6 +249,10 @@ public class FasitUtils {
         return domainsByEnvironmentClass.get(getEnvironmentClass(environment));
     }
 
+    public static OpenAmConfig getOpenAmConfig() {
+        return getOpenAmConfig(getDefaultEnvironment());
+    }
+
     public static OpenAmConfig getOpenAmConfig(String environment) {
         String resourceUrl = format("https://fasit.adeo.no/conf/resources/bestmatch?envName=%s&domain=%s&type=OpenAm&alias=openam&app=fasit",
                 environment,
