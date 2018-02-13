@@ -35,7 +35,7 @@ public abstract class IsAliveContract extends ConsumerPactTestMk2 {
 
     protected RequestResponsePact createPact(PactDslWithProvider builder) {
         String is_alive_state = "is alive state";
-        String application_should_be_alive = "an is alive request";
+        String application_should_be_alive = "a request for is alive request";
 
         return builder
                 .given(is_alive_state)
