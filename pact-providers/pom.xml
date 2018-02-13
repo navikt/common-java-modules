@@ -13,19 +13,38 @@
     <artifactId>pact-providers</artifactId>
     <version>1.0.0</version>
 
-    <!--<dependencies>-->
-        <!--<dependency>-->
-            <!--<groupId>no.nav.fo</groupId>-->
-            <!--<artifactId>pact-api</artifactId>-->
-            <!--<version>1.0</version>-->
-        <!--</dependency>-->
+    <dependencies>
+        <dependency>
+            <groupId>no.nav.fo</groupId>
+            <artifactId>pact-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>au.com.dius</groupId>-->
-            <!--<artifactId>pact-jvm-provider-junit_2.12</artifactId>-->
-            <!--<version>3.5.12</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-    <!--</dependencies>-->
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-provider-junit_2.12</artifactId>
+            <version>3.5.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>no.nav.sbl.dialogarena</groupId>
+            <artifactId>common-test</artifactId>
+            <version>2017.12.05.13.53</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+    </dependencies>
 
 </project>

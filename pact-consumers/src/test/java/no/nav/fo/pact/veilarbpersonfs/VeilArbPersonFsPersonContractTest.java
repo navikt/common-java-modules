@@ -33,7 +33,7 @@ public class VeilArbPersonFsPersonContractTest extends ConsumerPactTestMk2 {
                     .headers(headers)
                     .body(newJsonBody(body -> {
                         body.stringType("fornavn");
-                        body.stringType("mellomnavn");
+                        body.stringType("etternavn");
                         body.stringMatcher("kjonn", "K|M", "K");
                         body.date("fodselsdato", "yyyy-dd-mm");
                         body.stringMatcher("fodselsnummer", "[0-9]{11}", "17058932821");
@@ -42,7 +42,6 @@ public class VeilArbPersonFsPersonContractTest extends ConsumerPactTestMk2 {
                             sivilstand.stringType("sivilstand");
                             sivilstand.date("fraDato", "yyyy-dd-mm");
                         });
-                        body.stringType("foobar");
                     }).build())
                 .given("does not have person")
                 .uponReceiving("a request for a person that does not exist")

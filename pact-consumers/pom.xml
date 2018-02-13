@@ -15,13 +15,13 @@
 
     <dependencies>
 
-        <!-- Pact -->
         <dependency>
             <groupId>no.nav.fo</groupId>
             <artifactId>pact-api</artifactId>
             <version>1.0.0</version>
         </dependency>
 
+        <!-- Pact -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -48,7 +48,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- FO avhengigheter -->
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
             <artifactId>common-test</artifactId>
@@ -61,7 +60,7 @@
             <artifactId>pactbroker-maven-plugin</artifactId>
             <version>0.0.11</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/deps/pactbroker-maven-plugin-0.0.11.jar</systemPath>
+            <systemPath>${project.basedir}/plugin/pactbroker-maven-plugin-0.0.11.jar</systemPath>
         </dependency>
 
     </dependencies>
