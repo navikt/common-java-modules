@@ -11,7 +11,6 @@
     <description>Pact FO</description>
 
     <modules>
-        <module>pactbroker-maven-plugin</module>
         <module>pact-api</module>
         <module>pact-consumers</module>
         <module>pact-providers</module>
