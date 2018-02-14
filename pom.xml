@@ -13,6 +13,10 @@
     <artifactId>feature-toggle</artifactId>
     <version>${project.parent.version}</version>
 
+    <properties>
+        <okhttp.version>3.8.0</okhttp.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -30,6 +34,22 @@
             <groupId>no.nav.sbl</groupId>
             <artifactId>util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
 
         <!-- test -->
         <dependency>
@@ -39,6 +59,18 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>${okhttp.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
