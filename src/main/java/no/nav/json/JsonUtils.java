@@ -1,5 +1,6 @@
 package no.nav.json;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
@@ -26,5 +27,15 @@ public class JsonUtils {
     @SneakyThrows
     public static <T> T fromJson(InputStream inputStream, Class<T> valueClass) {
         return objectMapper.readValue(inputStream, valueClass);
+    }
+
+    @SneakyThrows
+    public static <T> T fromJson(String json, TypeReference<T> type) {
+        return objectMapper.readValue(json, type);
+    }
+
+    @SneakyThrows
+    public static <T> T fromJson(InputStream inputStream, TypeReference<T> type) {
+        return objectMapper.readValue(inputStream, type);
     }
 }
