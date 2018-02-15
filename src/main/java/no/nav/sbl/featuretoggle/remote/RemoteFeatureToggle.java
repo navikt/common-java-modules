@@ -26,7 +26,7 @@ public class RemoteFeatureToggle implements FeatureToggle {
         this.erDefaultAktiv = erDefaultAktiv;
     }
 
-    public final boolean erAktiv() {
+    public boolean erAktiv() {
         try {
             Map<String, Map<String, Boolean>> features = repository.get();
             String appname = keyfragments[0];
