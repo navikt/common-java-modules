@@ -56,9 +56,9 @@ public class RemoteFeatureToggleRepositoryTest {
     }
 
     @Test
-    @Ignore // Fungerer ikke pga ssl/sertifikat trøbbel. Men verifiser ved å sette opp egen TrustManager lokalt
+    @Ignore("Skal fungere, men vil ikke ha direkte avhengighet ut i miljø")
     public void cache_fungerer_mot_nginx() {
-        RemoteFeatureToggleRepository repo = new RemoteFeatureToggleRepository("https://feature-t6.nais.preprod.local/fo-feature");
+        RemoteFeatureToggleRepository repo = new RemoteFeatureToggleRepository("https://app-t6.adeo.no/feature");
         Map<String, Map<String, Boolean>> map1 = repo.get();
         Map<String, Map<String, Boolean>> map2 = repo.get();
 
