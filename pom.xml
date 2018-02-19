@@ -273,6 +273,13 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>no.nav.fo</groupId>
+                <artifactId>pact-api</artifactId>
+                <version>${common.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>no.nav.dialogarena</groupId>
                 <artifactId>smoketest</artifactId>
                 <version>${common.version}</version>
