@@ -57,33 +57,35 @@
 
     </dependencies>
 
-    <!-- Uncomment this build plugin to upload pact to the pact-broker. -->
-    <!--
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>no.nav.fo</groupId>
-                <artifactId>pactbroker-maven-plugin</artifactId>
-                <version>0.0.11</version>
-                <executions>
-                    <execution>
-                        <id>upload-pacts</id>
-                        <phase>verify</phase>
-                        <goals><goal>upload-pacts</goal></goals>
-                        <configuration>
-                            <pacts>${project.build.directory}/pacts</pacts>
-                            <brokerUrl>https://pact-broker.nais.preprod.local</brokerUrl>
-                            <username>${env.PACT_USERNAME}</username>
-                            <password>${env.PACT_PASSWORD}</password>
-                            <mergePacts>true</mergePacts>
-                            <consumerVersion>0.0.7</consumerVersion>
-                            <insecure>true</insecure>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    -->
+    <profiles>
+        <profile>
+            <id>pact</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>no.nav.fo</groupId>
+                        <artifactId>pactbroker-maven-plugin</artifactId>
+                        <version>0.0.11</version>
+                        <executions>
+                            <execution>
+                                <id>upload-pacts</id>
+                                <phase>verify</phase>
+                                <goals><goal>upload-pacts</goal></goals>
+                                <configuration>
+                                    <pacts>${project.build.directory}/pacts</pacts>
+                                    <brokerUrl>https://pact-broker.nais.preprod.local</brokerUrl>
+                                    <username>${env.PACT_USERNAME}</username>
+                                    <password>${env.PACT_PASSWORD}</password>
+                                    <mergePacts>true</mergePacts>
+                                    <consumerVersion>0.0.7</consumerVersion>
+                                    <insecure>true</insecure>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
