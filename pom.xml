@@ -274,7 +274,7 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.fo</groupId>
-                <artifactId>pact-api</artifactId>
+                <artifactId>pact-fo</artifactId>
                 <version>${common.version}</version>
                 <scope>test</scope>
             </dependency>
