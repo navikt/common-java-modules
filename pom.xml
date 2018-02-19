@@ -10,6 +10,13 @@
     <name>PactFO</name>
     <description>Pact FO</description>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://github.com/navikt/pact-fo</url>
+        </repository>
+    </distributionManagement>
+
     <modules>
         <module>pact-api</module>
         <module>pact-consumers</module>
