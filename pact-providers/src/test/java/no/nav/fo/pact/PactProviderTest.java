@@ -28,12 +28,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 @PactBroker(
         protocol = "https",
         host = "${PACT_BROKER:pact-broker.nais.preprod.local}",
-        authentication = @PactBrokerAuth(username = "${PACT_USERNAME}", password = "${PACT_PASSWORD}"),
+        authentication = @PactBrokerAuth(username = "${PACT_USERNAME:pactuser}", password = "${PACT_PASSWORD}"),
         port = "443")
 @IgnoreNoPactsToVerify
-public class ProviderTest {
+public class PactProviderTest {
 
-    private static final Logger LOG = getLogger(ProviderTest.class);
+    private static final Logger LOG = getLogger(PactProviderTest.class);
 
     private final static String TARGET_URL = Optional.ofNullable(System.getenv("PACT_TARGET_URL")).orElseThrow(() -> new RuntimeException("PACT_TARGET_URL environment variable is not set."));
 

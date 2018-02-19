@@ -57,6 +57,8 @@
 
     </dependencies>
 
+    <!-- Uncomment this build plugin to upload pact to the pact-broker. -->
+    <!--
     <build>
         <plugins>
             <plugin>
@@ -74,8 +76,7 @@
                             <username>${env.PACT_USERNAME}</username>
                             <password>${env.PACT_PASSWORD}</password>
                             <mergePacts>true</mergePacts>
-                            <consumerVersion>0.0.6</consumerVersion>
-                            <tagName>latest</tagName>
+                            <consumerVersion>0.0.7</consumerVersion>
                             <insecure>true</insecure>
                         </configuration>
                     </execution>
@@ -83,7 +84,6 @@
             </plugin>
         </plugins>
     </build>
-
-
+    -->
 
 </project>
