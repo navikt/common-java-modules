@@ -1,4 +1,4 @@
-package no.nav.fo.pact;
+package no.nav.pact;
 
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import org.junit.Before;
@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 @Ignore
-public class FOConsumerServiceTest {
+public class PactRestServiceHelperTest {
 
     @Before
     public void setUp() {
@@ -18,13 +18,13 @@ public class FOConsumerServiceTest {
     @Test
     public void isNais_Alive() {
         assertTrue(
-                new FOConsumerService("https://pact-broker.nais.preprod.local")
-                .withBasicAuth(System.getenv("PACTUSER"), System.getenv("PACTPASSWORD"))
+                new PactRestServiceHelper("https://pact-broker.nais.preprod.local")
+                .withBasicAuth(System.getenv("PACT_USERNAME"), System.getenv("PACT_PASSWORD"))
                 .isAlive());
     }
 
     @Test
     public void isCloud_Alive() {
-        assertTrue(new FOConsumerService("https://app-t6.adeo.no/veilarbperson" + FOEndpoints.IS_ALIVE_ENDPOINT).withISSO().isAlive());
+        assertTrue(new PactRestServiceHelper("https://app-t6.adeo.no/veilarbperson" + "/internal/isAlive").withISSO().isAlive());
     }
 }

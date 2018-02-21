@@ -8,7 +8,7 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <groupId>no.nav.fo</groupId>
+    <groupId>no.nav.pact</groupId>
     <artifactId>pact-fo</artifactId>
 
     <version>${project.parent.version}</version>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>au.com.dius</groupId>
             <artifactId>pact-jvm-provider-junit_2.12</artifactId>
-            <version>3.5.12</version>
+            <version>3.5.13</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -63,6 +63,16 @@
         <dependency>
             <groupId>no.nav.sbl</groupId>
             <artifactId>rest</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId> org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
         </dependency>
 
     </dependencies>
