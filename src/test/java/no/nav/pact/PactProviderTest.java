@@ -5,7 +5,11 @@ import au.com.dius.pact.provider.junit.Provider;
 import au.com.dius.pact.provider.junit.State;
 import no.nav.pact.runner.NavHttpsPactTest;
 import no.nav.pact.runner.NavPactRunner;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
+
+/*
+Example usage:
 
 @RunWith(NavPactRunner.class)
 @Provider("veilarbperson")
@@ -31,4 +35,10 @@ public class PactProviderTest extends NavHttpsPactTest {
     public String getHttpTarget() {
         return "https://app-t6.adeo.no";
     }
+}
+*/
+
+@Ignore
+public class PactProviderTest {
+
 }
