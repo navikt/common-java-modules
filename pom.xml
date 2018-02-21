@@ -273,7 +273,7 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>no.nav.fo</groupId>
+                <groupId>no.nav.pact</groupId>
                 <artifactId>pact-fo</artifactId>
                 <version>${common.version}</version>
                 <scope>test</scope>
