@@ -22,6 +22,6 @@ public abstract class Value<T> {
     }
 
     public static Value of(DbConstants value) {
-        return new DbConstantValue(value);
+        return new ConstantValue(value);
     }
 }

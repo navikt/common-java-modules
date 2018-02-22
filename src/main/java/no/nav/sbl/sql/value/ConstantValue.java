@@ -2,9 +2,12 @@ package no.nav.sbl.sql.value;
 
 import no.nav.sbl.sql.DbConstants;
 
-public class DbConstantValue extends Value<String> {
-    public DbConstantValue(DbConstants value) {
+public class ConstantValue extends Value<String> {
+    public ConstantValue(DbConstants value) {
         super(value.sql);
+    }
+    public ConstantValue(String sql) {
+        super(sql);
     }
 
     @Override

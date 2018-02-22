@@ -48,6 +48,7 @@ public class SqlUtilsTest {
                 "  PRIMARY KEY(ID)\n" +
                 ")"
         );
+        db.update("CREATE SEQUENCE TEST_ID_SEQ START WITH 1 INCREMENT BY 1");
     }
 
     @Test
@@ -67,6 +68,26 @@ public class SqlUtilsTest {
                 .execute();
 
         assertThat(object).isEqualTo(retrieved);
+    }
+
+    @Test
+    public void insertWithNextSequenceId() {
+        SqlUtils.insert(db, TESTTABLE1)
+                .value(ID, DbConstants.nextSeq("TEST_ID_SEQ"))
+                .value(NAVN, DbConstants.CURRENT_TIMESTAMP)
+                .value(DEAD, true)
+                .execute();
+
+        SqlUtils.insert(db, TESTTABLE1)
+                .value(ID, DbConstants.nextSeq("TEST_ID_SEQ"))
+                .value(NAVN, DbConstants.CURRENT_TIMESTAMP)
+                .value(DEAD, false)
+                .execute();
+
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        assertThat(testobjects.size()).isEqualTo(2);
+        assertThat(testobjects.stream().map(Testobject::getId).collect(Collectors.toList())).containsExactlyInAnyOrder("1", "2");
+
     }
 
     @Test

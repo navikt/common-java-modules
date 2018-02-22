@@ -22,14 +22,17 @@ public class InsertQuery {
         this.insertParams = new LinkedHashMap<>();
     }
 
-    public InsertQuery value(String columnName, Object value) {
-        this.insertParams.put(columnName, Value.of(value));
+    public InsertQuery value(String columnName, Value value) {
+        this.insertParams.put(columnName, value);
         return this;
     }
 
     public InsertQuery value(String columnName, DbConstants value) {
-        this.insertParams.put(columnName, Value.of(value));
-        return this;
+        return this.value(columnName, Value.of(value));
+    }
+
+    public InsertQuery value(String columnName, Object value) {
+        return this.value(columnName, Value.of(value));
     }
 
     public int execute() {
@@ -54,5 +57,9 @@ public class InsertQuery {
 
 
         return String.format("insert into %s (%s) values (%s)", tableName, columns, values);
+    }
+
+    public String toString() {
+        return createSqlStatement();
     }
 }
