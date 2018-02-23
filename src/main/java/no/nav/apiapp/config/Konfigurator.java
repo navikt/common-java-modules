@@ -2,6 +2,7 @@ package no.nav.apiapp.config;
 
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.security.LoginConfigurator;
+import no.nav.modig.core.context.ModigSecurityConstants;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.slf4j.Logger;
@@ -36,8 +37,8 @@ public class Konfigurator implements ApiAppConfigurator {
     StsConfig defaultStsConfig() {
         return StsConfig.builder()
                 .url(getConfigProperty(StsSecurityConstants.STS_URL_KEY, "SECURITYTOKENSERVICE_URL"))
-                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, "SRV" + getAppName() + "_USERNAME"))
-                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, "SRV" + getAppName() + "_PASSWORD"))
+                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, getSystemUserUsernamePropertyName()))
+                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, getSystemUserPasswordPropertyName()))
                 .build();
     }
 
@@ -53,8 +54,18 @@ public class Konfigurator implements ApiAppConfigurator {
     public ApiAppConfigurator openAmLogin() {
         return openAmLogin(OpenAmConfig.builder()
                 .restUrl(getConfigProperty(OPENAM_RESTURL, OPENAM_RESTURL_ENVIRONMENT_VARIABLE))
+                .username(getConfigProperty(ModigSecurityConstants.SYSTEMUSER_USERNAME, getSystemUserUsernamePropertyName()))
+                .password(getConfigProperty(ModigSecurityConstants.SYSTEMUSER_PASSWORD, getSystemUserPasswordPropertyName()))
                 .build()
         );
+    }
+
+    private String getSystemUserUsernamePropertyName() {
+        return "SRV" + getAppName() + "_USERNAME";
+    }
+
+    private String getSystemUserPasswordPropertyName() {
+        return "SRV" + getAppName() + "_PASSWORD";
     }
 
     @Override

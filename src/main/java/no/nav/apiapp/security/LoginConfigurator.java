@@ -2,9 +2,11 @@ package no.nav.apiapp.security;
 
 import lombok.SneakyThrows;
 import no.nav.apiapp.config.OpenAmConfig;
+import no.nav.modig.core.context.ModigSecurityConstants;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import javax.security.auth.spi.LoginModule;
 
 import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -30,7 +33,9 @@ public class LoginConfigurator {
 
     @SneakyThrows
     public static void setupOpenAmLogin(Jetty.JettyBuilder jettyBuilder, OpenAmConfig openAmConfig) {
-        System.setProperty(OPENAM_RESTURL, openAmConfig.restUrl);
+        setProperty(OPENAM_RESTURL, openAmConfig.restUrl, PUBLIC);
+        setProperty(ModigSecurityConstants.SYSTEMUSER_USERNAME, openAmConfig.username, PUBLIC);
+        setProperty(ModigSecurityConstants.SYSTEMUSER_PASSWORD, openAmConfig.password, SECRET);
 
         modigSubjectHandler();
         setLoginService(jettyBuilder, LoginModuleType.ESSO);

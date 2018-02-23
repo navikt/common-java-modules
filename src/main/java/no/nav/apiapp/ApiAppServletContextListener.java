@@ -22,6 +22,7 @@ import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
+import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.util.EnvironmentUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -164,6 +165,14 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
     }
 
+    private boolean stsBrukes(ApiApplication apiApplication) {
+        if (apiApplication instanceof ApiApplication.NaisApiApplication) {
+            return EnvironmentUtils.getOptionalProperty(StsSecurityConstants.STS_URL_KEY).isPresent();
+        } else {
+            return apiApplication.brukSTSHelsesjekk();
+        }
+    }
+
     private boolean modigSecurityBrukes() {
         try {
             return SubjectHandler.getSubjectHandler() instanceof SubjectHandler;
@@ -250,7 +259,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
         }
-        if (apiApplication.brukSTSHelsesjekk()) {
+        if (stsBrukes(apiApplication)) {
             leggTilBonne(servletContextEvent, new STSHelsesjekk(apiApplication.getSone()));
         }
         return apiApplication;

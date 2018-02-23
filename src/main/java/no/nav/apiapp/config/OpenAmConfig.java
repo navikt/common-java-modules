@@ -7,4 +7,6 @@ import lombok.Value;
 @Builder
 public class OpenAmConfig {
     public String restUrl;
+    public String username;
+    public String password;
 }
