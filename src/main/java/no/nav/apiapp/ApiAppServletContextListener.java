@@ -12,6 +12,7 @@ import no.nav.apiapp.rest.SwaggerUIServlet;
 import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
+import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
 import no.nav.apiapp.selftest.impl.STSHelsesjekk;
 import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
@@ -125,6 +126,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         if (skalHaOpenAm(apiApplication)) {
             leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
+            leggTilBonne(servletContextEvent, new OpenAMHelsesjekk());
         }
 
         if (modigSecurityBrukes()) {
