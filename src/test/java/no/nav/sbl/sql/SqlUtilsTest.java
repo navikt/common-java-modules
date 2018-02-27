@@ -26,6 +26,7 @@ public class SqlUtilsTest {
     public final static String BIRTHDAY = "BIRTHDAY";
     public final static String NUMBER_OF_PETS = "NUMBER_OF_PETS";
     public final static String ADDRESS = "ADDRESS";
+    public final static String TEST_ID_SEQ = "TEST_ID_SEQ";
 
     private DataSource ds;
     private JdbcTemplate db;
@@ -48,6 +49,7 @@ public class SqlUtilsTest {
                 "  PRIMARY KEY(ID)\n" +
                 ")"
         );
+        db.update("CREATE SEQUENCE TEST_ID_SEQ START WITH 1 INCREMENT BY 1");
     }
 
     @Test
@@ -67,6 +69,26 @@ public class SqlUtilsTest {
                 .execute();
 
         assertThat(object).isEqualTo(retrieved);
+    }
+
+    @Test
+    public void insertWithNextSequenceId() {
+        SqlUtils.insert(db, TESTTABLE1)
+                .value(ID, DbConstants.nextSeq(TEST_ID_SEQ))
+                .value(NAVN, DbConstants.CURRENT_TIMESTAMP)
+                .value(DEAD, true)
+                .execute();
+
+        SqlUtils.insert(db, TESTTABLE1)
+                .value(ID, DbConstants.nextSeq(TEST_ID_SEQ))
+                .value(NAVN, DbConstants.CURRENT_TIMESTAMP)
+                .value(DEAD, false)
+                .execute();
+
+        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        assertThat(testobjects.size()).isEqualTo(2);
+        assertThat(testobjects.stream().map(Testobject::getId).collect(Collectors.toList())).containsExactly("1", "2");
+
     }
 
     @Test
@@ -115,6 +137,14 @@ public class SqlUtilsTest {
                 .where(WhereClause.in(ID, asList("001", "002", "003", "004", "005", "006", "007"))).executeToList();
 
         assertThat(retrieved.stream().map(Testobject::getNavn).distinct().collect(Collectors.toList())).containsOnly(oppdatertNavn);
+    }
+
+    @Test
+    public void selectNextFromSequens() {
+        Long id1 = SqlUtils.nextFromSeq(ds, TEST_ID_SEQ).execute();
+        Long id2 = SqlUtils.nextFromSeq(ds, TEST_ID_SEQ).execute();
+        assertThat(id1).isEqualTo(1);
+        assertThat(id2).isEqualTo(2);
     }
 
     @Test

@@ -31,6 +31,11 @@ public class SqlUtils {
         return new SelectQuery<>(ds, tableName, mapper);
     }
 
+    public static SelectQuery<Long> nextFromSeq(DataSource ds, String sekvens) {
+        return select(ds, "dual", resultSet -> resultSet.getLong(1))
+                .column(String.format("%s.NEXTVAL", sekvens));
+    }
+
     public static DeleteQuery delete(DataSource ds, String tableName) {
         return new DeleteQuery(ds, tableName);
     }
