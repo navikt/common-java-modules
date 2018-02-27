@@ -10,9 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
-import static no.nav.sbl.util.EnvironmentUtils.setProperty;
+import static no.nav.sbl.util.EnvironmentUtils.*;
 
 public class Konfigurator implements ApiAppConfigurator {
 
@@ -20,6 +18,8 @@ public class Konfigurator implements ApiAppConfigurator {
 
     public static final String OPENAM_RESTURL = "openam.restUrl";
     public static final String OPENAM_RESTURL_ENVIRONMENT_VARIABLE = "OPENAM_RESTURL";
+    public static final String OPENAM_USER = ModigSecurityConstants.SYSTEMUSER_USERNAME;
+    public static final String OPENAM_PASSWORD = ModigSecurityConstants.SYSTEMUSER_PASSWORD;
 
     private final Jetty.JettyBuilder jettyBuilder;
     private final ApiApplication apiApplication;
@@ -54,8 +54,8 @@ public class Konfigurator implements ApiAppConfigurator {
     public ApiAppConfigurator openAmLogin() {
         return openAmLogin(OpenAmConfig.builder()
                 .restUrl(getConfigProperty(OPENAM_RESTURL, OPENAM_RESTURL_ENVIRONMENT_VARIABLE))
-                .username(getConfigProperty(ModigSecurityConstants.SYSTEMUSER_USERNAME, getSystemUserUsernamePropertyName()))
-                .password(getConfigProperty(ModigSecurityConstants.SYSTEMUSER_PASSWORD, getSystemUserPasswordPropertyName()))
+                .username(getConfigProperty(OPENAM_USER, getSystemUserUsernamePropertyName()))
+                .password(getConfigProperty(OPENAM_PASSWORD, getSystemUserPasswordPropertyName()))
                 .build()
         );
     }
