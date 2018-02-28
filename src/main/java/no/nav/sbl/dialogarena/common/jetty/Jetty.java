@@ -1,27 +1,24 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
-import com.ibm.mq.jms.JMSC;
-import com.ibm.mq.jms.MQQueueConnectionFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
+import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.*;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter;
 
-import javax.jms.*;
-import javax.jms.Queue;
 import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -37,8 +34,10 @@ import java.net.URL;
 import java.util.*;
 
 import static java.lang.System.setProperty;
+import static java.util.Collections.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static no.nav.brukerdialog.security.jaspic.OidcAuthRegistration.registerOidcAuthModule;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -73,10 +72,9 @@ public final class Jetty {
         private boolean developmentMode;
         private List<Class<?>> websocketEndpoints = new ArrayList<>();
         private Map<String, DataSource> dataSources = new HashMap<>();
-        private Map<String, UserCredentialsConnectionFactoryAdapter> connectionSources = new HashMap<>();
-        private Map<String, Queue> queueSources = new HashMap<>();
         private String extraClasspath;
-        private Boolean configureForJaspic;
+        private boolean configureForJaspic;
+        private List<String> jaspicUbeskyttet = new ArrayList<>();
         private boolean disableAnnotationScanning;
 
 
@@ -146,7 +144,12 @@ public final class Jetty {
         }
 
         public final JettyBuilder configureForJaspic() {
+            return configureForJaspic(emptyList());
+        }
+
+        public final JettyBuilder configureForJaspic(List<String> ubeskyttet) {
             this.configureForJaspic = true;
+            this.jaspicUbeskyttet = ubeskyttet;
             return this;
         }
 
@@ -167,29 +170,6 @@ public final class Jetty {
             Properties env = new Properties();
             env.load(System.class.getResourceAsStream(propertyFile));
             return env;
-        }
-
-        public final JettyBuilder addMQConnection(String propertyFile) throws JMSException, IOException {
-            MQQueueConnectionFactory mqQueueConnectionFactory = new MQQueueConnectionFactory();
-            Properties env = readProperties(propertyFile);
-
-            mqQueueConnectionFactory.setHostName(env.getProperty("hostname"));
-            mqQueueConnectionFactory.setPort(Integer.parseInt(env.getProperty("port")));
-            mqQueueConnectionFactory.setChannel(env.getProperty("channel"));
-            mqQueueConnectionFactory.setTransportType(JMSC.MQJMS_TP_CLIENT_MQ_TCPIP);
-            mqQueueConnectionFactory.setQueueManager(env.getProperty("queuemanager"));
-
-            UserCredentialsConnectionFactoryAdapter usrcCredentialsFc = new UserCredentialsConnectionFactoryAdapter();
-            usrcCredentialsFc.setUsername(env.getProperty("username"));
-            usrcCredentialsFc.setPassword(env.getProperty("password"));
-            usrcCredentialsFc.setTargetConnectionFactory(mqQueueConnectionFactory);
-
-            QueueConnection connection = usrcCredentialsFc.createQueueConnection();
-            QueueSession session = connection.createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
-
-            connectionSources.put(env.getProperty("jndi-connection-name"), usrcCredentialsFc);
-            queueSources.put(env.getProperty("jndi-queue-name"), session.createQueue(env.getProperty("queuename")));
-            return this;
         }
 
         public final Jetty buildJetty() {
@@ -232,11 +212,11 @@ public final class Jetty {
     public final WebAppContext context;
     private final Map<String, DataSource> dataSources;
     private final List<Class<?>> websocketEndpoints;
-    private final Map<String, UserCredentialsConnectionFactoryAdapter> connections;
-    private final Map<String, Queue> queues;
     private final Boolean developmentMode;
     private final String extraClasspath;
-    private final Boolean configureForJaspic;
+    private final boolean configureForJaspic;
+    private final List<String> jaspicUbeskyttet;
+
 
 
     public final Runnable stop = new Runnable() {
@@ -266,14 +246,13 @@ public final class Jetty {
         this.warPath = warPath;
         this.overrideWebXmlFile = builder.overridewebXmlFile;
         this.dataSources = builder.dataSources;
-        this.connections = builder.connectionSources;
         this.websocketEndpoints = builder.websocketEndpoints;
-        this.queues = builder.queueSources;
         this.port = builder.port;
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
         this.loginService = builder.loginService;
         this.configureForJaspic = builder.configureForJaspic;
+        this.jaspicUbeskyttet = builder.jaspicUbeskyttet;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
         this.server = setupJetty(new Server());
@@ -301,7 +280,7 @@ public final class Jetty {
             securityHandler.setRealmName(loginService.getName());
         }
 
-        if (configureForJaspic != null) {
+        if (configureForJaspic) {
             if (loginService != null) {
                 LOG.warn("loginService shoudld be null when configured for jaspic");
             }
@@ -312,6 +291,25 @@ public final class Jetty {
             loginService.setIdentityService(new DefaultIdentityService());
             ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
             sh.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
+
+            jaspicUbeskyttet.forEach(ubeskyttetUrlPattern -> {
+                ConstraintMapping cm = new ConstraintMapping();
+                Constraint constraint = new Constraint();
+                constraint.setAuthenticate(false);
+                constraint.setName("Ubeskyttet");
+                cm.setConstraint(constraint);
+                cm.setPathSpec(ubeskyttetUrlPattern);
+                sh.addConstraintMapping(cm);
+            });
+
+            ConstraintMapping cm = new ConstraintMapping();
+            Constraint constraint = new Constraint();
+            constraint.setAuthenticate(true);
+            constraint.setName("Alt annet beskyttet");
+            constraint.setRoles(new String[]{"**"});
+            cm.setConstraint(constraint);
+            cm.setPathSpec("/*");
+            sh.addConstraintMapping(cm);
             sh.setLoginService(loginService);
             webAppContext.setSecurityHandler(sh);
         }
@@ -321,12 +319,7 @@ public final class Jetty {
         initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
-
-
         addDatasource(webAppContext);
-        addConnection(webAppContext);
-        addQueue(webAppContext);
-
         return webAppContext;
     }
 
@@ -360,31 +353,10 @@ public final class Jetty {
         }
     }
 
-    private void addConnection(WebAppContext webAppContext) {
-        if (!connections.isEmpty()) {
-            for (Map.Entry<String, UserCredentialsConnectionFactoryAdapter> entrySet : connections.entrySet()) {
-                try {
-                    new org.eclipse.jetty.plus.jndi.Resource(webAppContext, entrySet.getKey(), entrySet.getValue());
-                } catch (NamingException e) {
-                    throw new RuntimeException("Kunne ikke legge til connection " + e, e);
-                }
-            }
-        }
-    }
-
-    private void addQueue(WebAppContext webAppContext) {
-        if (!queues.isEmpty()) {
-            for (Map.Entry<String, Queue> entrySet : queues.entrySet()) {
-                try {
-                    new org.eclipse.jetty.plus.jndi.Resource(webAppContext, entrySet.getKey(), entrySet.getValue());
-                } catch (NamingException e) {
-                    throw new RuntimeException("Kunne ikke legge til queue " + e, e);
-                }
-            }
-        }
-    }
-
     private Server setupJetty(final Server jetty) {
+        if (configureForJaspic) {
+            registerOidcAuthModule(new ServletContextEvent(context.getServletContext()), true);
+        }
         Resource.setDefaultUseCaches(false);
 
         HttpConfiguration configuration = new HttpConfiguration();
