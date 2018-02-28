@@ -10,7 +10,7 @@
     </parent>
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-jetty</artifactId>
-    <version>${project.parent.version}</version>
+    <version>1-SNAPSHOT</version>
 
     <dependencyManagement>
         <dependencies>
@@ -25,6 +25,10 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>no.nav.dialogarena</groupId>
+            <artifactId>oidc-security</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -85,15 +89,6 @@
             <groupId>no.nav.modig</groupId>
             <artifactId>modig-testcertificates</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>javax.jms</groupId>
-            <artifactId>jms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jms</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
@@ -117,30 +112,11 @@
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>javax-websocket-server-impl</artifactId>
         </dependency>
-
-        <!-- TODO kan vi kvitte oss med disse? -->
         <dependency>
-            <groupId>com.ibm.mq</groupId>
-            <artifactId>mq-jms</artifactId>
-            <version>6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm</groupId>
-            <artifactId>com.ibm.mq</artifactId>
-            <version>6.1</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm</groupId>
-            <artifactId>dhbcore</artifactId>
-            <version>6.1</version>
-            <scope>runtime</scope>
+            <groupId>org.picketbox</groupId>
+            <artifactId>picketbox</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/common/jetty.git</developerConnection>
-        <url>http://stash.devillo.no/scm/common/jetty.git</url>
-        <tag>HEAD</tag>
-    </scm>
 </project>

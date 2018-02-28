@@ -4,7 +4,6 @@ import org.eclipse.jetty.jaas.JAASLoginService;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.jms.JMSException;
 import java.io.File;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public class JettyBuilderTest {
     }
 
     @Test
-    public void startJetty() throws JMSException {
+    public void startJetty() {
         Jetty jetty = usingWar(new File("src/test/webapp"))
                 .at("contextpath")
                 .port(8888)
@@ -38,7 +37,7 @@ public class JettyBuilderTest {
     }
 
     @Test
-    public void startJettyWithoutAnnotationScanning() throws JMSException {
+    public void startJettyWithoutAnnotationScanning() {
         Jetty jetty = usingWar(new File("src/test/webapp"))
                 .at("contextpath")
                 .port(8888)
