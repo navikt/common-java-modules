@@ -14,7 +14,6 @@ import java.net.URI;
 
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
-import static no.nav.brukerdialog.security.Constants.*;
 import static no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider.Parameters;
 import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -26,16 +25,16 @@ public class IdTokenAndRefreshTokenProviderTest {
 
     @Before
     public void setup() {
-        clearProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME);
-        clearProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME);
-        clearProperty(ISSO_HOST_URL_PROPERTY_NAME);
+        clearProperty("isso-rp-user.username");
+        clearProperty("isso-rp-user.password");
+        clearProperty("isso-host.url");
     }
 
     @Test
     public void createTokenRequest_fraSystemProperties() throws Exception {
-        setProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME, "minbruker");
-        setProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME, "mittpassord");
-        setProperty(ISSO_HOST_URL_PROPERTY_NAME, "https://minhost.nav.no");
+        setProperty("isso-rp-user.username", "minbruker");
+        setProperty("isso-rp-user.password", "mittpassord");
+        setProperty("isso-host.url", "https://minhost.nav.no");
 
         withClient(client -> {
             RequestCaptor captor = new RequestCaptor();

@@ -1,12 +1,10 @@
 package no.nav.brukerdialog.security.jaspic;
 
 import no.nav.brukerdialog.security.domain.AuthenticationLevelCredential;
-import no.nav.brukerdialog.security.domain.ConsumerId;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.domain.SluttBruker;
 import no.nav.brukerdialog.security.oidc.IdTokenProvider;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
-import no.nav.brukerdialog.security.oidc.TokenUtils;
 import no.nav.brukerdialog.tools.HostUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +29,12 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static javax.security.auth.message.AuthStatus.*;
 import static no.nav.brukerdialog.security.Constants.*;
+import static no.nav.brukerdialog.security.oidc.TokenUtils.getOpenamClientFromToken;
 import static no.nav.brukerdialog.tools.Utils.getRelativePath;
-import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
 
 /**
  * Stjålet mye fra https://github.com/omnifaces/omnisecurity
@@ -104,14 +104,17 @@ public class OidcAuthModule implements ServerAuthModule {
 
         OidcTokenValidator.OidcTokenValidatorResult validateResult = tokenValidator.validate(token.get());
         Optional<String> refreshToken = tokenLocator.getRefreshToken(request);
-        if (needToRefreshToken(validateResult, refreshToken)) {
-            String openamClient = TokenUtils.getOpenamClientFromToken(token.get());
+        if (refreshToken.isPresent() && needToRefreshToken(validateResult)) {
+            String openamClient = getOpenamClientFromToken(token.get());
             token = fetchUpdatedToken(refreshToken.get(), openamClient);
             if (token.isPresent()) {
                 validateResult = tokenValidator.validate(token.get());
                 if (validateResult.isValid()) {
                     registerUpdatedTokenAtUserAgent(messageInfo, token.get());
                 }
+            } else {
+                log.error("Fikk ikke hentet nytt token fra refresh-tokenet.");
+                return responseUnAuthorized(messageInfo);
             }
         }
 
@@ -133,12 +136,12 @@ public class OidcAuthModule implements ServerAuthModule {
         }
     }
 
-    private boolean needToRefreshToken(OidcTokenValidator.OidcTokenValidatorResult validateResult, Optional<String> refreshToken) {
-        return refreshToken.isPresent() && (!validateResult.isValid() || tokenIsSoonExpired(refreshToken, validateResult));
+    private boolean needToRefreshToken(OidcTokenValidator.OidcTokenValidatorResult validateResult) {
+        return !validateResult.isValid() || tokenIsSoonExpired(validateResult);
     }
 
-    private boolean tokenIsSoonExpired(Optional<String> refreshToken, OidcTokenValidator.OidcTokenValidatorResult validateResult) {
-        return refreshToken.isPresent() && (validateResult.getExpSeconds() * 1000 - Instant.now().toEpochMilli() < getMinimumTimeToExpireBeforeRefresh());
+    private boolean tokenIsSoonExpired(OidcTokenValidator.OidcTokenValidatorResult validateResult) {
+        return validateResult.getExpSeconds() * 1000 - Instant.now().toEpochMilli() < getMinimumTimeToExpireBeforeRefresh();
     }
 
     private void registerUpdatedTokenAtUserAgent(MessageInfo messageInfo, String udatedIdToken) {
@@ -154,10 +157,10 @@ public class OidcAuthModule implements ServerAuthModule {
     private Optional<String> fetchUpdatedToken(String refreshToken, String openamClient) {
         log.debug("Refreshing token"); //Do not log token
         try {
-            return Optional.of(tokenProvider.getToken(refreshToken, openamClient).getToken());
+            return of(tokenProvider.getToken(refreshToken, openamClient).getToken());
         } catch (Exception e) {
-            log.warn("Could not refresh token", e);
-            return Optional.empty();
+            log.error("Could not refresh token", e);
+            return empty();
         }
     }
 
@@ -174,11 +177,12 @@ public class OidcAuthModule implements ServerAuthModule {
     }
 
     private void addApplicationCallbackSpecificHttpOnlyCookie(HttpServletResponse response, String name, String value) {
-        String redirectUrl = getSystemProperty(OIDC_REDIRECT_URL);
         Cookie cookie = new Cookie(name, value);
         cookie.setSecure(sslOnlyCookies);
         cookie.setHttpOnly(true);
-        cookie.setPath(getRelativePath(redirectUrl));
+        cookie.setPath(getRelativePath(getOidcRedirectUrl()));
+        //to work on app.adeo.no and modapp.adeo.no
+        cookie.setDomain(".adeo.no");
         response.addCookie(cookie);
     }
 
@@ -225,7 +229,6 @@ public class OidcAuthModule implements ServerAuthModule {
     private void notifyContainerAboutLogin(Subject clientSubject, CallbackHandler handler, String username, String token) {
         if (username != null && !username.isEmpty()) {
             clientSubject.getPrincipals().add(SluttBruker.internBruker(username));
-            clientSubject.getPrincipals().add(new ConsumerId());
             clientSubject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
             clientSubject.getPublicCredentials().add(new OidcCredential(token));
         }

@@ -13,7 +13,6 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import static java.lang.System.getProperty;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
@@ -34,9 +33,9 @@ public class IdTokenAndRefreshTokenProvider {
 
     public IdTokenAndRefreshTokenProvider() {
         this(Parameters.builder()
-                .host(getProperty(ISSO_HOST_URL_PROPERTY_NAME))
-                .username(getProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME))
-                .password(getProperty(ISSO_RP_USER_PASSWORD_PROPERTY_NAME))
+                .host(getIssoHostUrl())
+                .username(getIssoRpUserUsername())
+                .password(getIssoRpUserPassword())
                 .build()
         );
     }

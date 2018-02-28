@@ -5,8 +5,8 @@ import no.nav.sbl.dialogarena.types.Pingable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import static no.nav.brukerdialog.security.Constants.ISSO_ISALIVE_URL;
-import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
+import static no.nav.brukerdialog.security.Constants.getIssoIsaliveUrl;
+
 
 @SuppressWarnings("unused")
 public class IssoIsAliveHelsesjekk implements Pingable {
@@ -18,7 +18,7 @@ public class IssoIsAliveHelsesjekk implements Pingable {
     }
 
     public IssoIsAliveHelsesjekk() {
-        this(getSystemProperty(ISSO_ISALIVE_URL));
+        this(getIssoIsaliveUrl());
     }
 
     @Override

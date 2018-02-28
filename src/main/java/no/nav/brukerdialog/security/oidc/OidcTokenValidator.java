@@ -14,11 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import java.security.Key;
 import java.util.List;
-import java.util.Optional;
 
-import static no.nav.brukerdialog.security.Constants.ISSO_EXPECTED_TOKEN_ISSUER;
+import static no.nav.brukerdialog.security.Constants.getIssoExpectedTokenIssuer;
 import static no.nav.brukerdialog.security.oidc.TokenUtils.getTokenAud;
-import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
 
 public class OidcTokenValidator {
 
@@ -95,8 +93,7 @@ public class OidcTokenValidator {
         if (key == null) {
             return OidcTokenValidatorResult.invalid(String.format("Jwt (%s) is not in jwks", header));
         }
-        String expectedIssuer = getSystemProperty(ISSO_EXPECTED_TOKEN_ISSUER);
-        if (expectedIssuer == null) {
+        if (getIssoExpectedTokenIssuer() == null) {
             return OidcTokenValidatorResult.invalid("Expected issuer must be configured.");
         }
 
@@ -110,7 +107,7 @@ public class OidcTokenValidator {
                 .setRequireExpirationTime()
                 .setAllowedClockSkewInSeconds(30) //TODO set to 0. Clocks should be synchronized.
                 .setRequireSubject()
-                .setExpectedIssuer(expectedIssuer)
+                .setExpectedIssuer(getIssoExpectedTokenIssuer())
                 .setExpectedAudience(false,expectedAud) //requireAudienceClaim til false slik at det funker om openAM fjerner aud fra token.
                 .setVerificationKey(key)
                 .build();
