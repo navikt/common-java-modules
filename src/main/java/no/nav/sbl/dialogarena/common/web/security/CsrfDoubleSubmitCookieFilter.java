@@ -22,11 +22,13 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
     private static final Logger LOG = getLogger(CsrfDoubleSubmitCookieFilter.class);
     private static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
+    public static final String IGNORED_URLS_INIT_PARAMETER_NAME = "ignoredUrls";
+
     private String[] ignoredUrls;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        String param = filterConfig.getInitParameter("ignoredUrls");
+        String param = filterConfig.getInitParameter(IGNORED_URLS_INIT_PARAMETER_NAME);
         ignoredUrls = (param != null) ? param.split(",") : new String[] {};
     }
 
