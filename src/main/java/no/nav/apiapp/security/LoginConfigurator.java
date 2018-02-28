@@ -1,10 +1,12 @@
 package no.nav.apiapp.security;
 
 import lombok.SneakyThrows;
+import no.nav.apiapp.config.IssoConfig;
 import no.nav.apiapp.config.OpenAmConfig;
 import no.nav.modig.core.context.ModigSecurityConstants;
 import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
+import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.util.EnvironmentUtils;
 import org.eclipse.jetty.jaas.JAASLoginService;
@@ -39,6 +41,14 @@ public class LoginConfigurator {
 
         modigSubjectHandler();
         setLoginService(jettyBuilder, LoginModuleType.ESSO);
+    }
+
+    @SneakyThrows
+    public static void setupIssoLogin(Jetty.JettyBuilder jettyBuilder, IssoConfig issoConfig) {
+        jettyBuilder.configureForJaspic(issoConfig.ubeskyttet);
+        setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, issoConfig.username, PUBLIC);
+        setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, issoConfig.password, SECRET);
+        dialogArenaSubjectHandler();
     }
 
     private static void setLoginService(Jetty.JettyBuilder jettyBuilder, LoginModuleType loginModuleType) {

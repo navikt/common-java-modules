@@ -1,7 +1,7 @@
 package no.nav.apiapp.util;
 
 import no.nav.apiapp.security.SubjectService;
-import no.nav.brukerdialog.security.context.InternbrukerSubjectHandler;
+import no.nav.brukerdialog.security.context.CustomizableSubjectHandler;
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.modig.core.context.StaticSubjectHandler;
@@ -29,7 +29,7 @@ public class SubjectUtilsTest {
         new no.nav.modig.core.context.ThreadLocalSubjectHandler().setSubject(null);
 
         new StaticSubjectHandler().reset();
-        new InternbrukerSubjectHandler().reset();
+        new CustomizableSubjectHandler().reset();
     }
 
     @Test
@@ -40,7 +40,7 @@ public class SubjectUtilsTest {
 
     @Test
     public void getIdentType_internBruker() {
-        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, InternbrukerSubjectHandler.class.getName());
+        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, CustomizableSubjectHandler.class.getName());
         assertThat(getIdentType()).hasValue(IdentType.InternBruker);
         assertThat(subjectService.getIdentType()).hasValue(IdentType.InternBruker);
     }
@@ -60,7 +60,7 @@ public class SubjectUtilsTest {
 
     @Test
     public void getUserId_internBruker() {
-        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, InternbrukerSubjectHandler.class.getName());
+        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, CustomizableSubjectHandler.class.getName());
         assertThat(getUserId()).hasValue("Z999999");
         assertThat(subjectService.getUserId()).hasValue("Z999999");
     }

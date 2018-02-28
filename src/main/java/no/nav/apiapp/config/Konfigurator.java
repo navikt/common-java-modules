@@ -8,6 +8,7 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.Arrays.*;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -70,13 +71,28 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig) {
-        LoginConfigurator.setupOpenAmLogin(jettyBuilder,openAmConfig);
+        LoginConfigurator.setupOpenAmLogin(jettyBuilder, openAmConfig);
         return this;
     }
 
     @Override
     public ApiAppConfigurator samlLogin() {
         return samlLogin(SamlConfig.builder().build());
+    }
+
+    @Override
+    public ApiAppConfigurator issoLogin() {
+        return issoLogin(IssoConfig.builder()
+                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, getSystemUserUsernamePropertyName()))
+                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, getSystemUserPasswordPropertyName()))
+                .ubeskyttet(asList("/internal/*"))
+                .build());
+    }
+
+    @Override
+    public ApiAppConfigurator issoLogin(IssoConfig issoConfig) {
+        LoginConfigurator.setupIssoLogin(jettyBuilder, issoConfig);
+        return this;
     }
 
     @Override
