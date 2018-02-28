@@ -1,6 +1,6 @@
 package no.nav.brukerdialog.security.oidc;
 
-import no.nav.brukerdialog.security.context.InternbrukerSubjectHandler;
+import no.nav.brukerdialog.security.context.CustomizableSubjectHandler;
 import org.junit.Test;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -11,9 +11,9 @@ public class OidcFeedAuthorizationModuleTest {
     @Test
     public void skalGiTilgang() {
         System.setProperty("test.feed.brukertilgang","bruker1,bruker2");
-        System.setProperty("no.nav.brukerdialog.security.context.subjectHandlerImplementationClass", InternbrukerSubjectHandler.class.getName());
+        System.setProperty("no.nav.brukerdialog.security.context.subjectHandlerImplementationClass", CustomizableSubjectHandler.class.getName());
 
-        InternbrukerSubjectHandler.setVeilederIdent("bruker1");
+        CustomizableSubjectHandler.setUid("bruker1");
 
         assertThat(new OidcFeedAuthorizationModule().isRequestAuthorized("test")).isTrue();
     }
@@ -21,9 +21,9 @@ public class OidcFeedAuthorizationModuleTest {
     @Test
     public void skalIkkeGiTilgang() {
         System.setProperty("test.feed.brukertilgang","bruker1,bruker2");
-        System.setProperty("no.nav.brukerdialog.security.context.subjectHandlerImplementationClass", InternbrukerSubjectHandler.class.getName());
+        System.setProperty("no.nav.brukerdialog.security.context.subjectHandlerImplementationClass", CustomizableSubjectHandler.class.getName());
 
-        InternbrukerSubjectHandler.setVeilederIdent("bruker3");
+        CustomizableSubjectHandler.setUid("bruker3");
 
         assertThat(new OidcFeedAuthorizationModule().isRequestAuthorized("test")).isFalse();
     }

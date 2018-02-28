@@ -13,7 +13,6 @@ public class TokenUtils {
 
 
     public static String getOpenamClientFromToken(String token) {
-
         return Optional.ofNullable(getTokenAzp(token))
                 .orElse(getTokenAud(token));
     }

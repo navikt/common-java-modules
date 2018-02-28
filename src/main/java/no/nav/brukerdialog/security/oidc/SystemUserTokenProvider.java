@@ -5,8 +5,6 @@ import no.nav.brukerdialog.security.domain.IdToken;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.sbl.rest.RestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import java.time.Instant;
@@ -18,13 +16,9 @@ import static no.nav.brukerdialog.tools.SecurityConstants.SYSTEMUSER_USERNAME;
 import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
 
 public class SystemUserTokenProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(SystemUserTokenProvider.class);
-
-
-    public final String openAmHost = getSystemProperty(ISSO_HOST_URL_PROPERTY_NAME);
-    private final String openamClientUsername = getSystemProperty(ISSO_RP_USER_USERNAME_PROPERTY_NAME);
-    private final String oidcRedirectUrl = getSystemProperty(OIDC_REDIRECT_URL);
+    public final String openAmHost = getIssoHostUrl();
+    private final String openamClientUsername = getIssoRpUserUsername();
+    private final String oidcRedirectUrl = getOidcRedirectUrl();
     private final String srvUsername = getSystemProperty(SYSTEMUSER_USERNAME);
     private final String srvPassword = getSystemProperty(SYSTEMUSER_PASSWORD);
     private final String authenticateUri = "json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice";

@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 
-import static java.lang.System.*;
+import static no.nav.brukerdialog.security.Constants.*;
 
 public class AuthorizationRequestBuilder {
 
@@ -32,18 +32,16 @@ public class AuthorizationRequestBuilder {
     }
 
     public String buildRedirectString() throws UnsupportedEncodingException {
-        String clientId = getProperty("isso-rp-user.username");
         String state = stateIndex;
-        String redirectUrl = getProperty("oidc-redirect.url");
         String kerberosTrigger = useKerberos
                 ? "session=winssochain&authIndexType=service&authIndexValue=winssochain&"
                 : "";
         return String.format("%s/authorize?" + kerberosTrigger + "response_type=code&scope=%s&client_id=%s&state=%s&redirect_uri=%s",
-                getProperty("isso-host.url"),
+                getIssoHostUrl(),
                 scope,
-                URLEncoder.encode(clientId, "UTF-8"),
+                URLEncoder.encode(getIssoRpUserUsername(), "UTF-8"),
                 state,
-                URLEncoder.encode(redirectUrl, "UTF-8")
+                URLEncoder.encode(getOidcRedirectUrl(), "UTF-8")
         );
     }
 }

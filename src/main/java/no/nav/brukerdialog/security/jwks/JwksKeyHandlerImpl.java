@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.brukerdialog.security.Constants.getIssoJwksUrl;
 import static no.nav.sbl.rest.RestUtils.withClient;
 
 public class JwksKeyHandlerImpl implements JwksKeyHandler {
@@ -23,7 +24,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
 
 
     JwksKeyHandlerImpl() {
-        this(() -> httpGet(System.getProperty("isso-jwks.url")));
+        this(() -> httpGet(getIssoJwksUrl()));
     }
 
     public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier) {

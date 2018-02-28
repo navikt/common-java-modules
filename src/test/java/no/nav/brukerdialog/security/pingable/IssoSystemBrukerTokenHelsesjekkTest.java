@@ -1,6 +1,5 @@
 package no.nav.brukerdialog.security.pingable;
 
-import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.util.ExceptionUtils;
 import org.junit.BeforeClass;

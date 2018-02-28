@@ -4,6 +4,8 @@ import no.nav.brukerdialog.security.domain.*;
 
 import javax.security.auth.Subject;
 
+@Deprecated
+//bruk CustomizableSubjectHandler
 public class InternbrukerSubjectHandler extends TestSubjectHandler {
     private Subject subject;
     private static OidcCredential oidcCredential;
