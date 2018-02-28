@@ -19,6 +19,7 @@ public class ESSOProviderIntegrationTest {
 
     @Test
     public void getHttpCookie() {
+        sjekkCookie(ESSOProvider.getHttpCookie());
         sjekkCookie(ESSOProvider.getHttpCookie(T6));
         sjekkCookie(ESSOProvider.getHttpCookie(Q4));
         sjekkCookie(ESSOProvider.getHttpCookie(T4, PRIVAT_BRUKER));

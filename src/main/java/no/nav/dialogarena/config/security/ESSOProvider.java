@@ -25,6 +25,10 @@ public class ESSOProvider {
     public static final String PRIVAT_BRUKER = "privat_bruker";
     public static final String NAV_ESSO_COOKIE_NAVN = "nav-esso";
 
+    public static HttpCookie getHttpCookie() {
+        return getHttpCookie(FasitUtils.getDefaultEnvironment());
+    }
+
     public static HttpCookie getHttpCookie(TestEnvironment environment) {
         return getHttpCookie(environment.toString());
     }
