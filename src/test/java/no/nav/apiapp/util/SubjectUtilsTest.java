@@ -39,8 +39,9 @@ public class SubjectUtilsTest {
     }
 
     @Test
-    public void getIdentType_internBruker() {
+    public void kanSetteIdentTypePaaCustomizableSubjectHandler() {
         System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, CustomizableSubjectHandler.class.getName());
+        CustomizableSubjectHandler.setIdentType(IdentType.InternBruker);
         assertThat(getIdentType()).hasValue(IdentType.InternBruker);
         assertThat(subjectService.getIdentType()).hasValue(IdentType.InternBruker);
     }
