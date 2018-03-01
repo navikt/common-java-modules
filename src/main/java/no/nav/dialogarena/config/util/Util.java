@@ -2,12 +2,9 @@ package no.nav.dialogarena.config.util;
 
 import lombok.SneakyThrows;
 import no.nav.sbl.rest.RestUtils;
-import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 
-import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
@@ -18,7 +15,14 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class Util {
 
+    private static int READ_TIMEOUT = RestUtils.DEFAULT_CONFIG.getReadTimeout();
+
     private static final Logger LOG = getLogger(Util.class);
+
+    @SuppressWarnings("unused")
+    public static void setReadTimeout(int readTimeout) {
+        READ_TIMEOUT = readTimeout;
+    }
 
     public static void setProperty(String propertyName, String value) {
         setProperty(propertyName, value, OVERSKRIV);
@@ -36,7 +40,7 @@ public class Util {
 
     @SneakyThrows
     public static <T> T httpClient(With<Client, T> httpClientConsumer) {
-        return RestUtils.withClient(httpClientConsumer::withSafe);
+        return RestUtils.withClient(RestUtils.DEFAULT_CONFIG.withReadTimeout(READ_TIMEOUT), httpClientConsumer::withSafe);
     }
 
     @SneakyThrows
