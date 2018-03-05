@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static no.nav.fo.feed.util.UrlUtils.asUrl;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
@@ -29,22 +27,22 @@ public class FeedPoller implements Job {
     }
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobExecutionContext context) {
         JobKey jobkey = context.getJobDetail().getKey();
         String name = asUrl(jobkey.getGroup(), jobkey.getName());
         jobs.getOrDefault(name, () -> {}).run();
     }
 
     @SneakyThrows
-    public static void createScheduledJob(String name, String group, String cron, Runnable jobImpl) {
-        if (isNotBlank(cron)) {
+    public static void createScheduledJob(String name, String group, FeedConsumerConfig.ScheduleCreator scheduleCreator, Runnable jobImpl) {
+        if (scheduleCreator != null) {
             JobDetail job = newJob(FeedPoller.class)
                     .withIdentity(name, group)
                     .build();
 
-            CronTrigger trigger = newTrigger()
+            Trigger trigger = newTrigger()
                     .withIdentity(name, group)
-                    .withSchedule(cronSchedule(cron))
+                    .withSchedule(scheduleCreator.scheduleBuilder)
                     .build();
 
             getScheduler().scheduleJob(job, trigger);

@@ -98,9 +98,9 @@ public class IntegrationTest {
                 basePath(PRODUCER_PORT).toString(),
                 "webhook-producer"
         );
-        FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "");
+        FeedConsumerConfig.WebhookScheduleCreator webhookPollingConfig = new FeedConsumerConfig.CronWebhookPollingConfig("*/10 * * * * ?", "");
         FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, null, webhookPollingConfig);
-        FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null, null);
+        FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, null, null);
         FeedConsumer<DomainObject> consumerUtenConfig = new FeedConsumer<>(configUtenConfig);
         FeedConsumer<DomainObject> consumerMedConfig = new FeedConsumer<>(configMedConfig);
 
@@ -125,12 +125,12 @@ public class IntegrationTest {
                 basePath(PRODUCER_PORT).toString(),
                 "webhook-producer2"
         );
-        FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "");
+        FeedConsumerConfig.WebhookScheduleCreator webhookPollingConfig = new FeedConsumerConfig.CronWebhookPollingConfig("*/10 * * * * ?", "");
         FeedConsumerConfig<DomainObject> configMedConfig = new FeedConsumerConfig<>(baseConfig, null, webhookPollingConfig);
-        FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, (FeedConsumerConfig.PollingConfig) null, null);
+        FeedConsumerConfig<DomainObject> configUtenConfig = new FeedConsumerConfig<>(baseConfig, null, null);
         FeedConsumer<DomainObject> consumerUtenConfig = new FeedConsumer<>(configUtenConfig);
         FeedConsumer<DomainObject> consumerMedConfig = new FeedConsumer<>(configMedConfig);
-        
+
         FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder().build();
         producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackUrlUtenWebhookKonfig));
         producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(callbackSomIkkeFinnes));
@@ -143,7 +143,7 @@ public class IntegrationTest {
         assertThat(res.get(callbackSomIkkeFinnes).get(), is(404));
         assertThat(res.get(callbackMedWebhook).get(), is(200));
     }
-    
+
     @Test
     public void fullstendigOppsett() throws Exception {
         CountDownLatch lock = new CountDownLatch(1);
@@ -153,8 +153,8 @@ public class IntegrationTest {
                 basePath(PRODUCER_PORT).toString(),
                 "producer"
         );
-        FeedConsumerConfig.PollingConfig pollingConfig = new FeedConsumerConfig.PollingConfig("*/10 * * * * ?");
-        FeedConsumerConfig.WebhookPollingConfig webhookPollingConfig = new FeedConsumerConfig.WebhookPollingConfig("*/10 * * * * ?", "/api");
+        FeedConsumerConfig.ScheduleCreator pollingConfig = new FeedConsumerConfig.CronPollingConfig("*/10 * * * * ?");
+        FeedConsumerConfig.WebhookScheduleCreator webhookPollingConfig = new FeedConsumerConfig.CronWebhookPollingConfig("*/10 * * * * ?", "/api");
         FeedConsumerConfig<DomainObject> consumerConfig = new FeedConsumerConfig<>(baseConfig, pollingConfig, webhookPollingConfig);
 
         final String[] respLastId = {null};

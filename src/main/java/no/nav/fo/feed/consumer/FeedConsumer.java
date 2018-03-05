@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
 import static no.nav.fo.feed.util.UrlUtils.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Pingable, Authorization, ApplicationListener<ContextClosedEvent> {
@@ -39,8 +38,8 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         this.config = config;
         this.pingMetadata = new Ping.PingMetadata(getTargetUrl(), String.format("feed-consumer av '%s'", feedName), false);
 
-        createScheduledJob(feedName, host, config.pollingInterval, this::poll);
-        createScheduledJob(feedName + "/webhook", host, config.webhookPollingInterval, this::registerWebhook);
+        createScheduledJob(feedName, host, config.pollingConfig, this::poll);
+        createScheduledJob(feedName + "/webhook", host, config.webhookPollingConfig, this::registerWebhook);
     }
 
     @Override
@@ -49,7 +48,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     public boolean webhookCallback() {
-        if (isBlank(this.config.webhookPollingInterval)) {
+        if (this.config.webhookPollingConfig == null) {
             return false;
         }
         CompletableFuture.runAsync(this::poll);
@@ -61,7 +60,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     void registerWebhook() {
-        String callbackUrl = callbackUrl(this.config.apiRootPath, this.config.feedName);
+        String callbackUrl = callbackUrl(this.config.webhookPollingConfig.apiRootPath, this.config.feedName);
         FeedWebhookRequest body = new FeedWebhookRequest().setCallbackUrl(callbackUrl);
 
         Entity<FeedWebhookRequest> entity = Entity.entity(body, APPLICATION_JSON_TYPE);
@@ -70,7 +69,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 .target(asUrl(this.config.host, "feed", this.config.feedName, "webhook"))
                 .request();
 
-        config.interceptors.forEach( interceptor -> interceptor.apply(request));
+        config.interceptors.forEach(interceptor -> interceptor.apply(request));
 
         Response response = request
                 .buildPut(entity)
@@ -92,7 +91,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
                 .request();
 
-        config.interceptors.forEach( interceptor -> interceptor.apply(request));
+        config.interceptors.forEach(interceptor -> interceptor.apply(request));
 
         Response response = request
                 .buildGet()
