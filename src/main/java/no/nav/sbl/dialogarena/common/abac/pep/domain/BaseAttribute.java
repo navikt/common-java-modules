@@ -26,6 +26,10 @@ public class BaseAttribute {
         return attribute != null ? attribute.equals(that.attribute) : that.attribute == null;
     }
 
+    public void addAttribute(Attribute attribute) {
+        this.attribute.add(attribute);
+    }
+
     @Override
     public int hashCode() {
         return attribute != null ? attribute.hashCode() : 0;

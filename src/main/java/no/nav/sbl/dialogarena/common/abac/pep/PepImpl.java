@@ -1,13 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import lombok.SneakyThrows;
-import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.metrics.Event;
-import no.nav.metrics.MetricsFactory;
+import no.nav.abac.xacml.NavAttributter;
+import no.nav.abac.xacml.StandardAttributter;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
@@ -21,8 +19,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static java.lang.Boolean.valueOf;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
 import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -169,6 +165,34 @@ public class PepImpl implements Pep {
         auditLogger.logResponseInfo(biasedDecision.name(), response, request);
 
         return new BiasedDecisionResponse(biasedDecision, response);
+    }
+
+    @Override
+    public BiasedDecisionResponse harTilgangTilEnhet(String enhet) throws PepException {
+        Request request = lagHarTilgangTilEnhetRequest(enhet);
+
+        return harTilgang(request);
+    }
+
+    private static Request lagHarTilgangTilEnhetRequest(String enhet) {
+        Environment environment = new Environment();
+        environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getOidcToken().orElse(null)));
+        environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, "srvveilarbveileder"));
+
+        Action action = new Action();
+        action.addAttribute(new Attribute(StandardAttributter.ACTION_ID, "READ"));
+
+        AccessSubject accessSubject = new AccessSubject();
+
+        Resource resource = new Resource();
+        resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, "no.nav.abac.attributter.resource.felles.enhet")); // TODO: NavAttributter.RESOURCE_FELLES_ENHET
+        resource.addAttribute(new Attribute("no.nav.abac.attributter.resource.felles.enhet", enhet)); // TODO: NavAttributter.RESOURCE_FELLES_ENHET
+
+        return new Request()
+                .withEnvironment(environment)
+                .withAction(action)
+                .withAccessSubject(accessSubject)
+                .withResource(resource);
     }
 
     private String getCredentialResource() throws PepException {
