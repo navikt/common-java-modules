@@ -94,7 +94,7 @@
         <ehcache.version>2.10.3</ehcache.version>
         <vavr.version>0.9.0</vavr.version>
         <nocommons.version>0.6</nocommons.version>
-
+        <shedlock.version>0.18.2</shedlock.version>
         <!--
           obs:
            aspectj settes i dependencyManagement i modig-security sin modig-main parent. (n� 1.7.4)
@@ -766,6 +766,21 @@
                 <groupId>io.vavr</groupId>
                 <artifactId>vavr</artifactId>
                 <version>${vavr.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-core</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-provider-jdbc</artifactId>
+                <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.javacrumbs.shedlock</groupId>
+                <artifactId>shedlock-spring</artifactId>
+                <version>${shedlock.version}</version>
             </dependency>
 
             <!-- jetty -->
