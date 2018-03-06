@@ -27,7 +27,7 @@ public class BaseAttribute {
     }
 
     public void addAttribute(Attribute attribute) {
-        this.attribute.add(attribute);
+        getAttribute().add(attribute);
     }
 
     @Override
