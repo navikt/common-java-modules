@@ -185,8 +185,8 @@ public class PepImpl implements Pep {
         AccessSubject accessSubject = new AccessSubject();
 
         Resource resource = new Resource();
-        resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, "no.nav.abac.attributter.resource.felles.enhet")); // TODO: NavAttributter.RESOURCE_FELLES_ENHET
-        resource.addAttribute(new Attribute("no.nav.abac.attributter.resource.felles.enhet", enhet)); // TODO: NavAttributter.RESOURCE_FELLES_ENHET
+        resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_ENHET));
+        resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_ENHET, enhet));
 
         return new Request()
                 .withEnvironment(environment)
