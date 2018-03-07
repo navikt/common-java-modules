@@ -168,16 +168,16 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse harTilgangTilEnhet(String enhet) throws PepException {
-        Request request = lagHarTilgangTilEnhetRequest(enhet);
+    public BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker) throws PepException {
+        Request request = lagHarTilgangTilEnhetRequest(enhet, systembruker);
 
         return harTilgang(request);
     }
 
-    private static Request lagHarTilgangTilEnhetRequest(String enhet) {
+    private Request lagHarTilgangTilEnhetRequest(String enhet, String systembruker) {
         Environment environment = new Environment();
         environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getOidcToken().orElse(null)));
-        environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, "srvveilarbveileder"));
+        environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, systembruker));
 
         Action action = new Action();
         action.addAttribute(new Attribute(StandardAttributter.ACTION_ID, "READ"));

@@ -41,7 +41,7 @@ public interface Pep {
     BiasedDecisionResponse harTilgang(RequestData requestData) throws PepException;
     BiasedDecisionResponse harTilgang(Request request) throws PepException;
 
-    BiasedDecisionResponse harTilgangTilEnhet(String enhet) throws PepException;
+    BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker) throws PepException;
 
     BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException;
 
