@@ -1,5 +1,6 @@
 package no.nav.fo.feed.consumer;
 
+import net.javacrumbs.shedlock.core.LockConfiguration;
 import no.nav.fo.feed.common.*;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.rest.RestUtils;
@@ -13,6 +14,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import java.lang.reflect.ParameterizedType;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -38,7 +40,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         this.config = config;
         this.pingMetadata = new Ping.PingMetadata(getTargetUrl(), String.format("feed-consumer av '%s'", feedName), false);
 
-        createScheduledJob(feedName, host, config.pollingConfig, this::poll);
+        createScheduledJob(feedName, host, config.pollingConfig, runWithLock(feedName, this::poll));
         createScheduledJob(feedName + "/webhook", host, config.webhookPollingConfig, this::registerWebhook);
     }
 
@@ -51,7 +53,8 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         if (this.config.webhookPollingConfig == null) {
             return false;
         }
-        CompletableFuture.runAsync(this::poll);
+
+        CompletableFuture.runAsync(runWithLock(this.config.feedName, this::poll));
         return true;
     }
 
@@ -83,19 +86,8 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         }
     }
 
-    synchronized Response poll() {
-        String lastEntry = this.config.lastEntrySupplier.get();
-        Invocation.Builder request = REST_CLIENT
-                .target(getTargetUrl())
-                .queryParam(QUERY_PARAM_ID, lastEntry)
-                .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
-                .request();
-
-        config.interceptors.forEach(interceptor -> interceptor.apply(request));
-
-        Response response = request
-                .buildGet()
-                .invoke();
+    public synchronized Response poll() {
+        Response response = fetchChanges();
 
         if (response.getStatus() != 200) {
             LOG.warn("Endepunkt for polling av feed returnerte feilkode {}", response.getStatus());
@@ -119,6 +111,21 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         return response;
     }
 
+    Response fetchChanges() {
+        String lastEntry = this.config.lastEntrySupplier.get();
+        Invocation.Builder request = REST_CLIENT
+                .target(getTargetUrl())
+                .queryParam(QUERY_PARAM_ID, lastEntry)
+                .queryParam(QUERY_PARAM_PAGE_SIZE, this.config.pageSize)
+                .request();
+
+        config.interceptors.forEach(interceptor -> interceptor.apply(request));
+
+        return request
+                .buildGet()
+                .invoke();
+    }
+
     private String getTargetUrl() {
         return asUrl(this.config.host, "feed", this.config.feedName);
     }
@@ -126,7 +133,7 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     @Override
     public Ping ping() {
         try {
-            int status = poll().getStatus();
+            int status = fetchChanges().getStatus();
             if (status == 200) {
                 return Ping.lyktes(pingMetadata);
             } else {
@@ -140,5 +147,17 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     @Override
     public FeedAuthorizationModule getAuthorizationModule() {
         return config.authorizationModule;
+    }
+
+    private Runnable runWithLock(String lockname, Runnable task) {
+        return () -> {
+            if (this.config.lockExecutor == null) {
+                task.run();
+            } else {
+                Instant lockAtMostUntil = Instant.now().plusMillis(this.config.lockHoldingLimitInMilliSeconds);
+                LockConfiguration lockConfiguration = new LockConfiguration(lockname, lockAtMostUntil);
+                this.config.lockExecutor.executeWithLock(task, lockConfiguration);
+            }
+        };
     }
 }

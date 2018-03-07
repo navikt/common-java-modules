@@ -1,13 +1,14 @@
 package no.nav.fo.feed.integration;
 
+import no.nav.fo.feed.TestLockProvider;
 import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.common.FeedWebhookRequest;
 import no.nav.fo.feed.common.OutInterceptor;
+import no.nav.fo.feed.consumer.FeedCallback;
 import no.nav.fo.feed.consumer.FeedConsumer;
 import no.nav.fo.feed.consumer.FeedConsumerConfig;
 import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
-
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -17,7 +18,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.support.StaticApplicationContext;
 
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -25,14 +25,17 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 public class IntegrationTest {
 
@@ -58,6 +61,8 @@ public class IntegrationTest {
 
     @Before
     public void before() {
+        System.setProperty("disable.metrics.report", "true");
+        System.setProperty("environment.class", "lokalt");
         producerServer = new Server(PRODUCER_PORT);
         consumerServer = new Server(CONSUMER_PORT);
 
@@ -111,7 +116,7 @@ public class IntegrationTest {
         assertThat(client.target(callbackUrlUtenWebhookKonfig).request().head().getStatus(), is(404));
         assertThat(client.target(callbackSomIkkeFinnes).request().head().getStatus(), is(404));
         assertThat(client.target(callbackMedWebhook).request().head().getStatus(), is(200));
-        
+
     }
 
     @Test
@@ -215,6 +220,67 @@ public class IntegrationTest {
         Response response = client.target(basePath(CONSUMER_PORT)).path("feed/testfeed").request().head();
 
         assertThat(response.getStatus(), is(403));
+    }
+
+    @Test
+    public void consumersShouldUseLocks() throws InterruptedException {
+        FeedCallback<DomainObject> callback = mock(FeedCallback.class);
+        TestLockProvider lockProvider = new TestLockProvider();
+
+        FeedConsumerConfig.BaseConfig<DomainObject> baseConfig = new FeedConsumerConfig.BaseConfig<>(
+                DomainObject.class,
+                () -> "0",
+                basePath(PRODUCER_PORT).toString(),
+                "producerlocks"
+        );
+
+        FeedConsumerConfig.WebhookScheduleCreator webhookPollingConfig = new FeedConsumerConfig.SimpleWebhookPollingConfig(90, "/api");
+        FeedConsumerConfig<DomainObject> consumerConfig = new FeedConsumerConfig<>(baseConfig, null, webhookPollingConfig);
+        consumerConfig.lockProvider(lockProvider, 500);
+        consumerConfig.callback(callback);
+
+        FeedConsumer<DomainObject> consumer = new FeedConsumer<>(consumerConfig);
+        FeedProducer<DomainObject> producer = FeedProducer.<DomainObject>builder()
+                .provider((id, pageSize) -> {
+                    delay(500);
+                    return mockData.stream();
+                })
+                .build();
+        producer.createWebhook(new FeedWebhookRequest().setCallbackUrl(basePath(CONSUMER_PORT) + "feed/consumerlocks"));
+        producerServer.controller.addFeed("producerlocks", producer);
+        consumerServer.controller.addFeed("consumerlocks", consumer);
+
+        doAsync(producer::activateWebhook, 5, 5);
+        Thread.sleep(1000);
+        verify(callback, times(1)).call(anyString(), anyList());
+        assertThat(TestLockProvider.locksGiven, is(1));
+
+        doAsync(producer::activateWebhook, 5, 5);
+        Thread.sleep(1000);
+        assertThat(TestLockProvider.locksGiven, is(2));
+        verify(callback, times(2)).call(anyString(), anyList());
+
+        doAsync(producer::activateWebhook, 5, 5);producer.activateWebhook();
+        Thread.sleep(1000);
+        assertThat(TestLockProvider.locksGiven, is(3));
+        verify(callback, times(3)).call(anyString(), anyList());
+    }
+
+    private void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void doAsync(Supplier<?> supplier, int count, int parallellism) {
+        ForkJoinPool fjp = new ForkJoinPool(parallellism);
+        List<Callable<Object>> tasks = IntStream.range(0, count)
+                .mapToObj((i) -> ((Callable<Object>) () -> supplier.get()))
+                .collect(toList());
+
+        fjp.invokeAll(tasks);
     }
 
     static class Server {

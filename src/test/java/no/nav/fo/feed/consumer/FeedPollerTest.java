@@ -19,7 +19,7 @@ public class FeedPollerTest {
     private static final FeedConsumerConfig.ScheduleCreator EN_GANG_PER_SEKUND = new FeedConsumerConfig.CronPollingConfig("/1 * * * * ?");
 
     @After
-    public void cleanup(){
+    public void cleanup() {
         shutdown();
     }
 

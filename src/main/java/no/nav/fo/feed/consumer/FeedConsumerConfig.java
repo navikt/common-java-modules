@@ -1,5 +1,8 @@
 package no.nav.fo.feed.consumer;
 
+import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import no.nav.fo.feed.common.FeedAuthorizationModule;
 import no.nav.fo.feed.common.OutInterceptor;
 import org.quartz.ScheduleBuilder;
@@ -25,6 +28,9 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
     List<OutInterceptor> interceptors = new ArrayList<>();
     FeedAuthorizationModule authorizationModule = (feedname) -> true;
     int pageSize;
+
+    LockingTaskExecutor lockExecutor;
+    int lockHoldingLimitInMilliSeconds;
 
 
     public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, ScheduleCreator pollingConfig) {
@@ -59,6 +65,16 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
 
     public FeedConsumerConfig<DOMAINOBJECT> pageSize(int pageSize) {
         this.pageSize = pageSize;
+        return this;
+    }
+
+    public FeedConsumerConfig<DOMAINOBJECT> lockProvider(LockProvider lockProvider, int lockHoldingLimitInMilliSeconds) {
+        return lockExecutor(new DefaultLockingTaskExecutor(lockProvider), lockHoldingLimitInMilliSeconds);
+    }
+
+    public FeedConsumerConfig<DOMAINOBJECT> lockExecutor(LockingTaskExecutor lockExecutor, int lockHoldingLimitInMilliSeconds) {
+        this.lockExecutor = lockExecutor;
+        this.lockHoldingLimitInMilliSeconds = lockHoldingLimitInMilliSeconds;
         return this;
     }
 
