@@ -55,7 +55,7 @@ public class FeedController {
 
     @PUT
     @Path("{name}/webhook")
-    public Response putWebhook(FeedWebhookRequest request, @PathParam("name") String name) {
+    public Response registerWebhook(FeedWebhookRequest request, @PathParam("name") String name) {
         return timed(String.format("feed.%s.createwebhook", name), () -> ofNullable(producers.get(name))
                 .map((producer) -> authorizeRequest(producer, name))
                 .map((feed) -> feed.createWebhook(request))
@@ -65,7 +65,7 @@ public class FeedController {
 
     @GET
     @Path("{name}")
-    public FeedResponse<?> get(@PathParam("name") String name, @QueryParam(QUERY_PARAM_ID) String id, @QueryParam(QUERY_PARAM_PAGE_SIZE) Integer pageSize) {
+    public FeedResponse<?> getFeeddata(@PathParam("name") String name, @QueryParam(QUERY_PARAM_ID) String id, @QueryParam(QUERY_PARAM_PAGE_SIZE) Integer pageSize) {
         return timed(String.format("feed.%s.poll", name), () -> {
             FeedProducer feedProducer = ofNullable(producers.get(name)).orElseThrow(NotFoundException::new);
             authorizeRequest(feedProducer, name);
@@ -86,10 +86,10 @@ public class FeedController {
 
     @HEAD
     @Path("{name}")
-    public Response webhook(@PathParam("name") String feedname) {
+    public Response webhookCallback(@PathParam("name") String feedname) {
         return timed(String.format("feed.%s.webhook", feedname), () -> ofNullable(feedname)
                 .map((name) -> consumers.get(name))
-                .map((consumer) -> authorizeRequest(consumer,feedname))
+                .map((consumer) -> authorizeRequest(consumer, feedname))
                 .map(FeedConsumer::webhookCallback)
                 .map((hadCallback) -> Response.status(hadCallback ? 200 : 404))
                 .orElse(Response.status(404))
@@ -97,12 +97,10 @@ public class FeedController {
     }
 
     private <T extends Authorization> T authorizeRequest(T feed, String name) {
-        if(!feed.getAuthorizationModule().isRequestAuthorized(name)) {
+        if (!feed.getAuthorizationModule().isRequestAuthorized(name)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return feed;
     }
-
-
 
 }

@@ -16,10 +16,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class FeedPollerTest {
 
     private static final Logger LOG = getLogger(FeedPollerTest.class);
-    private static final String EN_GANG_PER_SEKUND = "/1 * * * * ?";
+    private static final FeedConsumerConfig.ScheduleCreator EN_GANG_PER_SEKUND = new FeedConsumerConfig.CronPollingConfig("/1 * * * * ?");
 
     @After
-    public void cleanup(){
+    public void cleanup() {
         shutdown();
     }
 

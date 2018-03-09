@@ -5,14 +5,11 @@ import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.common.FeedResponse;
 import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProvider;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Collections.shuffle;
 import static java.util.stream.Collectors.toList;
@@ -38,7 +35,7 @@ public interface FeedProducerTester {
         feedController.getFeeds().forEach(feedName -> {
             String tilfeldigId = unikId(feedName);
             opprettElementForFeed(feedName, tilfeldigId);
-            List<? extends FeedElement<?>> elements = feedController.get(feedName, forsteMuligeId(feedName), null).getElements();
+            List<? extends FeedElement<?>> elements = feedController.getFeeddata(feedName, forsteMuligeId(feedName), null).getElements();
             assertThat(elements).hasSize(1);
             assertThat(elements.get(0).getId()).isEqualTo(tilfeldigId);
         });
@@ -49,8 +46,8 @@ public interface FeedProducerTester {
         FeedController feedController = getFeedController();
         feedController.getFeeds().forEach(feedName -> {
             range(0, 10).forEach(i -> opprettElementForFeed(feedName, unikId(feedName)));
-            String nextPageId = feedController.get(feedName, forsteMuligeId(feedName), null).getNextPageId();
-            FeedElement<?> nesteElement = feedController.get(feedName, nextPageId, null).getElements().get(0);
+            String nextPageId = feedController.getFeeddata(feedName, forsteMuligeId(feedName), null).getNextPageId();
+            FeedElement<?> nesteElement = feedController.getFeeddata(feedName, nextPageId, null).getElements().get(0);
             assertThat(nextPageId).isEqualTo(nesteElement.getId());
         });
     }
@@ -60,10 +57,10 @@ public interface FeedProducerTester {
         getFeedController().getFeeds().forEach(feedName -> {
             int pageSize = 5;
             range(0, 3 * pageSize).forEach(i -> opprettElementForFeed(feedName, unikId(feedName)));
-            String nextPageId = getFeedController().get(feedName, forsteMuligeId(feedName), pageSize).getNextPageId();
+            String nextPageId = getFeedController().getFeeddata(feedName, forsteMuligeId(feedName), pageSize).getNextPageId();
 
             // henter noe midt i feeden
-            FeedResponse<?> feedResponse = getFeedController().get(feedName, nextPageId, pageSize);
+            FeedResponse<?> feedResponse = getFeedController().getFeeddata(feedName, nextPageId, pageSize);
             assertThat(feedResponse.getElements().size())
                     .as("%s for feed '%s' fetcher for mye data", FeedProvider.class.getSimpleName(), feedName)
                     .isLessThanOrEqualTo(pageSize)
@@ -96,7 +93,7 @@ public interface FeedProducerTester {
             String id = forsteMuligeId(feedName);
             List<? extends FeedElement<?>> elements;
             do {
-                FeedResponse<?> feedResponse = feedController.get(feedName, id, 5);
+                FeedResponse<?> feedResponse = feedController.getFeeddata(feedName, id, 5);
                 elements = feedResponse.getElements();
                 elements.forEach(elementer::add);
                 id = feedResponse.getNextPageId();

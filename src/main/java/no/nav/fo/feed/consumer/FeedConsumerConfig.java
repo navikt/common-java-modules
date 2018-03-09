@@ -1,11 +1,18 @@
 package no.nav.fo.feed.consumer;
 
+import net.javacrumbs.shedlock.core.DefaultLockingTaskExecutor;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.core.LockingTaskExecutor;
 import no.nav.fo.feed.common.FeedAuthorizationModule;
 import no.nav.fo.feed.common.OutInterceptor;
+import org.quartz.ScheduleBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+
+import static org.quartz.CronScheduleBuilder.cronSchedule;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 public class FeedConsumerConfig<DOMAINOBJECT> {
 
@@ -14,39 +21,29 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
     public final String host;
     public final String feedName;
 
-    public final String pollingInterval;
-    public final String webhookPollingInterval;
-    public final String apiRootPath;
+    public final ScheduleCreator pollingConfig;
+    public final WebhookScheduleCreator webhookPollingConfig;
 
     FeedCallback<DOMAINOBJECT> callback;
     List<OutInterceptor> interceptors = new ArrayList<>();
     FeedAuthorizationModule authorizationModule = (feedname) -> true;
     int pageSize;
 
+    LockingTaskExecutor lockExecutor;
+    int lockHoldingLimitInMilliSeconds;
 
-    public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, PollingConfig pollingConfig) {
+
+    public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, ScheduleCreator pollingConfig) {
         this(baseConfig, pollingConfig, null);
     }
 
-    public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, PollingConfig pollingConfig, WebhookPollingConfig webhookPollingConfig) {
+    public FeedConsumerConfig(BaseConfig<DOMAINOBJECT> baseConfig, ScheduleCreator pollingConfig, WebhookScheduleCreator webhookPollingConfig) {
         this.domainobject = baseConfig.domainobject;
         this.lastEntrySupplier = baseConfig.lastEntrySupplier;
         this.host = baseConfig.host;
         this.feedName = baseConfig.feedName;
-
-        if (pollingConfig != null) {
-            this.pollingInterval = pollingConfig.pollingInterval;
-        } else {
-            this.pollingInterval = null;
-        }
-
-        if (webhookPollingConfig != null) {
-            this.webhookPollingInterval = webhookPollingConfig.webhookPollingInterval;
-            this.apiRootPath = webhookPollingConfig.apiRootPath;
-        } else {
-            this.webhookPollingInterval = null;
-            this.apiRootPath = null;
-        }
+        this.pollingConfig = pollingConfig;
+        this.webhookPollingConfig = webhookPollingConfig;
 
         this.pageSize = 100;
     }
@@ -71,6 +68,16 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
         return this;
     }
 
+    public FeedConsumerConfig<DOMAINOBJECT> lockProvider(LockProvider lockProvider, int lockHoldingLimitInMilliSeconds) {
+        return lockExecutor(new DefaultLockingTaskExecutor(lockProvider), lockHoldingLimitInMilliSeconds);
+    }
+
+    public FeedConsumerConfig<DOMAINOBJECT> lockExecutor(LockingTaskExecutor lockExecutor, int lockHoldingLimitInMilliSeconds) {
+        this.lockExecutor = lockExecutor;
+        this.lockHoldingLimitInMilliSeconds = lockHoldingLimitInMilliSeconds;
+        return this;
+    }
+
     public static class BaseConfig<DOMAINOBJECT> {
         public final Class<DOMAINOBJECT> domainobject;
         public final Supplier<String> lastEntrySupplier;
@@ -85,22 +92,43 @@ public class FeedConsumerConfig<DOMAINOBJECT> {
         }
     }
 
-    public static class PollingConfig {
-        public final String pollingInterval;
+    public static class ScheduleCreator {
+        public final ScheduleBuilder<?> scheduleBuilder;
 
-        public PollingConfig(String pollingInterval) {
-            this.pollingInterval = pollingInterval;
+        public ScheduleCreator(ScheduleBuilder<?> scheduleBuilder) {
+            this.scheduleBuilder = scheduleBuilder;
         }
     }
-
-    public static class WebhookPollingConfig {
-        public final String webhookPollingInterval;
+    public static class WebhookScheduleCreator extends ScheduleCreator {
         public final String apiRootPath;
 
-        public WebhookPollingConfig(String webhookPollingInterval, String apiRootPath) {
-            this.webhookPollingInterval = webhookPollingInterval;
+        public WebhookScheduleCreator(ScheduleBuilder<?> builder, String apiRootPath) {
+            super(builder);
             this.apiRootPath = apiRootPath;
         }
     }
 
+    public static class CronPollingConfig extends ScheduleCreator {
+        public CronPollingConfig(String pollingInterval) {
+            super(cronSchedule(pollingInterval));
+        }
+    }
+
+    public static class SimplePollingConfig extends ScheduleCreator {
+        public SimplePollingConfig(int pollingIntervalInSeconds) {
+            super(simpleSchedule().withIntervalInSeconds(pollingIntervalInSeconds).repeatForever());
+        }
+    }
+
+    public static class CronWebhookPollingConfig extends WebhookScheduleCreator {
+        public CronWebhookPollingConfig(String webhookPollingInterval, String apiRootPath) {
+            super(cronSchedule(webhookPollingInterval), apiRootPath);
+        }
+    }
+
+    public static class SimpleWebhookPollingConfig extends WebhookScheduleCreator {
+        public SimpleWebhookPollingConfig(int webhookPollingIntervalInSeconds, String apiRootPath) {
+            super(simpleSchedule().withIntervalInSeconds(webhookPollingIntervalInSeconds).repeatForever(), apiRootPath);
+        }
+    }
 }
