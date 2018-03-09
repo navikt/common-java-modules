@@ -44,7 +44,7 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
                     response.addCookie(createCsrfProtectionCookie(request));
                 }
             } else if (!cookieMatcherHeader(request)) {
-                LOG.error("Feil i CSRF-sjekk. " +
+                LOG.warn("Feil i CSRF-sjekk. " +
                         "Bruker du dette filteret må du i frontend sørge for å sende med NAV_CSRF_PROTECTION-cookien som en header med navn NAV_CSRF_PROTECTION og verdien til cookien. " +
                         "Er headeren satt? " + isNotBlank(request.getHeader(CSRF_COOKIE_NAVN)));
                 response.sendError(SC_UNAUTHORIZED, "Mangler NAV_CSRF_PROTECTION-cookie!! Du må inkludere cookie-verdien i en header med navn NAV_CSRF_PROTECTION");
