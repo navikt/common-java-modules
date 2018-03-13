@@ -640,8 +640,8 @@
         "tags": [
           "FeedController"
         ],
-        "summary": "get",
-        "operationId": "get",
+        "summary": "getFeeddata",
+        "operationId": "getFeeddata",
         "consumes": [
           "application/json"
         ],
@@ -683,8 +683,8 @@
         "tags": [
           "FeedController"
         ],
-        "summary": "webhook",
-        "operationId": "webhook",
+        "summary": "webhookCallback",
+        "operationId": "webhookCallback",
         "consumes": [
           "application/json"
         ],
@@ -711,8 +711,8 @@
         "tags": [
           "FeedController"
         ],
-        "summary": "putWebhook",
-        "operationId": "putWebhook",
+        "summary": "registerWebhook",
+        "operationId": "registerWebhook",
         "consumes": [
           "application/json"
         ],
