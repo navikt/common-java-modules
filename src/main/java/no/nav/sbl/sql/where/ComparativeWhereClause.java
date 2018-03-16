@@ -1,7 +1,5 @@
 package no.nav.sbl.sql.where;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
@@ -18,9 +16,8 @@ public class ComparativeWhereClause extends WhereClause {
     }
 
     @Override
-    public int applyTo(PreparedStatement ps, int index) throws SQLException {
-        ps.setObject(index, this.value);
-        return index + 1;
+    public Object[] getArgs() {
+        return new Object[]{ value };
     }
 
     @Override

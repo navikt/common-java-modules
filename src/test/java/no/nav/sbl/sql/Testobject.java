@@ -6,7 +6,6 @@ import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -44,8 +43,8 @@ public class Testobject {
                 .setAddress(rs.getString(ADDRESS));
     }
 
-    public static SelectQuery<Testobject> getSelectWithAddressQuery(DataSource ds, String table) {
-        return SqlUtils.select(ds, table, Testobject::mapperWithAddress)
+    public static SelectQuery<Testobject> getSelectWithAddressQuery(JdbcTemplate db, String table) {
+        return SqlUtils.select(db, table, Testobject::mapperWithAddress)
                 .column(BIRTHDAY)
                 .column(DEAD)
                 .column(ID)
@@ -54,8 +53,8 @@ public class Testobject {
                 .column(ADDRESS);
     }
 
-    public static SelectQuery<Testobject> getSelectQuery(DataSource ds, String table) {
-        return SqlUtils.select(ds, table, Testobject::mapper)
+    public static SelectQuery<Testobject> getSelectQuery(JdbcTemplate db, String table) {
+        return SqlUtils.select(db, table, Testobject::mapper)
                 .column(BIRTHDAY)
                 .column(DEAD)
                 .column(ID)

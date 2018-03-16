@@ -2,21 +2,18 @@ package no.nav.sbl.sql;
 
 import lombok.SneakyThrows;
 import no.nav.sbl.sql.where.WhereClause;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 
 public class DeleteQuery {
-    private final DataSource ds;
+    private final JdbcTemplate db;
     private final String tableName;
     private WhereClause where;
 
-    DeleteQuery(DataSource ds, String tableName) {
-        this.ds = ds;
+    DeleteQuery(JdbcTemplate db, String tableName) {
+        this.db = db;
         this.tableName = tableName;
     }
 
@@ -34,16 +31,9 @@ public class DeleteQuery {
             );
         }
 
-        int result;
         String sql = createDeleteStatement();
-        try (Connection conn = ds.getConnection()) {
 
-            PreparedStatement ps = timedPreparedStatement(sql,() ->conn.prepareStatement(sql));
-            where.applyTo(ps, 1);
-
-            result = ps.executeUpdate();
-        }
-        return result;
+        return timedPreparedStatement(sql, () -> db.update(sql, this.where.getArgs()));
     }
 
     private String createDeleteStatement() {

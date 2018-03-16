@@ -1,9 +1,6 @@
 package no.nav.sbl.sql.where;
 
 
-import lombok.SneakyThrows;
-
-import java.sql.PreparedStatement;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,13 +20,8 @@ public class WhereIn extends WhereClause {
         return new WhereIn(field, objects);
     }
 
-    @Override
-    @SneakyThrows
-    public int applyTo(PreparedStatement ps, int index) {
-        for(Object object : objects) {
-            ps.setObject(index++, object);
-        }
-        return index;
+    public Object[] getArgs() {
+        return objects.toArray();
     }
 
     @Override

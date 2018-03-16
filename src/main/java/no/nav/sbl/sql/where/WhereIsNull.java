@@ -1,13 +1,11 @@
 package no.nav.sbl.sql.where;
 
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
 
-public class WhereIsNull extends WhereClause{
+public class WhereIsNull extends WhereClause {
     private String field;
 
 
@@ -20,8 +18,8 @@ public class WhereIsNull extends WhereClause{
     }
 
     @Override
-    public int applyTo(PreparedStatement ps, int index) throws SQLException {
-        return index;
+    public Object[] getArgs() {
+        return new Object[]{};
     }
 
     @Override

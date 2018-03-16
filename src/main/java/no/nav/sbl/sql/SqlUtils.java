@@ -2,7 +2,6 @@ package no.nav.sbl.sql;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.util.function.Function;
 
@@ -27,17 +26,17 @@ public class SqlUtils {
         return new UpsertQuery(db, tableName);
     }
 
-    public static <T> SelectQuery<T> select(DataSource ds, String tableName, SQLFunction<ResultSet, T> mapper) {
-        return new SelectQuery<>(ds, tableName, mapper);
+    public static <T> SelectQuery<T> select(JdbcTemplate db, String tableName, SQLFunction<ResultSet, T> mapper) {
+        return new SelectQuery<>(db, tableName, mapper);
     }
 
-    public static SelectQuery<Long> nextFromSeq(DataSource ds, String sekvens) {
-        return select(ds, "dual", resultSet -> resultSet.getLong(1))
+    public static SelectQuery<Long> nextFromSeq(JdbcTemplate db, String sekvens) {
+        return select(db, "dual", resultSet -> resultSet.getLong(1))
                 .column(String.format("%s.NEXTVAL", sekvens));
     }
 
-    public static DeleteQuery delete(DataSource ds, String tableName) {
-        return new DeleteQuery(ds, tableName);
+    public static DeleteQuery delete(JdbcTemplate db, String tableName) {
+        return new DeleteQuery(db, tableName);
     }
 
 }

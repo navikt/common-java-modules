@@ -1,9 +1,8 @@
 package no.nav.sbl.sql.where;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class LogicalWhereClause extends WhereClause {
     private final WhereOperator operator;
@@ -18,9 +17,11 @@ public class LogicalWhereClause extends WhereClause {
     }
 
     @Override
-    public int applyTo(PreparedStatement ps, int index) throws SQLException {
-        int i = this.wc1.applyTo(ps, index);
-        return this.wc2.applyTo(ps, i);
+    public Object[] getArgs() {
+        Stream<Object> wc1Stream = Stream.of(wc1.getArgs());
+        Stream<Object> wc2Stream = Stream.of(wc2.getArgs());
+
+        return Stream.concat(wc1Stream, wc2Stream).toArray();
     }
 
     @Override

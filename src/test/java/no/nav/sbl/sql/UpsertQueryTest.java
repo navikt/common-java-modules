@@ -52,7 +52,7 @@ public class UpsertQueryTest {
                 .where(WhereClause.equals(ID, "007"))
                 .execute();
 
-        Testobject retrieved1 = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
+        Testobject retrieved1 = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
         assertThat(retrieved1.getNavn()).isEqualTo(oppdatertNavn1);
 
         // Goes to update
@@ -62,7 +62,7 @@ public class UpsertQueryTest {
                 .where(WhereClause.equals(ID, "007"))
                 .execute();
 
-        Testobject retrieved2 = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
+        Testobject retrieved2 = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
         assertThat(retrieved2.getNavn()).isEqualTo(oppdatertNavn2);
     }
 
@@ -83,7 +83,7 @@ public class UpsertQueryTest {
                 .where(WhereClause.equals(ID, id))
                 .execute();
 
-        Testobject retrieved = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
+        Testobject retrieved = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
         assertThat(retrieved.isDead()).isTrue();
         assertThat(retrieved.getNavn()).isEqualTo(navn);
         assertThat(retrieved.getCreated()).isEqualTo(now);
@@ -98,7 +98,7 @@ public class UpsertQueryTest {
                 .where(WhereClause.equals(ID, id))
                 .execute();
 
-        Testobject retrieved2 = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
+        Testobject retrieved2 = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
 
         assertThat(retrieved2.isDead()).isTrue();
         assertThat(retrieved2.getNavn()).isEqualTo(oppdatertnavn);
@@ -140,7 +140,7 @@ public class UpsertQueryTest {
         upsert(later);
         upsert(muchlater);
 
-        Testobject retrieved = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
+        Testobject retrieved = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
         assertThat(retrieved.isDead()).isTrue();
         assertThat(retrieved.getNavn()).isEqualTo(oppdatertnavn);
         assertThat(retrieved.getCreated()).isEqualTo(created);
@@ -197,7 +197,7 @@ public class UpsertQueryTest {
                 .where(WhereClause.equals(ID, "").and(WhereClause.equals(NAVN, "a")))
                 .execute();
 
-        Testobject retrieved = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
+        Testobject retrieved = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, id)).execute();
         assertThat(retrieved.isDead()).isFalse();
         assertThat(retrieved.getNavn()).isEqualTo(navn);
         assertThat(retrieved.getCreated()).isEqualTo(created);
@@ -209,7 +209,7 @@ public class UpsertQueryTest {
         SqlUtils.upsert(db, TESTTABLE1)
                 .set(ID, testobject.id, UpsertQuery.ApplyTo.INSERT)
                 .set(NAVN, testobject.navn, UpsertQuery.ApplyTo.BOTH) // Redundant to explicitly say BOTH...
-                .set(DEAD,  testobject.dead, UpsertQuery.ApplyTo.BOTH)
+                .set(DEAD, testobject.dead, UpsertQuery.ApplyTo.BOTH)
                 .set(CREATED, testobject.created, UpsertQuery.ApplyTo.INSERT)
                 .set(UPDATED, testobject.updated, UpsertQuery.ApplyTo.BOTH)
                 .where(WhereClause.equals(ID, testobject.id))
@@ -225,8 +225,8 @@ public class UpsertQueryTest {
         Timestamp updated;
         boolean dead;
 
-        public static SelectQuery<Testobject> getSelectQuery(DataSource ds, String table) {
-            return SqlUtils.select(ds, table, Testobject::mapper)
+        public static SelectQuery<Testobject> getSelectQuery(JdbcTemplate db, String table) {
+            return SqlUtils.select(db, table, Testobject::mapper)
                     .column(ID)
                     .column(NAVN)
                     .column(DEAD)

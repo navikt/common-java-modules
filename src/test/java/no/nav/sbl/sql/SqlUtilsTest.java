@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +27,11 @@ public class SqlUtilsTest {
     public final static String ADDRESS = "ADDRESS";
     public final static String TEST_ID_SEQ = "TEST_ID_SEQ";
 
-    private DataSource ds;
     private JdbcTemplate db;
 
     @Before
     public void setup() {
         db = TestUtils.jdbcTemplate();
-        ds = db.getDataSource();
         db.update("CREATE TABLE TESTTABLE1 (\n" +
                 "  ID VARCHAR(255) NOT NULL,\n" +
                 "  NAVN VARCHAR(255) NOT NULL,\n" +
@@ -64,7 +61,7 @@ public class SqlUtilsTest {
                 .value(NUMBER_OF_PETS, object.getNumberOfPets())
                 .execute();
 
-        Testobject retrieved = Testobject.getSelectQuery(ds, TESTTABLE1)
+        Testobject retrieved = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.equals(ID, object.getId()))
                 .execute();
 
@@ -85,7 +82,7 @@ public class SqlUtilsTest {
                 .value(DEAD, false)
                 .execute();
 
-        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        List<Testobject> testobjects = Testobject.getSelectQuery(db, TESTTABLE1).executeToList();
         assertThat(testobjects.size()).isEqualTo(2);
         assertThat(testobjects.stream().map(Testobject::getId).collect(Collectors.toList())).containsExactly("1", "2");
 
@@ -98,7 +95,7 @@ public class SqlUtilsTest {
         SqlUtils.update(db, TESTTABLE1).set(NAVN, oppdatertNavn)
                 .whereEquals(ID, "007").execute();
 
-        Testobject retrieved = Testobject.getSelectQuery(ds, TESTTABLE1)
+        Testobject retrieved = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.equals(ID, "007")).execute();
 
         assertThat(retrieved.getNavn()).isEqualTo(oppdatertNavn);
@@ -133,7 +130,7 @@ public class SqlUtilsTest {
                 .add(NAVN, Testobject::getNavn, String.class)
                 .addWhereClause(object -> WhereClause.equals(ID, object.getId())).execute(updateObjects);
 
-        List<Testobject> retrieved = Testobject.getSelectQuery(ds, TESTTABLE1)
+        List<Testobject> retrieved = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.in(ID, asList("001", "002", "003", "004", "005", "006", "007"))).executeToList();
 
         assertThat(retrieved.stream().map(Testobject::getNavn).distinct().collect(Collectors.toList())).containsOnly(oppdatertNavn);
@@ -141,8 +138,8 @@ public class SqlUtilsTest {
 
     @Test
     public void selectNextFromSequens() {
-        Long id1 = SqlUtils.nextFromSeq(ds, TEST_ID_SEQ).execute();
-        Long id2 = SqlUtils.nextFromSeq(ds, TEST_ID_SEQ).execute();
+        Long id1 = SqlUtils.nextFromSeq(db, TEST_ID_SEQ).execute();
+        Long id2 = SqlUtils.nextFromSeq(db, TEST_ID_SEQ).execute();
         assertThat(id1).isEqualTo(1);
         assertThat(id2).isEqualTo(2);
     }
@@ -150,11 +147,11 @@ public class SqlUtilsTest {
     @Test
     public void deleteQuery() {
         getTestobjectWithId("007").toInsertQuery(db, TESTTABLE1).execute();
-        assertThat(Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute()).isNotNull();
+        assertThat(Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute()).isNotNull();
 
-        SqlUtils.delete(ds, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
+        SqlUtils.delete(db, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute();
 
-        assertThat(Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute());
+        assertThat(Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.equals(ID, "007")).execute()).isNull();
     }
 
     @Test
@@ -171,7 +168,7 @@ public class SqlUtilsTest {
         Testobject.getInsertBatchQuery(db, TESTTABLE1)
                 .execute(objects);
 
-        List<Testobject> retrieved = SqlUtils.select(ds, TESTTABLE1, Testobject::mapper)
+        List<Testobject> retrieved = SqlUtils.select(db, TESTTABLE1, Testobject::mapper)
                 .column(ID)
                 .column(NAVN)
                 .column(BIRTHDAY)
@@ -188,7 +185,7 @@ public class SqlUtilsTest {
         getTestobjectWithId("007").toInsertQuery(db, TESTTABLE1).execute();
         db.execute("INSERT INTO TESTTABLE2 (ID, ADDRESS) VALUES ('007', 'andeby')");
         Testobject retrieved = Testobject
-                .getSelectWithAddressQuery(ds, TESTTABLE1)
+                .getSelectWithAddressQuery(db, TESTTABLE1)
                 .leftJoinOn(TESTTABLE2, ID, ID)
                 .where(WhereClause.equals(ID, "007"))
                 .execute();
@@ -201,7 +198,7 @@ public class SqlUtilsTest {
         getTestobjectWithId("001").toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("002").toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("003").toInsertQuery(db, TESTTABLE1).execute();
-        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        List<Testobject> testobjects = Testobject.getSelectQuery(db, TESTTABLE1).executeToList();
 
         assertThat(testobjects.size()).isEqualTo(3);
     }
@@ -212,7 +209,7 @@ public class SqlUtilsTest {
         getTestobjectWithId("002").setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("003").setNumberOfPets(10).toInsertQuery(db, TESTTABLE1).execute();
 
-        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+        List<Testobject> testobjects = Testobject.getSelectQuery(db, TESTTABLE1)
                 .orderBy(OrderClause.desc("NUMBER_OF_PETS"))
                 .executeToList();
 
@@ -227,7 +224,7 @@ public class SqlUtilsTest {
         getTestobjectWithId("002").setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("003").setNumberOfPets(0).toInsertQuery(db, TESTTABLE1).execute();
 
-        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+        List<Testobject> testobjects = Testobject.getSelectQuery(db, TESTTABLE1)
                 .orderBy(OrderClause.asc("NUMBER_OF_PETS"))
                 .executeToList();
 
@@ -244,7 +241,7 @@ public class SqlUtilsTest {
         getTestobjectWithId("004").setNumberOfPets(20).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("005").setNumberOfPets(25).toInsertQuery(db, TESTTABLE1).execute();
 
-        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+        List<Testobject> testobjects = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.equals("DEAD", true))
                 .orderBy(OrderClause.desc("NUMBER_OF_PETS"))
                 .executeToList();
@@ -259,8 +256,8 @@ public class SqlUtilsTest {
         getTestobjectWithId("007").setBirthday(null).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("006").toInsertQuery(db, TESTTABLE1).execute();
 
-        List<Testobject> birthdayNotNull = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.isNotNull(BIRTHDAY)).executeToList();
-        List<Testobject> birthdayNull = Testobject.getSelectQuery(ds, TESTTABLE1).where(WhereClause.isNull(BIRTHDAY)).executeToList();
+        List<Testobject> birthdayNotNull = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.isNotNull(BIRTHDAY)).executeToList();
+        List<Testobject> birthdayNull = Testobject.getSelectQuery(db, TESTTABLE1).where(WhereClause.isNull(BIRTHDAY)).executeToList();
 
         assertThat(birthdayNotNull.size()).isEqualTo(1);
         assertThat(birthdayNull.size()).isEqualTo(1);
@@ -281,7 +278,7 @@ public class SqlUtilsTest {
         getTestobjectWithId("006").setDead(true).setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("005").setDead(true).setNumberOfPets(4).toInsertQuery(db, TESTTABLE1).execute();
 
-        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+        List<Testobject> testobjects = Testobject.getSelectQuery(db, TESTTABLE1)
                 .orderBy(OrderClause.asc(NUMBER_OF_PETS))
                 .limit(5)
                 .executeToList();
@@ -302,7 +299,7 @@ public class SqlUtilsTest {
         getTestobjectWithId("006").setDead(true).setNumberOfPets(5).toInsertQuery(db, TESTTABLE1).execute();
         getTestobjectWithId("005").setDead(true).setNumberOfPets(4).toInsertQuery(db, TESTTABLE1).execute();
 
-        List<Testobject> testobjects = Testobject.getSelectQuery(ds, TESTTABLE1)
+        List<Testobject> testobjects = Testobject.getSelectQuery(db, TESTTABLE1)
                 .orderBy(OrderClause.asc(NUMBER_OF_PETS))
                 .limit(2, 5)
                 .executeToList();
@@ -321,22 +318,22 @@ public class SqlUtilsTest {
 
         Testobject.getInsertBatchQuery(db, TESTTABLE1).execute(objects);
 
-        int greaterThenTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+        int greaterThenTwo = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.gt("ID", "002"))
                 .executeToList()
                 .size();
 
-        int greaterThenOrEqualTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+        int greaterThenOrEqualTwo = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.gteq("ID", "002"))
                 .executeToList()
                 .size();
 
-        int lessThenTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+        int lessThenTwo = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.lt("ID", "002"))
                 .executeToList()
                 .size();
 
-        int lessThenOrEqualTwo = Testobject.getSelectQuery(ds, TESTTABLE1)
+        int lessThenOrEqualTwo = Testobject.getSelectQuery(db, TESTTABLE1)
                 .where(WhereClause.lteq("ID", "002"))
                 .executeToList()
                 .size();
@@ -355,7 +352,7 @@ public class SqlUtilsTest {
                 .value(BIRTHDAY, DbConstants.CURRENT_TIMESTAMP)
                 .execute();
 
-        Testobject object = Testobject.getSelectQuery(ds, TESTTABLE1).execute();
+        Testobject object = Testobject.getSelectQuery(db, TESTTABLE1).execute();
         assertThat(object.getBirthday()).isNotNull();
     }
 
@@ -373,7 +370,7 @@ public class SqlUtilsTest {
                 .whereEquals(ID, "001")
                 .execute();
 
-        Testobject object = Testobject.getSelectQuery(ds, TESTTABLE1).execute();
+        Testobject object = Testobject.getSelectQuery(db, TESTTABLE1).execute();
         assertThat(object.getBirthday()).isAfter(new Timestamp(0));
     }
 
@@ -391,7 +388,7 @@ public class SqlUtilsTest {
 
         insertBatchQuery.execute(objects);
 
-        List<Testobject> retrievedObjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        List<Testobject> retrievedObjects = Testobject.getSelectQuery(db, TESTTABLE1).executeToList();
         assertThat(retrievedObjects.get(0)).isNotNull();
         assertThat(retrievedObjects.get(1)).isNotNull();
     }
@@ -419,7 +416,7 @@ public class SqlUtilsTest {
 
         updateBatchQuery.execute(updateobjects);
 
-        List<Testobject> retrievedObjects = Testobject.getSelectQuery(ds, TESTTABLE1).executeToList();
+        List<Testobject> retrievedObjects = Testobject.getSelectQuery(db, TESTTABLE1).executeToList();
         assertThat(retrievedObjects.get(0).getBirthday()).isAfter(new Timestamp(0));
         assertThat(retrievedObjects.get(1).getBirthday()).isAfter(new Timestamp(0));
     }

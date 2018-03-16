@@ -80,7 +80,9 @@ public class UpsertQuery {
                 db.execute(upsertStatement, (PreparedStatementCallback<Boolean>) ps -> {
                     int index = 1;
 
-                    index = this.where.applyTo(ps, index);
+                    for (Object obj : this.where.getArgs()) {
+                        ps.setObject(index++, obj);
+                    }
 
                     // For updatequery
                     for (Map.Entry<String, Tuple2<ApplyTo, Object>> entry : this.setParams.entrySet()) {
@@ -135,7 +137,7 @@ public class UpsertQuery {
     }
 
     private String createSetStatement() {
-        String setStatement =  setParams
+        String setStatement = setParams
                 .entrySet().stream()
                 .filter(skalSetParamVareMed(UPDATE))
                 .map(Map.Entry::getKey)
