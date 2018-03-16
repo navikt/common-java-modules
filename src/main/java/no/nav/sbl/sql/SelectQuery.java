@@ -2,13 +2,13 @@ package no.nav.sbl.sql;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple3;
+import io.vavr.control.Option;
 import lombok.SneakyThrows;
 import no.nav.sbl.sql.order.OrderClause;
 import no.nav.sbl.sql.where.WhereClause;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 
 public class SelectQuery<T> {
-    private DataSource ds;
+    private JdbcTemplate db;
     private String tableName;
     private List<String> columnNames;
     private Function<ResultSet, T> mapper;
@@ -30,8 +30,8 @@ public class SelectQuery<T> {
     private Integer rowCount;
     private Tuple3<String, String, String> leftJoinOn;
 
-    SelectQuery(DataSource ds, String tableName, Function<ResultSet, T> mapper) {
-        this.ds = ds;
+    SelectQuery(JdbcTemplate db, String tableName, Function<ResultSet, T> mapper) {
+        this.db = db;
         this.tableName = tableName;
         this.columnNames = new ArrayList<>();
         this.mapper = mapper;
@@ -71,45 +71,36 @@ public class SelectQuery<T> {
     public T execute() {
         validate();
         String sql = createSelectStatement();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            if (where != null) {
-                where.applyTo(ps, 1);
-            }
-            ResultSet resultSet = timedPreparedStatement(sql, ps::executeQuery);
-            if(!resultSet.next()) {
+        Object[] args = Option.of(this.where).map(WhereClause::getArgs).getOrElse(new Object[]{});
+
+        RowMapper<T> mapper = (rs, rowNum) -> this.mapper.apply(rs);
+        return timedPreparedStatement(sql, () -> {
+            List<T> result = db.query(sql, args, mapper);
+            if (result.isEmpty()) {
                 return null;
             }
-            return mapper.apply(resultSet);
-        }
+            return result.get(0);
+        });
     }
 
     @SneakyThrows
     public List<T> executeToList() {
         validate();
         String sql = createSelectStatement();
-        List<T> data = new ArrayList<>();
-        try (Connection conn = ds.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            if (where != null) {
-                where.applyTo(ps, 1);
-            }
-            ResultSet resultSet = timedPreparedStatement(sql, ps::executeQuery);
+        Object[] args = Option.of(this.where).map(WhereClause::getArgs).getOrElse(new Object[]{});
 
-            while(resultSet.next()) {
-                data.add(mapper.apply(resultSet));
-            }
-            return data;
-        }
+        RowMapper<T> mapper = (rs, rowNum) -> this.mapper.apply(rs);
+
+        return timedPreparedStatement(sql, () -> db.query(sql, args, mapper));
     }
 
     private void validate() {
         if (tableName == null || columnNames.isEmpty()) {
             throw new SqlUtilsException(
                     "I need more data to create a sql-statement. " +
-                    "Did you remember to specify table and columns?"
+                            "Did you remember to specify table and columns?"
             );
         }
 
@@ -132,21 +123,20 @@ public class SelectQuery<T> {
                 .append("FROM ")
                 .append(tableName);
 
-        if(Objects.nonNull(leftJoinOn)) {
+        if (Objects.nonNull(leftJoinOn)) {
             sqlBuilder.append(String.format(" LEFT JOIN %s ON %s.%s = %s.%s",
                     leftJoinOn._1,
                     tableName,
                     leftJoinOn._2,
                     leftJoinOn._1,
-                    leftJoinOn._3) );
+                    leftJoinOn._3));
         }
 
         if (this.where != null) {
             sqlBuilder
                     .append(" WHERE ");
 
-            sqlBuilder
-                    .append(this.where.toSql());
+            sqlBuilder.append(this.where.toSql());
         }
 
         if (this.order != null) {

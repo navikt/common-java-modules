@@ -1,7 +1,5 @@
 package no.nav.sbl.sql.where;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -45,7 +43,7 @@ public abstract class WhereClause {
         return new LogicalWhereClause(WhereOperator.OR, this, other);
     }
 
-    public abstract int applyTo(PreparedStatement ps, int index) throws SQLException;
+    public abstract Object[] getArgs();
 
     public abstract String toSql();
 
