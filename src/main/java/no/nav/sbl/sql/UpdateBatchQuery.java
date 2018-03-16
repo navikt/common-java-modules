@@ -73,7 +73,7 @@ public class UpdateBatchQuery<T> {
                     }
                 }
                 if (Objects.nonNull(whereClause)) {
-                    for (Object obj: whereClause.apply(t).getArgs()){
+                    for (Object obj : whereClause.apply(t).getArgs()) {
                         ps.setObject(j++, obj);
                     }
                 }
