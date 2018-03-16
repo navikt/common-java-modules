@@ -3,6 +3,7 @@ package no.nav.dialogarena.config.security;
 import no.nav.dialogarena.config.fasit.TestEnvironment;
 import no.nav.modig.security.loginmodule.userinfo.openam.OpenAMUserInfoService;
 import org.apache.http.conn.UnsupportedSchemeException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.HttpCookie;
@@ -18,18 +19,46 @@ import static org.junit.Assert.assertThat;
 public class ESSOProviderIntegrationTest {
 
     @Test
-    public void getHttpCookie() {
+    public void skal_hente_cookie_fra_default_environment() {
         sjekkCookie(ESSOProvider.getHttpCookie());
-        sjekkCookie(ESSOProvider.getHttpCookie(T6));
-        sjekkCookie(ESSOProvider.getHttpCookie(Q4));
-        sjekkCookie(ESSOProvider.getHttpCookie(T4, PRIVAT_BRUKER));
     }
 
     @Test
-    public void niva4() throws UnsupportedSchemeException {
+    public void skal_hente_cookie_fra_t6() {
+        sjekkCookie(ESSOProvider.getHttpCookie(T6));
+    }
+
+    @Test
+    public void skal_hente_cookie_fra_privat_bruker_i_t6() {
+        sjekkCookie(ESSOProvider.getHttpCookie(T6, PRIVAT_BRUKER));
+    }
+
+    @Test
+    public void skal_hente_cookie_fra_q6() {
+        sjekkCookie(ESSOProvider.getHttpCookie(Q6));
+    }
+
+    @Test
+    public void skal_hente_cookie_fra_q0() {
+        sjekkCookie(ESSOProvider.getHttpCookie(Q0));
+    }
+
+    @Ignore
+    @Test
+    public void should_login_to_level_4_in_t6() throws UnsupportedSchemeException {
         sjekkNiva4(T6, BRUKER_UNDER_OPPFOLGING);
-        sjekkNiva4(Q4, BRUKER_UNDER_OPPFOLGING);
-        sjekkNiva4(T4, PRIVAT_BRUKER);
+    }
+
+    @Ignore
+    @Test
+    public void should_login_to_level_4_in_q6() throws UnsupportedSchemeException {
+        sjekkNiva4(Q6, BRUKER_UNDER_OPPFOLGING);
+    }
+
+    @Ignore
+    @Test
+    public void should_login_privat_bruker_to_level_4_in_q6() throws UnsupportedSchemeException {
+        sjekkNiva4(T6, PRIVAT_BRUKER);
     }
 
     @Test
