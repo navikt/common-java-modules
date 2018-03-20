@@ -166,7 +166,7 @@ public class DevelopmentSecurity {
         appSetup(issoSecurityConfig.applicationName, issoSecurityConfig.environment);
         modigSubjectHandler();
         dialogArenaSubjectHandler();
-        return configureJaspi(jettyBuilder, issoSecurityConfig.contextName);
+        return jettyBuilder.configureForJaspic();
     }
 
     @SneakyThrows
@@ -296,29 +296,6 @@ public class DevelopmentSecurity {
 
     private static void dialogArenaSubjectHandler(Class<? extends no.nav.brukerdialog.security.context.SubjectHandler> jettySubjectHandlerClass) {
         setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, jettySubjectHandlerClass.getName());
-    }
-
-    private static Jetty.JettyBuilder configureJaspi(Jetty.JettyBuilder jettyBuilder, String contextName) {
-        File target = new File("target");
-        target.mkdirs();
-        File jaspiConfigFile = new File(target, "jaspiconf.xml");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(jaspiConfigFile)) {
-            write(readJaspiConfig(contextName), fileOutputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        String absolutePath = jaspiConfigFile.getAbsolutePath();
-        LOG.info("jaspi contiguration at: {}", absolutePath);
-        setProperty("org.apache.geronimo.jaspic.configurationFile", absolutePath);
-        // NB hvis man kjører på appserver med annotasjons-scanning, blir denne oppdaget automatisk
-        setProperty(DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
-        AuthConfigFactory.setFactory(new AuthConfigFactoryImpl());
-        return jettyBuilder.configureForJaspic();
-    }
-
-    private static String readJaspiConfig(String contextName) throws IOException {
-        return IOUtils.toString(DevelopmentSecurity.class.getResourceAsStream("/jaspiconf.xml"))
-                .replace("%%CONTEXT_PATH%%", contextName);
     }
 
     public enum LoginModuleType {
