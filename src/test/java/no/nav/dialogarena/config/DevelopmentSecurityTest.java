@@ -40,6 +40,17 @@ public class DevelopmentSecurityTest {
         jetty.start();
         jetty.stop.run();
     }
+
+    @Test
+    public void setupJettyWithISSOAndContextPath() {
+        Jetty jetty = DevelopmentSecurity.setupISSO(
+                jettyBuilder().at("veilarbaktivitet"),
+                new ISSOSecurityConfig("veilarbaktivitet")
+        ).buildJetty();
+        jetty.start();
+        jetty.stop.run();
+    }
+
     @Test
     public void setupISSO() {
         DevelopmentSecurity.setupISSO(
