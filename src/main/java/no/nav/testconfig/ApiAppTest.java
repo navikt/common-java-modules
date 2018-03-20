@@ -19,11 +19,14 @@ import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 
 public class ApiAppTest {
 
+    static {
+        setProperty("SERVICE_CALLS_HOME", "target/log/accesslog");
+        setProperty("APP_LOG_HOME", "target/log");
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppTest.class);
 
     public static void setupTestContext() {
-        System.setProperty("SERVICE_CALLS_HOME", "target/log/accesslog");
-        System.setProperty("APP_LOG_HOME", "target/log");
         getLoggerContext().getLogger("ROOT").iteratorForAppenders().forEachRemaining(ApiAppTest::simplifyConsoleAppender);
         LogUtils.setGlobalLogLevel(INFO);
         setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString());
