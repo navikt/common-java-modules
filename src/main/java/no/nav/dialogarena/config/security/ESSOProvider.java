@@ -75,8 +75,7 @@ public class ESSOProvider {
 
             String tokenId = Optional.of(response.readEntity(String.class))
                     .map(JSONObject::new)
-                    .map(json -> json.get("tokenId"))
-                    .map(Object::toString)
+                    .map(json -> json.getString("tokenId"))
                     .orElseThrow(IllegalStateException::new);
 
             return new ESSOCredentials(testUser, tokenId);
