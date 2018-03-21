@@ -3,7 +3,6 @@ package no.nav.dialogarena.config.security;
 import no.nav.dialogarena.config.fasit.TestEnvironment;
 import no.nav.modig.security.loginmodule.userinfo.openam.OpenAMUserInfoService;
 import org.apache.http.conn.UnsupportedSchemeException;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.HttpCookie;
@@ -43,19 +42,16 @@ public class ESSOProviderIntegrationTest {
         sjekkCookie(ESSOProvider.getHttpCookie(Q0));
     }
 
-    @Ignore
     @Test
     public void should_login_to_level_4_in_t6() throws UnsupportedSchemeException {
         sjekkNiva4(T6, BRUKER_UNDER_OPPFOLGING);
     }
 
-    @Ignore
     @Test
     public void should_login_to_level_4_in_q6() throws UnsupportedSchemeException {
         sjekkNiva4(Q6, BRUKER_UNDER_OPPFOLGING);
     }
 
-    @Ignore
     @Test
     public void should_login_privat_bruker_to_level_4_in_q6() throws UnsupportedSchemeException {
         sjekkNiva4(T6, PRIVAT_BRUKER);
