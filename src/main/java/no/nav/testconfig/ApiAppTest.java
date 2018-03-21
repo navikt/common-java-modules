@@ -20,8 +20,8 @@ import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 public class ApiAppTest {
 
     static {
-        setProperty("SERVICE_CALLS_HOME", "target/log/accesslog");
-        setProperty("APP_LOG_HOME", "target/log");
+        System.setProperty("SERVICE_CALLS_HOME", "target/log/accesslog");
+        System.setProperty("APP_LOG_HOME", "target/log");
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppTest.class);
