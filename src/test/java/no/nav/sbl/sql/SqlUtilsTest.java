@@ -9,7 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
@@ -342,6 +344,36 @@ public class SqlUtilsTest {
         assertThat(greaterThenOrEqualTwo).isEqualTo(3);
         assertThat(lessThenTwo).isEqualTo(1);
         assertThat(lessThenOrEqualTwo).isEqualTo(2);
+    }
+
+    @Test
+    public void groupByTest() {
+        List<Testobject> objects = new ArrayList<>();
+        objects.add(getTestobjectWithId("001"));
+        objects.add(getTestobjectWithId("002"));
+        objects.add(getTestobjectWithId("003"));
+        objects.add(getTestobjectWithId("004"));
+        objects.get(1).dead = true;
+        objects.get(3).dead = true;
+
+        Testobject.getInsertBatchQuery(db, TESTTABLE1).execute(objects);
+
+        Map<Boolean, Integer> grouped = SqlUtils.select(db, TESTTABLE1, (resultset) -> {
+            Map<Boolean, Integer> result = new HashMap<>();
+            do {
+                boolean dead = resultset.getBoolean("dead");
+                int nof = resultset.getInt("nof");
+                result.put(dead, nof);
+            } while (resultset.next());
+            return result;
+        })
+                .column("dead")
+                .column("count(*) as nof")
+                .groupBy("dead")
+                .execute();
+
+        assertThat(grouped.get(true)).isEqualTo(2);
+        assertThat(grouped.get(false)).isEqualTo(2);
     }
 
     @Test

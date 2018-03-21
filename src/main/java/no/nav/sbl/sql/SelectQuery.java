@@ -26,6 +26,7 @@ public class SelectQuery<T> {
     private Function<ResultSet, T> mapper;
     private WhereClause where;
     private OrderClause order;
+    private String groupBy;
     private Integer offset;
     private Integer rowCount;
     private Tuple3<String, String, String> leftJoinOn;
@@ -49,6 +50,11 @@ public class SelectQuery<T> {
 
     public SelectQuery<T> where(WhereClause where) {
         this.where = where;
+        return this;
+    }
+
+    public SelectQuery<T> groupBy(String column) {
+        this.groupBy = column;
         return this;
     }
 
@@ -104,6 +110,10 @@ public class SelectQuery<T> {
             );
         }
 
+        if (groupBy != null && !columnNames.contains(groupBy)) {
+            throw new SqlUtilsException("You have to select the column which you are grouping by.");
+        }
+
         if (mapper == null) {
             throw new SqlUtilsException("I need a mapper function in order to return the right data type.");
         }
@@ -137,6 +147,10 @@ public class SelectQuery<T> {
                     .append(" WHERE ");
 
             sqlBuilder.append(this.where.toSql());
+        }
+
+        if (this.groupBy != null) {
+            sqlBuilder.append(" GROUP BY ").append(this.groupBy);
         }
 
         if (this.order != null) {
