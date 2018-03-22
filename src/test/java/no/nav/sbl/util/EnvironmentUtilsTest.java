@@ -95,6 +95,12 @@ public class EnvironmentUtilsTest {
         assertThat(getOptionalProperty(PROPERTY_NAME)).hasValue(value);
     }
 
+    @Test
+    public void getRequiredProperty_leser_ogsa_other_properties_fra_environment() {
+        String requiredProperty = EnvironmentUtils.getRequiredProperty("SOMETHING_SOMETHING", "JAVA_HOME");
+        assertThat(requiredProperty).isNotBlank();
+    }
+
     private void assertGetEnvironmentClass(String verdi, EnvironmentUtils.EnviromentClass enviromentClass) {
         System.setProperty(ENVIRONMENT_CLASS_PROPERTY_NAME, verdi);
         assertThat(getEnvironmentClass()).isEqualTo(enviromentClass);
