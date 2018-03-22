@@ -4,18 +4,18 @@ import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.TestEnvironment;
 import no.nav.dialogarena.config.fasit.TestUser;
 import no.nav.dialogarena.config.util.Util;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.core.Response;
-import java.net.HttpCookie;
-import java.util.Map;
-
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+import java.net.HttpCookie;
+import java.util.Map;
+import java.util.Optional;
 
 public class ESSOProvider {
 
@@ -57,7 +57,39 @@ public class ESSOProvider {
         return getEssoCredentialsForUser(FasitUtils.getTestUser(user, environment), environment);
     }
 
+    public static ESSOCredentials essoZeroPageLogin(TestUser testUser, String environment) {
+        return Util.httpClient(httpClient -> {
+            String uri = String.format("https://tjenester-%s.nav.no/esso/json/authenticate", environment);
+            LOGGER.info(uri);
+            Response response = httpClient
+                    .target(uri)
+                    .request()
+                    .header("X-OpenAM-Username", testUser.username)
+                    .header("X-OpenAM-Password", testUser.password)
+                    .header("Content-Type", "application/json")
+                    .post(Entity.json("{}"));
+
+            if (response.getStatus() != 200) {
+                throw new IllegalStateException(response.readEntity(String.class));
+            }
+
+            String tokenId = Optional.of(response.readEntity(String.class))
+                    .map(JSONObject::new)
+                    .map(json -> json.getString("tokenId"))
+                    .orElseThrow(IllegalStateException::new);
+
+            return new ESSOCredentials(testUser, tokenId);
+        });
+    }
+
+
     public static ESSOCredentials getEssoCredentialsForUser(TestUser testUser, String environment) {
+
+        // Q6 has a newer version of OpenAm which require a different approach to login
+        if (TestEnvironment.Q6.matcher(environment)) {
+            return essoZeroPageLogin(testUser, environment);
+        }
+
         return Util.httpClient(httpClient -> {
             String uri = String.format("https://tjenester-%s.nav.no/esso/UI/Login?service=level4Service&goto=https://tjenester-%s.nav.no/aktivitetsplan/", environment, environment);
             LOGGER.info(uri);
