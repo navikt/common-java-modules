@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.UKNOWN;
-import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 import static no.nav.sbl.util.StringUtils.of;
 
@@ -23,22 +24,20 @@ public class EnvironmentUtils {
     }
 
     public static String getRequiredProperty(String propertyName, String... otherPropertyNames) {
-        return getOptionalProperty(propertyName,otherPropertyNames)
-                .orElseThrow(() -> new IllegalStateException("mangler property: " + propertyName));
+        return getOptionalProperty(propertyName, otherPropertyNames)
+                .orElseThrow(() -> new IllegalStateException(createErrorMessage(propertyName, otherPropertyNames)));
     }
 
     public static Optional<String> getOptionalProperty(String propertyName, String... otherPropertyNames) {
-        String propertyValue = System.getProperty(propertyName);
+        String propertyValue = EnvironmentUtils.getProperty(propertyName);
         if (nullOrEmpty(propertyValue) && otherPropertyNames != null) {
             propertyValue = Arrays.stream(otherPropertyNames)
-                    .map(System::getProperty)
+                    .map(EnvironmentUtils::getProperty)
                     .filter(StringUtils::notNullOrEmpty)
                     .findFirst()
                     .orElse(null);
         }
-        if (nullOrEmpty(propertyValue)) {
-            propertyValue = System.getenv(propertyName);
-        }
+
         return of(propertyValue);
     }
 
@@ -53,6 +52,18 @@ public class EnvironmentUtils {
         return getEnvironmentClass().equals(enviromentClass);
     }
 
+    private static String createErrorMessage(String propertyName, String[] otherPropertyNames) {
+        if (otherPropertyNames == null) {
+            return "mangler property: " + propertyName;
+        } else {
+            return "fant ingen av propertyene: " + propertyName + ", " + Stream.of(otherPropertyNames).collect(Collectors.joining(", "));
+        }
+    }
+
+    private static String getProperty(String propertyName) {
+        return System.getProperty(propertyName, System.getenv(propertyName));
+    }
+
     public enum EnviromentClass {
         UKNOWN,
         T,
@@ -65,7 +76,7 @@ public class EnvironmentUtils {
         PUBLIC;
 
         public String format(String value) {
-            switch (this){
+            switch (this) {
                 case PUBLIC:
                     return value;
             }
