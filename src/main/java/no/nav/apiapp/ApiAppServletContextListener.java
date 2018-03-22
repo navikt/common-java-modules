@@ -23,6 +23,7 @@ import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
+import no.nav.sbl.dialogarena.common.web.filter.GZIPFilter;
 import no.nav.sbl.util.EnvironmentUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -124,6 +125,8 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
         ApiApplication apiApplication = startSpring(servletContextEvent);
         konfigurerLogging(apiApplication);
+
+        leggTilFilter(servletContextEvent, GZIPFilter.class);
 
         if (skalHaOpenAm(apiApplication)) {
             leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
