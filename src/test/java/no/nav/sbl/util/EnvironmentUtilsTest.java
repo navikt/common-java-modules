@@ -1,6 +1,5 @@
 package no.nav.sbl.util;
 
-import no.nav.sbl.dialogarena.test.SystemProperties;
 import org.junit.Before;
 import org.junit.Test;
 
