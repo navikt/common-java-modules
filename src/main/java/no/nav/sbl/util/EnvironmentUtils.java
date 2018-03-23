@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.UKNOWN;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 import static no.nav.sbl.util.StringUtils.of;
@@ -56,7 +57,8 @@ public class EnvironmentUtils {
         if (otherPropertyNames == null) {
             return "mangler property: " + propertyName;
         } else {
-            return "fant ingen av propertyene: " + propertyName + ", " + Stream.of(otherPropertyNames).collect(Collectors.joining(", "));
+            String properties = Stream.concat(Stream.of(propertyName), Stream.of(otherPropertyNames)).collect(joining(", "));
+            return "fant ingen av propertyene: " + properties;
         }
     }
 
