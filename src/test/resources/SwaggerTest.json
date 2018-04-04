@@ -7,6 +7,25 @@
     }
   ],
   "paths": {
+    "/ping": {
+      "get": {
+        "tags": [
+          "PingResource"
+        ],
+        "summary": "ping",
+        "operationId": "ping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/swagger.json": {
       "get": {
         "tags": [

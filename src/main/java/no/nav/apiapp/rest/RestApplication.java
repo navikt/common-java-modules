@@ -37,6 +37,7 @@ public class RestApplication extends Application {
                 exceptionMapper,
                 new NavMetricsBinder(),
                 parameterConverterProvider(),
+                new PingResource(),
                 new SwaggerResource(apiApplication)
         ));
         singeltons.addAll(getBeansWithAnnotation(Provider.class));
