@@ -8,12 +8,15 @@ import java.io.IOException;
 
 public class GZIPFilter implements Filter {
 
+    public static final String GZIP_FILTER_ATTRIBUTE_NAME = GZIPFilter.class.getName();
+
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         if (req instanceof HttpServletRequest) {
             HttpServletRequest request = (HttpServletRequest) req;
             HttpServletResponse response = (HttpServletResponse) res;
             String ae = request.getHeader("accept-encoding");
-            if (ae != null && ae.indexOf("gzip") != -1) {
+            if (ae != null && ae.contains("gzip") && request.getAttribute(GZIP_FILTER_ATTRIBUTE_NAME) == null ) {
+                request.setAttribute(GZIP_FILTER_ATTRIBUTE_NAME, Boolean.TRUE.toString());
                 GZIPResponseWrapper wrappedResponse = new GZIPResponseWrapper(response);
                 chain.doFilter(req, wrappedResponse);
                 wrappedResponse.finish();
