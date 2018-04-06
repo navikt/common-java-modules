@@ -657,6 +657,11 @@
             </dependency>
             <!-- annet -->
             <dependency>
+                <groupId>org.picketbox</groupId>
+                <artifactId>picketbox</artifactId>
+                <version>5.0.3.Final</version>
+            </dependency>
+            <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.16.16</version>
@@ -924,6 +929,11 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-security</artifactId>
                 <version>${cxf-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wss4j</groupId>
+                <artifactId>wss4j-ws-security-common</artifactId>
+                <version>${wss4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.wss4j</groupId>
