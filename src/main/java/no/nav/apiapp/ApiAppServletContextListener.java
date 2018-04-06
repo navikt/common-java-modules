@@ -124,7 +124,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             konfigurerSpring(servletContext);
         }
         ApiApplication apiApplication = startSpring(servletContextEvent);
-        konfigurerLogging(apiApplication);
+        konfigurerLogging(servletContext, apiApplication);
 
         leggTilFilter(servletContextEvent, GZIPFilter.class);
 
@@ -201,8 +201,15 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     }
 
-    private void konfigurerLogging(ApiApplication apiApplication) {
-        ContextDiscriminator.setContextName(apiApplication.getApplicationName());
+    private void konfigurerLogging(ServletContext servletContext, ApiApplication apiApplication) {
+        ContextDiscriminator.setContextName(getContextName(servletContext, apiApplication));
+    }
+
+    // brukes til å separere forskjellige contexter deployet på samme jboss
+    // f.eks. veilarbaktivitet og veilarbaktivitet-ws
+    static String getContextName(ServletContext servletContext, ApiApplication apiApplication) {
+        String contextPath = servletContext.getContextPath();
+        return contextPath != null && contextPath.length() > 1 ? contextPath.substring(1) : apiApplication.getApplicationName();
     }
 
     private void konfigurerSpring(ServletContext servletContext) {
