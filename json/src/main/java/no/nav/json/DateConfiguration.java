@@ -3,6 +3,7 @@ package no.nav.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -13,14 +14,13 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.*;
-import java.time.chrono.ChronoZonedDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.time.LocalTime.NOON;
 import static java.time.ZoneId.systemDefault;
-import static java.time.format.DateTimeFormatter.*;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static no.nav.json.StringUtils.of;
 
 public class DateConfiguration {
