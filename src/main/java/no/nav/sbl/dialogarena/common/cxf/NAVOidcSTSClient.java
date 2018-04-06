@@ -3,6 +3,7 @@ package no.nav.sbl.dialogarena.common.cxf;
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
+import org.apache.cxf.ws.security.tokenstore.MemoryTokenStoreFactory;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
 import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
@@ -70,7 +71,7 @@ public class NAVOidcSTSClient extends STSClient {
     private synchronized void createTokenStore() {
         if (tokenStore == null) {
             logger.debug("Creating tokenStore");
-            tokenStore = TokenStoreFactory.newInstance().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
+            tokenStore = new MemoryTokenStoreFactory().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
         }
     }
 }
