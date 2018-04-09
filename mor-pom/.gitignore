@@ -1,0 +1,12 @@
+
+*.idea
+*.iml
+*.ipr
+*.iws
+*.log
+.checkstyle
+.classpath
+.pmd
+.project
+.settings
+target
