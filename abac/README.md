@@ -1,0 +1,1 @@
+For dokumentasjon se http://confluence.adeo.no/display/EAF/Innlogging+ABAC
