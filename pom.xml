@@ -15,6 +15,36 @@
     <version>1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <modules>
+        <module>abac</module>
+        <module>aktor-klient</module>
+        <module>api-app</module>
+        <module>app-mock</module>
+        <module>batch</module>
+        <module>bom</module>
+        <module>cache</module>
+        <module>cxf</module>
+        <module>fasit</module>
+        <module>feature-toggle</module>
+        <module>feed</module>
+        <module>jdbc</module>
+        <module>jetty</module>
+        <module>json</module>
+        <module>leaderelection</module>
+        <module>metrics</module>
+        <module>oidc-security</module>
+        <module>pact</module>
+        <module>rest</module>
+        <module>smoketest</module>
+        <module>suspend</module>
+        <module>test</module>
+        <module>test-config</module>
+        <module>time</module>
+        <module>types</module>
+        <module>util</module>
+        <module>web</module>
+    </modules>
+
     <prerequisites>
         <maven>3.0.4</maven>
     </prerequisites>
