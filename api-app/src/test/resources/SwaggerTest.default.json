@@ -1,0 +1,1331 @@
+{
+  "swagger": "2.0",
+  "basePath": "/JettyTest/api/",
+  "tags": [
+    {
+      "name": "Eksempel"
+    }
+  ],
+  "paths": {
+    "/ping": {
+      "get": {
+        "tags": [
+          "PingResource"
+        ],
+        "summary": "ping",
+        "operationId": "ping",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/swagger.json": {
+      "get": {
+        "tags": [
+          "SwaggerResource"
+        ],
+        "summary": "getSwaggerJSON",
+        "operationId": "getSwaggerJSON",
+        "parameters": [
+          {
+            "name": "ikke_berik",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/dato/query": {
+      "get": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "queryDTO",
+        "operationId": "queryDTO",
+        "parameters": [
+          {
+            "name": "localDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "localDateTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "zonedDateTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "string",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "sqlDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DateDTO"
+            },
+            "headers": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "postQueryDTO",
+        "operationId": "postQueryDTO",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/QueryDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DateDTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/dato/dto": {
+      "get": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "getDTO",
+        "operationId": "getDTO",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DateDTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/enum": {
+      "get": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "getEnumer",
+        "operationId": "getEnumer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ABC",
+                  "DEF",
+                  "GHI"
+                ]
+              }
+            },
+            "headers": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "pipeDto",
+        "operationId": "pipeDto",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            },
+            "headers": {}
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "pipeEnum",
+        "operationId": "pipeEnum",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ABC",
+                "DEF",
+                "GHI"
+              ]
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/enum/dto/{ordinal}": {
+      "get": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "dtoForOrdinal",
+        "operationId": "dtoForOrdinal",
+        "parameters": [
+          {
+            "name": "ordinal",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/enum/{ordinal}": {
+      "get": {
+        "tags": [
+          "EnumEksempel"
+        ],
+        "summary": "enumForOrdinal",
+        "operationId": "enumForOrdinal",
+        "parameters": [
+          {
+            "name": "ordinal",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ABC",
+                "DEF",
+                "GHI"
+              ]
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/interface/impl": {
+      "get": {
+        "tags": [
+          "InterfaceEksempelImpl"
+        ],
+        "summary": "implementertGet",
+        "operationId": "implementertGet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/interface/default": {
+      "get": {
+        "tags": [
+          "InterfaceEksempelImpl"
+        ],
+        "summary": "defaultGet",
+        "operationId": "defaultGet",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/openam": {
+      "get": {
+        "tags": [
+          "OpenAmEksempel"
+        ],
+        "summary": "getIdent",
+        "operationId": "getIdent",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "get",
+        "operationId": "get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/pipe": {
+      "put": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "pipeData",
+        "operationId": "pipeData",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {}
+              }
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/konflikt": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "konflikt",
+        "operationId": "konflikt",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/tall/{grunnTall}/minus/{tall}": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "minus",
+        "operationId": "minus",
+        "parameters": [
+          {
+            "name": "tall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "grunnTall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/tall/{grunnTall}/pluss/{tall}": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "pluss",
+        "operationId": "pluss",
+        "parameters": [
+          {
+            "name": "tall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "grunnTall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/ukjent-feil": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "ukjentFeil",
+        "operationId": "ukjentFeil",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/swagger": {
+      "get": {
+        "tags": [
+          "Eksempel"
+        ],
+        "summary": "eksempel-value",
+        "description": "eksempel-notes",
+        "operationId": "medEksplisittDokumentasjon",
+        "parameters": [],
+        "responses": {
+          "1234": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "Eksempel"
+        ],
+        "summary": "medDefaultDokumentasjon",
+        "operationId": "medDefaultDokumentasjon",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Eksempel"
+        ],
+        "summary": "rikRespons",
+        "operationId": "rikRespons",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/RiktObjekt"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/RiktObjekt"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/session": {
+      "get": {
+        "tags": [
+          "KreverSesjon"
+        ],
+        "summary": "getSesjonsId",
+        "operationId": "getSesjonsId",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/feed/{name}": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeeddata",
+        "operationId": "getFeeddata",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/FeedResponseObject"
+            },
+            "headers": {}
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "webhookCallback",
+        "operationId": "webhookCallback",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed/feedname": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeedNames",
+        "operationId": "getFeedNames",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed/{name}/webhook": {
+      "put": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "registerWebhook",
+        "operationId": "registerWebhook",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/FeedWebhookRequest"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeeds",
+        "operationId": "getFeeds",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Dynamic": {
+      "type": "object",
+      "properties": {
+        "runAsRole": {
+          "type": "string"
+        },
+        "mappings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "className": {
+          "type": "string"
+        },
+        "initParameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "DateDTO": {
+      "type": "object",
+      "properties": {
+        "localDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "localDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zonedDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "aBoolean": {
+          "type": "boolean"
+        },
+        "optionalDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "noOptionalDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "string": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sqlDate": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "QueryDTO": {
+      "type": "object",
+      "properties": {
+        "localDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "localDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zonedDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "string": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sqlDate": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "EnumDTO": {
+      "type": "object",
+      "properties": {
+        "enEnum": {
+          "type": "string",
+          "enum": [
+            "ABC",
+            "DEF",
+            "GHI"
+          ]
+        },
+        "enums": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ABC",
+              "DEF",
+              "GHI"
+            ]
+          }
+        }
+      }
+    },
+    "TallRessurs": {
+      "type": "object"
+    },
+    "RiktObjekt": {
+      "type": "object",
+      "properties": {
+        "dato": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "zonedDateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "string": {
+          "type": "string"
+        },
+        "bool": {
+          "type": "boolean"
+        },
+        "tall": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "enEnum": {
+          "type": "string",
+          "enum": [
+            "EN",
+            "TO",
+            "TRE"
+          ]
+        }
+      }
+    },
+    "Comparable": {
+      "type": "object"
+    },
+    "ComparableObject": {
+      "type": "object"
+    },
+    "FeedElement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "element": {
+          "$ref": "#/definitions/ComparableObject"
+        }
+      }
+    },
+    "FeedElementComparableObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "element": {
+          "$ref": "#/definitions/ComparableObject"
+        }
+      }
+    },
+    "FeedElementObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "element": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    "FeedResponse": {
+      "type": "object",
+      "properties": {
+        "nextPageId": {
+          "type": "string"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FeedElementComparableObject"
+          }
+        }
+      }
+    },
+    "FeedResponseObject": {
+      "type": "object",
+      "properties": {
+        "nextPageId": {
+          "type": "string"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FeedElementObject"
+          }
+        }
+      }
+    },
+    "EntityTag": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "weak": {
+          "type": "boolean"
+        }
+      }
+    },
+    "FeedController": {
+      "type": "object",
+      "properties": {
+        "feedNames": {
+          "$ref": "#/definitions/Response"
+        },
+        "feeds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Link": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uriBuilder": {
+          "$ref": "#/definitions/UriBuilder"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "rel": {
+          "type": "string"
+        },
+        "rels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
+    "Locale": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "displayCountry": {
+          "type": "string"
+        },
+        "displayLanguage": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "displayScript": {
+          "type": "string"
+        },
+        "displayVariant": {
+          "type": "string"
+        },
+        "extensionKeys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "iso3Country": {
+          "type": "string"
+        },
+        "iso3Language": {
+          "type": "string"
+        },
+        "script": {
+          "type": "string"
+        },
+        "unicodeLocaleAttributes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "unicodeLocaleKeys": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "variant": {
+          "type": "string"
+        }
+      }
+    },
+    "MediaType": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "subtype": {
+          "type": "string"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "wildcardSubtype": {
+          "type": "boolean"
+        },
+        "wildcardType": {
+          "type": "boolean"
+        }
+      }
+    },
+    "NewCookie": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "path": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "maxAge": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "expiry": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secure": {
+          "type": "boolean"
+        },
+        "httpOnly": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Response": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "length": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "language": {
+          "$ref": "#/definitions/Locale"
+        },
+        "location": {
+          "type": "string",
+          "format": "uri"
+        },
+        "lastModified": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "cookies": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/NewCookie"
+          }
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "allowedMethods": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "mediaType": {
+          "$ref": "#/definitions/MediaType"
+        },
+        "links": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/Link"
+          }
+        },
+        "statusInfo": {
+          "$ref": "#/definitions/StatusType"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "stringHeaders": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "entity": {
+          "type": "object",
+          "properties": {}
+        },
+        "entityTag": {
+          "$ref": "#/definitions/EntityTag"
+        }
+      }
+    },
+    "StatusType": {
+      "type": "object",
+      "properties": {
+        "family": {
+          "type": "string",
+          "enum": [
+            "INFORMATIONAL",
+            "SUCCESSFUL",
+            "REDIRECTION",
+            "CLIENT_ERROR",
+            "SERVER_ERROR",
+            "OTHER"
+          ]
+        },
+        "statusCode": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "reasonPhrase": {
+          "type": "string"
+        }
+      }
+    },
+    "UriBuilder": {
+      "type": "object"
+    },
+    "FeedAuthorizationModule": {
+      "type": "object"
+    },
+    "FeedProducer": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
+    "FeedProducerComparableObject": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
+    "FeedConsumer": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
+    "FeedConsumerComparableObject": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
+    "FeedWebhookRequest": {
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
