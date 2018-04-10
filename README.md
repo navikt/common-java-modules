@@ -1,6 +1,14 @@
-# summer
+# NAV common Java modules
 
-Common-bibliotekene fra Stash, reinkarnert på Github.
+These libraries are in use by many applications in NAV.
 
-Dette et er eksperiment som tar sikte på å flytte fellesbiblioteker ut på
-Github, i et format som gjør det mulig å utvikle programvare fra egen laptop.
+#### Building the libraries
+
+Currently, they do not build outside of NAV's internal network, because of dependencies that are
+not yet open source. However, our end goal is to be able to release these libraries to Maven Central.
+
+--------
+
+### Contact
+
+For questions, create an issue on the Github repository.
