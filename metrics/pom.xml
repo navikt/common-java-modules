@@ -30,12 +30,12 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>log</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-log-common</artifactId>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

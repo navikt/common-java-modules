@@ -18,9 +18,18 @@ public class SubjectUtils {
         return ofNullable(userId());
     }
 
+    public static Optional<String> getConsumerId() {
+        return ofNullable(consumerId());
+    }
+
     private static String userId() {
         return ofNullable(SubjectHandler.getSubjectHandler().getUid())
                 .orElseGet(() -> no.nav.modig.core.context.SubjectHandler.getSubjectHandler().getUid());
+    }
+
+    public static String consumerId() {
+        return ofNullable(SubjectHandler.getSubjectHandler().getConsumerId())
+                .orElseGet(() -> no.nav.modig.core.context.SubjectHandler.getSubjectHandler().getConsumerId());
     }
 
     private static IdentType identType() {
