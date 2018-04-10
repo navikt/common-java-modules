@@ -60,9 +60,9 @@
 
         <java.jdk.version>1.8</java.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <checkstyle.config.location>http://sonar.devillo.no/sonar/profiles/export?format=checkstyle&amp;language=java&amp;name=nav-mod</checkstyle.config.location>
-        <pmd.config.location>http://sonar.devillo.no/sonar/profiles/export?format=pmd&amp;language=java&amp;name=nav-mod</pmd.config.location>
-        <findbugs.config.location>http://sonar.devillo.no/sonar/profiles/export?format=findbugs&amp;language=java&amp;name=nav-mod</findbugs.config.location>
+        <checkstyle.config.location>codestyle/nav-mod/checkstyle.xml</checkstyle.config.location>
+        <pmd.config.location>codestyle/nav-mod/pmd.xml</pmd.config.location>
+        <findbugs.config.location>codestyle/nav-mod/findbugs.xml</findbugs.config.location>
 
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
@@ -200,6 +200,13 @@
                         <failOnViolation>false</failOnViolation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>no.nav</groupId>
+                            <artifactId>java-codestyle</artifactId>
+                            <version>1.0</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <artifactId>maven-pmd-plugin</artifactId>
@@ -215,6 +222,13 @@
                         <includeTests>true</includeTests>
                         <failOnViolation>false</failOnViolation>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>no.nav</groupId>
+                            <artifactId>java-codestyle</artifactId>
+                            <version>1.0</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -226,6 +240,13 @@
                         <failOnError>true</failOnError>
                         <xmlOutput>true</xmlOutput>
                     </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>no.nav</groupId>
+                            <artifactId>java-codestyle</artifactId>
+                            <version>1.0</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <!-- AUXILIARY PLUGINS -->
