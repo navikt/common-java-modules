@@ -30,6 +30,7 @@
         <module>jdbc</module>
         <module>jetty</module>
         <module>json</module>
+        <module>log</module>
         <module>leaderelection</module>
         <module>metrics</module>
         <module>oidc-security</module>

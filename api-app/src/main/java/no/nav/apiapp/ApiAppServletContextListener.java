@@ -2,8 +2,8 @@ package no.nav.apiapp;
 
 
 import no.nav.apiapp.log.ContextDiscriminator;
-import no.nav.apiapp.log.LogUtils;
 import no.nav.apiapp.logging.LoginfoServlet;
+import no.nav.apiapp.logging.MDCFilter;
 import no.nav.apiapp.metrics.PrometheusServlet;
 import no.nav.apiapp.rest.NavCorsFilter;
 import no.nav.apiapp.rest.RestApplication;
@@ -20,11 +20,11 @@ import no.nav.apiapp.util.JbossUtil;
 import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
 import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.modig.core.context.SubjectHandler;
-import no.nav.modig.presentation.logging.session.MDCFilter;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.web.filter.GZIPFilter;
 import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.sbl.util.LogUtils;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
@@ -52,10 +52,10 @@ import static no.nav.apiapp.ApiApplication.Sone.SBS;
 import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
-import static no.nav.apiapp.log.LogUtils.setGlobalLogLevel;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
+import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -133,12 +133,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             leggTilBonne(servletContextEvent, new OpenAMHelsesjekk());
         }
 
-        if (modigSecurityBrukes()) {
-            leggTilFilter(servletContextEvent, MDCFilter.class);
-        } else {
-            // TODO hva ellers? - virker ikke som det finnes en dialogarena-ekvivalent.
-        }
-
+        leggTilFilter(servletContextEvent, MDCFilter.class);
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);

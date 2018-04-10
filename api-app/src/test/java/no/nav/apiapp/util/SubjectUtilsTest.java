@@ -8,6 +8,7 @@ import no.nav.modig.core.context.StaticSubjectHandler;
 import org.junit.Before;
 import org.junit.Test;
 
+import static no.nav.apiapp.util.SubjectUtils.getConsumerId;
 import static no.nav.apiapp.util.SubjectUtils.getIdentType;
 import static no.nav.apiapp.util.SubjectUtils.getUserId;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +72,26 @@ public class SubjectUtilsTest {
         System.setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
         assertThat(getUserId()).hasValue("01015245464");
         assertThat(subjectService.getUserId()).hasValue("01015245464");
+    }
+
+    @Test
+    public void getConsumerId_ingenBruker_empty() {
+        assertThat(getConsumerId()).isEmpty();
+        assertThat(subjectService.getConsumerId()).isEmpty();
+    }
+
+    @Test
+    public void getConsumerId_internBruker() {
+        System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, CustomizableSubjectHandler.class.getName());
+        assertThat(getConsumerId()).hasValue("srvServicebruker");
+        assertThat(subjectService.getConsumerId()).hasValue("srvServicebruker");
+    }
+
+    @Test
+    public void getConsumerId_modigSecurityBruker() {
+        System.setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
+        assertThat(getConsumerId()).hasValue("StaticSubjectHandlerConsumerId");
+        assertThat(subjectService.getConsumerId()).hasValue("StaticSubjectHandlerConsumerId");
     }
 
 }

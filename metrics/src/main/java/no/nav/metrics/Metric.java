@@ -1,10 +1,13 @@
 package no.nav.metrics;
 
+import org.slf4j.MDC;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static no.nav.modig.common.MDCOperations.*;
+import static no.nav.log.MDCConstants.*;
+
 
 abstract class Metric<T extends Metric> {
     protected final MetricsClient metricsClient;
@@ -23,7 +26,7 @@ abstract class Metric<T extends Metric> {
         this.name = name;
         setSuccess();
         for (String mdcVariable : MDC_VARIABLES) {
-            String mdcValue = getFromMDC(mdcVariable);
+            String mdcValue = MDC.get(mdcVariable);
             if(Objects.nonNull(mdcValue)) {
                 addFieldToReport(mdcVariable, mdcValue);
             }

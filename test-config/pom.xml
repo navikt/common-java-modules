@@ -39,7 +39,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.sbl</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>log</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav</groupId>

@@ -40,17 +40,15 @@ public class ApiApp {
         setupSensu();
         setupTrustStore();
         NaisApiApplication apiApplication = apiAppClass.newInstance();
-        setupSubjectHandler(apiApplication);
+        setupSubjectHandlers();
         Jetty jetty = setupJetty(apiApplication, args);
         reportStartupTime(start);
         jetty.server.join();
     }
 
-    private static void setupSubjectHandler(ApiApplication apiApplication) {
+    private static void setupSubjectHandlers() {
         setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.apiapp.modigsecurity.JettySubjectHandler.class.getName(), PUBLIC);
-        if (apiApplication.getSone() == ApiApplication.Sone.FSS) {
-            setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.JettySubjectHandler.class.getName(), PUBLIC);
-        }
+        setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.JettySubjectHandler.class.getName(), PUBLIC);
     }
 
     private static Jetty setupJetty(NaisApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {
