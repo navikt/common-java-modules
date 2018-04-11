@@ -5,8 +5,8 @@
 
     <name>SBL - Common Maven configuration</name>
     <description>
-        This is a common root POM for all SBL projects. It defines versions of core plugins,
-        and configuration of code quality metrics, CI server URLs, and distribution management
+        This is a common root POM for many NAV projects. It defines versions of core plugins,
+        configuration of code quality metrics, CI server URLs, and distribution management
         for artifact deploys.
     </description>
     <url>https://github.com/navikt/common-java-modules</url>
