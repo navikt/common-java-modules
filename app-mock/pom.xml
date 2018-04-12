@@ -10,7 +10,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>app-mock</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

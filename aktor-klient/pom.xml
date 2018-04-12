@@ -10,7 +10,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>aktor-klient</artifactId>
-    <version>${project.parent.version}</version>
 
     <properties>
         <nav-fim-aktoer-v2-tjenestespesifikasjon.version>2.0.1</nav-fim-aktoer-v2-tjenestespesifikasjon.version>

@@ -10,7 +10,6 @@
         <version>1-SNAPSHOT</version>
     </parent>
     <artifactId>bom</artifactId>
-    <version>${project.parent.version}</version>
 
     <packaging>pom</packaging>
 

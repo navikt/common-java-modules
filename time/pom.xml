@@ -9,7 +9,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-time</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

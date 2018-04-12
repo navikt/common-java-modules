@@ -9,7 +9,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>test-config</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>
