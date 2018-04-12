@@ -3,6 +3,7 @@ package no.nav.apiapp;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication.NaisApiApplication;
 import no.nav.apiapp.config.Konfigurator;
+import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
@@ -51,19 +52,13 @@ public class ApiApp {
         setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.JettySubjectHandler.class.getName(), PUBLIC);
     }
 
-    private static Jetty setupJetty(NaisApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {
+    private static Jetty setupJetty(NaisApiApplication apiApplication, String[] args) throws IOException {
         int httpPort = httpPort(args);
 
         // TODO disable logging til fil!
         // TODO gå gjennom common-jetty og gjøre dette mer prodklart!
 
-        File runtimePath = new File("/app");
-        File sourcePath = new File(".", "src/main");
-        if (sourcePath.exists()) {
-            new File(sourcePath, "webapp").mkdir();
-        }
-        File devPath = new File(".", "src/main/webapp");
-        File file = devPath.exists() ? devPath : runtimePath;
+        File file = WarFolderFinderUtil.findPath(apiApplication.getClass());
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
         String contextPath = apiApplication.brukContextPath() ? "/" + apiApplication.getApplicationName() : "/";
