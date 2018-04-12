@@ -10,7 +10,6 @@
     </parent>
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-jetty</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

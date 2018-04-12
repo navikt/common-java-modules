@@ -9,7 +9,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-types</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

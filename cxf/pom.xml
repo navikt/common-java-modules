@@ -10,7 +10,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
 	<artifactId>common-cxf</artifactId>
-    <version>${project.parent.version}</version>
 
 	<properties>
         <jsoup.version>1.7.2</jsoup.version>

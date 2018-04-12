@@ -10,7 +10,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-suspend</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

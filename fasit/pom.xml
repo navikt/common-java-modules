@@ -8,7 +8,6 @@
     </parent>
 
     <artifactId>fasit</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>
