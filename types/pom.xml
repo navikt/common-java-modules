@@ -39,11 +39,6 @@
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-lang</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/common/types.git</developerConnection>
