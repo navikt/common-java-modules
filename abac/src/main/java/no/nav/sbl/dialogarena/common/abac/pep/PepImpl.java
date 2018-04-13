@@ -187,6 +187,7 @@ public class PepImpl implements Pep {
         Resource resource = new Resource();
         resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_ENHET));
         resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_ENHET, enhet));
+        resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, "veilarb"));
 
         return new Request()
                 .withEnvironment(environment)
