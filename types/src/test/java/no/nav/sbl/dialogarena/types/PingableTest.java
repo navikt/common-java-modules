@@ -1,4 +1,5 @@
 package no.nav.sbl.dialogarena.types;
+
 import no.nav.sbl.dialogarena.types.Pingable.Ping;
 import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
 import org.junit.Before;
@@ -9,12 +10,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
-import static no.nav.modig.lang.collections.IterUtils.on;
-import static no.nav.modig.lang.collections.PredicateUtils.not;
 import static no.nav.sbl.dialogarena.types.Get.pingResult;
-import static no.nav.sbl.dialogarena.types.Get.vellykketPing;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
@@ -48,7 +47,10 @@ public class PingableTest {
 
     @Test
     public void findFailingPingRequests() {
-        List<Ping> nonWorking = on(asList(friskTjeneste, sykTjeneste)).map(pingResult()).filter(not(vellykketPing())).collect();
+        List<Ping> nonWorking = Stream.of(friskTjeneste, sykTjeneste)
+                .map(pingResult()::transform)
+                .filter(b -> !b.erVellykket())
+                .collect(Collectors.toList());
 
         assertThat(nonWorking, hasSize(1));
         PingMetadata pingMetadata = nonWorking.get(0).getMetadata();
