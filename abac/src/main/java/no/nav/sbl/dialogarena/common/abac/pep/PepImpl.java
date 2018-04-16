@@ -168,13 +168,13 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker) throws PepException {
-        Request request = lagHarTilgangTilEnhetRequest(enhet, systembruker);
+    public BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker, String domain) throws PepException {
+        Request request = lagHarTilgangTilEnhetRequest(enhet, systembruker, domain);
 
         return harTilgang(request);
     }
 
-    private Request lagHarTilgangTilEnhetRequest(String enhet, String systembruker) {
+    private Request lagHarTilgangTilEnhetRequest(String enhet, String systembruker, String domain) {
         Environment environment = new Environment();
         environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getOidcToken().orElse(null)));
         environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, systembruker));
@@ -187,7 +187,7 @@ public class PepImpl implements Pep {
         Resource resource = new Resource();
         resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_ENHET));
         resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_ENHET, enhet));
-        resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, "veilarb"));
+        resource.addAttribute(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
 
         return new Request()
                 .withEnvironment(environment)
