@@ -2,6 +2,8 @@ package no.nav.dialogarena.config.fasit;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import javax.ws.rs.NotAuthorizedException;
@@ -34,12 +36,16 @@ import static org.junit.Assume.assumeTrue;
 
 public class FasitUtilsIntegrationTest {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FasitUtilsIntegrationTest.class);
+
     private Boolean fasitAlive() {
         return withClient(client -> {
             try {
                 int status = client.target("https://fasit.adeo.no").request().get().getStatus();
-                return status == 200; // expecting redirect to login page
+                return status == 200;
             } catch (Exception e) {
+                LOGGER.error("Fasit is unreachable! NOT running integration tests.");
+                LOGGER.error(e.toString());
                 return false;
             }
         });
