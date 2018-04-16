@@ -59,7 +59,7 @@ public class ESSOProvider {
 
     public static ESSOCredentials essoZeroPageLogin(TestUser testUser, String environment) {
         return Util.httpClient(httpClient -> {
-            String uri = String.format("https://tjenester-%s.nav.no/esso/json/authenticate", environment);
+            String uri = essoBaseUrl(environment) + "/json/authenticate";
             LOGGER.info(uri);
             Response response = httpClient
                     .target(uri)
@@ -82,6 +82,9 @@ public class ESSOProvider {
         });
     }
 
+    static String essoBaseUrl(String environment) {
+        return String.format("https://tjenester-%s.nav.no/esso", environment);
+    }
 
     public static ESSOCredentials getEssoCredentialsForUser(TestUser testUser, String environment) {
 
@@ -91,7 +94,10 @@ public class ESSOProvider {
         }
 
         return Util.httpClient(httpClient -> {
-            String uri = String.format("https://tjenester-%s.nav.no/esso/UI/Login?service=level4Service&goto=https://tjenester-%s.nav.no/aktivitetsplan/", environment, environment);
+            String uri = String.format("%s/UI/Login?service=level4Service&goto=https://tjenester-%s.nav.no/aktivitetsplan/",
+                    essoBaseUrl(environment),
+                    environment
+            );
             LOGGER.info(uri);
             MultivaluedMap<String, String> form = new MultivaluedHashMap<>();
             form.putSingle("IDToken1", testUser.username);

@@ -10,7 +10,6 @@
 
     <groupId>no.nav</groupId>
     <artifactId>metrics</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

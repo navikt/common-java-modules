@@ -12,7 +12,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>feed</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

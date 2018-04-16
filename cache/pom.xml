@@ -10,7 +10,6 @@
         <version>1-SNAPSHOT</version>
     </parent>
     <artifactId>cache</artifactId>
-    <version>${project.parent.version}</version>
 
     <properties>
         <java.jdk.version>8</java.jdk.version>

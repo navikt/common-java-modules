@@ -9,7 +9,6 @@
 
     <groupId>no.nav.dialogarena</groupId>
     <artifactId>smoketest</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

@@ -10,7 +10,6 @@
     </parent>
 
     <artifactId>log</artifactId>
-    <version>${project.parent.version}</version>
 
     <dependencyManagement>
         <dependencies>

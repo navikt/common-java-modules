@@ -12,7 +12,6 @@
 
     <groupId>no.nav.sbl.dialogarena</groupId>
     <artifactId>common-abac</artifactId>
-    <version>${project.parent.version}</version>
 
     <scm>
         <developerConnection>scm:git:http://stash.devillo.no/scm/common/abac.git</developerConnection>

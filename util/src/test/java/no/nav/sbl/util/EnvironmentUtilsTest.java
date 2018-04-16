@@ -96,7 +96,7 @@ public class EnvironmentUtilsTest {
 
     @Test
     public void getRequiredProperty_leser_ogsa_other_properties_fra_environment() {
-        String requiredProperty = EnvironmentUtils.getRequiredProperty("SOMETHING_SOMETHING", "JAVA_HOME");
+        String requiredProperty = EnvironmentUtils.getRequiredProperty("SOMETHING_SOMETHING", "PATH");
         assertThat(requiredProperty).isNotBlank();
     }
 
