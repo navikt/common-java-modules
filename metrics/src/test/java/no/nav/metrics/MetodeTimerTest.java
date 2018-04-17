@@ -4,6 +4,8 @@ import mockit.Mocked;
 import mockit.Verifications;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -50,6 +52,32 @@ public class MetodeTimerTest {
         new Verifications() {{
             timer.start();
             timer.setFailed();
+            timer.stop();
+            timer.report();
+        }};
+
+    }
+
+    @Test
+    public void markererCheckedExceptions(@Mocked final Timer timer, @Mocked MetricsFactory factory) throws Throwable {
+        Metodekall metodekall = new Metodekall() {
+            @Override
+            public Object kallMetode() throws Throwable {
+                throw new IOException("dummy");
+            }
+        };
+
+        try {
+            MetodeTimer.timeMetode(metodekall, "timerNavn");
+            fail("Skal kaste exception");
+        } catch (Throwable throwable) {
+            assertEquals("dummy", throwable.getMessage());
+        }
+
+        new Verifications() {{
+            timer.start();
+            timer.setFailed();
+            timer.addFieldToReport("checkedException", true);
             timer.stop();
             timer.report();
         }};
