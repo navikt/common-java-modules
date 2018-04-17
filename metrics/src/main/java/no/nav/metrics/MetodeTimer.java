@@ -8,9 +8,13 @@ public class MetodeTimer {
         try {
             timer.start();
             return metodekall.kallMetode();
-        } catch (Throwable throwable) {
+        } catch (RuntimeException | Error unchecked) {
             timer.setFailed();
-            throw throwable;
+            throw unchecked;
+        } catch (Throwable checked) {
+            timer.setFailed();
+            timer.addFieldToReport("checkedException", true);
+            throw checked;
         } finally {
             timer.stop().report();
         }

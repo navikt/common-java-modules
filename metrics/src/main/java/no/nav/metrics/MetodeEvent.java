@@ -19,9 +19,13 @@ public class MetodeEvent {
 
         try {
             return metodekall.kallMetode();
-        } catch (Throwable throwable) {
+        } catch (RuntimeException | Error unchecked) {
             event.setFailed();
-            throw throwable;
+            throw unchecked;
+        } catch (Throwable checked) {
+            event.setFailed();
+            event.addFieldToReport("checkedException", true);
+            throw checked;
         } finally {
             event.report();
         }

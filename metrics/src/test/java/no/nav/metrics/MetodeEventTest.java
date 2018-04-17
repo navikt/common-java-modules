@@ -4,6 +4,8 @@ import mockit.Mocked;
 import mockit.Verifications;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -46,6 +48,29 @@ public class MetodeEventTest {
 
         new Verifications() {{
             event.setFailed();
+            event.report();
+        }};
+    }
+
+    @Test
+    public void markererCheckedExceptions(@Mocked final Event event) throws Throwable {
+        Metodekall metodekall = new Metodekall() {
+            @Override
+            public Object kallMetode() throws Throwable {
+                throw new IOException("dummy");
+            }
+        };
+
+        try {
+            MetodeEvent.eventForMetode(metodekall, "eventNavn");
+            fail("skal ha kastet exception");
+        } catch (Exception e) {
+            assertEquals("dummy", e.getMessage());
+        }
+
+        new Verifications() {{
+            event.setFailed();
+            event.addFieldToReport("checkedException", true);
             event.report();
         }};
     }
