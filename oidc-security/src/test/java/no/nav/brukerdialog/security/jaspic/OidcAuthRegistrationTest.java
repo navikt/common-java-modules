@@ -14,7 +14,8 @@ public class OidcAuthRegistrationTest {
     public void smoketest() {
         ServletContextEvent servletContextEvent = mock(ServletContextEvent.class);
         when(servletContextEvent.getServletContext()).thenReturn(mock(ServletContext.class));
-        OidcAuthRegistration.registerOidcAuthModule(servletContextEvent, true);
+        OidcAuthModule serverAuthModule = mock(OidcAuthModule.class);
+        OidcAuthRegistration.registerOidcAuthModule(serverAuthModule, servletContextEvent.getServletContext());
     }
 
 }

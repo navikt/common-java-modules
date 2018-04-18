@@ -1,5 +1,6 @@
 package no.nav.brukerdialog.security.jaspic;
 
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
 import org.slf4j.Logger;
@@ -12,6 +13,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import java.util.Collections;
+
+import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 
 @WebListener
@@ -35,7 +39,8 @@ public class SamAutoRegistration implements ServletContextListener {
         log.info("securityDomain={} autoRegistation={}", securityDomain, autoRegistration);
         if (JASPI_SECURITY_DOMAIN.equals(securityDomain) || autoRegistration) {
             log.info("Initializing JASPIC");
-            registerServerAuthModule(sce, stateApplication);
+            OidcAuthModule oidcAuthModule = new OidcAuthModule(singletonList(new IssoOidcProvider()), stateApplication);
+            registerServerAuthModule(oidcAuthModule, sce.getServletContext());
         } else {
             log.info("No automatic registration of oidc auth module");
         }
@@ -44,10 +49,6 @@ public class SamAutoRegistration implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         deregisterServerAuthModule(sce.getServletContext());
-    }
-
-    public static String registerServerAuthModule(ServletContextEvent sce, boolean statelessApplication) {
-        return registerServerAuthModule(new OidcAuthModule(statelessApplication), sce.getServletContext());
     }
 
     /**
@@ -66,7 +67,7 @@ public class SamAutoRegistration implements ServletContextListener {
 
         // Register the factory-factory-factory for the SAM
         String registrationId = AuthConfigFactory.getFactory().registerConfigProvider(
-                new OidcAuthConfigProvider(serverAuthModule),
+                new SimpleAuthConfigProvider(serverAuthModule),
                 "HttpServlet",
                 getAppContextID(servletContext),
                 "Default single SAM authentication config provider"

@@ -8,31 +8,27 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.security.Key;
-import java.util.function.Supplier;
 
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.brukerdialog.security.Constants.getIssoJwksUrl;
 import static no.nav.sbl.rest.RestUtils.withClient;
+import static no.nav.sbl.util.StringUtils.assertNotNullOrEmpty;
 
-public class JwksKeyHandlerImpl implements JwksKeyHandler {
+public class JsonWebKeyCache {
 
-    private static final Logger log = LoggerFactory.getLogger(JwksKeyHandlerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(JsonWebKeyCache.class);
 
-    private final Supplier<String> jwksStringSupplier;
+    private final String jwksUrl;
+    private final boolean expectAlgorithmInKey;
+
     private JsonWebKeySet keyCache;
 
-
-    JwksKeyHandlerImpl() {
-        this(() -> httpGet(getIssoJwksUrl()));
+    public JsonWebKeyCache(String jwksUrl, boolean expectAlgorithmInKey) {
+        this.jwksUrl = assertNotNullOrEmpty(jwksUrl);
+        this.expectAlgorithmInKey = expectAlgorithmInKey;
     }
 
-    public JwksKeyHandlerImpl(Supplier<String> jwksStringSupplier) {
-        this.jwksStringSupplier = jwksStringSupplier;
-    }
-
-    @Override
-    public synchronized Key getKey(JwtHeader header) {
+    public synchronized Key getVerificationKey(JwtHeader header) {
         Key key = getCachedKey(header);
         if (key != null) {
             return key;
@@ -45,7 +41,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
         if (keyCache == null) {
             return null;
         }
-        JsonWebKey jwk = keyCache.findJsonWebKey(header.getKid(), "RSA", "sig", header.getAlgorithm());
+        JsonWebKey jwk = keyCache.findJsonWebKey(header.getKid(), "RSA", "sig", expectAlgorithmInKey ? header.getAlgorithm() : null);
         if (jwk == null) {
             return null;
         }
@@ -63,7 +59,7 @@ public class JwksKeyHandlerImpl implements JwksKeyHandler {
     private void refreshKeyCache() {
         keyCache = null;
         try {
-            String jwksString = jwksStringSupplier.get();
+            String jwksString = httpGet(jwksUrl);
             setKeyCache(jwksString);
             log.info("JWKs cache updated with: " + jwksString);
         } catch (RuntimeException e) {

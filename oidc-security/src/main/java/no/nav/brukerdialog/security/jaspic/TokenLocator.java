@@ -7,10 +7,18 @@ import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
 import static no.nav.brukerdialog.security.Constants.REFRESH_TOKEN_COOKIE_NAME;
 
 
-class TokenLocator {
+public class TokenLocator {
+
+    private final String idTokenCookieName;
+    private final String refreshTokenCookieName;
+
+    public TokenLocator(String idTokenCookieName, String refreshTokenCookieName) {
+        this.idTokenCookieName = idTokenCookieName;
+        this.refreshTokenCookieName = refreshTokenCookieName;
+    }
 
     public Optional<String> getToken(HttpServletRequest request) {
-        Optional<String> tokenFromCookie = getCookie(request, ID_TOKEN_COOKIE_NAME);
+        Optional<String> tokenFromCookie = getCookie(request, idTokenCookieName);
         if (tokenFromCookie.isPresent()) {
             return tokenFromCookie;
         }
@@ -18,7 +26,7 @@ class TokenLocator {
     }
 
     public Optional<String> getRefreshToken(HttpServletRequest request) {
-        return getCookie(request, REFRESH_TOKEN_COOKIE_NAME);
+        return getCookie(request, refreshTokenCookieName);
     }
 
     private Optional<String> getCookie(HttpServletRequest request, String cookieName) {

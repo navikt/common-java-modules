@@ -3,8 +3,9 @@ package no.nav.brukerdialog.security.jaspic;
 import no.nav.brukerdialog.security.domain.AuthenticationLevelCredential;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.domain.SluttBruker;
-import no.nav.brukerdialog.security.oidc.IdTokenProvider;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
+import no.nav.brukerdialog.security.oidc.OidcTokenValidatorResult;
+import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import no.nav.brukerdialog.tools.HostUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,24 +51,13 @@ public class OidcAuthModule implements ServerAuthModule {
 
     private static final boolean sslOnlyCookies = !Boolean.valueOf(System.getProperty("develop-local", "false"));
 
-    private final OidcTokenValidator tokenValidator;
-    private final IdTokenProvider tokenProvider;
-    private final TokenLocator tokenLocator;
+    private final List<OidcProvider> providers;
+    private final OidcTokenValidator oidcTokenValidator = new OidcTokenValidator();
     private final boolean statelessApplication;
     private CallbackHandler handler;
 
-    public OidcAuthModule() {
-        this(new OidcTokenValidator(), new IdTokenProvider(), new TokenLocator(), true);
-    }
-
-    public OidcAuthModule(boolean statelessApplication) {
-        this(new OidcTokenValidator(), new IdTokenProvider(), new TokenLocator(), statelessApplication);
-    }
-
-    OidcAuthModule(OidcTokenValidator tokenValidator, IdTokenProvider tokenProvider, TokenLocator tokenLocator, boolean statelessApplication) {
-        this.tokenValidator = tokenValidator;
-        this.tokenProvider = tokenProvider;
-        this.tokenLocator = tokenLocator;
+    public OidcAuthModule(List<OidcProvider> providers, boolean statelessApplication) {
+        this.providers = providers;
         this.statelessApplication = statelessApplication;
     }
 
@@ -97,30 +88,41 @@ public class OidcAuthModule implements ServerAuthModule {
         }
 
         HttpServletRequest request = (HttpServletRequest) messageInfo.getRequestMessage();
-        Optional<String> token = tokenLocator.getToken(request);
-        if (!token.isPresent()) {
+        return providers.stream()
+                .filter(oidcProvider -> oidcProvider.match(request))
+                .findFirst()
+                .map(oidcProvider -> doValidateRequest(messageInfo, clientSubject, oidcProvider))
+                .orElseGet(() -> responseUnAuthorized(messageInfo));
+    }
+
+    private AuthStatus doValidateRequest(MessageInfo messageInfo, Subject clientSubject, OidcProvider oidcProvider) {
+        HttpServletRequest request = (HttpServletRequest) messageInfo.getRequestMessage();
+
+        Optional<String> optionalRequestToken = oidcProvider.getToken(request);
+        if (!optionalRequestToken.isPresent()) {
             return responseUnAuthorized(messageInfo);
         }
 
-        OidcTokenValidator.OidcTokenValidatorResult validateResult = tokenValidator.validate(token.get());
-        Optional<String> refreshToken = tokenLocator.getRefreshToken(request);
-        if (refreshToken.isPresent() && needToRefreshToken(validateResult)) {
-            String openamClient = getOpenamClientFromToken(token.get());
-            token = fetchUpdatedToken(refreshToken.get(), openamClient);
-            if (token.isPresent()) {
-                validateResult = tokenValidator.validate(token.get());
-                if (validateResult.isValid()) {
-                    registerUpdatedTokenAtUserAgent(messageInfo, token.get());
+        String requestToken = optionalRequestToken.get();
+        OidcTokenValidatorResult requestTokenValidatorResult = oidcTokenValidator.validate(requestToken, oidcProvider);
+        Optional<String> optionalRefreshToken = oidcProvider.getRefreshToken(request);
+        if (optionalRefreshToken.isPresent() && needToRefreshToken(requestTokenValidatorResult)) {
+            String refreshToken = optionalRefreshToken.get();
+            Optional<String> optionalRefreshedToken = fetchUpdatedToken(refreshToken, requestToken, oidcProvider);
+            if (optionalRefreshedToken.isPresent()) {
+                String refreshedToken = optionalRefreshedToken.get();
+                OidcTokenValidatorResult refreshedTokenValidatorResult = oidcTokenValidator.validate(refreshedToken,oidcProvider);
+                if (refreshedTokenValidatorResult.isValid()) {
+                    registerUpdatedTokenAtUserAgent(messageInfo, refreshedToken);
+                    ensureStatelessApplication(messageInfo);
+                    return handleValidatedToken(refreshedToken, clientSubject, refreshedTokenValidatorResult.getSubject());
                 }
-            } else {
-                log.error("Fikk ikke hentet nytt token fra refresh-tokenet.");
-                return responseUnAuthorized(messageInfo);
             }
         }
 
-        if (validateResult.isValid()) {
+        if (requestTokenValidatorResult.isValid()) {
             ensureStatelessApplication(messageInfo);
-            return handleValidatedToken(token.get(), clientSubject, validateResult.getSubject());
+            return handleValidatedToken(requestToken, clientSubject, requestTokenValidatorResult.getSubject());
         }
         return responseUnAuthorized(messageInfo);
     }
@@ -136,11 +138,11 @@ public class OidcAuthModule implements ServerAuthModule {
         }
     }
 
-    private boolean needToRefreshToken(OidcTokenValidator.OidcTokenValidatorResult validateResult) {
+    private boolean needToRefreshToken(OidcTokenValidatorResult validateResult) {
         return !validateResult.isValid() || tokenIsSoonExpired(validateResult);
     }
 
-    private boolean tokenIsSoonExpired(OidcTokenValidator.OidcTokenValidatorResult validateResult) {
+    private boolean tokenIsSoonExpired(OidcTokenValidatorResult validateResult) {
         return validateResult.getExpSeconds() * 1000 - Instant.now().toEpochMilli() < getMinimumTimeToExpireBeforeRefresh();
     }
 
@@ -154,10 +156,10 @@ public class OidcAuthModule implements ServerAuthModule {
         return Integer.parseInt(System.getProperty(REFRESH_TIME, "60")) * 1000;
     }
 
-    private Optional<String> fetchUpdatedToken(String refreshToken, String openamClient) {
+    private Optional<String> fetchUpdatedToken(String refreshToken, String requestToken, OidcProvider oidcProvider) {
         log.debug("Refreshing token"); //Do not log token
         try {
-            return of(tokenProvider.getToken(refreshToken, openamClient).getToken());
+            return of(oidcProvider.getFreshToken(refreshToken, requestToken).getToken());
         } catch (Exception e) {
             log.error("Could not refresh token", e);
             return empty();
@@ -190,7 +192,7 @@ public class OidcAuthModule implements ServerAuthModule {
         HttpServletRequest request = (HttpServletRequest) messageInfo.getRequestMessage();
         HttpServletResponse response = (HttpServletResponse) messageInfo.getResponseMessage();
         try {
-            if ("application/json".equals(request.getHeader("Accept"))) {
+            if ("application/json".equals(request.getHeader("Accept")) || !hasRedirectUrl()) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Resource is protected, but id token is missing or invalid.");
             } else {
                 AuthorizationRequestBuilder builder = new AuthorizationRequestBuilder();

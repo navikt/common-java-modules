@@ -9,8 +9,10 @@ import javax.security.auth.message.config.AuthConfigFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
+import static no.nav.brukerdialog.security.Constants.ISSO_JWKS_URL_PROPERTY_NAME;
 import static no.nav.brukerdialog.security.jaspic.SamAutoRegistration.AUTO_REGISTRATION_PROPERTY_NAME;
 import static no.nav.brukerdialog.security.jaspic.SamAutoRegistration.JASPI_SECURITY_DOMAIN;
+import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -50,7 +52,9 @@ public class SamAutoRegistrationTest {
     }
 
     private void initializeContext() {
-        new SamAutoRegistration().contextInitialized(new ServletContextEvent(servletContext));
+        setTemporaryProperty(ISSO_JWKS_URL_PROPERTY_NAME, "test", () -> {
+            new SamAutoRegistration().contextInitialized(new ServletContextEvent(servletContext));
+        });
     }
 
     private void assertNoAutomaticRegistration() {
@@ -58,7 +62,7 @@ public class SamAutoRegistrationTest {
     }
 
     private void assertAutomaticRegistration() {
-        verify(authConfigFactory).registerConfigProvider(isA(OidcAuthConfigProvider.class), eq("HttpServlet"), eq("virtualServerName /contextPath"), anyString());
+        verify(authConfigFactory).registerConfigProvider(isA(SimpleAuthConfigProvider.class), eq("HttpServlet"), eq("virtualServerName /contextPath"), anyString());
     }
 
 }
