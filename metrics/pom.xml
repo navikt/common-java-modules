@@ -94,37 +94,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/dependencies/</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.4.201502262128</version>
-                <configuration>
-                    <append>false</append>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-    <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/felles/metrics.git</developerConnection>
-        <url>http://stash.devillo.no/projects/FELLES/repos/metrics/browse</url>
-        <tag>HEAD</tag>
-    </scm>
-
 </project>
