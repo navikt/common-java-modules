@@ -15,4 +15,12 @@ public class StringUtils {
     public static boolean nullOrEmpty(String string) {
         return !notNullOrEmpty(string);
     }
+
+    public static String assertNotNullOrEmpty(String string) {
+        if (nullOrEmpty(string)) {
+            throw new IllegalStateException();
+        }
+        return string;
+    }
+
 }

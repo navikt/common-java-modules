@@ -4,13 +4,14 @@ package no.nav.brukerdialog.security.oidc;
 import no.nav.brukerdialog.security.domain.IdToken;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.sbl.rest.RestUtils;
 
 import javax.ws.rs.client.Client;
 import java.time.Instant;
 
 import static no.nav.brukerdialog.security.Constants.*;
-import static no.nav.brukerdialog.security.oidc.OidcTokenValidator.OidcTokenValidatorResult;
+
 import static no.nav.brukerdialog.tools.SecurityConstants.SYSTEMUSER_PASSWORD;
 import static no.nav.brukerdialog.tools.SecurityConstants.SYSTEMUSER_USERNAME;
 import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
@@ -23,16 +24,14 @@ public class SystemUserTokenProvider {
     private final String srvPassword = getSystemProperty(SYSTEMUSER_PASSWORD);
     private final String authenticateUri = "json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice";
 
-    private IdToken idToken;
-    private IdTokenAndRefreshTokenProvider idTokenAndRefreshTokenProvider;
-
+    private final IdTokenAndRefreshTokenProvider idTokenAndRefreshTokenProvider = new IdTokenAndRefreshTokenProvider();
     private final Client client = RestUtils.createClient();
+    private final OidcTokenValidator validator = new OidcTokenValidator();
+    private final IssoOidcProvider oidcProvider = new IssoOidcProvider();
 
-    private OidcTokenValidator validator;
+    private IdToken idToken;
 
     public SystemUserTokenProvider() {
-        idTokenAndRefreshTokenProvider = new IdTokenAndRefreshTokenProvider();
-        validator = new OidcTokenValidator();
     }
 
     public String getToken() {
@@ -48,7 +47,7 @@ public class SystemUserTokenProvider {
         IdTokenAndRefreshToken idTokenAndRefreshToken = idTokenAndRefreshTokenProvider.getToken(authorizationCode, oidcRedirectUrl);
         OidcCredential idToken = idTokenAndRefreshToken.getIdToken();
         String jwtToken = idToken.getToken();
-        OidcTokenValidatorResult validationResult = validator.validate(jwtToken);
+        OidcTokenValidatorResult validationResult = validator.validate(jwtToken, oidcProvider);
 
         if (validationResult.isValid()) {
             this.idToken = new IdToken(idToken, validationResult.getExpSeconds());

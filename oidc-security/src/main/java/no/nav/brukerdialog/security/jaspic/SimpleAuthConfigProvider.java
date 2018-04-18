@@ -6,22 +6,13 @@ import javax.security.auth.message.config.*;
 import javax.security.auth.message.module.ServerAuthModule;
 import java.util.Map;
 
-public class OidcAuthConfigProvider implements AuthConfigProvider {
+public class SimpleAuthConfigProvider implements AuthConfigProvider {
 
     private static final String CALLBACK_HANDLER_PROPERTY_NAME = "authconfigprovider.client.callbackhandler";
 
-    private Map<String, String> providerProperties;
     private ServerAuthModule serverAuthModule;
 
-    public OidcAuthConfigProvider(Map<String, String> properties, AuthConfigFactory factory) {
-        this.providerProperties = properties;
-
-        if (factory != null) {
-            factory.registerConfigProvider(this, null, null, "Auto registration");
-        }
-    }
-
-    public OidcAuthConfigProvider(ServerAuthModule serverAuthModule) {
+    public SimpleAuthConfigProvider(ServerAuthModule serverAuthModule) {
         this.serverAuthModule = serverAuthModule;
     }
 
@@ -32,7 +23,13 @@ public class OidcAuthConfigProvider implements AuthConfigProvider {
 
     @Override
     public ServerAuthConfig getServerAuthConfig(String layer, String appContext, CallbackHandler handler) throws AuthException {
-        return new OidcServerAuthConfig(layer, appContext, handler == null ? createDefaultCallbackHandler() : handler, providerProperties, serverAuthModule);
+        return new OidcServerAuthConfig(
+                layer,
+                appContext,
+                handler == null ? createDefaultCallbackHandler() : handler,
+                null,
+                serverAuthModule
+        );
     }
 
     @Override

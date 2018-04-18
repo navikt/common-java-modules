@@ -72,12 +72,13 @@ public class ApiApp {
                 .at(contextPath)
                 .port(httpPort)
                 .disableAnnotationScanning();
-        apiApplication.configure(new Konfigurator(jettyBuilder, apiApplication));
-        Jetty jetty = jettyBuilder.buildJetty();
+        Konfigurator konfigurator = new Konfigurator(jettyBuilder, apiApplication);
+        apiApplication.configure(konfigurator);
+        Jetty jetty = konfigurator.buildJetty();
 
         WebAppContext webAppContext = jetty.context;
         webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
-        ServletContextListener listener = new ApiAppServletContextListener();
+        ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
         webAppContext.addEventListener(listener);
         webAppContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 

@@ -3,6 +3,7 @@ package no.nav.brukerdialog.security.oidc;
 
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.TestUser;
 
@@ -19,15 +20,9 @@ public class UserTokenProvider {
     private static final String oidcRedirectUrl = getOidcRedirectUrl();
     private static final String authenticateUri = "json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice";
 
-    private IdTokenAndRefreshTokenProvider idTokenAndRefreshTokenProvider;
-    private OidcTokenValidator validator;
-
-
-    public UserTokenProvider() {
-        this.idTokenAndRefreshTokenProvider = new IdTokenAndRefreshTokenProvider();
-        validator = new OidcTokenValidator();
-    }
-
+    private final IdTokenAndRefreshTokenProvider idTokenAndRefreshTokenProvider = new IdTokenAndRefreshTokenProvider();
+    private final OidcTokenValidator validator = new OidcTokenValidator();
+    private final IssoOidcProvider oidcProvider = new IssoOidcProvider();
 
     public OidcCredential getIdToken() {
         TestUser testUser = FasitUtils.getTestUser(USERNAME);
@@ -41,7 +36,7 @@ public class UserTokenProvider {
         String authorizationCode = withClient(client -> OpenAmUtils.getAuthorizationCode(openAmHost, openAmSessionToken, openamClientUsername, oidcRedirectUrl, client));
         IdTokenAndRefreshToken idTokenAndRefreshToken = idTokenAndRefreshTokenProvider.getToken(authorizationCode, oidcRedirectUrl);
         OidcCredential idToken = idTokenAndRefreshToken.getIdToken();
-        OidcTokenValidator.OidcTokenValidatorResult validationResult = validator.validate(idToken.getToken());
+        OidcTokenValidatorResult validationResult = validator.validate(idToken.getToken(), oidcProvider);
 
         if (validationResult.isValid()) {
             return idToken;

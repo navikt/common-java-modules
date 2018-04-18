@@ -12,5 +12,4 @@ import java.util.List;
 public class IssoConfig {
     public String username;
     public String password;
-    public List<String> ubeskyttet;
 }

@@ -8,6 +8,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.ContextBase;
 import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
+import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.sbl.util.LogUtils;
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ public class ApiAppTest {
         LogUtils.setGlobalLogLevel(INFO);
         setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString());
         SSLTestUtils.disableCertificateChecks();
+        WebProxyConfigurator.setupWebProxy();
     }
 
     private static void simplifyConsoleAppender(Appender<ILoggingEvent> appender) {

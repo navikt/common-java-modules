@@ -5,6 +5,8 @@ import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
+import no.nav.brukerdialog.security.oidc.OidcTokenValidatorResult;
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.brukerdialog.tools.HostUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,8 @@ public class RelyingPartyCallback {
     private static final Logger log = LoggerFactory.getLogger(RelyingPartyCallback.class);
 
     private IdTokenAndRefreshTokenProvider tokenProvider = new IdTokenAndRefreshTokenProvider();
+    private OidcTokenValidator oidcTokenValidator = new OidcTokenValidator();
+    private IssoOidcProvider oidcProvider = new IssoOidcProvider();
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -52,7 +56,7 @@ public class RelyingPartyCallback {
         OidcCredential token = tokens.getIdToken();
         String refreshToken = tokens.getRefreshToken();
 
-        OidcTokenValidator.OidcTokenValidatorResult result = new OidcTokenValidator().validate(token.getToken());
+        OidcTokenValidatorResult result = oidcTokenValidator.validate(token.getToken(), oidcProvider);
 
         if (!result.isValid()) {
             return Response.status(FORBIDDEN).build();
