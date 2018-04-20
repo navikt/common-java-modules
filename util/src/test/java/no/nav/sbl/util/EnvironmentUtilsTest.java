@@ -44,7 +44,7 @@ public class EnvironmentUtilsTest {
 
     @Test
     public void getRequiredProperty__finner_verdi_ogsa_i_environment() {
-        System.getenv().keySet().forEach(k -> assertThat(getRequiredProperty(k)).isNotEmpty());
+        assertThat(getRequiredProperty("PATH")).isNotNull();
     }
 
     @Test
