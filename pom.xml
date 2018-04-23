@@ -59,6 +59,7 @@
         <module>types</module>
         <module>util</module>
         <module>web</module>
+        <module>yaml</module>
     </modules>
 
     <prerequisites>
