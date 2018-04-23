@@ -5,22 +5,28 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.experimental.Wither;
 import no.nav.json.JsonProvider;
+import no.nav.log.MDCConstants;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
 import no.nav.sbl.rest.client.RestRequest;
+import no.nav.sbl.util.StringUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.*;
 import java.io.IOException;
 import java.util.function.Function;
 
+import static no.nav.sbl.util.StringUtils.of;
 import static org.glassfish.jersey.client.ClientProperties.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class RestUtils {
+
+    public static final String CORRELATION_ID_HEADER_NAME = "X-Correlation-Id";
 
     private static final Logger LOG = getLogger(RestUtils.class);
 
@@ -115,6 +121,9 @@ public class RestUtils {
 
         @Override
         public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
+            of(MDC.get(MDCConstants.MDC_CORRELATION_ID))
+                    .ifPresent(correlationId -> clientRequestContext.getHeaders().putSingle(CORRELATION_ID_HEADER_NAME, correlationId));
+
             Timer timer = (Timer) clientRequestContext.getProperty(NAME);
             timer
                     .stop()
