@@ -83,6 +83,10 @@
         </dependency>
         <dependency>
             <groupId>no.nav.sbl</groupId>
+            <artifactId>rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
             <artifactId>log</artifactId>
         </dependency>
         <dependency>
