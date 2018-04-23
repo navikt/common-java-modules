@@ -8,8 +8,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
-
-import java.util.Collections;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
@@ -42,8 +40,11 @@ public class JsonProvider extends JacksonJaxbJsonProvider {
     }
 
     public static ObjectMapper createObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new Jdk8Module())
+        return applyDefaultConfiguration(new ObjectMapper());
+    }
+
+    public static ObjectMapper applyDefaultConfiguration(ObjectMapper objectMapper) {
+        objectMapper.registerModule(new Jdk8Module())
                 .registerModule(dateModule())
                 .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)

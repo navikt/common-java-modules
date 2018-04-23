@@ -229,6 +229,11 @@
                 <type>test-jar</type>
             </dependency>
             <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>yaml</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.sbl</groupId>
                 <artifactId>rest</artifactId>
                 <version>${project.version}</version>
@@ -569,6 +574,11 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
 
