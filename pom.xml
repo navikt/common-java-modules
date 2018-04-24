@@ -69,9 +69,9 @@
     <properties>
 
         <!-- unntak fra bom-versjonering siden vi gjør oppsett i denne pommen -->
-        <junit.jupiter.version>5.0.0-M6</junit.jupiter.version>
-        <junit.platform.version>1.0.0-M6</junit.platform.version>
-        <junit.vintage.version>4.12.0-M6</junit.vintage.version>
+        <junit.jupiter.version>5.1.1</junit.jupiter.version>
+        <junit.platform.version>1.1.1</junit.platform.version>
+        <junit.vintage.version>5.1.1</junit.vintage.version>
 
 
         <java.jdk.version>1.8</java.jdk.version>
