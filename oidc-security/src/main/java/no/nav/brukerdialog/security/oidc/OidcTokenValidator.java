@@ -17,6 +17,7 @@ import java.util.List;
 public class OidcTokenValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(OidcTokenValidator.class);
+    private static final int ALLOWED_CLOCK_SKEW_IN_SECONDS = 30;
 
     public OidcTokenValidatorResult validate(String token, OidcProvider oidcProvider) {
         if (token == null) {
@@ -41,7 +42,7 @@ public class OidcTokenValidator {
 
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime()
-                .setAllowedClockSkewInSeconds(30) //TODO set to 0. Clocks should be synchronized.
+                .setAllowedClockSkewInSeconds(ALLOWED_CLOCK_SKEW_IN_SECONDS)
                 .setRequireSubject()
                 .setExpectedIssuer(issoExpectedTokenIssuer)
                 .setExpectedAudience(false,expectedAud) //requireAudienceClaim til false slik at det funker om openAM fjerner aud fra token.
