@@ -1,17 +1,12 @@
 package no.nav.pact;
 
-import com.google.gson.Gson;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
+import no.nav.sbl.rest.RestUtils;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Optional;
 
 public class PactVeilederUtil {
 
@@ -23,26 +18,21 @@ public class PactVeilederUtil {
     }
 
     public static List<Veileder> hentVeiledereFraFasit() {
-        try {
-            HttpResponse httpResponse = Request.Get(TESTUSER_API + FasitUtils.getDefaultEnvironment()).execute().returnResponse();
-            Veiledere veiledere = new Gson().fromJson(new InputStreamReader(httpResponse.getEntity().getContent()), Veiledere.class);
-            return veiledere.getVeiledere();
-        } catch (IOException e) {
-            throw new IllegalStateException("Kunne ikke hente veileder fra fasit.", e);
-        }
+        Veiledere veiledere = RestUtils.withClient(client ->
+                client.target(TESTUSER_API + FasitUtils.getDefaultEnvironment()).request().get(Veiledere.class));
+        return veiledere.getVeiledere();
     }
 
     public static Veileder hentVeilederFraFasit() {
-        Optional<Veileder> veileder = hentVeiledereFraFasit()
+        return hentVeiledereFraFasit()
                 .stream()
                 .filter(v -> v.getType().equalsIgnoreCase(VEILEDER_TYPE))
-                .findFirst();
-        return veileder.orElseThrow(() -> new IllegalStateException("Ingen veiledere ble funnet i Fasit."));
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Ingen veiledere ble funnet i Fasit."));
     }
 
     public static String hentVeilederIdFraFasit() {
-        Veileder veileder = hentVeilederFraFasit();
-        return veileder.getTestuser().getUsername();
+        return hentVeilederFraFasit().getTestuser().getUsername();
     }
 
     @Data
