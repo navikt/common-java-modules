@@ -14,7 +14,7 @@ import static java.util.Optional.empty;
 
 public class AzureADB2CProvider implements OidcProvider {
 
-    private static final String AZUREADB2C_OIDC_COOKIE_NAME = "selvbetjening-idtoken";
+    public static final String AZUREADB2C_OIDC_COOKIE_NAME = "selvbetjening-idtoken";
     private static final TokenLocator TOKEN_LOCATOR = new TokenLocator(AZUREADB2C_OIDC_COOKIE_NAME, null);
 
     private final String expectedAudience;

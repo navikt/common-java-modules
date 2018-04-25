@@ -6,8 +6,8 @@ import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.testconfig.ApiAppTest;
 
-import static no.nav.apiapp.config.Konfigurator.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME;
-import static no.nav.apiapp.config.Konfigurator.AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME;
 import static no.nav.dialogarena.config.util.Util.setProperty;
 
 public class ApiAppTestMain {

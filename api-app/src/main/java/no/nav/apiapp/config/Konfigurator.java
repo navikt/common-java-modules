@@ -34,8 +34,7 @@ public class Konfigurator implements ApiAppConfigurator {
     public static final String OPENAM_RESTURL_ENVIRONMENT_VARIABLE = "OPENAM_RESTURL";
     public static final String OPENAM_USER = ModigSecurityConstants.SYSTEMUSER_USERNAME;
     public static final String OPENAM_PASSWORD = ModigSecurityConstants.SYSTEMUSER_PASSWORD;
-    public static final String AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME = "AAD_B2C_DISCOVERY_URL";
-    public static final String AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME = "AAD_B2C_CLIENTID_USERNAME";
+
 
     private final Jetty.JettyBuilder jettyBuilder;
     private final ApiApplication apiApplication;
@@ -117,11 +116,7 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator azureADB2CLogin() {
-        return azureADB2CLogin(AzureADB2CConfig.builder()
-                .discoveryUrl(getRequiredProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME))
-                .expectedAudience(getRequiredProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME))
-                .build()
-        );
+        return azureADB2CLogin(AzureADB2CConfig.readFromSystemProperties());
     }
 
     @Override
