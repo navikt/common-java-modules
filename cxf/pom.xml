@@ -29,10 +29,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-soap</artifactId>
         </dependency>
@@ -75,10 +71,6 @@
 			<artifactId>cxf-rt-transports-http</artifactId>
 		</dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav</groupId>
             <artifactId>metrics</artifactId>
         </dependency>
@@ -94,23 +86,15 @@
             </exclusions>
         </dependency>
 
-        <!-- Legg til denne som runtime hvis du trenger STS -->
-		<dependency>
-			<groupId>no.nav.modig</groupId>
-			<artifactId>modig-security-sts</artifactId>
-		</dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
-
-        <!-- Legg til denne som runtime hvis du trenger SAML-interceptors -->
-		<dependency>
-			<groupId>no.nav.modig</groupId>
-			<artifactId>modig-security-ws</artifactId>
-            <optional>true</optional>
-		</dependency>
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>modig-backport</artifactId>
+        </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
@@ -171,6 +155,28 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-saml-api</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-core</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-dom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-common</artifactId>
         </dependency>
 
         <!-- test -->

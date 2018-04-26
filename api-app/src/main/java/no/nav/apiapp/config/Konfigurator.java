@@ -178,7 +178,8 @@ public class Konfigurator implements ApiAppConfigurator {
     }
 
     private static void modigSubjectHandler() {
-        setProperty(no.nav.apiapp.modigsecurity.JettySubjectHandler.SUBJECTHANDLER_KEY, no.nav.apiapp.modigsecurity.JettySubjectHandler.class.getName(), PUBLIC);
+        setProperty(no.nav.modig.core.context.JettySubjectHandler.SUBJECTHANDLER_KEY,
+                    no.nav.modig.core.context.JettySubjectHandler.class.getName(), PUBLIC);
     }
 
     private static void dialogArenaSubjectHandler() {

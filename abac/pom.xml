@@ -152,12 +152,12 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-core</artifactId>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>modig-backport</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-core</artifactId>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>modig-backport</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
