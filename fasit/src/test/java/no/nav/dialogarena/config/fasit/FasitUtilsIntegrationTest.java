@@ -107,7 +107,8 @@ public class FasitUtilsIntegrationTest {
     public void getServiceUser_nais_app() {
         ServiceUser serviceUser = FasitUtils.getServiceUser(
                 "srvveilarbdemo",
-                "veilarbdemo"
+                "veilarbdemo",
+                "t6"
         );
         assertThat(serviceUser.username, equalTo("srvveilarbdemo"));
         assertThat(serviceUser.password, not(nullValue()));
