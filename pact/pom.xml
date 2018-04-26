@@ -86,11 +86,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>no.nav.sbl</groupId>
-            <artifactId>rest</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>
