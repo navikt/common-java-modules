@@ -95,7 +95,7 @@ public class NAVOidcSTSClientIntegrationTest {
         ping(tjenesteC);
 
         assertThat(stsHandler.getRequestCount()).isEqualTo(
-                2 + 2  // 2 sts-typer + 2 brukere
+                1 + 2  // 1 systemSAML + 2 brukere
         );
     }
 

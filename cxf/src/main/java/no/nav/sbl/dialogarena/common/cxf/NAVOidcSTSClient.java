@@ -1,6 +1,7 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
+import no.nav.sbl.util.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.MemoryTokenStoreFactory;
@@ -10,6 +11,8 @@ import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static no.nav.sbl.dialogarena.common.cxf.StsType.SYSTEM_USER_IN_FSS;
 
 public class NAVOidcSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
@@ -49,6 +52,10 @@ public class NAVOidcSTSClient extends STSClient {
     }
 
     private String getUserKey() {
+        if (stsType == SYSTEM_USER_IN_FSS) {
+            return "systemSAML";
+        }
+
         String internSsoToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
         if (internSsoToken == null) {
             logger.info("Finner ingen OIDC, henter SAML som systembruker");
@@ -59,7 +66,7 @@ public class NAVOidcSTSClient extends STSClient {
     }
 
     private String getUserId() {
-        return SubjectHandler.getSubjectHandler().getUid();
+        return stsType == SYSTEM_USER_IN_FSS ? StringUtils.toString(getProperty(SecurityConstants.USERNAME)) : SubjectHandler.getSubjectHandler().getUid();
     }
 
     private void ensureTokenStoreExists() {
