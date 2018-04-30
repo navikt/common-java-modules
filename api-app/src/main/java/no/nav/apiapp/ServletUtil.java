@@ -50,9 +50,14 @@ public class ServletUtil {
     }
 
     public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass) {
+        return leggTilFilter(servletContextEvent, filterClass, "/*");
+    }
+
+    public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass, String... path) {
         FilterRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addFilter(filterClass.getName(), filterClass);
-        dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, path);
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
     }
+
 }

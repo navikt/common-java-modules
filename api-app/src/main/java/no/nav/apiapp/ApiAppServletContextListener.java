@@ -24,6 +24,7 @@ import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.web.filter.GZIPFilter;
+import no.nav.sbl.dialogarena.common.web.security.CsrfDoubleSubmitCookieFilter;
 import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.LogUtils;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -288,7 +289,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
         RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()), apiApplication);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
-        ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, sluttMedSlash(apiApplication.getApiBasePath()) + "*");
+        String apiPath = sluttMedSlash(apiApplication.getApiBasePath()) + "*";
+        leggTilFilter(servletContextEvent, CsrfDoubleSubmitCookieFilter.class, apiPath);
+        ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, apiPath);
         SwaggerResource.setupServlet(servletRegistration);
     }
 
