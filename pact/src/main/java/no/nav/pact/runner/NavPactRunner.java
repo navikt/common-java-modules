@@ -7,12 +7,12 @@ import no.nav.dialogarena.config.fasit.dto.RestService;
 import no.nav.dialogarena.config.security.ISSOProvider;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 
-import javax.ws.rs.core.UriBuilder;
 import java.net.HttpCookie;
 import java.util.List;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 
 public class NavPactRunner extends PactRunner {
@@ -22,14 +22,16 @@ public class NavPactRunner extends PactRunner {
     static {
         SSLTestUtils.disableCertificateChecks();
 
-        RestService pactBrokerUrl = FasitUtils.getRestService("pactbroker").stream().findAny().get();
-        String baseUrl = pactBrokerUrl.getUrl();
-        TestUser pactUser = FasitUtils.getTestUser(PACT_USER_FASIT_ALIAS);
+        if (!getOptionalProperty("PACT_BROKER", "PACT_USERNAME", "PACT_PASSWORD").isPresent()) {
+            RestService pactBrokerUrl = FasitUtils.getRestService("pactbroker").stream().findAny().get();
+            String baseUrl = pactBrokerUrl.getUrl();
+            TestUser pactUser = FasitUtils.getTestUser(PACT_USER_FASIT_ALIAS);
 
-        // Dette gjør at pact-annotasjonene til NavHttpsPactTest og NavHttpPactTest får de rette verdiene
-        setProperty("PACT_BROKER", fromUri(baseUrl).build().getHost(), PUBLIC);
-        setProperty("PACT_USERNAME", pactUser.username, PUBLIC);
-        setProperty("PACT_PASSWORD", pactUser.password, PUBLIC);
+            // Dette gjør at pact-annotasjonene til NavHttpsPactTest og NavHttpPactTest får de rette verdiene
+            setProperty("PACT_BROKER", fromUri(baseUrl).build().getHost(), PUBLIC);
+            setProperty("PACT_USERNAME", pactUser.username, PUBLIC);
+            setProperty("PACT_PASSWORD", pactUser.password, PUBLIC);
+        }
     }
 
     private static List<HttpCookie> issoCookies = ISSOProvider.getISSOCookies();
