@@ -27,7 +27,7 @@ public class SensuHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
     private static final int RETRY_INTERVAL = Integer.parseInt(System.getProperty("metrics.sensu.report.retryInterval", "1000"));
-    private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.queueSize", "5000"));
+    private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.queueSize", "20000"));
     private static final int BATCHES_PER_SECOND = Integer.parseInt(System.getProperty("metrics.sensu.report.batchesPerSecond", "50"));
     private static final int BATCH_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.batchSize", "100"));
     private static final int BATCH_DELAY = 1000 / BATCHES_PER_SECOND;
