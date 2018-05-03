@@ -22,6 +22,7 @@ public class NavPactRunner extends PactRunner {
     static {
         SSLTestUtils.disableCertificateChecks();
 
+        // optional slik at verdier kan overstyres via lokalt
         if (!getOptionalProperty("PACT_BROKER", "PACT_USERNAME", "PACT_PASSWORD").isPresent()) {
             RestService pactBrokerUrl = FasitUtils.getRestService("pactbroker").stream().findAny().get();
             String baseUrl = pactBrokerUrl.getUrl();
