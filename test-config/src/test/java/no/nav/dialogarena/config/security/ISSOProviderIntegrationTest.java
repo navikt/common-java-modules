@@ -23,8 +23,8 @@ public class ISSOProviderIntegrationTest {
     public void getISSOCookies() {
         sjekkIssoCookies(ISSOProvider.getISSOCookies());
         sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getPriveligertVeileder()));
-        sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), DEFAULT_REDIRECT_URL));
-        sjekkIssoCookies(ISSOProvider.getISSOCookies(ISSOProvider.getTestAuthorization(), DEFAULT_REDIRECT_URL, ISSOProvider.getPriveligertVeileder()));
+        sjekkIssoCookies(ISSOProvider.getISSOCookies(DEFAULT_REDIRECT_URL));
+        sjekkIssoCookies(ISSOProvider.getISSOCookies(DEFAULT_REDIRECT_URL, ISSOProvider.getPriveligertVeileder()));
     }
 
     @Test
@@ -38,8 +38,6 @@ public class ISSOProviderIntegrationTest {
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getPriveligertVeileder()));
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser()));
         sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL));
-        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL));
-        sjekkIssoToken(ISSOProvider.getISSOToken(ISSOProvider.getTestUser(), DEFAULT_REDIRECT_URL, ISSOProvider.getTestAuthorization()));
     }
 
     @Test
