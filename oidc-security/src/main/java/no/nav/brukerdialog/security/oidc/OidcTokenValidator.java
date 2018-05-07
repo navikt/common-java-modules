@@ -1,8 +1,7 @@
 package no.nav.brukerdialog.security.oidc;
 
-import no.nav.brukerdialog.security.jwks.DefaultJwksKeyHandler;
-import no.nav.brukerdialog.security.jwks.JwksKeyHandler;
 import no.nav.brukerdialog.security.jwks.JwtHeader;
+import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
@@ -15,71 +14,12 @@ import org.slf4j.LoggerFactory;
 import java.security.Key;
 import java.util.List;
 
-import static no.nav.brukerdialog.security.Constants.getIssoExpectedTokenIssuer;
-import static no.nav.brukerdialog.security.oidc.TokenUtils.getTokenAud;
-
 public class OidcTokenValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(OidcTokenValidator.class);
+    private static final int ALLOWED_CLOCK_SKEW_IN_SECONDS = 30;
 
-    private JwksKeyHandler jwks;
-
-    public static class OidcTokenValidatorResult {
-        private final boolean isValid;
-        private final String errorMessage;
-        private final String subject;
-        private final long expSeconds;
-
-        private OidcTokenValidatorResult(boolean isValid, String errorMessage, String subject, long expSeconds) {
-            this.isValid = isValid;
-            this.errorMessage = errorMessage;
-            this.subject = subject;
-            this.expSeconds = expSeconds;
-        }
-
-        public static OidcTokenValidatorResult invalid(String errorMessage) {
-            return new OidcTokenValidatorResult(false, errorMessage, null, 0);
-        }
-
-        public static OidcTokenValidatorResult valid(String subject, long expSeconds) {
-            return new OidcTokenValidatorResult(true, null, subject, expSeconds);
-        }
-
-        public boolean isValid() {
-            return isValid;
-        }
-
-        public String getErrorMessage() {
-            if (isValid) {
-                throw new IllegalArgumentException("Can't get error message from valid token");
-            }
-            return errorMessage;
-        }
-
-        public String getSubject() {
-            if (!isValid) {
-                throw new IllegalArgumentException("Can't get claims from an invalid token");
-            }
-            return subject;
-        }
-
-        public long getExpSeconds() {
-            if (!isValid) {
-                throw new IllegalArgumentException("Can't get claims from an invalid token");
-            }
-            return expSeconds;
-        }
-    }
-
-    public OidcTokenValidator() {
-        this.jwks = DefaultJwksKeyHandler.INSTANCE;
-    }
-
-    public OidcTokenValidator(JwksKeyHandler keyHandler) {
-        this.jwks = keyHandler;
-    }
-
-    public OidcTokenValidatorResult validate(String token) {
+    public OidcTokenValidatorResult validate(String token, OidcProvider oidcProvider) {
         if (token == null) {
             return OidcTokenValidatorResult.invalid("Missing token (token was null)");
         }
@@ -89,27 +29,24 @@ public class OidcTokenValidator {
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid("Invalid OIDC " + e.getMessage());
         }
-        Key key = jwks.getKey(header);
-        if (key == null) {
+        Key verificationKey = oidcProvider.getVerificationKey(header);
+        if (verificationKey == null) {
             return OidcTokenValidatorResult.invalid(String.format("Jwt (%s) is not in jwks", header));
         }
-        if (getIssoExpectedTokenIssuer() == null) {
+        String issoExpectedTokenIssuer = oidcProvider.getExpectedIssuer();
+        if (issoExpectedTokenIssuer == null) {
             return OidcTokenValidatorResult.invalid("Expected issuer must be configured.");
         }
 
-
-        //Biblioteket støtter ikke at man disabler expected audience sjekken dersom den finnes en "aud"-claim i tokenet.
-        //Henter dermed ut aud fra tokenet og setter det som expected.
-        String expectedAud = getTokenAud(token);
-
+        String expectedAud = oidcProvider.getExpectedAudience(token);
 
         JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime()
-                .setAllowedClockSkewInSeconds(30) //TODO set to 0. Clocks should be synchronized.
+                .setAllowedClockSkewInSeconds(ALLOWED_CLOCK_SKEW_IN_SECONDS)
                 .setRequireSubject()
-                .setExpectedIssuer(getIssoExpectedTokenIssuer())
+                .setExpectedIssuer(issoExpectedTokenIssuer)
                 .setExpectedAudience(false,expectedAud) //requireAudienceClaim til false slik at det funker om openAM fjerner aud fra token.
-                .setVerificationKey(key)
+                .setVerificationKey(verificationKey)
                 .build();
 
         try {

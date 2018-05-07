@@ -38,9 +38,6 @@ import static no.nav.dialogarena.config.DevelopmentSecurity.DEFAULT_ISSO_RP_USER
 import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultEnvironment;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultTestEnvironment;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
-import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
-import static org.eclipse.jetty.http.HttpMethod.POST;
-import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 
 
 public class ISSOProvider {
@@ -58,34 +55,34 @@ public class ISSOProvider {
     private static final Pattern DESCRIPTION_PATTERN = Pattern.compile("description: \".*\"");
 
     public static List<HttpCookie> getISSOCookies() {
-        return getISSOCookies(getTestAuthorization(), getDefaultRedirectUrl());
+        return getISSOCookies(getDefaultRedirectUrl());
     }
 
     public static List<HttpCookie> getISSOCookies(TestUser testUser) {
-        return getISSOCookies(getTestAuthorization(), getDefaultRedirectUrl(), testUser);
+        return getISSOCookies(getDefaultRedirectUrl(), testUser);
     }
 
-    public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl) {
-        return getISSOCookies(authorization, redirectUrl, getPriveligertVeileder());
+    public static List<HttpCookie> getISSOCookies(String redirectUrl) {
+        return getISSOCookies(redirectUrl, getPriveligertVeileder());
     }
 
     public static List<HttpCookie> getISSOCookies(String redirectUrl, TestEnvironment testEnvironment) {
-        return getISSOCookies(getTestAuthorization(), redirectUrl, getPriveligertVeileder(), testEnvironment);
+        return getISSOCookies(redirectUrl, getPriveligertVeileder(), testEnvironment);
     }
 
-    public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl, TestUser testUser) {
-        return getISSOCookies(authorization, redirectUrl, testUser, getDefaultTestEnvironment());
+    public static List<HttpCookie> getISSOCookies(String redirectUrl, TestUser testUser) {
+        return getISSOCookies(redirectUrl, testUser, getDefaultTestEnvironment());
     }
 
-    public static List<HttpCookie> getISSOCookies(String authorization, String redirectUrl, TestUser testUser, TestEnvironment testEnvironment) {
-        return getISSOCookies(getTestUser(testEnvironment), authorization, redirectUrl, testUser, testEnvironment);
+    public static List<HttpCookie> getISSOCookies(String redirectUrl, TestUser testUser, TestEnvironment testEnvironment) {
+        return getISSOCookies(getTestUser(testEnvironment), redirectUrl, testUser, testEnvironment);
     }
 
-    public static List<HttpCookie> getISSOCookies(ServiceUser issoServiceUser, String authorization, String redirectUrl, TestUser testUser, TestEnvironment testEnvironment) {
-        LOGGER.info("getting isso-cookies: {} {}", redirectUrl, authorization);
+    public static List<HttpCookie> getISSOCookies(ServiceUser issoServiceUser, String redirectUrl, TestUser testUser, TestEnvironment testEnvironment) {
+        LOGGER.info("getting isso-cookies: {} {}", redirectUrl);
         try {
             return Util.httpClient(httpClient -> {
-                return new ISSORequest(issoServiceUser, authorization, redirectUrl, httpClient, testUser, testEnvironment).getCookies();
+                return new ISSORequest(issoServiceUser, redirectUrl, httpClient, testUser, testEnvironment).getCookies();
             });
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn i [%s] med isso mot: [%s]\n > %s", testEnvironment, redirectUrl, e.getMessage()), e);
@@ -101,7 +98,7 @@ public class ISSOProvider {
     }
 
     public static String getISSOToken(TestUser testUser) {
-        return getISSOToken(getTestUser(), getDefaultRedirectUrl(), getTestAuthorization(), testUser);
+        return getISSOToken(getTestUser(), getDefaultRedirectUrl(),  testUser);
     }
 
     public static String getISSOToken(ServiceUser issoServiceUser) {
@@ -109,28 +106,21 @@ public class ISSOProvider {
     }
 
     public static String getISSOToken(ServiceUser issoServiceUser, String redirectUrl) {
-        return getISSOToken(issoServiceUser, redirectUrl, getTestAuthorization());
+        return getISSOToken(issoServiceUser, redirectUrl, getPriveligertVeileder());
     }
 
-    public static String getISSOToken(ServiceUser issoServiceUser, String redirectUrl, String authorization) {
-        return getISSOToken(issoServiceUser, redirectUrl, authorization, getPriveligertVeileder());
-    }
-
-    public static String getISSOToken(ServiceUser issoServiceUser, String redirectUrl, String authorization, TestUser testUser) {
+    public static String getISSOToken(ServiceUser issoServiceUser, String redirectUrl, TestUser testUser) {
         LOGGER.info("getting isso-token: {}");
         String environment = issoServiceUser.environment;
         try {
             return Util.httpClient(httpClient -> {
-                return new ISSORequest(issoServiceUser, authorization, redirectUrl, httpClient, testUser, environment).getToken();
+                return new ISSORequest(issoServiceUser, redirectUrl, httpClient, testUser, environment).getToken();
             });
         } catch (Exception e) {
             throw new RuntimeException(format("Kunne ikke logge inn i [%s] med isso mot: [%s]\n > %s", environment, redirectUrl, e.getMessage()), e);
         }
     }
 
-    public static String getTestAuthorization() {
-        return FasitUtils.getTestUser("kerberos_test_token").password;
-    }
 
     public static ServiceUser getTestUser() {
         return getTestUser(getDefaultTestEnvironment());
@@ -150,7 +140,6 @@ public class ISSOProvider {
     @ToString(doNotUseGetters = true)
     private static class ISSORequest {
 
-        private final String authorization;
         private final String redirectUrl;
         private final String state = UUID.randomUUID().toString();
         private final Client httpClient;
@@ -164,14 +153,13 @@ public class ISSOProvider {
         private String authorizationCode;
         private Map<String, NewCookie> cookies = new HashMap<>();
 
-        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, Client httpClient, TestUser testUser, TestEnvironment environment) {
-            this(issoServiceUser, authorization, redirectUrl, httpClient, testUser, environment.toString());
+        private ISSORequest(ServiceUser issoServiceUser, String redirectUrl, Client httpClient, TestUser testUser, TestEnvironment environment) {
+            this(issoServiceUser, redirectUrl, httpClient, testUser, environment.toString());
         }
 
-        private ISSORequest(ServiceUser issoServiceUser, String authorization, String redirectUrl, Client httpClient, TestUser testUser, String environment) {
+        private ISSORequest(ServiceUser issoServiceUser, String redirectUrl, Client httpClient, TestUser testUser, String environment) {
             this.issoServiceUser = issoServiceUser;
             this.httpClient = httpClient;
-            this.authorization = authorization;
             this.redirectUrl = redirectUrl;
             this.testUser = testUser;
             this.issoBasePath = String.format("https://isso-%s.adeo.no/isso", getEnvironmentClass(environment));
@@ -254,7 +242,7 @@ public class ISSOProvider {
                     .queryParam("state", state)
                     .queryParam("redirect_uri", redirectUrl)
                     .request()
-                    .header("Authorization", authorization)
+                    .header("Authorization", UUID.randomUUID().toString())
                     .post(json != null ? Entity.json(json) : null);
         }
 

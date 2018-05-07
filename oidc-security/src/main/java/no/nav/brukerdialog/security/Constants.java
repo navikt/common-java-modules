@@ -1,5 +1,6 @@
 package no.nav.brukerdialog.security;
 
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 
 public class Constants {
@@ -31,6 +32,9 @@ public class Constants {
     }
     public static String getOidcRedirectUrl() {
         return getRequiredProperty(OIDC_REDIRECT_URL_PROPERTY_NAME, "OIDC_REDIRECT_URL");
+    }
+    public static boolean hasRedirectUrl() {
+        return getOptionalProperty(OIDC_REDIRECT_URL_PROPERTY_NAME, "OIDC_REDIRECT_URL").isPresent();
     }
     public static String getIssoJwksUrl() {
         return getRequiredProperty(ISSO_JWKS_URL_PROPERTY_NAME, "ISSO_JWKS_URL");

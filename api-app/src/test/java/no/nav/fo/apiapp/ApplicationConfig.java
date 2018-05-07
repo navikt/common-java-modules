@@ -83,6 +83,7 @@ public class ApplicationConfig implements NaisApiApplication {
     @Override
     public void configure(ApiAppConfigurator apiAppConfigurator) {
         apiAppConfigurator
+//                .azureADB2CLogin();
 //                .samlLogin()
                 .sts()
                 .openAmLogin();

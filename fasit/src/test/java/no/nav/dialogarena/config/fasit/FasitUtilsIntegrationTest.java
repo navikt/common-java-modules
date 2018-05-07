@@ -1,5 +1,8 @@
 package no.nav.dialogarena.config.fasit;
 
+import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.metrics.MetricsFactory;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -8,35 +11,31 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.SSLException;
 import javax.ws.rs.NotAuthorizedException;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static no.nav.dialogarena.config.fasit.FasitUtils.FASIT_USERNAME_VARIABLE_NAME;
-import static no.nav.dialogarena.config.fasit.FasitUtils.OERA_Q_LOCAL;
-import static no.nav.dialogarena.config.fasit.FasitUtils.OERA_T_LOCAL;
-import static no.nav.dialogarena.config.fasit.FasitUtils.PREPROD_LOCAL;
-import static no.nav.dialogarena.config.fasit.FasitUtils.TEST_LOCAL;
+import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.SBS;
-import static no.nav.dialogarena.config.fasit.FasitUtils.getBaseUrl;
-import static no.nav.dialogarena.config.fasit.FasitUtils.getDbCredentials;
-import static no.nav.dialogarena.config.fasit.FasitUtils.resolveDomain;
 import static no.nav.dialogarena.config.fasit.FasitUtilsTest.testServiceUserCertificate;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static no.nav.sbl.rest.RestUtils.withClient;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class FasitUtilsIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FasitUtilsIntegrationTest.class);
+
+    static {
+        System.setProperty(MetricsFactory.DISABLE_METRICS_REPORT_KEY, "true");
+    }
 
     private Boolean fasitAlive() {
         return withClient(client -> {
@@ -211,6 +210,19 @@ public class FasitUtilsIntegrationTest {
     @Test(expected = NotAuthorizedException.class)
     public void getPCertificate() throws Exception {
         FasitUtils.getServiceUserCertificate("srvHenvendelse", "p");
+    }
+
+    @Test
+    public void getRestService_() throws Exception {
+        String alias = "veilarbjobbsokerkompetanseRS";
+        List<RestService> restServices = getRestService(alias);
+        assertThat(restServices, Matchers.not(empty()));
+
+        RestService restService = restServices.get(0);
+        assertThat(restService.getAlias(), equalTo(alias));
+        assertThat(restService.getEnvironment(), Matchers.not(isEmptyString()));
+        assertThat(restService.getApplication(), Matchers.not(isEmptyString()));
+        new URL(restService.getUrl());
     }
 
 }

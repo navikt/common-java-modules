@@ -6,6 +6,7 @@ import au.com.dius.pact.provider.junit.loader.PactBroker;
 import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
 import no.nav.dialogarena.config.security.ISSOProvider;
 import org.apache.http.HttpRequest;
+import org.apache.http.RequestLine;
 import org.slf4j.Logger;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -38,11 +39,14 @@ public abstract class NavHttpsPactTest extends PactHttpTarget {
 
     @TargetRequestFilter
     public void requestFilter(HttpRequest httpRequest) {
+        RequestLine requestLine = httpRequest.getRequestLine();
         if (useIssoRequestFilter) {
-            LOG.info("Setting ISSO cookies for " + httpRequest.getRequestLine().getUri());
+            LOG.info("Setting ISSO cookies for {} {}", requestLine.getMethod(), requestLine.getUri());
             issoCookies.forEach(c -> {
                 httpRequest.addHeader(HttpHeaders.COOKIE, String.format("%s=%s", c.getName(), c.getValue()));
             });
+        } else {
+            LOG.info("{} {}", requestLine.getMethod(), requestLine.getUri());
         }
     }
 }

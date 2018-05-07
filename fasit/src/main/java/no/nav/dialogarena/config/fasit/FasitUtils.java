@@ -13,6 +13,7 @@ import lombok.experimental.Accessors;
 import no.nav.dialogarena.config.fasit.dto.ApplicationInstance;
 import no.nav.dialogarena.config.fasit.dto.DataSourceResource;
 import no.nav.dialogarena.config.fasit.dto.Resource;
+import no.nav.dialogarena.config.fasit.dto.RestService;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
@@ -188,7 +189,7 @@ public class FasitUtils {
     }
 
     public static String getBaseUrl(String baseUrlAlias, Zone zone) {
-        return getBaseUrl(baseUrlAlias, getDefaultEnvironment(),getDefaultDomain(zone));
+        return getBaseUrl(baseUrlAlias, getDefaultEnvironment(), getDefaultDomain(zone));
     }
 
     public static String getBaseUrl(String baseUrlAlias, String environment) {
@@ -208,6 +209,16 @@ public class FasitUtils {
         );
         Document document = fetchXml(resourceUrl);
         return extractStringProperty(document, "url");
+    }
+
+    public static List<RestService> getRestService(String alias) {
+        return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
+                .queryParam("type","RestService")
+                .queryParam("alias", alias)
+                .queryParam("usage", true)
+                .request()
+                .get(RestService.LIST_TYPE)
+        );
     }
 
     public static ServiceUser getServiceUser(String userAlias, String applicationName) {
@@ -241,7 +252,7 @@ public class FasitUtils {
         }
     }
 
-    public static String getDefaultDomain(Zone zone){
+    public static String getDefaultDomain(Zone zone) {
         return zone.getDomain(getDefaultEnvironment());
     }
 
@@ -325,13 +336,6 @@ public class FasitUtils {
         String json = httpClient(httpClient -> httpClient.target(url).request(APPLICATION_JSON).get(String.class));
         LOG.info(json.replaceAll("\n", ""));
         return json;
-    }
-
-    private static String fetchPlainText(String url) {
-        LOG.info("Fetching text: {}", url);
-        String text = httpClient(httpClient -> httpClient.target(url).request().get().readEntity(String.class));
-        LOG.info(text);
-        return text;
     }
 
     private static byte[] fetchBytes(String url) {

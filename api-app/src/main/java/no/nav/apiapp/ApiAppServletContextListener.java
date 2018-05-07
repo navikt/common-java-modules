@@ -1,6 +1,7 @@
 package no.nav.apiapp;
 
 
+import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.log.ContextDiscriminator;
 import no.nav.apiapp.logging.LoginfoServlet;
 import no.nav.apiapp.logging.MDCFilter;
@@ -46,7 +47,6 @@ import static ch.qos.logback.classic.Level.INFO;
 import static java.lang.System.getProperty;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
-import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
 import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.ApiApplication.Sone.SBS;
 import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
@@ -86,12 +86,23 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
+    private final Konfigurator konfigurator;
     private int sesjonsLengde;
 
     static {
         if (getProperty(MILJO_PROPERTY_NAME, "").equals("t")) {
             setGlobalLogLevel(INFO);
         }
+    }
+
+    // på jboss
+    public ApiAppServletContextListener() {
+        this(null);
+    }
+
+    // på jetty
+    ApiAppServletContextListener(Konfigurator konfigurator) {
+        this.konfigurator = konfigurator;
     }
 
     @Override
@@ -180,7 +191,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     }
 
     private boolean issoBrukes() {
-        boolean jaspiAuthProvider = getProperty(DEFAULT_FACTORY_SECURITY_PROPERTY, "").contains("jaspi"); // på jetty
+        boolean jaspiAuthProvider = konfigurator != null && konfigurator.harIssoLogin();
         boolean autoRegistration = JbossUtil.brukerJaspi(); // på jboss
         LOGGER.info("isso? jaspi={} auto={}", jaspiAuthProvider, autoRegistration);
         return jaspiAuthProvider || autoRegistration;

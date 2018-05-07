@@ -1,14 +1,27 @@
 package no.nav.apiapp.config;
 
+import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication;
-import no.nav.apiapp.security.LoginConfigurator;
+import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
+import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
+import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
+import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import no.nav.modig.core.context.ModigSecurityConstants;
+import no.nav.modig.security.loginmodule.OpenAMLoginModule;
+import no.nav.modig.security.loginmodule.SamlLoginModule;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import org.eclipse.jetty.jaas.JAASLoginService;
+import org.eclipse.jetty.security.DefaultIdentityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.Arrays.*;
+import javax.security.auth.spi.LoginModule;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Arrays.asList;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -22,8 +35,11 @@ public class Konfigurator implements ApiAppConfigurator {
     public static final String OPENAM_USER = ModigSecurityConstants.SYSTEMUSER_USERNAME;
     public static final String OPENAM_PASSWORD = ModigSecurityConstants.SYSTEMUSER_PASSWORD;
 
+
     private final Jetty.JettyBuilder jettyBuilder;
     private final ApiApplication apiApplication;
+    private final List<OidcProvider> oidcProviders = new ArrayList<>();
+    private boolean issoLogin;
 
     public Konfigurator(Jetty.JettyBuilder jettyBuilder, ApiApplication apiApplication) {
         this.jettyBuilder = jettyBuilder;
@@ -71,7 +87,7 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig) {
-        LoginConfigurator.setupOpenAmLogin(jettyBuilder, openAmConfig);
+        setupOpenAmLogin(jettyBuilder, openAmConfig);
         return this;
     }
 
@@ -85,19 +101,37 @@ public class Konfigurator implements ApiAppConfigurator {
         return issoLogin(IssoConfig.builder()
                 .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, getSystemUserUsernamePropertyName()))
                 .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, getSystemUserPasswordPropertyName()))
-                .ubeskyttet(asList("/internal/*"))
                 .build());
     }
 
     @Override
     public ApiAppConfigurator issoLogin(IssoConfig issoConfig) {
-        LoginConfigurator.setupIssoLogin(jettyBuilder, issoConfig);
+        setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, issoConfig.username, PUBLIC);
+        setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, issoConfig.password, SECRET);
+        dialogArenaSubjectHandler();
+        oidcProviders.add(new IssoOidcProvider());
+        issoLogin = true;
+        return this;
+    }
+
+    @Override
+    public ApiAppConfigurator azureADB2CLogin() {
+        return azureADB2CLogin(AzureADB2CConfig.readFromSystemProperties());
+    }
+
+    @Override
+    public ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig) {
+        dialogArenaSubjectHandler();
+        oidcProviders.add(new AzureADB2CProvider(azureADB2CConfig));
         return this;
     }
 
     @Override
     public ApiAppConfigurator samlLogin(SamlConfig samlConfig) {
-        LoginConfigurator.setupSamlLogin(jettyBuilder);
+        modigSubjectHandler();
+        dialogArenaSubjectHandler();
+        LOGGER.info("configuring: {}", SamlLoginModule.class.getName());
+        setLoginService(jettyBuilder, LoginModuleType.SAML);
         return this;
     }
 
@@ -109,6 +143,64 @@ public class Konfigurator implements ApiAppConfigurator {
 
     private String getAppName() {
         return apiApplication.getApplicationName().toUpperCase();
+    }
+
+    public Jetty buildJetty() {
+        if (!oidcProviders.isEmpty()) {
+            jettyBuilder.configureForJaspic(new OidcAuthModule(oidcProviders, true), asList("/internal/*"));
+        }
+        return jettyBuilder.buildJetty();
+    }
+
+    @SneakyThrows
+    public static void setupOpenAmLogin(Jetty.JettyBuilder jettyBuilder, OpenAmConfig openAmConfig) {
+        setProperty(OPENAM_RESTURL, openAmConfig.restUrl, PUBLIC);
+        setProperty(ModigSecurityConstants.SYSTEMUSER_USERNAME, openAmConfig.username, PUBLIC);
+        setProperty(ModigSecurityConstants.SYSTEMUSER_PASSWORD, openAmConfig.password, SECRET);
+
+        modigSubjectHandler();
+        setLoginService(jettyBuilder, LoginModuleType.ESSO);
+    }
+
+    private static void setLoginService(Jetty.JettyBuilder jettyBuilder, LoginModuleType loginModuleType) {
+        LOGGER.info("configuring: {}", loginModuleType.loginModuleClass);
+        jettyBuilder.withLoginService(jaasLoginModule(loginModuleType));
+    }
+
+    private static JAASLoginService jaasLoginModule(LoginModuleType loginModuleType) {
+        String jaasConfig = Konfigurator.class.getResource("/api-app/jaas.config").toExternalForm();
+        setProperty("java.security.auth.login.config", jaasConfig, PUBLIC);
+        JAASLoginService loginService = new JAASLoginService();
+        loginService.setName(loginModuleType.moduleName);
+        loginService.setLoginModuleName(loginModuleType.moduleName);
+        loginService.setIdentityService(new DefaultIdentityService());
+        return loginService;
+    }
+
+    private static void modigSubjectHandler() {
+        setProperty(no.nav.apiapp.modigsecurity.JettySubjectHandler.SUBJECTHANDLER_KEY, no.nav.apiapp.modigsecurity.JettySubjectHandler.class.getName(), PUBLIC);
+    }
+
+    private static void dialogArenaSubjectHandler() {
+        setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.JettySubjectHandler.class.getName(), PUBLIC);
+    }
+
+    public boolean harIssoLogin() {
+        return issoLogin;
+    }
+
+    private enum LoginModuleType {
+        ESSO("esso", OpenAMLoginModule.class),
+        SAML("saml", SamlLoginModule.class);
+
+        private final String moduleName;
+        public Class<? extends LoginModule> loginModuleClass;
+
+        LoginModuleType(String moduleName, Class<? extends LoginModule> loginModuleClass) {
+            this.loginModuleClass = loginModuleClass;
+            this.moduleName = moduleName;
+        }
+
     }
 
 }

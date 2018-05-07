@@ -7,25 +7,17 @@ import org.slf4j.LoggerFactory;
 import javax.security.auth.message.config.AuthConfigFactory;
 import javax.security.auth.message.module.ServerAuthModule;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-
 import java.security.Security;
-
-import static java.lang.System.setProperty;
 
 public class OidcAuthRegistration {
     private static final Logger log = LoggerFactory.getLogger(OidcAuthRegistration.class);
-
-    public static void registerOidcAuthModule(ServletContextEvent sce, boolean statelessApplication) {
-        registerOidcAuthModule(new OidcAuthModule(statelessApplication), sce.getServletContext());
-    }
 
     public static void registerOidcAuthModule(ServerAuthModule serverAuthModule, ServletContext servletContext) {
         System.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
         Security.setProperty(AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY, AuthConfigFactoryImpl.class.getCanonicalName());
 
         String registrationId = AuthConfigFactory.getFactory().registerConfigProvider(
-                new OidcAuthConfigProvider(serverAuthModule),
+                new SimpleAuthConfigProvider(serverAuthModule),
                 "HTTP",
                 getAppContextID(servletContext),
                 "Default single SAM authentication config provider"

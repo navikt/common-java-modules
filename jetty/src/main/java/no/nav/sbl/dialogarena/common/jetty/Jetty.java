@@ -1,5 +1,7 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
+import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
@@ -20,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.naming.NamingException;
+import javax.security.auth.message.module.ServerAuthModule;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
@@ -73,7 +76,7 @@ public final class Jetty {
         private List<Class<?>> websocketEndpoints = new ArrayList<>();
         private Map<String, DataSource> dataSources = new HashMap<>();
         private String extraClasspath;
-        private boolean configureForJaspic;
+        private ServerAuthModule serverAuthModule;
         private List<String> jaspicUbeskyttet = new ArrayList<>();
         private boolean disableAnnotationScanning;
 
@@ -148,7 +151,11 @@ public final class Jetty {
         }
 
         public final JettyBuilder configureForJaspic(List<String> ubeskyttet) {
-            this.configureForJaspic = true;
+            return configureForJaspic(new OidcAuthModule(singletonList(new IssoOidcProvider()), true), ubeskyttet);
+        }
+
+        public final JettyBuilder configureForJaspic(ServerAuthModule serverAuthModule, List<String> ubeskyttet) {
+            this.serverAuthModule = serverAuthModule;
             this.jaspicUbeskyttet = ubeskyttet;
             return this;
         }
@@ -214,7 +221,7 @@ public final class Jetty {
     private final List<Class<?>> websocketEndpoints;
     private final Boolean developmentMode;
     private final String extraClasspath;
-    private final boolean configureForJaspic;
+    private final ServerAuthModule serverAuthModule;
     private final List<String> jaspicUbeskyttet;
 
 
@@ -251,8 +258,8 @@ public final class Jetty {
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
         this.loginService = builder.loginService;
-        this.configureForJaspic = builder.configureForJaspic;
         this.jaspicUbeskyttet = builder.jaspicUbeskyttet;
+        this.serverAuthModule = builder.serverAuthModule;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
         this.server = setupJetty(new Server());
@@ -280,7 +287,7 @@ public final class Jetty {
             securityHandler.setRealmName(loginService.getName());
         }
 
-        if (configureForJaspic) {
+        if (serverAuthModule != null) {
             if (loginService != null) {
                 LOG.warn("loginService shoudld be null when configured for jaspic");
             }
@@ -354,8 +361,8 @@ public final class Jetty {
     }
 
     private Server setupJetty(final Server jetty) {
-        if (configureForJaspic) {
-            registerOidcAuthModule(new ServletContextEvent(context.getServletContext()), true);
+        if (serverAuthModule != null) {
+            registerOidcAuthModule(serverAuthModule, context.getServletContext());
         }
         Resource.setDefaultUseCaches(false);
 

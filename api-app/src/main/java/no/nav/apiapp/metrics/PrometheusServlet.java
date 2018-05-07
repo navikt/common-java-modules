@@ -2,6 +2,7 @@ package no.nav.apiapp.metrics;
 
 import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.dialogarena.types.Pingable.Ping;
@@ -45,9 +46,13 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
     }
 
     protected void doGet(final HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        PrintWriter responseWriter = response.getWriter();
-        write(responseWriter, CollectorRegistry.defaultRegistry.metricFamilySamples());
-        write(responseWriter, selfTests());
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType(TextFormat.CONTENT_TYPE_004);
+
+        try(PrintWriter responseWriter = response.getWriter()){
+            write(responseWriter, CollectorRegistry.defaultRegistry.metricFamilySamples());
+            write(responseWriter, selfTests());
+        }
     }
 
     static void write(Writer printWriter, Enumeration<Collector.MetricFamilySamples> samplesEnumeration) throws IOException {
