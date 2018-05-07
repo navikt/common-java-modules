@@ -7,7 +7,6 @@ import static java.lang.reflect.Proxy.newProxyInstance;
 
 public class MetricsFactory {
     public static final String DISABLE_METRICS_REPORT_KEY = "disable.metrics.report";
-    public static final String DISABLE_SYSTEM_TAGS_KEY = "disable.metrics.systemtags";
     private static final MetricsClient metricsClient = new MetricsClient();
 
     public static Timer createTimer(String name) {
