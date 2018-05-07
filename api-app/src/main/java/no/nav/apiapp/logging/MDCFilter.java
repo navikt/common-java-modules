@@ -1,7 +1,6 @@
 package no.nav.apiapp.logging;
 
 import no.nav.apiapp.util.SubjectUtils;
-import no.nav.sbl.rest.RestUtils;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -11,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.UUID;
 
 import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.log.MDCConstants.*;
@@ -21,14 +21,12 @@ public class MDCFilter extends OncePerRequestFilter {
 
     public static final String CALL_ID_HEADER_NAME = "X-Call-Id";
 
-    private static final SecureRandom RANDOM = new SecureRandom();
-
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         String userId = SubjectUtils.getUserId().orElse("");
         String consumerId = SubjectUtils.getConsumerId().orElse("");
-        String callId = generateCallId();
-        String correlationId = of(httpServletRequest.getHeader(CORRELATION_ID_HEADER_NAME)).orElseGet(this::generateCorrelationId);
+        String callId = generateId();
+        String correlationId = of(httpServletRequest.getHeader(CORRELATION_ID_HEADER_NAME)).orElseGet(MDCFilter::generateId);
 
         MDC.put(MDC_CALL_ID, callId);
         MDC.put(MDC_USER_ID, userId);
@@ -48,21 +46,9 @@ public class MDCFilter extends OncePerRequestFilter {
         }
     }
 
-    private String generateCorrelationId() {
-        return generate("CorrelationId");
-    }
-
-    private String generateCallId() {
-        return generate("CallId");
-    }
-
-    private static String generate(String prefix) {
-        return prefix
-                + "_"
-                + System.currentTimeMillis()
-                + "_"
-                + RANDOM.nextInt(Integer.MAX_VALUE)
-                ;
+    private static String generateId() {
+        UUID uuid = UUID.randomUUID();
+        return Long.toHexString(uuid.getMostSignificantBits()) + Long.toHexString(uuid.getLeastSignificantBits());
     }
 
 }
