@@ -27,6 +27,8 @@ public class EnvironmentUtils {
     public static final String APP_VERSION_PROPERTY_NAME = "APP_VERSION";
     public static final String APP_VERSION_PROPERTY_NAME_SKYA = "application.version";
 
+    public static final String JBOSS_PROPERTY_KEY = "jboss.home.dir";
+
     public static void setProperty(String name, String value, Type type) {
         LOGGER.info("{}={}", name, type.format(value));
         System.setProperty(name, value);
@@ -97,6 +99,10 @@ public class EnvironmentUtils {
 
     private static String getProperty(String propertyName) {
         return System.getProperty(propertyName, System.getenv(propertyName));
+    }
+
+    public static boolean isRunningOnJboss() {
+        return getOptionalProperty(JBOSS_PROPERTY_KEY).isPresent();
     }
 
     public enum EnviromentClass {

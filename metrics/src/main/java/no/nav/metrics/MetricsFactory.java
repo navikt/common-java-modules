@@ -1,13 +1,19 @@
 package no.nav.metrics;
 
+import no.nav.metrics.handlers.SensuHandler;
 import no.nav.metrics.proxy.EventProxy;
 import no.nav.metrics.proxy.TimerProxy;
+import no.nav.sbl.util.EnvironmentUtils;
 
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 public class MetricsFactory {
-    public static final String DISABLE_METRICS_REPORT_KEY = "disable.metrics.report";
+
     private static final MetricsClient metricsClient = new MetricsClient();
+
+    public static void enableMetrics(MetricsConfig metricsConfig) {
+        MetricsClient.enableMetrics(metricsConfig);
+    }
 
     public static Timer createTimer(String name) {
         return new Timer(metricsClient, name);

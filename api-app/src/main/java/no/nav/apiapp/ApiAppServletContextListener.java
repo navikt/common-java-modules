@@ -20,6 +20,8 @@ import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.util.JbossUtil;
 import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
 import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
+import no.nav.metrics.MetricsClient;
+import no.nav.metrics.MetricsConfig;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
@@ -53,11 +55,9 @@ import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
-import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
+import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
-import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
@@ -165,6 +165,11 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             leggTilServlet(servletContextEvent, new SoapServlet(), "/ws/*");
         }
         settOppSessionOgCookie(servletContextEvent, apiApplication);
+
+        if (apiApplication instanceof ApiApplication.NaisApiApplication) {
+            MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
+        }
+
         LOGGER.info("contextInitialized - slutt");
         apiApplication.startup(servletContext);
     }

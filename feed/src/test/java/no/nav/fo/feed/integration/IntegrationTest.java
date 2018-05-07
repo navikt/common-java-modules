@@ -34,7 +34,6 @@ import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -66,7 +65,6 @@ public class IntegrationTest {
 
     @Before
     public void before() {
-        System.setProperty(DISABLE_METRICS_REPORT_KEY, "true");
         System.setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "lokalt");
         producerServer = new Server(PRODUCER_PORT);
         consumerServer = new Server(CONSUMER_PORT);

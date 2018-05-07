@@ -37,7 +37,6 @@ import static no.nav.dialogarena.config.security.ISSOProvider.LOGIN_APPLIKASJON;
 import static no.nav.dialogarena.config.util.Util.Mode.IKKE_OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.Mode.OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.setProperty;
-import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.dialogarena.common.jetty.ToUrl.JETTY_PRINT_LOCALHOST;
@@ -245,7 +244,6 @@ public class DevelopmentSecurity {
         setupKeyAndTrustStore();
 
         setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "t");
-        setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString());
         setProperty(JETTY_PRINT_LOCALHOST, Boolean.TRUE.toString());
         setProperty(AnnotationConfiguration.MAX_SCAN_WAIT, "120");
     }

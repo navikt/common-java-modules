@@ -15,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
-import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_HOST;
-import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
@@ -37,7 +35,6 @@ public class ApiApp {
     @SneakyThrows
     public static void startApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
-        setupSensu();
         setupTrustStore();
         NaisApiApplication apiApplication = apiAppClass.newInstance();
         setupSubjectHandlers();
@@ -99,11 +96,6 @@ public class ApiApp {
         }
         getOptionalProperty(NAV_TRUSTSTORE_PATH).ifPresent(path -> setProperty(TRUSTSTORE, path, PUBLIC));
         getOptionalProperty(NAV_TRUSTSTORE_PASSWORD).ifPresent(passwd -> setProperty(TRUSTSTOREPASSWORD, passwd, SECRET));
-    }
-
-    private static void setupSensu() {
-        setProperty(SENSU_CLIENT_HOST, "sensu.nais", PUBLIC);
-        setProperty(SENSU_CLIENT_PORT, "3030", PUBLIC);
     }
 
     private static void reportStartupTime(long start) {

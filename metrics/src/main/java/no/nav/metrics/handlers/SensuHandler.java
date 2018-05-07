@@ -1,5 +1,6 @@
 package no.nav.metrics.handlers;
 
+import no.nav.metrics.MetricsConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,13 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static no.nav.metrics.MetricsClient.DISABLE_METRICS_REPORT;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-
 public class SensuHandler {
-
-    public static final String SENSU_CLIENT_HOST = "sensu_client_host";
-    public static final String SENSU_CLIENT_PORT = "sensu_client_port";
 
     private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
     private static final int RETRY_INTERVAL = Integer.parseInt(System.getProperty("metrics.sensu.report.retryInterval", "1000"));
@@ -36,28 +31,29 @@ public class SensuHandler {
     private final String application;
     private final int sensuPort;
     private final String sensuHost;
+    private final ScheduledExecutorService scheduledExecutorService;
     private long queueSisteGangFullTimestamp = 0;
 
-    public SensuHandler(String application) {
+    public SensuHandler(String application, MetricsConfig metricsConfig) {
         this.application = application;
-        this.sensuHost = getOptionalProperty(SENSU_CLIENT_HOST).orElse("localhost");
-        this.sensuPort = getOptionalProperty(SENSU_CLIENT_PORT).map(Integer::parseInt).orElse(3030); // System property'en sensu_client_port settes av plattformen
+        this.sensuHost = metricsConfig.getHost();
+        this.sensuPort = metricsConfig.getPort();
 
-        if (!DISABLE_METRICS_REPORT) {
-            logger.info("Metrics aktivert med parametre: batch size: {}, batches per second: {}, gir batch delay: {}ms, queue size: {}, retry interval: {}ms, sensu host {} sensu port: {}",
-                    BATCH_SIZE,
-                    BATCHES_PER_SECOND,
-                    BATCH_DELAY,
-                    QUEUE_SIZE,
-                    RETRY_INTERVAL,
-                    this.sensuHost,
-                    this.sensuPort
-            );
-            ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-            scheduledExecutorService.execute(new SensuReporter());
-        } else {
-            logger.warn("metrics disabled");
-        }
+        logger.info("Metrics aktivert med parametre: batch size: {}, batches per second: {}, gir batch delay: {}ms, queue size: {}, retry interval: {}ms, sensu host {} sensu port: {}",
+                BATCH_SIZE,
+                BATCHES_PER_SECOND,
+                BATCH_DELAY,
+                QUEUE_SIZE,
+                RETRY_INTERVAL,
+                this.sensuHost,
+                this.sensuPort
+        );
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutorService.execute(new SensuReporter());
+    }
+
+    public void shutdown() {
+        scheduledExecutorService.shutdown();
     }
 
     private class SensuReporter implements Runnable {
