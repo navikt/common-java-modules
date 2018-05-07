@@ -3,7 +3,6 @@ package no.nav.metrics;
 import no.nav.metrics.handlers.InfluxHandler;
 import no.nav.metrics.handlers.SensuHandler;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Boolean.parseBoolean;
@@ -14,23 +13,25 @@ import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 
 public class MetricsClient {
     public static final Boolean DISABLE_METRICS_REPORT = parseBoolean(getProperty(DISABLE_METRICS_REPORT_KEY, "false"));
-    private final Map<String, String> systemTags = new HashMap<>();
     private final SensuHandler sensuHandler;
+    private final String application;
+    private final String hostname;
+    private final String environment;
 
     public MetricsClient() {
-        addSystemPropertiesToTags();
-        sensuHandler = new SensuHandler(systemTags.get("application"));;
-    }
+        application = System.getProperty("applicationName");
+        hostname = System.getProperty("node.hostname");
+        environment = System.getProperty("environment.name");
 
-    private void addSystemPropertiesToTags() {
-        systemTags.put("application", System.getProperty("applicationName"));
-        systemTags.put("hostname", System.getProperty("node.hostname"));
-        systemTags.put("environment", System.getProperty("environment.name"));
+        sensuHandler = new SensuHandler(application);
     }
 
     void report(String metricName, Map<String, Object> fields, Map<String, String> tagsFromMetric, long timestampInMilliseconds) {
-        tagsFromMetric.putAll(systemTags);
         if (!DISABLE_METRICS_REPORT) {
+            tagsFromMetric.putIfAbsent("application", application);
+            tagsFromMetric.putIfAbsent("hostname", hostname);
+            tagsFromMetric.putIfAbsent("environment", environment);
+
             long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
             String output = InfluxHandler.createLineProtocolPayload(metricName, tagsFromMetric, fields, timestamp);
             sensuHandler.report(output);
