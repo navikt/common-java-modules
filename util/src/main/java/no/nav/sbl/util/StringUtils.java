@@ -23,4 +23,8 @@ public class StringUtils {
         return string;
     }
 
+    public static String toString(Object o) {
+        return o != null ? o.toString() : "";
+    }
+
 }
