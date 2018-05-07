@@ -3,9 +3,6 @@ package no.nav.sbl.util;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
-
 import static java.lang.System.setProperty;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -101,36 +98,36 @@ public class EnvironmentUtilsTest {
 
 
     @Test
-    public void getApplicationVersion_from_environment() throws ServletException, IOException {
+    public void getApplicationVersion_from_environment() {
         setTemporaryProperty(APP_VERSION_PROPERTY_NAME, "123", () -> {
             assertThat(EnvironmentUtils.getApplicationVersion()).hasValue("123");
         });
     }
 
     @Test
-    public void getApplicationName() throws ServletException, IOException {
+    public void getApplicationName() {
         assertThat(EnvironmentUtils.getApplicationName()).isEmpty();
         assertThatThrownBy(EnvironmentUtils::requireApplicationName).hasMessageContaining(APP_NAME_PROPERTY_NAME);
 
-        setTemporaryProperty(APP_NAME_PROPERTY_NAME,"testapp",()->{
+        setTemporaryProperty(APP_NAME_PROPERTY_NAME, "testapp", () -> {
             assertThat(EnvironmentUtils.getApplicationName()).hasValue("testapp");
             assertThat(EnvironmentUtils.requireApplicationName()).isEqualTo("testapp");
         });
     }
 
     @Test
-    public void getEnvironmentName() throws ServletException, IOException {
+    public void getEnvironmentName() {
         assertThat(EnvironmentUtils.getEnvironmentName()).isEmpty();
         assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
 
-        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME,"q42",()->{
+        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "q42", () -> {
             assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q42");
             assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q42");
         });
     }
 
     @Test
-    public void resolveHostname() throws ServletException, IOException {
+    public void resolveHostname() {
         assertThat(EnvironmentUtils.resolveHostName()).isNotEmpty();
     }
 
