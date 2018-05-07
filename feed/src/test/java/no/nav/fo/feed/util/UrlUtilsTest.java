@@ -1,14 +1,21 @@
 package no.nav.fo.feed.util;
 
+import no.nav.sbl.util.EnvironmentUtils;
+import org.junit.After;
 import org.junit.Test;
 
-import static no.nav.fo.feed.util.UrlUtils.asUrl;
-import static no.nav.fo.feed.util.UrlUtils.callbackUrl;
+import static no.nav.fo.feed.util.UrlUtils.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public class UrlUtilsTest {
+
+    @After
+    public void cleanup() {
+        System.clearProperty(FEED_LOKALT_CALLBACK_HOST_PROPERTY_NAME);
+    }
+
     @Test
     public void skalStotteHttp() {
         String url = "http://app-t5.adeo.no/veilarbportefolje//api/feed/tilordninger";
@@ -29,8 +36,7 @@ public class UrlUtilsTest {
 
     @Test
     public void skalGiRiktigUrlForLokaltMiljo() {
-        System.setProperty("environment.class", "lokalt");
-        System.setProperty("feed.lokalt.callback.host", "https://mylocalhost:1234/skjera/");
+        System.setProperty(FEED_LOKALT_CALLBACK_HOST_PROPERTY_NAME, "https://mylocalhost:1234/skjera/");
 
         assertThat(callbackUrl("/approot", "/feedname"), is(equalTo(
                 "https://mylocalhost:1234/skjera/approot/feed/feedname"
@@ -39,8 +45,7 @@ public class UrlUtilsTest {
 
     @Test
     public void skalGiRiktigUrlForT() {
-        System.setProperty("environment.class", "t");
-        System.setProperty("environment.name", "t4");
+        System.setProperty(EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "t4");
 
         assertThat(callbackUrl("/approot", "/feedname"), is(equalTo(
                 "https://app-t4.adeo.no/approot/feed/feedname"

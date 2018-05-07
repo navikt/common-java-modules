@@ -3,6 +3,7 @@ package no.nav.json;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.Value;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ import static java.lang.System.setProperty;
 import static no.nav.json.JsonProvider.createObjectMapper;
 import static no.nav.json.JsonUtils.fromJson;
 import static no.nav.json.JsonUtils.toJson;
-import static no.nav.sbl.util.EnvironmentUtils.ENVIRONMENT_CLASS_PROPERTY_NAME;
+import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -64,7 +65,7 @@ public class JsonUtilsTest {
 
         @Test
         public void pretty_print_i_test() {
-            setProperty(ENVIRONMENT_CLASS_PROPERTY_NAME, "t");
+            setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "t42");
             assertThat(toJson(new TestObject(), createObjectMapper())).isEqualTo(TEST_OBJECT_PRETTY_JSON);
         }
 

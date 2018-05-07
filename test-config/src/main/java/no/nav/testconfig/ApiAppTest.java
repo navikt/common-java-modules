@@ -8,6 +8,7 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.ContextBase;
 import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
+import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.sbl.util.LogUtils;
@@ -15,8 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static ch.qos.logback.classic.Level.INFO;
-import static no.nav.dialogarena.config.util.Util.setProperty;
 import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
+import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
+import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 
 public class ApiAppTest {
 
@@ -30,7 +33,8 @@ public class ApiAppTest {
     public static void setupTestContext() {
         getLoggerContext().getLogger("ROOT").iteratorForAppenders().forEachRemaining(ApiAppTest::simplifyConsoleAppender);
         LogUtils.setGlobalLogLevel(INFO);
-        setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString());
+        setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString(), PUBLIC);
+        setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FasitUtils.getDefaultEnvironment(), PUBLIC);
         SSLTestUtils.disableCertificateChecks();
         WebProxyConfigurator.setupWebProxy();
     }

@@ -1,11 +1,12 @@
 package no.nav.sbl.util;
 
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
@@ -17,7 +18,14 @@ public class EnvironmentUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnvironmentUtils.class);
 
-    public static final String ENVIRONMENT_CLASS_PROPERTY_NAME = "environment.class";
+    public static final String APP_NAME_PROPERTY_NAME = "APP_NAME";
+    public static final String APP_NAME_PROPERTY_NAME_SKYA = "applicationName";
+
+    public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME = "FASIT_ENVIRONMENT_NAME";
+    public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA = "environment.name";
+
+    public static final String APP_VERSION_PROPERTY_NAME = "APP_VERSION";
+    public static final String APP_VERSION_PROPERTY_NAME_SKYA = "application.version";
 
     public static void setProperty(String name, String value, Type type) {
         LOGGER.info("{}={}", name, type.format(value));
@@ -43,9 +51,9 @@ public class EnvironmentUtils {
     }
 
     public static EnviromentClass getEnvironmentClass() {
-        return getOptionalProperty(ENVIRONMENT_CLASS_PROPERTY_NAME)
-                .map(String::toUpperCase)
-                .flatMap(environmentClass -> EnumUtils.valueOf(EnviromentClass.class, environmentClass))
+        return getEnvironmentName()
+                .map(e -> Character.toString(e.charAt(0)).toUpperCase())
+                .map(EnviromentClass::valueOf)
                 .orElse(UKNOWN);
     }
 
@@ -53,7 +61,32 @@ public class EnvironmentUtils {
         return getEnvironmentClass().equals(enviromentClass);
     }
 
-    private static String createErrorMessage(String propertyName, String[] otherPropertyNames) {
+    public static Optional<String> getApplicationName() {
+        return getOptionalProperty(APP_NAME_PROPERTY_NAME, APP_NAME_PROPERTY_NAME_SKYA);
+    }
+
+    public static String requireApplicationName() {
+        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(APP_NAME_PROPERTY_NAME, APP_NAME_PROPERTY_NAME_SKYA)));
+    }
+
+    public static Optional<String> getEnvironmentName() {
+        return getOptionalProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA);
+    }
+
+    public static String requireEnvironmentName() {
+        return getEnvironmentName().orElseThrow(() -> new IllegalStateException(createErrorMessage(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA)));
+    }
+
+    public static Optional<String> getApplicationVersion() {
+        return getOptionalProperty(APP_VERSION_PROPERTY_NAME, APP_VERSION_PROPERTY_NAME_SKYA);
+    }
+
+    @SneakyThrows
+    public static String resolveHostName() {
+        return InetAddress.getLocalHost().getCanonicalHostName();
+    }
+
+    private static String createErrorMessage(String propertyName, String... otherPropertyNames) {
         if (otherPropertyNames == null) {
             return "mangler property: " + propertyName;
         } else {

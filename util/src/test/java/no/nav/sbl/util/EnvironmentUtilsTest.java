@@ -3,15 +3,15 @@ package no.nav.sbl.util;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.ServletException;
+import java.io.IOException;
+
 import static java.lang.System.setProperty;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
-import static no.nav.sbl.util.EnvironmentUtils.ENVIRONMENT_CLASS_PROPERTY_NAME;
+import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.*;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
-import static no.nav.sbl.util.EnvironmentUtils.getEnvironmentClass;
-import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
-import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 import static no.nav.sbl.util.PropertyUtils.getOptionalProperty;
 import static no.nav.sbl.util.PropertyUtils.getRequiredProperty;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class EnvironmentUtilsTest {
 
     private static final String PROPERTY_NAME = EnvironmentUtilsTest.class.getName();
-    public static final String MILJO_PROPERTY_NAME = "environment.class";
 
     @Before
     public void setup() {
@@ -61,7 +60,7 @@ public class EnvironmentUtilsTest {
 
     @Test
     public void getEnvironmentClass__default_ukjent() {
-        System.clearProperty(ENVIRONMENT_CLASS_PROPERTY_NAME);
+        System.clearProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
         assertThat(getEnvironmentClass()).isEqualTo(UKNOWN);
     }
 
@@ -89,8 +88,8 @@ public class EnvironmentUtilsTest {
     @Test
     public void setProperty__logges() {
         String value = "123";
-        setProperty(PROPERTY_NAME, value, PUBLIC);
-        setProperty(PROPERTY_NAME, value, SECRET);
+        EnvironmentUtils.setProperty(PROPERTY_NAME, value, PUBLIC);
+        EnvironmentUtils.setProperty(PROPERTY_NAME, value, SECRET);
         assertThat(getOptionalProperty(PROPERTY_NAME)).hasValue(value);
     }
 
@@ -100,10 +99,46 @@ public class EnvironmentUtilsTest {
         assertThat(requiredProperty).isNotBlank();
     }
 
+
+    @Test
+    public void getApplicationVersion_from_environment() throws ServletException, IOException {
+        setTemporaryProperty(APP_VERSION_PROPERTY_NAME, "123", () -> {
+            assertThat(EnvironmentUtils.getApplicationVersion()).hasValue("123");
+        });
+    }
+
+    @Test
+    public void getApplicationName() throws ServletException, IOException {
+        assertThat(EnvironmentUtils.getApplicationName()).isEmpty();
+        assertThatThrownBy(EnvironmentUtils::requireApplicationName).hasMessageContaining(APP_NAME_PROPERTY_NAME);
+
+        setTemporaryProperty(APP_NAME_PROPERTY_NAME,"testapp",()->{
+            assertThat(EnvironmentUtils.getApplicationName()).hasValue("testapp");
+            assertThat(EnvironmentUtils.requireApplicationName()).isEqualTo("testapp");
+        });
+    }
+
+    @Test
+    public void getEnvironmentName() throws ServletException, IOException {
+        assertThat(EnvironmentUtils.getEnvironmentName()).isEmpty();
+        assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
+
+        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME,"q42",()->{
+            assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q42");
+            assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q42");
+        });
+    }
+
+    @Test
+    public void resolveHostname() throws ServletException, IOException {
+        assertThat(EnvironmentUtils.resolveHostName()).isNotEmpty();
+    }
+
     private void assertGetEnvironmentClass(String verdi, EnvironmentUtils.EnviromentClass enviromentClass) {
-        System.setProperty(ENVIRONMENT_CLASS_PROPERTY_NAME, verdi);
-        assertThat(getEnvironmentClass()).isEqualTo(enviromentClass);
-        assertThat(isEnvironmentClass(enviromentClass)).isTrue();
+        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, verdi, () -> {
+            assertThat(getEnvironmentClass()).isEqualTo(enviromentClass);
+            assertThat(isEnvironmentClass(enviromentClass)).isTrue();
+        });
     }
 
 }

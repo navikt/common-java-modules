@@ -2,6 +2,7 @@ package no.nav.metrics;
 
 import no.nav.metrics.handlers.InfluxHandler;
 import no.nav.metrics.handlers.SensuHandler;
+import no.nav.sbl.util.EnvironmentUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,13 +20,13 @@ public class MetricsClient {
 
     public MetricsClient() {
         addSystemPropertiesToTags();
-        sensuHandler = new SensuHandler(systemTags.get("application"));;
+        sensuHandler = new SensuHandler(systemTags.get("application"));
     }
 
     private void addSystemPropertiesToTags() {
-        systemTags.put("application", System.getProperty("applicationName"));
-        systemTags.put("hostname", System.getProperty("node.hostname"));
-        systemTags.put("environment", System.getProperty("environment.name"));
+        systemTags.put("application", EnvironmentUtils.requireApplicationName());
+        systemTags.put("environment", EnvironmentUtils.requireEnvironmentName());
+        systemTags.put("hostname", EnvironmentUtils.resolveHostName());
     }
 
     void report(String metricName, Map<String, Object> fields, Map<String, String> tagsFromMetric, long timestampInMilliseconds) {

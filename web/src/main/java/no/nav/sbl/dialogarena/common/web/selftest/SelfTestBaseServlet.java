@@ -5,6 +5,7 @@ import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestEndpoint;
 import no.nav.sbl.dialogarena.common.web.selftest.generators.SelftestHtmlGenerator;
 import no.nav.sbl.dialogarena.common.web.selftest.generators.SelftestJsonGenerator;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,27 +15,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.jar.Manifest;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 
 public abstract class SelfTestBaseServlet extends HttpServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(SelfTestBaseServlet.class);
-    static final String APP_VERSION_PROPERTY_NAME = "APP_VERSION";
-
 
     protected List<Ping> result;
     private volatile long lastResultTime;
@@ -91,29 +85,8 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
         return STATUS_OK;
     }
 
-    protected String getApplicationVersion() {
-        return getOptionalProperty(APP_VERSION_PROPERTY_NAME).orElseGet(this::getApplicationVersjonFromManifest);
-    }
-
-    private String getApplicationVersjonFromManifest() {
-        String version = "unknown version";
-        try {
-            InputStream inputStream = getServletContext().getResourceAsStream("/META-INF/MANIFEST.MF");
-            version = new Manifest(inputStream).getMainAttributes().getValue("Implementation-Version");
-        } catch (Exception e) {
-            logger.warn("Feil ved henting av applikasjonsversjon: " + e.getMessage());
-        }
-        return version;
-    }
-
     protected String getHost() {
-        String host = "unknown host";
-        try {
-            host = InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            logger.error("Error retrieving host", e);
-        }
-        return host;
+        return EnvironmentUtils.resolveHostName();
     }
 
     private static final Function<Pingable, Ping> PING = pingable -> {
@@ -129,7 +102,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
     private Selftest lagSelftest() {
         return new Selftest()
             .setApplication(getApplicationName())
-            .setVersion(getApplicationVersion())
+            .setVersion(EnvironmentUtils.getApplicationVersion().orElse("?"))
             .setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
             .setAggregateResult(getAggregertStatus())
             .setChecks(result.stream()

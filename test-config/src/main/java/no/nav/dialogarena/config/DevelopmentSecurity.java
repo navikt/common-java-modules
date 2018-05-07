@@ -19,32 +19,30 @@ import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
 import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
-import org.apache.commons.io.IOUtils;
-import org.apache.geronimo.components.jaspi.AuthConfigFactoryImpl;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.slf4j.Logger;
 
 import javax.security.auth.Subject;
-import javax.security.auth.message.config.AuthConfigFactory;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static java.lang.String.format;
-import static javax.security.auth.message.config.AuthConfigFactory.DEFAULT_FACTORY_SECURITY_PROPERTY;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
 import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
-import static no.nav.dialogarena.config.fasit.FasitUtils.*;
+import static no.nav.dialogarena.config.fasit.FasitUtils.erEksterntDomene;
+import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultEnvironment;
 import static no.nav.dialogarena.config.security.ISSOProvider.LOGIN_APPLIKASJON;
 import static no.nav.dialogarena.config.util.Util.Mode.IKKE_OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.Mode.OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.setProperty;
+import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
+import static no.nav.sbl.dialogarena.common.jetty.ToUrl.JETTY_PRINT_LOCALHOST;
 import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
-import static org.apache.commons.io.IOUtils.write;
+import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class DevelopmentSecurity {
@@ -246,9 +244,9 @@ public class DevelopmentSecurity {
         // men det settes også system-properties som vi ofte må ha i test/utvikling
         setupKeyAndTrustStore();
 
-        setProperty("environment.class", "t");
-        setProperty("disable.metrics.report", Boolean.TRUE.toString());
-        setProperty("jetty.print.localhost", Boolean.TRUE.toString());
+        setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "t");
+        setProperty(DISABLE_METRICS_REPORT_KEY, Boolean.TRUE.toString());
+        setProperty(JETTY_PRINT_LOCALHOST, Boolean.TRUE.toString());
         setProperty(AnnotationConfiguration.MAX_SCAN_WAIT, "120");
     }
 

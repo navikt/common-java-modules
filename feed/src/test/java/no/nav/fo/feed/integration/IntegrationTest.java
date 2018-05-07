@@ -9,6 +9,9 @@ import no.nav.fo.feed.consumer.FeedConsumer;
 import no.nav.fo.feed.consumer.FeedConsumerConfig;
 import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
+import no.nav.metrics.MetricsClient;
+import no.nav.metrics.MetricsFactory;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -31,6 +34,8 @@ import java.util.stream.IntStream;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
+import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
+import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -61,8 +66,8 @@ public class IntegrationTest {
 
     @Before
     public void before() {
-        System.setProperty("disable.metrics.report", "true");
-        System.setProperty("environment.class", "lokalt");
+        System.setProperty(DISABLE_METRICS_REPORT_KEY, "true");
+        System.setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "lokalt");
         producerServer = new Server(PRODUCER_PORT);
         consumerServer = new Server(CONSUMER_PORT);
 

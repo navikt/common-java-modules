@@ -44,17 +44,20 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 import static ch.qos.logback.classic.Level.INFO;
-import static java.lang.System.getProperty;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.ApiApplication.Sone.SBS;
-import static no.nav.apiapp.Constants.MILJO_PROPERTY_NAME;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
+import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
+import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
+import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
+import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
@@ -90,7 +93,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private int sesjonsLengde;
 
     static {
-        if (getProperty(MILJO_PROPERTY_NAME, "").equals("t")) {
+        if (isEnvironmentClass(T)) {
             setGlobalLogLevel(INFO);
         }
     }
@@ -269,6 +272,11 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         contextLoaderListener.contextInitialized(servletContextEvent);
         AnnotationConfigWebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
         ApiApplication apiApplication = webApplicationContext.getBean(ApiApplication.class);
+
+        if (!EnvironmentUtils.getApplicationName().isPresent()) {
+            setProperty(APP_NAME_PROPERTY_NAME, apiApplication.getApplicationName(), PUBLIC);
+        }
+
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
         leggTilBonne(servletContextEvent, new TruststoreHelsesjekk());
         if (issoBrukes()) {

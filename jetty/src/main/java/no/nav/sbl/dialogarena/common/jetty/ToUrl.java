@@ -8,6 +8,8 @@ import java.util.function.Function;
 
 public class ToUrl implements Function<Integer, URL> {
 
+    public static final String JETTY_PRINT_LOCALHOST = "jetty.print.localhost";
+
     private final String scheme;
     private final String path;
 
@@ -19,7 +21,7 @@ public class ToUrl implements Function<Integer, URL> {
     @Override
     public URL apply(Integer port) {
         try {
-            if(System.getProperty("jetty.print.localhost") != null) {
+            if(System.getProperty(JETTY_PRINT_LOCALHOST) != null) {
                 return new URL(scheme + "://localhost:" + port + path);
             }
             return new URL(scheme + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port + path);
