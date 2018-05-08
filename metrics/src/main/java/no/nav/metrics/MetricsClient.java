@@ -5,7 +5,6 @@ import no.nav.metrics.handlers.InfluxHandler;
 import no.nav.metrics.handlers.SensuHandler;
 import no.nav.sbl.util.EnvironmentUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -13,9 +12,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 @Slf4j
 public class MetricsClient {
 
-    private static final Map<String, String> SYSTEM_TAGS = new HashMap<>();
     private static volatile boolean metricsReportEnabled;
     private static volatile SensuHandler sensuHandler;
+    private static volatile MetricsConfig metricsConfig;
 
     static {
         if (EnvironmentUtils.isRunningOnJboss()) {
@@ -27,11 +26,8 @@ public class MetricsClient {
 
     public static void enableMetrics(MetricsConfig metricsConfig) {
         if (!metricsReportEnabled) {
-            log.info("Enabling metrics with config: {}", metricsConfig);
-            SYSTEM_TAGS.put("application", EnvironmentUtils.requireApplicationName());
-            SYSTEM_TAGS.put("environment", EnvironmentUtils.requireEnvironmentName());
-            SYSTEM_TAGS.put("hostname", EnvironmentUtils.resolveHostName());
-            sensuHandler = new SensuHandler(EnvironmentUtils.requireApplicationName(), metricsConfig);
+            MetricsClient.metricsConfig = metricsConfig;
+            sensuHandler = new SensuHandler(metricsConfig);
             metricsReportEnabled = true;
         }
     }
@@ -46,7 +42,10 @@ public class MetricsClient {
 
     void report(String metricName, Map<String, Object> fields, Map<String, String> tagsFromMetric, long timestampInMilliseconds) {
         if (metricsReportEnabled) {
-            tagsFromMetric.putAll(SYSTEM_TAGS);
+            tagsFromMetric.putIfAbsent("application", metricsConfig.getApplication());
+            tagsFromMetric.putIfAbsent("hostname", metricsConfig.getHostname());
+            tagsFromMetric.putIfAbsent("environment", metricsConfig.getEnvironment());
+
             long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
             String output = InfluxHandler.createLineProtocolPayload(metricName, tagsFromMetric, fields, timestamp);
             sensuHandler.report(output);

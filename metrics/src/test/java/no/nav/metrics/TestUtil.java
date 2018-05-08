@@ -13,10 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static java.lang.System.setProperty;
-import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
-import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
-
 public class TestUtil {
 
     public static <T> T lagAspectProxy(T target, Object aspect) {
@@ -60,12 +56,20 @@ public class TestUtil {
     }
 
     public static void enableMetricsForTest(int port) {
-        setProperty(APP_NAME_PROPERTY_NAME, "testApp");
-        setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "T42");
-        MetricsClient.resetMetrics(new MetricsConfig("localhost", port));
+        MetricsClient.resetMetrics(testConfig(port));
     }
 
     public static SensuHandler sensuHandlerForTest(int port) {
-        return new SensuHandler("testApp", new MetricsConfig("localhost", port));
+        return new SensuHandler(testConfig(port));
     }
+
+    private static MetricsConfig testConfig(int port) {
+        return MetricsConfig.withSensuDefaults(MetricsConfig.builder()
+                .application("testApp")
+                .sensuHost("localhost")
+                .sensuPort(port)
+                .build()
+        );
+    }
+
 }

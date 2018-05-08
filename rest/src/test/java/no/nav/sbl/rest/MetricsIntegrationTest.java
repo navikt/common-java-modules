@@ -27,9 +27,11 @@ public class MetricsIntegrationTest {
         try (ServerSocket sensuServerSocketMock = new ServerSocket(0)) {
             sensuServerSocketMock.setSoTimeout(5000);
 
-            System.setProperty(APP_NAME_PROPERTY_NAME,"rest");
-            System.setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME,"t");
-            MetricsClient.resetMetrics(new MetricsConfig("localhost", sensuServerSocketMock.getLocalPort()));
+            MetricsClient.resetMetrics(MetricsConfig.withSensuDefaults(MetricsConfig.builder()
+                    .sensuHost("localhost")
+                    .sensuPort(sensuServerSocketMock.getLocalPort())
+                    .build()
+            ));
 
             givenThat(get(urlEqualTo("/")).willReturn(aResponse().withStatus(200)));
             RestUtils.withClient(c -> c.target("http://localhost:58089").request().get());
