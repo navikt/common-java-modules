@@ -21,6 +21,7 @@ public class MetodeEvent {
             return metodekall.kallMetode();
         } catch (RuntimeException | Error unchecked) {
             event.setFailed();
+            event.addFieldToReport("checkedException", false);
             throw unchecked;
         } catch (Throwable checked) {
             event.setFailed();
