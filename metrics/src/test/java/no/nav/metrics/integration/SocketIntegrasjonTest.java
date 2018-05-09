@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static no.nav.metrics.TestUtil.*;
-import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -20,13 +19,12 @@ import static org.junit.Assert.fail;
 public class SocketIntegrasjonTest {
 
     private ServerSocket serverSocket;
-    private int sensuClientPort;
+    private SensuHandler sensuHandler;
 
     @Before
     public void setup() throws IOException {
-        serverSocket = new ServerSocket(getSensuClientPort());
-        sensuClientPort = serverSocket.getLocalPort();
-        System.setProperty(SENSU_CLIENT_PORT,Integer.toString(sensuClientPort));
+        serverSocket = new ServerSocket(0);
+        sensuHandler = sensuHandlerForTest(serverSocket.getLocalPort());
     }
 
     @After
@@ -44,7 +42,7 @@ public class SocketIntegrasjonTest {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                new SensuHandler("testApp").report("data123");
+                sensuHandler.report("data123");
             }
         }).start();
 
@@ -56,7 +54,7 @@ public class SocketIntegrasjonTest {
 
     @Test
     public void proverPaNyttOmFeiler() throws Exception {
-        new SensuHandler("testApp").report("data567");
+        sensuHandler.report("data567");
 
         Thread.sleep(600); // Venter med å lage socket en stund
 
@@ -73,7 +71,6 @@ public class SocketIntegrasjonTest {
     @Test
     public void taklerMyeLast() throws Exception {
         ExecutorService ex = Executors.newFixedThreadPool(4);
-        final SensuHandler sensuHandler = new SensuHandler("testApp");
         int antallTester = 500;
 
         for (int i = 0; i < antallTester; i++) {

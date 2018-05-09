@@ -19,15 +19,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.System.clearProperty;
-import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
-import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.APP_VERSION_PROPERTY_NAME;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_ERROR;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestServletTest.TestPingable.PING_TID;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
+import static no.nav.sbl.util.EnvironmentUtils.APP_VERSION_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,18 +59,11 @@ public class SelfTestServletTest {
 
         assertThat(baseServlet).isNotNull();
         assertThat(baseServlet.getApplicationName()).isEqualTo("TestApp");
-        assertThat(baseServlet.getApplicationVersion()).isEqualTo("unknown version");
         assertThat(baseServlet.getHost()).isNotBlank();
         assertThat(baseServlet.getAggregertStatus()).isEqualTo(STATUS_ERROR);
         assertThat(baseServlet.getPingables().size()).isEqualTo(3);
     }
 
-    @Test
-    public void getApplicationVersion_from_environment() throws ServletException, IOException {
-        assertThat(baseServlet.getApplicationVersion()).isEqualTo("unknown version");
-        setProperty(APP_VERSION_PROPERTY_NAME, "123");
-        assertThat(baseServlet.getApplicationVersion()).isEqualTo("123");
-    }
 
     public static final int THREADS = 100;
 

@@ -1,36 +1,51 @@
 package no.nav.metrics;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.metrics.handlers.InfluxHandler;
 import no.nav.metrics.handlers.SensuHandler;
+import no.nav.sbl.util.EnvironmentUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.Boolean.parseBoolean;
-import static java.lang.System.getProperty;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static no.nav.metrics.MetricsFactory.DISABLE_METRICS_REPORT_KEY;
 
-
+@Slf4j
 public class MetricsClient {
-    public static final Boolean DISABLE_METRICS_REPORT = parseBoolean(getProperty(DISABLE_METRICS_REPORT_KEY, "false"));
-    private final Map<String, String> systemTags = new HashMap<>();
-    private final SensuHandler sensuHandler;
 
-    public MetricsClient() {
-        addSystemPropertiesToTags();
-        sensuHandler = new SensuHandler(systemTags.get("application"));;
+    private static volatile boolean metricsReportEnabled;
+    private static volatile SensuHandler sensuHandler;
+    private static volatile MetricsConfig metricsConfig;
+
+    static {
+        if (EnvironmentUtils.isRunningOnJboss()) {
+            enableMetrics(MetricsConfig.resolveSkyaConfig());
+        } else {
+            log.warn("metrics was not automatically enabled");
+        }
     }
 
-    private void addSystemPropertiesToTags() {
-        systemTags.put("application", System.getProperty("applicationName"));
-        systemTags.put("hostname", System.getProperty("node.hostname"));
-        systemTags.put("environment", System.getProperty("environment.name"));
+    public static void enableMetrics(MetricsConfig metricsConfig) {
+        if (!metricsReportEnabled) {
+            MetricsClient.metricsConfig = metricsConfig;
+            sensuHandler = new SensuHandler(metricsConfig);
+            metricsReportEnabled = true;
+        }
+    }
+
+    public static void resetMetrics(MetricsConfig metricsConfig) {
+        if (sensuHandler != null) {
+            sensuHandler.shutdown();
+        }
+        metricsReportEnabled = false;
+        enableMetrics(metricsConfig);
     }
 
     void report(String metricName, Map<String, Object> fields, Map<String, String> tagsFromMetric, long timestampInMilliseconds) {
-        tagsFromMetric.putAll(systemTags);
-        if (!DISABLE_METRICS_REPORT) {
+        if (metricsReportEnabled) {
+            tagsFromMetric.putIfAbsent("application", metricsConfig.getApplication());
+            tagsFromMetric.putIfAbsent("hostname", metricsConfig.getHostname());
+            tagsFromMetric.putIfAbsent("environment", metricsConfig.getEnvironment());
+
             long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
             String output = InfluxHandler.createLineProtocolPayload(metricName, tagsFromMetric, fields, timestamp);
             sensuHandler.report(output);

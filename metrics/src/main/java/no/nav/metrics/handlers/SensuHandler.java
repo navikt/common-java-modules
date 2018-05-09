@@ -1,5 +1,6 @@
 package no.nav.metrics.handlers;
 
+import no.nav.metrics.MetricsConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -17,47 +18,37 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static no.nav.metrics.MetricsClient.DISABLE_METRICS_REPORT;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-
 public class SensuHandler {
 
-    public static final String SENSU_CLIENT_HOST = "sensu_client_host";
-    public static final String SENSU_CLIENT_PORT = "sensu_client_port";
-
     private static final Logger logger = LoggerFactory.getLogger(SensuHandler.class);
-    private static final int RETRY_INTERVAL = Integer.parseInt(System.getProperty("metrics.sensu.report.retryInterval", "1000"));
-    private static final int QUEUE_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.queueSize", "20000"));
-    private static final int BATCHES_PER_SECOND = Integer.parseInt(System.getProperty("metrics.sensu.report.batchesPerSecond", "50"));
-    private static final int BATCH_SIZE = Integer.parseInt(System.getProperty("metrics.sensu.report.batchSize", "100"));
-    private static final int BATCH_DELAY = 1000 / BATCHES_PER_SECOND;
 
-    private final LinkedBlockingQueue<String> reportQueue = new LinkedBlockingQueue<>(QUEUE_SIZE);
+    private final LinkedBlockingQueue<String> reportQueue;
     private final String application;
     private final int sensuPort;
     private final String sensuHost;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private final int batchSize;
+    private final int retryInterval;
+    private final int batchDelay;
+
     private long queueSisteGangFullTimestamp = 0;
 
-    public SensuHandler(String application) {
-        this.application = application;
-        this.sensuHost = getOptionalProperty(SENSU_CLIENT_HOST).orElse("localhost");
-        this.sensuPort = getOptionalProperty(SENSU_CLIENT_PORT).map(Integer::parseInt).orElse(3030); // System property'en sensu_client_port settes av plattformen
+    public SensuHandler(MetricsConfig metricsConfig) {
+        this.application = metricsConfig.getApplication();
+        this.sensuHost = metricsConfig.getSensuHost();
+        this.sensuPort = metricsConfig.getSensuPort();
+        this.reportQueue = new LinkedBlockingQueue<>(metricsConfig.getQueueSize());
+        this.batchDelay = 1000 / metricsConfig.getBatchesPerSecond();
+        this.batchSize = metricsConfig.getBatchSize();
+        this.retryInterval = metricsConfig.getRetryInterval();
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        this.scheduledExecutorService.execute(new SensuReporter());
 
-        if (!DISABLE_METRICS_REPORT) {
-            logger.info("Metrics aktivert med parametre: batch size: {}, batches per second: {}, gir batch delay: {}ms, queue size: {}, retry interval: {}ms, sensu host {} sensu port: {}",
-                    BATCH_SIZE,
-                    BATCHES_PER_SECOND,
-                    BATCH_DELAY,
-                    QUEUE_SIZE,
-                    RETRY_INTERVAL,
-                    this.sensuHost,
-                    this.sensuPort
-            );
-            ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-            scheduledExecutorService.execute(new SensuReporter());
-        } else {
-            logger.warn("metrics disabled");
-        }
+        logger.info("Metrics aktivert med parametre: {}", metricsConfig);
+    }
+
+    public void shutdown() {
+        scheduledExecutorService.shutdown();
     }
 
     private class SensuReporter implements Runnable {
@@ -73,7 +64,7 @@ public class SensuHandler {
 
                     reports.clear();
                     reports.add(report);
-                    reportQueue.drainTo(reports, BATCH_SIZE - 1);
+                    reportQueue.drainTo(reports, batchSize - 1);
                     logger.debug("Sender {} metrikker", reports.size());
 
                     String influxOutput = StringUtils.join(reports, "\n");
@@ -88,10 +79,10 @@ public class SensuHandler {
                     } catch (IOException e) {
                         reportQueue.addAll(reports); // Legger tilbake i køen
                         logger.error("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}",  e.getClass().getSimpleName(), e.getMessage());
-                        Thread.sleep(RETRY_INTERVAL); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
+                        Thread.sleep(retryInterval); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
 
-                    Thread.sleep(BATCH_DELAY);
+                    Thread.sleep(batchDelay);
 
                 } catch (InterruptedException e) {
                     logger.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje.", e);

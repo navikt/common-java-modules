@@ -5,7 +5,6 @@ import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.domain.SluttBruker;
 import no.nav.dialogarena.mock.MockHandler;
-import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.junit.After;

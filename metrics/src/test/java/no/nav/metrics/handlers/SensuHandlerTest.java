@@ -3,6 +3,7 @@ package no.nav.metrics.handlers;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
+import no.nav.metrics.TestUtil;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -19,7 +20,7 @@ public class SensuHandlerTest {
 
     @Test
     public void skriverJsonTilSocket(@Mocked Socket socket, @Mocked final BufferedWriter writer) throws Exception {
-        SensuHandler sensuHandler = new SensuHandler("testApp");
+        SensuHandler sensuHandler = TestUtil.sensuHandlerForTest(socket.getLocalPort());
         sensuHandler.report("testOutput");
 
         Thread.sleep(500); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
@@ -45,7 +46,7 @@ public class SensuHandlerTest {
             result = null;
         }};
 
-        SensuHandler sensuHandler = new SensuHandler("testApp");
+        SensuHandler sensuHandler = TestUtil.sensuHandlerForTest(socket.getLocalPort());
         sensuHandler.report("testOutput");
 
         Thread.sleep(1100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt (1000ms delay pga feilende kall + litt)

@@ -33,10 +33,6 @@ public class FasitUtilsIntegrationTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FasitUtilsIntegrationTest.class);
 
-    static {
-        System.setProperty(MetricsFactory.DISABLE_METRICS_REPORT_KEY, "true");
-    }
-
     private Boolean fasitAlive() {
         return withClient(client -> {
             try {

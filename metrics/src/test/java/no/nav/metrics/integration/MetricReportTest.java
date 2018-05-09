@@ -1,5 +1,6 @@
 package no.nav.metrics.integration;
 
+import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.TestUtil;
 import no.nav.metrics.aspects.Count;
@@ -13,9 +14,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 
-import static no.nav.metrics.TestUtil.getSensuClientPort;
+import static no.nav.metrics.TestUtil.enableMetricsForTest;
 import static no.nav.metrics.TestUtil.lesUtAlleMeldingerSendtPaSocket;
-import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
 import static org.junit.Assert.assertEquals;
 
 public class MetricReportTest {
@@ -24,13 +24,12 @@ public class MetricReportTest {
 
     @Before
     public void setup() throws IOException {
-        serverSocket = new ServerSocket(getSensuClientPort());
-        System.setProperty(SENSU_CLIENT_PORT, Integer.toString(serverSocket.getLocalPort()));
+        serverSocket = new ServerSocket(0);
+        enableMetricsForTest(serverSocket.getLocalPort());
     }
 
     @Test
     public void aspectOgProxySkalRapportereLikeDataForTimer() throws Exception {
-        TestUtil.resetMetrics();
         Thread.sleep(100);
 
         final TimeMe timerProxy = MetricsFactory.createTimerProxy("TimeMe", new TimeMeImpl(), TimeMe.class);
@@ -49,7 +48,6 @@ public class MetricReportTest {
 
     @Test
     public void aspectOgProxySkalRapportereLikeDataForEvent() throws Exception {
-        TestUtil.resetMetrics();
         Thread.sleep(100);
 
         final EventMe eventProxy = MetricsFactory.createEventProxy("EventMe", new EventMeImpl(), EventMe.class);

@@ -61,8 +61,6 @@ public class IntegrationTest {
 
     @Before
     public void before() {
-        System.setProperty("disable.metrics.report", "true");
-        System.setProperty("environment.class", "lokalt");
         producerServer = new Server(PRODUCER_PORT);
         consumerServer = new Server(CONSUMER_PORT);
 
@@ -189,7 +187,7 @@ public class IntegrationTest {
     public void getSkalReturnereForbidden() {
         producerServer.controller.addFeed("testfeed", FeedProducer.<DomainObject>builder().authorizationModule((feedname) -> false).build());
         Client client = ClientBuilder.newClient();
-        Response response = client.target(basePath(PRODUCER_PORT)).path("feed/testfeed").queryParam("id","0").request().get();
+        Response response = client.target(basePath(PRODUCER_PORT)).path("feed/testfeed").queryParam("id", "0").request().get();
 
         assertThat(response.getStatus(), is(403));
     }
@@ -212,7 +210,7 @@ public class IntegrationTest {
                 "webhook-producer"
         );
 
-        FeedConsumerConfig<DomainObject> config = new FeedConsumerConfig<DomainObject>(baseConfig, null).authorizatioModule((feedname)-> false);
+        FeedConsumerConfig<DomainObject> config = new FeedConsumerConfig<DomainObject>(baseConfig, null).authorizatioModule((feedname) -> false);
 
         consumerServer.controller.addFeed("testfeed", new FeedConsumer<DomainObject>(config));
 
@@ -260,7 +258,8 @@ public class IntegrationTest {
         assertThat(TestLockProvider.locksGiven, is(2));
         verify(callback, times(2)).call(anyString(), anyList());
 
-        doAsync(producer::activateWebhook, 5, 5);producer.activateWebhook();
+        doAsync(producer::activateWebhook, 5, 5);
+        producer.activateWebhook();
         Thread.sleep(1000);
         assertThat(TestLockProvider.locksGiven, is(3));
         verify(callback, times(3)).call(anyString(), anyList());

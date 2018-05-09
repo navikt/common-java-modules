@@ -12,7 +12,7 @@ class Util {
 
     @SneakyThrows
     public static <T> T httpClient(With<Client, T> httpClientConsumer) {
-        return RestUtils.withClient(httpClientConsumer::withSafe);
+        return RestUtils.withClient(RestUtils.DEFAULT_CONFIG.withDisableMetrics(true), httpClientConsumer::withSafe);
     }
 
     @SneakyThrows

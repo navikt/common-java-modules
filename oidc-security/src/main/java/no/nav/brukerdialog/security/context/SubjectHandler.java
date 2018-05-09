@@ -1,6 +1,7 @@
 package no.nav.brukerdialog.security.context;
 
 import no.nav.brukerdialog.security.domain.*;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,13 +13,12 @@ public abstract class SubjectHandler {
     private static final Logger logger = LoggerFactory.getLogger(SubjectHandler.class);
 
     public static final String SUBJECTHANDLER_KEY = "no.nav.brukerdialog.security.context.subjectHandlerImplementationClass";
-    static final String JBOSS_PROPERTY_KEY = "jboss.home.dir";
 
     public static SubjectHandler getSubjectHandler() {
 
         String subjectHandlerImplementationClass;
 
-        if (runningOnJboss()) {
+        if (EnvironmentUtils.isRunningOnJboss()) {
             subjectHandlerImplementationClass = JbossSubjectHandler.class.getName();
         } else {
             subjectHandlerImplementationClass = resolveProperty(SUBJECTHANDLER_KEY);
@@ -132,14 +132,6 @@ public abstract class SubjectHandler {
             logger.debug("Setting " + key + "={} from System.properties", value);
         }
         return value;
-    }
-
-    private static boolean runningOnJboss() {
-        return existsInProperties(JBOSS_PROPERTY_KEY);
-    }
-
-    private static boolean existsInProperties(String key) {
-        return System.getProperties().containsKey(key);
     }
 
     private Boolean hasSubject() {

@@ -1,12 +1,11 @@
 package no.nav.metrics;
 
+import no.nav.metrics.handlers.SensuHandler;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -14,32 +13,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_PORT;
-
 public class TestUtil {
 
     public static <T> T lagAspectProxy(T target, Object aspect) {
         AspectJProxyFactory factory = new AspectJProxyFactory(target);
         factory.addAspect(aspect);
         return factory.getProxy();
-    }
-
-    public static void resetMetrics() {
-        try {
-            // Lukk øynene
-            Field metricsClient = MetricsFactory.class.getDeclaredField("metricsClient");
-            metricsClient.setAccessible(true);
-
-            // Fjerner final lol
-            Field modifier = Field.class.getDeclaredField("modifiers");
-            modifier.setAccessible(true);
-            modifier.setInt(metricsClient, metricsClient.getModifiers() & ~Modifier.FINAL);
-
-            metricsClient.set(null, new MetricsClient());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     public static List<String> lesUtAlleMeldingerSendtPaSocket(ServerSocket serverSocket) throws IOException {
@@ -76,10 +55,21 @@ public class TestUtil {
         return Arrays.asList(output.split("\\\\n"));
     }
 
-    public static int getSensuClientPort() {
-        return Integer.parseInt(System.getProperty(
-                SENSU_CLIENT_PORT,
-                "0" // tilfelding port som default
-        ));
+    public static void enableMetricsForTest(int port) {
+        MetricsClient.resetMetrics(testConfig(port));
     }
+
+    public static SensuHandler sensuHandlerForTest(int port) {
+        return new SensuHandler(testConfig(port));
+    }
+
+    private static MetricsConfig testConfig(int port) {
+        return MetricsConfig.withSensuDefaults(MetricsConfig.builder()
+                .application("testApp")
+                .sensuHost("localhost")
+                .sensuPort(port)
+                .build()
+        );
+    }
+
 }
