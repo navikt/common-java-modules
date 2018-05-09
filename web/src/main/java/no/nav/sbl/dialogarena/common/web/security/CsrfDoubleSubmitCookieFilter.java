@@ -7,11 +7,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.stream;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static no.nav.sbl.rest.RestUtils.CSRF_COOKIE_NAVN;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -20,7 +21,6 @@ import static org.slf4j.LoggerFactory.getLogger;
  **/
 public class CsrfDoubleSubmitCookieFilter implements Filter {
     private static final Logger LOG = getLogger(CsrfDoubleSubmitCookieFilter.class);
-    private static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
     public static final String IGNORED_URLS_INIT_PARAMETER_NAME = "ignoredUrls";
 

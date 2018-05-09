@@ -31,6 +31,10 @@
             <groupId>no.nav.sbl</groupId>
             <artifactId>util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>rest</artifactId>
+        </dependency>
 
         <!-- Third party dependencies -->
         <dependency>
