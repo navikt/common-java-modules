@@ -18,7 +18,7 @@ public class MetricsClient {
 
     static {
         if (EnvironmentUtils.isRunningOnJboss()) {
-            enableMetrics(MetricsConfig.resoleSkyaConfig());
+            enableMetrics(MetricsConfig.resolveSkyaConfig());
         } else {
             log.warn("metrics was not automatically enabled");
         }

@@ -32,7 +32,7 @@ public class MetricsConfig {
     private int batchesPerSecond;
     private int batchSize;
 
-    public static MetricsConfig resoleSkyaConfig() {
+    public static MetricsConfig resolveSkyaConfig() {
         return defaultConfig("localhost", 3030);
     }
 
