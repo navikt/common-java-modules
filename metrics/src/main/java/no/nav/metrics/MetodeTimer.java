@@ -10,6 +10,7 @@ public class MetodeTimer {
             return metodekall.kallMetode();
         } catch (RuntimeException | Error unchecked) {
             timer.setFailed();
+            timer.addFieldToReport("checkedException", false);
             throw unchecked;
         } catch (Throwable checked) {
             timer.setFailed();
