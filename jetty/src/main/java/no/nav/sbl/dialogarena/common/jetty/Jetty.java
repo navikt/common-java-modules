@@ -2,19 +2,17 @@ package no.nav.sbl.dialogarena.common.jetty;
 
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
+import no.nav.common.auth.LoginFilter;
+import no.nav.common.auth.LoginProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
-import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.*;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.slf4j.Logger;
@@ -22,10 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.naming.NamingException;
-import javax.security.auth.message.module.ServerAuthModule;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.sql.DataSource;
 import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
@@ -40,7 +35,7 @@ import static java.lang.System.setProperty;
 import static java.util.Collections.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static no.nav.brukerdialog.security.jaspic.OidcAuthRegistration.registerOidcAuthModule;
+import static javax.servlet.DispatcherType.REQUEST;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -76,8 +71,7 @@ public final class Jetty {
         private List<Class<?>> websocketEndpoints = new ArrayList<>();
         private Map<String, DataSource> dataSources = new HashMap<>();
         private String extraClasspath;
-        private ServerAuthModule serverAuthModule;
-        private List<String> jaspicUbeskyttet = new ArrayList<>();
+        private List<Filter> filters = new ArrayList<>();
         private boolean disableAnnotationScanning;
 
 
@@ -125,6 +119,7 @@ public final class Jetty {
             return this;
         }
 
+        @Deprecated // Sett heller opp LoginFilter
         public final JettyBuilder withLoginService(JAASLoginService service) {
             this.loginService = service;
             return this;
@@ -146,17 +141,20 @@ public final class Jetty {
             return this;
         }
 
+        @Deprecated // Sett heller opp LoginFilter manuelt
         public final JettyBuilder configureForJaspic() {
             return configureForJaspic(emptyList());
         }
 
+        @Deprecated // Sett heller opp LoginFilter manuelt
         public final JettyBuilder configureForJaspic(List<String> ubeskyttet) {
-            return configureForJaspic(new OidcAuthModule(singletonList(new IssoOidcProvider()), true), ubeskyttet);
+            List<LoginProvider> loginProviders = Collections.singletonList(new OidcAuthModule(Collections.singletonList(new IssoOidcProvider())));
+            addFilter(new LoginFilter(loginProviders, ubeskyttet));
+            return this;
         }
 
-        public final JettyBuilder configureForJaspic(ServerAuthModule serverAuthModule, List<String> ubeskyttet) {
-            this.serverAuthModule = serverAuthModule;
-            this.jaspicUbeskyttet = ubeskyttet;
+        public JettyBuilder addFilter(Filter filter) {
+            this.filters.add(filter);
             return this;
         }
 
@@ -207,22 +205,22 @@ public final class Jetty {
             this.disableAnnotationScanning = true;
             return this;
         }
+
     }
 
     private final int port;
     private final Optional<Integer> sslPort;
     private final File overrideWebXmlFile;
     private final String warPath;
-    private final String contextPath;
     private final JAASLoginService loginService;
+    private final String contextPath;
     public final Server server;
     public final WebAppContext context;
     private final Map<String, DataSource> dataSources;
     private final List<Class<?>> websocketEndpoints;
     private final Boolean developmentMode;
     private final String extraClasspath;
-    private final ServerAuthModule serverAuthModule;
-    private final List<String> jaspicUbeskyttet;
+    private final List<Filter> filters;
 
 
 
@@ -258,8 +256,7 @@ public final class Jetty {
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
         this.loginService = builder.loginService;
-        this.jaspicUbeskyttet = builder.jaspicUbeskyttet;
-        this.serverAuthModule = builder.serverAuthModule;
+        this.filters = builder.filters;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
         this.server = setupJetty(new Server());
@@ -281,44 +278,15 @@ public final class Jetty {
             webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
         }
 
+
         if (loginService != null) {
             SecurityHandler securityHandler = webAppContext.getSecurityHandler();
             securityHandler.setLoginService(loginService);
             securityHandler.setRealmName(loginService.getName());
         }
 
-        if (serverAuthModule != null) {
-            if (loginService != null) {
-                LOG.warn("loginService shoudld be null when configured for jaspic");
-            }
-
-            JAASLoginService loginService = new JAASLoginService();
-            loginService.setName("jetty-login");
-            loginService.setLoginModuleName("jetty-login");
-            loginService.setIdentityService(new DefaultIdentityService());
-            ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
-            sh.setAuthenticatorFactory(new JaspiAuthenticatorFactory());
-
-            jaspicUbeskyttet.forEach(ubeskyttetUrlPattern -> {
-                ConstraintMapping cm = new ConstraintMapping();
-                Constraint constraint = new Constraint();
-                constraint.setAuthenticate(false);
-                constraint.setName("Ubeskyttet");
-                cm.setConstraint(constraint);
-                cm.setPathSpec(ubeskyttetUrlPattern);
-                sh.addConstraintMapping(cm);
-            });
-
-            ConstraintMapping cm = new ConstraintMapping();
-            Constraint constraint = new Constraint();
-            constraint.setAuthenticate(true);
-            constraint.setName("Alt annet beskyttet");
-            constraint.setRoles(new String[]{"**"});
-            cm.setConstraint(constraint);
-            cm.setPathSpec("/*");
-            sh.addConstraintMapping(cm);
-            sh.setLoginService(loginService);
-            webAppContext.setSecurityHandler(sh);
+        for (Filter filter : filters) {
+            webAppContext.addFilter(new FilterHolder(filter), "/*", EnumSet.of(REQUEST));
         }
 
         webAppContext.setConfigurationClasses(builder.disableAnnotationScanning ? CONFIGURATION_CLASSES : ArrayUtils.add(CONFIGURATION_CLASSES, AnnotationConfiguration.class.getName()));
@@ -361,9 +329,6 @@ public final class Jetty {
     }
 
     private Server setupJetty(final Server jetty) {
-        if (serverAuthModule != null) {
-            registerOidcAuthModule(serverAuthModule, context.getServletContext());
-        }
         Resource.setDefaultUseCaches(false);
 
         HttpConfiguration configuration = new HttpConfiguration();

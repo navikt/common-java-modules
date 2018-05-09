@@ -1,6 +1,6 @@
 package no.nav.apiapp.logging;
 
-import no.nav.apiapp.util.SubjectUtils;
+import no.nav.common.auth.SubjectHandler;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.UUID;
 
 import static no.nav.apiapp.util.StringUtils.of;
@@ -23,14 +22,12 @@ public class MDCFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        String userId = SubjectUtils.getUserId().orElse("");
-        String consumerId = SubjectUtils.getConsumerId().orElse("");
+        String userId = SubjectHandler.getIdent().orElse("");
         String callId = generateId();
         String correlationId = of(httpServletRequest.getHeader(CORRELATION_ID_HEADER_NAME)).orElseGet(MDCFilter::generateId);
 
         MDC.put(MDC_CALL_ID, callId);
         MDC.put(MDC_USER_ID, userId);
-        MDC.put(MDC_CONSUMER_ID, consumerId);
         MDC.put(MDC_CORRELATION_ID, correlationId);
 
         httpServletResponse.addHeader(CALL_ID_HEADER_NAME, callId);
@@ -41,7 +38,6 @@ public class MDCFilter extends OncePerRequestFilter {
         } finally {
             MDC.remove(MDC_CALL_ID);
             MDC.remove(MDC_USER_ID);
-            MDC.remove(MDC_CONSUMER_ID);
             MDC.remove(MDC_CORRELATION_ID);
         }
     }

@@ -2,15 +2,15 @@ package no.nav.apiapp.soap;
 
 import no.nav.apiapp.ServletUtil;
 import no.nav.sbl.dialogarena.common.cxf.CXFEndpoint;
+import no.nav.sbl.dialogarena.common.cxf.saml.CXFServletWithAuth;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.logging.FaultListener;
-import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import java.util.Collection;
 
-public class SoapServlet extends CXFNonSpringServlet {
+public class SoapServlet extends CXFServletWithAuth {
 
     public static boolean soapTjenesterEksisterer(ServletContext servletContext) {
         return !getSoapTjenester(servletContext).isEmpty();

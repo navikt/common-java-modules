@@ -15,4 +15,11 @@ public interface UnsafeSupplier<T> extends Supplier<T> {
     }
     T unsafeGet() throws Throwable;
 
+    static UnsafeSupplier<Void> toVoid(UnsafeRunnable unsafeRunnable) {
+        return ()->{
+            unsafeRunnable.run();
+            return null;
+        };
+    }
+
 }

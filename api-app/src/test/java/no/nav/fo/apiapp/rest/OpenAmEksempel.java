@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp.rest;
 
-import no.nav.modig.core.context.SubjectHandler;
+
+import no.nav.common.auth.SubjectHandler;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,7 +11,7 @@ public class OpenAmEksempel {
 
     @GET
     public String getIdent() {
-        return SubjectHandler.getSubjectHandler().getUid();
+        return SubjectHandler.getIdent().orElse(null);
     }
 
 }

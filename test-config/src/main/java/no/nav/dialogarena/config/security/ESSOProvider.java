@@ -17,13 +17,14 @@ import java.net.HttpCookie;
 import java.util.Map;
 import java.util.Optional;
 
+import static no.nav.common.auth.openam.sbs.OpenAMLoginFilter.NAV_ESSO_COOKIE_NAVN;
+
 public class ESSOProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ESSOProvider.class);
 
     public static final String BRUKER_UNDER_OPPFOLGING = "bruker_under_oppfolging";
     public static final String PRIVAT_BRUKER = "privat_bruker";
-    public static final String NAV_ESSO_COOKIE_NAVN = "nav-esso";
 
     public static HttpCookie getHttpCookie() {
         return getHttpCookie(FasitUtils.getDefaultEnvironment());

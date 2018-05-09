@@ -143,8 +143,8 @@
             <artifactId>assertj-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.dialogarena</groupId>
-            <artifactId>oidc-security</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>auth</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.dialogarena</groupId>
@@ -152,12 +152,8 @@
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-core</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>auth</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>

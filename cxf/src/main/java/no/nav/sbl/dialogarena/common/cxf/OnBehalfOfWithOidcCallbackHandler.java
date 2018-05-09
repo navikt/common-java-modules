@@ -1,8 +1,9 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 
-import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
+import no.nav.common.auth.SsoToken;
+import no.nav.common.auth.Subject;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Base64;
 
+import static no.nav.common.auth.SsoToken.Type.OIDC;
+
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(OnBehalfOfWithOidcCallbackHandler.class);
@@ -30,24 +33,14 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
         for (Callback callback : callbacks) {
             if (callback instanceof DelegationCallback) {
                 DelegationCallback delegationCallback = (DelegationCallback) callback;
-                delegationCallback.setToken(getElement());
+                delegationCallback.setToken(lagOnBehalfOfElement());
             } else {
                 throw new UnsupportedCallbackException(callback);
             }
         }
     }
 
-    static Element getElement() throws IOException {
-        SubjectHandler subjectHandler = SubjectHandler.getSubjectHandler();
-        IdentType identType = subjectHandler.getIdentType();
-
-        if (IdentType.InternBruker.equals(identType)) {
-            return lagOnBehalfOfElement(subjectHandler);
-        }
-        throw new IllegalStateException("wst:OnBehalfOf is only supported for IdentType.Systemressurs and IdentType.InternBruker");
-    }
-
-    private static Element lagOnBehalfOfElement(SubjectHandler subjectHandler) throws IOException {
+    private static Element lagOnBehalfOfElement() throws IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
 
@@ -56,7 +49,7 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
         try {
             builder = factory.newDocumentBuilder();
-            document = builder.parse(new InputSource(new StringReader(getOnBehalfOfString(subjectHandler))));
+            document = builder.parse(new InputSource(new StringReader(getOnBehalfOfString())));
         } catch (ParserConfigurationException e) {
             logger.error("Exception while getting builder, aborting", e);
             throw new RuntimeException(e);
@@ -69,9 +62,10 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
     }
 
 
-    private static String getOnBehalfOfString(SubjectHandler subjectHandler) {
-        String jwt = subjectHandler.getInternSsoToken();
-        String base64encodedJTW = Base64.getEncoder().encodeToString(jwt.getBytes());
+    private static String getOnBehalfOfString() {
+        Subject subject = no.nav.common.auth.SubjectHandler.getSubject().orElseThrow(() -> new IllegalStateException("no subject available"));
+        String oidcToken = subject.getSsoToken(OIDC).orElseThrow(() -> new IllegalStateException("no oidc token in subject " + subject));
+        String base64encodedJTW = Base64.getEncoder().encodeToString(oidcToken.getBytes());
         return "<wsse:BinarySecurityToken" +
                 " EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\"" +
                 " ValueType=\"urn:ietf:params:oauth:token-type:jwt\"" +

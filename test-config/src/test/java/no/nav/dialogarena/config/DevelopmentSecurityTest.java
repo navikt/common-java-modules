@@ -4,8 +4,8 @@ import no.nav.dialogarena.config.DevelopmentSecurity.ESSOSecurityConfig;
 import no.nav.dialogarena.config.DevelopmentSecurity.ISSOSecurityConfig;
 import no.nav.dialogarena.config.DevelopmentSecurity.SamlSecurityConfig;
 import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.modig.security.ws.UserSAMLOutInterceptor;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
+import no.nav.sbl.dialogarena.common.cxf.SamlPropagatingOutInterceptor;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.junit.Test;
@@ -90,7 +90,7 @@ public class DevelopmentSecurityTest {
         setupIntegrationTestSecurity();
 
         new CXFClient<>(Aktoer_v2PortType.class)
-                .withOutInterceptor(new UserSAMLOutInterceptor())
+                .withOutInterceptor(new SamlPropagatingOutInterceptor())
                 .build();
     }
 

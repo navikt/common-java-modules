@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.modig.security.sts.utility.STSConfigurationUtility;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -27,7 +26,7 @@ public class CXFClient<T> {
     public final JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
     private final Class<T> serviceClass;
     private final List<Handler> handlerChain = new ArrayList<>();
-    private boolean configureStsForExternalSSO, configureStsForSystemUser, configureStsForOnBehalfOfWithJWT, configureStsForSystemUserInFSS;
+    private boolean configureStsForExternalSSO, configureStsForSystemUser, configureStsForOnBehalfOfWithJWT;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
     private boolean metrics;
@@ -70,9 +69,9 @@ public class CXFClient<T> {
         return this;
     }
 
+    @Deprecated // bruk configureStsForSystemUser();
     public CXFClient<T> configureStsForSystemUserInFSS() {
-        configureStsForSystemUserInFSS = true;
-        return this;
+        return configureStsForSystemUser();
     }
 
     public CXFClient<T> withProperty(String key, Object value) {
@@ -122,17 +121,13 @@ public class CXFClient<T> {
         disableCNCheckIfConfigured(client);
 
         if (configureStsForExternalSSO) {
-            STSConfigurationUtility.configureStsForExternalSSO(client);
+            STSConfigurationUtil.configureStsForExternalSSO(client);
         }
         if (configureStsForSystemUser) {
-            STSConfigurationUtility.configureStsForSystemUser(client);
+            STSConfigurationUtil.configureStsForSystemUserInFSS(client);
         }
         if(configureStsForOnBehalfOfWithJWT) {
             OidcClientWrapper.configureStsForOnBehalfOfWithJWT(client);
-        }
-
-        if(configureStsForSystemUserInFSS) {
-            STSConfigurationUtil.configureStsForSystemUserInFSS(client);
         }
 
         ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);

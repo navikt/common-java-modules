@@ -1,10 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.brukerdialog.security.context.SubjectHandlerUtils;
-import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
+import no.nav.brukerdialog.security.context.SubjectRule;
 import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.brukerdialog.security.domain.OidcCredential;
-import no.nav.modig.core.context.StaticSubjectHandler;
+import no.nav.common.auth.SsoToken;
+import no.nav.common.auth.Subject;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
@@ -13,21 +12,20 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
-import no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.security.auth.Subject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.setProperty;
-import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtilsTest.*;
+import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtilsTest.TOKEN;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,17 +39,13 @@ public class PepImplTest {
     @Mock
     AbacService abacService;
 
+    @Rule
+    public SubjectRule subjectRule = new SubjectRule(new Subject("userId", IdentType.InternBruker, SsoToken.oidcToken("token")));
+
     @BeforeClass
     public static void setUp() throws Exception {
         setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
-        setProperty("no.nav.modig.security.systemuser.username", "username");
-        setProperty("no.nav.modig.security.systemuser.password", "password");
-        setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
-        setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
-        final Subject user = new SubjectHandlerUtils.SubjectBuilder("userId", IdentType.InternBruker).withAuthLevel(3).getSubject();
-        user.getPublicCredentials().add(new OidcCredential(TOKEN));
-        SubjectHandlerUtils.setSubject(user);
     }
 
     @Before
@@ -68,18 +62,6 @@ public class PepImplTest {
                 TOKEN, MockXacmlRequest.DOMAIN, MockXacmlRequest.FNR);
 
         assertThat(biasedDecisionResponse.getBiasedDecision(), is(Decision.Permit));
-    }
-
-    @Test
-    public void girRiktigTokenBodyGittHeltToken() throws PepException {
-        final String token = SecurityUtils.extractOidcTokenBody(TOKEN);
-        assertThat(token, is(TOKEN_BODY));
-    }
-
-    @Test
-    public void girRiktigTokenBodyGittBody() throws PepException {
-        final String token = SecurityUtils.extractOidcTokenBody(TOKEN_BODY);
-        assertThat(token, is(TOKEN_BODY));
     }
 
     @Test

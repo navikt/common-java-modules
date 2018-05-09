@@ -1,13 +1,13 @@
 package no.nav.sbl.dialogarena.common.abac.pep.context;
 
 import net.sf.ehcache.config.CacheConfiguration;
+import no.nav.common.auth.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.AbacHelsesjekker;
 import no.nav.sbl.dialogarena.common.abac.pep.PepImpl;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
-import no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +41,7 @@ public class AbacContext {
             for (Object o : params) {
                 if (o instanceof XacmlRequest) {
                     Request request = ((XacmlRequest) o).getRequest();
-                    return asList(SecurityUtils.getIdent().orElse(null),
+                    return asList(SubjectHandler.getIdent().orElse(null),
                             request.getAccessSubject(),
                             request.getAction(),
                             request.getResource());

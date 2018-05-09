@@ -34,9 +34,9 @@ public class StartJetty {
         ).buildJetty();
     }
 
-    public static Jetty nyJettyForTest(String contextPath, int jettyPort) {
+    public static Jetty nyJettyForTest(String contextPath) {
         return DevelopmentSecurity.setupSamlLogin(
-                defaultJetty(contextPath, jettyPort)
+                defaultJetty(contextPath, JettyTest.tilfeldigPort())
                 , new DevelopmentSecurity.SamlSecurityConfig(KJENT_APP)
         ).buildJetty();
     }
@@ -45,10 +45,12 @@ public class StartJetty {
         Jetty.JettyBuilder jettyBuilder = Jetty.usingWar()
                 .at(contextPath)
                 .port(jettyPort)
+                .sslPort(JettyTest.tilfeldigPort())
                 .overrideWebXml();
         jettyBuilder.buildJetty().context.addFilter(RedirectToSwagger.class, "/*", EnumSet.allOf(DispatcherType.class));
         return jettyBuilder;
     }
+
 
     public static class RedirectToSwagger implements Filter {
 

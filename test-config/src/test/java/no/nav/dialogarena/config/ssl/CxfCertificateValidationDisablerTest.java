@@ -1,7 +1,7 @@
 package no.nav.dialogarena.config.ssl;
 
-import no.nav.modig.security.sts.client.NAVSTSClient;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
+import no.nav.sbl.dialogarena.common.cxf.NAVOidcSTSClient;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -34,7 +34,7 @@ public class CxfCertificateValidationDisablerTest {
         Client client = ClientProxy.getClient(aktoer_v2PortType);
         sjekkAtSertifikatSjekkerErDisablet(client);
 
-        NAVSTSClient navstsClient = (NAVSTSClient) client.getRequestContext().get("ws-" + SecurityConstants.STS_CLIENT);
+        NAVOidcSTSClient navstsClient = (NAVOidcSTSClient) client.getRequestContext().get(SecurityConstants.STS_CLIENT);
         sjekkAtSertifikatSjekkerErDisablet(navstsClient.getClient());
     }
 

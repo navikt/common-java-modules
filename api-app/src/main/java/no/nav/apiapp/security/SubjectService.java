@@ -16,8 +16,4 @@ public class SubjectService {
         return SubjectUtils.getUserId();
     }
 
-    public Optional<String> getConsumerId() {
-        return SubjectUtils.getConsumerId();
-    }
-
 }

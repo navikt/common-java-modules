@@ -2,6 +2,7 @@ package no.nav.fo.apiapp;
 
 import no.nav.json.JsonProvider;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.server.ServerConnector;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -28,13 +29,13 @@ import static no.nav.apiapp.ServletUtil.getContext;
 public abstract class JettyTest {
 
     static {
-        StartJetty.setupLogging();
+        ApiAppTest.setupTestContext();
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
 
     protected static final String CONTEXT_NAME = JettyTest.class.getSimpleName();
-    protected static final Jetty JETTY = StartJetty.nyJettyForTest(CONTEXT_NAME, tilfeldigPort());
+    protected static final Jetty JETTY = StartJetty.nyJettyForTest(CONTEXT_NAME);
 
     private Client client = ClientBuilder.newBuilder().register(new JsonProvider()).build();
     private Map<String, NewCookie> cookies = new HashMap<>();
@@ -78,7 +79,7 @@ public abstract class JettyTest {
     }
 
     protected static UriBuilder buildUri(String path) {
-        return UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("http").port(getPort());
+        return UriBuilder.fromPath(CONTEXT_NAME + path).host(getHostName()).scheme("https").port(getPort());
     }
 
     protected String getString(String path) {
@@ -107,7 +108,7 @@ public abstract class JettyTest {
     }
 
     private static int getPort() {
-        return ((ServerConnector) JETTY.server.getConnectors()[0]).getPort();
+        return ((ServerConnector) JETTY.server.getConnectors()[1]).getPort();
     }
 
     private static String getHostName() {

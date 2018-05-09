@@ -17,7 +17,9 @@ import org.slf4j.MDC;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.*;
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
+import java.net.URI;
 import java.util.function.Function;
 
 import static no.nav.sbl.util.StringUtils.of;
@@ -46,7 +48,7 @@ public class RestUtils {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
         if (!restConfig.disableMetrics) {
-            clientConfig.register(new MetricsProvider(metricName));
+            clientConfig.register(new MetricsProvider(metricName, restConfig));
         }
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
@@ -103,6 +105,8 @@ public class RestUtils {
         public int readTimeout = 15000;
 
         public boolean disableMetrics;
+        public boolean disableParameterLogging;
+
     }
 
     private static String getMetricName() {
@@ -113,10 +117,13 @@ public class RestUtils {
     private static class MetricsProvider implements ClientResponseFilter, ClientRequestFilter {
 
         public static final String NAME = MetricsProvider.class.getName();
-        private final String metricName;
 
-        public MetricsProvider(String metricName) {
+        private final String metricName;
+        private final RestConfig restConfig;
+
+        public MetricsProvider(String metricName, RestConfig restConfig) {
             this.metricName = metricName;
+            this.restConfig = restConfig;
         }
 
         @Override
@@ -135,10 +142,16 @@ public class RestUtils {
 
         @Override
         public void filter(ClientRequestContext clientRequestContext) throws IOException {
-            LOG.info("{} {}", clientRequestContext.getMethod(), clientRequestContext.getUri());
+            LOG.info("{} {}", clientRequestContext.getMethod(), uri(clientRequestContext));
             Timer timer = MetricsFactory.createTimer(this.metricName);
             timer.start();
             clientRequestContext.setProperty(NAME, timer);
         }
+
+        private URI uri(ClientRequestContext clientRequestContext) {
+            URI uri = clientRequestContext.getUri();
+            return restConfig.disableParameterLogging ? UriBuilder.fromUri(uri).replaceQuery("").build() : uri;
+        }
+
     }
 }

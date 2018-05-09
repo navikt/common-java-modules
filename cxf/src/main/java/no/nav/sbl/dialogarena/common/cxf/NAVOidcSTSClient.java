@@ -2,12 +2,12 @@ package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.sbl.util.StringUtils;
+import no.nav.sbl.dialogarena.common.cxf.saml.ClaimsCallbackHandler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.MemoryTokenStoreFactory;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
-import org.apache.cxf.ws.security.tokenstore.TokenStoreFactory;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,14 @@ public class NAVOidcSTSClient extends STSClient {
     public NAVOidcSTSClient(Bus bus, StsType stsType) {
         super(bus);
         this.stsType = stsType;
+        switch (stsType){
+            case ON_BEHALF_OF_WITH_JWT:
+                setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
+                break;
+            case EXTERNAL_SSO:
+                setClaimsCallbackHandler(new ClaimsCallbackHandler());
+                break;
+        }
     }
 
     @Override
