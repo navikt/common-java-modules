@@ -24,7 +24,11 @@ public class MetricsIntegrationTest extends JettyTestServer {
 
             System.setProperty(APP_NAME_PROPERTY_NAME, "cxf");
             System.setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "t");
-            MetricsClient.resetMetrics(new MetricsConfig("localhost", sensuServerSocketMock.getLocalPort()));
+            MetricsClient.resetMetrics(MetricsConfig.withSensuDefaults(MetricsConfig.builder()
+                    .sensuHost("localhost")
+                    .sensuPort(sensuServerSocketMock.getLocalPort())
+                    .build()
+            ));
 
             String url = startCxfServer(Aktoer_v2PortType.class);
 
