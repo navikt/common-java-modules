@@ -19,6 +19,7 @@ import no.nav.modig.security.loginmodule.OpenAMLoginModule;
 import no.nav.modig.security.loginmodule.SamlLoginModule;
 import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.DefaultIdentityService;
@@ -235,6 +236,7 @@ public class DevelopmentSecurity {
     }
 
     private static void commonSetup() {
+        ApiAppTest.setupTestContext();
         System.setProperty("APP_LOG_HOME", new File("target").getAbsolutePath());
         System.setProperty("application.name", "app");
         disableCertificateChecks();
