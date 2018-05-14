@@ -2,6 +2,7 @@ package no.nav.apiapp.soap;
 
 import no.nav.apiapp.TestContext;
 import no.nav.apiapp.feil.Feil;
+import no.nav.apiapp.feil.FeilType;
 import org.junit.Test;
 
 import javax.xml.soap.SOAPFault;
@@ -25,7 +26,7 @@ public class MethodInvokerMedFeilhandteringTest {
             SOAPFaultException soapFaultException = methodInvokerMedFeilhandtering.findSoapFaultException(new RuntimeException());
             SOAPFault soapFault = soapFaultException.getFault();
             assertThat(soapFault.getFaultString()).matches("^[a-z0-9]{32}$");
-            assertThat(soapFault.getFaultCode()).isEqualTo(Feil.Type.UKJENT.name());
+            assertThat(soapFault.getFaultCode()).isEqualTo(FeilType.UKJENT.name());
             assertThat(soapFault.hasDetail()).isFalse();
         });
     }

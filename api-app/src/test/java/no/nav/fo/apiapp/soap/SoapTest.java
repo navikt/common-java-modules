@@ -1,6 +1,6 @@
 package no.nav.fo.apiapp.soap;
 
-import no.nav.apiapp.feil.Feil;
+import no.nav.apiapp.feil.FeilType;
 import no.nav.apiapp.feil.VersjonsKonflikt;
 import no.nav.fo.apiapp.JettyTest;
 import no.nav.modig.security.ws.SystemSAMLOutInterceptor;
@@ -42,18 +42,18 @@ public class SoapTest extends JettyTest {
 
     @Test
     public void tjenestePropagererSoapFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
-        sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, Feil.Type.UKJENT, SOAPFaultException.class);
-        sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, Feil.Type.UKJENT, "<SOAP-ENV:Fault");
+        sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, FeilType.UKJENT, SOAPFaultException.class);
+        sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, FeilType.UKJENT, "<SOAP-ENV:Fault");
     }
 
     @Test
     public void tjenestePropagererUkjenteFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
-        sjekkAtTjenesteFeilerMed(IDENT_FOR_UKJENT_FEIL, Feil.Type.UKJENT, Throwable.class);
+        sjekkAtTjenesteFeilerMed(IDENT_FOR_UKJENT_FEIL, FeilType.UKJENT, Throwable.class);
     }
 
     @Test
     public void tjenestePropagererKjenteFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
-        sjekkAtTjenesteFeilerMed(IDENT_FOR_VERSJONSKONFLIKT, Feil.Type.VERSJONSKONFLIKT, VersjonsKonflikt.class);
+        sjekkAtTjenesteFeilerMed(IDENT_FOR_VERSJONSKONFLIKT, FeilType.VERSJONSKONFLIKT, VersjonsKonflikt.class);
     }
 
     private String hentAktorId(String ident) throws HentAktoerIdForIdentPersonIkkeFunnet {
@@ -63,11 +63,11 @@ public class SoapTest extends JettyTest {
         return wsHentAktoerIdForIdentResponse.getAktoerId();
     }
 
-    private void sjekkAtTjenesteFeilerMed(String parameter, Feil.Type feilType, Class<? extends Throwable> internFeil) throws HentAktoerIdForIdentPersonIkkeFunnet {
+    private void sjekkAtTjenesteFeilerMed(String parameter, FeilType feilType, Class<? extends Throwable> internFeil) throws HentAktoerIdForIdentPersonIkkeFunnet {
         sjekkAtTjenesteFeilerMed(parameter, feilType, internFeil.getName());
     }
 
-    private void sjekkAtTjenesteFeilerMed(String parameter, Feil.Type feilType, String feilMelding) throws HentAktoerIdForIdentPersonIkkeFunnet {
+    private void sjekkAtTjenesteFeilerMed(String parameter, FeilType feilType, String feilMelding) throws HentAktoerIdForIdentPersonIkkeFunnet {
         try {
             hentAktorId(parameter);
             fail();
