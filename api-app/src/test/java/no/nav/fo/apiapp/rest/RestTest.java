@@ -1,20 +1,17 @@
 package no.nav.fo.apiapp.rest;
 
-import no.nav.apiapp.feil.Feil;
+import no.nav.apiapp.feil.FeilType;
 import no.nav.apiapp.rest.ExceptionMapper;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.util.Map;
 
 import static javax.ws.rs.client.Entity.entity;
-import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static no.nav.apiapp.feil.Feil.Type.*;
+import static javax.ws.rs.core.Response.Status.*;
+import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.json.JsonUtils.fromJson;
 import static no.nav.json.TestUtils.assertEqualJson;
 import static org.hamcrest.CoreMatchers.not;
@@ -68,7 +65,7 @@ public class RestTest extends JettyTest {
         assertThat(response.getStatus(), equalTo(status.getStatusCode()));
     }
 
-    private void sjekkFeilInformasjon(Response response, Feil.Type type) {
+    private void sjekkFeilInformasjon(Response response, FeilType type) {
         String json = response.readEntity(String.class);
         Map<String, Object> feilDTO = fromJson(json, Map.class);
         assertThat(feilDTO.get("id"), notNullValue());

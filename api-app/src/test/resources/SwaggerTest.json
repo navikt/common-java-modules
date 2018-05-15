@@ -48,25 +48,6 @@
         }
       }
     },
-    "/dato/dto": {
-      "get": {
-        "tags": [
-          "DatoEksempel"
-        ],
-        "summary": "getDTO",
-        "operationId": "getDTO",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/DateDTO"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
     "/dato/query": {
       "get": {
         "tags": [
@@ -150,6 +131,25 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/DateDTO"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/dato/dto": {
+      "get": {
+        "tags": [
+          "DatoEksempel"
+        ],
+        "summary": "getDTO",
+        "operationId": "getDTO",
+        "parameters": [],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -380,25 +380,6 @@
         }
       }
     },
-    "/eksempel/ukjent-feil": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "ukjentFeil",
-        "operationId": "ukjentFeil",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
     "/eksempel/pipe": {
       "put": {
         "tags": [
@@ -429,6 +410,25 @@
                 "type": "object",
                 "properties": {}
               }
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/ukjent-feil": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "ukjentFeil",
+        "operationId": "ukjentFeil",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
             },
             "headers": {}
           }
@@ -499,6 +499,25 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/eksempel/spesial-feil": {
+      "get": {
+        "tags": [
+          "RestEksempel"
+        ],
+        "summary": "spesialFeil",
+        "operationId": "spesialFeil",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
             },
             "headers": {}
           }
@@ -605,55 +624,6 @@
         }
       }
     },
-    "/feed/feedname": {
-      "get": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "getFeedNames",
-        "operationId": "getFeedNames",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/feed": {
-      "get": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "getFeeds",
-        "operationId": "getFeeds",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
     "/feed/{name}": {
       "get": {
         "tags": [
@@ -725,6 +695,34 @@
         }
       }
     },
+    "/feed": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeeds",
+        "operationId": "getFeeds",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/feed/{name}/webhook": {
       "put": {
         "tags": [
@@ -754,6 +752,27 @@
             "type": "string"
           }
         ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/feed/feedname": {
+      "get": {
+        "tags": [
+          "FeedController"
+        ],
+        "summary": "getFeedNames",
+        "operationId": "getFeedNames",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
         "responses": {
           "default": {
             "description": "successful operation"
@@ -922,74 +941,6 @@
         }
       }
     },
-    "Comparable": {
-      "type": "object"
-    },
-    "ComparableObject": {
-      "type": "object"
-    },
-    "FeedElement": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "element": {
-          "$ref": "#/definitions/ComparableObject"
-        }
-      }
-    },
-    "FeedElementComparableObject": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "element": {
-          "$ref": "#/definitions/ComparableObject"
-        }
-      }
-    },
-    "FeedElementObject": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "element": {
-          "type": "object",
-          "properties": {}
-        }
-      }
-    },
-    "FeedResponse": {
-      "type": "object",
-      "properties": {
-        "nextPageId": {
-          "type": "string"
-        },
-        "elements": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/FeedElementComparableObject"
-          }
-        }
-      }
-    },
-    "FeedResponseObject": {
-      "type": "object",
-      "properties": {
-        "nextPageId": {
-          "type": "string"
-        },
-        "elements": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/FeedElementObject"
-          }
-        }
-      }
-    },
     "EntityTag": {
       "type": "object",
       "properties": {
@@ -1034,9 +985,6 @@
             "type": "string"
           }
         },
-        "rel": {
-          "type": "string"
-        },
         "rels": {
           "type": "array",
           "items": {
@@ -1044,6 +992,9 @@
           }
         },
         "title": {
+          "type": "string"
+        },
+        "rel": {
           "type": "string"
         }
       }
@@ -1122,10 +1073,10 @@
             "type": "string"
           }
         },
-        "wildcardSubtype": {
+        "wildcardType": {
           "type": "boolean"
         },
-        "wildcardType": {
+        "wildcardSubtype": {
           "type": "boolean"
         }
       }
@@ -1171,20 +1122,6 @@
     "Response": {
       "type": "object",
       "properties": {
-        "date": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "headers": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {}
-            }
-          }
-        },
         "length": {
           "type": "integer",
           "format": "int32"
@@ -1200,6 +1137,20 @@
           "type": "string",
           "format": "date-time"
         },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
         "cookies": {
           "type": "object",
           "additionalProperties": {
@@ -1209,16 +1160,6 @@
         "status": {
           "type": "integer",
           "format": "int32"
-        },
-        "statusInfo": {
-          "$ref": "#/definitions/StatusType"
-        },
-        "allowedMethods": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
         },
         "entityTag": {
           "$ref": "#/definitions/EntityTag"
@@ -1230,6 +1171,9 @@
             "$ref": "#/definitions/Link"
           }
         },
+        "mediaType": {
+          "$ref": "#/definitions/MediaType"
+        },
         "stringHeaders": {
           "type": "object",
           "additionalProperties": {
@@ -1238,6 +1182,10 @@
               "type": "string"
             }
           }
+        },
+        "entity": {
+          "type": "object",
+          "properties": {}
         },
         "metadata": {
           "type": "object",
@@ -1249,12 +1197,15 @@
             }
           }
         },
-        "mediaType": {
-          "$ref": "#/definitions/MediaType"
+        "statusInfo": {
+          "$ref": "#/definitions/StatusType"
         },
-        "entity": {
-          "type": "object",
-          "properties": {}
+        "allowedMethods": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -1324,6 +1275,74 @@
       "properties": {
         "callbackUrl": {
           "type": "string"
+        }
+      }
+    },
+    "Comparable": {
+      "type": "object"
+    },
+    "ComparableObject": {
+      "type": "object"
+    },
+    "FeedElement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "element": {
+          "$ref": "#/definitions/ComparableObject"
+        }
+      }
+    },
+    "FeedElementComparableObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "element": {
+          "$ref": "#/definitions/ComparableObject"
+        }
+      }
+    },
+    "FeedElementObject": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "element": {
+          "type": "object",
+          "properties": {}
+        }
+      }
+    },
+    "FeedResponse": {
+      "type": "object",
+      "properties": {
+        "nextPageId": {
+          "type": "string"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FeedElementComparableObject"
+          }
+        }
+      }
+    },
+    "FeedResponseObject": {
+      "type": "object",
+      "properties": {
+        "nextPageId": {
+          "type": "string"
+        },
+        "elements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FeedElementObject"
+          }
         }
       }
     }
