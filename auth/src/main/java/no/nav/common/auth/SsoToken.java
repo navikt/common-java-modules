@@ -9,8 +9,8 @@ import static no.nav.sbl.util.StringUtils.assertNotNullOrEmpty;
 
 @Getter
 public class SsoToken {
-    private Type type;
-    private String token;
+    private final Type type;
+    private final String token;
 
     public SsoToken(Type type, String token) {
         assertNotNull(type);
@@ -38,4 +38,8 @@ public class SsoToken {
         SAML
     }
 
+    @Override
+    public String toString() {
+        return type.toString();
+    }
 }

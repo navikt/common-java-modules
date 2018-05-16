@@ -1,5 +1,6 @@
 package no.nav.common.auth;
 
+import lombok.Value;
 import lombok.experimental.Wither;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.sbl.util.AssertUtils;
@@ -12,6 +13,7 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
 import static no.nav.sbl.util.StringUtils.assertNotNullOrEmpty;
 
 @Wither
+@Value
 public class Subject {
 
     private final String uid;
@@ -28,25 +30,8 @@ public class Subject {
         this.ssoToken = ssoToken;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public IdentType getIdentType() {
-        return identType;
-    }
-
-    public SsoToken getSsoToken() {
-        return ssoToken;
-    }
-
     public Optional<String> getSsoToken(SsoToken.Type type) {
         return ssoToken.getType() == type ? StringUtils.of(ssoToken.getToken()) : empty();
-    }
-
-    @Override
-    public String toString() {
-        return uid + " - " + identType + " - " + ssoToken.getType();
     }
 
 }
