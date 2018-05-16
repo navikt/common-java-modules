@@ -65,7 +65,7 @@ public class LoginFilter implements Filter {
     private void unAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
         Optional<String> optionalRedirectUrl = loginProviders.stream().flatMap(p -> p.redirectUrl(httpServletRequest, httpServletResponse).map(Stream::of).orElseGet(Stream::empty)).findFirst();
         if ("application/json".equals(httpServletRequest.getHeader("Accept")) || !optionalRedirectUrl.isPresent()) {
-            httpServletResponse.sendError(SC_UNAUTHORIZED);
+            httpServletResponse.setStatus(SC_UNAUTHORIZED);
         } else {
             httpServletResponse.sendRedirect(optionalRedirectUrl.get());
         }
