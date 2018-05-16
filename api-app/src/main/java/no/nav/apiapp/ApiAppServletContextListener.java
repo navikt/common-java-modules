@@ -57,6 +57,7 @@ import javax.servlet.http.HttpSessionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static ch.qos.logback.classic.Level.INFO;
@@ -182,7 +183,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
             List<LoginProvider> providers = new ArrayList<>();
 
-            if (getOptionalProperty(OpenAmConfig.OPENAM_RESTURL).isPresent()) {
+            if (detectAndLogProperty(OpenAmConfig.OPENAM_RESTURL)) {
                 OpenAmConfig openAmConfig = OpenAmConfig.fromSystemProperties();
                 providers.add(new OpenAMLoginFilter(openAmConfig));
                 leggTilBonne(servletContextEvent, new OpenAMHelsesjekk(openAmConfig));
@@ -193,7 +194,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
                 oidcProviders.add(new IssoOidcProvider());
             }
 
-            if (getOptionalProperty(AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME).isPresent()){
+            if (detectAndLogProperty(AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA)){
                 oidcProviders.add(new AzureADB2CProvider(AzureADB2CConfig.readFromSystemProperties()));
             }
 
@@ -233,6 +234,12 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         LOGGER.info("contextInitialized - slutt");
         apiApplication.startup(servletContext);
+    }
+
+    private boolean detectAndLogProperty(String propertyName) {
+        Optional<String> optionalProperty = EnvironmentUtils.getOptionalProperty(propertyName);
+        LOGGER.info("checking property: {} = {}", propertyName, optionalProperty.orElse(""));
+        return optionalProperty.isPresent();
     }
 
     private boolean stsBrukes(ApiApplication apiApplication) {

@@ -11,8 +11,8 @@ public class AzureADB2CConfig {
     public static final String AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME = "AAD_B2C_DISCOVERY_URL";
     public static final String AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME = "AAD_B2C_CLIENTID_USERNAME";
 
-    public static final String AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA = "aad_b2c_discovery_url";
-    public static final String AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME_SKYA = "aad_b2c_clientid_username";
+    public static final String AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA = "aad_b2c_discovery.url";
+    public static final String AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME_SKYA = "aad_b2c_clientid.username";
 
 
     public final String discoveryUrl;
