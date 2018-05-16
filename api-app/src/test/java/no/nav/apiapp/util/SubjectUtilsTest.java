@@ -24,13 +24,10 @@ public class SubjectUtilsTest {
     @Before
     public void setup() {
         System.setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler.class.getName());
-        System.setProperty(MODIG_SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(MODIG_SUBJECTHANDLER_KEY, no.nav.modig.core.context.StaticSubjectHandler.class.getName());
 
         new no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler().setSubject(null);
-        new no.nav.modig.core.context.ThreadLocalSubjectHandler().setSubject(null);
-
-        new StaticSubjectHandler().reset();
-        new CustomizableSubjectHandler().reset();
+        new no.nav.modig.core.context.StaticSubjectHandler().setSubject(null);
     }
 
     @Test
@@ -49,7 +46,7 @@ public class SubjectUtilsTest {
 
     @Test
     public void getIdentType_modigSecurityBruker() {
-        System.setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
+        new no.nav.modig.core.context.StaticSubjectHandler().reset();
         assertThat(getIdentType()).hasValue(IdentType.EksternBruker);
         assertThat(subjectService.getIdentType()).hasValue(IdentType.EksternBruker);
     }
@@ -69,7 +66,7 @@ public class SubjectUtilsTest {
 
     @Test
     public void getUserId_modigSecurityBruker() {
-        System.setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
+        new no.nav.modig.core.context.StaticSubjectHandler().reset();
         assertThat(getUserId()).hasValue("01015245464");
         assertThat(subjectService.getUserId()).hasValue("01015245464");
     }
@@ -89,7 +86,7 @@ public class SubjectUtilsTest {
 
     @Test
     public void getConsumerId_modigSecurityBruker() {
-        System.setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
+        new no.nav.modig.core.context.StaticSubjectHandler().reset();
         assertThat(getConsumerId()).hasValue("StaticSubjectHandlerConsumerId");
         assertThat(subjectService.getConsumerId()).hasValue("StaticSubjectHandlerConsumerId");
     }

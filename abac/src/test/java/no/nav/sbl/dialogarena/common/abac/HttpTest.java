@@ -53,7 +53,7 @@ public class HttpTest {
     public static void setup() throws IOException {
         System.setProperty("abac.bibliotek.simuler.avbrudd", "false");
         System.setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler.class.getName());
-        System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
+        System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.modig.core.context.StaticSubjectHandler.class.getName());
         System.setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         System.setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);

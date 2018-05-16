@@ -1,14 +1,15 @@
 package no.nav.sbl.dialogarena.common.abac.pep.utils;
 
 import no.nav.brukerdialog.security.context.InternbrukerSubjectHandler;
-import no.nav.brukerdialog.security.context.TestSubjectHandler;
-import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
 import no.nav.modig.core.context.StaticSubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.security.auth.Subject;
+
 import static java.lang.System.setProperty;
+import static no.nav.modig.core.domain.IdentType.EksternBruker;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityUtilsTest {
@@ -21,10 +22,10 @@ public class SecurityUtilsTest {
 
     @Before
     public void setup() {
-        setProperty(MODIG_SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
+        setProperty(MODIG_SUBJECTHANDLER_KEY, no.nav.modig.core.context.StaticSubjectHandler.class.getName());
         setProperty(BRUKERDIALOG_SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler.class.getName());
         new no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler().setSubject(null);
-        new no.nav.modig.core.context.ThreadLocalSubjectHandler().setSubject(null);
+        new no.nav.modig.core.context.StaticSubjectHandler().setSubject(null);
     }
 
     @Test
@@ -47,6 +48,9 @@ public class SecurityUtilsTest {
     @Test
     public void getIdent_modigUser() throws PepException {
         setProperty(MODIG_SUBJECTHANDLER_KEY, StaticSubjectHandler.class.getName());
+        Subject newSubject = new Subject();
+        newSubject.getPrincipals().add(new no.nav.modig.core.domain.SluttBruker("test", EksternBruker));
+        new no.nav.modig.core.context.StaticSubjectHandler().setSubject(newSubject);
         assertThat(SecurityUtils.getIdent()).hasValue(StaticSubjectHandler.getSubjectHandler().getUid());
     }
 

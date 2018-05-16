@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.modig.core.exception.ApplicationException;
 import org.slf4j.Logger;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -50,7 +49,7 @@ public final class InstanceSwitcher implements InvocationHandler {
         try {
             if (getProperty(key, "false").equalsIgnoreCase("true")) {
                 if (getProperty(key + ".simulate.error", "false").equalsIgnoreCase("true")) {
-                    throw new ApplicationException("Simulerer exception ved kall til tjenesten.");
+                    throw new IllegalStateException("Simulerer exception ved kall til tjenesten.");
                 }
                 return method.invoke(alternative, args);
             }
@@ -58,8 +57,6 @@ public final class InstanceSwitcher implements InvocationHandler {
         } catch(InvocationTargetException exception){
             LOG.info("invokasjon feiler, kaster reell exception", exception);
             throw exception.getCause();
-        }catch (IllegalAccessException exception) {
-            throw new ApplicationException("Problemer med invokering av metode", exception);
         }
     }
     public String getTargetClassName() {
