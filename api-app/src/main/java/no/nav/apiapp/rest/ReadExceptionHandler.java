@@ -5,7 +5,8 @@ import javax.ws.rs.ext.ReaderInterceptor;
 import javax.ws.rs.ext.ReaderInterceptorContext;
 import java.io.IOException;
 
-import static no.nav.apiapp.feil.Feil.Type.UGYLDIG_REQUEST;
+import static no.nav.apiapp.feil.FeilType.UGYLDIG_REQUEST;
+
 
 public class ReadExceptionHandler implements ReaderInterceptor {
 

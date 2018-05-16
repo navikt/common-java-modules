@@ -7,8 +7,9 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.security.SecureRandom;
+import java.util.Optional;
 
-import static no.nav.apiapp.feil.Feil.Type.*;
+import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.Q;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
@@ -26,7 +27,11 @@ public class FeilMapper {
     }
 
     public static FeilDTO somFeilDTO(Throwable exception, Feil.Type type) {
-        return new FeilDTO(nyFeilId(), type, visDetaljer() ? finnDetaljer(exception) : null);
+        return new FeilDTO(
+                nyFeilId(),
+                Optional.ofNullable(type).orElse(UKJENT).getName(),
+                visDetaljer() ? finnDetaljer(exception) : null
+        );
     }
 
     static String nyFeilId() {
@@ -39,7 +44,7 @@ public class FeilMapper {
         if (throwable instanceof Feil) {
             return ((Feil) throwable).getType();
         } else if (throwable instanceof SOAPFaultException) {
-            return valueOfOptional(Feil.Type.class, ((SOAPFaultException) throwable).getFault().getFaultCodeAsName().getLocalName()).orElse(UKJENT);
+            return valueOfOptional(FeilType.class, ((SOAPFaultException) throwable).getFault().getFaultCodeAsName().getLocalName()).orElse(UKJENT);
         } else if (throwable instanceof IllegalArgumentException) {
             return UGYLDIG_REQUEST;
         } else if (throwable instanceof NotFoundException) {

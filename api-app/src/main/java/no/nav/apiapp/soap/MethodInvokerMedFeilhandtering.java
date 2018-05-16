@@ -44,7 +44,7 @@ public class MethodInvokerMedFeilhandtering extends JAXWSMethodInvoker {
         try {
             SOAPFault fault = soapFactory.createFault();
             fault.setFaultString(feilDTO.id);
-            fault.setFaultCode(getName(feilDTO.type));
+            fault.setFaultCode(feilDTO.type);
             String detaljerJson = toJson(feilDTO.detaljer);
             if (notNullOrEmpty(detaljerJson)) {
                 fault.addDetail().addTextNode(detaljerJson);
