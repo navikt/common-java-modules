@@ -1,11 +1,9 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
-import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.ws.rs.ClientErrorException;
@@ -17,13 +15,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.System.setProperty;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static javax.ws.rs.core.Response.Status.Family.familyOf;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
-import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_USERNAME;
-import static no.nav.sbl.dialogarena.common.abac.pep.service.AbacService.ABAC_ENDPOINT_URL_PROPERTY_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -34,25 +29,15 @@ import static org.mockito.Mockito.when;
 
 public class AbacServiceTest {
 
-    private static final String SYSTEMUSER_PASSWORD = "systemuserpassword";
-    private static final String SYSTEMUSER = "systemuser";
-
     private Client client = mock(Client.class);
     private WebTarget webTarget = mock(WebTarget.class);
     private Builder requestBuilder = mock(Builder.class);
     private javax.ws.rs.core.Response response = mock(javax.ws.rs.core.Response.class);
 
-    private AbacService abacService = new AbacService(client);
-
-    @BeforeClass
-    public static void setupClass() {
-        setProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME, "www.abac.com");
-        setProperty(SYSTEMUSER_USERNAME, SYSTEMUSER);
-        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, SYSTEMUSER_PASSWORD);
-    }
+    private AbacService abacService = new AbacService(client, "/test/endpoint");
 
     @Before
-    public void setup(){
+    public void setup() {
         when(client.target(anyString())).thenReturn(webTarget);
         when(webTarget.request()).thenReturn(requestBuilder);
         when(requestBuilder.post(any())).thenReturn(response);

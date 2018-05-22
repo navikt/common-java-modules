@@ -1,5 +1,6 @@
 package no.nav.dialogarena.config.fasit;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import static no.nav.dialogarena.config.fasit.FasitUtils.DEFAULT_ENVIRONMENT_VARIABLE_NAME;
@@ -13,9 +14,9 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultDomain;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.Q6;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertThat;
@@ -76,5 +77,17 @@ public class FasitUtilsTest {
             assertThat(getDefaultDomain(SBS),equalTo(OERA_Q_LOCAL));
             assertThat(getDefaultDomain(FSS),equalTo(PREPROD_LOCAL));
         });
+    }
+
+    @Test
+    public void getRestService() {
+        assertThat(FasitUtils.getRestService("this.does.not.exist"), empty());
+        assertThatThrownBy(() -> FasitUtils.getRestService("this.does.not.exist", "p"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("this.does.not.exist")
+                .hasMessageContaining("p");
+
+        assertThat(FasitUtils.getRestService("fasit.rest.api"), not(empty()));
+        assertThat(FasitUtils.getRestService("fasit.rest.api", "p").getUrl(), startsWith("https://fasit.adeo.no"));
     }
 }

@@ -17,10 +17,9 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static no.nav.brukerdialog.security.Constants.REFRESH_TIME;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getApplicationEnvironment;
-import static no.nav.sbl.rest.RestUtils.withClient;
+import static no.nav.sbl.dialogarena.test.FasitAssumption.assumeFasitAccessible;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
 
 
 public class IssoSystemBrukerTokenHelsesjekkTest {
@@ -29,22 +28,9 @@ public class IssoSystemBrukerTokenHelsesjekkTest {
 
     private IssoSystemBrukerTokenHelsesjekk issoSystemBrukerTokenHelsesjekk = new IssoSystemBrukerTokenHelsesjekk();
 
-    private static boolean fasitAlive() {
-        return withClient(client -> {
-            try {
-                int status = client.target("https://fasit.adeo.no").request().get().getStatus();
-                return status == 200;
-            } catch (Exception e) {
-                LOGGER.error("Fasit is unreachable! NOT running integration tests.");
-                LOGGER.error(e.toString());
-                return false;
-            }
-        });
-    }
-
     @BeforeClass
     public static void setup() {
-        assumeTrue(fasitAlive());
+        assumeFasitAccessible();
         System.getProperties().putAll(getApplicationEnvironment("veilarbaktivitet"));
         setGlobalLogLevel(INFO);
         setProperty(REFRESH_TIME, Integer.toString(MAX_VALUE / 2000)); // slik at hver ping fører til refresh, se SystemUserTokenProvider.tokenIsSoonExpired()

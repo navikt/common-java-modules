@@ -1,0 +1,28 @@
+{
+  "Request": {
+    "Environment": {
+      "Attribute": [
+        {
+          "AttributeId": "no.nav.abac.attributter.environment.felles.pep_id",
+          "Value": "testapp"
+        }
+      ]
+    },
+    "Action": {
+      "Attribute": [
+        {
+          "AttributeId": "urn:oasis:names:tc:xacml:1.0:action:action-id",
+          "Value": "ping"
+        }
+      ]
+    },
+    "Resource": {
+      "Attribute": [
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
+          "Value": "veilarb"
+        }
+      ]
+    }
+  }
+}

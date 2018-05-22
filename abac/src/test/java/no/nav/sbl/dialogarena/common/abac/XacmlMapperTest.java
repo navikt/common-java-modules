@@ -1,8 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import no.nav.abac.xacml.NavAttributter;
-import no.nav.json.JsonUtils;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
@@ -12,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static no.nav.sbl.dialogarena.common.abac.TestUtils.assertJson;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -167,12 +166,6 @@ public class XacmlMapperTest {
         responses.add(new Response().withDecision(Decision.Deny).withAssociatedAdvice(associatedAdvice));
 
         return new XacmlResponse().withResponse(responses);
-    }
-
-    private void assertJson(String json, String expectedJson) {
-        ObjectNode objectNode = JsonUtils.fromJson(json, ObjectNode.class);
-        ObjectNode expectedObjectNode = JsonUtils.fromJson(expectedJson, ObjectNode.class);
-        assertThat(objectNode, equalTo(expectedObjectNode));
     }
 
 }

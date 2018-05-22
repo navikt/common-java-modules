@@ -9,14 +9,19 @@ import no.nav.fo.apiapp.soap.SoapEksempel;
 import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
+import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import java.util.Random;
 import java.util.stream.Stream;
 
 @Configuration
+@Import({
+        AbacContext.class
+})
 public class ApplicationConfig implements NaisApiApplication {
 
     public static final String APPLICATION_NAME = "api-app";

@@ -3,6 +3,9 @@ package no.nav.fo.apiapp;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
+import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.testconfig.ApiAppTest;
 
@@ -17,10 +20,15 @@ public class ApiAppTestMain {
 
         String securityTokenService = FasitUtils.getBaseUrl("securityTokenService");
         ServiceUser srvveilarbdemo = FasitUtils.getServiceUser("srvveilarbdemo", "veilarbdemo");
+        RestService abacEndpoint = FasitUtils.getRestService("abac.pdp.endpoint", srvveilarbdemo.getEnvironment());
 
         setProperty(StsSecurityConstants.STS_URL_KEY, securityTokenService);
         setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
         setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
+
+        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
+        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
+        setProperty(AbacServiceConfig.ABAC_ENDPOINT_URL_PROPERTY_NAME, abacEndpoint.getUrl());
 
         setProperty(OpenAmConfig.OPENAM_RESTURL, "https://itjenester-" + FasitUtils.getDefaultTestEnvironment().toString() + ".oera.no/esso");
 

@@ -6,12 +6,16 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static no.nav.sbl.dialogarena.common.abac.TestUtils.assertJson;
+import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
+import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -145,6 +149,17 @@ public class XacmlRequestGeneratorTest {
         Request expectedRequest = MockXacmlRequest.getRequestWithSubjectAttributes();
 
         assertThat(request, is(expectedRequest));
+    }
+
+    @Test
+    public void buildsCorrectPingRequest() {
+        setTemporaryProperty(EnvironmentUtils.APP_NAME_PROPERTY_NAME, "testapp", () -> {
+            XacmlRequest pingRequest = XacmlRequestGenerator.getPingRequest();
+            final String stringEntity = XacmlMapper.mapRequestToEntity(pingRequest);
+
+            String expectedContent = getContentFromJsonFile("xacmlrequest-ping.json");
+            assertJson(stringEntity, expectedContent);
+        });
     }
 
     @Test(expected = PepException.class)

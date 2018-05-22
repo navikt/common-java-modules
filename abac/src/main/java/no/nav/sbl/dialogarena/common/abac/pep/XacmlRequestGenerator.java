@@ -2,10 +2,15 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.*;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
+import no.nav.sbl.util.EnvironmentUtils;
 
+import static no.nav.abac.xacml.NavAttributter.ENVIRONMENT_FELLES_PEP_ID;
+import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_DOMENE;
+import static no.nav.abac.xacml.StandardAttributter.ACTION_ID;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class XacmlRequestGenerator {
@@ -22,7 +27,7 @@ class XacmlRequestGenerator {
             environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_SAML_TOKEN, samlToken));
         }
 
-        environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, requestData.getCredentialResource()));
+        environment.getAttribute().add(new Attribute(ENVIRONMENT_FELLES_PEP_ID, requestData.getCredentialResource()));
         return environment;
     }
 
@@ -35,7 +40,7 @@ class XacmlRequestGenerator {
 
     Action makeAction(RequestData requestData) {
         Action action = new Action();
-        action.getAttribute().add(new Attribute(StandardAttributter.ACTION_ID, requestData.getAction().getId()));
+        action.getAttribute().add(new Attribute(ACTION_ID, requestData.getAction().getId()));
         return action;
     }
 
@@ -91,8 +96,20 @@ class XacmlRequestGenerator {
     }
 
 
-    public static XacmlRequest getEmptyRequest() {
-        return new XacmlRequest().withRequest(new Request());
+    public static XacmlRequest getPingRequest() {
+        Action action = new Action();
+        action.addAttribute(new Attribute(ACTION_ID, "ping"));
+
+        Resource resource = new Resource();
+        resource.addAttribute(new Attribute(RESOURCE_FELLES_DOMENE, "veilarb"));
+
+        Environment environment = new Environment();
+        environment.addAttribute(new Attribute(ENVIRONMENT_FELLES_PEP_ID, EnvironmentUtils.requireApplicationName()));
+        return new XacmlRequest().withRequest(new Request()
+                .withAction(action)
+                .withResource(resource)
+                .withEnvironment(environment)
+        );
 
     }
 }

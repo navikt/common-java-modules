@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
@@ -17,9 +18,6 @@ import java.io.IOException;
 
 import static javax.ws.rs.client.Entity.entity;
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
-import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_PASSWORD;
-import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_USERNAME;
-import static no.nav.sbl.dialogarena.common.abac.pep.Utils.getApplicationProperty;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.timed;
 import static no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext.ASK_FOR_PERMISSION;
 import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic;
@@ -28,24 +26,25 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class AbacService  {
 
-    public static final String ABAC_ENDPOINT_URL_PROPERTY_NAME = "abac.endpoint.url";
-
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = getLogger(AbacService.class);
+
     private final Client client;
+    private final String endpointUrl;
 
-
-    public AbacService() {
-        this(createClient());
+    @Inject
+    public AbacService(AbacServiceConfig abacServiceConfig) {
+        this(createClient(abacServiceConfig),abacServiceConfig.getEndpointUrl());
     }
 
-    AbacService(Client client) {
+    AbacService(Client client, String endpointUrl) {
         this.client = client;
+        this.endpointUrl = endpointUrl;
     }
 
-    private static Client createClient() {
+    private static Client createClient(AbacServiceConfig abacServiceConfig) {
         Client client = RestUtils.createClient();
-        client.register(basic(getApplicationProperty(SYSTEMUSER_USERNAME), getApplicationProperty(SYSTEMUSER_PASSWORD)));
+        client.register(basic(abacServiceConfig.getUsername(),abacServiceConfig.getPassword()));
         return client;
     }
 
@@ -74,8 +73,7 @@ public class AbacService  {
 
     private Response request(XacmlRequest request, Client client) {
         String postingString = XacmlMapper.mapRequestToEntity(request);
-        final String abacEndpointUrl = getEndpointUrl();
-        return client.target(abacEndpointUrl)
+        return client.target(endpointUrl)
                 .request()
                 .post(entity(postingString, MEDIA_TYPE));
     }
@@ -88,8 +86,5 @@ public class AbacService  {
         return statusCode >= 400 && statusCode < 500;
     }
 
-    public static String getEndpointUrl() {
-        return getApplicationProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME);
-    }
 
 }
