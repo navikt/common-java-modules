@@ -112,7 +112,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
     private final Konfigurator konfigurator;
-    private int sesjonsLengde;
 
     static {
         if (isEnvironmentClass(T)) {
@@ -226,7 +225,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         if (soapTjenesterEksisterer(servletContext)) {
             leggTilServlet(servletContextEvent, new SoapServlet(), WEBSERVICE_PATH);
         }
-        settOppSessionOgCookie(servletContextEvent, apiApplication);
 
         if (apiApplication instanceof ApiApplication.NaisApiApplication) {
             MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
@@ -259,7 +257,8 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     @Override
     public void sessionCreated(HttpSessionEvent se) {
-        se.getSession().setMaxInactiveInterval(sesjonsLengde);
+        se.getSession().invalidate();
+        throw new IllegalStateException("api-apps should be stateless");
     }
 
     @Override
@@ -355,21 +354,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
         ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, sluttMedSlash(apiApplication.getApiBasePath()) + "*");
         SwaggerResource.setupServlet(servletRegistration);
-    }
-
-    private void settOppSessionOgCookie(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
-        ServletContext servletContext = servletContextEvent.getServletContext();
-        String sessionCookieName = apiApplication.getApplicationName().toUpperCase() + "_JSESSIONID";
-
-        SessionCookieConfig sessionCookieConfig = servletContext.getSessionCookieConfig();
-        sessionCookieConfig.setHttpOnly(true);
-        sessionCookieConfig.setSecure(true);
-        LOGGER.info("SessionCookie: {}", sessionCookieName);
-        sessionCookieConfig.setName(sessionCookieName);
-        servletContext.setSessionTrackingModes(singleton(COOKIE));
-        sesjonsLengde = ofNullable(servletContextEvent.getServletContext().getInitParameter("maksSesjonsLengde"))
-                .map(Integer::parseInt)
-                .orElse(60);
     }
 
     private static boolean erGyldigKlasse(String klasseNavn) {
