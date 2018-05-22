@@ -8,8 +8,6 @@ import no.nav.json.JsonProvider;
 import no.nav.log.MDCConstants;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
-import no.nav.sbl.rest.client.RestRequest;
-import no.nav.sbl.util.StringUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.slf4j.Logger;
@@ -17,11 +15,14 @@ import org.slf4j.MDC;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.*;
+import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.util.function.Function;
 
+import static javax.ws.rs.core.HttpHeaders.COOKIE;
 import static no.nav.sbl.util.StringUtils.of;
 import static org.glassfish.jersey.client.ClientProperties.*;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -29,6 +30,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class RestUtils {
 
     public static final String CORRELATION_ID_HEADER_NAME = "X-Correlation-Id";
+    public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
     private static final Logger LOG = getLogger(RestUtils.class);
 
@@ -116,21 +118,36 @@ public class RestUtils {
 
     private static class MetricsProvider implements ClientResponseFilter, ClientRequestFilter {
 
-        public static final String NAME = MetricsProvider.class.getName();
+        private static final String NAME = MetricsProvider.class.getName();
+        private static final String CSRF_TOKEN = "csrf-token";
 
         private final String metricName;
         private final RestConfig restConfig;
 
-        public MetricsProvider(String metricName, RestConfig restConfig) {
+        private MetricsProvider(String metricName, RestConfig restConfig) {
             this.metricName = metricName;
             this.restConfig = restConfig;
         }
 
         @Override
-        public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
-            of(MDC.get(MDCConstants.MDC_CORRELATION_ID))
-                    .ifPresent(correlationId -> clientRequestContext.getHeaders().putSingle(CORRELATION_ID_HEADER_NAME, correlationId));
+        public void filter(ClientRequestContext clientRequestContext) throws IOException {
+            LOG.info("{} {}", clientRequestContext.getMethod(), uriForLogging(clientRequestContext));
 
+            MultivaluedMap<String, Object> requestHeaders = clientRequestContext.getHeaders();
+
+            of(MDC.get(MDCConstants.MDC_CORRELATION_ID))
+                    .ifPresent(correlationId -> requestHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId));
+
+            requestHeaders.add(CSRF_COOKIE_NAVN, CSRF_TOKEN);
+            requestHeaders.add(COOKIE, new Cookie(CSRF_COOKIE_NAVN, CSRF_TOKEN));
+
+            Timer timer = MetricsFactory.createTimer(this.metricName);
+            timer.start();
+            clientRequestContext.setProperty(NAME, timer);
+        }
+
+        @Override
+        public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
             Timer timer = (Timer) clientRequestContext.getProperty(NAME);
             timer
                     .stop()
@@ -140,15 +157,7 @@ public class RestUtils {
                     .report();
         }
 
-        @Override
-        public void filter(ClientRequestContext clientRequestContext) throws IOException {
-            LOG.info("{} {}", clientRequestContext.getMethod(), uri(clientRequestContext));
-            Timer timer = MetricsFactory.createTimer(this.metricName);
-            timer.start();
-            clientRequestContext.setProperty(NAME, timer);
-        }
-
-        private URI uri(ClientRequestContext clientRequestContext) {
+        private URI uriForLogging(ClientRequestContext clientRequestContext) {
             URI uri = clientRequestContext.getUri();
             return restConfig.disableParameterLogging ? UriBuilder.fromUri(uri).replaceQuery("").build() : uri;
         }
