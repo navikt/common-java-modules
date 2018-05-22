@@ -3,13 +3,9 @@ package no.nav.fo.apiapp.soap;
 import no.nav.apiapp.feil.FeilType;
 import no.nav.apiapp.feil.VersjonsKonflikt;
 import no.nav.fo.apiapp.JettyTest;
-//import no.nav.modig.security.ws.SystemSAMLOutInterceptor;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
-import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
-import no.nav.tjeneste.virksomhet.aktoer.v2.HentAktoerIdForIdentPersonIkkeFunnet;
-import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.WSHentAktoerIdForIdentRequest;
-import no.nav.tjeneste.virksomhet.aktoer.v2.meldinger.WSHentAktoerIdForIdentResponse;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,11 +20,11 @@ import static org.junit.Assert.fail;
 
 public class SoapTest extends JettyTest {
 
-    private static Aktoer_v2PortType aktoer_v2PortType;
+    private static HelloWorld helloWorld;
 
     @BeforeClass
     public static void setup() {
-        aktoer_v2PortType = new CXFClient<>(Aktoer_v2PortType.class)
+        helloWorld = new CXFClient<>(HelloWorld.class)
                 .address(uri("/ws" + TJENESTENAVN).toString())
                 .configureStsForSystemUser()
                 .withOutInterceptor(new LoggingOutInterceptor())
@@ -36,40 +32,37 @@ public class SoapTest extends JettyTest {
     }
 
     @Test
-    public void kanKommunisereMedTjeneste() throws HentAktoerIdForIdentPersonIkkeFunnet {
-        assertThat(hentAktorId("1234"), equalTo("aktor-1234"));
+    public void kanKommunisereMedTjeneste()  {
+        assertThat(sayHi("1234"), equalTo("hello 1234"));
     }
 
     @Test
-    public void tjenestePropagererSoapFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
+    public void tjenestePropagererSoapFeil()  {
         sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, FeilType.UKJENT, SOAPFaultException.class);
         sjekkAtTjenesteFeilerMed(IDENT_FOR_NOSTET_KALL, FeilType.UKJENT, "<SOAP-ENV:Fault");
     }
 
     @Test
-    public void tjenestePropagererUkjenteFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
+    public void tjenestePropagererUkjenteFeil()  {
         sjekkAtTjenesteFeilerMed(IDENT_FOR_UKJENT_FEIL, FeilType.UKJENT, Throwable.class);
     }
 
     @Test
-    public void tjenestePropagererKjenteFeil() throws HentAktoerIdForIdentPersonIkkeFunnet {
+    public void tjenestePropagererKjenteFeil()  {
         sjekkAtTjenesteFeilerMed(IDENT_FOR_VERSJONSKONFLIKT, FeilType.VERSJONSKONFLIKT, VersjonsKonflikt.class);
     }
 
-    private String hentAktorId(String ident) throws HentAktoerIdForIdentPersonIkkeFunnet {
-        WSHentAktoerIdForIdentRequest hentAktoerIdForIdentRequest = new WSHentAktoerIdForIdentRequest();
-        hentAktoerIdForIdentRequest.setIdent(ident);
-        WSHentAktoerIdForIdentResponse wsHentAktoerIdForIdentResponse = aktoer_v2PortType.hentAktoerIdForIdent(hentAktoerIdForIdentRequest);
-        return wsHentAktoerIdForIdentResponse.getAktoerId();
+    private String sayHi(String message)  {
+        return helloWorld.sayHi(message);
     }
 
-    private void sjekkAtTjenesteFeilerMed(String parameter, FeilType feilType, Class<? extends Throwable> internFeil) throws HentAktoerIdForIdentPersonIkkeFunnet {
+    private void sjekkAtTjenesteFeilerMed(String parameter, FeilType feilType, Class<? extends Throwable> internFeil)  {
         sjekkAtTjenesteFeilerMed(parameter, feilType, internFeil.getName());
     }
 
-    private void sjekkAtTjenesteFeilerMed(String parameter, FeilType feilType, String feilMelding) throws HentAktoerIdForIdentPersonIkkeFunnet {
+    private void sjekkAtTjenesteFeilerMed(String parameter, FeilType feilType, String feilMelding)  {
         try {
-            hentAktorId(parameter);
+            sayHi(parameter);
             fail();
         } catch (SOAPFaultException s) {
             SOAPFault fault = s.getFault();

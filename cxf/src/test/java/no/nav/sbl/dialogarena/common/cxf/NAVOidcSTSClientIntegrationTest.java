@@ -6,7 +6,7 @@ import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.dialogarena.mock.MockHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
-import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
+import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,15 +58,15 @@ public class NAVOidcSTSClientIntegrationTest {
 
     @Test
     public void cache_sts_token_for_hver_bruker_og_stsType() throws Exception {
-        Aktoer_v2PortType tjenesteA = new CXFClient<>(Aktoer_v2PortType.class)
+        HelloWorld tjenesteA = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-a"))
                 .configureStsForSystemUserInFSS()
                 .build();
-        Aktoer_v2PortType tjenesteB = new CXFClient<>(Aktoer_v2PortType.class)
+        HelloWorld tjenesteB = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-b"))
                 .configureStsForOnBehalfOfWithJWT()
                 .build();
-        Aktoer_v2PortType tjenesteC = new CXFClient<>(Aktoer_v2PortType.class)
+        HelloWorld tjenesteC = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-c"))
                 .configureStsForOnBehalfOfWithJWT()
                 .build();
@@ -102,9 +102,9 @@ public class NAVOidcSTSClientIntegrationTest {
         subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.oidcToken(jwt)));
     }
 
-    private void ping(Aktoer_v2PortType aktoer_v2PortType) {
+    private void ping(HelloWorld aktoer_v2PortType) {
         try {
-            aktoer_v2PortType.ping();
+            aktoer_v2PortType.sayHi("hi");
         } catch (Throwable e) {
             LOG.warn("ping feilet: {}", e.getMessage());
         }

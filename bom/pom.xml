@@ -969,6 +969,18 @@
 
             <!--Testing-->
             <dependency>
+                <groupId>org.apache.servicemix.examples</groupId>
+                <artifactId>cxf-jaxws-blueprint</artifactId>
+                <version>7.0.1</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-grizzly2-http</artifactId>
                 <version>${jersey.version}</version>
