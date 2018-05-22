@@ -140,10 +140,6 @@ public class Konfigurator implements ApiAppConfigurator {
         return issoLogin;
     }
 
-    private void leggTilBonne(Object bonne) {
-
-    }
-
     public List<Object> getSpringBonner() {
         return springBonner;
     }

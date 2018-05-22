@@ -62,7 +62,7 @@ public class DevelopmentSecurityTest {
     public void setupJettyWithESSO() {
         Jetty jetty = DevelopmentSecurity.setupESSO(
                 jettyBuilder(),
-                new ESSOSecurityConfig("veilarbaktivitetproxy")
+                new ESSOSecurityConfig("dittnav")
         ).buildJetty();
         jetty.start();
         jetty.stop.run();
@@ -71,7 +71,7 @@ public class DevelopmentSecurityTest {
     @Test
     public void setupESSO() {
         DevelopmentSecurity.setupESSO(
-                new ESSOSecurityConfig("veilarbaktivitetproxy")
+                new ESSOSecurityConfig("dittnav")
         );
     }
 

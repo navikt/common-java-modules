@@ -11,15 +11,11 @@ import static no.nav.common.auth.SsoToken.Type.SAML;
 public class SecurityUtils {
 
     public static Optional<String> getSamlToken() {
-        return SubjectHandler.getSubject()
-                .flatMap(subject -> subject.getSsoToken(SAML))
-                .map(SecurityUtils::encodeSamlToken);
+        return SubjectHandler.getSsoToken(SAML).map(SecurityUtils::encodeSamlToken);
     }
 
     public static Optional<String> getOidcToken() {
-        return SubjectHandler.getSubject()
-                .flatMap(subject -> subject.getSsoToken(OIDC))
-                .map(SecurityUtils::extractOidcTokenBody);
+        return SubjectHandler.getSsoToken(OIDC).map(SecurityUtils::extractOidcTokenBody);
     }
 
     public static String extractOidcTokenBody(String oidcToken) {
