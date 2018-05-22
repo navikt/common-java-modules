@@ -1,5 +1,6 @@
 package no.nav.brukerdialog.security.oidc.provider;
 
+import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.jaspic.TokenLocator;
 import no.nav.brukerdialog.security.jwks.JsonWebKeyCache;
@@ -58,6 +59,12 @@ public class AzureADB2CProvider implements OidcProvider {
         throw new IllegalStateException("not supported");
     }
 
+    @Override
+    public IdentType getIdentType(String token) {
+        return IdentType.EksternBruker;
+    }
+
+    @SuppressWarnings("unused")
     private static class IssuerMetaData {
         private String issuer;
         private String jwks_uri;

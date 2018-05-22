@@ -2,7 +2,10 @@ package no.nav.sbl.dialogarena.common.abac;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import no.nav.modig.core.context.SAMLAssertionCredential;
+import no.nav.brukerdialog.security.context.SubjectRule;
+import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.SsoToken;
+import no.nav.common.auth.Subject;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
@@ -16,6 +19,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.LoggerFactory;
@@ -23,8 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.inject.Inject;
-import javax.security.auth.Subject;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.List;
@@ -42,6 +44,9 @@ public class HttpTest {
     @Inject
     Pep pep;
 
+    @Rule
+    public SubjectRule subjectRule = new SubjectRule();
+
     private static MockWebServer server;
     private static final MockResponse MOCK_RESPONSE = new MockResponse()
             .throttleBody(16, 250, TimeUnit.MILLISECONDS)
@@ -52,8 +57,6 @@ public class HttpTest {
     @BeforeClass
     public static void setup() throws IOException {
         System.setProperty("abac.bibliotek.simuler.avbrudd", "false");
-        System.setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler.class.getName());
-        System.setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.modig.core.context.ThreadLocalSubjectHandler.class.getName());
         System.setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
         System.setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
@@ -111,9 +114,7 @@ public class HttpTest {
     }
 
     private void gittBrukerMedSAMLAssertion() throws ParserConfigurationException {
-        Subject subject = new Subject();
-        subject.getPublicCredentials().add(new SAMLAssertionCredential(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().getDocumentElement()));
-        new no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler().setSubject(subject);
+        subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.saml("samlToken")));
     }
 
 }

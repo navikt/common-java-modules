@@ -18,16 +18,26 @@ import no.nav.apiapp.selftest.impl.STSHelsesjekk;
 import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.util.JbossUtil;
+import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
+import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
+import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
+import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
 import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
+import no.nav.common.auth.LoginFilter;
+import no.nav.common.auth.LoginProvider;
+import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
+import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
-import no.nav.modig.core.context.SubjectHandler;
-import no.nav.modig.security.filter.OpenAMLoginFilter;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.web.filter.GZIPFilter;
 import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.LogUtils;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.util.security.Constraint;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
@@ -44,17 +54,22 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static ch.qos.logback.classic.Level.INFO;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 import static java.util.Optional.ofNullable;
 import static javax.servlet.SessionTrackingMode.COOKIE;
-import static no.nav.apiapp.ApiApplication.Sone.SBS;
 import static no.nav.apiapp.ServletUtil.*;
-import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
+import static no.nav.brukerdialog.security.Constants.hasRedirectUrl;
 import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
@@ -86,6 +101,13 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     public static final String INTERNAL_METRICS = "/internal/metrics";
     public static final String SWAGGER_PATH = "/internal/swagger/";
     public static final String LOGINFO_PATH = "/internal/loginfo";
+    public static final String WEBSERVICE_PATH = "/ws/*";
+
+    public static final List<String> DEFAULT_PUBLIC_PATHS = Arrays.asList(
+            "/internal/.*",
+            "/ws/.*",
+            "/api/ping"
+    );
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
@@ -142,9 +164,49 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         leggTilFilter(servletContextEvent, GZIPFilter.class);
 
-        if (skalHaOpenAm(apiApplication)) {
-            leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
-            leggTilBonne(servletContextEvent, new OpenAMHelsesjekk());
+        // Slik at man husker å fjerne constrains fra web.xml
+        ConstraintSecurityHandler currentSecurityHandler = (ConstraintSecurityHandler) ConstraintSecurityHandler.getCurrentSecurityHandler();
+        List<ConstraintMapping> constraintMappings = currentSecurityHandler != null ? currentSecurityHandler.getConstraintMappings() : emptyList();
+        if (constraintMappings.size() > 2) { // Jetty setter opp 2 contraints by default
+            List<Constraint> constraints = constraintMappings.subList(2, constraintMappings.size()).stream().map(ConstraintMapping::getConstraint).collect(Collectors.toList());
+            throw new IllegalStateException("api-apper bruker ikke container-login lenger, men setter istede opp " + LoginFilter.class.getName() + ". Vennligst fjern security constraints fra web.xml: " + constraints);
+        }
+
+        // Automatisk oppsett av sikkerhet på jboss
+        if (!(apiApplication instanceof ApiApplication.NaisApiApplication)) {
+
+            JbossUtil.getJbossSecurityDomain().ifPresent(securityDomain -> {
+                if (!"other".equals(securityDomain)) {
+                    throw new IllegalStateException("api-apper bruker ikke container-login lenger, men setter opp istede " + LoginFilter.class.getName() + ". Vennligst fjern security-domain: " + securityDomain);
+                }
+            });
+
+            List<LoginProvider> providers = new ArrayList<>();
+
+            if (detectAndLogProperty(OpenAmConfig.OPENAM_RESTURL)) {
+                OpenAmConfig openAmConfig = OpenAmConfig.fromSystemProperties();
+                providers.add(new OpenAMLoginFilter(openAmConfig));
+                leggTilBonne(servletContextEvent, new OpenAMHelsesjekk(openAmConfig));
+            }
+
+            List<OidcProvider> oidcProviders = new ArrayList<>();
+            if (issoBrukes()) {
+                oidcProviders.add(new IssoOidcProvider());
+            }
+
+            if (detectAndLogProperty(AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA)){
+                oidcProviders.add(new AzureADB2CProvider(AzureADB2CConfig.readFromSystemProperties()));
+            }
+
+            if(!oidcProviders.isEmpty()){
+                providers.add(new OidcAuthModule(oidcProviders));
+            }
+
+            leggTilFilter(servletContextEvent, new LoginFilter(providers, DEFAULT_PUBLIC_PATHS));
+        }
+
+        if (konfigurator != null) {
+            konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
         }
 
         leggTilFilter(servletContextEvent, MDCFilter.class);
@@ -162,7 +224,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         settOppRestApi(servletContextEvent, apiApplication);
         if (soapTjenesterEksisterer(servletContext)) {
-            leggTilServlet(servletContextEvent, new SoapServlet(), "/ws/*");
+            leggTilServlet(servletContextEvent, new SoapServlet(), WEBSERVICE_PATH);
         }
         settOppSessionOgCookie(servletContextEvent, apiApplication);
 
@@ -174,35 +236,25 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         apiApplication.startup(servletContext);
     }
 
-    private boolean skalHaOpenAm(ApiApplication apiApplication) {
-        if (apiApplication instanceof ApiApplication.NaisApiApplication) {
-            return EnvironmentUtils.getOptionalProperty(OPENAM_RESTURL).isPresent();
-        } else {
-            return apiApplication.getSone() == SBS;
-        }
+    private boolean detectAndLogProperty(String propertyName) {
+        Optional<String> optionalProperty = EnvironmentUtils.getOptionalProperty(propertyName);
+        LOGGER.info("checking property: {} = {}", propertyName, optionalProperty.orElse(""));
+        return optionalProperty.isPresent();
     }
 
     private boolean stsBrukes(ApiApplication apiApplication) {
         if (apiApplication instanceof ApiApplication.NaisApiApplication) {
-            return EnvironmentUtils.getOptionalProperty(StsSecurityConstants.STS_URL_KEY).isPresent();
+            return getOptionalProperty(StsSecurityConstants.STS_URL_KEY).isPresent();
         } else {
             return apiApplication.brukSTSHelsesjekk();
         }
     }
 
-    private boolean modigSecurityBrukes() {
-        try {
-            return SubjectHandler.getSubjectHandler() instanceof SubjectHandler;
-        } catch (RuntimeException e) {
-            return false;
-        }
-    }
-
     private boolean issoBrukes() {
-        boolean jaspiAuthProvider = konfigurator != null && konfigurator.harIssoLogin();
-        boolean autoRegistration = JbossUtil.brukerJaspi(); // på jboss
-        LOGGER.info("isso? jaspi={} auto={}", jaspiAuthProvider, autoRegistration);
-        return jaspiAuthProvider || autoRegistration;
+        boolean harIssoLogin = konfigurator != null && konfigurator.harIssoLogin();
+        boolean autoRegistration = hasRedirectUrl();
+        LOGGER.info("isso? harIssoLogin={} auto={}", harIssoLogin, autoRegistration);
+        return harIssoLogin || autoRegistration;
     }
 
     @Override
@@ -289,7 +341,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
         }
         if (stsBrukes(apiApplication)) {
-            leggTilBonne(servletContextEvent, new STSHelsesjekk(apiApplication.getSone()));
+            leggTilBonne(servletContextEvent, new STSHelsesjekk());
         }
         return apiApplication;
     }

@@ -37,15 +37,9 @@ public class ApiApp {
         long start = System.currentTimeMillis();
         setupTrustStore();
         NaisApiApplication apiApplication = apiAppClass.newInstance();
-        setupSubjectHandlers();
         Jetty jetty = setupJetty(apiApplication, args);
         reportStartupTime(start);
         jetty.server.join();
-    }
-
-    private static void setupSubjectHandlers() {
-        setProperty(no.nav.modig.core.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.apiapp.modigsecurity.JettySubjectHandler.class.getName(), PUBLIC);
-        setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, no.nav.brukerdialog.security.context.JettySubjectHandler.class.getName(), PUBLIC);
     }
 
     private static Jetty setupJetty(NaisApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {

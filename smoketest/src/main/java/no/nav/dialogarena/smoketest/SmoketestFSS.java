@@ -3,7 +3,7 @@ package no.nav.dialogarena.smoketest;
 import lombok.*;
 import lombok.experimental.Accessors;
 import no.nav.brukerdialog.security.domain.OidcCredential;
-import no.nav.brukerdialog.security.oidc.TokenUtils;
+import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
 import no.nav.brukerdialog.security.oidc.UserTokenProvider;
 import no.nav.dialogarena.config.DevelopmentSecurity;
 
@@ -30,7 +30,7 @@ public class SmoketestFSS {
         OidcCredential token = userTokenProvider.getIdToken();
 
         tokenCookie = new Cookie(ID_TOKEN, token.getToken());
-        innloggetVeielder = TokenUtils.getTokenSub(token.getToken());
+        innloggetVeielder = OidcTokenUtils.getTokenSub(token.getToken());
     }
 
     @Data

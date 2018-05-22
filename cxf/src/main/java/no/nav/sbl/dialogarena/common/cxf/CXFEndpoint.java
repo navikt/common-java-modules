@@ -5,8 +5,7 @@ import static java.util.Arrays.asList;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.nav.modig.security.ws.SAMLInInterceptor;
-
+import no.nav.sbl.dialogarena.common.cxf.saml.SAMLInInterceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.cxf.ws.security.wss4j.KerberosTokenInterceptor;

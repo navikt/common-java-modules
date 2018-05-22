@@ -29,12 +29,9 @@
         <logback.version>1.2.3</logback.version>
 
         <!-- COMMON -->
-        <modig-core.version>1.0.1</modig-core.version>
-        <modig-security.version>3.0.6</modig-security.version>
-        <modig-testcertificates.version>2.0.0-SNAPSHOT</modig-testcertificates.version>
-        <modig-core-test.version>1.0.0</modig-core-test.version>
         <jetty.version>9.4.8.v20171121</jetty.version>
         <jetty.orbit.javax.security.auth.message.version>1.0.0.v201108011116</jetty.orbit.javax.security.auth.message.version>
+        <modig-testcertificates.version>2.0.0-SNAPSHOT</modig-testcertificates.version>
 
         <!-- SOAP -->
         <neethi.version>3.0.3</neethi.version>
@@ -205,6 +202,23 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>auth</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>auth-openam-sbs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.dialogarena</groupId>
                 <artifactId>oidc-security</artifactId>
                 <version>${project.version}</version>
@@ -311,82 +325,8 @@
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-lang</artifactId>
-                <version>2.0.4</version>
-            </dependency>
             <!-- SLUTT COMMON -->
 
-            <!-- modig -->
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-core</artifactId>
-                <version>${modig-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-security-filter</artifactId>
-                <version>${modig-security.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-security-loginmodule</artifactId>
-                <version>${modig-security.version}</version>
-                <scope>runtime</scope><!-- runtime for å gjøre det enkelt å depende på denne uten at den blir oppfattet som unused av maven-dependency-plugin  -->
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-security-ws</artifactId>
-                <version>${modig-security.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-security-sts</artifactId>
-                <version>${modig-security.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-security-core</artifactId>
-                <version>${modig-security.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-security-core</artifactId>
-                <version>${modig-security.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-core-test</artifactId>
-                <version>${modig-core-test.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>no.nav.modig</groupId>
                 <artifactId>modig-testcertificates</artifactId>

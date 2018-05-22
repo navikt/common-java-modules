@@ -3,36 +3,27 @@ package no.nav.dialogarena.config;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
-import no.nav.brukerdialog.security.context.InternbrukerSubjectHandler;
-import no.nav.brukerdialog.security.context.TestSubjectHandler;
+import no.nav.common.auth.LoginFilter;
+import no.nav.common.auth.LoginProvider;
+import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.dialogarena.config.security.ESSOProvider;
 import no.nav.dialogarena.config.util.Util;
-import no.nav.modig.core.context.AuthenticationLevelCredential;
-import no.nav.modig.core.context.OpenAmTokenCredential;
-import no.nav.modig.core.context.StaticSubjectHandler;
-import no.nav.modig.core.domain.ConsumerId;
-import no.nav.modig.core.domain.SluttBruker;
-import no.nav.modig.security.loginmodule.OpenAMLoginModule;
-import no.nav.modig.security.loginmodule.SamlLoginModule;
 import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
-import org.eclipse.jetty.jaas.JAASLoginService;
-import org.eclipse.jetty.security.DefaultIdentityService;
 import org.slf4j.Logger;
 
-import javax.security.auth.Subject;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static java.lang.String.format;
-import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.ESSO;
-import static no.nav.dialogarena.config.DevelopmentSecurity.LoginModuleType.SAML;
-import static no.nav.dialogarena.config.fasit.FasitUtils.erEksterntDomene;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultEnvironment;
 import static no.nav.dialogarena.config.security.ISSOProvider.LOGIN_APPLIKASJON;
 import static no.nav.dialogarena.config.util.Util.Mode.IKKE_OVERSKRIV;
@@ -131,17 +122,13 @@ public class DevelopmentSecurity {
     public static Jetty.JettyBuilder setupSamlLogin(Jetty.JettyBuilder jettyBuilder, SamlSecurityConfig securityConfig) {
         commonServerSetup(jettyBuilder);
         appSetup(securityConfig.applicationName,securityConfig.environment);
-        modigSubjectHandler();
-        dialogArenaSubjectHandler();
-        LOG.info("configuring: {}", SamlLoginModule.class.getName());
-        return jettyBuilder.withLoginService(jaasLoginModule(SAML));
+        return jettyBuilder;
     }
 
     @SneakyThrows
     public static void setupESSO(ESSOSecurityConfig essoSecurityConfig) {
         commonSetup();
         appSetup(essoSecurityConfig.applicationName, essoSecurityConfig.environment);
-        modigSubjectHandler();
     }
 
     @SneakyThrows
@@ -153,7 +140,6 @@ public class DevelopmentSecurity {
         ServiceUser serviceUser = FasitUtils.getServiceUser(essoSecurityConfig.serviceUserName, essoSecurityConfig.applicationName, environment);
         assertCorrectDomain(serviceUser, FasitUtils.getOeraLocal(environment));
         configureServiceUser(serviceUser);
-        modigSubjectHandler();
 
         return configureOpenAm(jettyBuilder, essoSecurityConfig);
     }
@@ -162,17 +148,13 @@ public class DevelopmentSecurity {
     public static Jetty.JettyBuilder setupISSO(Jetty.JettyBuilder jettyBuilder, ISSOSecurityConfig issoSecurityConfig) {
         commonServerSetup(jettyBuilder);
         appSetup(issoSecurityConfig.applicationName, issoSecurityConfig.environment);
-        modigSubjectHandler();
-        dialogArenaSubjectHandler();
-        return jettyBuilder.configureForJaspic();
+        return jettyBuilder;
     }
 
     @SneakyThrows
     public static void setupISSO(ISSOSecurityConfig issoSecurityConfig) {
         commonSetup();
         appSetup(issoSecurityConfig.applicationName,issoSecurityConfig.environment);
-        modigSubjectHandler();
-        dialogArenaSubjectHandler();
     }
 
     @Deprecated
@@ -195,16 +177,7 @@ public class DevelopmentSecurity {
         );
 
         ServiceUser serviceUser = FasitUtils.getServiceUser(integrationTestConfig.serviceUserName, integrationTestConfig.applicationName, integrationTestConfig.environment);
-        Subject testSubject = integrationTestSubject(serviceUser);
         configureServiceUser(serviceUser);
-        if (!erEksterntDomene(serviceUser.getDomain())) {
-            dialogArenaSubjectHandler(InternbrukerSubjectHandler.class);
-            InternbrukerSubjectHandler internbrukerSubjectHandler = (InternbrukerSubjectHandler) TestSubjectHandler.getSubjectHandler();
-            internbrukerSubjectHandler.setSubject(testSubject);
-        }
-        modigSubjectHandler(StaticSubjectHandler.class);
-        StaticSubjectHandler staticSubjectHandler = (StaticSubjectHandler) StaticSubjectHandler.getSubjectHandler();
-        staticSubjectHandler.setSubject(testSubject);
     }
 
     public static void appSetup(String applicationName, String environment) {
@@ -215,19 +188,6 @@ public class DevelopmentSecurity {
         Util.setProperties(FasitUtils.getApplicationEnvironment(applicationName, environment), mode);
         // reset keystore siden dette kan ha blitt endret
         TestCertificates.setupKeyAndTrustStore();
-    }
-
-    private static Subject integrationTestSubject(ServiceUser serviceUser) {
-        ESSOProvider.ESSOCredentials essoCredentials = ESSOProvider.getEssoCredentials(serviceUser.environment);
-        String sso = essoCredentials.sso;
-        String username = essoCredentials.testUser.username;
-
-        Subject subject = new Subject();
-        subject.getPrincipals().add(SluttBruker.eksternBruker(username));
-        subject.getPrincipals().add(new ConsumerId(username));
-        subject.getPublicCredentials().add(new OpenAmTokenCredential(sso));
-        subject.getPublicCredentials().add(new AuthenticationLevelCredential(4));
-        return subject;
     }
 
     private static void commonServerSetup(Jetty.JettyBuilder jettyBuilder) {
@@ -264,51 +224,8 @@ public class DevelopmentSecurity {
 
     private static Jetty.JettyBuilder configureOpenAm(Jetty.JettyBuilder jettyBuilder, ESSOSecurityConfig essoSecurityConfig) throws IOException {
         OpenAmConfig openAmConfig = FasitUtils.getOpenAmConfig(essoSecurityConfig.environment);
-        setProperty("openam.restUrl", openAmConfig.restUrl);
-        setProperty("openam.logoutUrl", openAmConfig.logoutUrl);
-        LOG.info("configuring: {}", OpenAMLoginModule.class.getName());
-        return jettyBuilder.withLoginService(jaasLoginModule(ESSO));
+        List<LoginProvider> loginProviders = singletonList(new OpenAMLoginFilter(new no.nav.common.auth.openam.sbs.OpenAmConfig(openAmConfig.restUrl)));
+        return jettyBuilder.addFilter(new LoginFilter(loginProviders, singletonList(".*")));
     }
 
-    public static JAASLoginService jaasLoginModule(LoginModuleType loginModuleType) {
-        setProperty("java.security.auth.login.config", DevelopmentSecurity.class.getResource("/jaas.config").toExternalForm());
-        JAASLoginService loginService = new JAASLoginService();
-        String moduleName = loginModuleType.getModuleName();
-        loginService.setName(moduleName);
-        loginService.setLoginModuleName(moduleName);
-        loginService.setIdentityService(new DefaultIdentityService());
-        return loginService;
-    }
-
-    private static void modigSubjectHandler() {
-        modigSubjectHandler(no.nav.modig.core.context.JettySubjectHandler.class);
-    }
-
-    private static void modigSubjectHandler(Class<? extends no.nav.modig.core.context.SubjectHandler> jettySubjectHandlerClass) {
-        setProperty(no.nav.modig.core.context.JettySubjectHandler.SUBJECTHANDLER_KEY, jettySubjectHandlerClass.getName());
-    }
-
-    private static void dialogArenaSubjectHandler() {
-        dialogArenaSubjectHandler(no.nav.brukerdialog.security.context.JettySubjectHandler.class);
-    }
-
-    private static void dialogArenaSubjectHandler(Class<? extends no.nav.brukerdialog.security.context.SubjectHandler> jettySubjectHandlerClass) {
-        setProperty(no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY, jettySubjectHandlerClass.getName());
-    }
-
-    public enum LoginModuleType {
-        ESSO("esso"),
-        SAML("saml");
-
-        private final String moduleName;
-
-        LoginModuleType(String moduleName) {
-            this.moduleName = moduleName;
-        }
-
-        public String getModuleName() {
-            return moduleName;
-        }
-
-    }
 }

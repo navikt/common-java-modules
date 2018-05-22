@@ -1,10 +1,8 @@
 package no.nav.apiapp.selftest.impl;
 
 import lombok.SneakyThrows;
-import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
-import no.nav.modig.security.sts.utility.STSConfigurationUtility;
 import no.nav.sbl.dialogarena.common.cxf.STSConfigurationUtil;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -32,12 +30,6 @@ import java.util.stream.Stream;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.STS_URL_KEY;
 
 public class STSHelsesjekk implements Helsesjekk {
-
-    private final ApiApplication.Sone sone;
-
-    public STSHelsesjekk(ApiApplication.Sone sone) {
-        this.sone = sone;
-    }
 
     @Override
     public void helsesjekk() throws Exception {
@@ -89,16 +81,7 @@ public class STSHelsesjekk implements Helsesjekk {
         }
 
         private STSClient stsClient() {
-            switch (sone) {
-                case FSS:
-                    STSConfigurationUtil.configureStsForSystemUserInFSS(client);
-                    break;
-                case SBS:
-                    STSConfigurationUtility.configureStsForSystemUser(client);
-                    break;
-                default:
-                    throw new IllegalStateException();
-            }
+            STSConfigurationUtil.configureStsForSystemUserInFSS(client);
             STSClient stsClient = (STSClient) client.getRequestContext().values().iterator().next();
             stsClient.setMessage(message);
             stsClient.setTemplate(getRequestSecurityTokenTemplate());

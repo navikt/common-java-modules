@@ -34,7 +34,6 @@ public class OidcClientWrapper {
 
 
         STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, ON_BEHALF_OF_WITH_JWT);
-        stsClient.setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
         client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
         client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, false);
         setEndpointPolicyReference(client, "classpath:JwtSTSPolicy.xml");
@@ -96,4 +95,5 @@ public class OidcClientWrapper {
         EndpointPolicy endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, null, message);
         policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy, message));
     }
+
 }

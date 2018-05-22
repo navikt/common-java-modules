@@ -1,5 +1,6 @@
 package no.nav.brukerdialog.security.oidc.provider;
 
+import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.jwks.JwtHeader;
 import no.nav.sbl.util.StringUtils;
@@ -20,5 +21,6 @@ public interface OidcProvider {
     Key getVerificationKey(JwtHeader header);
     String getExpectedIssuer();
     String getExpectedAudience(String token);
+    IdentType getIdentType(String token);
 
 }

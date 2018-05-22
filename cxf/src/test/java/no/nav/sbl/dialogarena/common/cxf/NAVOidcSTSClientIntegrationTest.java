@@ -1,20 +1,18 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.brukerdialog.security.context.ThreadLocalSubjectHandler;
+import no.nav.brukerdialog.security.context.SubjectRule;
 import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.brukerdialog.security.domain.OidcCredential;
-import no.nav.brukerdialog.security.domain.SluttBruker;
+import no.nav.common.auth.SsoToken;
+import no.nav.common.auth.Subject;
 import no.nav.dialogarena.mock.MockHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import javax.security.auth.Subject;
-
-import static no.nav.brukerdialog.security.context.SubjectHandler.SUBJECTHANDLER_KEY;
 import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.JettyTestServer.findFreePort;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
@@ -28,6 +26,9 @@ public class NAVOidcSTSClientIntegrationTest {
 
     private Jetty stsMock;
     private MockHandler stsHandler = new MockHandler("sts");
+
+    @Rule
+    public SubjectRule subjectRule = new SubjectRule();
 
     @Before
     public void setup() {
@@ -48,7 +49,6 @@ public class NAVOidcSTSClientIntegrationTest {
         System.setProperty(STS_URL_KEY, stsUrl);
         System.setProperty(SYSTEMUSER_USERNAME, "username");
         System.setProperty(SYSTEMUSER_PASSWORD, "password");
-        System.setProperty(SUBJECTHANDLER_KEY, ThreadLocalSubjectHandler.class.getName());
     }
 
     @After
@@ -99,10 +99,7 @@ public class NAVOidcSTSClientIntegrationTest {
     }
 
     private void setBrukerToken(String jwt) {
-        Subject subject = new Subject();
-        subject.getPublicCredentials().add(new OidcCredential(jwt));
-        subject.getPrincipals().add(new SluttBruker(jwt, IdentType.InternBruker));
-        new ThreadLocalSubjectHandler().setSubject(subject);
+        subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.oidcToken(jwt)));
     }
 
     private void ping(Aktoer_v2PortType aktoer_v2PortType) {

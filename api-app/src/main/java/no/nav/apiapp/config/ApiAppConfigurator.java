@@ -1,6 +1,7 @@
 package no.nav.apiapp.config;
 
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
+import no.nav.common.auth.openam.sbs.OpenAmConfig;
 
 public interface ApiAppConfigurator {
     ApiAppConfigurator sts();
@@ -11,6 +12,4 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig);
     ApiAppConfigurator openAmLogin();
     ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig);
-    ApiAppConfigurator samlLogin();
-    ApiAppConfigurator samlLogin(SamlConfig samlConfig);
 }

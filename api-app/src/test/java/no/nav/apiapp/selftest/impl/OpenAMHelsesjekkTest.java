@@ -1,11 +1,10 @@
 package no.nav.apiapp.selftest.impl;
 
 import lombok.SneakyThrows;
+import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.sbl.dialogarena.test.SystemProperties;
 import org.junit.jupiter.api.Test;
 
-import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OpenAMHelsesjekkTest {
@@ -14,18 +13,18 @@ public class OpenAMHelsesjekkTest {
 
     @Test
     public void ok() throws Throwable {
-        SystemProperties.setTemporaryProperty(OPENAM_RESTURL, validOpenAMRestUrl, this::helsesjekk);
+        helsesjekk(validOpenAMRestUrl);
     }
 
     @Test
     public void ikkeOk() {
-        assertThatThrownBy(() -> SystemProperties.setTemporaryProperty(OPENAM_RESTURL, validOpenAMRestUrl + "/ikke/gyldig/sti", this::helsesjekk))
-                .hasMessageContaining("Kunne ikke verifisere om token er gyldig");
+        assertThatThrownBy(() -> helsesjekk(validOpenAMRestUrl + "/ikke/gyldig/sti"))
+                .hasMessageContaining("404");
     }
 
     @SneakyThrows
-    private void helsesjekk() {
-        new OpenAMHelsesjekk().helsesjekk();
+    private void helsesjekk(String validOpenAMRestUrl) {
+        new OpenAMHelsesjekk(new OpenAmConfig(validOpenAMRestUrl)).helsesjekk();
     }
 
 }

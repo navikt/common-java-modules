@@ -55,4 +55,12 @@ public class ServletUtil {
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
     }
+
+    public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Filter filter) {
+        Class<? extends Filter> filterClass = filter.getClass();
+        FilterRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addFilter(filterClass.getName(), filter);
+        dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+        LOGGER.info("la til filter [{}]", filterClass.getName());
+        return dynamic;
+    }
 }

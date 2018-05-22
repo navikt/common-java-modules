@@ -2,30 +2,32 @@ package no.nav.apiapp.selftest.impl;
 
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
-import no.nav.modig.security.filter.OpenAMService;
-
-import static no.nav.apiapp.config.Konfigurator.OPENAM_RESTURL;
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
+import no.nav.common.auth.openam.sbs.OpenAMUserInfoService;
+import no.nav.common.auth.openam.sbs.OpenAmConfig;
 
 
 public class OpenAMHelsesjekk implements Helsesjekk {
 
-    private final OpenAMService openAMService = new OpenAMService();
+    private static final String DUMMY_SUBJECT = OpenAMHelsesjekk.class.getName();
+
+    private final OpenAMUserInfoService openAMUserInfoService;
     private final HelsesjekkMetadata helsesjekkMetadata;
 
-    public OpenAMHelsesjekk() {
+    public OpenAMHelsesjekk(OpenAmConfig openAmConfig) {
+        openAMUserInfoService = new OpenAMUserInfoService(openAmConfig);
         helsesjekkMetadata = new HelsesjekkMetadata(
-                "openam",
-                getRequiredProperty(OPENAM_RESTURL),
-                "Sjekker et ugyldig token mot openAM",
+                "openam-info",
+                openAMUserInfoService.getUrl(DUMMY_SUBJECT),
+                "Henter brukerinfo for ugyldig subject",
                 true
         );
     }
 
     @Override
     public void helsesjekk() throws Throwable {
-        if (openAMService.isTokenValid(OpenAMHelsesjekk.class.getName())) {
-            throw new IllegalStateException();
+        int status = openAMUserInfoService.requestUserAttributes(DUMMY_SUBJECT).getStatus();
+        if (status != 401) {
+            throw new IllegalStateException(String.format("HTTP status %s != 401", status));
         }
     }
 

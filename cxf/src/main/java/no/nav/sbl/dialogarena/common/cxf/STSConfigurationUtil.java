@@ -23,18 +23,27 @@ import javax.xml.namespace.QName;
 import java.util.HashMap;
 
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.STS_URL_KEY;
+import static no.nav.sbl.dialogarena.common.cxf.StsType.EXTERNAL_SSO;
 import static no.nav.sbl.dialogarena.common.cxf.StsType.SYSTEM_USER_IN_FSS;
 
 public class STSConfigurationUtil {
 
     public static void configureStsForSystemUserInFSS(Client client) {
+        configureSts(client, SYSTEM_USER_IN_FSS);
+    }
+
+    public static void configureStsForExternalSSO(Client client) {
+        configureSts(client, EXTERNAL_SSO);
+    }
+
+    private static void configureSts(Client client, StsType stsType) {
         String location = requireProperty(STS_URL_KEY);
         String username = requireProperty(StsSecurityConstants.SYSTEMUSER_USERNAME);
         String password = requireProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD);
 
         new WSAddressingFeature().initialize(client, client.getBus());
 
-        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, SYSTEM_USER_IN_FSS);
+        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, stsType);
         client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
         setEndpointPolicyReference(client, "classpath:stspolicy.xml");
     }
@@ -94,4 +103,5 @@ public class STSConfigurationUtil {
         }
         return property;
     }
+
 }

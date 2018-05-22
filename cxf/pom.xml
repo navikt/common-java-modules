@@ -13,6 +13,7 @@
 
 	<properties>
         <jsoup.version>1.7.2</jsoup.version>
+        <opensaml.version>3.3.0</opensaml.version>
     </properties>
 
     <dependencyManagement>
@@ -29,10 +30,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-security-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-soap</artifactId>
         </dependency>
@@ -45,13 +42,8 @@
             <artifactId>neethi</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.dialogarena</groupId>
-            <artifactId>oidc-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.dialogarena</groupId>
-            <artifactId>oidc-security</artifactId>
-            <type>test-jar</type>
+            <groupId>no.nav.common</groupId>
+            <artifactId>auth</artifactId>
         </dependency>
 
 		<dependency>
@@ -75,8 +67,22 @@
 			<artifactId>cxf-rt-transports-http</artifactId>
 		</dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-core</artifactId>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-dom</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-core</artifactId>
+            <version>${opensaml.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-saml-api</artifactId>
+            <version>${opensaml.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav</groupId>
@@ -98,23 +104,12 @@
             </exclusions>
         </dependency>
 
-        <!-- Legg til denne som runtime hvis du trenger STS -->
-		<dependency>
-			<groupId>no.nav.modig</groupId>
-			<artifactId>modig-security-sts</artifactId>
-		</dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
 
 
-        <!-- Legg til denne som runtime hvis du trenger SAML-interceptors -->
-		<dependency>
-			<groupId>no.nav.modig</groupId>
-			<artifactId>modig-security-ws</artifactId>
-            <optional>true</optional>
-		</dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
@@ -183,6 +178,11 @@
             <artifactId>modig-testcertificates</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>auth</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>test</scope>
@@ -209,7 +209,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

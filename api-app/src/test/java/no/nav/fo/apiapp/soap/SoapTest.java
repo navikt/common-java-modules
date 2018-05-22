@@ -3,7 +3,7 @@ package no.nav.fo.apiapp.soap;
 import no.nav.apiapp.feil.FeilType;
 import no.nav.apiapp.feil.VersjonsKonflikt;
 import no.nav.fo.apiapp.JettyTest;
-import no.nav.modig.security.ws.SystemSAMLOutInterceptor;
+//import no.nav.modig.security.ws.SystemSAMLOutInterceptor;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
 import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import no.nav.tjeneste.virksomhet.aktoer.v2.HentAktoerIdForIdentPersonIkkeFunnet;
@@ -30,7 +30,7 @@ public class SoapTest extends JettyTest {
     public static void setup() {
         aktoer_v2PortType = new CXFClient<>(Aktoer_v2PortType.class)
                 .address(uri("/ws" + TJENESTENAVN).toString())
-                .withOutInterceptor(new SystemSAMLOutInterceptor())
+                .configureStsForSystemUser()
                 .withOutInterceptor(new LoggingOutInterceptor())
                 .build();
     }

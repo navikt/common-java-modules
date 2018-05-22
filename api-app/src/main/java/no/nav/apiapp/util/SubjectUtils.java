@@ -1,62 +1,20 @@
 package no.nav.apiapp.util;
 
-import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.Subject;
+import no.nav.common.auth.SubjectHandler;
 
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
-
+@Deprecated // bruk SubjectHandler direkte
 public class SubjectUtils {
 
-
     public static Optional<IdentType> getIdentType() {
-        return ofNullable(identType());
+        return SubjectHandler.getIdentType();
     }
 
     public static Optional<String> getUserId() {
-        return ofNullable(userId());
+        return SubjectHandler.getIdent();
     }
 
-    public static Optional<String> getConsumerId() {
-        return ofNullable(consumerId());
-    }
-
-    private static String userId() {
-        return ofNullable(SubjectHandler.getSubjectHandler().getUid())
-                .orElseGet(() -> no.nav.modig.core.context.SubjectHandler.getSubjectHandler().getUid());
-    }
-
-    public static String consumerId() {
-        return ofNullable(SubjectHandler.getSubjectHandler().getConsumerId())
-                .orElseGet(() -> no.nav.modig.core.context.SubjectHandler.getSubjectHandler().getConsumerId());
-    }
-
-    private static IdentType identType() {
-        return ofNullable(SubjectHandler.getSubjectHandler().getIdentType())
-                .orElseGet(() -> somBrukerDialogIdentType(no.nav.modig.core.context.SubjectHandler.getSubjectHandler().getIdentType()));
-    }
-
-    private static IdentType somBrukerDialogIdentType(no.nav.modig.core.domain.IdentType identType) {
-        if (identType != null) {
-            switch (identType) {
-                case EksternBruker:
-                    return IdentType.EksternBruker;
-                case InternBruker:
-                    return IdentType.InternBruker;
-                case Samhandler:
-                    return IdentType.Samhandler;
-                case Sikkerhet:
-                    return IdentType.Sikkerhet;
-                case Systemressurs:
-                    return IdentType.Systemressurs;
-                case Prosess:
-                    return IdentType.Prosess;
-                default:
-                    throw new IllegalStateException(identType.toString());
-            }
-        } else {
-            return null;
-        }
-    }
 }

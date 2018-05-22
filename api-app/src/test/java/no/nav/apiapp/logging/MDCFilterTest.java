@@ -1,7 +1,9 @@
 package no.nav.apiapp.logging;
 
-import no.nav.brukerdialog.security.context.CustomizableSubjectHandler;
-import no.nav.brukerdialog.security.context.SubjectHandler;
+import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.SsoToken;
+import no.nav.common.auth.Subject;
+import no.nav.common.auth.SubjectHandler;
 import org.junit.Test;
 import org.slf4j.Logger;
 
@@ -19,13 +21,12 @@ public class MDCFilterTest {
 
     private MDCFilter mdcFilter = new MDCFilter();
 
-    static {
-        System.setProperty(SubjectHandler.SUBJECTHANDLER_KEY, CustomizableSubjectHandler.class.getName());
-    }
-
     @Test
     public void smoketest() throws ServletException, IOException {
-        mdcFilter.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class), (request, response) -> LOG.info("testing logging"));
+        Subject subject = new Subject("uid", IdentType.EksternBruker, SsoToken.oidcToken("token"));
+        SubjectHandler.withSubject(subject, () -> {
+            mdcFilter.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class), (request, response) -> LOG.info("testing logging"));
+        });
     }
 
 }

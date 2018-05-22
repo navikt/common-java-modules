@@ -1,16 +1,13 @@
 package no.nav.apiapp.metrics;
 
-import no.nav.apiapp.ApiAppServletContextListener;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 
-import static no.nav.apiapp.ApiAppServletContextListener.*;
+import static no.nav.apiapp.ApiAppServletContextListener.INTERNAL_METRICS;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 public class MetricsTest extends JettyTest {
 

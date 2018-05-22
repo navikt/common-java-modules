@@ -17,7 +17,9 @@ import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
+import java.net.URI;
 import java.util.function.Function;
 
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
@@ -48,7 +50,7 @@ public class RestUtils {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
         if (!restConfig.disableMetrics) {
-            clientConfig.register(new MetricsProvider(metricName));
+            clientConfig.register(new MetricsProvider(metricName, restConfig));
         }
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
@@ -105,6 +107,8 @@ public class RestUtils {
         public int readTimeout = 15000;
 
         public boolean disableMetrics;
+        public boolean disableParameterLogging;
+
     }
 
     private static String getMetricName() {
@@ -116,15 +120,18 @@ public class RestUtils {
 
         private static final String NAME = MetricsProvider.class.getName();
         private static final String CSRF_TOKEN = "csrf-token";
-        private final String metricName;
 
-        private MetricsProvider(String metricName) {
+        private final String metricName;
+        private final RestConfig restConfig;
+
+        private MetricsProvider(String metricName, RestConfig restConfig) {
             this.metricName = metricName;
+            this.restConfig = restConfig;
         }
 
         @Override
         public void filter(ClientRequestContext clientRequestContext) throws IOException {
-            LOG.info("{} {}", clientRequestContext.getMethod(), clientRequestContext.getUri());
+            LOG.info("{} {}", clientRequestContext.getMethod(), uriForLogging(clientRequestContext));
 
             MultivaluedMap<String, Object> requestHeaders = clientRequestContext.getHeaders();
 
@@ -132,7 +139,7 @@ public class RestUtils {
                     .ifPresent(correlationId -> requestHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId));
 
             requestHeaders.add(CSRF_COOKIE_NAVN, CSRF_TOKEN);
-            requestHeaders.add(COOKIE, new Cookie(CSRF_COOKIE_NAVN,CSRF_TOKEN));
+            requestHeaders.add(COOKIE, new Cookie(CSRF_COOKIE_NAVN, CSRF_TOKEN));
 
             Timer timer = MetricsFactory.createTimer(this.metricName);
             timer.start();
@@ -148,6 +155,11 @@ public class RestUtils {
                     .addFieldToReport("host", clientRequestContext.getUri().getHost())
                     .addFieldToReport("path", clientRequestContext.getUri().getPath())
                     .report();
+        }
+
+        private URI uriForLogging(ClientRequestContext clientRequestContext) {
+            URI uri = clientRequestContext.getUri();
+            return restConfig.disableParameterLogging ? UriBuilder.fromUri(uri).replaceQuery("").build() : uri;
         }
 
     }

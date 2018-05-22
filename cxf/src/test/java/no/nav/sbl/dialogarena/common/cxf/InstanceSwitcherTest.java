@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.modig.core.exception.ApplicationException;
 import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -43,7 +42,7 @@ public class InstanceSwitcherTest {
         clearProperty(nokkel);
     }
 
-    @Test(expected = ApplicationException.class)
+    @Test(expected = RuntimeException.class)
     public void normalMockSkalSimulereFeil() throws InvocationTargetException {
 
         String nokkel = "mock";

@@ -35,6 +35,8 @@
         <module>aktor-klient</module>
         <module>api-app</module>
         <module>app-mock</module>
+        <module>auth</module>
+        <module>auth-openam-sbs</module>
         <module>batch</module>
         <module>bom</module>
         <module>cache</module>

@@ -1,6 +1,6 @@
 package no.nav.fo.apiapp;
 
-import no.nav.apiapp.config.Konfigurator;
+import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
@@ -22,7 +22,7 @@ public class ApiAppTestMain {
         setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
         setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
 
-        setProperty(Konfigurator.OPENAM_RESTURL, "https://itjenester-" + FasitUtils.getDefaultTestEnvironment().toString() + ".oera.no/esso");
+        setProperty(OpenAmConfig.OPENAM_RESTURL, "https://itjenester-" + FasitUtils.getDefaultTestEnvironment().toString() + ".oera.no/esso");
 
         ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
         setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, FasitUtils.getBaseUrl("aad_b2c_discovery"));
