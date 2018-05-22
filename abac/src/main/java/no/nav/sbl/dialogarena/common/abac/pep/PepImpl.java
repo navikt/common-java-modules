@@ -3,7 +3,6 @@ package no.nav.sbl.dialogarena.common.abac.pep;
 import lombok.SneakyThrows;
 import no.nav.abac.xacml.NavAttributter;
 import no.nav.abac.xacml.StandardAttributter;
-import no.nav.common.auth.SubjectHandler;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
@@ -13,7 +12,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
-import no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -21,8 +19,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-import static no.nav.common.auth.SsoToken.Type.OIDC;
-import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils.extractOidcTokenBody;
+import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -130,8 +127,8 @@ public class PepImpl implements Pep {
     @Override
     public RequestData nyRequest() throws PepException {
         return buildRequest()
-                .withSamlToken(SecurityUtils.getSamlToken().orElse(null))
-                .withOidcToken(SecurityUtils.getOidcToken().orElse(null));
+                .withSamlToken(getSamlToken().orElse(null))
+                .withOidcToken(getOidcToken().orElse(null));
     }
 
     @SneakyThrows
@@ -179,8 +176,7 @@ public class PepImpl implements Pep {
 
     private Request lagHarTilgangTilEnhetRequest(String enhet, String systembruker, String domain) {
         Environment environment = new Environment();
-        String oidcTokenBody = SubjectHandler.getSsoToken(OIDC).map(SecurityUtils::extractOidcTokenBody).orElse(null);
-        environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, oidcTokenBody));
+        environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, getOidcToken().orElse(null)));
         environment.addAttribute(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, systembruker));
 
         Action action = new Action();
