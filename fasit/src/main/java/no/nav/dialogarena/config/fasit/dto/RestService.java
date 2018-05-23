@@ -26,6 +26,10 @@ public class RestService {
         return scope.get("environment");
     }
 
+    public String getEnvironmentClass() {
+        return scope.get("environmentclass");
+    }
+
     public String getApplication() {
         return exposedby.get("application");
     }
