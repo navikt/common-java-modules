@@ -182,11 +182,10 @@
             <artifactId>httpclient</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>dial-nav-tjeneste-aktoer_v2</artifactId>
-            <version>1.2</version>
-            <scope>test</scope>
+            <groupId>org.apache.servicemix.examples</groupId>
+            <artifactId>cxf-jaxws-blueprint</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
@@ -207,17 +206,14 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.2.3</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>no.nav.sbl</groupId>

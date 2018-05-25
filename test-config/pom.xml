@@ -178,15 +178,11 @@
         </dependency>
         <!-- test-avhengigheter som vi tilgjengeliggjør transitivt for alle som vil bruke test-config ved å overstyre scope=runtime -->
 
-
-
-        <!-- egne test-avhengigheter -->
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>dial-nav-tjeneste-aktoer_v2</artifactId>
-            <version>1.2</version>
-            <scope>test</scope>
+            <groupId>org.apache.servicemix.examples</groupId>
+            <artifactId>cxf-jaxws-blueprint</artifactId>
         </dependency>
+
 
         <!-- Transitivt -->
         <dependency>

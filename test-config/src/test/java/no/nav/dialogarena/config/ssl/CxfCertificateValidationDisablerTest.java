@@ -3,12 +3,12 @@ package no.nav.dialogarena.config.ssl;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
 import no.nav.sbl.dialogarena.common.cxf.NAVOidcSTSClient;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
-import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.security.SecurityConstants;
+import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.Test;
 
 import static no.nav.dialogarena.config.util.Util.setProperty;
@@ -27,11 +27,11 @@ public class CxfCertificateValidationDisablerTest {
 
         SSLTestUtils.disableCertificateChecks();
 
-        Aktoer_v2PortType aktoer_v2PortType = new CXFClient<>(Aktoer_v2PortType.class)
+        HelloWorld helloWorld = new CXFClient<>(HelloWorld.class)
                 .configureStsForSystemUser()
                 .build();
 
-        Client client = ClientProxy.getClient(aktoer_v2PortType);
+        Client client = ClientProxy.getClient(helloWorld);
         sjekkAtSertifikatSjekkerErDisablet(client);
 
         NAVOidcSTSClient navstsClient = (NAVOidcSTSClient) client.getRequestContext().get(SecurityConstants.STS_CLIENT);

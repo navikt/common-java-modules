@@ -2,8 +2,8 @@ package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
-import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
 import org.apache.commons.io.IOUtils;
+import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.Test;
 
 import java.net.ServerSocket;
@@ -30,13 +30,13 @@ public class MetricsIntegrationTest extends JettyTestServer {
                     .build()
             ));
 
-            String url = startCxfServer(Aktoer_v2PortType.class);
+            String url = startCxfServer(HelloWorld.class);
 
-            new CXFClient<>(Aktoer_v2PortType.class)
+            new CXFClient<>(HelloWorld.class)
                     .withMetrics()
                     .address(url)
                     .build()
-                    .ping();
+                    .sayHi("hi");
 
             String sensuMetricMessage = IOUtils.toString(sensuServerSocketMock.accept().getInputStream(), Charset.defaultCharset());
             assertThat(sensuMetricMessage, not(isEmptyOrNullString()));
