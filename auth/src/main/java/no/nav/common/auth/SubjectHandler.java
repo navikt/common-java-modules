@@ -16,20 +16,21 @@ public class SubjectHandler {
     }
 
     public static <T> T withSubject(Subject subject, UnsafeSupplier<T> supplier) {
-        return withSubjectProvider(() -> subject, supplier);
+        Supplier<Subject> subjectSupplier = () -> subject;
+        return withSubjectProvider(subjectSupplier, supplier);
     }
 
     public static void withSubjectProvider(Supplier<Subject> subjectSupplier, UnsafeRunnable unsafeRunnable) {
         withSubjectProvider(subjectSupplier, UnsafeSupplier.toVoid(unsafeRunnable));
     }
 
-    public static <T> T withSubjectProvider(Supplier<Subject> subjectSupplier, UnsafeSupplier<T> supplier) {
-        Supplier<Subject> previousSubject = getSupplier();
+    public static <T> T withSubjectProvider(Supplier<Subject> currentSubjectSupplier, UnsafeSupplier<T> callback) {
+        Supplier<Subject> previousSubjectSupplier = getSupplier();
         try {
-            setSupplier(subjectSupplier);
-            return supplier.get();
+            setSupplier(currentSubjectSupplier);
+            return callback.get();
         } finally {
-            setSupplier(previousSubject);
+            setSupplier(previousSubjectSupplier);
         }
     }
 
