@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
@@ -32,14 +34,37 @@ public class ApiApp {
 
     static final int DEFAULT_HTTP_PORT = 8080;
 
+    private final Jetty jetty;
+
+    public ApiApp(Jetty jetty) {
+        this.jetty = jetty;
+    }
+
+    public Jetty getJetty() {
+        return jetty;
+    }
+
     @SneakyThrows
+    @Deprecated // use runApp
     public static void startApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
+        runApp(apiAppClass,args);
+    }
+
+    @SneakyThrows
+    public static void runApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
+        ApiApp apiApp = startApiApp(apiAppClass, args);
+        Jetty jetty = apiApp.jetty;
+        jetty.server.join();
+    }
+
+    @SneakyThrows
+    public static ApiApp startApiApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
         setupTrustStore();
         NaisApiApplication apiApplication = apiAppClass.newInstance();
         Jetty jetty = setupJetty(apiApplication, args);
         reportStartupTime(start);
-        jetty.server.join();
+        return new ApiApp(jetty);
     }
 
     private static Jetty setupJetty(NaisApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {
@@ -63,6 +88,11 @@ public class ApiApp {
                 .at(contextPath)
                 .port(httpPort)
                 .disableAnnotationScanning();
+
+        if (args.length > 1) {
+            jettyBuilder.sslPort(Integer.parseInt(args[1]));
+        }
+
         Konfigurator konfigurator = new Konfigurator(jettyBuilder, apiApplication);
         apiApplication.configure(konfigurator);
         Jetty jetty = konfigurator.buildJetty();
@@ -71,7 +101,11 @@ public class ApiApp {
         webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
         ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
         webAppContext.addEventListener(listener);
-        webAppContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+
+        // When we embed jetty in this way, some classes might be loaded by the default WebAppClassLoader and some by the system class loader.
+        // These classes will be incompatible with each other. Also, Jetty does not consult the classloader of the webapp when resolving resources
+        // such as the swagger-ui. We mitigate both these problems by installing an empty classloader that will always defer to the system classloader
+        webAppContext.setClassLoader(URLClassLoader.newInstance(new URL[0]));
 
         try {
             jetty.start();
