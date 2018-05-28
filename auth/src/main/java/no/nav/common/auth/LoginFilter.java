@@ -77,7 +77,10 @@ public class LoginFilter implements Filter {
 
     private Optional<Subject> resolveSubject(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         return loginProviders.stream()
-                .flatMap(p -> p.authenticate(httpServletRequest, httpServletResponse).map(Stream::of).orElseGet(Stream::empty))
+                .flatMap(loginProvider -> loginProvider.authenticate(httpServletRequest, httpServletResponse)
+                        .map(Stream::of)
+                        .orElseGet(Stream::empty)
+                )
                 .findFirst();
     }
 

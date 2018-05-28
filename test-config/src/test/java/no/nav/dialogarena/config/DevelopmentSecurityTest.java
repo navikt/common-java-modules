@@ -7,7 +7,7 @@ import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
 import no.nav.sbl.dialogarena.common.cxf.SamlPropagatingOutInterceptor;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
-import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
+import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.Test;
 
 import java.io.File;
@@ -89,7 +89,7 @@ public class DevelopmentSecurityTest {
     public void setupIntegrationTestSecurity_kanByggeCxfClientMedSikkerhet() {
         setupIntegrationTestSecurity();
 
-        new CXFClient<>(Aktoer_v2PortType.class)
+        new CXFClient<>(HelloWorld.class)
                 .withOutInterceptor(new SamlPropagatingOutInterceptor())
                 .build();
     }

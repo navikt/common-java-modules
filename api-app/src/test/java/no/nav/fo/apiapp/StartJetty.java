@@ -34,13 +34,6 @@ public class StartJetty {
         ).buildJetty();
     }
 
-    public static Jetty nyJettyForTest(String contextPath) {
-        return DevelopmentSecurity.setupSamlLogin(
-                defaultJetty(contextPath, JettyTest.tilfeldigPort())
-                , new DevelopmentSecurity.SamlSecurityConfig(KJENT_APP)
-        ).buildJetty();
-    }
-
     private static Jetty.JettyBuilder defaultJetty(String contextPath, int jettyPort) {
         Jetty.JettyBuilder jettyBuilder = Jetty.usingWar()
                 .at(contextPath)

@@ -4,7 +4,7 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import no.nav.sbl.rest.RestUtils;
-import no.nav.tjeneste.virksomhet.aktoer.v2.Aktoer_v2PortType;
+import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
     @Test
     public void skal_fjerne_cookie_i_header() throws Exception {
         setProperty("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader", "false");
-        String url = startCxfServer(Aktoer_v2PortType.class);
+        String url = startCxfServer(HelloWorld.class);
         sendRequest(url);
         String logline = builder.toString();
         assertThat(logline).doesNotContain("Cookie");
@@ -52,7 +52,7 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
     @Test
     public void skal_logge_cookie_i_header() throws Exception {
         setProperty("no.nav.sbl.dialogarena.common.cxf.cxfendpoint.logging.logg-tokeninheader", "true");
-        String url = startCxfServer(Aktoer_v2PortType.class);
+        String url = startCxfServer(HelloWorld.class);
         sendRequest(url);
         String logline = builder.toString();
         assertThat(logline).contains("Cookie");

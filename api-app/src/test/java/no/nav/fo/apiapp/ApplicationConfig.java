@@ -87,12 +87,14 @@ public class ApplicationConfig implements NaisApiApplication {
 
     @Override
     public void configure(ApiAppConfigurator apiAppConfigurator) {
-        apiAppConfigurator
+        if (!JettyTest.DISABLE_AUTH) {
+            apiAppConfigurator
 //                .azureADB2CLogin();
 //                .samlLogin()
-                .sts()
-                .openAmLogin();
+                    .sts()
+                    .openAmLogin();
 
+        }
     }
 
     @Override

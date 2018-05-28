@@ -200,6 +200,7 @@ public class FasitUtilsIntegrationTest {
         RestService restService = restServices.get(0);
         assertThat(restService.getAlias(), equalTo(alias));
         assertThat(restService.getEnvironment(), Matchers.not(isEmptyString()));
+        assertThat(restService.getEnvironmentClass(), Matchers.not(isEmptyString()));
         assertThat(restService.getApplication(), Matchers.not(isEmptyString()));
         new URL(restService.getUrl());
     }

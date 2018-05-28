@@ -1,6 +1,6 @@
 {
   "swagger": "2.0",
-  "basePath": "/JettyTest/api/",
+  "basePath": "/api-app/api/",
   "tags": [
     {
       "name": "Eksempel"
