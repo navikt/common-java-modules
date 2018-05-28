@@ -3,7 +3,10 @@ package no.nav.fo.apiapp;
 import no.nav.apiapp.ApiApp;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
+import no.nav.dialogarena.config.fasit.dto.RestService;
 import no.nav.json.JsonProvider;
+import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.testconfig.ApiAppTest;
@@ -139,6 +142,7 @@ public abstract class JettyTest {
     protected static void setupContext() {
         String securityTokenService = FasitUtils.getBaseUrl("securityTokenService", FSS);
         ServiceUser srvveilarbdemo = FasitUtils.getServiceUser("srvveilarbdemo", "veilarbdemo");
+        RestService abacEndpoint = FasitUtils.getRestService("abac.pdp.endpoint", srvveilarbdemo.getEnvironment());
 
         setProperty(StsSecurityConstants.STS_URL_KEY, securityTokenService);
         setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
@@ -149,6 +153,10 @@ public abstract class JettyTest {
         ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
         setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, FasitUtils.getBaseUrl("aad_b2c_discovery"));
         setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, azureADClientId.username);
+
+        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
+        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
+        setProperty(AbacServiceConfig.ABAC_ENDPOINT_URL_PROPERTY_NAME, abacEndpoint.getUrl());
     }
 
 }

@@ -53,6 +53,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
@@ -105,10 +106,4 @@
         </dependency>
     </dependencies>
 
-
-    <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/common/test.git</developerConnection>
-        <url>http://stash.devillo.no/scm/common/test.git</url>
-        <tag>HEAD</tag>
-    </scm>
 </project>

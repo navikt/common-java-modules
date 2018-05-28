@@ -8,6 +8,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,11 @@ public class AbacContext {
     @Bean
     public PepImpl pep(AbacService abacService) {
         return new PepImpl(abacService);
+    }
+
+    @Bean
+    public AbacServiceConfig abacServiceConfig() {
+        return AbacServiceConfig.readFromSystemVariables();
     }
 
     @Bean

@@ -1,7 +1,7 @@
 package no.nav.dialogarena.config.fasit;
 
 import no.nav.dialogarena.config.fasit.dto.RestService;
-import no.nav.metrics.MetricsFactory;
+import no.nav.sbl.dialogarena.test.FasitAssumption;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,35 +20,18 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.SBS;
 import static no.nav.dialogarena.config.fasit.FasitUtilsTest.testServiceUserCertificate;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
-import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 public class FasitUtilsIntegrationTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FasitUtilsIntegrationTest.class);
-
-    private Boolean fasitAlive() {
-        return withClient(client -> {
-            try {
-                int status = client.target("https://fasit.adeo.no").request().get().getStatus();
-                return status == 200;
-            } catch (Exception e) {
-                LOGGER.error("Fasit is unreachable! NOT running integration tests.");
-                LOGGER.error(e.toString());
-                return false;
-            }
-        });
-    }
-
     @Before
     public void assumeFasit() {
-        assumeTrue(fasitAlive());
+        FasitAssumption.assumeFasitAccessible();
     }
 
     @Test

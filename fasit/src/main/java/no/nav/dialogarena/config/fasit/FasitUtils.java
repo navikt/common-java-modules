@@ -10,6 +10,7 @@ import com.jcraft.jsch.Session;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
+import no.nav.apiapp.util.ObjectUtils;
 import no.nav.dialogarena.config.fasit.dto.ApplicationInstance;
 import no.nav.dialogarena.config.fasit.dto.DataSourceResource;
 import no.nav.dialogarena.config.fasit.dto.Resource;
@@ -30,6 +31,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static java.lang.Boolean.FALSE;
@@ -37,6 +39,7 @@ import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static no.nav.apiapp.util.ObjectUtils.isEqual;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
@@ -213,12 +216,20 @@ public class FasitUtils {
 
     public static List<RestService> getRestService(String alias) {
         return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
-                .queryParam("type","RestService")
+                .queryParam("type", "RestService")
                 .queryParam("alias", alias)
                 .queryParam("usage", true)
                 .request()
                 .get(RestService.LIST_TYPE)
         );
+    }
+
+    public static RestService getRestService(String alias, String environment) {
+        return getRestService(alias)
+                .stream()
+                .filter(r -> isEqual(r.getEnvironment(), environment))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(String.format("did not find %s in %s", alias, environment)));
     }
 
     public static ServiceUser getServiceUser(String userAlias, String applicationName) {

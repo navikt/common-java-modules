@@ -3,6 +3,7 @@ package no.nav.apiapp.security;
 import no.nav.dialogarena.config.DevelopmentSecurity;
 import no.nav.sbl.dialogarena.common.abac.pep.PepImpl;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import org.junit.jupiter.api.BeforeAll;
 
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType.VeilArbPerson;
@@ -18,7 +19,7 @@ public class PepClientIntegrationTest implements PepClientTester {
 
     @Override
     public PepClient getPepClient() {
-        PepImpl pep = new PepImpl(new AbacService());
+        PepImpl pep = new PepImpl(new AbacService(AbacServiceConfig.readFromSystemVariables()));
         return new PepClient(pep, "veilarb", VeilArbPerson);
     }
 
