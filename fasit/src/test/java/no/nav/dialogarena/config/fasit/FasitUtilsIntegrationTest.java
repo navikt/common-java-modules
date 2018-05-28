@@ -20,6 +20,7 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.SBS;
 import static no.nav.dialogarena.config.fasit.FasitUtilsTest.testServiceUserCertificate;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.isEmptyString;
@@ -205,4 +206,15 @@ public class FasitUtilsIntegrationTest {
         new URL(restService.getUrl());
     }
 
+    @Test
+    public void getRestServiceExists() {
+        assertThat(FasitUtils.getRestService("this.does.not.exist"), empty());
+        assertThatThrownBy(() -> FasitUtils.getRestService("this.does.not.exist", "p"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("this.does.not.exist")
+                .hasMessageContaining("p");
+
+        assertThat(FasitUtils.getRestService("fasit.rest.api"), not(empty()));
+        assertThat(FasitUtils.getRestService("fasit.rest.api", "p").getUrl(), startsWith("https://fasit.adeo.no"));
+    }
 }
