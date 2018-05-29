@@ -1,12 +1,8 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
+import no.nav.sbl.util.EnvironmentUtils;
 import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.util.function.Function;
@@ -25,8 +21,8 @@ class CreateSslConnector implements Function<Integer, ServerConnector> {
     public ServerConnector apply(Integer sslPort) {
 
         SslContextFactory factory = new SslContextFactory(true);
-        factory.setKeyStorePath(System.getProperty("no.nav.modig.security.appcert.keystore"));
-        factory.setKeyStorePassword(System.getProperty("no.nav.modig.security.appcert.password"));
+        factory.setKeyStorePath(EnvironmentUtils.getRequiredProperty("javax.net.ssl.trustStore"));
+        factory.setKeyStorePassword(EnvironmentUtils.getRequiredProperty("javax.net.ssl.trustStorePassword"));
 
         HttpConfiguration httpsConfiguration = new HttpConfiguration(baseConfiguration);
         httpsConfiguration.setSecureScheme("https");

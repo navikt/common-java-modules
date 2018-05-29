@@ -10,7 +10,6 @@ import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.OpenAmConfig;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.util.Util;
-import no.nav.modig.testcertificates.TestCertificates;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
@@ -29,10 +28,10 @@ import static no.nav.dialogarena.config.security.ISSOProvider.LOGIN_APPLIKASJON;
 import static no.nav.dialogarena.config.util.Util.Mode.IKKE_OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.Mode.OVERSKRIV;
 import static no.nav.dialogarena.config.util.Util.setProperty;
-import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.dialogarena.common.jetty.ToUrl.JETTY_PRINT_LOCALHOST;
 import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
+import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.setupKeyAndTrustStore;
 import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -187,7 +186,7 @@ public class DevelopmentSecurity {
     private static void appSetup(String applicationName, String environment, Util.Mode mode) {
         Util.setProperties(FasitUtils.getApplicationEnvironment(applicationName, environment), mode);
         // reset keystore siden dette kan ha blitt endret
-        TestCertificates.setupKeyAndTrustStore();
+        setupKeyAndTrustStore();
     }
 
     private static void commonServerSetup(Jetty.JettyBuilder jettyBuilder) {

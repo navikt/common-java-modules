@@ -31,7 +31,6 @@
         <!-- COMMON -->
         <jetty.version>9.4.8.v20171121</jetty.version>
         <jetty.orbit.javax.security.auth.message.version>1.0.0.v201108011116</jetty.orbit.javax.security.auth.message.version>
-        <modig-testcertificates.version>2.0.0-SNAPSHOT</modig-testcertificates.version>
 
         <!-- SOAP -->
         <neethi.version>3.0.3</neethi.version>
@@ -327,12 +326,6 @@
             </dependency>
             <!-- SLUTT COMMON -->
 
-            <dependency>
-                <groupId>no.nav.modig</groupId>
-                <artifactId>modig-testcertificates</artifactId>
-                <version>${modig-testcertificates.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>org.apache.geronimo.components</groupId>
                 <artifactId>geronimo-jaspi</artifactId>

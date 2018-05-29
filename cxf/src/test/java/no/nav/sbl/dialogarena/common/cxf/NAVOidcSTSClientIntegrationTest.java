@@ -13,7 +13,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import static no.nav.modig.testcertificates.TestCertificates.setupKeyAndTrustStore;
 import static no.nav.sbl.dialogarena.common.cxf.JettyTestServer.findFreePort;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
@@ -33,7 +32,6 @@ public class NAVOidcSTSClientIntegrationTest {
     @Before
     public void setup() {
         disableCertificateChecks();
-        setupKeyAndTrustStore();
         int port = findFreePort();
         Jetty jetty = Jetty.usingWar()
                 .at("sts")
