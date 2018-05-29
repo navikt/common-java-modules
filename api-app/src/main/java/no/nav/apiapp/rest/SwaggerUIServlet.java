@@ -41,7 +41,7 @@ public class SwaggerUIServlet extends HttpServlet {
     private void dispatch(String path, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         LOGGER.info("forward: [{}] -> [{}]", request.getRequestURI(), path);
         RequestDispatcher requestDispatcher = getServletContext().getRequestDispatcher(path);
-        requestDispatcher.include(request, response);
+        requestDispatcher.forward(request, response);
     }
 
 }
