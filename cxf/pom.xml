@@ -12,7 +12,7 @@
 	<artifactId>common-cxf</artifactId>
 
 	<properties>
-        <jsoup.version>1.7.2</jsoup.version>
+        <jsoup.version>1.11.3</jsoup.version>
         <opensaml.version>3.3.0</opensaml.version>
     </properties>
 
