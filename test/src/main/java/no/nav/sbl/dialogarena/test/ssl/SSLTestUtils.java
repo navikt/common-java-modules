@@ -1,12 +1,13 @@
 package no.nav.sbl.dialogarena.test.ssl;
 
 import lombok.SneakyThrows;
-import no.nav.modig.testcertificates.TestCertificates;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.Security;
@@ -84,15 +85,19 @@ public class SSLTestUtils {
         systemPropertyObject(X509HostnameVerifier.class, ALLOW_ALL_X509_HOSTNAME_VERIFIER);
     }
 
-    private static void setupKeyAndTrustStore() {
-        try {
-            TestCertificates.setupKeyAndTrustStore();
-        } catch (NoClassDefFoundError noClassDefFoundError) {
-            // siden både common-test og modig-testcertificates ofte ligger i test-scope, inkluderes ikke alltid
-            // modig-testcertificates og dens transitive avhengigheter korrekt på klasspathen.
-            // samtidig er det et gyldig case å kalle disableCertificateChecks() uten at setupKeyAndTrustStore() skjer!
-            LOG.warn("kunne ikke konfigurere test key- og truststore. Mangler modig-klasser på classpath");
+    @SneakyThrows
+    public static void setupKeyAndTrustStore() {
+        File tempFile = File.createTempFile("dummy", ".jks");
+        try (FileOutputStream output = new FileOutputStream(tempFile)) {
+            org.apache.commons.io.IOUtils.copy(SSLTestUtils.class.getResourceAsStream("/dummy.jks"), output);
         }
+        setProperty("javax.net.ssl.trustStore", tempFile.getAbsolutePath());
+        setProperty("javax.net.ssl.trustStorePassword", "password");
+    }
+
+    private static void setProperty(String name, String value) {
+        LOG.info("{} = {}", name, value);
+        System.setProperty(name, value);
     }
 
     private static <T> void systemPropertyObject(Class<T> aClass, T value) {

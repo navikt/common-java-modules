@@ -64,11 +64,6 @@
 
         <!--Sikkerhet-->
         <dependency>
-            <groupId>no.nav.modig</groupId>
-            <artifactId>modig-testcertificates</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>no.nav.dialogarena</groupId>
             <artifactId>oidc-security</artifactId>
         </dependency>
