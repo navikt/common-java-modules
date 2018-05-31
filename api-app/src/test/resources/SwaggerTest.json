@@ -161,6 +161,21 @@
         }
       }
     },
+    "/redirect": {
+      "get": {
+        "tags": [
+          "RedirectEksempel"
+        ],
+        "summary": "redirect",
+        "operationId": "redirect",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
     "/enum/dto/{ordinal}": {
       "get": {
         "tags": [

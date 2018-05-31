@@ -72,6 +72,11 @@ public class ApplicationConfig implements NaisApiApplication {
     }
 
     @Bean
+    public RedirectEksempel redirectEksempel() {
+        return new RedirectEksempel();
+    }
+
+    @Bean
     public FeedController feedController() {
         FeedController feedController = new FeedController();
         FeedProducer.FeedProducerBuilder<Integer> feedProducerBuilder = FeedProducer.<Integer>builder().provider((id, pageSize) -> streamTilfeldigInt());

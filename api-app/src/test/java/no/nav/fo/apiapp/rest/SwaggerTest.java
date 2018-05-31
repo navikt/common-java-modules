@@ -7,9 +7,11 @@ import io.swagger.util.Json;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URL;
 
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static no.nav.apiapp.rest.SwaggerResource.IKKE_BERIK;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,7 +21,13 @@ public class SwaggerTest extends JettyTest {
 
     @Test
     public void getUI() {
-        assertThat(getString("/internal/swagger")).contains("<title>Swagger UI</title>");
+        assertRedirect("/internal/swagger", "/api-app/internal/swagger/");
+        assertRedirect("/internal/swagger/", "/api-app/internal/swagger/index.html");
+
+        Response response = get("/internal/swagger/index.html");
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.readEntity(String.class)).contains("<title>Swagger UI</title>");
+        assertThat(response.getHeaderString(CONTENT_TYPE)).isEqualTo("text/html;charset=utf-8");
     }
 
     @Test
@@ -30,6 +38,11 @@ public class SwaggerTest extends JettyTest {
     @Test
     public void getSwaggerDefaultJson() throws Exception {
         sammenlign(get(buildUri("/api/swagger.json").queryParam(IKKE_BERIK).build().toURL()), read("/SwaggerTest.default.json"));
+    }
+
+    private void assertRedirect(String path, String expectedRedirectPath) {
+        Response redirectResponse = get(path);
+        assertThat(redirectResponse.getLocation().getPath()).isEqualTo(expectedRedirectPath);
     }
 
     private Swagger read(String name) throws IOException {

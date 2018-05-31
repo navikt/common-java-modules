@@ -218,7 +218,7 @@ public final class Jetty {
     public final WebAppContext context;
     private final Map<String, DataSource> dataSources;
     private final List<Class<?>> websocketEndpoints;
-    private final Boolean developmentMode;
+    private final boolean developmentMode;
     private final String extraClasspath;
     private final List<Filter> filters;
 
@@ -291,7 +291,9 @@ public final class Jetty {
 
         webAppContext.setConfigurationClasses(builder.disableAnnotationScanning ? CONFIGURATION_CLASSES : ArrayUtils.add(CONFIGURATION_CLASSES, AnnotationConfiguration.class.getName()));
         Map<String, String> initParams = webAppContext.getInitParams();
-        initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
+        if(developmentMode) {
+            initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
+        }
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
         addDatasource(webAppContext);
@@ -329,10 +331,15 @@ public final class Jetty {
     }
 
     private Server setupJetty(final Server jetty) {
-        Resource.setDefaultUseCaches(false);
+        if(developmentMode){
+            Resource.setDefaultUseCaches(false);
+        }
 
         HttpConfiguration configuration = new HttpConfiguration();
         configuration.setOutputBufferSize(32768);
+
+        // Add support for X-Forwarded headers
+        configuration.addCustomizer(new ForwardedRequestCustomizer());
 
         ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
         httpConnector.setSoLingerTime(-1);

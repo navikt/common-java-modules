@@ -11,6 +11,7 @@ import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.server.ServerConnector;
+import org.glassfish.jersey.client.ClientProperties;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,11 @@ public abstract class JettyTest {
         return apiApp.getJetty();
     }
 
-    private Client client = ClientBuilder.newBuilder().register(new JsonProvider()).build();
+    private Client client = ClientBuilder.newBuilder()
+            .register(new JsonProvider())
+            .property(ClientProperties.FOLLOW_REDIRECTS, "false")
+            .build();
+
     private Map<String, NewCookie> cookies = new HashMap<>();
 
     @BeforeClass
