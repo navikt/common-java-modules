@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.function.Function;
 
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
 import static no.nav.sbl.util.StringUtils.of;
 import static org.glassfish.jersey.client.ClientProperties.*;
@@ -141,9 +143,32 @@ public class RestUtils {
             requestHeaders.add(CSRF_COOKIE_NAVN, CSRF_TOKEN);
             requestHeaders.add(COOKIE, new Cookie(CSRF_COOKIE_NAVN, CSRF_TOKEN));
 
+
+            // jersey-client generates cookies in org.glassfish.jersey.message.internal.CookieProvider according to the
+            // deprecated rfc2109 specification, which prefixes the cookie with its version. This may not be supported by modern servers.
+            // Therefore we serialize cookies on the more modern and simpler rfc6265-format
+            // https://www.ietf.org/rfc/rfc2109.txt
+            // https://tools.ietf.org/html/rfc6265
+            requestHeaders.replace(COOKIE, singletonList(requestHeaders.get(COOKIE)
+                    .stream()
+                    .map(this::toCookieString)
+                    .collect(joining("; "))
+            ));
+
             Timer timer = MetricsFactory.createTimer(this.metricName);
             timer.start();
             clientRequestContext.setProperty(NAME, timer);
+        }
+
+        private String toCookieString(Object cookie) {
+            if (cookie instanceof String) {
+                return (String) cookie;
+            } else if (cookie instanceof Cookie) {
+                Cookie c = (Cookie) cookie;
+                return c.getName() + "=" + c.getValue();
+            } else {
+                throw new IllegalArgumentException();
+            }
         }
 
         @Override
