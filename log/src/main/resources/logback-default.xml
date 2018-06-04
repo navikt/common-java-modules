@@ -12,7 +12,7 @@
     Dermed kan contextName settes for å unngå at flere applikasjoner forsøker å logge til og rotere samme logfil
     -->
     <appender name="file" class="ch.qos.logback.classic.sift.SiftingAppender">
-        <discriminator class="no.nav.apiapp.log.ContextDiscriminator"/>
+        <discriminator class="no.nav.log.ContextDiscriminator"/>
         <sift>
             <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
                 <file>${APP_LOG_HOME}/${contextName}.log</file>
@@ -43,7 +43,7 @@
     </appender>
 
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        <encoder class="no.nav.log.NavEncoder" />
     </appender>
 
     <root level="${ROOT_LOG_LEVEL:-INFO}">

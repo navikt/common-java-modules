@@ -1,6 +1,9 @@
 package no.nav.sbl.util;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import static ch.qos.logback.classic.Level.ERROR;
 import static ch.qos.logback.classic.Level.INFO;
@@ -8,10 +11,23 @@ import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 
 public class LogUtilsTest {
 
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogUtilsTest.class);
+
+    private static final String FNR = "12345678901";
+
     @Test
     public void smoketest() {
         setGlobalLogLevel(INFO);
+
+        MDC.put(LogUtilsTest.class.getName(), FNR);
+        LOGGER.info(FNR);
+        LOGGER.info("fnr: {}", FNR);
+        LOGGER.info("<tag>{}</tag>", FNR);
+        LOGGER.info("info");
+
         setGlobalLogLevel(ERROR);
+        LOGGER.info("info");
     }
 
 }

@@ -27,4 +27,20 @@ public class StringUtils {
         return o != null ? o.toString() : "";
     }
 
+    public static String substring(String string, int fromIndex) {
+        if (string == null) {
+            return "";
+        }
+        return string.substring(Math.max(0, Math.min(fromIndex, string.length())));
+    }
+
+    public static String substring(String string, int fromIndex, int toIndex) {
+        if (string == null) {
+            return "";
+        }
+        int length = string.length();
+        int fromIndexBounded = Math.max(0, Math.min(fromIndex, length));
+        return string.substring(fromIndexBounded, Math.max(fromIndexBounded, Math.min(toIndex, length)));
+    }
+
 }

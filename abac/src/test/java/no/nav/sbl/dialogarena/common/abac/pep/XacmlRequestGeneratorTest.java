@@ -16,6 +16,7 @@ import java.util.List;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.assertJson;
 import static no.nav.sbl.dialogarena.common.abac.TestUtils.getContentFromJsonFile;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -166,4 +167,12 @@ public class XacmlRequestGeneratorTest {
     public void requestThrowsExceptionNonValidValues() throws PepException {
         xacmlRequestGenerator.makeRequest(requestData.withOidcToken(null).withSubjectId(null).withSamlToken(null));
     }
+
+    @Test
+    public void requestThrowsExceptionMaskedValues() {
+        assertThatThrownBy(()-> xacmlRequestGenerator.makeRequest(requestData.withOidcToken("oidc-secret-token").withSamlToken("saml-secret-token").withDomain(null)))
+                .hasMessageContaining("oidc-sec*********")
+                .hasMessageContaining("saml-sec*********");
+    }
+
 }

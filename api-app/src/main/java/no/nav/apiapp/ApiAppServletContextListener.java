@@ -2,7 +2,7 @@ package no.nav.apiapp;
 
 
 import no.nav.apiapp.config.Konfigurator;
-import no.nav.apiapp.log.ContextDiscriminator;
+import no.nav.log.ContextDiscriminator;
 import no.nav.apiapp.logging.LoginfoServlet;
 import no.nav.apiapp.logging.MDCFilter;
 import no.nav.apiapp.metrics.PrometheusServlet;
@@ -62,9 +62,6 @@ import java.util.stream.Collectors;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singleton;
-import static java.util.Optional.ofNullable;
-import static javax.servlet.SessionTrackingMode.COOKIE;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;

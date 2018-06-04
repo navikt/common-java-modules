@@ -7,6 +7,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.sbl.util.StringUtils;
 
 import static no.nav.abac.xacml.NavAttributter.ENVIRONMENT_FELLES_PEP_ID;
 import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_DOMENE;
@@ -82,10 +83,9 @@ class XacmlRequestGenerator {
 
     private void validateInputArguments(RequestData requestData) throws PepException {
         if (Utils.invalidClientValues(requestData)) {
-            // TODO er det innafor å legge ved oidc-token/saml-token i noe som sannsynligvis logges?
             throw new PepException("Received client values: " +
-                    " oidc-token: " + requestData.getOidcToken() +
-                    " saml-token: " + requestData.getSamlToken() +
+                    " oidc-token: " + maskToken(requestData.getOidcToken()) +
+                    " saml-token: " + maskToken(requestData.getSamlToken()) +
                     " subject-id: " + requestData.getSubjectId() +
                     " domain: " + requestData.getDomain() +
                     " fnr: " + requestData.getFnr() +
@@ -95,6 +95,11 @@ class XacmlRequestGenerator {
         }
     }
 
+    String maskToken(String token) {
+        return StringUtils.of(token)
+                .map(s -> StringUtils.substring(s, 0,8) + "*********")
+                .orElse("");
+    }
 
     public static XacmlRequest getPingRequest() {
         Action action = new Action();

@@ -43,6 +43,16 @@
             <artifactId>logback-core</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>4.10</version>
+        </dependency>
+        <!-- kreves for betinget konfigurasjon av logback -->
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+        </dependency>
 
         <!-- test -->
         <dependency>
