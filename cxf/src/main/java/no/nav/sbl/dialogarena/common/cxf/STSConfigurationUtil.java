@@ -45,6 +45,7 @@ public class STSConfigurationUtil {
 
         STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, stsType);
         client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
+        client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, stsType.allowCachingInEndpoint());
         setEndpointPolicyReference(client, "classpath:stspolicy.xml");
     }
 
