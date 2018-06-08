@@ -31,7 +31,7 @@
         </sift>
     </appender>
 
-    <appender name="syslog" class="ch.qos.logback.classic.net.SyslogAppender">
+    <appender name="syslog" class="com.spotify.logging.logback.MillisecondPrecisionSyslogAppender">
         <syslogHost>localhost</syslogHost>
         <facility>LOCAL1</facility>
         <throwableExcluded>true</throwableExcluded>
