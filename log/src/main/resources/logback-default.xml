@@ -35,7 +35,7 @@
         <syslogHost>localhost</syslogHost>
         <facility>LOCAL1</facility>
         <throwableExcluded>true</throwableExcluded>
-        <suffixPattern>${application.name} %t %mdc %logger{30} %m %n%rEx</suffixPattern>
+        <suffixPattern>${application.name} thread=%t %mdc %logger{30} %m %n%rEx</suffixPattern>
     </appender>
 
     <appender name="async-file" class="ch.qos.logback.classic.AsyncAppender">
