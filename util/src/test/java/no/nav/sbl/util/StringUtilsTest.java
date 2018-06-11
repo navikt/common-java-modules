@@ -32,4 +32,26 @@ public class StringUtilsTest {
         assertThat(StringUtils.toString("a")).isEqualTo("a");
     }
 
+    @Test
+    public void substring_from() {
+        assertThat(StringUtils.substring(null, 5)).isEqualTo("");
+        assertThat(StringUtils.substring("", 5)).isEqualTo("");
+        assertThat(StringUtils.substring("abc", 5)).isEqualTo("");
+        assertThat(StringUtils.substring("abc", 1)).isEqualTo("bc");
+        assertThat(StringUtils.substring("abc", 0)).isEqualTo("abc");
+        assertThat(StringUtils.substring("abc", -10)).isEqualTo("abc");
+    }
+
+    @Test
+    public void substring_from_to() {
+        assertThat(StringUtils.substring(null, 5, 10)).isEqualTo("");
+        assertThat(StringUtils.substring("", 5, 1)).isEqualTo("");
+        assertThat(StringUtils.substring("abc", 5, 10)).isEqualTo("");
+        assertThat(StringUtils.substring("abc", 1,3)).isEqualTo("bc");
+        assertThat(StringUtils.substring("abc", 1,10)).isEqualTo("bc");
+        assertThat(StringUtils.substring("abc", 0)).isEqualTo("abc");
+        assertThat(StringUtils.substring("abc", -10,50)).isEqualTo("abc");
+        assertThat(StringUtils.substring("abc", -10,-50)).isEqualTo("");
+    }
+
 }
