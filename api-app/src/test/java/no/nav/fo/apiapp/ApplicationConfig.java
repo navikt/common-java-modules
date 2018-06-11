@@ -86,11 +86,6 @@ public class ApplicationConfig implements NaisApiApplication {
     }
 
     @Override
-    public Sone getSone() {
-        return Sone.FSS;
-    }
-
-    @Override
     public void configure(ApiAppConfigurator apiAppConfigurator) {
         if (!JettyTest.DISABLE_AUTH) {
             apiAppConfigurator

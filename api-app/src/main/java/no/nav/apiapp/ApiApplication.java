@@ -11,8 +11,6 @@ public interface ApiApplication {
 
     String getApplicationName();
 
-    Sone getSone();
-
     default String getApiBasePath(){
         return DEFAULT_API_PATH;
     }
