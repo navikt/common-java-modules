@@ -33,6 +33,17 @@ public class LoginFilterTest {
         assertThat(loginFilter.isPublic(request("/public/selftest"))).isTrue();
     }
 
+    @Test
+    public void acceptsHtml() throws ServletException {
+        assertThat(LoginFilter.acceptsHtml(requestAccepting(null))).isFalse();
+        assertThat(LoginFilter.acceptsHtml(requestAccepting(""))).isFalse();
+        assertThat(LoginFilter.acceptsHtml(requestAccepting("application/json"))).isFalse();
+
+        assertThat(LoginFilter.acceptsHtml(requestAccepting("*/*"))).isTrue();
+        assertThat(LoginFilter.acceptsHtml(requestAccepting("text/html"))).isTrue();
+        assertThat(LoginFilter.acceptsHtml(requestAccepting("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"))).isTrue();
+    }
+
     private HttpServletRequest request(String requestPath) {
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         when(httpServletRequest.getRequestURI()).thenReturn(requestPath);
@@ -45,6 +56,12 @@ public class LoginFilterTest {
         when(servletContext.getContextPath()).thenReturn(contextPath);
         when(filterConfig.getServletContext()).thenReturn(servletContext);
         return filterConfig;
+    }
+
+    private HttpServletRequest requestAccepting(String acceptHeader) {
+        HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+        when(httpServletRequest.getHeader("Accept")).thenReturn(acceptHeader);
+        return httpServletRequest;
     }
 
 }
