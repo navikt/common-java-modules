@@ -1,6 +1,7 @@
 package no.nav.common.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.sbl.util.StringUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -64,11 +65,15 @@ public class LoginFilter implements Filter {
 
     private void unAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
         Optional<String> optionalRedirectUrl = loginProviders.stream().flatMap(p -> p.redirectUrl(httpServletRequest, httpServletResponse).map(Stream::of).orElseGet(Stream::empty)).findFirst();
-        if ("application/json".equals(httpServletRequest.getHeader("Accept")) || !optionalRedirectUrl.isPresent()) {
-            httpServletResponse.setStatus(SC_UNAUTHORIZED);
-        } else {
+        if (acceptsHtml(httpServletRequest) && optionalRedirectUrl.isPresent()) {
             httpServletResponse.sendRedirect(optionalRedirectUrl.get());
+        } else {
+            httpServletResponse.setStatus(SC_UNAUTHORIZED);
         }
+    }
+
+    static boolean acceptsHtml(HttpServletRequest httpServletRequest) {
+        return StringUtils.of(httpServletRequest.getHeader("Accept")).map(s->s.contains("*/*") || s.contains("text/html")).orElse(false);
     }
 
     boolean isPublic(HttpServletRequest httpServletRequest) {
