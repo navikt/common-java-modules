@@ -1,8 +1,9 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.SubjectHandler;
-import no.nav.sbl.util.StringUtils;
+import no.nav.common.auth.SsoToken;
 import no.nav.sbl.dialogarena.common.cxf.saml.ClaimsCallbackHandler;
+import no.nav.sbl.util.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.MemoryTokenStoreFactory;
@@ -12,6 +13,7 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static no.nav.common.auth.SubjectHandler.getSsoToken;
 import static no.nav.sbl.dialogarena.common.cxf.StsType.SYSTEM_USER_IN_FSS;
 
 public class NAVOidcSTSClient extends STSClient {
@@ -62,14 +64,10 @@ public class NAVOidcSTSClient extends STSClient {
     private String getUserKey() {
         if (stsType == SYSTEM_USER_IN_FSS) {
             return "systemSAML";
-        }
-
-        String internSsoToken = SubjectHandler.getSubjectHandler().getInternSsoToken();
-        if (internSsoToken == null) {
-            logger.info("Finner ingen OIDC, henter SAML som systembruker");
-            return "systemSAML";
         } else {
-            return internSsoToken;
+            return getSsoToken()
+                    .map(SsoToken::getToken)
+                    .orElseThrow(() -> new IllegalStateException("Finner ingen sso token som kan bli cache-nøkkel for brukerens SAML-token"));
         }
     }
 

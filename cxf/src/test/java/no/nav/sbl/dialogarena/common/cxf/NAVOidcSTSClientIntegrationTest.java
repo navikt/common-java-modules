@@ -13,6 +13,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 
+import java.net.ConnectException;
+
 import static no.nav.sbl.dialogarena.common.cxf.JettyTestServer.findFreePort;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
@@ -68,8 +70,28 @@ public class NAVOidcSTSClientIntegrationTest {
                 .address(url("tjeneste-c"))
                 .configureStsForOnBehalfOfWithJWT()
                 .build();
+        HelloWorld tjenesteD = new CXFClient<>(HelloWorld.class)
+                .address(url("tjeneste-d"))
+                .configureStsForExternalSSO()
+                .build();
 
-        setBrukerToken("jwt1");
+        setOidcToken("jwt1");
+
+        ping(tjenesteA);
+        ping(tjenesteA);
+
+        ping(tjenesteB);
+        ping(tjenesteB);
+
+        ping(tjenesteC);
+        ping(tjenesteC);
+
+        setEksternOpenAmToken("openam1");
+
+        ping(tjenesteD);
+        ping(tjenesteD);
+
+        setOidcToken("jwt2");
 
         ping(tjenesteA);
         ping(tjenesteA);
@@ -80,30 +102,31 @@ public class NAVOidcSTSClientIntegrationTest {
         ping(tjenesteC);
         ping(tjenesteC);
 
-        setBrukerToken("jwt2");
+        setEksternOpenAmToken("openam2");
 
-        ping(tjenesteA);
-        ping(tjenesteA);
-
-        ping(tjenesteB);
-        ping(tjenesteB);
-
-        ping(tjenesteC);
-        ping(tjenesteC);
+        ping(tjenesteD);
+        ping(tjenesteD);
 
         assertThat(stsHandler.getRequestCount()).isEqualTo(
-                1 + 2  // 1 systemSAML + 2 brukere
+                        1 + // 1 systemSAML
+                        2 + // oidc-tokens
+                        2   // openam-tokens
         );
     }
 
-    private void setBrukerToken(String jwt) {
+    private void setOidcToken(String jwt) {
         subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.oidcToken(jwt)));
+    }
+
+    private void setEksternOpenAmToken(String saml) {
+        subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.eksternOpenAM(saml)));
     }
 
     private void ping(HelloWorld aktoer_v2PortType) {
         try {
             aktoer_v2PortType.sayHi("hi");
         } catch (Throwable e) {
+            assertThat(e).hasRootCauseInstanceOf(ConnectException.class);
             LOG.warn("ping feilet: {}", e.getMessage());
         }
     }
