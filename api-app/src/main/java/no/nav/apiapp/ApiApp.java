@@ -6,11 +6,18 @@ import no.nav.apiapp.config.Konfigurator;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -82,7 +89,8 @@ public class ApiApp {
         File file = devPath.exists() ? devPath : runtimePath;
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
-        String contextPath = apiApplication.brukContextPath() ? "/" + apiApplication.getApplicationName() : "/";
+        boolean brukContextPath = apiApplication.brukContextPath();
+        String contextPath = brukContextPath ? "/" + apiApplication.getApplicationName() : "/";
 
         Jetty.JettyBuilder jettyBuilder = usingWar(file)
                 .at(contextPath)
@@ -101,6 +109,14 @@ public class ApiApp {
         webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
         ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
         webAppContext.addEventListener(listener);
+
+        if (brukContextPath) {
+            Server server = jetty.server;
+            HandlerCollection handlerCollection = new HandlerCollection();
+            handlerCollection.addHandler(server.getHandler());
+            handlerCollection.addHandler(new RootToContextRedirectHandler(contextPath));
+            server.setHandler(handlerCollection);
+        }
 
         // When we embed jetty in this way, some classes might be loaded by the default WebAppClassLoader and some by the system class loader.
         // These classes will be incompatible with each other. Also, Jetty does not consult the classloader of the webapp when resolving resources
@@ -142,4 +158,19 @@ public class ApiApp {
         }
     }
 
+    private static class RootToContextRedirectHandler extends AbstractHandler {
+        private final String contextPath;
+
+        private RootToContextRedirectHandler(String contextPath) {
+            this.contextPath = contextPath;
+        }
+
+        @Override
+        public void handle(String requestPath, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+            if ("/".equals(requestPath)) {
+                httpServletResponse.sendRedirect(contextPath);
+                request.setHandled(true);
+            }
+        }
+    }
 }
