@@ -33,21 +33,15 @@ public class ESSOProviderIntegrationTest {
     }
 
     @Test
-    public void skal_hente_cookie_fra_t6() {
-        assumeAlive(T6);
-        sjekkCookie(ESSOProvider.getHttpCookie(T6));
-    }
-
-    @Test
-    public void skal_hente_cookie_fra_privat_bruker_i_t6() {
-        assumeAlive(T6);
-        sjekkCookie(ESSOProvider.getHttpCookie(T6, PRIVAT_BRUKER));
-    }
-
-    @Test
     public void skal_hente_cookie_fra_q6() {
         assumeAlive(Q6);
         sjekkCookie(ESSOProvider.getHttpCookie(Q6));
+    }
+
+    @Test
+    public void skal_hente_cookie_fra_privat_bruker_i_q6() {
+        assumeAlive(Q6);
+        sjekkCookie(ESSOProvider.getHttpCookie(Q6, PRIVAT_BRUKER));
     }
 
     @Test
@@ -57,21 +51,9 @@ public class ESSOProviderIntegrationTest {
     }
 
     @Test
-    public void getEssoCredentialsForUser_t6() {
-        assumeAlive(T6);
-        sjekkCredentials(ESSOProvider.getEssoCredentialsForUser(BRUKER_UNDER_OPPFOLGING, T6));
-    }
-
-    @Test
-    public void getEssoCredentialsForUser_t4() {
-        assumeAlive(T4);
-        sjekkCredentials(ESSOProvider.getEssoCredentialsForUser(PRIVAT_BRUKER, T4));
-    }
-
-    @Test
-    public void getEssoCredentialsForUser_q4() {
-        assumeAlive(Q4);
-        sjekkCredentials(ESSOProvider.getEssoCredentialsForUser(BRUKER_UNDER_OPPFOLGING, Q4));
+    public void getEssoCredentialsForUser_q6() {
+        assumeAlive(Q6);
+        sjekkCredentials(ESSOProvider.getEssoCredentialsForUser(BRUKER_UNDER_OPPFOLGING, Q6));
     }
 
     @Test
