@@ -2,20 +2,21 @@ package no.nav.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import lombok.Value;
-import no.nav.sbl.util.EnvironmentUtils;
+import lombok.Data;
+import lombok.experimental.Accessors;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.System.lineSeparator;
 import static java.lang.System.setProperty;
+import static java.util.Arrays.asList;
 import static no.nav.json.JsonProvider.createObjectMapper;
-import static no.nav.json.JsonUtils.fromJson;
-import static no.nav.json.JsonUtils.toJson;
+import static no.nav.json.JsonUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -121,7 +122,36 @@ public class JsonUtilsTest {
     }
 
 
-    @Value
+    @Nested
+    class fromJsonArray {
+
+        @Test
+        public void arrayOfPrimitives() {
+            assertThat(fromJsonArray("[1,2,3]", Integer.class)).isEqualTo(asList(1, 2, 3));
+            assertThat(fromJsonArray(new ByteArrayInputStream("[1,2,3]".getBytes()), Integer.class)).isEqualTo(asList(1, 2, 3));
+        }
+
+        @Test
+        public void arrayOfObjects() {
+            assertThat(fromJsonArray("[{\"aString\":\"a\"},{\"aString\":\"b\"}]", TestObject.class)).isEqualTo(asList(
+                    new TestObject().setAString("a"),
+                    new TestObject().setAString("b")
+            ));
+        }
+
+        @Test
+        public void arrayOfArray() {
+            assertThat(fromJsonArray("[[1,2],[3,4],[5,6]]", List.class)).isEqualTo(asList(
+                    asList(1,2),
+                    asList(3,4),
+                    asList(5,6)
+            ));
+        }
+
+    }
+
+    @Data
+    @Accessors(chain = true)
     private static class TestObject {
         private String aString = "test";
         private EnEnum enEnum = EnEnum.ABC;

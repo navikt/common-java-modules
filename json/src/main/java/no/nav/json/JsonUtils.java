@@ -2,9 +2,13 @@ package no.nav.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import lombok.SneakyThrows;
 
 import java.io.InputStream;
+import java.util.List;
+
+import static com.fasterxml.jackson.databind.type.CollectionType.construct;
 
 public class JsonUtils {
 
@@ -38,4 +42,18 @@ public class JsonUtils {
     public static <T> T fromJson(InputStream inputStream, TypeReference<T> type) {
         return objectMapper.readValue(inputStream, type);
     }
+
+    @SneakyThrows
+    public static <T> List<T> fromJsonArray(String json, Class<T> valueClass) {
+        return objectMapper.readValue(json, listType(valueClass));
+    }
+    @SneakyThrows
+    public static <T> List<T> fromJsonArray(InputStream inputStream, Class<T> valueClass) {
+        return objectMapper.readValue(inputStream, listType(valueClass));
+    }
+
+    private static <T> CollectionType listType(Class<T> valueClass) {
+        return construct(List.class, objectMapper.getTypeFactory().constructType(valueClass));
+    }
+
 }
