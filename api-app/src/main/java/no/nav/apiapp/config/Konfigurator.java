@@ -24,6 +24,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static no.nav.apiapp.ServletUtil.getContext;
 import static no.nav.apiapp.ServletUtil.getSpringContext;
@@ -39,6 +40,7 @@ public class Konfigurator implements ApiAppConfigurator {
     private final ApiApplication apiApplication;
     private final List<OidcProvider> oidcProviders = new ArrayList<>();
     private final List<LoginProvider> loginProviders = new ArrayList<>();
+    private final List<Consumer<Jetty>> jettyCustomizers = new ArrayList<>();
     private List<Object> springBonner = new ArrayList<>();
     private boolean issoLogin;
 
@@ -116,6 +118,12 @@ public class Konfigurator implements ApiAppConfigurator {
         return this;
     }
 
+    @Override
+    public ApiAppConfigurator customizeJetty(Consumer<Jetty> jettyCustomizer) {
+        jettyCustomizers.add(jettyCustomizer);
+        return this;
+    }
+
     private String getConfigProperty(String primaryProperty, String secondaryProperty) {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)
@@ -133,7 +141,9 @@ public class Konfigurator implements ApiAppConfigurator {
         if(!loginProviders.isEmpty()){
             jettyBuilder.addFilter(new LoginFilter(loginProviders, ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS));
         }
-        return jettyBuilder.buildJetty();
+        Jetty jetty = jettyBuilder.buildJetty();
+        jettyCustomizers.forEach(c -> c.accept(jetty));
+        return jetty;
     }
 
     public boolean harIssoLogin() {

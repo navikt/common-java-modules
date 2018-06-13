@@ -87,6 +87,10 @@ public class ApplicationConfig implements NaisApiApplication {
 
     @Override
     public void configure(ApiAppConfigurator apiAppConfigurator) {
+        apiAppConfigurator.customizeJetty(jetty -> {
+            jetty.context.setDescriptor("my custom descriptor");
+        });
+
         if (!JettyTest.DISABLE_AUTH) {
             apiAppConfigurator
 //                .azureADB2CLogin();

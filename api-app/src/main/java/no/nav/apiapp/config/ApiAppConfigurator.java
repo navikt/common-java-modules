@@ -2,6 +2,9 @@ package no.nav.apiapp.config;
 
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
+import no.nav.sbl.dialogarena.common.jetty.Jetty;
+
+import java.util.function.Consumer;
 
 public interface ApiAppConfigurator {
     ApiAppConfigurator sts();
@@ -12,4 +15,5 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig);
     ApiAppConfigurator openAmLogin();
     ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig);
+    ApiAppConfigurator customizeJetty(Consumer<Jetty> jettyCustomizer);
 }
