@@ -3,10 +3,12 @@ package no.nav.sbl.rest;
 import com.github.tomakehurst.wiremock.http.Cookie;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import org.glassfish.jersey.client.ClientRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.ws.rs.client.ClientRequestFilter;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -54,6 +56,14 @@ public class CookieIntegrationTest {
         );
 
         assertCookies();
+    }
+
+    @Test
+    public void cookie_filter() {
+        RestUtils.withClient(c -> {
+            c.register((ClientRequestFilter) requestContext -> ((ClientRequest) requestContext).cookie(new javax.ws.rs.core.Cookie(TEST_COOKIE_1, TEST_COOKIE_VALUE)));
+            return c.target("http://localhost:" + wireMockRule.port()).request().get();
+        });
     }
 
     private void assertCookies() {
