@@ -77,6 +77,11 @@ public class ApplicationConfig implements NaisApiApplication {
     }
 
     @Bean
+    public InjectionEksempel injectionEksempel() {
+        return new InjectionEksempel();
+    }
+
+    @Bean
     public FeedController feedController() {
         FeedController feedController = new FeedController();
         FeedProducer.FeedProducerBuilder<Integer> feedProducerBuilder = FeedProducer.<Integer>builder().provider((id, pageSize) -> streamTilfeldigInt());

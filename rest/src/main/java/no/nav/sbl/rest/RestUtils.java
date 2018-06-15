@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.function.Function;
 
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
+import static no.nav.sbl.util.ListUtils.mutableList;
 import static no.nav.sbl.util.StringUtils.of;
 import static org.glassfish.jersey.client.ClientProperties.*;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -149,7 +149,7 @@ public class RestUtils {
             // Therefore we serialize cookies on the more modern and simpler rfc6265-format
             // https://www.ietf.org/rfc/rfc2109.txt
             // https://tools.ietf.org/html/rfc6265
-            requestHeaders.replace(COOKIE, singletonList(requestHeaders.get(COOKIE)
+            requestHeaders.replace(COOKIE, mutableList(requestHeaders.get(COOKIE)
                     .stream()
                     .map(this::toCookieString)
                     .collect(joining("; "))

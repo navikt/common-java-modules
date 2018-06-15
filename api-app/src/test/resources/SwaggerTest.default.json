@@ -319,6 +319,25 @@
         }
       }
     },
+    "/inject": {
+      "get": {
+        "tags": [
+          "InjectionEksempel"
+        ],
+        "summary": "get",
+        "operationId": "get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/interface/impl": {
       "get": {
         "tags": [
@@ -1261,7 +1280,7 @@
         }
       }
     },
-    "FeedProducerComparableObject": {
+    "FeedProducerComparable": {
       "type": "object",
       "properties": {
         "authorizationModule": {
@@ -1277,7 +1296,7 @@
         }
       }
     },
-    "FeedConsumerComparableObject": {
+    "FeedConsumerComparable": {
       "type": "object",
       "properties": {
         "authorizationModule": {
@@ -1288,9 +1307,6 @@
     "Comparable": {
       "type": "object"
     },
-    "ComparableObject": {
-      "type": "object"
-    },
     "FeedElement": {
       "type": "object",
       "properties": {
@@ -1298,18 +1314,18 @@
           "type": "string"
         },
         "element": {
-          "$ref": "#/definitions/ComparableObject"
+          "$ref": "#/definitions/Comparable"
         }
       }
     },
-    "FeedElementComparableObject": {
+    "FeedElementComparable": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string"
         },
         "element": {
-          "$ref": "#/definitions/ComparableObject"
+          "$ref": "#/definitions/Comparable"
         }
       }
     },
@@ -1334,7 +1350,7 @@
         "elements": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/FeedElementComparableObject"
+            "$ref": "#/definitions/FeedElementComparable"
           }
         }
       }
