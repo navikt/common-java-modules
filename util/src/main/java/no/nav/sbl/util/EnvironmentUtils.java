@@ -109,7 +109,9 @@ public class EnvironmentUtils {
         UKNOWN,
         T,
         Q,
-        P
+        P,
+
+        M // mock
     }
 
     public enum Type {

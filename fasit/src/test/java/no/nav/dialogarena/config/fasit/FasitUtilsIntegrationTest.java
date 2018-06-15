@@ -35,18 +35,6 @@ public class FasitUtilsIntegrationTest {
         FasitAssumption.assumeFasitAccessible();
     }
 
-    @Test
-    public void httpClient() {
-        AtomicBoolean hasFailed = new AtomicBoolean();
-        FasitUtils.httpClient((c) -> {
-            if (hasFailed.get()) {
-                return "ok!";
-            } else {
-                hasFailed.set(true);
-                throw new SSLException("handshake_failure");
-            }
-        });
-    }
 
     @Test
     public void resolveDomain_() throws Exception {
@@ -166,13 +154,6 @@ public class FasitUtilsIntegrationTest {
         TestUser serviceUserT4 = FasitUtils.getTestUser("privat_bruker", "t4");
         assertThat(serviceUserT4.username, equalTo("10108000398"));
         assertThat(serviceUserT4.password, not(nullValue()));
-    }
-
-    @Test
-    public void getLdapConfig() {
-        LdapConfig ldapConfig = FasitUtils.getLdapConfig("ldap", "veilarbaktivitet", "t6");
-        assertThat(ldapConfig.username, equalTo("srvSSOLinux"));
-        assertThat(ldapConfig.password, not(nullValue()));
     }
 
     @Test

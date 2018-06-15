@@ -2,6 +2,7 @@ package no.nav.dialogarena.config.util;
 
 import lombok.SneakyThrows;
 import no.nav.sbl.rest.RestUtils;
+import no.nav.sbl.util.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;
@@ -34,7 +35,11 @@ public class Util {
             LOG.warn("property {} er allerede satt til [{}] (ignorerer [{}])", propertyName, property, value);
         } else {
             LOG.info("property {} = {}", propertyName, value);
-            System.setProperty(propertyName, value);
+            if (StringUtils.notNullOrEmpty(value)) {
+                System.setProperty(propertyName, value);
+            } else {
+                System.clearProperty(propertyName);
+            }
         }
     }
 
