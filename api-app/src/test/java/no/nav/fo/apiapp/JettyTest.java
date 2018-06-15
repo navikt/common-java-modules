@@ -132,11 +132,11 @@ public abstract class JettyTest {
         return cookies;
     }
 
-    private static int getPort() {
+    protected static int getPort() {
         return ((ServerConnector) JETTY.server.getConnectors()[1]).getPort();
     }
 
-    private static String getHostName() {
+    protected static String getHostName() {
         try {
             return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
