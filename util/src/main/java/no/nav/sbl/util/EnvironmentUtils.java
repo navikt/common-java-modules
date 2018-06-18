@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
-import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.UKNOWN;
+import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.UNKNOWN;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 import static no.nav.sbl.util.StringUtils.of;
 
@@ -56,7 +56,7 @@ public class EnvironmentUtils {
         return getEnvironmentName()
                 .map(e -> Character.toString(e.charAt(0)).toUpperCase())
                 .map(EnviromentClass::valueOf)
-                .orElse(UKNOWN);
+                .orElse(UNKNOWN);
     }
 
     public static boolean isEnvironmentClass(EnviromentClass enviromentClass) {
@@ -106,7 +106,7 @@ public class EnvironmentUtils {
     }
 
     public enum EnviromentClass {
-        UKNOWN,
+        UNKNOWN,
         T,
         Q,
         P

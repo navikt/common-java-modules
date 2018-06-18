@@ -58,7 +58,7 @@ public class EnvironmentUtilsTest {
     @Test
     public void getEnvironmentClass__default_ukjent() {
         System.clearProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
-        assertThat(getEnvironmentClass()).isEqualTo(UKNOWN);
+        assertThat(getEnvironmentClass()).isEqualTo(UNKNOWN);
     }
 
     @Test
