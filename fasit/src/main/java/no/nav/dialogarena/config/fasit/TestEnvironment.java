@@ -22,7 +22,9 @@ public enum TestEnvironment {
     Q4("q4"),
     Q6("q6"),
     Q0("q0"),
-    Q1("q1")
+    Q1("q1"),
+
+    MOCK("mock")
     ;
 
     private final String env;

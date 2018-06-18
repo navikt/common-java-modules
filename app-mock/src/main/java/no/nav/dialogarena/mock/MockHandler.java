@@ -1,6 +1,5 @@
 package no.nav.dialogarena.mock;
 
-import lombok.SneakyThrows;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -13,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 // TODO
@@ -20,6 +21,7 @@ public class MockHandler extends ResourceHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(MockServer.class);
     private static final String PATH_PATH = "/mockserver";
+    private static final List<String> EXTENSIONS = Arrays.asList("json", "xml");
 
     private final String contextPath;
     private final AtomicLong requestCounter = new AtomicLong();
@@ -47,7 +49,6 @@ public class MockHandler extends ResourceHandler {
 
             String pathInfo = target.substring(this.contextPath.length()) + "." + baseRequest.getMethod();
             String jsPath = pathInfo + ".js";
-            String jsonPath = pathInfo + ".json";
 
             Resource javascript = getResource(jsPath);
             if (javascript.exists()) {
@@ -56,9 +57,13 @@ public class MockHandler extends ResourceHandler {
                 return;
             }
 
-            if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
-                pathInfo = jsonPath;
+            for (String extension : EXTENSIONS) {
+                String jsonPath = pathInfo + "." + extension;
+                if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
+                    pathInfo = jsonPath;
+                }
             }
+
             baseRequest.setMethod(HttpMethod.GET.name());
             baseRequest.setPathInfo(pathInfo);
 
@@ -68,6 +73,8 @@ public class MockHandler extends ResourceHandler {
                 LOG.info("request #{} {}{}", requestNumber, PATH_PATH, pathInfo);
             } else {
                 LOG.warn("request #{} {}{} -- NOT FOUND", requestNumber, PATH_PATH, pathInfo);
+                httpServletResponse.setStatus(404);
+                baseRequest.setHandled(true);
             }
         }
     }
