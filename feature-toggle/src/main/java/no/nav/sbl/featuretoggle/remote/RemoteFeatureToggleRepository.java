@@ -8,6 +8,10 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.util.Map;
 
+/**
+ * @deprecated current recommendation is to use Unleash for feature toggling, see UnleashService
+ */
+@Deprecated
 public class RemoteFeatureToggleRepository {
     private static final TypeReference<Map<String, Map<String, Boolean>>> type = new TypeReference<Map<String, Map<String, Boolean>>>() {
     };

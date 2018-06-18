@@ -8,6 +8,10 @@ import java.util.Map;
 
 import static java.lang.String.format;
 
+/**
+ * @deprecated current recommendation is to use Unleash for feature toggling, see UnleashService
+ */
+@Deprecated
 public class RemoteFeatureToggle implements FeatureToggle {
     private static Logger log = LoggerFactory.getLogger(RemoteFeatureToggle.class);
     private final RemoteFeatureToggleRepository repository;

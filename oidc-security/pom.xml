@@ -10,11 +10,6 @@
     <groupId>no.nav.dialogarena</groupId>
     <artifactId>oidc-security</artifactId>
 
-    <properties>
-        <jose4j.version>0.5.0</jose4j.version>
-        <jee.version>7.0</jee.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -60,7 +55,6 @@
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
-            <version>${jose4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.picketbox</groupId>
