@@ -26,8 +26,6 @@ import java.util.stream.Stream;
 })
 public class ApplicationConfig implements NaisApiApplication {
 
-    public static final String APPLICATION_NAME = "api-app";
-
     @Bean
     public Pingable pingable() {
         return new PingableEksempel();
@@ -101,11 +99,6 @@ public class ApplicationConfig implements NaisApiApplication {
                     .openAmLogin();
 
         }
-    }
-
-    @Override
-    public String getApplicationName() {
-        return APPLICATION_NAME;
     }
 
     private static Stream<FeedElement<Integer>> streamTilfeldigInt() {

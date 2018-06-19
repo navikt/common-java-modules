@@ -26,9 +26,4 @@ public class SelfTestServlet extends SelfTestBaseServlet {
         return ctx.getBeansOfType(Pingable.class).values();
     }
 
-    @Override
-    protected String getApplicationName() {
-        return ctx.getBean(ApiApplication.class).getApplicationName();
-    }
-
 }

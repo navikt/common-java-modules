@@ -1,9 +1,11 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
 import lombok.SneakyThrows;
+import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import javax.servlet.ServletException;
@@ -26,6 +28,7 @@ import static java.util.stream.IntStream.range;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.STATUS_ERROR;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestServletTest.TestPingable.PING_TID;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
+import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.APP_VERSION_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,10 +44,15 @@ public class SelfTestServletTest {
     private HttpServletResponse mockResponse;
     private SelfTestBaseServlet baseServlet;
 
+    @Rule
+    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
+
     @Before
     public void setUp() throws Exception {
         clearProperty(APP_VERSION_PROPERTY_NAME);
         baseServlet = createBaseServlet();
+
+        systemPropertiesRule.setProperty(APP_NAME_PROPERTY_NAME, "TestApp");
 
         mockRequest = mock(HttpServletRequest.class);
         mockResponse = mock(HttpServletResponse.class);
@@ -58,7 +66,6 @@ public class SelfTestServletTest {
         baseServlet.doGet(mockRequest, mockResponse);
 
         assertThat(baseServlet).isNotNull();
-        assertThat(baseServlet.getApplicationName()).isEqualTo("TestApp");
         assertThat(baseServlet.getHost()).isNotBlank();
         assertThat(baseServlet.getAggregertStatus()).isEqualTo(STATUS_ERROR);
         assertThat(baseServlet.getPingables().size()).isEqualTo(3);
@@ -93,10 +100,6 @@ public class SelfTestServletTest {
 
     private SelfTestBaseServlet createBaseServlet() {
         return new SelfTestBaseServlet() {
-            @Override
-            protected String getApplicationName() {
-                return "TestApp";
-            }
 
             @Override
             protected Collection<TestPingable> getPingables() {

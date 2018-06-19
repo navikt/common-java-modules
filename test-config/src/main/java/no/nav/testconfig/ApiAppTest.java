@@ -8,20 +8,24 @@ import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.ContextBase;
 import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
+import lombok.Builder;
 import lombok.SneakyThrows;
+import lombok.Value;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.sbl.util.LogUtils;
+import no.nav.validation.ValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotEmpty;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
-import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
+import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.setProperty;
 
 public class ApiAppTest {
 
@@ -32,8 +36,16 @@ public class ApiAppTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppTest.class);
 
+    @Value
+    @Builder
+    public static class Config {
+        @NotEmpty
+        public String applicationName;
+    }
+
     @SneakyThrows
-    public static void setupTestContext() {
+    public static void setupTestContext(Config config) {
+        ValidationUtils.validate(config);
         getLoggerContext().getLogger("ROOT").iteratorForAppenders().forEachRemaining(ApiAppTest::simplifyConsoleAppender);
         LogUtils.setGlobalLogLevel(INFO);
 
@@ -42,6 +54,7 @@ public class ApiAppTest {
         setProperty(SENSU_CLIENT_HOST, "localhost", PUBLIC);
         setProperty(SENSU_CLIENT_PORT, Integer.toString(sensuServerThread.getPort()), PUBLIC);
 
+        setProperty(APP_NAME_PROPERTY_NAME, config.applicationName, PUBLIC);
         setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FasitUtils.getDefaultEnvironment(), PUBLIC);
         SSLTestUtils.disableCertificateChecks();
         WebProxyConfigurator.setupWebProxy();

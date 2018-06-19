@@ -42,9 +42,13 @@ import static no.nav.dialogarena.config.util.Util.setProperty;
 public abstract class JettyTest {
 
     public static boolean DISABLE_AUTH = false;
+    public static final String APPLICATION_NAME = "api-app";
 
     static {
-        ApiAppTest.setupTestContext();
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .applicationName(APPLICATION_NAME)
+                .build()
+        );
         setupContext();
     }
 
@@ -104,7 +108,7 @@ public abstract class JettyTest {
     }
 
     protected static UriBuilder buildUri(String path) {
-        return UriBuilder.fromPath(ApplicationConfig.APPLICATION_NAME + path).host(getHostName()).scheme("https").port(getPort());
+        return UriBuilder.fromPath(APPLICATION_NAME + path).host(getHostName()).scheme("https").port(getPort());
     }
 
     protected String getString(String path) {

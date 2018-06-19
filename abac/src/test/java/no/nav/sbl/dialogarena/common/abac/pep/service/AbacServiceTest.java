@@ -34,7 +34,9 @@ public class AbacServiceTest {
     private Builder requestBuilder = mock(Builder.class);
     private javax.ws.rs.core.Response response = mock(javax.ws.rs.core.Response.class);
 
-    private AbacService abacService = new AbacService(client, "/test/endpoint");
+    private AbacService abacService = new AbacService(client, AbacServiceConfig.builder()
+            .endpointUrl("/test/endpoint")
+            .build());
 
     @Before
     public void setup() {

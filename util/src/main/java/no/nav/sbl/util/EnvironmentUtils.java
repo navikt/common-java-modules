@@ -105,6 +105,18 @@ public class EnvironmentUtils {
         return getOptionalProperty(JBOSS_PROPERTY_KEY).isPresent();
     }
 
+    public static String resolveSrvUserPropertyName() {
+        return "SRV" + resolveApplicationName() + "_USERNAME";
+    }
+
+    public static String resolverSrvPasswordPropertyName() {
+        return "SRV" + resolveApplicationName() + "_PASSWORD";
+    }
+
+    private static String resolveApplicationName() {
+        return EnvironmentUtils.requireApplicationName().toUpperCase();
+    }
+
     public enum EnviromentClass {
         UNKNOWN,
         T,

@@ -12,6 +12,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
+import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -42,15 +43,13 @@ public class PepImplTest {
     @Rule
     public SubjectRule subjectRule = new SubjectRule(new Subject("userId", IdentType.InternBruker, SsoToken.oidcToken("token")));
 
-    @BeforeClass
-    public static void setUp() throws Exception {
-        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "username");
-        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "password");
-    }
-
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
+        when(abacService.getAbacServiceConfig()).thenReturn(AbacServiceConfig.builder()
+                .username("username")
+                .build()
+        );
     }
 
     @Test

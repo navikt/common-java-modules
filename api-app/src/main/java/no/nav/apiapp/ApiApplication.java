@@ -9,8 +9,6 @@ public interface ApiApplication {
     String DEFAULT_API_PATH = "/api/";
     boolean STSHelsesjekkDefault = true;
 
-    String getApplicationName();
-
     default String getApiBasePath(){
         return DEFAULT_API_PATH;
     }

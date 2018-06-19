@@ -131,6 +131,16 @@ public class EnvironmentUtilsTest {
         assertThat(EnvironmentUtils.resolveHostName()).isNotEmpty();
     }
 
+    @Test
+    public void resolveSrvUserPropertyName() {
+        assertThatThrownBy(EnvironmentUtils::resolveSrvUserPropertyName).hasMessageContaining("applicationName");
+
+        setTemporaryProperty(APP_NAME_PROPERTY_NAME, "testapp", () -> {
+            assertThat(EnvironmentUtils.resolveSrvUserPropertyName()).isEqualTo("SRVTESTAPP_USERNAME");
+            assertThat(EnvironmentUtils.resolverSrvPasswordPropertyName()).isEqualTo("SRVTESTAPP_PASSWORD");
+        });
+    }
+
     private void assertGetEnvironmentClass(String verdi, EnvironmentUtils.EnviromentClass enviromentClass) {
         setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, verdi, () -> {
             assertThat(getEnvironmentClass()).isEqualTo(enviromentClass);

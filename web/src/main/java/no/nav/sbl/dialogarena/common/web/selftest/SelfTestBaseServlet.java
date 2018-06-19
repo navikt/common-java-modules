@@ -25,6 +25,8 @@ import java.util.function.Predicate;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
+import static no.nav.sbl.util.EnvironmentUtils.getApplicationName;
+import static no.nav.sbl.util.EnvironmentUtils.requireApplicationName;
 
 public abstract class SelfTestBaseServlet extends HttpServlet {
 
@@ -32,13 +34,6 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
 
     protected List<Ping> result;
     private volatile long lastResultTime;
-
-    /**
-     * Denne metoden må implementeres til å returnere applikasjonens navn, for bruk i tittel og overskrift
-     * på selftestsiden.
-     * @return Applikasjonens navn
-     */
-    protected abstract String getApplicationName();
 
     /**
      * Denne metoden må implementeres til å returnere en Collection av alle tjenester som skal inngå
@@ -101,7 +96,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
 
     private Selftest lagSelftest() {
         return new Selftest()
-            .setApplication(getApplicationName())
+            .setApplication(requireApplicationName())
             .setVersion(EnvironmentUtils.getApplicationVersion().orElse("?"))
             .setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
             .setAggregateResult(getAggregertStatus())
