@@ -458,6 +458,11 @@
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.glassfish.jersey.ext</groupId>
+                <artifactId>jersey-spring4</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish.jersey.media</groupId>
                 <artifactId>jersey-media-json-jackson</artifactId>
                 <scope>runtime</scope>

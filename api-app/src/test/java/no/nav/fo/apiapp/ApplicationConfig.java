@@ -20,7 +20,9 @@ import java.util.stream.Stream;
 
 @Configuration
 @Import({
-        AbacContext.class
+        AbacContext.class,
+        InjectionEksempel.class,
+        EksempelService.class
 })
 public class ApplicationConfig implements NaisApiApplication {
 
@@ -74,11 +76,6 @@ public class ApplicationConfig implements NaisApiApplication {
     @Bean
     public RedirectEksempel redirectEksempel() {
         return new RedirectEksempel();
-    }
-
-    @Bean
-    public InjectionEksempel injectionEksempel() {
-        return new InjectionEksempel();
     }
 
     @Bean
