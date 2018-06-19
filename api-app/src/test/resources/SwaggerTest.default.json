@@ -338,6 +338,25 @@
         }
       }
     },
+    "/inject/service": {
+      "get": {
+        "tags": [
+          "InjectionEksempel"
+        ],
+        "summary": "getService",
+        "operationId": "getService",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/interface/impl": {
       "get": {
         "tags": [

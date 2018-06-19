@@ -51,7 +51,7 @@ public class FasitClientMock implements FasitClient {
 
     @Override
     public Properties getApplicationEnvironment(GetApplicationEnvironmentRequest getApplicationEnvironmentRequest) {
-        throw new IllegalStateException();
+        return new Properties();
     }
 
     private String mockUrl(String alias) {
