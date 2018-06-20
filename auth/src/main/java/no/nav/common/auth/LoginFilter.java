@@ -69,6 +69,7 @@ public class LoginFilter implements Filter {
             httpServletResponse.sendRedirect(optionalRedirectUrl.get());
         } else {
             httpServletResponse.setStatus(SC_UNAUTHORIZED);
+            httpServletResponse.setHeader("WWW-Authenticate", "Bearer");
         }
     }
 
