@@ -2,6 +2,7 @@ package no.nav.dialogarena.mock;
 
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -64,15 +65,25 @@ public class MockServerTest {
 
     @Test
     public void javascriptEngine_finnerParams() throws Exception {
-        String jsonContent = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/jscontent?fnr=123&param=noe").send().getContentAsString();
+        ContentResponse contentResponse = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/jscontent?fnr=123&param=noe").send();
+        assertThat(contentResponse.getStatus(), equalTo(200));
+        String jsonContent = contentResponse.getContentAsString();
         assertThat(jsonContent, equalTo("{\"param\":\"noe\",\"fnr\":\"123\"}"));
     }
 
     @Test
     public void javascriptEngine_setterResponseStatus() throws Exception {
         int responseStatus = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/jscontent?fnr=500").send().getStatus();
-        assertThat(responseStatus, equalTo(500));
+        assertThat(responseStatus, equalTo(666));
     }
+
+    @Test
+    public void javascriptEngine_setterResponseHeader() throws Exception {
+        ContentResponse contentResponse = httpClient.newRequest("http://localhost:" + jettyPort + "/mockservertest/sti/til/jscontent?fnr=123&param=noe").send();
+        assertThat(contentResponse.getStatus(), equalTo(200));
+        assertThat(contentResponse.getHeaders().get("X-Test"), equalTo("test er test"));
+    }
+
 
     private static int freePort() throws IOException {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
