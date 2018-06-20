@@ -33,6 +33,7 @@ public class JavascriptEngine {
             scriptEngine.eval(reader, scriptContext);
 
             httpServletResponse.setStatus(response.status);
+            response.headers.forEach(httpServletResponse::setHeader);
             httpServletResponse.getWriter().write(response.responseTekst);
         }
     }
@@ -61,6 +62,7 @@ public class JavascriptEngine {
 
         private int status = 200;
         private String responseTekst = "";
+        private Map<String, String> headers = new HashMap<>();
 
         public Response(ScriptEngine scriptEngine) {
             this.scriptEngine = scriptEngine;
@@ -68,6 +70,10 @@ public class JavascriptEngine {
 
         public void setStatus(int newStatus) {
             this.status = newStatus;
+        }
+
+        public void setHeader(String name, String value) {
+            headers.put(name, value);
         }
 
         public void setResponseTekst(String responseTekst) {
