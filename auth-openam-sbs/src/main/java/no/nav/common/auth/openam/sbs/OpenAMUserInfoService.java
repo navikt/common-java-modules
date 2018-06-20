@@ -10,23 +10,27 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
 import static no.nav.sbl.rest.RestUtils.DEFAULT_CONFIG;
+import static no.nav.sbl.util.StringUtils.of;
 
 public class OpenAMUserInfoService {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenAMUserInfoService.class);
 
-    private static final String PARAMETER_UID = "uid";
+    public static final String PARAMETER_UID = "uid";
+    public static final String PARAMETER_SECURITY_LEVEL = "SecurityLevel";
+    public static final List<String> SUBJECT_ATTRIBUTES = singletonList(PARAMETER_UID);
 
     private static final String OPENAM_GENERAL_ERROR = "Could not get user attributes from OpenAM. ";
     public static final String BASE_PATH = "/identity/json/attributes";
@@ -53,12 +57,16 @@ public class OpenAMUserInfoService {
         this.endpointURL = endpointURL;
     }
 
-    public Optional<Subject> getUserInfo(String token) {
-        return checkResponse(requestUserAttributes(token)).flatMap(openAMAttributes -> createUserInfo(openAMAttributes,token));
+    public Optional<Subject> convertTokenToSubject(String token) {
+        return getUserInfo(token, SUBJECT_ATTRIBUTES).flatMap(openAMAttributes -> createUserInfo(openAMAttributes, token));
     }
 
-    public Response requestUserAttributes(String token) {
-        return client.target(getUrl(token)).request().get();
+    public Optional<Map<String, String>> getUserInfo(String token, List<String> attributes) {
+        return of(token).flatMap(t -> checkResponse(requestUserAttributes(t, attributes)).map(this::attributesToMap));
+    }
+
+    public Response requestUserAttributes(String token, List<String> attributes) {
+        return client.target(getUrl(token, attributes)).request().get();
     }
 
     private Optional<OpenAMAttributes> checkResponse(Response response) {
@@ -77,16 +85,22 @@ public class OpenAMUserInfoService {
         }
     }
 
-    public String getUrl(String token) {
-        return endpointURL + BASE_PATH + format("?subjectid=%s&attributenames=%s", token, PARAMETER_UID);
+    public String getUrl(String token, List<String> attributes) {
+        UriBuilder uriBuilder = UriBuilder.fromUri(endpointURL).path(BASE_PATH).queryParam("subjectid", token);
+        attributes.forEach(a -> uriBuilder.queryParam("attributenames", a));
+        return uriBuilder.toString();
     }
 
-    private Optional<Subject> createUserInfo(OpenAMAttributes openAMAttributes, String token) {
-        Map<String, String> attributeMap = openAMAttributes.attributes.stream().collect(toMap(
-                attribute -> attribute.name,
-                attribute -> attribute.values.get(0)
-        ));
+    private Map<String, String> attributesToMap(OpenAMAttributes openAMAttributes) {
+        return openAMAttributes.attributes.stream()
+                .filter(a -> !a.values.isEmpty())
+                .collect(toMap(
+                        attribute -> attribute.name,
+                        attribute -> attribute.values.get(0)
+                ));
+    }
 
+    private Optional<Subject> createUserInfo(Map<String, String> attributeMap, String token) {
         if (attributeMap.containsKey(PARAMETER_UID)) {
             String uid = attributeMap.get(PARAMETER_UID);
             return of(new Subject(uid, IdentType.EksternBruker, SsoToken.eksternOpenAM(token)));
@@ -97,12 +111,12 @@ public class OpenAMUserInfoService {
     }
 
     @SuppressWarnings("unused")
-    private static class OpenAMAttributes {
+    public static class OpenAMAttributes {
         private List<OpenAMAttribute> attributes = new ArrayList<>();
     }
 
     @SuppressWarnings("unused")
-    private static class OpenAMAttribute {
+    public static class OpenAMAttribute {
         private String name;
         private List<String> values = new ArrayList<>();
     }

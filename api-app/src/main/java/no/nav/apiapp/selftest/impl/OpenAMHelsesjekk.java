@@ -5,6 +5,8 @@ import no.nav.apiapp.selftest.HelsesjekkMetadata;
 import no.nav.common.auth.openam.sbs.OpenAMUserInfoService;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 
+import static no.nav.common.auth.openam.sbs.OpenAMUserInfoService.SUBJECT_ATTRIBUTES;
+
 
 public class OpenAMHelsesjekk implements Helsesjekk {
 
@@ -17,7 +19,7 @@ public class OpenAMHelsesjekk implements Helsesjekk {
         openAMUserInfoService = new OpenAMUserInfoService(openAmConfig);
         helsesjekkMetadata = new HelsesjekkMetadata(
                 "openam-info",
-                openAMUserInfoService.getUrl(DUMMY_SUBJECT),
+                openAMUserInfoService.getUrl(DUMMY_SUBJECT, SUBJECT_ATTRIBUTES),
                 "Henter brukerinfo for ugyldig subject",
                 true
         );
@@ -25,7 +27,7 @@ public class OpenAMHelsesjekk implements Helsesjekk {
 
     @Override
     public void helsesjekk() throws Throwable {
-        int status = openAMUserInfoService.requestUserAttributes(DUMMY_SUBJECT).getStatus();
+        int status = openAMUserInfoService.requestUserAttributes(DUMMY_SUBJECT, SUBJECT_ATTRIBUTES).getStatus();
         if (status != 401) {
             throw new IllegalStateException(String.format("HTTP status %s != 401", status));
         }

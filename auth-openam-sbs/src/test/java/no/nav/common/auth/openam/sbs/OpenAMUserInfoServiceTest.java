@@ -10,6 +10,8 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -43,7 +45,7 @@ public class OpenAMUserInfoServiceTest {
                         .withStatus(200)
                         .withBody("{\"token\":{\"tokenId\":\"AQIC5wM2LY4Sfcy4eCp3R5V0YrY__qcn459QF4e2q2MesPA.*AAJTSQACMDIAAlMxAAIwMQ..*\"},\"roles\":[],\"attributes\":[{\"values\":[\"10026900250\"],\"name\":\"uid\"},{\"values\":[\"4\"],\"name\":\"SecurityLevel\"}]}")));
 
-        Optional<Subject> validtoken = service.getUserInfo("sso-token");
+        Optional<Subject> validtoken = service.convertTokenToSubject("sso-token");
         assertThat(validtoken).isNotEmpty();
 
         Subject subject = validtoken.get();
@@ -55,6 +57,26 @@ public class OpenAMUserInfoServiceTest {
     }
 
     @Test
+    public void getUserInfo__ignore_empty_attributes() {
+        stubFor(get(urlMatching(BASE_PATH + ".*"))
+                .willReturn(aResponse()
+                        .withHeader(contentType, json)
+                        .withStatus(200)
+                        .withBody("{\"attributes\":[{\"values\":[],\"name\":\"a\"},{\"values\":[\"b\"],\"name\":\"b\"}]}")));
+
+        Optional<Map<String, String>> userInfo = service.getUserInfo("sso-token", Arrays.asList("a", "b"));
+        assertThat(userInfo.get())
+                .hasSize(1)
+                .containsEntry("b","b");
+    }
+
+    @Test
+    public void getUserInfo__null_or_empty_token() {
+        assertThat(service.getUserInfo(null, Arrays.asList("a", "b", "c"))).isEmpty();
+        assertThat(service.getUserInfo("", Arrays.asList("a", "b", "c"))).isEmpty();
+    }
+
+    @Test
     public void returnsFalseWhenStatusIsNotOK() {
         stubFor(get(urlMatching(BASE_PATH + ".*"))
                 .willReturn(aResponse()
@@ -62,7 +84,7 @@ public class OpenAMUserInfoServiceTest {
                         .withStatus(401)
                         .withBody("{\"exception\":{\"name\":\"com.sun.identity.idsvcs.TokenExpired\",\"message\":\"Cannot retrieve Token.\"}}")));
 
-        Optional<Subject> userInfo = service.getUserInfo("sso-token");
+        Optional<Subject> userInfo = service.convertTokenToSubject("sso-token");
 
         assertThat(userInfo).isEmpty();
     }
@@ -75,7 +97,7 @@ public class OpenAMUserInfoServiceTest {
                         .withStatus(200)
                         .withBody("{\"exception\":{\"name\":\"com.sun.identity.idsvcs.TokenExpired\",\"message\":\"Cannot retrieve Token.\"}}")));
 
-        Optional<Subject> userInfo = service.getUserInfo("sso-token");
+        Optional<Subject> userInfo = service.convertTokenToSubject("sso-token");
 
         assertThat(userInfo).isEmpty();
     }

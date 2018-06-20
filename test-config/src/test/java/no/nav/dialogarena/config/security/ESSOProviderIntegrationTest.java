@@ -1,11 +1,9 @@
 package no.nav.dialogarena.config.security;
 
 import no.nav.common.auth.Subject;
-import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.TestEnvironment;
 import no.nav.common.auth.openam.sbs.OpenAMUserInfoService;
-import org.apache.http.conn.UnsupportedSchemeException;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +11,13 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static no.nav.common.auth.openam.sbs.OpenAMLoginFilter.NAV_ESSO_COOKIE_NAVN;
+import static no.nav.common.auth.openam.sbs.OpenAMUserInfoService.PARAMETER_SECURITY_LEVEL;
+import static no.nav.common.auth.openam.sbs.OpenAMUserInfoService.PARAMETER_UID;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.*;
 import static no.nav.dialogarena.config.security.ESSOProvider.*;
 import static no.nav.sbl.rest.RestUtils.withClient;
@@ -62,9 +65,12 @@ public class ESSOProviderIntegrationTest {
         String endpoint = FasitUtils.getOpenAmConfig().getRestUrl();
 
         OpenAMUserInfoService openAMUserInfoService = new OpenAMUserInfoService(URI.create(endpoint));
-        Subject subject = openAMUserInfoService.getUserInfo(token).get();
-
+        Subject subject = openAMUserInfoService.convertTokenToSubject(token).get();
         assertThat(subject.getUid()).isNotNull().isNotEmpty();
+
+        List<String> attributes = Arrays.asList(PARAMETER_UID, PARAMETER_SECURITY_LEVEL);
+        Map<String, String> stringStringMap = openAMUserInfoService.getUserInfo(token, attributes).get();
+        assertThat(stringStringMap).containsKeys(attributes.toArray(new String[0]));
     }
 
     private void assumeAlive(TestEnvironment testEnvironment) {
