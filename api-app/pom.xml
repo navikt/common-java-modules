@@ -154,6 +154,16 @@
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-spring4</artifactId>
             <scope>runtime</scope>
+            <!--
+            jersey-spring4 i nåværende versjon drar inn en gammel versjon av hibernate-validator som ikke støtter JSR380 bean-validation 2.0
+            excluder denne for å unngå classpath konflikt
+            -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
