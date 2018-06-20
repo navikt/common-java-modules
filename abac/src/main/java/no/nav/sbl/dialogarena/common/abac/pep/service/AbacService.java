@@ -30,16 +30,20 @@ public class AbacService  {
     private static final Logger LOG = getLogger(AbacService.class);
 
     private final Client client;
-    private final String endpointUrl;
+    private final AbacServiceConfig abacServiceConfig;
 
     @Inject
     public AbacService(AbacServiceConfig abacServiceConfig) {
-        this(createClient(abacServiceConfig),abacServiceConfig.getEndpointUrl());
+        this(createClient(abacServiceConfig), abacServiceConfig);
     }
 
-    AbacService(Client client, String endpointUrl) {
+    AbacService(Client client, AbacServiceConfig abacServiceConfig) {
         this.client = client;
-        this.endpointUrl = endpointUrl;
+        this.abacServiceConfig = abacServiceConfig;
+    }
+
+    public AbacServiceConfig getAbacServiceConfig() {
+        return abacServiceConfig;
     }
 
     private static Client createClient(AbacServiceConfig abacServiceConfig) {
@@ -73,7 +77,7 @@ public class AbacService  {
 
     private Response request(XacmlRequest request, Client client) {
         String postingString = XacmlMapper.mapRequestToEntity(request);
-        return client.target(endpointUrl)
+        return client.target(abacServiceConfig.getEndpointUrl())
                 .request()
                 .post(entity(postingString, MEDIA_TYPE));
     }

@@ -8,26 +8,20 @@ import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
-import no.nav.brukerdialog.tools.SecurityConstants;
 import no.nav.common.auth.LoginFilter;
 import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static no.nav.apiapp.ServletUtil.getContext;
-import static no.nav.apiapp.ServletUtil.getSpringContext;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -57,8 +51,8 @@ public class Konfigurator implements ApiAppConfigurator {
     StsConfig defaultStsConfig() {
         return StsConfig.builder()
                 .url(getConfigProperty(StsSecurityConstants.STS_URL_KEY, "SECURITYTOKENSERVICE_URL"))
-                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, getSystemUserUsernamePropertyName()))
-                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, getSystemUserPasswordPropertyName()))
+                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, resolveSrvUserPropertyName()))
+                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, resolverSrvPasswordPropertyName()))
                 .build();
     }
 
@@ -75,14 +69,6 @@ public class Konfigurator implements ApiAppConfigurator {
         return openAmLogin(OpenAmConfig.fromSystemProperties());
     }
 
-    private String getSystemUserUsernamePropertyName() {
-        return "SRV" + getAppName() + "_USERNAME";
-    }
-
-    private String getSystemUserPasswordPropertyName() {
-        return "SRV" + getAppName() + "_PASSWORD";
-    }
-
     @Override
     public ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig) {
         loginProviders.add(new OpenAMLoginFilter(openAmConfig));
@@ -93,8 +79,8 @@ public class Konfigurator implements ApiAppConfigurator {
     @Override
     public ApiAppConfigurator issoLogin() {
         return issoLogin(IssoConfig.builder()
-                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, getSystemUserUsernamePropertyName()))
-                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, getSystemUserPasswordPropertyName()))
+                .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, resolveSrvUserPropertyName()))
+                .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, resolverSrvPasswordPropertyName()))
                 .build());
     }
 
@@ -128,10 +114,6 @@ public class Konfigurator implements ApiAppConfigurator {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)
                 .orElseGet(() -> getRequiredProperty(secondaryProperty));
-    }
-
-    private String getAppName() {
-        return apiApplication.getApplicationName().toUpperCase();
     }
 
     public Jetty buildJetty() {

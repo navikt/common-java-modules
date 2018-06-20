@@ -1,0 +1,35 @@
+package no.nav.sbl.dialogarena.test.junit;
+
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.rules.MethodRule;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
+
+import java.util.Properties;
+
+@Slf4j
+public class SystemPropertiesRule implements MethodRule {
+
+    private static final Properties INITIAL_SYSTEM_PROPERTIES = (Properties) System.getProperties().clone();
+
+    @Override
+    @SneakyThrows
+    public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                statement.evaluate();
+                System.getProperties().clear();
+                System.setProperties(INITIAL_SYSTEM_PROPERTIES);
+            }
+        };
+    }
+
+    public SystemPropertiesRule setProperty(String name, String value) {
+        log.info("{} = {}", name, value);
+        System.setProperty(name, value);
+        return this;
+    }
+
+}

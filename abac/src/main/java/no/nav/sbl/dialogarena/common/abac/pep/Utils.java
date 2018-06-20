@@ -49,14 +49,6 @@ public class Utils {
                 ;
     }
 
-    public static String getApplicationProperty(String propertyKey) {
-        final String property = getProperty(propertyKey);
-        if (StringUtils.isEmpty(property)) {
-            throw new IllegalStateException("Cannot find property. Verify that property \"" + propertyKey + "\" is set.");
-        }
-        return property;
-    }
-
     public static String getResourceAttribute(XacmlRequest request, String requestedAttribute) {
         return Optional.ofNullable(request)
                 .map(XacmlRequest::getRequest)

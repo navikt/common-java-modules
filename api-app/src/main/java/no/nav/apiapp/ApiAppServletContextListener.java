@@ -271,7 +271,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     // f.eks. veilarbaktivitet og veilarbaktivitet-ws
     static String getContextName(ServletContext servletContext, ApiApplication apiApplication) {
         String contextPath = servletContext.getContextPath();
-        return contextPath != null && contextPath.length() > 1 ? contextPath.substring(1) : apiApplication.getApplicationName();
+        return contextPath != null && contextPath.length() > 1 ? contextPath.substring(1) : EnvironmentUtils.requireApplicationName();
     }
 
     private void konfigurerSpring(ServletContext servletContext) {
@@ -325,10 +325,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         contextLoaderListener.contextInitialized(servletContextEvent);
         AnnotationConfigWebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
         ApiApplication apiApplication = webApplicationContext.getBean(ApiApplication.class);
-
-        if (!EnvironmentUtils.getApplicationName().isPresent()) {
-            setProperty(APP_NAME_PROPERTY_NAME, apiApplication.getApplicationName(), PUBLIC);
-        }
 
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
         leggTilBonne(servletContextEvent, new TruststoreHelsesjekk());

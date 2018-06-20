@@ -190,11 +190,7 @@ public class PepImpl implements Pep {
     }
 
     private String getCredentialResource() throws PepException {
-        try {
-            return Utils.getApplicationProperty(CredentialConstants.SYSTEMUSER_USERNAME);
-        } catch (Exception e) {
-            throw new PepException(e);
-        }
+        return abacService.getAbacServiceConfig().getUsername();
     }
 
     private void validateFnr(String fnr) {

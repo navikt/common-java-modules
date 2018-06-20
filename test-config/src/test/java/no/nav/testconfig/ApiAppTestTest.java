@@ -6,7 +6,10 @@ public class ApiAppTestTest {
 
     @Test
     public void smoketest(){
-        ApiAppTest.setupTestContext();
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .applicationName(ApiAppTestTest.class.getSimpleName())
+                .build()
+        );
     }
 
 }

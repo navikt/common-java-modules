@@ -6,6 +6,7 @@ import no.nav.apiapp.config.Konfigurator;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -90,7 +91,7 @@ public class ApiApp {
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
         boolean brukContextPath = apiApplication.brukContextPath();
-        String contextPath = brukContextPath ? "/" + apiApplication.getApplicationName() : "/";
+        String contextPath = brukContextPath ? "/" + EnvironmentUtils.requireApplicationName() : "/";
 
         Jetty.JettyBuilder jettyBuilder = usingWar(file)
                 .at(contextPath)

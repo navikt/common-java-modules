@@ -119,20 +119,20 @@ public class DevelopmentSecurity {
 
     @SneakyThrows
     public static Jetty.JettyBuilder setupSamlLogin(Jetty.JettyBuilder jettyBuilder, SamlSecurityConfig securityConfig) {
-        commonServerSetup(jettyBuilder);
+        commonServerSetup(jettyBuilder,securityConfig.applicationName);
         appSetup(securityConfig.applicationName,securityConfig.environment);
         return jettyBuilder;
     }
 
     @SneakyThrows
     public static void setupESSO(ESSOSecurityConfig essoSecurityConfig) {
-        commonSetup();
+        commonSetup(essoSecurityConfig.applicationName);
         appSetup(essoSecurityConfig.applicationName, essoSecurityConfig.environment);
     }
 
     @SneakyThrows
     public static Jetty.JettyBuilder setupESSO(Jetty.JettyBuilder jettyBuilder, ESSOSecurityConfig essoSecurityConfig) {
-        commonServerSetup(jettyBuilder);
+        commonServerSetup(jettyBuilder,essoSecurityConfig.applicationName);
         appSetup(essoSecurityConfig.applicationName, essoSecurityConfig.environment);
         String environment = essoSecurityConfig.environment;
 
@@ -145,14 +145,14 @@ public class DevelopmentSecurity {
 
     @SneakyThrows
     public static Jetty.JettyBuilder setupISSO(Jetty.JettyBuilder jettyBuilder, ISSOSecurityConfig issoSecurityConfig) {
-        commonServerSetup(jettyBuilder);
+        commonServerSetup(jettyBuilder,issoSecurityConfig.applicationName);
         appSetup(issoSecurityConfig.applicationName, issoSecurityConfig.environment);
         return jettyBuilder;
     }
 
     @SneakyThrows
     public static void setupISSO(ISSOSecurityConfig issoSecurityConfig) {
-        commonSetup();
+        commonSetup(issoSecurityConfig.applicationName);
         appSetup(issoSecurityConfig.applicationName,issoSecurityConfig.environment);
     }
 
@@ -168,7 +168,7 @@ public class DevelopmentSecurity {
 
 
     public static void setupIntegrationTestSecurity(IntegrationTestConfig integrationTestConfig) {
-        commonSetup();
+        commonSetup(integrationTestConfig.applicationName);
         appSetup(
                 integrationTestConfig.applicationName,
                 integrationTestConfig.environment,
@@ -189,13 +189,15 @@ public class DevelopmentSecurity {
         setupKeyAndTrustStore();
     }
 
-    private static void commonServerSetup(Jetty.JettyBuilder jettyBuilder) {
-        commonSetup();
+    private static void commonServerSetup(Jetty.JettyBuilder jettyBuilder, String applicationName) {
+        commonSetup(applicationName);
         jettyBuilder.disableAnnotationScanning();
     }
 
-    private static void commonSetup() {
-        ApiAppTest.setupTestContext();
+    private static void commonSetup(String applicationName) {
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .applicationName(applicationName)
+                .build());
         System.setProperty("APP_LOG_HOME", new File("target").getAbsolutePath());
         System.setProperty("application.name", "app");
         disableCertificateChecks();
