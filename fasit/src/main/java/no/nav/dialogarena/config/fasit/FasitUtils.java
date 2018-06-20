@@ -66,6 +66,9 @@ public class FasitUtils {
     }
 
     private static String getVariableFromPropertyFile(String variableName) {
+        if (usingMock()) {
+            return variableName;
+        }
         return getOptionalVariableFromPropertyFile(variableName).orElseThrow(() -> new IllegalStateException(format(
                 "mangler variabel '%s'. \nDenne må settes som property, miljøvariabel eller i '%s'.\nEvt set variabelen %s=true for å bruke mock-verdier\n",
                 variableName,
@@ -240,15 +243,15 @@ public class FasitUtils {
     }
 
     public static String getFasitUser() {
-        return usingMock() ? "fasit-user" : getVariable(FASIT_USERNAME_VARIABLE_NAME);
+        return getVariable(FASIT_USERNAME_VARIABLE_NAME);
     }
 
     public static String getDefaultEnvironment() {
-        return usingMock() ? "mock" : getVariable(DEFAULT_ENVIRONMENT_VARIABLE_NAME);
+        return getVariable(DEFAULT_ENVIRONMENT_VARIABLE_NAME);
     }
 
     public static TestEnvironment getDefaultTestEnvironment() {
-        return TestEnvironment.valueOf(getDefaultEnvironment().toUpperCase());
+        return usingMock() ? TestEnvironment.MOCK : TestEnvironment.valueOf(getDefaultEnvironment().toUpperCase());
     }
 
     public static String getEnvironmentClass(String environment) {
