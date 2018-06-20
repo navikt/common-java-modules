@@ -1104,6 +1104,17 @@
             <!-- PACT Testing -->
             <dependency>
                 <groupId>au.com.dius</groupId>
+                <artifactId>pact-jvm-provider-junit_2.12</artifactId>
+                <version>${pact-jvm.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>au.com.dius</groupId>
                 <artifactId>pact-jvm-model</artifactId>
                 <version>${pact-jvm.version}</version>
                 <scope>test</scope>
