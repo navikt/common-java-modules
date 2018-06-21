@@ -28,10 +28,16 @@ public class MaskedLoggingEventTest {
 
     @Test
     public void unmasked() {
+        assertUnmasked("");
         assertUnmasked("abc");
         assertUnmasked("1234");
         assertUnmasked("1234567890");
         assertUnmasked("123456789012");
+    }
+
+    @Test
+    public void nullValue() {
+        assertThat(MaskedLoggingEvent.mask(null)).isNull();
     }
 
     @Test
