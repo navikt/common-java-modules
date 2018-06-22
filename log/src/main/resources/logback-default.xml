@@ -31,19 +31,23 @@
         </sift>
     </appender>
 
-    <appender name="syslog" class="com.spotify.logging.logback.MillisecondPrecisionSyslogAppender">
-        <syslogHost>localhost</syslogHost>
-        <facility>LOCAL1</facility>
-        <throwableExcluded>true</throwableExcluded>
-        <suffixPattern>${application.name} thread=%t %mdc %logger{30} %m %n%rEx</suffixPattern>
+    <appender name="stdout" class="no.nav.log.MaskingAppender">
+        <appender name="syslog_masked" class="com.spotify.logging.logback.MillisecondPrecisionSyslogAppender">
+            <syslogHost>localhost</syslogHost>
+            <facility>LOCAL1</facility>
+            <throwableExcluded>true</throwableExcluded>
+            <suffixPattern>${application.name} thread=%t %mdc %logger{30} %m %n%rEx</suffixPattern>
+        </appender>
     </appender>
 
     <appender name="async-file" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="file"/>
     </appender>
 
-    <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="no.nav.log.NavEncoder" />
+    <appender name="stdout_json"  class="no.nav.log.MaskingAppender">
+        <appender name="stdout_json_masked" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
+        </appender>
     </appender>
 
     <root level="${ROOT_LOG_LEVEL:-INFO}">
