@@ -7,6 +7,7 @@ import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
 import no.nav.sbl.dialogarena.common.cxf.SamlPropagatingOutInterceptor;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.dialogarena.test.FasitAssumption;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.Test;
 
@@ -60,6 +61,8 @@ public class DevelopmentSecurityTest {
 
     @Test
     public void setupJettyWithESSO() {
+        FasitAssumption.assumeFasitAccessible();
+
         Jetty jetty = DevelopmentSecurity.setupESSO(
                 jettyBuilder(),
                 new ESSOSecurityConfig("dittnav")
