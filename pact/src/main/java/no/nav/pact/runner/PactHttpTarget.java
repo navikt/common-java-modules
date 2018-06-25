@@ -14,7 +14,7 @@ public abstract class PactHttpTarget {
 
     public PactHttpTarget() {
         try {
-            target = new HttpTarget(new URL(getHttpTarget()));
+            target = new HttpTarget(new URL(getHttpTarget()), true);
         } catch (MalformedURLException e) {
             throw new RuntimeException("Cannot set HttpTarget Url.", e);
         }
