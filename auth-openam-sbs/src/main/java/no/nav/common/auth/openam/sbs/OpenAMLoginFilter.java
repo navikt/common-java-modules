@@ -3,8 +3,6 @@ package no.nav.common.auth.openam.sbs;
 import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.Subject;
 import no.nav.sbl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +30,7 @@ public class OpenAMLoginFilter implements LoginProvider {
         if (StringUtils.nullOrEmpty(requestEksternSsoToken)) {
             return Optional.empty();
         } else {
-            Optional<Subject> userInfo = userInfoService.getUserInfo(requestEksternSsoToken);
+            Optional<Subject> userInfo = userInfoService.convertTokenToSubject(requestEksternSsoToken);
             if (!userInfo.isPresent()) {
                 removeSsoToken(httpServletRequest, httpServletResponse);
             }
