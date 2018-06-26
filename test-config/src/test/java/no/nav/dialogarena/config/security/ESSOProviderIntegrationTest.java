@@ -61,6 +61,8 @@ public class ESSOProviderIntegrationTest {
 
     @Test
     public void getUserInfo() throws IOException {
+        assumeAlive(FasitUtils.getDefaultTestEnvironment());
+
         String token = ESSOProvider.getHttpCookie().getValue();
         String endpoint = FasitUtils.getOpenAmConfig().getRestUrl();
 

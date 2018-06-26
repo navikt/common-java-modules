@@ -1,7 +1,8 @@
 package no.nav.dialogarena.config.security;
 
 import no.nav.dialogarena.config.DevelopmentSecurity;
-import no.nav.dialogarena.config.fasit.FasitUtils;
+import no.nav.sbl.dialogarena.test.FasitAssumption;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.HttpCookie;
@@ -18,6 +19,11 @@ public class ISSOProviderIntegrationTest {
 
     private static final String DEFAULT_REDIRECT_URL = getDefaultRedirectUrl();
     private static final String REDIRECT_URL_Q = DevelopmentSecurity.getRedirectUrl(Q6.toString());
+
+    @BeforeClass
+    public static void setup() {
+        FasitAssumption.assumeFasitAccessible();
+    }
 
     @Test
     public void getISSOCookies() {

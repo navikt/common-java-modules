@@ -5,15 +5,11 @@ import no.nav.sbl.dialogarena.test.FasitAssumption;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLException;
 import javax.ws.rs.NotAuthorizedException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
@@ -34,7 +30,6 @@ public class FasitUtilsIntegrationTest {
     public void assumeFasit() {
         FasitAssumption.assumeFasitAccessible();
     }
-
 
     @Test
     public void resolveDomain_() throws Exception {
