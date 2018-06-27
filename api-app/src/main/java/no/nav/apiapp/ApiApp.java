@@ -3,10 +3,12 @@ package no.nav.apiapp;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication.NaisApiApplication;
 import no.nav.apiapp.config.Konfigurator;
+import no.nav.apiapp.util.UrlUtils;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.sbl.util.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -90,8 +92,7 @@ public class ApiApp {
         File file = devPath.exists() ? devPath : runtimePath;
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
-        boolean brukContextPath = apiApplication.brukContextPath();
-        String contextPath = brukContextPath ? "/" + EnvironmentUtils.requireApplicationName() : "/";
+        String contextPath = StringUtils.of(apiApplication.getContextPath()).map(UrlUtils::startMedSlash).orElse("/");
 
         Jetty.JettyBuilder jettyBuilder = usingWar(file)
                 .at(contextPath)
@@ -111,7 +112,7 @@ public class ApiApp {
         ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
         webAppContext.addEventListener(listener);
 
-        if (brukContextPath) {
+        if (contextPath.length() > 1) {
             Server server = jetty.server;
             HandlerCollection handlerCollection = new HandlerCollection();
             handlerCollection.addHandler(server.getHandler());

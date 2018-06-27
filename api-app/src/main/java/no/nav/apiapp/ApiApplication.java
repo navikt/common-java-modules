@@ -1,6 +1,8 @@
 package no.nav.apiapp;
 
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Environment;
+import no.nav.sbl.util.EnvironmentUtils;
 
 import javax.servlet.ServletContext;
 
@@ -17,8 +19,8 @@ public interface ApiApplication {
         return STSHelsesjekkDefault;
     }
 
-    default boolean brukContextPath() {
-        return true;
+    default String getContextPath() {
+        return EnvironmentUtils.requireApplicationName();
     }
 
     default void startup(@SuppressWarnings("unused") ServletContext servletContext){}
