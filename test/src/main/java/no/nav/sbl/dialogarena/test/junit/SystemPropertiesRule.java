@@ -11,7 +11,11 @@ import java.util.Properties;
 @Slf4j
 public class SystemPropertiesRule implements MethodRule {
 
-    private static final Properties INITIAL_SYSTEM_PROPERTIES = (Properties) System.getProperties().clone();
+    private static final Properties INITIAL_SYSTEM_PROPERTIES = copy(System.getProperties());
+
+    private static Properties copy(Properties properties) {
+        return (Properties) properties.clone();
+    }
 
     @Override
     @SneakyThrows
@@ -21,7 +25,7 @@ public class SystemPropertiesRule implements MethodRule {
             public void evaluate() throws Throwable {
                 statement.evaluate();
                 System.getProperties().clear();
-                System.setProperties(INITIAL_SYSTEM_PROPERTIES);
+                System.setProperties(copy(INITIAL_SYSTEM_PROPERTIES));
             }
         };
     }
