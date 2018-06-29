@@ -15,7 +15,7 @@ public class ValidationUtils {
 
     private static final Validator VALIDATOR = buildValidator();
 
-    public static void validate(Object object) {
+    public static <T> T validate(T object) {
         Set<ConstraintViolation<Object>> constraintViolations = VALIDATOR.validate(object);
         if (!constraintViolations.isEmpty()) {
             throw new IllegalArgumentException(String.format("Validation of '%s' failed:\n%s",
@@ -26,6 +26,7 @@ public class ValidationUtils {
                             .collect(joining("\n")))
             );
         }
+        return object;
     }
 
     private static String formatViolation(ConstraintViolation<Object> objectConstraintViolation) {
