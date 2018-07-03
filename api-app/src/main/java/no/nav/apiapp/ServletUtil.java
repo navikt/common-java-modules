@@ -50,15 +50,23 @@ public class ServletUtil {
     }
 
     public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass) {
-        FilterRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addFilter(filterClass.getName(), filterClass);
+        return leggTilFilter(servletContextEvent.getServletContext(), filterClass);
+    }
+
+    public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Class<? extends Filter> filterClass) {
+        FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filterClass);
         dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
     }
 
     public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Filter filter) {
+        return leggTilFilter(servletContextEvent.getServletContext(), filter);
+    }
+
+    public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Filter filter) {
         Class<? extends Filter> filterClass = filter.getClass();
-        FilterRegistration.Dynamic dynamic = servletContextEvent.getServletContext().addFilter(filterClass.getName(), filter);
+        FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filter);
         dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
