@@ -152,7 +152,7 @@ public class JsonUtilsTest {
 
     @Data
     @Accessors(chain = true)
-    private static class TestObject {
+    static class TestObject {
         private String aString = "test";
         private EnEnum enEnum = EnEnum.ABC;
         private Date date = new Date(1502279353816L);
