@@ -720,6 +720,11 @@
                 <version>${javax.websocket.version}</version>
             </dependency>
             <dependency>
+                <groupId>javax.websocket</groupId>
+                <artifactId>javax.websocket-client-api</artifactId>
+                <version>${javax.websocket.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>javax.security.auth.message</groupId>
                 <artifactId>javax.security.auth.message-api</artifactId>
                 <version>${javax.security.auth.message-api.version}</version>
