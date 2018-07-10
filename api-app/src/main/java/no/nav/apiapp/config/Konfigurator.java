@@ -14,6 +14,7 @@ import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +31,16 @@ public class Konfigurator implements ApiAppConfigurator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Konfigurator.class);
 
-    private final Jetty.JettyBuilder jettyBuilder;
+    private final JettyBuilder jettyBuilder;
     private final ApiApplication apiApplication;
     private final List<OidcProvider> oidcProviders = new ArrayList<>();
     private final List<LoginProvider> loginProviders = new ArrayList<>();
     private final List<Consumer<Jetty>> jettyCustomizers = new ArrayList<>();
+    private final List<Consumer<JettyBuilder>> jettyBuilderCustomizers = new ArrayList<>();
     private List<Object> springBonner = new ArrayList<>();
     private boolean issoLogin;
 
-    public Konfigurator(Jetty.JettyBuilder jettyBuilder, ApiApplication apiApplication) {
+    public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
         this.jettyBuilder = jettyBuilder;
         this.apiApplication = apiApplication;
     }
@@ -110,6 +112,12 @@ public class Konfigurator implements ApiAppConfigurator {
         return this;
     }
 
+    @Override
+    public ApiAppConfigurator customizeJettyBuilder(Consumer<JettyBuilder> jettyBuilderCustomizer) {
+        jettyBuilderCustomizers.add(jettyBuilderCustomizer);
+        return this;
+    }
+
     private String getConfigProperty(String primaryProperty, String secondaryProperty) {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)
@@ -120,9 +128,10 @@ public class Konfigurator implements ApiAppConfigurator {
         if (!oidcProviders.isEmpty()) {
             loginProviders.add(new OidcAuthModule(oidcProviders));
         }
-        if(!loginProviders.isEmpty()){
+        if (!loginProviders.isEmpty()) {
             jettyBuilder.addFilter(new LoginFilter(loginProviders, ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS));
         }
+        jettyBuilderCustomizers.forEach(c -> c.accept(jettyBuilder));
         Jetty jetty = jettyBuilder.buildJetty();
         jettyCustomizers.forEach(c -> c.accept(jetty));
         return jetty;
