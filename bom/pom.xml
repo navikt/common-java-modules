@@ -874,6 +874,11 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>javax-websocket-client-impl</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.eclipse.jetty.orbit</groupId>
                 <artifactId>javax.security.auth.message</artifactId>
                 <version>${jetty.orbit.javax.security.auth.message.version}</version>
