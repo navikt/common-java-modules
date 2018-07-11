@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication.NaisApiApplication;
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.util.UrlUtils;
+import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
@@ -83,13 +84,7 @@ public class ApiApp {
         // TODO disable logging til fil!
         // TODO gå gjennom common-jetty og gjøre dette mer prodklart!
 
-        File runtimePath = new File("/app");
-        File sourcePath = new File(".", "src/main");
-        if (sourcePath.exists()) {
-            new File(sourcePath, "webapp").mkdir();
-        }
-        File devPath = new File(".", "src/main/webapp");
-        File file = devPath.exists() ? devPath : runtimePath;
+        File file = WarFolderFinderUtil.findPath(apiApplication.getClass());
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
 
         String contextPath = StringUtils.of(apiApplication.getContextPath()).map(UrlUtils::startMedSlash).orElse("/");
