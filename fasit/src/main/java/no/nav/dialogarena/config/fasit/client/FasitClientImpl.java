@@ -168,6 +168,23 @@ public class FasitClientImpl implements FasitClient {
     }
 
     @Override
+    public List<LoadBalancerConfig> getLoadbalancerConfig(String alias) {
+        return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
+                .queryParam("type", "LoadBalancerConfig")
+                .queryParam("alias", alias)
+                .queryParam("usage", true)
+                .request()
+                .get(LoadBalancerConfigDTO.LIST_TYPE)
+                .stream()
+                .map(dto -> new LoadBalancerConfig()
+                        .setContextRoots(dto.properties.contextRoots)
+                        .setUrl(dto.properties.url)
+                        .setEnvironment(dto.scope.environment)
+                ).collect(Collectors.toList())
+        );
+    }
+
+    @Override
     @SneakyThrows
     public Properties getApplicationEnvironment(GetApplicationEnvironmentRequest getApplicationEnvironmentRequest) {
         ApplicationConfig applicationConfig = getApplicationConfig(GetApplicationConfigRequest.builder()

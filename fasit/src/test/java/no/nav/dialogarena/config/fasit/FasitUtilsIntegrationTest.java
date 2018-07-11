@@ -17,9 +17,11 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.SBS;
 import static no.nav.dialogarena.config.fasit.FasitUtilsTest.testServiceUserCertificate;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.*;
@@ -192,5 +194,20 @@ public class FasitUtilsIntegrationTest {
 
         assertThat(FasitUtils.getRestService("fasit.rest.api"), not(empty()));
         assertThat(FasitUtils.getRestService("fasit.rest.api", "p").getUrl(), startsWith("https://fasit.adeo.no"));
+    }
+
+
+    @Test
+    public void getLoadbalancerConfig_() {
+        assertThat(FasitUtils.getLoadbalancerConfig("this.does.not.exist"), empty());
+        assertThatThrownBy(() -> FasitUtils.getLoadbalancerConfig("this.does.not.exist", "p"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("this.does.not.exist")
+                .hasMessageContaining("p");
+
+        LoadBalancerConfig loadbalancerConfig = FasitUtils.getLoadbalancerConfig("loadbalancer:veilarbdemo", "q6");
+        assertThat(loadbalancerConfig.environment, equalTo("q6"));
+        assertThat(loadbalancerConfig.contextRoots, not(isEmptyOrNullString()));
+        assertThat(loadbalancerConfig.url, not(isEmptyOrNullString()));
     }
 }
