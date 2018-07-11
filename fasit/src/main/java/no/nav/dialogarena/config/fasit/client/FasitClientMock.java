@@ -55,6 +55,16 @@ public class FasitClientMock implements FasitClient {
     }
 
     @Override
+    public LdapConfig getLdapConfig(String environment) {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public WebServiceEndpoint getWebServiceEndpoint(String alias, String environment) {
+        throw new IllegalStateException();
+    }
+
+    @Override
     public List<LoadBalancerConfig> getLoadbalancerConfig(String alias) {
         throw new IllegalStateException();
     }

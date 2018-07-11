@@ -13,12 +13,14 @@ public interface FasitClient {
     String getBaseUrl(GetBaseUrlRequest getBaseUrlRequest);
     OpenAmConfig getOpenAmConfig(String environment);
     List<RestService> getRestServices(String alias);
+    WebServiceEndpoint getWebServiceEndpoint(String alias, String environment);
     List<LoadBalancerConfig> getLoadbalancerConfig(String alias);
     DbCredentials getDbCredentials(GetDbCredentialsRequest getDbCredentialsRequest);
     ServiceUserCertificate getCertificate(GetCertificateRequest getCertificateRequest);
     ServiceUser getCredentials(GetCredentialsRequest getCredentialsRequest);
     ApplicationConfig getApplicationConfig(GetApplicationConfigRequest getApplicationConfigRequest);
     Properties getApplicationEnvironment(GetApplicationEnvironmentRequest getApplicationEnvironmentRequest);
+    LdapConfig getLdapConfig(String environmentClass);
 
 
     @Builder
