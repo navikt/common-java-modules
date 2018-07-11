@@ -54,6 +54,11 @@ public class FasitClientMock implements FasitClient {
         return new Properties();
     }
 
+    @Override
+    public List<LoadBalancerConfig> getLoadbalancerConfig(String alias) {
+        throw new IllegalStateException();
+    }
+
     private String mockUrl(String alias) {
         return String.format("http://localhost:8080/mock/%s", alias);
     }

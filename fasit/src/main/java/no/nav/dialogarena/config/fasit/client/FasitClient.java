@@ -3,6 +3,7 @@ package no.nav.dialogarena.config.fasit.client;
 import lombok.Builder;
 import lombok.Value;
 import no.nav.dialogarena.config.fasit.*;
+import no.nav.dialogarena.config.fasit.LoadBalancerConfig;
 import no.nav.dialogarena.config.fasit.dto.RestService;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public interface FasitClient {
     String getBaseUrl(GetBaseUrlRequest getBaseUrlRequest);
     OpenAmConfig getOpenAmConfig(String environment);
     List<RestService> getRestServices(String alias);
+    List<LoadBalancerConfig> getLoadbalancerConfig(String alias);
     DbCredentials getDbCredentials(GetDbCredentialsRequest getDbCredentialsRequest);
     ServiceUserCertificate getCertificate(GetCertificateRequest getCertificateRequest);
     ServiceUser getCredentials(GetCredentialsRequest getCredentialsRequest);

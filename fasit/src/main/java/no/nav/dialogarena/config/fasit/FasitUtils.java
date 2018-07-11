@@ -155,6 +155,21 @@ public class FasitUtils {
         );
     }
 
+    public static List<LoadBalancerConfig> getLoadbalancerConfig(String alias) {
+        return getFasitClient().getLoadbalancerConfig(alias);
+    }
+
+    public static LoadBalancerConfig getLoadbalancerConfig(String alias, String environment) {
+        return getLoadbalancerConfig(alias)
+                .stream()
+                .filter(c -> environment.equals(c.environment))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(String.format("fant ikke '%s' i environment '%s'",
+                        alias,
+                        environment
+                )));
+    }
+
     private static FasitClient getFasitClient() {
         return usingMock() ? new FasitClientMock() : new FasitClientImpl();
     }
