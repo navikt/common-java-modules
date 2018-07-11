@@ -170,6 +170,14 @@ public class FasitUtils {
                 )));
     }
 
+    public static LdapConfig getLdapConfig() {
+        return getLdapConfig(getDefaultEnvironmentClass());
+    }
+
+    public static LdapConfig getLdapConfig(String environmentClass) {
+        return getFasitClient().getLdapConfig(environmentClass);
+    }
+
     private static FasitClient getFasitClient() {
         return usingMock() ? new FasitClientMock() : new FasitClientImpl();
     }
@@ -188,6 +196,14 @@ public class FasitUtils {
                 .filter(r -> isEqual(r.getEnvironment(), environment))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(String.format("did not find %s in %s", alias, environment)));
+    }
+
+    public static WebServiceEndpoint getWebServiceEndpoint(String alias) {
+        return getWebServiceEndpoint(alias, getDefaultEnvironment());
+    }
+
+    public static WebServiceEndpoint getWebServiceEndpoint(String alias, String environment) {
+        return getFasitClient().getWebServiceEndpoint(alias, environment);
     }
 
     public static ServiceUser getServiceUser(String userAlias, String applicationName) {
@@ -263,6 +279,10 @@ public class FasitUtils {
 
     public static String getDefaultEnvironment() {
         return getVariable(DEFAULT_ENVIRONMENT_VARIABLE_NAME);
+    }
+
+    public static String getDefaultEnvironmentClass() {
+        return getEnvironmentClass(getDefaultEnvironment());
     }
 
     public static TestEnvironment getDefaultTestEnvironment() {

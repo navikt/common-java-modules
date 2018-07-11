@@ -210,4 +210,18 @@ public class FasitUtilsIntegrationTest {
         assertThat(loadbalancerConfig.contextRoots, not(isEmptyOrNullString()));
         assertThat(loadbalancerConfig.url, not(isEmptyOrNullString()));
     }
+
+    @Test
+    public void getLdapConfig_() {
+        LdapConfig ldapConfig = FasitUtils.getLdapConfig();
+        assertThat(ldapConfig.url, not(isEmptyOrNullString()));
+        assertThat(ldapConfig.username, not(isEmptyOrNullString()));
+        assertThat(ldapConfig.password, not(isEmptyOrNullString()));
+    }
+
+    @Test
+    public void getWebServiceEndpoint_() {
+        assertThat(FasitUtils.getWebServiceEndpoint("Aktoer_v2").url, not(isEmptyOrNullString()));
+    }
+
 }

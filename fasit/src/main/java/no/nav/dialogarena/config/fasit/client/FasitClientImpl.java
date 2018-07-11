@@ -148,6 +148,28 @@ public class FasitClientImpl implements FasitClient {
         );
     }
 
+    @Override
+    public WebServiceEndpoint getWebServiceEndpoint(String alias, String environment) {
+        return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
+                .queryParam("type", "WebServiceEndpoint")
+                .queryParam("environment", environment)
+                .queryParam("alias", alias)
+                .queryParam("usage", true)
+                .request()
+                .get(WebServiceEndpointDTO.LIST_TYPE)
+                .stream()
+                .findFirst()
+                .map(dto -> new WebServiceEndpoint()
+                        .setUrl(dto.properties.endpointUrl)
+                )
+                .orElseThrow(() -> new IllegalStateException(String.format("fant ikke '%s' i environment '%s'",
+                        alias,
+                        environment
+
+                )))
+        );
+    }
+
     @SneakyThrows
     @Override
     public ApplicationConfig getApplicationConfig(GetApplicationConfigRequest getApplicationConfigRequest) {
@@ -181,6 +203,26 @@ public class FasitClientImpl implements FasitClient {
                         .setUrl(dto.properties.url)
                         .setEnvironment(dto.scope.environment)
                 ).collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public LdapConfig getLdapConfig(String environmentClass) {
+        return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
+                .queryParam("type", "LDAP")
+                .queryParam("alias", "ldap")
+                .queryParam("usage", true)
+                .request()
+                .get(LDAPDTO.LIST_TYPE)
+                .stream()
+                .filter(p -> environmentClass.equals(p.scope.environmentclass))
+                .findFirst()
+                .map(dto -> new LdapConfig()
+                        .setUrl(dto.properties.url)
+                        .setUsername(dto.properties.username)
+                        .setPassword(getPassword(dto.secrets.password.ref))
+                )
+                .orElseThrow(() -> new IllegalStateException("fant ikke ldap i environmentClass: " + environmentClass))
         );
     }
 
