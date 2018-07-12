@@ -294,6 +294,7 @@ public final class Jetty {
         if(developmentMode) {
             initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
         }
+        initParams.put("org.eclipse.jetty.servlet.Default.etags", "true");
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
         addDatasource(webAppContext);

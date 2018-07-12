@@ -10,6 +10,7 @@ import javax.ws.rs.core.Response;
 import java.util.Map;
 
 import static javax.ws.rs.client.Entity.entity;
+import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.Response.Status.*;
 import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.json.JsonUtils.fromJson;
@@ -25,6 +26,13 @@ public class RestTest extends JettyTest {
     @Test
     public void get() {
         assertThat(getString("/api/eksempel"), equalTo("eksempel"));
+    }
+
+    @Test
+    public void noCache() {
+        Response response = get("/api/eksempel");
+        sjekkStatus(response,OK);
+        assertThat(response.getHeaderString(CACHE_CONTROL), equalTo("no-cache"));
     }
 
     @Test
