@@ -32,7 +32,6 @@ import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
-import no.nav.sbl.dialogarena.common.web.filter.GZIPFilter;
 import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.LogUtils;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -157,8 +156,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
         ApiApplication apiApplication = startSpring(servletContextEvent);
         konfigurerLogging(servletContext, apiApplication);
-
-        leggTilFilter(servletContextEvent, GZIPFilter.class);
 
         // Slik at man husker å fjerne constrains fra web.xml
         ConstraintSecurityHandler currentSecurityHandler = (ConstraintSecurityHandler) ConstraintSecurityHandler.getCurrentSecurityHandler();
