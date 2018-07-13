@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static javax.ws.rs.core.HttpHeaders.ETAG;
 import static no.nav.apiapp.rest.SwaggerResource.IKKE_BERIK;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +28,7 @@ public class SwaggerTest extends JettyTest {
         Response response = get("/internal/swagger/index.html");
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.readEntity(String.class)).contains("<title>Swagger UI</title>");
+        assertThat(response.getHeaderString(ETAG)).isNotEmpty();
         assertThat(response.getHeaderString(CONTENT_TYPE)).isEqualTo("text/html;charset=utf-8");
     }
 

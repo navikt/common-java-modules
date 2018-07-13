@@ -33,7 +33,6 @@ public class RestApplication extends Application {
                 new JsonProvider(),
                 new AlltidJsonFilter(),
                 new ReadExceptionHandler(exceptionMapper),
-                new CacheBusterFilter(),
                 exceptionMapper,
                 new NavMetricsBinder(),
                 parameterConverterProvider(),
