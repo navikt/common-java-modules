@@ -60,6 +60,11 @@
             <version>2.2.4</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient_logback</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- test -->
         <dependency>

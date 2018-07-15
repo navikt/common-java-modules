@@ -74,6 +74,7 @@
         <javax.websocket.version>1.1</javax.websocket.version>
 
         <!-- DIV -->
+        <prometheus.version>0.4.0</prometheus.version>
         <swagger.version>1.5.13</swagger.version>
         <swagger-ui.version>2.2.10</swagger-ui.version>
         <commons-lang.version>3.5</commons-lang.version>
@@ -607,6 +608,40 @@
                 <artifactId>swagger-models</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
+
+
+            <!-- Prometheus -->
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_hotspot</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_servlet</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_common</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_logback</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_jetty</artifactId>
+                <version>${prometheus.version}</version>
+            </dependency>
+
 
             <!-- annet -->
             <dependency>

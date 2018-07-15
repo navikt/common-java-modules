@@ -50,11 +50,14 @@
         </appender>
     </appender>
 
+    <appender name="metrics" class="io.prometheus.client.logback.InstrumentedAppender" />
+
     <root level="${ROOT_LOG_LEVEL:-INFO}">
         <if condition='isNull("jboss.server.name")'>
             <then>
                 <!-- nais+local -->
                 <appender-ref ref="stdout_json"/>
+                <appender-ref ref="metrics"/>
             </then>
 
             <else>
