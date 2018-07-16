@@ -217,6 +217,7 @@ public class FasitUtilsIntegrationTest {
         assertThat(ldapConfig.url, not(isEmptyOrNullString()));
         assertThat(ldapConfig.username, not(isEmptyOrNullString()));
         assertThat(ldapConfig.password, not(isEmptyOrNullString()));
+        assertThat(ldapConfig.baseDN, not(isEmptyOrNullString()));
     }
 
     @Test

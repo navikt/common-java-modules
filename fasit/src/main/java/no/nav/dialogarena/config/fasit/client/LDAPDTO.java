@@ -11,6 +11,7 @@ import java.util.List;
 public class LDAPDTO {
     public static final GenericType<List<LDAPDTO>> LIST_TYPE = new GenericType<List<LDAPDTO>>() {};
 
+    public String alias;
     public Scope scope;
     public Secrets secrets;
     public Properties properties;
@@ -20,6 +21,7 @@ public class LDAPDTO {
     public static class Properties {
         public String url;
         public String username;
+        public String basedn;
     }
 
     @Data
@@ -37,6 +39,7 @@ public class LDAPDTO {
     @Data
     @Accessors(chain = true)
     public static class Scope {
+        public String zone;
         public String environmentclass;
     }
 
