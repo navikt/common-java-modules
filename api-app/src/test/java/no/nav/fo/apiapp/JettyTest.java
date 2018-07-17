@@ -54,7 +54,7 @@ public abstract class JettyTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
 
-    protected static final Jetty JETTY = nyJettyForTest();
+    private static Jetty JETTY;
 
     private static Jetty nyJettyForTest() {
         DISABLE_AUTH = true;
@@ -71,8 +71,10 @@ public abstract class JettyTest {
 
     @BeforeClass
     public static void startJetty() {
-        JETTY.start();
-        Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
+        if (JETTY == null) {
+            JETTY = nyJettyForTest();
+            Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
+        }
     }
 
     public static int tilfeldigPort() {

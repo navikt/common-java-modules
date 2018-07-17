@@ -1,5 +1,7 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.jetty.JettyStatisticsCollector;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.common.auth.LoginFilter;
@@ -11,7 +13,10 @@ import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.*;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
@@ -356,7 +361,26 @@ public final class Jetty {
         jetty.setConnectors(connectors);
         context.setServer(jetty);
         addWebsocketEndpoints(context);
-        jetty.setHandler(context);
+
+        StatisticsHandler statisticsHandler = new StatisticsHandler();
+        statisticsHandler.setHandler(context);
+        jetty.setHandler(statisticsHandler);
+
+        CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
+        JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
+        jetty.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
+
+            @Override
+            public void lifeCycleStarting(LifeCycle event) {
+                jettyStatisticsCollector.register(collectorRegistry);
+            }
+
+            @Override
+            public void lifeCycleStopped(LifeCycle event) {
+                collectorRegistry.unregister(jettyStatisticsCollector);
+            }
+        });
+
         return jetty;
     }
 

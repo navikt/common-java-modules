@@ -52,4 +52,26 @@ public class JettyBuilderTest {
         assertThat(TestListener.getContextParams(), nullValue());
     }
 
+    @Test
+    public void restartJetty() throws Exception {
+        Jetty jetty = usingWar(new File("src/test/webapp"))
+                .at("contextpath")
+                .port(8888)
+                .overrideWebXml()
+                .withLoginService(new JAASLoginService())
+                .buildJetty();
+
+        jetty.start();
+        jetty.stop.run();
+
+        jetty.start();
+        jetty.server.stop();
+
+        jetty.server.start();
+        jetty.server.stop();
+
+        jetty.start();
+        jetty.stop.run();
+    }
+
 }

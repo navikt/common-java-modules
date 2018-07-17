@@ -2,9 +2,9 @@ package no.nav.apiapp;
 
 
 import no.nav.apiapp.config.Konfigurator;
-import no.nav.log.ContextDiscriminator;
 import no.nav.apiapp.logging.LoginfoServlet;
 import no.nav.apiapp.logging.MDCFilter;
+import no.nav.apiapp.metrics.PrometheusFilter;
 import no.nav.apiapp.metrics.PrometheusServlet;
 import no.nav.apiapp.rest.NavCorsFilter;
 import no.nav.apiapp.rest.RestApplication;
@@ -29,6 +29,7 @@ import no.nav.common.auth.LoginFilter;
 import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
+import no.nav.log.ContextDiscriminator;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
@@ -208,6 +209,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
         }
 
+        leggTilFilter(servletContextEvent, PrometheusFilter.class);
         leggTilFilter(servletContextEvent, MDCFilter.class);
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
 
