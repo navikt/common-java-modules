@@ -69,7 +69,7 @@ public class FeilMapper {
         }
     }
 
-    private static boolean visDetaljer() {
+    public static boolean visDetaljer() {
         return getOptionalProperty(VIS_DETALJER_VED_FEIL).map(Boolean::parseBoolean).orElse(false)
                 || isEnvironmentClass(T)
                 || isEnvironmentClass(Q);

@@ -3,7 +3,7 @@ package no.nav.apiapp;
 
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.logging.LoginfoServlet;
-import no.nav.apiapp.logging.MDCFilter;
+import no.nav.apiapp.logging.LogFilter;
 import no.nav.apiapp.metrics.PrometheusFilter;
 import no.nav.apiapp.metrics.PrometheusServlet;
 import no.nav.apiapp.rest.NavCorsFilter;
@@ -70,7 +70,6 @@ import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static no.nav.brukerdialog.security.Constants.hasRedirectUrl;
 import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
-import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
@@ -210,7 +209,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
 
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
-        leggTilFilter(servletContextEvent, MDCFilter.class);
+        leggTilFilter(servletContextEvent, LogFilter.class);
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);

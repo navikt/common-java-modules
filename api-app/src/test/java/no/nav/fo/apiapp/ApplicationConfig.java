@@ -2,6 +2,8 @@ package no.nav.fo.apiapp;
 
 import no.nav.apiapp.ApiApplication.NaisApiApplication;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.apiapp.servlet.ForwardServletExample;
+import no.nav.apiapp.servlet.IncludeServletExample;
 import no.nav.fo.apiapp.rest.*;
 import no.nav.fo.apiapp.security.KreverSesjon;
 import no.nav.fo.apiapp.selftest.PingableEksempel;
@@ -15,8 +17,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import javax.servlet.ServletContext;
 import java.util.Random;
 import java.util.stream.Stream;
+
+import static no.nav.apiapp.ServletUtil.leggTilServlet;
 
 @Configuration
 @Import({
@@ -83,6 +88,12 @@ public class ApplicationConfig implements NaisApiApplication {
         feedController.addFeed("tilfeldigetall", feedProducerBuilder.build());
         feedController.addFeed("beskyttetStream", feedProducerBuilder.authorizationModule((a) -> false).build());
         return feedController;
+    }
+
+    @Override
+    public void startup(ServletContext servletContext) {
+        leggTilServlet(servletContext, ForwardServletExample.class, "/forward");
+        leggTilServlet(servletContext, IncludeServletExample.class, "/include");
     }
 
     @Override
