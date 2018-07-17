@@ -20,6 +20,7 @@ public interface FasitClient {
     ServiceUser getCredentials(GetCredentialsRequest getCredentialsRequest);
     ApplicationConfig getApplicationConfig(GetApplicationConfigRequest getApplicationConfigRequest);
     Properties getApplicationEnvironment(GetApplicationEnvironmentRequest getApplicationEnvironmentRequest);
+    Properties getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest);
     LdapConfig getLdapConfig(String environmentClass);
 
 
@@ -67,6 +68,13 @@ public interface FasitClient {
     class GetApplicationEnvironmentRequest {
         public String applicationName;
         public String environment;
+    }
+
+    @Builder
+    @Value
+    class GetApplicationPropertiesRequest {
+        public String alias;
+        public String environmentClass;
     }
 
 }

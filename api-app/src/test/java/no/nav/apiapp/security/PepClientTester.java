@@ -1,5 +1,6 @@
 package no.nav.apiapp.security;
 
+import lombok.SneakyThrows;
 import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.brukerdialog.security.context.SubjectExtension;
 import no.nav.brukerdialog.security.domain.IdentType;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static no.nav.apiapp.TestData.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SuppressWarnings("unused")
@@ -45,6 +47,33 @@ public interface PepClientTester {
         setVeilederFraFasitAlias(LITE_PRIVELIGERT_VEILEDER_ALIAS, subjectExtension);
         PepClient pepClient = getPepClient();
         assertThatThrownBy(() -> pepClient.sjekkLeseTilgangTilFnr(hentFnrFraFasit())).isExactlyInstanceOf(IngenTilgang.class);
+    }
+
+    @Test
+    @SneakyThrows
+    default void harTilgangTilEnhet_veilederHarTilgang(SubjectExtension.SubjectStore subjectExtension) {
+        setVeilederFraFasitAlias(PRIVELIGERT_VEILEDER_ALIAS, subjectExtension);
+        String sentralEnhet = FasitUtils.getTestDataProperty(SENTRAL_ENHET_ALIAS).orElseThrow(IllegalStateException::new);
+        PepClient pepClient = getPepClient();
+        assertThat(pepClient.harTilgangTilEnhet(sentralEnhet)).isTrue();
+    }
+
+    @Test
+    @SneakyThrows
+    default void harTilgangTilEnhet_veilederHarIkkeTilgang(SubjectExtension.SubjectStore subjectExtension) {
+        setVeilederFraFasitAlias(LITE_PRIVELIGERT_VEILEDER_ALIAS, subjectExtension);
+        String sentralEnhet = FasitUtils.getTestDataProperty(SENTRAL_ENHET_ALIAS).orElseThrow(IllegalStateException::new);
+        PepClient pepClient = getPepClient();
+        assertThat(pepClient.harTilgangTilEnhet(sentralEnhet)).isFalse();
+    }
+
+    @Test
+    @SneakyThrows
+    default void harTilgangTilEnhet__mangler_enhet__veilederHarIkkeTilgang(SubjectExtension.SubjectStore subjectExtension) {
+        setVeilederFraFasitAlias(PRIVELIGERT_VEILEDER_ALIAS, subjectExtension);
+        PepClient pepClient = getPepClient();
+        assertThat(pepClient.harTilgangTilEnhet(null)).isFalse();
+        assertThat(pepClient.harTilgangTilEnhet("")).isFalse();
     }
 
 }
