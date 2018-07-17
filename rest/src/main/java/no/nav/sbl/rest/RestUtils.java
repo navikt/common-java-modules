@@ -51,9 +51,7 @@ public class RestUtils {
     private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
-        if (!restConfig.disableMetrics) {
-            clientConfig.register(new MetricsProvider(metricName, restConfig));
-        }
+        clientConfig.register(new Filter(metricName, restConfig));
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
@@ -118,17 +116,19 @@ public class RestUtils {
         return String.format("rest.client.%s.%s", element.getClassName(), element.getMethodName());
     }
 
-    private static class MetricsProvider implements ClientResponseFilter, ClientRequestFilter {
+    private static class Filter implements ClientResponseFilter, ClientRequestFilter {
 
-        private static final String NAME = MetricsProvider.class.getName();
+        private static final String NAME = Filter.class.getName();
         private static final String CSRF_TOKEN = "csrf-token";
 
         private final String metricName;
         private final RestConfig restConfig;
+        private final boolean useMetrics;
 
-        private MetricsProvider(String metricName, RestConfig restConfig) {
+        private Filter(String metricName, RestConfig restConfig) {
             this.metricName = metricName;
             this.restConfig = restConfig;
+            this.useMetrics = !restConfig.disableMetrics;
         }
 
         @Override
@@ -155,9 +155,12 @@ public class RestUtils {
                     .collect(joining("; "))
             ));
 
-            Timer timer = MetricsFactory.createTimer(this.metricName);
-            timer.start();
-            clientRequestContext.setProperty(NAME, timer);
+
+            if (useMetrics) {
+                Timer timer = MetricsFactory.createTimer(this.metricName);
+                timer.start();
+                clientRequestContext.setProperty(NAME, timer);
+            }
         }
 
         private String toCookieString(Object cookie) {
@@ -173,13 +176,15 @@ public class RestUtils {
 
         @Override
         public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
-            Timer timer = (Timer) clientRequestContext.getProperty(NAME);
-            timer
-                    .stop()
-                    .addFieldToReport("httpStatus", clientResponseContext.getStatus())
-                    .addFieldToReport("host", clientRequestContext.getUri().getHost())
-                    .addFieldToReport("path", clientRequestContext.getUri().getPath())
-                    .report();
+            if (useMetrics) {
+                Timer timer = (Timer) clientRequestContext.getProperty(NAME);
+                timer
+                        .stop()
+                        .addFieldToReport("httpStatus", clientResponseContext.getStatus())
+                        .addFieldToReport("host", clientRequestContext.getUri().getHost())
+                        .addFieldToReport("path", clientRequestContext.getUri().getPath())
+                        .report();
+            }
         }
 
         private URI uriForLogging(ClientRequestContext clientRequestContext) {
