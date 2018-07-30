@@ -1,8 +1,6 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 
-import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
-import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
 import org.slf4j.Logger;
