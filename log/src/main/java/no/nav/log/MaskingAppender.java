@@ -13,6 +13,7 @@ public class MaskingAppender extends AppenderBase<ILoggingEvent> {
         appender.doAppend(new MaskedLoggingEvent(iLoggingEvent));
     }
 
+    @SuppressWarnings("unused")
     public void setAppender(Appender<ILoggingEvent> appender) {
         this.appender = appender;
     }

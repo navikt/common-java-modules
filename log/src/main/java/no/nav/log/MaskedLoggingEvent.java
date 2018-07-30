@@ -16,7 +16,7 @@ public class MaskedLoggingEvent implements ILoggingEvent {
         this.iLoggingEvent = iLoggingEvent;
     }
 
-    static String mask(String string) {
+    public static String mask(String string) {
         return string != null ? string.replaceAll("(^|\\D)\\d{11}(?=$|\\D)", "$1***********") : null;
     }
 

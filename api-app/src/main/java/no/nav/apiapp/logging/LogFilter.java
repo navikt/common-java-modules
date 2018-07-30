@@ -2,6 +2,7 @@ package no.nav.apiapp.logging;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.apiapp.feil.FeilMapper;
+import no.nav.sbl.util.LogUtils;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.log.MDCConstants.*;
 import static no.nav.sbl.rest.RestUtils.CORRELATION_ID_HEADER_NAME;
+import static no.nav.sbl.util.LogUtils.buildMarker;
 
 
 @Slf4j
@@ -41,11 +43,13 @@ public class LogFilter extends OncePerRequestFilter {
 
         try {
             filterWithErrorHandling(httpServletRequest, httpServletResponse, filterChain);
-            log.info("status={} method={} path={}",
-                    httpServletResponse.getStatus(),
-                    httpServletRequest.getMethod(),
-                    httpServletRequest.getRequestURI()
-            );
+
+            buildMarker()
+                    .field("status", httpServletResponse.getStatus())
+                    .field("method", httpServletRequest.getMethod())
+                    .field("path", httpServletRequest.getRequestURI())
+                    .log(log::info);
+
         } finally {
             MDC.remove(MDC_CALL_ID);
             MDC.remove(MDC_USER_ID);
@@ -84,7 +88,10 @@ public class LogFilter extends OncePerRequestFilter {
         cookie.setPath("/");
         cookie.setMaxAge(ONE_MONTH_IN_SECONDS);
         httpServletResponse.addCookie(cookie);
-        return userId;
+
+        // user-id tracking only works if the client is stateful and supports cookies.
+        // return null to avoid stateless clients from generating large numbers of useless user-ids.
+        return null;
     }
 
     private static String generateId() {
