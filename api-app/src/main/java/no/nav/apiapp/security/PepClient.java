@@ -59,7 +59,12 @@ public class PepClient {
         BiasedDecisionResponse r = pep.harTilgang(pep.nyRequest()
                 .withResourceType(ResourceType.Enhet)
                 .withDomain(applicationDomain)
-                .withEnhet(enhet));
+                // ABAC feiler hvis man spør om tilgang til udefinerte enheter (null) men tillater å spørre om tilgang
+                // til enheter som ikke finnes (f.eks. tom streng)
+                // Ved å konvertere null til tom streng muliggjør vi å spørre om tilgang til enhet for brukere som
+                // ikke har enhet. Sluttbrukere da få permit mens veiledere vil få deny.
+                .withEnhet(ofNullable(enhet).orElse(""))
+        );
         return erPermit(r);
     }
 

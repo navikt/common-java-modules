@@ -27,6 +27,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
@@ -228,6 +229,22 @@ public class FasitClientImpl implements FasitClient {
     }
 
     @Override
+    public Properties getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest) {
+        return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
+                .queryParam("type", "ApplicationProperties")
+                .queryParam("alias", getApplicationPropertiesRequest.alias)
+                .queryParam("environmentclass", getApplicationPropertiesRequest.environmentClass)
+                .queryParam("usage", true)
+                .request()
+                .get(ApplicationPropertiesDTO.LIST_TYPE)
+                .stream()
+                .findFirst()
+                .map(dto -> stringToProperties(dto.properties.applicationProperties))
+                .orElseThrow(() -> new IllegalStateException("fant ikke application-properties for følgende parametre: " + getApplicationPropertiesRequest))
+        );
+    }
+
+    @Override
     @SneakyThrows
     public Properties getApplicationEnvironment(GetApplicationEnvironmentRequest getApplicationEnvironmentRequest) {
         ApplicationConfig applicationConfig = getApplicationConfig(GetApplicationConfigRequest.builder()
@@ -386,6 +403,13 @@ public class FasitClientImpl implements FasitClient {
 
     private static byte[] fetchBytes(String url) {
         return httpClient(httpClient -> httpClient.target(url).request().get(byte[].class));
+    }
+
+    @SneakyThrows
+    private Properties stringToProperties(String string) {
+        Properties properties = new Properties();
+        properties.load(new ByteArrayInputStream(string.getBytes()));
+        return properties;
     }
 
     @SneakyThrows
