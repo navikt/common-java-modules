@@ -225,4 +225,10 @@ public class FasitUtilsIntegrationTest {
         assertThat(FasitUtils.getWebServiceEndpoint("Aktoer_v2").url, not(isEmptyOrNullString()));
     }
 
+    @Test
+    public void getTestDataProperty_() {
+        assertThat(FasitUtils.getTestDataProperty("sentral_enhet").get(),not(isEmptyOrNullString()));
+        assertThat(FasitUtils.getTestDataProperty("not_existing_property").isPresent(),is(false));
+    }
+
 }

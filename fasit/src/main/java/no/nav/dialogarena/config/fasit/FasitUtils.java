@@ -9,6 +9,7 @@ import no.nav.dialogarena.config.fasit.client.FasitClient;
 import no.nav.dialogarena.config.fasit.client.FasitClientImpl;
 import no.nav.dialogarena.config.fasit.client.FasitClientMock;
 import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.sbl.util.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -47,6 +48,8 @@ public class FasitUtils {
 
     private static final List<String> T_DOMAINS = Arrays.asList(OERA_T_LOCAL, TEST_LOCAL);
     private static final List<String> Q_DOMAINS = Arrays.asList(OERA_Q_LOCAL, PREPROD_LOCAL);
+
+    public static final String TEST_DATA_ALIAS = "test_data";
 
     static {
         objectMapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -268,6 +271,21 @@ public class FasitUtils {
         );
     }
 
+    public static Optional<String> getTestDataProperty(String propertyName) {
+        return ofNullable(getTestDataProperties().getProperty(propertyName)).filter(StringUtils::notNullOrEmpty);
+    }
+
+    public static Properties getTestDataProperties() {
+        return getApplicationProperties(TEST_DATA_ALIAS);
+    }
+
+    public static Properties getApplicationProperties(String alias) {
+        return getFasitClient().getApplicationProperties(FasitClient.GetApplicationPropertiesRequest.builder()
+                .alias(alias)
+                .environmentClass(getDefaultEnvironmentClass())
+                .build()
+        );
+    }
 
     public static String getFasitPassword() {
         return getVariable(FASIT_PASSWORD_VARIABLE_NAME);

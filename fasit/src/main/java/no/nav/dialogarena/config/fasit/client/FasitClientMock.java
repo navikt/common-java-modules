@@ -69,6 +69,11 @@ public class FasitClientMock implements FasitClient {
         throw new IllegalStateException();
     }
 
+    @Override
+    public Properties getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest) {
+        throw new IllegalStateException();
+    }
+
     private String mockUrl(String alias) {
         return String.format("http://localhost:8080/mock/%s", alias);
     }
