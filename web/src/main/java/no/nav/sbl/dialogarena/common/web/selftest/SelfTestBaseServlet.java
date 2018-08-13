@@ -71,14 +71,11 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
     protected Integer getAggregertStatus() {
         boolean harKritiskFeil = result.stream().anyMatch(KRITISK_FEIL);
         boolean harFeil = result.stream().anyMatch(HAR_FEIL);
-        boolean erAvskrudd = result.stream().anyMatch(ER_AVSKRUDD);
 
         if (harKritiskFeil) {
             return STATUS_ERROR;
         } else if (harFeil) {
             return STATUS_WARNING;
-        } else if (erAvskrudd) {
-            return STATUS_AVSKRUDD;
         }
         return STATUS_OK;
     }
