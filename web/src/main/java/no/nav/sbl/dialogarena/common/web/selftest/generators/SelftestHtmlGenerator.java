@@ -51,6 +51,8 @@ public class SelftestHtmlGenerator {
                 return getHtmlNode(nodeType, "roundSmallBox error", "ERROR");
             case STATUS_WARNING:
                 return getHtmlNode(nodeType, "roundSmallBox warning", "WARNING");
+            case STATUS_AVSKRUDD:
+                return getHtmlNode(nodeType, "roundSmallBox avskrudd", "OFF");
             case STATUS_OK:
             default:
                 return getHtmlNode(nodeType, "roundSmallBox ok", "OK");
