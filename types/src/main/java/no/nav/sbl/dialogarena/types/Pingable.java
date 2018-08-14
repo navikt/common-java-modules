@@ -21,6 +21,7 @@ public interface Pingable {
         private PingMetadata metadata;
         private String feilmelding;
         private Throwable feil;
+        private boolean erAvskrudd;
         private long responstid = -1;
 
         public PingMetadata getMetadata() {
@@ -50,6 +51,15 @@ public interface Pingable {
 
         public boolean erVellykket() {
             return !this.harFeil();
+        }
+
+        public Ping setErAvskrudd(boolean erAvskrudd) {
+            this.erAvskrudd = erAvskrudd;
+            return this;
+        }
+
+        public boolean erAvskrudd() {
+            return this.erAvskrudd;
         }
 
         public Ping setResponstid(Long responstid) {
@@ -83,6 +93,15 @@ public interface Pingable {
          */
         public static Ping lyktes(PingMetadata metadata) {
             return new Ping(metadata);
+        }
+
+        /**
+         * @param metadata Metadata om den pingbare-ressursen. Inneholder endepunkt, beskrivelse og om det er
+         *                 en kritisk avhengighet eller ikke.
+         * @return Et pingresultat som kan bruks til generering av selftester.
+         */
+        public static Ping avskrudd(PingMetadata metadata) {
+            return new Ping(metadata).setErAvskrudd(true);
         }
 
         /**

@@ -38,5 +38,9 @@ public final class Get {
         return ping -> ping.erVellykket();
     }
 
+    public static Predicate<Ping> avskruddPing() {
+        return ping -> ping.erAvskrudd();
+    }
+
     private Get() { }
 }

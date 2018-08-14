@@ -25,7 +25,6 @@ import java.util.function.Predicate;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import static no.nav.sbl.dialogarena.types.Pingable.Ping;
-import static no.nav.sbl.util.EnvironmentUtils.getApplicationName;
 import static no.nav.sbl.util.EnvironmentUtils.requireApplicationName;
 
 public abstract class SelfTestBaseServlet extends HttpServlet {
@@ -38,6 +37,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
     /**
      * Denne metoden må implementeres til å returnere en Collection av alle tjenester som skal inngå
      * i selftesten. Tjenestene må implementere Pingable-grensesnittet.
+     *
      * @return Liste over tjenester som implementerer Pingable
      */
     protected abstract Collection<? extends Pingable> getPingables();
@@ -88,7 +88,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
         long startTime = System.currentTimeMillis();
         Ping ping = pingable.ping();
         ping.setResponstid(System.currentTimeMillis() - startTime);
-        if (!ping.erVellykket()) {
+        if (!ping.erVellykket() && !ping.erAvskrudd()) {
             logger.warn("Feil ved SelfTest av " + ping.getMetadata().getEndepunkt(), ping.getFeil());
         }
         return ping;
@@ -96,15 +96,16 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
 
     private Selftest lagSelftest() {
         return new Selftest()
-            .setApplication(requireApplicationName())
-            .setVersion(EnvironmentUtils.getApplicationVersion().orElse("?"))
-            .setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
-            .setAggregateResult(getAggregertStatus())
-            .setChecks(result.stream()
-                    .map(SelfTestBaseServlet::lagSelftestEndpoint)
-                    .collect(toList())
-            );
-}
+                .setApplication(requireApplicationName())
+                .setVersion(EnvironmentUtils.getApplicationVersion().orElse("?"))
+                .setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                .setAggregateResult(getAggregertStatus())
+                .setChecks(result.stream()
+                        .map(SelfTestBaseServlet::lagSelftestEndpoint)
+                        .collect(toList())
+                );
+    }
+
 
     private static SelftestEndpoint lagSelftestEndpoint(Pingable.Ping ping) {
         return new SelftestEndpoint()
@@ -112,7 +113,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
                 .setDescription(ping.getMetadata().getBeskrivelse())
                 .setErrorMessage(ping.getFeilmelding())
                 .setCritical(ping.getMetadata().isKritisk())
-                .setResult(ping.harFeil() ? STATUS_ERROR : STATUS_OK)
+                .setResult(computePingResult(ping))
                 .setResponseTime(String.format("%dms", ping.getResponstid()))
                 .setStacktrace(ofNullable(ping.getFeil())
                         .map(ExceptionUtils::getStackTrace)
@@ -120,12 +121,22 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
                 );
     }
 
+    private static int computePingResult(Ping ping) {
+        if (ping.erAvskrudd()) {
+            return STATUS_AVSKRUDD;
+        } else {
+            return ping.harFeil() ? STATUS_ERROR : STATUS_OK;
+        }
+    }
+
     private static final Function<Ping, String> ENDEPUNKT = p -> p.getMetadata().getEndepunkt();
     private static final Predicate<Ping> VELLYKKET = Ping::erVellykket;
     private static final Predicate<Ping> KRITISK_FEIL = ping -> ping.harFeil() && ping.getMetadata().isKritisk();
     private static final Predicate<Ping> HAR_FEIL = Ping::harFeil;
+    private static final Predicate<Ping> ER_AVSKRUDD = Ping::erAvskrudd;
 
     public static final int STATUS_OK = 0;
     public static final int STATUS_ERROR = 1;
     public static final int STATUS_WARNING = 2;
+    public static final int STATUS_AVSKRUDD = 3;
 }
