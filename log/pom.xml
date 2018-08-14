@@ -47,7 +47,6 @@
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <version>4.10</version>
-            <scope>runtime</scope>
         </dependency>
         <!-- kreves for betinget konfigurasjon av logback -->
         <dependency>

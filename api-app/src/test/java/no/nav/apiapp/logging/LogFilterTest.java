@@ -1,5 +1,6 @@
 package no.nav.apiapp.logging;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
@@ -26,10 +27,16 @@ public class LogFilterTest {
 
     private static final Logger LOG = getLogger(LogFilterTest.class);
 
-    private HttpServletRequest httpServletRequest = new MockHttpServletRequest();
+    private MockHttpServletRequest httpServletRequest = new MockHttpServletRequest();
     private HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
     private LogFilter logFilter = new LogFilter();
+
+    @Before
+    public void setup(){
+        httpServletRequest.setMethod("GET");
+        httpServletRequest.setRequestURI("/test/path");
+    }
 
     @Test
     public void smoketest() throws ServletException, IOException {
@@ -39,7 +46,7 @@ public class LogFilterTest {
     }
 
     @Test
-    public void asdf() throws ServletException, IOException {
+    public void cleanupOfMDCContext() throws ServletException, IOException {
         Map<String, String> initialContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElseGet(HashMap::new);
         logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {});
         assertThat(initialContextMap).isEqualTo(MDC.getCopyOfContextMap());
