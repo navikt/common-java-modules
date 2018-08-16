@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static no.nav.log.MDCConstants.*;
 import static no.nav.sbl.util.LogUtils.buildMarker;
@@ -20,11 +21,21 @@ import static no.nav.sbl.util.StringUtils.of;
 @Slf4j
 public class LogFilter extends OncePerRequestFilter {
 
+    /**
+     * Filter init param used to specify a {@link Supplier<Boolean>} that will return whether stacktraces should be exposed or not
+     * Defaults to always false
+     */
+    public static final String EXPOSE_DETAILS_SUPPLIER = "exposeDetailsSupplier";
+
     public static final String CALL_ID_HEADER_NAME = "X-Call-Id";
     public static final String CORRELATION_ID_HEADER_NAME = "X-Correlation-Id";
 
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
     private static final int ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30;
+
+    private String exposeDetailsSupplier;
+
+    private Supplier<Boolean> exposeDetails;
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -65,6 +76,9 @@ public class LogFilter extends OncePerRequestFilter {
                 throw e;
             } else {
                 httpServletResponse.setStatus(500);
+                if (exposeDetails.get()) {
+                    e.printStackTrace(httpServletResponse.getWriter());
+                }
             }
         }
     }
@@ -94,4 +108,23 @@ public class LogFilter extends OncePerRequestFilter {
         return Long.toHexString(uuid.getMostSignificantBits()) + Long.toHexString(uuid.getLeastSignificantBits());
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void initFilterBean() throws ServletException {
+        if(exposeDetailsSupplier == null) {
+            exposeDetails = () -> false;
+            return;
+        }
+
+        try {
+            exposeDetails = (Supplier<Boolean>) Class.forName(exposeDetailsSupplier).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw new ServletException("Cannot instansiate " + exposeDetailsSupplier + " - cannot initialize filter", e);
+        }
+
+    }
+
+    public void setExposeDetailsSupplier(String exposeDetailsSupplier) {
+        this.exposeDetailsSupplier = exposeDetailsSupplier;
+    }
 }

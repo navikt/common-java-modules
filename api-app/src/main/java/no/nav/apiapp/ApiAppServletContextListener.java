@@ -2,6 +2,7 @@ package no.nav.apiapp;
 
 
 import no.nav.apiapp.config.Konfigurator;
+import no.nav.apiapp.feil.FeilMapper;
 import no.nav.log.LogFilter;
 import no.nav.log.LoginfoServlet;
 import no.nav.apiapp.metrics.PrometheusFilter;
@@ -209,7 +210,8 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
 
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
-        leggTilFilter(servletContextEvent, LogFilter.class);
+        FilterRegistration.Dynamic logFilter = leggTilFilter(servletContextEvent, LogFilter.class);
+        logFilter.setInitParameter(LogFilter.EXPOSE_DETAILS_SUPPLIER, "no.nav.apiapp.feil.FeilMapper.VisDetaljerSupplier");
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);

@@ -31,9 +31,10 @@ public class LogFilterTest {
     private LogFilter logFilter = new LogFilter();
 
     @Before
-    public void setup(){
+    public void setup() throws ServletException {
         httpServletRequest.setMethod("GET");
         httpServletRequest.setRequestURI("/test/path");
+        logFilter.initFilterBean();
     }
 
     @Test

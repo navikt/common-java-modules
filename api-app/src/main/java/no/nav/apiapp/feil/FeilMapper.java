@@ -8,6 +8,7 @@ import javax.ws.rs.NotFoundException;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.security.SecureRandom;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
@@ -73,6 +74,14 @@ public class FeilMapper {
         return getOptionalProperty(VIS_DETALJER_VED_FEIL).map(Boolean::parseBoolean).orElse(false)
                 || isEnvironmentClass(T)
                 || isEnvironmentClass(Q);
+    }
+
+    public static class VisDetaljerSupplier implements Supplier<Boolean> {
+
+        @Override
+        public Boolean get() {
+            return visDetaljer();
+        }
     }
 
 }
