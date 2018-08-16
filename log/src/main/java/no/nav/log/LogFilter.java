@@ -2,6 +2,7 @@ package no.nav.log;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -19,7 +20,7 @@ import static no.nav.sbl.util.StringUtils.of;
 
 
 @Slf4j
-public class LogFilter extends OncePerRequestFilter {
+public class LogFilter extends OncePerRequestFilter implements EnvironmentAware {
 
     /**
      * Filter init param used to specify a {@link Supplier<Boolean>} that will return whether stacktraces should be exposed or not
