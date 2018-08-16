@@ -1,4 +1,4 @@
-package no.nav.apiapp.logging;
+package no.nav.log;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,9 +8,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +16,8 @@ import java.util.Optional;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.HttpHeaders.SET_COOKIE;
-import static no.nav.apiapp.logging.LogFilter.CALL_ID_HEADER_NAME;
-import static no.nav.sbl.rest.RestUtils.CORRELATION_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.CALL_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.CORRELATION_ID_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 

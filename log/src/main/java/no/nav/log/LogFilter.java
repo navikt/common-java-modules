@@ -1,8 +1,6 @@
-package no.nav.apiapp.logging;
+package no.nav.log;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.apiapp.feil.FeilMapper;
-import no.nav.sbl.util.LogUtils;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,16 +12,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 
-import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.log.MDCConstants.*;
-import static no.nav.sbl.rest.RestUtils.CORRELATION_ID_HEADER_NAME;
 import static no.nav.sbl.util.LogUtils.buildMarker;
+import static no.nav.sbl.util.StringUtils.of;
 
 
 @Slf4j
 public class LogFilter extends OncePerRequestFilter {
 
     public static final String CALL_ID_HEADER_NAME = "X-Call-Id";
+    public static final String CORRELATION_ID_HEADER_NAME = "X-Correlation-Id";
 
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
     private static final int ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30;
@@ -67,9 +65,6 @@ public class LogFilter extends OncePerRequestFilter {
                 throw e;
             } else {
                 httpServletResponse.setStatus(500);
-                if (FeilMapper.visDetaljer()) {
-                    e.printStackTrace(httpServletResponse.getWriter());
-                }
             }
         }
     }

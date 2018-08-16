@@ -2,7 +2,6 @@ package no.nav.sbl.rest;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import no.nav.log.MDCConstants;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.MDC;
@@ -12,7 +11,7 @@ import java.util.List;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.everything;
 import static no.nav.log.MDCConstants.MDC_CORRELATION_ID;
-import static no.nav.sbl.rest.RestUtils.CORRELATION_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.CORRELATION_ID_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CorrelationIdIntegrationTest {

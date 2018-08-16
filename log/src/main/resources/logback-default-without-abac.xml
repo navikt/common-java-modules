@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
     <include resource="logback-abac.xml"/>
-    <include resource="logback-default-without-abac.xml"/>
 
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
 

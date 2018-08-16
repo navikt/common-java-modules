@@ -1,4 +1,4 @@
-package no.nav.apiapp.logging;
+package no.nav.log;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

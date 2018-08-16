@@ -2,8 +2,8 @@ package no.nav.apiapp;
 
 
 import no.nav.apiapp.config.Konfigurator;
-import no.nav.apiapp.logging.LoginfoServlet;
-import no.nav.apiapp.logging.LogFilter;
+import no.nav.log.LogFilter;
+import no.nav.log.LoginfoServlet;
 import no.nav.apiapp.metrics.PrometheusFilter;
 import no.nav.apiapp.metrics.PrometheusServlet;
 import no.nav.apiapp.rest.NavCorsFilter;
