@@ -76,12 +76,4 @@ public class FeilMapper {
                 || isEnvironmentClass(Q);
     }
 
-    public static class VisDetaljerSupplier implements Supplier<Boolean> {
-
-        @Override
-        public Boolean get() {
-            return visDetaljer();
-        }
-    }
-
 }

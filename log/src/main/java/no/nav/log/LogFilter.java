@@ -34,9 +34,15 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
     private static final int ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30;
 
-    private String exposeDetailsSupplier;
-
     private Supplier<Boolean> exposeDetails;
+
+    public LogFilter() {
+        this(() -> false);
+    }
+
+    public LogFilter(Supplier<Boolean> exposeDetails) {
+        this.exposeDetails = exposeDetails;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -109,23 +115,4 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         return Long.toHexString(uuid.getMostSignificantBits()) + Long.toHexString(uuid.getLeastSignificantBits());
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    protected void initFilterBean() throws ServletException {
-        if(exposeDetailsSupplier == null) {
-            exposeDetails = () -> false;
-            return;
-        }
-
-        try {
-            exposeDetails = (Supplier<Boolean>) Class.forName(exposeDetailsSupplier).newInstance();
-        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-            throw new ServletException("Cannot instansiate " + exposeDetailsSupplier + " - cannot initialize filter", e);
-        }
-
-    }
-
-    public void setExposeDetailsSupplier(String exposeDetailsSupplier) {
-        this.exposeDetailsSupplier = exposeDetailsSupplier;
-    }
 }
