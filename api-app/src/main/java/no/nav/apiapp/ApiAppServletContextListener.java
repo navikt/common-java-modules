@@ -210,8 +210,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
 
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
-        FilterRegistration.Dynamic logFilter = leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
-        logFilter.setInitParameter(LogFilter.EXPOSE_DETAILS_SUPPLIER, "no.nav.apiapp.feil.FeilMapper.VisDetaljerSupplier");
+        leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);

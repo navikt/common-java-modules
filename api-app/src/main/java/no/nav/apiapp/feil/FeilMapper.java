@@ -8,7 +8,6 @@ import javax.ws.rs.NotFoundException;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.security.SecureRandom;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;

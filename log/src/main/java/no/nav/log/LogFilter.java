@@ -26,22 +26,20 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
      * Filter init param used to specify a {@link Supplier<Boolean>} that will return whether stacktraces should be exposed or not
      * Defaults to always false
      */
-    public static final String EXPOSE_DETAILS_SUPPLIER = "exposeDetailsSupplier";
-
     public static final String CALL_ID_HEADER_NAME = "X-Call-Id";
     public static final String CORRELATION_ID_HEADER_NAME = "X-Correlation-Id";
 
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
     private static final int ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30;
 
-    private Supplier<Boolean> exposeDetails;
+    private Supplier<Boolean> exposeErrorDetails;
 
     public LogFilter() {
         this(() -> false);
     }
 
-    public LogFilter(Supplier<Boolean> exposeDetails) {
-        this.exposeDetails = exposeDetails;
+    public LogFilter(Supplier<Boolean> exposeErrorDetails) {
+        this.exposeErrorDetails = exposeErrorDetails;
     }
 
     @Override
@@ -83,7 +81,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
                 throw e;
             } else {
                 httpServletResponse.setStatus(500);
-                if (exposeDetails.get()) {
+                if (exposeErrorDetails.get()) {
                     e.printStackTrace(httpServletResponse.getWriter());
                 }
             }
