@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.experimental.Wither;
 import no.nav.json.JsonProvider;
+import no.nav.log.LogFilter;
 import no.nav.log.MDCConstants;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
@@ -31,7 +32,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class RestUtils {
 
-    public static final String CORRELATION_ID_HEADER_NAME = "X-Correlation-Id";
     public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
     private static final Logger LOG = getLogger(RestUtils.class);
@@ -138,7 +138,7 @@ public class RestUtils {
             MultivaluedMap<String, Object> requestHeaders = clientRequestContext.getHeaders();
 
             of(MDC.get(MDCConstants.MDC_CORRELATION_ID))
-                    .ifPresent(correlationId -> requestHeaders.add(CORRELATION_ID_HEADER_NAME, correlationId));
+                    .ifPresent(correlationId -> requestHeaders.add(LogFilter.CORRELATION_ID_HEADER_NAME, correlationId));
 
             requestHeaders.add(CSRF_COOKIE_NAVN, CSRF_TOKEN);
             requestHeaders.add(COOKIE, new Cookie(CSRF_COOKIE_NAVN, CSRF_TOKEN));
