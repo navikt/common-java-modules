@@ -103,7 +103,7 @@
         <wss4j.version>2.2.0</wss4j.version>
 
         <!-- Test -->
-        <assertj.version>3.6.1</assertj.version>
+        <assertj.version>3.9.1</assertj.version>
         <hamcrest.version>1.3</hamcrest.version>
         <junit.version>4.12</junit.version>
         <mockito.version>2.2.27</mockito.version>
