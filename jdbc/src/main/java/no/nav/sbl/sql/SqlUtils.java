@@ -1,5 +1,7 @@
 package no.nav.sbl.sql;
 
+import no.nav.sbl.sql.mapping.QueryMapping;
+import no.nav.sbl.sql.mapping.SqlRecord;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.ResultSet;
@@ -28,6 +30,15 @@ public class SqlUtils {
 
     public static <T> SelectQuery<T> select(JdbcTemplate db, String tableName, SQLFunction<ResultSet, T> mapper) {
         return new SelectQuery<>(db, tableName, mapper);
+    }
+
+    public static <T extends SqlRecord> SelectQuery<T> select(JdbcTemplate db, String tableName, Class<T> recordClass) {
+        QueryMapping<T> querymapping = QueryMapping.of(recordClass);
+
+        SelectQuery<T> selectQuery = new SelectQuery<>(db, tableName, querymapping::createMapper);
+        querymapping.applyColumn(selectQuery);
+
+        return selectQuery;
     }
 
     public static SelectQuery<Long> nextFromSeq(JdbcTemplate db, String sekvens) {
