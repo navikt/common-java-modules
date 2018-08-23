@@ -16,6 +16,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.util.Arrays;
+import java.util.function.Function;
 
 public class QueryMapping<T extends SqlRecord> {
     private static List<String> ignoreFields = List.of("$jacocoData");
@@ -66,9 +67,9 @@ public class QueryMapping<T extends SqlRecord> {
         List<Field> fields = List.of(targetClass.getDeclaredFields())
                 .filter((field) -> !ignoreFields.contains(field.getName()));
 
-        verifyFields(fields);
+        verifyAllFieldsAreColumns(fields);
 
-        return fields
+        List<InternalColumn> columns = fields
                 .map((field) -> {
                     String name = field.getName();
                     Type[] genericTypes = ((ParameterizedType) field.getAnnotatedType().getType()).getActualTypeArguments();
@@ -76,6 +77,10 @@ public class QueryMapping<T extends SqlRecord> {
                     Class to = ((Class) genericTypes[1]);
                     return new InternalColumn(name, from, to);
                 });
+
+        verifyAllMappingAreDefined(columns);
+
+        return columns;
     }
 
     @SuppressWarnings("unchecked")
@@ -88,13 +93,24 @@ public class QueryMapping<T extends SqlRecord> {
         return constructor;
     }
 
-    private static void verifyFields(List<Field> fields) {
+    private static void verifyAllFieldsAreColumns(List<Field> fields) {
         Option<Field> brokenField = fields
                 .find((field) -> !Column.class.isAssignableFrom(field.getType()));
 
 
         if (brokenField.isDefined()) {
             throw new IllegalArgumentException("targetClass contains non-column fields " + brokenField);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void verifyAllMappingAreDefined(List<InternalColumn> columns) {
+        boolean allDefined = columns
+                .map((Function<InternalColumn, Option>) TypeMapping::getDeserializer)
+                .forAll(Option::isDefined);
+
+        if (!allDefined) {
+            throw new IllegalArgumentException("targetClass contains column without known mapping: " + columns);
         }
     }
 

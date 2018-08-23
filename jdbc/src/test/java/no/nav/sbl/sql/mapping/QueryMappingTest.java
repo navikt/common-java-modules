@@ -31,6 +31,11 @@ public class QueryMappingTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void should_throw_error_for_unknown_mapping() {
+        QueryMapping.of(NonSupportedMappingRecord.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void should_throw_if_a_matching_constructor_is_not_found() {
         QueryMapping.of(NoMatchingConstructorRecord.class);
     }
@@ -83,6 +88,11 @@ public class QueryMappingTest {
     @Value
     static class NonSupportedFieldRecord implements SqlRecord {
         String name;
+    }
+
+    @Value
+    static class NonSupportedMappingRecord implements SqlRecord {
+        Column<String, Character[]> name;
     }
 
     static class NoMatchingConstructorRecord implements SqlRecord {

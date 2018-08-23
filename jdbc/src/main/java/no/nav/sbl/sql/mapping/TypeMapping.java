@@ -2,6 +2,7 @@ package no.nav.sbl.sql.mapping;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
+import io.vavr.control.Option;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -26,14 +27,21 @@ class TypeMapping {
     }
 
     @SuppressWarnings("unchecked")
-    static  <TO, FROM> TO convert(FROM value, QueryMapping.InternalColumn<FROM, TO> column) {
+    static <FROM, TO> Option<Deserializer<FROM, TO>> getDeserializer(QueryMapping.InternalColumn<FROM, TO> column) {
         if (column.from == column.to) {
-            return (TO) value;
+            return Option.of((FROM from) -> (TO) from);
         }
 
         Deserializer<FROM, TO> deserializer = (Deserializer<FROM, TO>) typemappers
                 .get(column.from)
                 .flatMap((toMap) -> toMap.get(column.to))
+                .getOrNull();
+
+        return Option.of(deserializer);
+    }
+
+    static  <TO, FROM> TO convert(FROM value, QueryMapping.InternalColumn<FROM, TO> column) {
+        Deserializer<FROM, TO> deserializer = getDeserializer(column)
                 .getOrElseThrow(() -> new IllegalStateException("Could not find serializer for " + column));
 
         try {
