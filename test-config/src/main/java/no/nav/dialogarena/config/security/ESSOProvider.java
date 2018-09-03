@@ -60,7 +60,7 @@ public class ESSOProvider {
 
     public static ESSOCredentials essoZeroPageLogin(TestUser testUser, String environment) {
         return Util.httpClient(httpClient -> {
-            String uri = essoBaseUrl(environment) + "/json/authenticate";
+            String uri = essoBaseUrl(environment) + "/json/authenticate?service=level4Service&authIndexType=service&authIndexValue=level4Service";
             LOGGER.info(uri);
             Response response = httpClient
                     .target(uri)
