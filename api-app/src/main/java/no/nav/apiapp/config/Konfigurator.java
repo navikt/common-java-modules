@@ -118,6 +118,12 @@ public class Konfigurator implements ApiAppConfigurator {
         return this;
     }
 
+    @Override
+    public ApiAppConfigurator addBean(Object bean) {
+        this.springBonner.add(bean);
+        return this;
+    }
+
     private String getConfigProperty(String primaryProperty, String secondaryProperty) {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)

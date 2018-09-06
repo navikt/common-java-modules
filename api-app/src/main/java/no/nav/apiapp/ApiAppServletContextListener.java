@@ -106,6 +106,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             "/ws/.*",
             "/api/ping"
     );
+    private static int beanCounter;
 
     private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
 
@@ -116,6 +117,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             setGlobalLogLevel(INFO);
         }
     }
+
 
     // på jboss
     public ApiAppServletContextListener() {
@@ -344,7 +346,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     }
 
     private void leggTilBonne(ServletContextEvent servletContextEvent, Object bonne) {
-        getSpringContext(servletContextEvent).getBeanFactory().registerSingleton(bonne.getClass().getName(), bonne);
+        getSpringContext(servletContextEvent).getBeanFactory().registerSingleton(bonne.getClass().getName() + "_" + beanCounter++, bonne);
     }
 
     private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {

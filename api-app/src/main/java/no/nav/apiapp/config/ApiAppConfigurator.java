@@ -18,4 +18,5 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig);
     ApiAppConfigurator customizeJetty(Consumer<Jetty> jettyCustomizer);
     ApiAppConfigurator customizeJettyBuilder(Consumer<JettyBuilder> jettyBuilderCustomizer);
+    ApiAppConfigurator addBean(Object bean);
 }
