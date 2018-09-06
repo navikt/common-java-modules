@@ -13,7 +13,7 @@
     <artifactId>feature-toggle</artifactId>
 
     <properties>
-        <okhttp.version>3.8.0</okhttp.version>
+        <okhttp.version>3.11.0</okhttp.version>
     </properties>
 
     <dependencyManagement>
@@ -102,6 +102,18 @@
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
             <version>${okhttp.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.60</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
