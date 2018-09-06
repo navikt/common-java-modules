@@ -13,7 +13,7 @@
 
 	<properties>
         <jsoup.version>1.11.3</jsoup.version>
-        <opensaml.version>3.3.1</opensaml.version>
+        <opensaml.version>3.3.0</opensaml.version>
     </properties>
 
     <dependencyManagement>
@@ -83,6 +83,18 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-api</artifactId>
             <version>${opensaml.version}</version>
+            <!--This dep has a security issue-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.56</version>
         </dependency>
         <dependency>
             <groupId>no.nav</groupId>
