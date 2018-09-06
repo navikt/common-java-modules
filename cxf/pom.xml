@@ -13,7 +13,7 @@
 
 	<properties>
         <jsoup.version>1.11.3</jsoup.version>
-        <opensaml.version>3.3.0</opensaml.version>
+        <opensaml.version>3.3.1</opensaml.version>
     </properties>
 
     <dependencyManagement>

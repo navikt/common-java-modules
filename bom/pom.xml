@@ -29,7 +29,7 @@
         <logback.version>1.2.3</logback.version>
 
         <!-- COMMON -->
-        <jetty.version>9.4.8.v20171121</jetty.version>
+        <jetty.version>9.4.12.v20180830</jetty.version>
         <jetty.orbit.javax.security.auth.message.version>1.0.0.v201108011116</jetty.orbit.javax.security.auth.message.version>
 
         <!-- SOAP -->
@@ -657,7 +657,7 @@
             <dependency>
                 <groupId>org.bitbucket.b_c</groupId>
                 <artifactId>jose4j</artifactId>
-                <version>0.6.3</version>
+                <version>0.6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.projectlombok</groupId>
