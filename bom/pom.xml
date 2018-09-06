@@ -100,7 +100,7 @@
            dependencyManagement i modig-security setter denne. (n� til 2.1.5)
            apache cxf trenger imidlertid h�yere versjon
         -->
-        <wss4j.version>2.2.0</wss4j.version>
+        <wss4j.version>2.2.2</wss4j.version>
 
         <!-- Test -->
         <assertj.version>3.9.1</assertj.version>
