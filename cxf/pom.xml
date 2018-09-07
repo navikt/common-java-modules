@@ -83,18 +83,6 @@
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-saml-api</artifactId>
             <version>${opensaml.version}</version>
-            <!--This dep has a security issue-->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk15on</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.60</version>
         </dependency>
         <dependency>
             <groupId>no.nav</groupId>
