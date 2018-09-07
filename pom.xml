@@ -341,7 +341,6 @@
                         <configuration>
                             <failOnWarning>true</failOnWarning>
                             <ignoreNonCompile>true</ignoreNonCompile>
-                            <ignoredDependencies>org.bouncycastle:bcprov-jdk15on</ignoredDependencies>
                         </configuration>
                     </execution>
                     <execution>
