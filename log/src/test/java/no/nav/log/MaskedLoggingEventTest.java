@@ -22,8 +22,7 @@ public class MaskedLoggingEventTest {
         assertMasked("12345678901 ");
         assertMasked(" 12345678901 ");
         assertMasked("abc 12345678901 def");
-        assertMasked("abc12345678901def");
-        assertMasked("abc12345678901def");
+        assertMasked("callId=7b7c<12345676543>c8c32129c837808f7");
     }
 
     @Test
@@ -33,6 +32,7 @@ public class MaskedLoggingEventTest {
         assertUnmasked("1234");
         assertUnmasked("1234567890");
         assertUnmasked("123456789012");
+        assertUnmasked("callId=7b7c12345676543c8c32129c837808f7");
     }
 
     @Test
@@ -42,7 +42,6 @@ public class MaskedLoggingEventTest {
 
     @Test
     public void formatting() {
-        assertMaskedAS("abc12345678901def", "abc" + MASKED_FNR + "def");
         assertMaskedAS("12345678901-12345678901 12345678901", MASKED_FNR + "-" + MASKED_FNR + " " + MASKED_FNR);
         assertMaskedAS("12345678901,12345678901", MASKED_FNR + "," + MASKED_FNR);
     }
