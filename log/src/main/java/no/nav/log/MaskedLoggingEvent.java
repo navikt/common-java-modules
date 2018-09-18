@@ -17,7 +17,7 @@ public class MaskedLoggingEvent implements ILoggingEvent {
     }
 
     public static String mask(String string) {
-        return string != null ? string.replaceAll("(^|\\D)\\d{11}(?=$|\\D)", "$1***********") : null;
+        return string != null ? string.replaceAll("(^|\\W)\\d{11}(?=$|\\W)", "$1***********") : null;
     }
 
     @Override
