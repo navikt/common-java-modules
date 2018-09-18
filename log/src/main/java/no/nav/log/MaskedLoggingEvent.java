@@ -58,7 +58,7 @@ public class MaskedLoggingEvent implements ILoggingEvent {
 
     @Override
     public IThrowableProxy getThrowableProxy() {
-        return iLoggingEvent.getThrowableProxy();
+        return MaskedThrowableProxy.mask(iLoggingEvent.getThrowableProxy());
     }
 
     @Override
