@@ -27,6 +27,8 @@ public class LogUtilsTest {
         LOGGER.info("<tag>{}</tag>", FNR);
         LOGGER.info("info");
 
+        LOGGER.error(FNR, new RuntimeException(FNR, new IllegalArgumentException(FNR)));
+
         buildMarker()
                 .field("fnr2",FNR)
                 .field("number",42)
