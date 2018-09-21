@@ -151,8 +151,10 @@ public abstract class JettyTest {
     }
 
     protected static void setupContext() {
+        String demoApp = "veilarbdemo";
+
         String securityTokenService = FasitUtils.getBaseUrl("securityTokenService", FSS);
-        ServiceUser srvveilarbdemo = FasitUtils.getServiceUser("srvveilarbdemo", "veilarbdemo");
+        ServiceUser srvveilarbdemo = FasitUtils.getServiceUser("srvveilarbdemo", demoApp);
         RestService abacEndpoint = FasitUtils.getRestService("abac.pdp.endpoint", srvveilarbdemo.getEnvironment());
 
         setProperty(StsSecurityConstants.STS_URL_KEY, securityTokenService);
@@ -161,7 +163,25 @@ public abstract class JettyTest {
 
         setProperty(OPENAM_RESTURL, "https://itjenester-" + FasitUtils.getDefaultTestEnvironment().toString() + ".oera.no/esso");
 
-        ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
+
+        String issoHost = FasitUtils.getBaseUrl("isso-host");
+        String issoJWS = FasitUtils.getBaseUrl("isso-jwks");
+        String issoISSUER = FasitUtils.getBaseUrl("isso-issuer");
+        String issoIsAlive = FasitUtils.getBaseUrl("isso.isalive", FasitUtils.Zone.FSS);
+        ServiceUser isso_rp_user = FasitUtils.getServiceUser("isso-rp-user", demoApp);
+        String loginUrl = FasitUtils.getBaseUrl("veilarblogin.redirect-url", FasitUtils.Zone.FSS);
+
+        System.setProperty(Constants.ISSO_HOST_URL_PROPERTY_NAME, issoHost);
+        System.setProperty(Constants.ISSO_RP_USER_USERNAME_PROPERTY_NAME, isso_rp_user.getUsername());
+        System.setProperty(Constants.ISSO_RP_USER_PASSWORD_PROPERTY_NAME, isso_rp_user.getPassword());
+        System.setProperty(Constants.ISSO_JWKS_URL_PROPERTY_NAME, issoJWS);
+        System.setProperty(Constants.ISSO_ISSUER_URL_PROPERTY_NAME, issoISSUER);
+        System.setProperty(Constants.ISSO_ISALIVE_URL_PROPERTY_NAME, issoIsAlive);
+        System.setProperty(SecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
+        System.setProperty(SecurityConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
+        System.setProperty(Constants.OIDC_REDIRECT_URL_PROPERTY_NAME, loginUrl);
+
+        ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", demoApp);
         setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, FasitUtils.getBaseUrl("aad_b2c_discovery"));
         setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, azureADClientId.username);
 
