@@ -3,6 +3,12 @@ package no.nav.apiapp.selftest.impl;
 import lombok.SneakyThrows;
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
+import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.brukerdialog.security.oidc.SystemUserTokenProvider;
+import no.nav.common.auth.SsoToken;
+import no.nav.common.auth.Subject;
+import no.nav.common.auth.SubjectHandler;
+import no.nav.sbl.dialogarena.common.cxf.OidcClientWrapper;
 import no.nav.sbl.dialogarena.common.cxf.STSConfigurationUtil;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -31,6 +37,12 @@ import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.STS_URL_KEY
 
 public class STSHelsesjekk implements Helsesjekk {
 
+    private final boolean sjekkOgsaOidcTilSAML;
+
+    public STSHelsesjekk(boolean sjekkOgsaOidcTilSAML) {
+        this.sjekkOgsaOidcTilSAML = sjekkOgsaOidcTilSAML;
+    }
+
     @Override
     public void helsesjekk() throws Exception {
         new Sjekk().sjekk();
@@ -52,10 +64,17 @@ public class STSHelsesjekk implements Helsesjekk {
         private EndpointInfo endpointInfo = dummyEndpointInfo();
         private ClientImpl client = dummyClient();
         private MessageImpl message = dummyMessage();
-        private STSClient stsClient = stsClient();
 
         private void sjekk() throws Exception {
-            stsClient.requestSecurityToken();
+            stsClient(false).requestSecurityToken();
+
+            if (sjekkOgsaOidcTilSAML) {
+                SystemUserTokenProvider systemUserTokenProvider = new SystemUserTokenProvider();
+                Subject systemUser = new Subject(systemUserTokenProvider.getUsername(), IdentType.Systemressurs, SsoToken.oidcToken(systemUserTokenProvider.getToken()));
+                SubjectHandler.withSubject(systemUser, () -> {
+                    stsClient(true).requestSecurityToken();
+                });
+            }
         }
 
         @SneakyThrows
@@ -80,8 +99,13 @@ public class STSHelsesjekk implements Helsesjekk {
             return message;
         }
 
-        private STSClient stsClient() {
-            STSConfigurationUtil.configureStsForSystemUserInFSS(client);
+        private STSClient stsClient(boolean useOidcToken) {
+            if (useOidcToken) {
+                OidcClientWrapper.configureStsForOnBehalfOfWithJWT(client);
+            } else {
+                STSConfigurationUtil.configureStsForSystemUserInFSS(client);
+            }
+
             STSClient stsClient = (STSClient) client.getRequestContext().values().iterator().next();
             stsClient.setMessage(message);
             stsClient.setTemplate(getRequestSecurityTokenTemplate());

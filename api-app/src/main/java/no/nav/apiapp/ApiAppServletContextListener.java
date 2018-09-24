@@ -333,12 +333,13 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
         leggTilBonne(servletContextEvent, new TruststoreHelsesjekk());
-        if (issoBrukes()) {
+        boolean issoBrukes = issoBrukes();
+        if (issoBrukes) {
             leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
             leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
         }
         if (stsBrukes(apiApplication)) {
-            leggTilBonne(servletContextEvent, new STSHelsesjekk());
+            leggTilBonne(servletContextEvent, new STSHelsesjekk(issoBrukes));
         }
         return apiApplication;
     }

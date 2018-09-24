@@ -34,6 +34,10 @@ public class SystemUserTokenProvider {
     public SystemUserTokenProvider() {
     }
 
+    public String getUsername() {
+        return srvUsername;
+    }
+
     public String getToken() {
         if(tokenIsSoonExpired()) {
             refreshToken();
