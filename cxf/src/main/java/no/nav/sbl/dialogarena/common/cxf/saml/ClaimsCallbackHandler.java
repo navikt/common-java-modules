@@ -61,12 +61,12 @@ public class ClaimsCallbackHandler implements CallbackHandler {
 
     private String getClaimsString() {
         Subject subject = SubjectHandler.getSubject().orElseThrow(() -> new IllegalStateException("no subject available"));
-        String samlToken = subject.getSsoToken(EKSTERN_OPENAM).orElseThrow(() -> new IllegalStateException("no saml token in subject " + subject));
+        String openAMToken = subject.getSsoToken(EKSTERN_OPENAM).orElseThrow(() -> new IllegalStateException("no open am token in subject " + subject));
         return "<wst:Claims Dialect=\"http://docs.oasis-open.org/wsfed/authorization/200706/authclaims\" " +
                 "xmlns:wst=\"http://docs.oasis-open.org/ws-sx/ws-trust/200512\" " +
                 "xmlns:auth=\"http://docs.oasis-open.org/wsfed/authorization/200706/authclaims\">\n" +
                 "    <auth:ClaimType Uri=\"nav:names:claims:openam:tokenid\">\n" +
-                "        <auth:Value>" + samlToken + "</auth:Value>\n" +
+                "        <auth:Value>" + openAMToken + "</auth:Value>\n" +
                 "    </auth:ClaimType>\n" +
                 "</wst:Claims>";
     }
