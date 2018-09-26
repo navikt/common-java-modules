@@ -331,17 +331,13 @@
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
                         <id>analyze</id>
                         <goals>
                             <goal>analyze-only</goal>
                         </goals>
-                        <configuration>
-                            <failOnWarning>true</failOnWarning>
-                            <ignoreNonCompile>true</ignoreNonCompile>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>analyze-pom</id>
@@ -349,12 +345,32 @@
                         <goals>
                             <goal>analyze-dep-mgt</goal>
                         </goals>
-                        <configuration>
-                            <failBuild>true</failBuild>
-                            <ignoreDirect>false</ignoreDirect>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <failBuild>true</failBuild>
+                    <ignoreDirect>false</ignoreDirect>
+                    <ignoredUsedUndeclaredDependencies>
+                        <!--
+                        This deactivates the requirement of declaring every used dependency in a project's pom.
+                        We are omitting this, even though it its considered best practice, because:
+
+                        - enforced management of transitive dependencies increases the likelihood of management errors
+                          that may cause diamonds of death, which often results in nasty runtime errors. Even having decent
+                          test coverage over the affected dependencies may not detect such errors due to the indeterministic
+                          nature of classloading in different contexts (different OSes, JVMs, build tools, packaging formats)
+
+                        - the main motivation of the requirement seems to be avoiding compile errors when a change of a
+                          direct dependency causes a change in transitive dependencies. A transitive dependency might for
+                          instance be eliminated and must be added as a direct dependency instead.
+
+                        Since compile errors generally are easier to detect and fix than runtime error, we should try to minimize
+                        the risk of having runtime errors by being allowed to use a dependency transitively when it makes sense.
+
+                        -->
+                        <ignoredUsedUndeclaredDependency>*</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
