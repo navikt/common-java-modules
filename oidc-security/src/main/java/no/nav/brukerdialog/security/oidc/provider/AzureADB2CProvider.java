@@ -6,8 +6,6 @@ import no.nav.brukerdialog.security.jaspic.TokenLocator;
 import no.nav.brukerdialog.security.jwks.JsonWebKeyCache;
 import no.nav.brukerdialog.security.jwks.JwtHeader;
 import no.nav.sbl.rest.RestUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
@@ -16,8 +14,6 @@ import java.util.Optional;
 import static java.util.Optional.empty;
 
 public class AzureADB2CProvider implements OidcProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(AzureADB2CProvider.class);
 
     public static final String AZUREADB2C_OIDC_COOKIE_NAME = "selvbetjening-idtoken";
     private static final TokenLocator TOKEN_LOCATOR = new TokenLocator(AZUREADB2C_OIDC_COOKIE_NAME, null);
@@ -55,7 +51,6 @@ public class AzureADB2CProvider implements OidcProvider {
 
     @Override
     public Optional<String> getRefreshToken(HttpServletRequest httpServletRequest) {
-        log.info("Refresh token requested, but not supported");
         return empty(); // not supported
     }
 

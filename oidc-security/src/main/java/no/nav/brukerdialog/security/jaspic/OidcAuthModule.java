@@ -54,7 +54,11 @@ public class OidcAuthModule implements LoginProvider {
         String requestToken = optionalRequestToken.get();
         OidcTokenValidatorResult requestTokenValidatorResult = oidcTokenValidator.validate(requestToken, oidcProvider);
         Optional<String> optionalRefreshToken = oidcProvider.getRefreshToken(request);
-        if (optionalRefreshToken.isPresent() && needToRefreshToken(requestTokenValidatorResult)) {
+        boolean needToRefreshToken = needToRefreshToken(requestTokenValidatorResult);
+        if (needToRefreshToken && !optionalRefreshToken.isPresent()) {
+            log.warn("Refresh-token needed, but not present.");
+        }
+        if (optionalRefreshToken.isPresent() && needToRefreshToken) {
             String refreshToken = optionalRefreshToken.get();
             Optional<String> optionalRefreshedToken = fetchUpdatedToken(refreshToken, requestToken, oidcProvider);
             if (optionalRefreshedToken.isPresent()) {
