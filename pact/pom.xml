@@ -30,6 +30,11 @@
             <groupId>au.com.dius</groupId>
             <artifactId>pact-jvm-provider-junit_2.12</artifactId>
         </dependency>
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-consumer_2.12</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
             <groupId>no.nav.sbl.dialogarena</groupId>
@@ -65,6 +70,10 @@
             <artifactId>fasit</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -72,7 +81,7 @@
         </dependency>
 
         <dependency>
-            <groupId> org.apache.httpcomponents</groupId>
+            <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
         </dependency>
 
