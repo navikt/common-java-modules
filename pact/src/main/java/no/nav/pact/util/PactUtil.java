@@ -17,10 +17,15 @@ public class PactUtil {
     static {
         register(String.class, PactUtil::addString);
         register(boolean.class, PactUtil::addBoolean);
+        register(int.class, PactUtil::addInt);
     }
 
     private static void addBoolean(Field field, boolean aBoolean, PactDslJsonBody lambdaDslJsonBody) {
         lambdaDslJsonBody.booleanType(field.getName(), aBoolean);
+    }
+
+    private static void addInt(Field field, int anInt, PactDslJsonBody lambdaDslJsonBody) {
+        lambdaDslJsonBody.integerType(field.getName(), anInt);
     }
 
     private static void addString(Field field, String value, PactDslJsonBody lambdaDslJsonBody) {

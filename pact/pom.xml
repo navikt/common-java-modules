@@ -85,6 +85,14 @@
             <artifactId>httpcore</artifactId>
         </dependency>
 
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>no.nav.sbl</groupId>
+            <artifactId>json</artifactId>
+            <type>test-jar</type>
+        </dependency>
+
     </dependencies>
 
 </project>
