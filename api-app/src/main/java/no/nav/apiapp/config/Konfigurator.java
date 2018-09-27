@@ -37,7 +37,8 @@ public class Konfigurator implements ApiAppConfigurator {
     private final List<LoginProvider> loginProviders = new ArrayList<>();
     private final List<Consumer<Jetty>> jettyCustomizers = new ArrayList<>();
     private final List<Consumer<JettyBuilder>> jettyBuilderCustomizers = new ArrayList<>();
-    private List<Object> springBonner = new ArrayList<>();
+    private final List<String> publicPaths = new ArrayList<>(ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS);
+    private final List<Object> springBonner = new ArrayList<>();
     private boolean issoLogin;
 
     public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
@@ -107,6 +108,12 @@ public class Konfigurator implements ApiAppConfigurator {
     }
 
     @Override
+    public ApiAppConfigurator addPublicPath(String path) {
+        publicPaths.add(path);
+        return this;
+    }
+
+    @Override
     public ApiAppConfigurator customizeJetty(Consumer<Jetty> jettyCustomizer) {
         jettyCustomizers.add(jettyCustomizer);
         return this;
@@ -129,7 +136,7 @@ public class Konfigurator implements ApiAppConfigurator {
             loginProviders.add(new OidcAuthModule(oidcProviders));
         }
         if (!loginProviders.isEmpty()) {
-            jettyBuilder.addFilter(new LoginFilter(loginProviders, ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS));
+            jettyBuilder.addFilter(new LoginFilter(loginProviders, publicPaths));
         }
         jettyBuilderCustomizers.forEach(c -> c.accept(jettyBuilder));
         Jetty jetty = jettyBuilder.buildJetty();
