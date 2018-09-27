@@ -1,5 +1,6 @@
 package no.nav.brukerdialog.security.oidc;
 
+import no.nav.brukerdialog.security.SecurityLevel;
 import org.junit.Test;
 
 import java.util.Base64;
@@ -54,9 +55,10 @@ public class OidcTokenUtilsTest {
     public void skalSikkerhetsnivaFraToken() {
         String encodedToken = getEncodedToken(testTokenWithSecurityLevel);
 
-        Integer secLevel = OidcTokenUtils.getOidcSecurityLevel(encodedToken);
+        SecurityLevel secLevel = OidcTokenUtils.getOidcSecurityLevel(encodedToken);
 
-        assertThat(secLevel).isEqualTo(4);
+        assertThat(secLevel.getSecurityLevel()).isEqualTo(4);
+        assertThat(secLevel.getSecurityLevel()).isNotEqualTo(2);
     }
 
     @Test
