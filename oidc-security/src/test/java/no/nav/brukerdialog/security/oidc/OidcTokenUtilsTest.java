@@ -1,7 +1,6 @@
 package no.nav.brukerdialog.security.oidc;
 
-import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.common.auth.Subject;
+import no.nav.brukerdialog.security.SecurityLevel;
 import org.junit.Test;
 
 import java.util.Base64;
@@ -14,6 +13,7 @@ public class OidcTokenUtilsTest {
     private String testTokenMultipleAudBody = "{\"aud\":\"[testaud1,testaud2]\", \"azp\":\"testazp\"}";
     private String testTokenSingleAudBody = "{\"aud\":\"testaud\", \"azp\":\"testazp\"}";
     private String testTokenNoAzpBody = "{\"aud\":\"testaud\"}";
+    private String testTokenWithSecurityLevel = "{\"acr\":\"Level4\"}";
 
     @Test
     public void skalBrukeAudSomOpenamClient() {
@@ -49,6 +49,16 @@ public class OidcTokenUtilsTest {
         String aud = OidcTokenUtils.getTokenAud(encodedToken);
 
         assertThat(aud).isEqualTo("testaud");
+    }
+
+    @Test
+    public void skalSikkerhetsnivaFraToken() {
+        String encodedToken = getEncodedToken(testTokenWithSecurityLevel);
+
+        SecurityLevel secLevel = OidcTokenUtils.getOidcSecurityLevel(encodedToken);
+
+        assertThat(secLevel.getSecurityLevel()).isEqualTo(4);
+        assertThat(secLevel.getSecurityLevel()).isNotEqualTo(2);
     }
 
     @Test
