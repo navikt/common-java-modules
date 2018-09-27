@@ -32,10 +32,6 @@
         <jetty.version>9.4.12.v20180830</jetty.version>
         <jetty.orbit.javax.security.auth.message.version>1.0.0.v201108011116</jetty.orbit.javax.security.auth.message.version>
 
-        <!-- SOAP -->
-        <neethi.version>3.0.3</neethi.version>
-
-
         <!--
         NB:
         3.1.x versjoner av cxf medførte ssl handshake_failure / SSLHandshakeException
@@ -94,13 +90,6 @@
           -->
         <aspectj.version>1.8.8</aspectj.version>
 
-
-        <!--
-           obs:
-           dependencyManagement i modig-security setter denne. (n� til 2.1.5)
-           apache cxf trenger imidlertid h�yere versjon
-        -->
-        <wss4j.version>2.2.2</wss4j.version>
 
         <!-- Test -->
         <assertj.version>3.9.1</assertj.version>
@@ -951,21 +940,6 @@
                 <version>${cxf-core.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.wss4j</groupId>
-                <artifactId>wss4j-ws-security-common</artifactId>
-                <version>${wss4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wss4j</groupId>
-                <artifactId>wss4j-ws-security-dom</artifactId>
-                <version>${wss4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wss4j</groupId>
-                <artifactId>wss4j-policy</artifactId>
-                <version>${wss4j.version}</version>
-            </dependency>
-            <dependency>
                 <!-- NB:
                 transitive dependency through wss4j and opensaml, manually upgraded to prevent vulnerabilities in 1.54
                 https://snyk.io/vuln/maven:org.bouncycastle%3Abcprov-jdk15on
@@ -997,11 +971,6 @@
                 <artifactId>xml-apis</artifactId>
                 <version>${xml-apis.version}</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.neethi</groupId>
-                <artifactId>neethi</artifactId>
-                <version>${neethi.version}</version>
             </dependency>
 
             <!-- JMS -->
