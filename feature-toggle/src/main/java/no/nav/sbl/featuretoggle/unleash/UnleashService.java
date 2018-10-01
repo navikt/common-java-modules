@@ -54,7 +54,7 @@ public class UnleashService implements Pingable {
                 new ToggleBackupHandlerFile(unleashConfig)
         );
         this.helsesjekkMetadata = new Ping.PingMetadata("unleash", unleashAPI, "sjekker at feature-toggles kan hentes fra unleash server", false);
-        this.defaultUnleash = new DefaultUnleash(unleashConfig, featureToggleRepository, unleashScheduledExecutor, addDefaultStrategies(strategies));
+        this.defaultUnleash = new DefaultUnleash(unleashConfig, featureToggleRepository, addDefaultStrategies(strategies));
     }
 
     private Strategy[] addDefaultStrategies(List<Strategy> strategies) {
