@@ -1,6 +1,7 @@
 package no.nav.common.auth;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.log.LogFilter;
 import no.nav.sbl.util.StringUtils;
 
 import javax.servlet.*;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 
 @Slf4j
 public class LoginFilter implements Filter {
@@ -65,12 +67,16 @@ public class LoginFilter implements Filter {
 
     private void unAuthenticated(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
         Optional<String> optionalRedirectUrl = loginProviders.stream().flatMap(p -> p.redirectUrl(httpServletRequest, httpServletResponse).map(Stream::of).orElseGet(Stream::empty)).findFirst();
-        if (acceptsHtml(httpServletRequest) && optionalRedirectUrl.isPresent()) {
+        if (acceptsHtml(httpServletRequest) && !appToAppRequest(httpServletRequest) && optionalRedirectUrl.isPresent()) {
             httpServletResponse.sendRedirect(optionalRedirectUrl.get());
         } else {
             httpServletResponse.setStatus(SC_UNAUTHORIZED);
             httpServletResponse.setHeader("WWW-Authenticate", "Bearer");
         }
+    }
+
+    private boolean appToAppRequest(HttpServletRequest httpServletRequest) {
+        return StringUtils.notNullOrEmpty(httpServletRequest.getHeader(CONSUMER_ID_HEADER_NAME));
     }
 
     static boolean acceptsHtml(HttpServletRequest httpServletRequest) {
