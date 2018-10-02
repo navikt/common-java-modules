@@ -19,26 +19,21 @@ public class RestUtils {
     public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
     public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
-    public static final ClientLogFilter.ClientLogFilterConfig DEFUALT_CLIENT_FILTER_CONFIG = ClientLogFilter.ClientLogFilterConfig.builder().build();
     public static final RestConfig LONG_READ_CONFIG = DEFAULT_CONFIG.withReadTimeout(DEFAULT_CONFIG.readTimeout * 4);
 
     @SuppressWarnings("unused")
     public static ClientConfig createClientConfig() {
-        return createClientConfig(DEFAULT_CONFIG, DEFUALT_CLIENT_FILTER_CONFIG, getMetricName());
+        return createClientConfig(DEFAULT_CONFIG, getMetricName());
     }
 
     public static ClientConfig createClientConfig(RestConfig restConfig) {
-        return createClientConfig(restConfig, DEFUALT_CLIENT_FILTER_CONFIG, getMetricName());
+        return createClientConfig(restConfig, getMetricName());
     }
 
-    public static ClientConfig createClientConfig(RestConfig restConfig, ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig) {
-        return createClientConfig(restConfig, clientLogFilterConfig, getMetricName());
-    }
-
-    private static ClientConfig createClientConfig(RestConfig restConfig, ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig, String metricName) {
+    private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
-        clientConfig.register(new ClientLogFilter(metricName, clientLogFilterConfig));
+        clientConfig.register(new ClientLogFilter(metricName, restConfig.disableParameterLogging, !restConfig.disableMetrics));
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
@@ -47,46 +42,30 @@ public class RestUtils {
     }
 
     public static Client createClient() {
-        return createClient(DEFAULT_CONFIG, DEFUALT_CLIENT_FILTER_CONFIG, getMetricName());
-    }
-
-    public static Client createClient(RestConfig restConfig, ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig) {
-        return createClient(restConfig, clientLogFilterConfig, getMetricName());
-    }
-
-    public static Client createClient(ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig) {
-        return createClient(DEFAULT_CONFIG, clientLogFilterConfig, getMetricName());
+        return createClient(DEFAULT_CONFIG, getMetricName());
     }
 
     public static Client createClient(RestConfig restConfig) {
-        return createClient(restConfig, DEFUALT_CLIENT_FILTER_CONFIG, getMetricName());
+        return createClient(restConfig, getMetricName());
     }
 
-    private static Client createClient(RestConfig restConfig, ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig, String metricName) {
+    private static Client createClient(RestConfig restConfig, String metricName) {
         return new JerseyClientBuilder()
                 .sslContext(riktigSSLContext())
-                .withConfig(createClientConfig(restConfig, clientLogFilterConfig, metricName))
+                .withConfig(createClientConfig(restConfig, metricName))
                 .build();
     }
 
     public static <T> T withClient(Function<Client, T> function) {
-        return withClient(DEFAULT_CONFIG, DEFUALT_CLIENT_FILTER_CONFIG, function, getMetricName());
-    }
-
-    public static <T> T withClient(RestConfig restConfig, ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig, Function<Client, T> function) {
-        return withClient(restConfig, clientLogFilterConfig, function, getMetricName());
+        return withClient(DEFAULT_CONFIG, function, getMetricName());
     }
 
     public static <T> T withClient(RestConfig restConfig, Function<Client, T> function) {
-        return withClient(restConfig, DEFUALT_CLIENT_FILTER_CONFIG, function, getMetricName());
+        return withClient(restConfig, function, getMetricName());
     }
 
-    public static <T> T withClient(ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig, Function<Client, T> function) {
-        return withClient(DEFAULT_CONFIG, clientLogFilterConfig, function, getMetricName());
-    }
-
-    private static <T> T withClient(RestConfig restConfig, ClientLogFilter.ClientLogFilterConfig clientLogFilterConfig, Function<Client, T> function, String metricName) {
-        Client client = createClient(restConfig, clientLogFilterConfig, metricName);
+    private static <T> T withClient(RestConfig restConfig, Function<Client, T> function, String metricName) {
+        Client client = createClient(restConfig, metricName);
         try {
             return function.apply(client);
         } finally {
@@ -108,6 +87,9 @@ public class RestUtils {
         public int connectTimeout = 5000;
         @Builder.Default
         public int readTimeout = 15000;
+
+        public boolean disableMetrics;
+        public boolean disableParameterLogging;
 
     }
 
