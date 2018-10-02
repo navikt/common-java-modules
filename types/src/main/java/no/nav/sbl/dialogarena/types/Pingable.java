@@ -22,7 +22,6 @@ public interface Pingable {
         private String feilmelding;
         private Throwable feil;
         private boolean erAvskrudd;
-        private long responstid = -1;
 
         public PingMetadata getMetadata() {
             return metadata;
@@ -41,9 +40,6 @@ public interface Pingable {
             return feil;
         }
 
-        public long getResponstid() {
-            return responstid;
-        }
 
         public boolean harFeil() {
             return feil != null || feilmelding != null;
@@ -60,16 +56,6 @@ public interface Pingable {
 
         public boolean erAvskrudd() {
             return this.erAvskrudd;
-        }
-
-        public Ping setResponstid(Long responstid) {
-            this.responstid = responstid;
-            return this;
-        }
-
-        Ping setResponstid(long responstid) {
-            this.responstid = responstid;
-            return this;
         }
 
         Ping setFeil(Throwable feil) {
