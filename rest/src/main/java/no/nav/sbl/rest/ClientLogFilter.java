@@ -1,5 +1,8 @@
 package no.nav.sbl.rest;
 
+import lombok.Builder;
+import lombok.Value;
+import lombok.experimental.Wither;
 import no.nav.log.LogFilter;
 import no.nav.log.MDCConstants;
 import no.nav.metrics.MetricsFactory;
@@ -29,14 +32,20 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
     private static final String NAME = ClientLogFilter.class.getName();
     private static final String CSRF_TOKEN = "csrf-token";
 
-    private final String metricName;
-    private final boolean disableParameterLogging;
-    private final boolean useMetrics;
+    private final ClientLogFilterConfig filterConfig;
 
-    ClientLogFilter(String metricName, boolean disableParameterLogging, boolean useMetrics) {
-        this.metricName = metricName;
-        this.disableParameterLogging = disableParameterLogging;
-        this.useMetrics = useMetrics;
+    @Value
+    @Wither
+    @Builder
+    public static class ClientLogFilterConfig {
+        public final String metricName;
+        public final boolean disableMetrics;
+        public final boolean disableParameterLogging;
+    }
+
+
+    public ClientLogFilter(final ClientLogFilterConfig filterConfig) {
+        this.filterConfig = filterConfig;
     }
 
     @Override
@@ -64,8 +73,8 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
         ));
 
 
-        if (useMetrics) {
-            Timer timer = MetricsFactory.createTimer(this.metricName);
+        if (!filterConfig.disableMetrics) {
+            Timer timer = MetricsFactory.createTimer(filterConfig.metricName);
             timer.start();
             clientRequestContext.setProperty(NAME, timer);
         }
@@ -84,7 +93,7 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
 
     @Override
     public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
-        if (useMetrics) {
+        if (!filterConfig.disableMetrics) {
             Timer timer = (Timer) clientRequestContext.getProperty(NAME);
             timer
                     .stop()
@@ -97,7 +106,7 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
 
     private URI uriForLogging(ClientRequestContext clientRequestContext) {
         URI uri = clientRequestContext.getUri();
-        return disableParameterLogging ? UriBuilder.fromUri(uri).replaceQuery("").build() : uri;
+        return filterConfig.disableParameterLogging ? UriBuilder.fromUri(uri).replaceQuery("").build() : uri;
     }
 
 }

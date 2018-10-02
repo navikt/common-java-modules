@@ -33,7 +33,11 @@ public class RestUtils {
     private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
-        clientConfig.register(new ClientLogFilter(metricName, restConfig.disableParameterLogging, !restConfig.disableMetrics));
+        clientConfig.register(new ClientLogFilter(ClientLogFilter.ClientLogFilterConfig.builder()
+                .disableMetrics(restConfig.disableMetrics)
+                .disableParameterLogging(restConfig.disableParameterLogging)
+                .metricName(metricName)
+                .build()));
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
