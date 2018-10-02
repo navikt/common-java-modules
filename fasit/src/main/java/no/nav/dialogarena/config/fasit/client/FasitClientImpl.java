@@ -340,7 +340,7 @@ public class FasitClientImpl implements FasitClient {
     }
 
     private static <T> T invokeHttpClient(With<Client, T> httpClientConsumer) {
-        return RestUtils.withClient(RestUtils.DEFAULT_CONFIG.withDisableMetrics(true),(httpClient) -> {
+        return RestUtils.withClient(RestUtils.DEFUALT_CLIENT_FILTER_CONFIG.withDisableMetrics(true),(httpClient) -> {
             httpClient.register(HttpAuthenticationFeature.basic(getFasitUser(), getFasitPassword()));
             return httpClientConsumer.withSafe(httpClient);
         });

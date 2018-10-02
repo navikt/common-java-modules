@@ -22,6 +22,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toMap;
 import static no.nav.sbl.rest.RestUtils.DEFAULT_CONFIG;
+import static no.nav.sbl.rest.RestUtils.DEFUALT_CLIENT_FILTER_CONFIG;
 import static no.nav.sbl.util.StringUtils.of;
 
 public class OpenAMUserInfoService {
@@ -36,7 +37,7 @@ public class OpenAMUserInfoService {
     public static final String BASE_PATH = "/identity/json/attributes";
 
     private final URI endpointURL;
-    private final Client client = RestUtils.createClient(DEFAULT_CONFIG.withDisableParameterLogging(true));
+    private final Client client = RestUtils.createClient(DEFUALT_CLIENT_FILTER_CONFIG.withDisableParameterLogging(true));
 
 
     public OpenAMUserInfoService(OpenAmConfig openAmConfig) {
