@@ -28,7 +28,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilter {
 
-    private static final Logger LOG = getLogger(RestUtils.class);
+    private static final Logger LOG = getLogger(ClientLogFilter.class);
     private static final String NAME = ClientLogFilter.class.getName();
     private static final String CSRF_TOKEN = "csrf-token";
 
