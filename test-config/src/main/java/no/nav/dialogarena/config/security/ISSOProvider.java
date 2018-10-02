@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.SneakyThrows;
 import lombok.ToString;
 import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider;
+import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProviderConfig;
 import no.nav.dialogarena.config.DevelopmentSecurity;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
@@ -181,10 +182,10 @@ public class ISSOProvider {
         private String retrieveToken() {
             String issoHostUrl = issoUrl("/oauth2");
             LOGGER.info("retrieving token from: {}", issoHostUrl);
-            IdTokenAndRefreshTokenProvider.Parameters parameters = IdTokenAndRefreshTokenProvider.Parameters.builder()
-                    .host(issoHostUrl)
-                    .username(issoServiceUser.username)
-                    .password(issoServiceUser.password)
+            IdTokenAndRefreshTokenProviderConfig parameters = IdTokenAndRefreshTokenProviderConfig.builder()
+                    .issoHostUrl(issoHostUrl)
+                    .issoRpUserUsername(issoServiceUser.username)
+                    .issoRpUserPassword(issoServiceUser.password)
                     .build();
 
             return new IdTokenAndRefreshTokenProvider(parameters)

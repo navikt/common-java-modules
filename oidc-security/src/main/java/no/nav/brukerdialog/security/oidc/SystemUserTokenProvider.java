@@ -5,33 +5,54 @@ import no.nav.brukerdialog.security.domain.IdToken;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
+import no.nav.brukerdialog.security.oidc.provider.IssoOidcProviderConfig;
 import no.nav.sbl.rest.RestUtils;
 
 import javax.ws.rs.client.Client;
 import java.time.Instant;
 
-import static no.nav.brukerdialog.security.Constants.*;
-
-import static no.nav.brukerdialog.tools.SecurityConstants.SYSTEMUSER_PASSWORD;
-import static no.nav.brukerdialog.tools.SecurityConstants.SYSTEMUSER_USERNAME;
-import static no.nav.brukerdialog.tools.Utils.getSystemProperty;
+import static no.nav.brukerdialog.security.Constants.REFRESH_TIME;
 
 public class SystemUserTokenProvider {
-    public final String openAmHost = getIssoHostUrl();
-    private final String openamClientUsername = getIssoRpUserUsername();
-    private final String oidcRedirectUrl = getOidcRedirectUrl();
-    private final String srvUsername = getSystemProperty(SYSTEMUSER_USERNAME);
-    private final String srvPassword = getSystemProperty(SYSTEMUSER_PASSWORD);
-    private final String authenticateUri = "json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice";
 
-    private final IdTokenAndRefreshTokenProvider idTokenAndRefreshTokenProvider = new IdTokenAndRefreshTokenProvider();
+    private static final String authenticateUri = "json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice";
+
+    private final SystemUserTokenProviderConfig config;
+
+    private final String srvUsername;
+    private final String srvPassword;
+    private final String openAmHost;
+    private final String openamClientUsername;
+    private final String oidcRedirectUrl;
+
     private final Client client = RestUtils.createClient();
-    private final OidcTokenValidator validator = new OidcTokenValidator();
-    private final IssoOidcProvider oidcProvider = new IssoOidcProvider();
+
+    private final IdTokenAndRefreshTokenProvider idTokenAndRefreshTokenProvider;
+    private final OidcTokenValidator validator;
+    private final IssoOidcProvider oidcProvider;
 
     private IdToken idToken;
 
     public SystemUserTokenProvider() {
+        this(SystemUserTokenProviderConfig.resolveFromSystemProperties());
+    }
+
+    public SystemUserTokenProvider(SystemUserTokenProviderConfig systemUserTokenProviderConfig) {
+        this.config = systemUserTokenProviderConfig;
+
+        this.srvUsername = systemUserTokenProviderConfig.srvUsername;
+        this.srvPassword = systemUserTokenProviderConfig.srvPassword;
+        this.openAmHost = systemUserTokenProviderConfig.issoHostUrl;
+        this.openamClientUsername = systemUserTokenProviderConfig.issoRpUserUsername;
+        this.oidcRedirectUrl = systemUserTokenProviderConfig.oidcRedirectUrl;
+
+        this.idTokenAndRefreshTokenProvider = new IdTokenAndRefreshTokenProvider(IdTokenAndRefreshTokenProviderConfig.from(systemUserTokenProviderConfig));
+        this.validator = new OidcTokenValidator();
+        this.oidcProvider = new IssoOidcProvider(IssoOidcProviderConfig.from(systemUserTokenProviderConfig));
+    }
+
+    public SystemUserTokenProviderConfig getConfig() {
+        return config;
     }
 
     public String getToken() {
