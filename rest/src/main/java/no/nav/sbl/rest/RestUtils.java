@@ -5,36 +5,18 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.experimental.Wither;
 import no.nav.json.JsonProvider;
-import no.nav.log.LogFilter;
-import no.nav.log.MDCConstants;
-import no.nav.metrics.MetricsFactory;
-import no.nav.metrics.Timer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.MDC;
 
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.*;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
-import java.net.URI;
+import javax.ws.rs.client.Client;
 import java.util.function.Function;
 
-import static java.util.stream.Collectors.joining;
-import static javax.ws.rs.core.HttpHeaders.COOKIE;
-import static no.nav.sbl.util.ListUtils.mutableList;
-import static no.nav.sbl.util.StringUtils.of;
 import static org.glassfish.jersey.client.ClientProperties.*;
-import static org.slf4j.LoggerFactory.getLogger;
 
 public class RestUtils {
 
     public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
-
-    private static final Logger LOG = getLogger(RestUtils.class);
 
     public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
     public static final RestConfig LONG_READ_CONFIG = DEFAULT_CONFIG.withReadTimeout(DEFAULT_CONFIG.readTimeout * 4);
@@ -51,7 +33,11 @@ public class RestUtils {
     private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
-        clientConfig.register(new Filter(metricName, restConfig));
+        clientConfig.register(new ClientLogFilter(ClientLogFilter.ClientLogFilterConfig.builder()
+                .disableMetrics(restConfig.disableMetrics)
+                .disableParameterLogging(restConfig.disableParameterLogging)
+                .metricName(metricName)
+                .build()));
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
@@ -116,81 +102,4 @@ public class RestUtils {
         return String.format("rest.client.%s.%s", element.getClassName(), element.getMethodName());
     }
 
-    private static class Filter implements ClientResponseFilter, ClientRequestFilter {
-
-        private static final String NAME = Filter.class.getName();
-        private static final String CSRF_TOKEN = "csrf-token";
-
-        private final String metricName;
-        private final RestConfig restConfig;
-        private final boolean useMetrics;
-
-        private Filter(String metricName, RestConfig restConfig) {
-            this.metricName = metricName;
-            this.restConfig = restConfig;
-            this.useMetrics = !restConfig.disableMetrics;
-        }
-
-        @Override
-        public void filter(ClientRequestContext clientRequestContext) throws IOException {
-            LOG.info("{} {}", clientRequestContext.getMethod(), uriForLogging(clientRequestContext));
-
-            MultivaluedMap<String, Object> requestHeaders = clientRequestContext.getHeaders();
-
-            of(MDC.get(MDCConstants.MDC_CORRELATION_ID))
-                    .ifPresent(correlationId -> requestHeaders.add(LogFilter.CORRELATION_ID_HEADER_NAME, correlationId));
-
-            requestHeaders.add(CSRF_COOKIE_NAVN, CSRF_TOKEN);
-            requestHeaders.add(COOKIE, new Cookie(CSRF_COOKIE_NAVN, CSRF_TOKEN));
-
-
-            // jersey-client generates cookies in org.glassfish.jersey.message.internal.CookieProvider according to the
-            // deprecated rfc2109 specification, which prefixes the cookie with its version. This may not be supported by modern servers.
-            // Therefore we serialize cookies on the more modern and simpler rfc6265-format
-            // https://www.ietf.org/rfc/rfc2109.txt
-            // https://tools.ietf.org/html/rfc6265
-            requestHeaders.replace(COOKIE, mutableList(requestHeaders.get(COOKIE)
-                    .stream()
-                    .map(this::toCookieString)
-                    .collect(joining("; "))
-            ));
-
-
-            if (useMetrics) {
-                Timer timer = MetricsFactory.createTimer(this.metricName);
-                timer.start();
-                clientRequestContext.setProperty(NAME, timer);
-            }
-        }
-
-        private String toCookieString(Object cookie) {
-            if (cookie instanceof String) {
-                return (String) cookie;
-            } else if (cookie instanceof Cookie) {
-                Cookie c = (Cookie) cookie;
-                return c.getName() + "=" + c.getValue();
-            } else {
-                throw new IllegalArgumentException();
-            }
-        }
-
-        @Override
-        public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
-            if (useMetrics) {
-                Timer timer = (Timer) clientRequestContext.getProperty(NAME);
-                timer
-                        .stop()
-                        .addFieldToReport("httpStatus", clientResponseContext.getStatus())
-                        .addFieldToReport("host", clientRequestContext.getUri().getHost())
-                        .addFieldToReport("path", clientRequestContext.getUri().getPath())
-                        .report();
-            }
-        }
-
-        private URI uriForLogging(ClientRequestContext clientRequestContext) {
-            URI uri = clientRequestContext.getUri();
-            return restConfig.disableParameterLogging ? UriBuilder.fromUri(uri).replaceQuery("").build() : uri;
-        }
-
-    }
 }
