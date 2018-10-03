@@ -67,8 +67,6 @@ public class SelfTestServletTest {
 
         assertThat(baseServlet).isNotNull();
         assertThat(baseServlet.getHost()).isNotBlank();
-        assertThat(baseServlet.getAggregertStatus()).isEqualTo(STATUS_ERROR);
-        assertThat(baseServlet.getPingables().size()).isEqualTo(3);
     }
 
 
@@ -99,17 +97,11 @@ public class SelfTestServletTest {
     }
 
     private SelfTestBaseServlet createBaseServlet() {
-        return new SelfTestBaseServlet() {
-
-            @Override
-            protected Collection<TestPingable> getPingables() {
-                return asList(
-                        pingA,
-                        pingB,
-                        pingC
-                );
-            }
-        };
+        return new SelfTestBaseServlet( asList(
+                pingA,
+                pingB,
+                pingC
+        )) {};
     }
 
     static class TestPingable implements Pingable {

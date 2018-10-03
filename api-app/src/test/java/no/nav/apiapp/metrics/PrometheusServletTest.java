@@ -1,5 +1,9 @@
 package no.nav.apiapp.metrics;
 
+import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
+import no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus;
+import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
+import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -23,20 +27,18 @@ import static org.mockito.Mockito.when;
 
 public class PrometheusServletTest {
 
-    private final PrometheusServlet prometheusServlet = new PrometheusServlet();
-    private Map<String, Pingable> pingables = new HashMap<>();
-
-    @Before
-    public void setup() {
-        ApplicationContext applicationContext = prometheusServlet.applicationContext = mock(ApplicationContext.class);
-        when(applicationContext.getBeansOfType(Pingable.class)).thenReturn(pingables);
-    }
+    private final SelfTestService selfTestService = mock(SelfTestService.class);
+    private final PrometheusServlet prometheusServlet = new PrometheusServlet(selfTestService);
 
     @Test
     public void smoketest() throws IOException {
-        pingables.put("a", pingableOk("a"));
-        pingables.put("b", pingableKritiskFeil("b"));
-        pingables.put("c", pingableIkkeKritiskFeil("c"));
+        when(selfTestService.selfTest()).thenReturn(Selftest.builder()
+                .checks(asList(
+                        pingableOk("a"),
+                        pingableKritiskFeil("b"),
+                        pingableIkkeKritiskFeil("c")
+                        ))
+                .build());
 
         StringWriter writer = new StringWriter();
 
@@ -62,16 +64,23 @@ public class PrometheusServletTest {
         assertThat(aggregertStatus(asList(okPing(), ikkeKritiskFeil(), okPing()))).isEqualTo(WARNING);
     }
 
-    private Pingable.Ping kritiskFeil() {
-        return Pingable.Ping.feilet(metadata(true), new RuntimeException());
+    private SelftestResult kritiskFeil() {
+        return SelftestResult.builder()
+                .critical(true)
+                .result(SelfTestStatus.ERROR)
+                .build();
     }
 
-    private Pingable.Ping ikkeKritiskFeil() {
-        return Pingable.Ping.feilet(metadata(false), new RuntimeException());
+    private SelftestResult ikkeKritiskFeil() {
+        return SelftestResult.builder()
+                .result(SelfTestStatus.ERROR)
+                .build();
     }
 
-    private Pingable.Ping okPing() {
-        return Pingable.Ping.lyktes(metadata(true));
+    private SelftestResult okPing() {
+        return SelftestResult.builder()
+                .result(SelfTestStatus.OK)
+                .build();
     }
 
     private Pingable.Ping.PingMetadata metadata(boolean kritisk) {
@@ -82,19 +91,26 @@ public class PrometheusServletTest {
         return new Pingable.Ping.PingMetadata(id, id, id, kritisk);
     }
 
-    private Pingable pingableOk(String id) {
-        Pingable.Ping.PingMetadata metadata = metadata(true, id);
-        return () -> Pingable.Ping.lyktes(metadata);
+    private SelftestResult pingableOk(String id) {
+        return SelftestResult.builder()
+                .id(id)
+                .result(SelfTestStatus.OK)
+                .build();
     }
 
-    private Pingable pingableKritiskFeil(String id) {
-        Pingable.Ping.PingMetadata metadata = metadata(true, id);
-        return () -> Pingable.Ping.feilet(metadata, new RuntimeException());
+    private SelftestResult pingableKritiskFeil(String id) {
+        return SelftestResult.builder()
+                .id(id)
+                .result(SelfTestStatus.ERROR)
+                .critical(true)
+                .build();
     }
 
-    private Pingable pingableIkkeKritiskFeil(String id) {
-        Pingable.Ping.PingMetadata metadata = metadata(false, id);
-        return () -> Pingable.Ping.feilet(metadata, new RuntimeException());
+    private SelftestResult pingableIkkeKritiskFeil(String id) {
+        return SelftestResult.builder()
+                .id(id)
+                .result(SelfTestStatus.ERROR)
+                .build();
     }
 
 }

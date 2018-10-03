@@ -1,7 +1,8 @@
 package no.nav.sbl.dialogarena.common.web.selftest.generators;
 
+import no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
-import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestEndpoint;
+import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -11,21 +12,20 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet.*;
+import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus.OK;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class SelftestHtmlGenerator {
     public static String generate(Selftest selftest, String host) throws IOException {
-        Selftest selftestNullSafe = ofNullable(selftest).orElseGet(Selftest::new);
-        List<SelftestEndpoint> checks = selftestNullSafe.getChecks();
+        Selftest selftestNullSafe = ofNullable(selftest).orElseGet(() -> Selftest.builder().build());
+        List<SelftestResult> checks = selftestNullSafe.getChecks();
         List<String> feilendeKomponenter = checks.stream()
-                .filter(SelftestEndpoint::harFeil)
-                .map(SelftestEndpoint::getEndpoint)
+                .filter(SelftestResult::harFeil)
+                .map(SelftestResult::getEndpoint)
                 .collect(Collectors.toList());
 
         List<String> tabellrader = checks.stream()
@@ -45,15 +45,15 @@ public class SelftestHtmlGenerator {
         return html;
     }
 
-    private static String getStatusNavnElement(Integer statuskode, String nodeType) {
-        switch(statuskode) {
-            case STATUS_ERROR:
+    private static String getStatusNavnElement(SelfTestStatus selfTestStatus, String nodeType) {
+        switch (selfTestStatus == null ? SelfTestStatus.ERROR : selfTestStatus) {
+            case ERROR:
                 return getHtmlNode(nodeType, "roundSmallBox error", "ERROR");
-            case STATUS_WARNING:
+            case WARNING:
                 return getHtmlNode(nodeType, "roundSmallBox warning", "WARNING");
-            case STATUS_AVSKRUDD:
+            case DISABLED:
                 return getHtmlNode(nodeType, "roundSmallBox avskrudd", "OFF");
-            case STATUS_OK:
+            case OK:
             default:
                 return getHtmlNode(nodeType, "roundSmallBox ok", "OK");
         }
@@ -63,7 +63,7 @@ public class SelftestHtmlGenerator {
         return MessageFormat.format("<{0} class=\"{1}\">{2}</{0}>", nodeType, classes, content);
     }
 
-    private static String lagTabellrad(SelftestEndpoint endpoint) {
+    private static String lagTabellrad(SelftestResult endpoint) {
         String status = getStatusNavnElement(endpoint.getResult(), "div");
         String kritisk = endpoint.isCritical() ? "Ja" : "Nei";
 
@@ -77,8 +77,8 @@ public class SelftestHtmlGenerator {
         );
     }
 
-    private static String getFeilmelding(SelftestEndpoint endpoint) {
-        if (endpoint.getResult() == STATUS_OK) {
+    private static String getFeilmelding(SelftestResult endpoint) {
+        if (endpoint.getResult() == OK) {
             return "";
         }
 

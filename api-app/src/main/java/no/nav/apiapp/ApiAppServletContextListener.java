@@ -3,8 +3,6 @@ package no.nav.apiapp;
 
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.feil.FeilMapper;
-import no.nav.log.LogFilter;
-import no.nav.log.LoginfoServlet;
 import no.nav.apiapp.metrics.PrometheusFilter;
 import no.nav.apiapp.metrics.PrometheusServlet;
 import no.nav.apiapp.rest.NavCorsFilter;
@@ -12,6 +10,7 @@ import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.rest.SwaggerResource;
 import no.nav.apiapp.rest.SwaggerUIServlet;
 import no.nav.apiapp.selftest.IsAliveServlet;
+import no.nav.apiapp.selftest.IsReadyServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
 import no.nav.apiapp.selftest.impl.LedigDiskPlassHelsesjekk;
 import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
@@ -31,10 +30,14 @@ import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.log.ContextDiscriminator;
+import no.nav.log.LogFilter;
+import no.nav.log.LoginfoServlet;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.web.security.DisableCacheHeadersFilter;
+import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
+import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.LogUtils;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -48,6 +51,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -69,8 +73,9 @@ import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.StringUtils.of;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static no.nav.brukerdialog.security.Constants.hasRedirectUrl;
-import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
+import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.springframework.util.StringUtils.isEmpty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
@@ -95,6 +100,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private static final String SPRING_CONTEXT_KLASSENAVN = AnnotationConfigWebApplicationContext.class.getName();
 
     public static final String INTERNAL_IS_ALIVE = "/internal/isAlive";
+    public static final String INTERNAL_IS_READY = "/internal/isReady";
     public static final String INTERNAL_SELFTEST = "/internal/selftest";
     public static final String INTERNAL_METRICS = "/internal/metrics";
     public static final String SWAGGER_PATH = "/internal/swagger/";
@@ -217,9 +223,13 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
         characterEncodingRegistration.setInitParameter("forceEncoding", "true");
 
+        WebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
+        SelfTestService selfTestService = new SelfTestService(webApplicationContext.getBeansOfType(Pingable.class).values());
+
         leggTilServlet(servletContextEvent, IsAliveServlet.class, INTERNAL_IS_ALIVE);
-        leggTilServlet(servletContextEvent, SelfTestServlet.class, INTERNAL_SELFTEST);
-        leggTilServlet(servletContextEvent, PrometheusServlet.class, INTERNAL_METRICS);
+        leggTilServlet(servletContextEvent, new IsReadyServlet(selfTestService), INTERNAL_IS_READY);
+        leggTilServlet(servletContextEvent, new SelfTestServlet(selfTestService), INTERNAL_SELFTEST);
+        leggTilServlet(servletContextEvent, new PrometheusServlet(selfTestService), INTERNAL_METRICS);
         leggTilServlet(servletContextEvent, new SwaggerUIServlet(apiApplication), SWAGGER_PATH + "*");
         leggTilServlet(servletContextEvent, LoginfoServlet.class, LOGINFO_PATH);
 
