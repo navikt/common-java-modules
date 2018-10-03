@@ -14,7 +14,7 @@ import java.net.URI;
 
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
-import static no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider.Parameters;
+
 import static no.nav.sbl.rest.RestUtils.withClient;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -55,10 +55,10 @@ public class IdTokenAndRefreshTokenProviderTest {
 
     @Test
     public void createTokenRequest_fraParametre() throws Exception {
-        Parameters parameters = Parameters.builder()
-                .host("https://minparameterhost.nav.no")
-                .username("minparameterbruker")
-                .password("mittparameterpassord")
+        IdTokenAndRefreshTokenProviderConfig parameters = IdTokenAndRefreshTokenProviderConfig.builder()
+                .issoHostUrl("https://minparameterhost.nav.no")
+                .issoRpUserUsername("minparameterbruker")
+                .issoRpUserPassword("mittparameterpassord")
                 .build();
 
         withClient(client -> {

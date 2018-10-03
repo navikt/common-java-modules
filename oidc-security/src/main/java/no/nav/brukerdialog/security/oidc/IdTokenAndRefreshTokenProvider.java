@@ -1,6 +1,5 @@
 package no.nav.brukerdialog.security.oidc;
 
-import lombok.Builder;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.sbl.rest.RestUtils;
@@ -16,7 +15,6 @@ import java.net.URLEncoder;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED_TYPE;
-import static no.nav.brukerdialog.security.Constants.*;
 
 public class IdTokenAndRefreshTokenProvider {
 
@@ -29,19 +27,15 @@ public class IdTokenAndRefreshTokenProvider {
     private final Client client = RestUtils.createClient();
 
 
-    private final Parameters parameters;
+    private final IdTokenAndRefreshTokenProviderConfig parameters;
 
     public IdTokenAndRefreshTokenProvider() {
-        this(Parameters.builder()
-                .host(getIssoHostUrl())
-                .username(getIssoRpUserUsername())
-                .password(getIssoRpUserPassword())
-                .build()
+        this(IdTokenAndRefreshTokenProviderConfig.resolveFromSystemProperties()
         );
     }
 
-    public IdTokenAndRefreshTokenProvider(Parameters parameters) {
-        this.parameters = parameters;
+    public IdTokenAndRefreshTokenProvider(IdTokenAndRefreshTokenProviderConfig idTokenAndRefreshTokenProviderConfig) {
+        this.parameters = idTokenAndRefreshTokenProviderConfig;
     }
 
     public IdTokenAndRefreshToken getToken(String authorizationCode, String redirectUri) {
@@ -57,7 +51,7 @@ public class IdTokenAndRefreshTokenProvider {
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
 
-        String host = parameters.host;
+        String host = parameters.issoHostUrl;
         String data = "grant_type=authorization_code"
                 + "&realm=/"
                 + "&redirect_uri=" + urlEncodedRedirectUri
@@ -65,7 +59,7 @@ public class IdTokenAndRefreshTokenProvider {
         log.debug("Requesting tokens by POST to " + host);
         return client.target(host + "/access_token")
                 .request()
-                .header(AUTHORIZATION, TokenProviderUtil.basicCredentials(parameters.username, parameters.password))
+                .header(AUTHORIZATION, TokenProviderUtil.basicCredentials(parameters.issoRpUserUsername, parameters.issoRpUserPassword))
                 .header(CACHE_CONTROL, "no-cache")
                 .post(Entity.entity(data, APPLICATION_FORM_URLENCODED_TYPE))
                 ;
@@ -77,10 +71,4 @@ public class IdTokenAndRefreshTokenProvider {
         return new IdTokenAndRefreshToken(token, refreshToken);
     }
 
-    @Builder
-    public static class Parameters {
-        public final String host;
-        public final String username;
-        public final String password;
-    }
 }
