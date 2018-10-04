@@ -26,7 +26,7 @@ public class AbacHelsesjekker {
 
         @Override
         public Ping ping() {
-            Ping.PingMetadata metadata = new Ping.PingMetadata(endpointUrl, "ABAC tilgangskontroll - ping", true);
+            Ping.PingMetadata metadata = new Ping.PingMetadata("abac_ping", endpointUrl, "ABAC tilgangskontroll - ping", true);
             try {
                 pepClient.ping();
                 return Ping.lyktes(metadata);
@@ -48,7 +48,7 @@ public class AbacHelsesjekker {
         @Override
         public Ping ping() {
             URI build = getSelfTestURI();
-            Ping.PingMetadata metadata = new Ping.PingMetadata(build.toASCIIString(), "ABAC tilgangskontroll - selftest", true);
+            Ping.PingMetadata metadata = new Ping.PingMetadata("abac_selftest", build.toASCIIString(), "ABAC tilgangskontroll - selftest", true);
             try {
                 return withClient(client -> {
                     Response response = client.target(build).request().get();
