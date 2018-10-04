@@ -7,8 +7,6 @@ import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
-import no.nav.sbl.dialogarena.types.Pingable;
-import no.nav.sbl.dialogarena.types.Pingable.Ping;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,14 +18,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.prometheus.client.Collector.Type.GAUGE;
 import static io.prometheus.client.Collector.Type.UNTYPED;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static no.nav.apiapp.ServletUtil.getContext;
+import static no.nav.apiapp.util.StringUtils.of;
 
 public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServlet {
 
@@ -125,11 +122,11 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
         );
     }
 
-    private Collector.MetricFamilySamples.Sample pingSample(SelftestResult ping, String sampleId, double value) {
+    private Collector.MetricFamilySamples.Sample pingSample(SelftestResult selftestResult, String sampleId, double value) {
         return new Collector.MetricFamilySamples.Sample(
                 sampleId,
                 singletonList("id"),
-                singletonList(ping.getId()),
+                singletonList(of(selftestResult.getId()).orElseThrow(IllegalArgumentException::new)),
                 value
         );
     }

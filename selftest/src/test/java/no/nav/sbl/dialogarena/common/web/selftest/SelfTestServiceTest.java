@@ -1,8 +1,11 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
+import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.junit.Test;
+
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus.ERROR;
@@ -25,6 +28,7 @@ public class SelfTestServiceTest {
 
         Selftest selftest = selfTestService.selfTest();
         assertThat(selftest.getAggregateResult()).isEqualTo(OK);
+        check(selftest);
     }
 
     @Test
@@ -32,6 +36,7 @@ public class SelfTestServiceTest {
         SelfTestService selfTestService = service(mock(Pingable.class));
         Selftest selftest = selfTestService.selfTest();
         assertThat(selftest.getAggregateResult()).isEqualTo(ERROR);
+        check(selftest);
     }
 
     @Test
@@ -43,6 +48,16 @@ public class SelfTestServiceTest {
 
         Selftest selftest = selfTestService.selfTest();
         assertThat(selftest.getAggregateResult()).isEqualTo(ERROR);
+        check(selftest);
+    }
+
+    private void check(Selftest selftest) {
+        List<SelftestResult> checks = selftest.getChecks();
+        assertThat(checks).isNotEmpty();
+        checks.forEach(selftestResult -> {
+            assertThat(selftestResult.getId()).isNotEmpty();
+            assertThat(selftestResult.getResult()).isNotNull();
+        });
     }
 
     private SelfTestService service(Pingable... pingables) {

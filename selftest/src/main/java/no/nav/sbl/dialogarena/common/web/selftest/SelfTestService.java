@@ -49,6 +49,7 @@ public class SelfTestService {
             log.warn("Feil ved SelfTest av " + metadata.getEndepunkt(), ping.getFeil());
         }
         return SelftestResult.builder()
+                .id(metadata.getId())
                 .responseTime(responseTime)
                 .endpoint(metadata.getEndepunkt())
                 .description(metadata.getBeskrivelse())
