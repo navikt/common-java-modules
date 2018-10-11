@@ -46,6 +46,7 @@
         <module>feed</module>
         <module>jdbc</module>
         <module>jetty</module>
+        <module>proxy</module>
         <module>json</module>
         <module>log</module>
         <module>leaderelection</module>

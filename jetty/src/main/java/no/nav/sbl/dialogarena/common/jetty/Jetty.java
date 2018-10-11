@@ -6,6 +6,7 @@ import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.common.auth.LoginFilter;
 import no.nav.common.auth.LoginProvider;
+import no.nav.sbl.util.AssertUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
@@ -13,6 +14,7 @@ import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
@@ -54,6 +56,7 @@ public final class Jetty {
     private static final Logger LOG = LoggerFactory.getLogger(Jetty.class);
     static final String CLASSPATH_PATTERN = ".*(\\.jar|/(test-)?classes/?)";
 
+
     public static JettyBuilder usingWar(File file) {
         return new JettyBuilder().war(file);
     }
@@ -75,6 +78,7 @@ public final class Jetty {
         private JAASLoginService loginService;
         private boolean developmentMode;
         private List<Class<?>> websocketEndpoints = new ArrayList<>();
+        private List<Handler> handlers = new ArrayList<>();
         private Map<String, DataSource> dataSources = new HashMap<>();
         private String extraClasspath;
         private List<Filter> filters = new ArrayList<>();
@@ -144,6 +148,12 @@ public final class Jetty {
 
         public final JettyBuilder addDatasource(DataSource dataSource, String jndiName) {
             dataSources.put(jndiName, dataSource);
+            return this;
+        }
+
+        public JettyBuilder addHandler(Handler handler) {
+            AssertUtils.assertNotNull(handler);
+            this.handlers.add(handler);
             return this;
         }
 
@@ -224,10 +234,10 @@ public final class Jetty {
     public final WebAppContext context;
     private final Map<String, DataSource> dataSources;
     private final List<Class<?>> websocketEndpoints;
+    private final List<Handler> handlers;
     private final boolean developmentMode;
     private final String extraClasspath;
     private final List<Filter> filters;
-
 
 
     public final Runnable stop = new Runnable() {
@@ -258,6 +268,7 @@ public final class Jetty {
         this.overrideWebXmlFile = builder.overridewebXmlFile;
         this.dataSources = builder.dataSources;
         this.websocketEndpoints = builder.websocketEndpoints;
+        this.handlers = builder.handlers;
         this.port = builder.port;
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
@@ -363,9 +374,14 @@ public final class Jetty {
         context.setServer(jetty);
         addWebsocketEndpoints(context);
 
+        HandlerCollection handlerCollection = new HandlerCollection();
+        handlers.forEach(handlerCollection::addHandler);
+        handlerCollection.addHandler(context);
+
         StatisticsHandler statisticsHandler = new StatisticsHandler();
-        statisticsHandler.setHandler(context);
+        statisticsHandler.setHandler(handlerCollection);
         jetty.setHandler(statisticsHandler);
+
 
         CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
         JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
@@ -383,6 +399,11 @@ public final class Jetty {
         });
 
         return jetty;
+    }
+
+    public Jetty stop(){
+        this.stop.run();
+        return this;
     }
 
     public Jetty start() {

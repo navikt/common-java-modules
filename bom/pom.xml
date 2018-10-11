@@ -253,6 +253,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>proxy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>common-web</artifactId>
                 <version>${project.version}</version>
