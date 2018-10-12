@@ -53,6 +53,20 @@ public class JettyBuilderTest {
     }
 
     @Test
+    public void startJettyWithoutStatistics() {
+        Jetty jetty = usingWar(new File("src/test/webapp"))
+                .at("contextpath")
+                .port(8888)
+                .overrideWebXml()
+                .disableStatistics()
+                .withLoginService(new JAASLoginService())
+                .buildJetty();
+
+        jetty.start();
+        jetty.stop.run();
+    }
+
+    @Test
     public void restartJetty() throws Exception {
         Jetty jetty = usingWar(new File("src/test/webapp"))
                 .at("contextpath")
