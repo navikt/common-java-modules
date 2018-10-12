@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>no.nav.sbl.dialogarena</groupId>
+        <groupId>no.nav.common</groupId>
         <artifactId>api-app-parent</artifactId>
         <version>1-SNAPSHOT</version>
     </parent>
@@ -14,7 +14,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>bom</artifactId>
                 <version>${project.parent.version}</version>
                 <type>pom</type>
@@ -30,28 +30,28 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.modig</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>modig-log-filter</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>modig-security-filter</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>modig-security-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>modig-security-core</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>no.nav.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>oidc-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>common-abac</artifactId>
         </dependency>
 
@@ -62,31 +62,31 @@
 
         <!-- dialogarena -->
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>common-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>common-types</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>common-cxf</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>modig-security-ws</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>common-jetty</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>common-test</artifactId>
         </dependency>
 
@@ -167,7 +167,7 @@
             <artifactId>cxf-rt-transports-http</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.modig</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>modig-security-sts</artifactId>
         </dependency>
         <dependency>
@@ -304,7 +304,7 @@
 
         <!-- test -->
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>test-config</artifactId>
         </dependency>
         <dependency>
@@ -312,17 +312,17 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>oidc-security</artifactId>
             <type>test-jar</type>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>feed</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>dial-nav-tjeneste-aktoer_v2</artifactId>
             <version>1.2</version>
             <scope>test</scope>

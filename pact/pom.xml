@@ -3,19 +3,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>no.nav.sbl</groupId>
+        <groupId>no.nav.common</groupId>
         <artifactId>mor-pom</artifactId>
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <groupId>no.nav.pact</groupId>
+    <groupId>no.nav.common</groupId>
     <artifactId>pact-fo</artifactId>
 
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>bom</artifactId>
                 <version>${project.parent.version}</version>
                 <type>pom</type>
@@ -37,12 +37,12 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>test-config</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>common-test</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -58,15 +58,15 @@
         </dependency>
 
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>fasit</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -88,7 +88,7 @@
 
         <!-- test dependencies -->
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
             <type>test-jar</type>
         </dependency>

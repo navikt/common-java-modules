@@ -11,7 +11,7 @@
     </description>
     <url>https://github.com/navikt/common-java-modules</url>
 
-    <groupId>no.nav.sbl</groupId>
+    <groupId>no.nav.common</groupId>
 	<artifactId>mor-pom</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>pom</packaging>

@@ -8,7 +8,7 @@ Dra inn i maven `pom.xml`. Om koden bare brukes i web.xml og man har analyze-dep
 
 ```
 <dependency>
-    <groupId>no.nav.sbl.dialogarena</groupId>
+    <groupId>no.nav.common</groupId>
     <artifactId>common-suspend</artifactId>
     <version>1.0.1</version>
     <scope>runtime</scope>
