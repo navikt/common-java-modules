@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotEmpty;
 
+import java.net.InetAddress;
+
 import static ch.qos.logback.classic.Level.INFO;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
@@ -57,7 +59,15 @@ public class ApiAppTest {
         setProperty(APP_NAME_PROPERTY_NAME, config.applicationName, PUBLIC);
         setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FasitUtils.getDefaultEnvironment(), PUBLIC);
         SSLTestUtils.disableCertificateChecks();
-        WebProxyConfigurator.setupWebProxy();
+
+        if (isUtviklerImage()) {
+            WebProxyConfigurator.setupWebProxy();
+        }
+    }
+
+    @SneakyThrows
+    private static boolean isUtviklerImage() {
+        return InetAddress.getByName("fasit.adeo.no").isReachable(5000);
     }
 
     private static void simplifyConsoleAppender(Appender<ILoggingEvent> appender) {
