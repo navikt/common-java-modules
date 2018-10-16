@@ -596,6 +596,21 @@
         }
       }
     },
+    "/server": {
+      "get": {
+        "tags": [
+          "ServerEksempel"
+        ],
+        "summary": "largeResponse",
+        "operationId": "largeResponse",
+        "parameters": [],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
     "/eksempel/swagger": {
       "get": {
         "tags": [

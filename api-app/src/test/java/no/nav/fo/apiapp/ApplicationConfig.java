@@ -42,6 +42,11 @@ public class ApplicationConfig implements NaisApiApplication {
     }
 
     @Bean
+    public ServerEksempel serverEksempel() {
+        return new ServerEksempel();
+    }
+
+    @Bean
     public EnumEksempel enumEksempel() {
         return new EnumEksempel();
     }
