@@ -20,8 +20,11 @@ import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.URI;
 
+import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
+import static no.nav.log.LogFilter.NAV_CALL_ID_HEADER_NAMES;
+import static no.nav.sbl.util.EnvironmentUtils.getApplicationName;
 import static no.nav.sbl.util.ListUtils.mutableList;
 import static no.nav.sbl.util.StringUtils.of;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -54,8 +57,8 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
 
         MultivaluedMap<String, Object> requestHeaders = clientRequestContext.getHeaders();
 
-        of(MDC.get(MDCConstants.MDC_CORRELATION_ID))
-                .ifPresent(correlationId -> requestHeaders.add(LogFilter.CORRELATION_ID_HEADER_NAME, correlationId));
+        of(MDC.get(MDCConstants.MDC_CALL_ID)).ifPresent(callId -> stream(NAV_CALL_ID_HEADER_NAMES).forEach(headerName-> requestHeaders.add(headerName, callId)));
+        getApplicationName().ifPresent(applicationName -> requestHeaders.add(LogFilter.CONSUMER_ID_HEADER_NAME, applicationName));
 
         requestHeaders.add(RestUtils.CSRF_COOKIE_NAVN, CSRF_TOKEN);
         requestHeaders.add(COOKIE, new Cookie(RestUtils.CSRF_COOKIE_NAVN, CSRF_TOKEN));
