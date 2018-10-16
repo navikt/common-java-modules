@@ -53,6 +53,7 @@
         <module>oidc-security</module>
         <module>pact</module>
         <module>rest</module>
+        <module>selftest</module>
         <module>smoketest</module>
         <module>suspend</module>
         <module>test</module>

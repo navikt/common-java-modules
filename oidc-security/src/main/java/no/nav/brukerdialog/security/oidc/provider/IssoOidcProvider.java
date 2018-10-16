@@ -6,6 +6,7 @@ import no.nav.brukerdialog.security.jaspic.TokenLocator;
 import no.nav.brukerdialog.security.jwks.JsonWebKeyCache;
 import no.nav.brukerdialog.security.jwks.JwtHeader;
 import no.nav.brukerdialog.security.oidc.IdTokenProvider;
+import no.nav.brukerdialog.security.oidc.IdTokenProviderConfig;
 import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,12 +19,23 @@ import static no.nav.brukerdialog.security.oidc.OidcTokenUtils.getOpenamClientFr
 public class IssoOidcProvider implements OidcProvider {
 
     private final TokenLocator tokenLocator = new TokenLocator(ID_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME);
-    private final IdTokenProvider idTokenProvider = new IdTokenProvider();
-    private final JsonWebKeyCache keyCache = new JsonWebKeyCache(getIssoJwksUrl(), true);
+    private final IdTokenProvider idTokenProvider;
+    private final JsonWebKeyCache keyCache;
+    private final String issoExpectedTokenIssuer;
+
+    public IssoOidcProvider() {
+        this(IssoOidcProviderConfig.resolveFromSystemProperties());
+    }
+
+    public IssoOidcProvider(IssoOidcProviderConfig issoOidcProviderConfig) {
+        this.issoExpectedTokenIssuer = issoOidcProviderConfig.issoExpectedTokenIssuer;
+        this.idTokenProvider = new IdTokenProvider(IdTokenProviderConfig.from(issoOidcProviderConfig));
+        this.keyCache = new JsonWebKeyCache(issoOidcProviderConfig.issoJwksUrl, true);
+    }
 
     @Override
     public String getExpectedIssuer() {
-        return getIssoExpectedTokenIssuer();
+        return issoExpectedTokenIssuer;
     }
 
     @Override

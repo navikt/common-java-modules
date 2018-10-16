@@ -33,6 +33,7 @@ public class ServletUtil {
 
     public static ServletRegistration.Dynamic leggTilServlet(ServletContext servletContext, Class<? extends Servlet> servletClass, String... path) {
         ServletRegistration.Dynamic dynamic = servletContext.addServlet(servletClass.getName(), servletClass);
+        dynamic.setLoadOnStartup(0); // provoke any errors early
         dynamic.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servletClass.getName(), path);
         return dynamic;
@@ -44,6 +45,7 @@ public class ServletUtil {
 
     public static ServletRegistration.Dynamic leggTilServlet(ServletContext servletContext, Servlet servlet, String path) {
         ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(servlet.getClass().getName(), servlet);
+        servletRegistration.setLoadOnStartup(0); // provoke any errors early
         servletRegistration.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
         return servletRegistration;

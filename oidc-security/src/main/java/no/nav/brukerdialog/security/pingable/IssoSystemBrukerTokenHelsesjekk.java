@@ -1,15 +1,24 @@
 package no.nav.brukerdialog.security.pingable;
 
 import no.nav.brukerdialog.security.oidc.SystemUserTokenProvider;
+import no.nav.brukerdialog.security.oidc.SystemUserTokenProviderConfig;
 import no.nav.sbl.dialogarena.types.Pingable;
 
 @SuppressWarnings("unused")
 public class IssoSystemBrukerTokenHelsesjekk implements Pingable {
 
     private final SystemUserTokenProvider systemUserTokenProvider;
+    private Ping.PingMetadata metadata;
 
     public IssoSystemBrukerTokenHelsesjekk(SystemUserTokenProvider systemUserTokenProvider) {
+        SystemUserTokenProviderConfig systemUserTokenProviderConfig = systemUserTokenProvider.getConfig();
+
         this.systemUserTokenProvider = systemUserTokenProvider;
+        this.metadata = new Ping.PingMetadata(
+                "ISSO via " + systemUserTokenProviderConfig.getIssoHostUrl(),
+                "Sjekker applikasjonen har gyldig ISSO-jwt-token for systembruker",
+                true
+        );
     }
 
     public IssoSystemBrukerTokenHelsesjekk() {
@@ -18,11 +27,6 @@ public class IssoSystemBrukerTokenHelsesjekk implements Pingable {
 
     @Override
     public Ping ping() {
-        Ping.PingMetadata metadata = new Ping.PingMetadata(
-                "ISSO via " + systemUserTokenProvider.openAmHost,
-                "Sjekker applikasjonen har gyldig ISSO-jwt-token for systembruker",
-                true
-        );
         try {
             String token = systemUserTokenProvider.getToken();
             if (token != null && token.trim().length() > 0) {

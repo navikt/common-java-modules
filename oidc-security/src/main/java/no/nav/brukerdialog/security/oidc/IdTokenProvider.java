@@ -12,8 +12,6 @@ import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED;
-import static no.nav.brukerdialog.security.Constants.getIssoHostUrl;
-import static no.nav.brukerdialog.security.Constants.getIssoRpUserPassword;
 import static no.nav.brukerdialog.security.oidc.TokenProviderUtil.basicCredentials;
 import static no.nav.brukerdialog.security.oidc.TokenProviderUtil.findToken;
 
@@ -21,7 +19,17 @@ public class IdTokenProvider {
 
     private static final Logger log = LoggerFactory.getLogger(IdTokenProvider.class);
     private final Client client = RestUtils.createClient();
+    private String issoHostUrl;
+    private String issoRpUserPassword;
 
+    public IdTokenProvider() {
+        this(IdTokenProviderConfig.resolveFromSystemProperties());
+    }
+
+    public IdTokenProvider(IdTokenProviderConfig idTokenProviderConfig) {
+        this.issoHostUrl = idTokenProviderConfig.issoHostUrl;
+        this.issoRpUserPassword = idTokenProviderConfig.issoRpUserPassword;
+    }
 
     public OidcCredential getToken(String refreshToken, String openamClient) {
         return TokenProviderUtil.getToken(() -> createTokenRequest(refreshToken, openamClient, client), this::extractToken);
@@ -33,10 +41,10 @@ public class IdTokenProvider {
                 + "&scope=openid"
                 + "&realm=" + realm
                 + "&refresh_token=" + refreshToken;
-        log.debug("Refreshing ID-token by POST to " + getIssoHostUrl());
-        return client.target(getIssoHostUrl() + "/access_token")
+        log.debug("Refreshing ID-token by POST to " + issoHostUrl);
+        return client.target(issoHostUrl + "/access_token")
                 .request()
-                .header(AUTHORIZATION, basicCredentials(openamClient, getIssoRpUserPassword()))
+                .header(AUTHORIZATION, basicCredentials(openamClient, issoRpUserPassword))
                 .header(CACHE_CONTROL,"no-cache")
                 .post(entity(data, APPLICATION_FORM_URLENCODED))
                 ;

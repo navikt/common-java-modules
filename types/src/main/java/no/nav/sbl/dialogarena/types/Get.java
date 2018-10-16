@@ -26,12 +26,7 @@ public final class Get {
     }
 
     public static Transformer<Pingable, Ping> pingResult() {
-        return pingable -> {
-            long start = System.currentTimeMillis();
-            Ping ping = pingable.ping();
-            ping.setResponstid(System.currentTimeMillis() - start);
-            return ping;
-        };
+        return Pingable::ping;
     }
 
     public static Predicate<Ping> vellykketPing() {

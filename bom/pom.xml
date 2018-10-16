@@ -99,7 +99,7 @@
         <mockito-all.version>1.10.19</mockito-all.version>
         <jmockit.version>1.20</jmockit.version>
         <org.eclipse.jetty.version>9.3.0.M2</org.eclipse.jetty.version>
-        <pact-jvm.version>3.5.21</pact-jvm.version>
+        <pact-jvm.version>3.5.23</pact-jvm.version>
         <!-- NB: junit5 versjon settes i mor-pom  -->
     </properties>
 
@@ -265,6 +265,11 @@
             <dependency>
                 <groupId>no.nav.sbl.dialogarena</groupId>
                 <artifactId>common-types</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>selftest</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

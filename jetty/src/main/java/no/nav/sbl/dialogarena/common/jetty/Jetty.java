@@ -79,6 +79,7 @@ public final class Jetty {
         private String extraClasspath;
         private List<Filter> filters = new ArrayList<>();
         private boolean disableAnnotationScanning;
+        private boolean disableStatistics;
 
 
         public final JettyBuilder war(File warPath) {
@@ -144,6 +145,11 @@ public final class Jetty {
 
         public final JettyBuilder addDatasource(DataSource dataSource, String jndiName) {
             dataSources.put(jndiName, dataSource);
+            return this;
+        }
+
+        public final JettyBuilder disableStatistics() {
+            this.disableStatistics = true;
             return this;
         }
 
@@ -265,7 +271,7 @@ public final class Jetty {
         this.filters = builder.filters;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
-        this.server = setupJetty(new Server());
+        this.server = setupJetty(new Server(),builder);
         this.developmentMode = builder.developmentMode;
     }
 
@@ -337,7 +343,7 @@ public final class Jetty {
         }
     }
 
-    private Server setupJetty(final Server jetty) {
+    private Server setupJetty(final Server jetty, JettyBuilder jettyBuilder) {
         if(developmentMode){
             Resource.setDefaultUseCaches(false);
         }
@@ -363,13 +369,23 @@ public final class Jetty {
         context.setServer(jetty);
         addWebsocketEndpoints(context);
 
+        jetty.setHandler(context);
+
+        if(!jettyBuilder.disableStatistics){
+            addStatisticsHandler(jetty);
+        }
+
+        return jetty;
+    }
+
+    public static void addStatisticsHandler(Server server) {
         StatisticsHandler statisticsHandler = new StatisticsHandler();
-        statisticsHandler.setHandler(context);
-        jetty.setHandler(statisticsHandler);
+        statisticsHandler.setHandler(server.getHandler());
+        server.setHandler(statisticsHandler);
 
         CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
         JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
-        jetty.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
+        server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
 
             @Override
             public void lifeCycleStarting(LifeCycle event) {
@@ -381,8 +397,6 @@ public final class Jetty {
                 collectorRegistry.unregister(jettyStatisticsCollector);
             }
         });
-
-        return jetty;
     }
 
     public Jetty start() {

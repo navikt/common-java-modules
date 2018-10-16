@@ -40,8 +40,8 @@ public class FasitUtilsIntegrationTest {
         assertThat(resolveDomain("veilarbaktivitet", "t6"), equalTo(TEST_LOCAL));
         assertThat(resolveDomain("veilarbaktivitet", "q6"), equalTo(PREPROD_LOCAL));
 
-        assertThat(resolveDomain("aktivitetsplan", "t6"), equalTo(OERA_T_LOCAL));
-        assertThat(resolveDomain("aktivitetsplan", "q6"), equalTo(OERA_Q_LOCAL));
+        assertThat(resolveDomain("dittnav", "t1"), equalTo(OERA_T_LOCAL));
+        assertThat(resolveDomain("dittnav", "q1"), equalTo(OERA_Q_LOCAL));
     }
 
     @Test
@@ -54,8 +54,8 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void getApplicationConfig() {
-        ApplicationConfig aktivitetsplanApplicationConfig = FasitUtils.getApplicationConfig("aktivitetsplan", "t6");
-        assertThat(aktivitetsplanApplicationConfig.domain, equalTo("oera-t.local"));
+        ApplicationConfig dittnavApplicationConfig = FasitUtils.getApplicationConfig("dittnav", "t6");
+        assertThat(dittnavApplicationConfig.domain, equalTo("oera-t.local"));
 
         ApplicationConfig situasjonApplicationConfig = FasitUtils.getApplicationConfig("veilarbaktivitet", "t6");
         assertThat(situasjonApplicationConfig.domain, equalTo("test.local"));
@@ -86,8 +86,8 @@ public class FasitUtilsIntegrationTest {
         Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitet", "t6");
         assertThat(veilarbaktivitetEnvironment.size(), greaterThan(10));
 
-        Properties veilarbaktivitetproxyEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitetproxy", "t6");
-        assertThat(veilarbaktivitetproxyEnvironment.size(), greaterThan(10));
+        Properties dittnavEnvironment = FasitUtils.getApplicationEnvironment("dittnav", "t1");
+        assertThat(dittnavEnvironment.size(), greaterThan(10));
     }
 
     @Test
@@ -125,8 +125,8 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void getServiceUser_aliasDifferentFromUsername() {
-        ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbaktivitetproxy", "veilarbaktivitetproxy", "t6");
-        assertThat(serviceUser.username, equalTo("srvveilarbaktivite"));
+        ServiceUser serviceUser = FasitUtils.getServiceUser("srvmodiaeventdistribution", "modiaeventdistribution", "q0");
+        assertThat(serviceUser.username, equalTo("srvmodiaeventdistr"));
         assertThat(serviceUser.password, not(nullValue()));
     }
 

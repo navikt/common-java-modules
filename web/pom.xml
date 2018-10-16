@@ -28,6 +28,10 @@
             <artifactId>common-types</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>selftest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.sbl</groupId>
             <artifactId>util</artifactId>
         </dependency>
