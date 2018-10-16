@@ -29,7 +29,11 @@ public class FasitClientMock implements FasitClient {
 
     @Override
     public DbCredentials getDbCredentials(GetDbCredentialsRequest getDbCredentialsRequest) {
-        throw new IllegalStateException();
+        String url = String.format("jdbc:h2:mem:%s-0;DB_CLOSE_DELAY=-1;MODE=Oracle;", getDbCredentialsRequest.applicationName);
+        return new DbCredentials()
+                .setUrl(url)
+                .setUsername("mock-user-db")
+                .setPassword("mock-password-db");
     }
 
     @Override
@@ -39,8 +43,9 @@ public class FasitClientMock implements FasitClient {
 
     @Override
     public ServiceUser getCredentials(GetCredentialsRequest getCredentialsRequest) {
+        String mockUserName = String.format("mock-user-%s", getCredentialsRequest.applicationName);
         return new ServiceUser()
-                .setUsername("mock-user")
+                .setUsername(mockUserName)
                 .setPassword("mock-password");
     }
 
