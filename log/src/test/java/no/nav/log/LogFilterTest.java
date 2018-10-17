@@ -16,8 +16,7 @@ import java.util.Optional;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.HttpHeaders.SET_COOKIE;
-import static no.nav.log.LogFilter.CALL_ID_HEADER_NAME;
-import static no.nav.log.LogFilter.CORRELATION_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -54,8 +53,7 @@ public class LogFilterTest {
     public void addResponseHeaders() throws ServletException, IOException {
         logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {});
 
-        assertThat(httpServletResponse.getHeader(CALL_ID_HEADER_NAME)).isNotEmpty();
-        assertThat(httpServletResponse.getHeader(CORRELATION_ID_HEADER_NAME)).isNotEmpty();
+        assertThat(httpServletResponse.getHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME)).isNotEmpty();
         assertThat(httpServletResponse.getHeader(SET_COOKIE)).isNotEmpty();
     }
 

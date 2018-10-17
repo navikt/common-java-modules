@@ -349,6 +349,8 @@ public final class Jetty {
         }
 
         HttpConfiguration configuration = new HttpConfiguration();
+        // Increase default buffer sizes to prevent failures due to large responses
+        configuration.setResponseHeaderSize(16384);
         configuration.setOutputBufferSize(32768);
 
         // Add support for X-Forwarded headers
