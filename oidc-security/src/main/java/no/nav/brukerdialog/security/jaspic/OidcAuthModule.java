@@ -69,7 +69,7 @@ public class OidcAuthModule implements LoginProvider {
         }
 
         if (needToRefreshToken && !optionalRefreshToken.isPresent()) {
-            log.warn("Refresh-token is needed, but not present.");
+            log.warn("Refresh-token is needed, but not present for " + oidcProvider.getIdentType(requestToken));
         }
 
         if (requestTokenValidatorResult.isValid()) {
