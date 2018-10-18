@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotEmpty;
-
+import java.io.IOException;
 import java.net.InetAddress;
 
 import static ch.qos.logback.classic.Level.INFO;
@@ -65,9 +65,13 @@ public class ApiAppTest {
         }
     }
 
-    @SneakyThrows
     private static boolean isUtviklerImage() {
-        return InetAddress.getByName("fasit.adeo.no").isReachable(5000);
+        try {
+            return InetAddress.getByName("fasit.adeo.no").isReachable(5000);
+        } catch (IOException e) {
+            LOGGER.info("Access check to fasit threw exception, assuming local dev environment");
+            return false;
+        }
     }
 
     private static void simplifyConsoleAppender(Appender<ILoggingEvent> appender) {
