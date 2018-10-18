@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import static no.nav.log.MDCConstants.*;
 import static no.nav.sbl.util.LogUtils.buildMarker;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
+import static no.nav.sbl.util.StringUtils.of;
 
 
 @Slf4j
@@ -63,7 +64,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
             generateUserIdCookie(httpServletResponse);
         }
 
-        String consumerId = httpServletRequest.getHeader(CONSUMER_ID_HEADER_NAME);
+        String consumerId = of(httpServletRequest.getHeader(CONSUMER_ID_HEADER_NAME)).orElseGet(LogFilter::generateId);
         String callId = Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpServletRequest::getHeader)
                 .filter(StringUtils::notNullOrEmpty)
                 .findFirst()
