@@ -2,6 +2,7 @@ package no.nav.dialogarena.config.fasit.client;
 
 import no.nav.dialogarena.config.fasit.*;
 import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.sbl.util.EnvironmentUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,7 @@ public class FasitClientMock implements FasitClient {
     public List<RestService> getRestServices(String alias) {
         return Collections.singletonList(RestService.builder()
                 .url(mockUrl(alias))
+                .environment(FasitUtils.getDefaultEnvironment())
                 .build());
     }
 
