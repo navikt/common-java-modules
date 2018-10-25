@@ -31,6 +31,7 @@ import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
 import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 
 public class ApiAppTest {
 
@@ -65,16 +66,17 @@ public class ApiAppTest {
 
         if (isUtviklerImage()) {
             WebProxyConfigurator.setupWebProxy();
-            writeNavTrustStore();
+            setupNavTrustStore();
         }
     }
 
     @SneakyThrows
-    private static void writeNavTrustStore() {
-        // kafka trenger fungerende truststore
+    private static void setupNavTrustStore() {
         ServiceUserCertificate navTrustStore = FasitUtils.getServiceUserCertificate("nav_truststore", FasitUtils.getDefaultEnvironmentClass());
         File navTrustStoreFile = File.createTempFile("nav_truststore", ".jks");
         FileUtils.writeByteArrayToFile(navTrustStoreFile,navTrustStore.getKeystore());
+        setProperty("javax.net.ssl.trustStore", navTrustStoreFile.getAbsolutePath(), PUBLIC);
+        setProperty("javax.net.ssl.trustStorePassword", navTrustStore.getKeystorepassword(), SECRET);
     }
 
 
