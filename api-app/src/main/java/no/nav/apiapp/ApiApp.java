@@ -10,10 +10,12 @@ import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.StringUtils;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +94,9 @@ public class ApiApp {
         Jetty.JettyBuilder jettyBuilder = usingWar(file)
                 .at(contextPath)
                 .port(httpPort)
-                .disableAnnotationScanning();
+                .disableAnnotationScanning()
+                .disableStatistics() // statistics should be added last
+                ;
 
         if (args.length > 1) {
             jettyBuilder.sslPort(Integer.parseInt(args[1]));
@@ -107,14 +111,15 @@ public class ApiApp {
         ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
         webAppContext.addEventListener(listener);
 
+        Server server = jetty.server;
         if (contextPath.length() > 1) {
-            Server server = jetty.server;
             HandlerCollection handlerCollection = new HandlerCollection();
             handlerCollection.addHandler(server.getHandler());
             handlerCollection.addHandler(new RootToContextRedirectHandler(contextPath));
             server.setHandler(handlerCollection);
         }
 
+        Jetty.addStatisticsHandler(server);
         // When we embed jetty in this way, some classes might be loaded by the default WebAppClassLoader and some by the system class loader.
         // These classes will be incompatible with each other. Also, Jetty does not consult the classloader of the webapp when resolving resources
         // such as the swagger-ui. We mitigate both these problems by installing an empty classloader that will always defer to the system classloader

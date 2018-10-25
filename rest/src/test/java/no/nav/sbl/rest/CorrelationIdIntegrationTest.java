@@ -2,6 +2,9 @@ package no.nav.sbl.rest;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import no.nav.log.LogFilter;
+import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.MDC;
@@ -10,14 +13,19 @@ import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPattern.everything;
-import static no.nav.log.MDCConstants.MDC_CORRELATION_ID;
-import static no.nav.log.LogFilter.CORRELATION_ID_HEADER_NAME;
+import static java.util.Arrays.stream;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.NAV_CALL_ID_HEADER_NAMES;
+import static no.nav.log.MDCConstants.MDC_CALL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CorrelationIdIntegrationTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
+
+    @Rule
+    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
 
     @Test
     public void smoketest() {
@@ -30,7 +38,9 @@ public class CorrelationIdIntegrationTest {
         getRequest();
 
         String correlationId = CorrelationIdIntegrationTest.class.getName();
-        MDC.put(MDC_CORRELATION_ID, correlationId);
+        String applicationName = CorrelationIdIntegrationTest.class.getSimpleName();
+        MDC.put(MDC_CALL_ID, correlationId);
+        systemPropertiesRule.setProperty(EnvironmentUtils.APP_NAME_PROPERTY_NAME, applicationName);
 
         getRequest();
 
@@ -38,10 +48,12 @@ public class CorrelationIdIntegrationTest {
         assertThat(requests).hasSize(2);
 
         LoggedRequest firstRequest = requests.get(0);
-        assertThat(firstRequest.containsHeader(CORRELATION_ID_HEADER_NAME)).isFalse();
+        assertThat(firstRequest.getHeader(CONSUMER_ID_HEADER_NAME)).isNull();
+        stream(NAV_CALL_ID_HEADER_NAMES).forEach(h-> assertThat(firstRequest.getHeader(h)).isNull());
 
-        LoggedRequest secondReauest = requests.get(1);
-        assertThat(secondReauest.getHeader(CORRELATION_ID_HEADER_NAME)).isEqualTo(correlationId);
+        LoggedRequest secondRequest = requests.get(1);
+        assertThat(secondRequest.getHeader(CONSUMER_ID_HEADER_NAME)).isEqualTo(applicationName);
+        stream(NAV_CALL_ID_HEADER_NAMES).forEach(h-> assertThat(secondRequest.getHeader(h)).isEqualTo(correlationId));
     }
 
     private void getRequest() {

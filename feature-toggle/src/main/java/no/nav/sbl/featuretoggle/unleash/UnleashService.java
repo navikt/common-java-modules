@@ -32,7 +32,7 @@ public class UnleashService implements Pingable {
     private final DefaultUnleash defaultUnleash;
     private final FeatureToggleRepository featureToggleRepository;
     private final Ping.PingMetadata helsesjekkMetadata;
-    private final HttpToggleFetcher toggleFetcher;
+    private final HttpToggleFetcher pingToggleFetcher;
 
     public UnleashService(UnleashServiceConfig unleashServiceConfig, Strategy... strategies) {
         this(unleashServiceConfig, Arrays.asList(strategies));
@@ -46,11 +46,16 @@ public class UnleashService implements Pingable {
                 .build();
         UnleashScheduledExecutor unleashScheduledExecutor = ofNullable(unleashServiceConfig.unleashScheduledExecutor).orElse(UNLEASH_SCHEDULED_EXECUTOR);
 
-        this.toggleFetcher = new HttpToggleFetcher(unleashConfig);
+        HttpToggleFetcher realToggleFetcher = new HttpToggleFetcher(unleashConfig);
+        // Create additional instance of HttpToggleFetcher for ping.
+        // Reusing a single HttpToggleFetcher can lead to FeatureToggleRepository not observing changes due to
+        // an internal cache in HttpToggleFetcher
+        this.pingToggleFetcher = new HttpToggleFetcher(unleashConfig);
+
         this.featureToggleRepository = new FeatureToggleRepository(
                 unleashConfig,
                 unleashScheduledExecutor,
-                toggleFetcher,
+                realToggleFetcher,
                 new ToggleBackupHandlerFile(unleashConfig)
         );
         this.helsesjekkMetadata = new Ping.PingMetadata("unleash", unleashAPI, "sjekker at feature-toggles kan hentes fra unleash server", false);
@@ -85,7 +90,7 @@ public class UnleashService implements Pingable {
     @Override
     public Ping ping() {
         try {
-            FeatureToggleResponse featureToggleResponse = this.toggleFetcher.fetchToggles();
+            FeatureToggleResponse featureToggleResponse = this.pingToggleFetcher.fetchToggles();
             FeatureToggleResponse.Status status = featureToggleResponse.getStatus();
             if (status == CHANGED || status == FeatureToggleResponse.Status.NOT_CHANGED) {
                 return Ping.lyktes(helsesjekkMetadata);
