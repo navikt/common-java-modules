@@ -20,7 +20,7 @@ Tas i bruk ved å legge til følgende i applikasjonens pom-fil:
 
 ```
 <dependency>
-    <groupId>no.nav.sbl.dialogarena</groupId>
+    <groupId>no.nav.common</groupId>
     <artifactId>feed</artifactId>
     <version>LATEST</version>
 </dependency>
