@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test</artifactId>
         </dependency>
     </dependencies>
 

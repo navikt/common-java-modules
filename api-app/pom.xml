@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-abac</artifactId>
+            <artifactId>abac</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
@@ -83,19 +83,19 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-web</artifactId>
+            <artifactId>web</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-types</artifactId>
+            <artifactId>types</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-cxf</artifactId>
+            <artifactId>cxf</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-jetty</artifactId>
+            <artifactId>jetty</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -314,7 +314,7 @@
         <!-- test -->
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>

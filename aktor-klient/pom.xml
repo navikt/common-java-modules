@@ -56,7 +56,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-cxf</artifactId>
+            <artifactId>cxf</artifactId>
         </dependency>
 
         <!--Spring-->

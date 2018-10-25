@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>no.nav.common</groupId>
-    <artifactId>common-abac</artifactId>
+    <artifactId>abac</artifactId>
 
     <properties>
         <abac-attributes.version>3.2.11</abac-attributes.version>
@@ -94,7 +94,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-types</artifactId>
+            <artifactId>types</artifactId>
         </dependency>
 
         <!-- transitivt -->
@@ -122,7 +122,7 @@
         <!-- test scope -->
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>

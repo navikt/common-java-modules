@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>no.nav.common</groupId>
-    <artifactId>common-suspend</artifactId>
+    <artifactId>suspend</artifactId>
 
     <dependencyManagement>
         <dependencies>

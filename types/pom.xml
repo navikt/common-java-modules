@@ -8,7 +8,7 @@
     </parent>
 
     <groupId>no.nav.common</groupId>
-    <artifactId>common-types</artifactId>
+    <artifactId>types</artifactId>
 
     <dependencyManagement>
         <dependencies>

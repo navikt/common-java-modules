@@ -9,7 +9,7 @@
 
 
     <groupId>no.nav.common</groupId>
-	<artifactId>common-cxf</artifactId>
+	<artifactId>cxf</artifactId>
 
 	<properties>
         <jsoup.version>1.11.3</jsoup.version>
@@ -143,7 +143,7 @@
 
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-jetty</artifactId>
+            <artifactId>jetty</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -172,7 +172,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

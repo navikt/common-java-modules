@@ -8,7 +8,7 @@
     </parent>
 
     <groupId>no.nav.common</groupId>
-    <artifactId>common-web</artifactId>
+    <artifactId>web</artifactId>
 
     <dependencyManagement>
         <dependencies>
@@ -25,7 +25,7 @@
     <dependencies>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-types</artifactId>
+            <artifactId>types</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
@@ -101,7 +101,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test</artifactId>
         </dependency>
     </dependencies>
 

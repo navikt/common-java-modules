@@ -9,7 +9,7 @@
         <version>1-SNAPSHOT</version>
     </parent>
     <groupId>no.nav.common</groupId>
-    <artifactId>common-jetty</artifactId>
+    <artifactId>jetty</artifactId>
 
     <dependencyManagement>
         <dependencies>

@@ -8,7 +8,7 @@
     </parent>
 
     <groupId>no.nav.common</groupId>
-    <artifactId>common-test</artifactId>
+    <artifactId>test</artifactId>
 
     <dependencyManagement>
         <dependencies>

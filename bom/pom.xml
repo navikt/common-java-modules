@@ -254,17 +254,17 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>common-web</artifactId>
+                <artifactId>web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>common-abac</artifactId>
+                <artifactId>abac</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>common-types</artifactId>
+                <artifactId>types</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -274,7 +274,7 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>common-jetty</artifactId>
+                <artifactId>jetty</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -285,7 +285,7 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>common-test</artifactId>
+                <artifactId>test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -304,7 +304,7 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>common-cxf</artifactId>
+                <artifactId>cxf</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>

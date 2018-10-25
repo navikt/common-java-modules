@@ -8,7 +8,7 @@
     </parent>
 
     <groupId>no.nav.common</groupId>
-    <artifactId>common-time</artifactId>
+    <artifactId>time</artifactId>
 
     <dependencyManagement>
         <dependencies>

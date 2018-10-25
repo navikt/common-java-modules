@@ -27,7 +27,7 @@
 
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-jetty</artifactId>
+            <artifactId>jetty</artifactId>
             <scope>compile</scope>
         </dependency>
 

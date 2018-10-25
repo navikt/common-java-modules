@@ -61,7 +61,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-types</artifactId>
+            <artifactId>types</artifactId>
         </dependency>
         <dependency>
             <groupId>net.javacrumbs.shedlock</groupId>

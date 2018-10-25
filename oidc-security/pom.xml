@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-types</artifactId>
+            <artifactId>types</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -96,7 +96,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>

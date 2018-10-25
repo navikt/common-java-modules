@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-types</artifactId>
+            <artifactId>types</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
@@ -78,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>common-test</artifactId>
+            <artifactId>test</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
