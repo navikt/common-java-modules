@@ -18,8 +18,8 @@ abstract class Metric<T extends Metric> {
     private static final String[] MDC_VARIABLES = {
             MDC_CALL_ID,
             MDC_USER_ID,
-            MDC_CORRELATION_ID
-
+            MDC_REQUEST_ID,
+            MDC_CONSUMER_ID
     };
 
     Metric(MetricsClient metricsClient, String name) {

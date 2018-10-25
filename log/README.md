@@ -6,14 +6,15 @@ elements across NAV.
 Log statement correlation
 ---------------
 When requests hit several services, it is important to be 
-able to track the requests. A correlation id that is passed with
-requests and added to all log-statements enables the you to track 
-requests.
+able to track the requests. A correlation id should be either retrieved
+from incoming requests, or generated if absent. The correlation id should
+then be added to all log-statements to enable you or your consumers to track 
+requests in your app.
 
 However, some services may be hit several times by upstream
 services. This may result in several requests with the same correlation
 id. To be able to identify unique requests in a single service,
-all requests should also include a call id.
+all requests should also log a unique request id.
 
 These ids need to be put on ThreadLocal (MDC) when a request hits the 
 server, and removed when the request is finished. ```LogFilter``` 

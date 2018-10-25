@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>no.nav.sbl</groupId>
+        <groupId>no.nav.common</groupId>
         <artifactId>mor-pom</artifactId>
         <version>1-SNAPSHOT</version>
     </parent>
@@ -23,6 +23,10 @@
         <kotlin.version>1.2.41</kotlin.version>
         <annotations.version>16.0.1</annotations.version>
         <jackson-module-kotlin.version>2.9.1</jackson-module-kotlin.version>
+
+        <!--KAFKA-->
+        <spring.kafka.version>2.1.10.RELEASE</spring.kafka.version>
+        <kafka.version>2.0.0</kafka.version>
 
         <!-- LOGGING -->
         <slf4j.version>1.7.21</slf4j.version>
@@ -136,56 +140,87 @@
                 <version>${annotations.version}</version>
             </dependency>
 
+            <!--KAFKA-->
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring.kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka-test</artifactId>
+                <version>${spring.kafka.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_2.11</artifactId>
+                <version>${kafka.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka_2.11</artifactId>
+                <version>${kafka.version}</version>
+                <classifier>test</classifier>
+                <scope>test</scope>
+            </dependency>
+
             <!-- START COMMON -->
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>log</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>aktor-klient</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>feature-toggle</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>metrics</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>jdbc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>api-app</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>api-app</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>feed</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>feed</artifactId>
                 <version>${project.version}</version>
                 <type>test-jar</type>
@@ -209,24 +244,24 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>oidc-security</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>oidc-security</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
                 <type>test-jar</type>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>json</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>json</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
@@ -238,12 +273,12 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>rest</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -253,18 +288,18 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>common-web</artifactId>
+                <groupId>no.nav.common</groupId>
+                <artifactId>web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>common-abac</artifactId>
+                <groupId>no.nav.common</groupId>
+                <artifactId>abac</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>common-types</artifactId>
+                <groupId>no.nav.common</groupId>
+                <artifactId>types</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -273,38 +308,38 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>common-jetty</artifactId>
+                <groupId>no.nav.common</groupId>
+                <artifactId>jetty</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>fasit</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>common-test</artifactId>
+                <groupId>no.nav.common</groupId>
+                <artifactId>test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>no.nav.pact</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>pact-fo</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
-                <groupId>no.nav.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>smoketest</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
-                <artifactId>common-cxf</artifactId>
+                <groupId>no.nav.common</groupId>
+                <artifactId>cxf</artifactId>
                 <version>${project.version}</version>
                 <exclusions>
                     <exclusion>
@@ -314,13 +349,13 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>test-config</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>app-mock</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
@@ -670,7 +705,7 @@
                 <version>${aspectj.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>utave</artifactId>
                 <version>1.0.14</version>
             </dependency>

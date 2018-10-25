@@ -2,6 +2,7 @@ package no.nav.dialogarena.config.fasit.client;
 
 import no.nav.dialogarena.config.fasit.*;
 import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.sbl.util.EnvironmentUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,12 +25,17 @@ public class FasitClientMock implements FasitClient {
     public List<RestService> getRestServices(String alias) {
         return Collections.singletonList(RestService.builder()
                 .url(mockUrl(alias))
+                .environment(FasitUtils.getDefaultEnvironment())
                 .build());
     }
 
     @Override
     public DbCredentials getDbCredentials(GetDbCredentialsRequest getDbCredentialsRequest) {
-        throw new IllegalStateException();
+        String url = String.format("jdbc:h2:mem:%s-0;DB_CLOSE_DELAY=-1;MODE=Oracle;", getDbCredentialsRequest.applicationName);
+        return new DbCredentials()
+                .setUrl(url)
+                .setUsername("mock-user-db")
+                .setPassword("mock-password-db");
     }
 
     @Override
@@ -39,8 +45,9 @@ public class FasitClientMock implements FasitClient {
 
     @Override
     public ServiceUser getCredentials(GetCredentialsRequest getCredentialsRequest) {
+        String mockUserName = String.format("mock-user-%s", getCredentialsRequest.applicationName);
         return new ServiceUser()
-                .setUsername("mock-user")
+                .setUsername(mockUserName)
                 .setPassword("mock-password");
     }
 
