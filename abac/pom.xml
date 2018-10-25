@@ -10,7 +10,6 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <groupId>no.nav.common</groupId>
     <artifactId>abac</artifactId>
 
     <properties>
@@ -72,7 +71,7 @@
             <artifactId>rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>metrics</artifactId>
         </dependency>
         <dependency>

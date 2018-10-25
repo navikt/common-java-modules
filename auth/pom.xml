@@ -8,7 +8,6 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <groupId>no.nav.common</groupId>
     <artifactId>auth</artifactId>
 
     <dependencyManagement>
@@ -29,7 +28,7 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>log</artifactId>
         </dependency>
         <dependency>

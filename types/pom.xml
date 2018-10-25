@@ -7,7 +7,6 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <groupId>no.nav.common</groupId>
     <artifactId>types</artifactId>
 
     <dependencyManagement>

@@ -8,7 +8,6 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <groupId>no.nav</groupId>
     <artifactId>metrics</artifactId>
 
     <dependencyManagement>

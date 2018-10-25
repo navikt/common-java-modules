@@ -8,7 +8,6 @@
         <artifactId>mor-pom</artifactId>
         <version>1-SNAPSHOT</version>
     </parent>
-    <groupId>no.nav.common</groupId>
     <artifactId>jetty</artifactId>
 
     <dependencyManagement>
