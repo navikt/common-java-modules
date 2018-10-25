@@ -12,14 +12,17 @@ import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
 import no.nav.dialogarena.config.fasit.FasitUtils;
+import no.nav.dialogarena.config.fasit.ServiceUserCertificate;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.sbl.util.LogUtils;
 import no.nav.validation.ValidationUtils;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotEmpty;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -62,10 +65,20 @@ public class ApiAppTest {
 
         if (isUtviklerImage()) {
             WebProxyConfigurator.setupWebProxy();
+            writeNavTrustStore();
         }
     }
 
-    private static boolean isUtviklerImage() {
+    @SneakyThrows
+    private static void writeNavTrustStore() {
+        // kafka trenger fungerende truststore
+        ServiceUserCertificate navTrustStore = FasitUtils.getServiceUserCertificate("nav_truststore", FasitUtils.getDefaultEnvironmentClass());
+        File navTrustStoreFile = File.createTempFile("nav_truststore", ".jks");
+        FileUtils.writeByteArrayToFile(navTrustStoreFile,navTrustStore.getKeystore());
+    }
+
+
+    public static boolean isUtviklerImage() {
         try {
             return InetAddress.getByName("fasit.adeo.no").isReachable(5000);
         } catch (IOException e) {
