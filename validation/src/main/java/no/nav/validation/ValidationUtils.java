@@ -6,17 +6,24 @@ import org.hibernate.validator.messageinterpolation.AbstractMessageInterpolator;
 import org.hibernate.validator.messageinterpolation.ResourceBundleMessageInterpolator;
 
 import javax.validation.*;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 
 public class ValidationUtils {
 
     private static final Validator VALIDATOR = buildValidator();
 
     public static <T> T validate(T object) {
-        Set<ConstraintViolation<Object>> constraintViolations = VALIDATOR.validate(object);
+        Set<ConstraintViolation<Object>> constraintViolations = stream(object)
+                .map(VALIDATOR::validate)
+                .flatMap(Collection::stream)
+                .collect(toSet());
         if (!constraintViolations.isEmpty()) {
             throw new IllegalArgumentException(String.format("Validation of '%s' failed:\n%s",
                     object,
@@ -27,6 +34,10 @@ public class ValidationUtils {
             );
         }
         return object;
+    }
+
+    private static Stream<Object> stream(Object object) {
+        return object instanceof Collection ? ((Collection)object).stream() : Stream.of(object);
     }
 
     private static String formatViolation(ConstraintViolation<Object> objectConstraintViolation) {
