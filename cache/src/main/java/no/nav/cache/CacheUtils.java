@@ -22,7 +22,7 @@ public class CacheUtils {
     }
 
     private static net.sf.ehcache.Cache createEhCache(CacheConfig cacheConfig) {
-        long timeToLiveSeconds = cacheConfig.timeToLive / 1000;
+        long timeToLiveSeconds = cacheConfig.timeToLiveMillis / 1000;
 
         CacheConfiguration cacheConfiguration = new CacheConfiguration(UUID.randomUUID().toString(), cacheConfig.maxEntries)
                 .memoryStoreEvictionPolicy(LRU)
@@ -38,7 +38,7 @@ public class CacheUtils {
         private final long refreshInterval;
 
         public CacheImpl(net.sf.ehcache.Cache cache, CacheConfig cacheConfig) {
-            this.refreshInterval = cacheConfig.timeToLive / 2;
+            this.refreshInterval = cacheConfig.timeToLiveMillis / 2;
             this.cache = cache;
         }
 
