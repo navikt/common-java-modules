@@ -11,13 +11,14 @@ import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.brukerdialog.tools.SecurityConstants;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 
 import javax.script.ScriptException;
 import java.io.IOException;
 
 import static java.lang.System.setProperty;
+import static no.nav.brukerdialog.security.jwks.CacheMissAction.REFRESH;
+import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 
 public class OidcTestRunner {
 
@@ -26,13 +27,15 @@ public class OidcTestRunner {
 
         // SETUP
         String applicationName = "veilarbdemo";
+        setProperty(APP_NAME_PROPERTY_NAME,applicationName);
+
         String issoHost = FasitUtils.getBaseUrl("isso-host");
         String issoJWS = FasitUtils.getBaseUrl("isso-jwks");
         String issoISSUER = FasitUtils.getBaseUrl("isso-issuer");
         String issoIsAlive = FasitUtils.getBaseUrl("isso.isalive", FasitUtils.Zone.FSS);
         ServiceUser srvveilarbdirigent = FasitUtils.getServiceUser("srvveilarbdemo", applicationName);
         ServiceUser isso_rp_user = FasitUtils.getServiceUser("isso-rp-user", applicationName);
-        String redirectlUrl = FasitUtils.getBaseUrl("veilarblogin.redirect-url", FasitUtils.Zone.FSS);
+        String redirectlUrl = FasitUtils.getRestService("veilarblogin.redirect-url", FasitUtils.getDefaultEnvironment()).getUrl();
 
         setProperty(Constants.ISSO_HOST_URL_PROPERTY_NAME, issoHost);
         setProperty(Constants.ISSO_RP_USER_USERNAME_PROPERTY_NAME, isso_rp_user.getUsername());

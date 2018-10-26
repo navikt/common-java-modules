@@ -3,6 +3,7 @@ package no.nav.brukerdialog.security.oidc.provider;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.jaspic.TokenLocator;
+import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.jwks.JsonWebKeyCache;
 import no.nav.brukerdialog.security.jwks.JwtHeader;
 import no.nav.sbl.rest.RestUtils;
@@ -40,8 +41,8 @@ public class AzureADB2CProvider implements OidcProvider {
     }
 
     @Override
-    public Key getVerificationKey(JwtHeader header) {
-        return keyCache.getVerificationKey(header);
+    public Optional<Key> getVerificationKey(JwtHeader header, CacheMissAction cacheMissAction) {
+        return keyCache.getVerificationKey(header,cacheMissAction);
     }
 
     @Override
