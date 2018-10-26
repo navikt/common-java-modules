@@ -705,7 +705,7 @@
                 <version>${aspectj.version}</version>
             </dependency>
             <dependency>
-                <groupId>no.nav.common</groupId>
+                <groupId>no.nav.sbl</groupId>
                 <artifactId>utave</artifactId>
                 <version>1.0.14</version>
             </dependency>
