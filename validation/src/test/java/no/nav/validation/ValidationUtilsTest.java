@@ -10,6 +10,9 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
+import java.util.Arrays;
+
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ValidationUtilsTest {
@@ -34,6 +37,22 @@ public class ValidationUtilsTest {
                         "ssn =  :: must match \"\\d+\"" +
                         ""
                 );
+    }
+
+    @Test
+    public void validate__null_not_valid() {
+        assertThatThrownBy(() -> ValidationUtils.validate(null))
+                .hasMessageContaining("must not be null");
+    }
+
+    @Test
+    public void validate__validates_collections() {
+        assertThatThrownBy(() -> ValidationUtils.validate(asList(
+                new OldPerson().setName("Bob"),
+                new OldPerson().setName("Jenkins")
+        )))
+                .hasMessageContaining("Bob")
+                .hasMessageContaining("Jenkins");
     }
 
     @Data
