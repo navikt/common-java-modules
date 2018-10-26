@@ -136,6 +136,10 @@
             <artifactId>httpcore</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+        </dependency>
     </dependencies>
 
     <scm>

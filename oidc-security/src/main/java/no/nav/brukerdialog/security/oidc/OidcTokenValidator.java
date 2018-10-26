@@ -1,6 +1,7 @@
 package no.nav.brukerdialog.security.oidc;
 
 import no.nav.brukerdialog.security.jwks.JwtHeader;
+import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.MalformedClaimException;
@@ -14,12 +15,22 @@ import org.slf4j.LoggerFactory;
 import java.security.Key;
 import java.util.List;
 
+import static no.nav.brukerdialog.security.jwks.CacheMissAction.REFRESH;
+
 public class OidcTokenValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(OidcTokenValidator.class);
     private static final int ALLOWED_CLOCK_SKEW_IN_SECONDS = 30;
 
     public OidcTokenValidatorResult validate(String token, OidcProvider oidcProvider) {
+        return validate(token, oidcProvider, REFRESH);
+    }
+
+    public OidcTokenValidatorResult validate(
+            String token,
+            OidcProvider oidcProvider,
+            CacheMissAction cacheMissAction
+    ) {
         if (token == null) {
             return OidcTokenValidatorResult.invalid("Missing token (token was null)");
         }
@@ -29,7 +40,7 @@ public class OidcTokenValidator {
         } catch (InvalidJwtException e) {
             return OidcTokenValidatorResult.invalid("Invalid OIDC " + e.getMessage());
         }
-        Key verificationKey = oidcProvider.getVerificationKey(header);
+        Key verificationKey = oidcProvider.getVerificationKey(header, cacheMissAction).orElse(null);
         if (verificationKey == null) {
             return OidcTokenValidatorResult.invalid(String.format("Jwt (%s) is not in jwks", header));
         }
