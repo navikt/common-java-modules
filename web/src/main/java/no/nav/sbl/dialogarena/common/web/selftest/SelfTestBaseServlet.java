@@ -59,6 +59,9 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
     public static final int STATUS_AVSKRUDD = 3;
 
     public static int statusToCode(SelfTestStatus selfTestStatus) {
+        if (selfTestStatus == null) {
+            return STATUS_ERROR;
+        }
         switch (selfTestStatus) {
             case OK:
                 return STATUS_OK;

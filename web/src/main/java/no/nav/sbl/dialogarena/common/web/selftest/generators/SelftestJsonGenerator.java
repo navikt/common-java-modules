@@ -1,8 +1,6 @@
 package no.nav.sbl.dialogarena.common.web.selftest.generators;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestBaseServlet;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
@@ -11,13 +9,12 @@ import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static no.nav.json.JsonUtils.toJson;
 
 public class SelftestJsonGenerator {
 
-    public static String generate(Selftest selftest) throws JsonProcessingException {
-        ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        return om.writeValueAsString(toDTO(selftest));
+    public static String generate(Selftest selftest) {
+        return toJson(toDTO(selftest));
     }
 
     private static SelftestDTO toDTO(Selftest selftest) {
@@ -52,7 +49,7 @@ public class SelftestJsonGenerator {
     }
 
     @Builder
-    private static class SelftestEndpointDTO{
+    private static class SelftestEndpointDTO {
         private String endpoint;
         private String description;
         private String errorMessage;
