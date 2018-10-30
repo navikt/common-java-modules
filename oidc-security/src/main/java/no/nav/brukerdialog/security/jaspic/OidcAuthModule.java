@@ -1,9 +1,9 @@
 package no.nav.brukerdialog.security.jaspic;
 
 import lombok.SneakyThrows;
+import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidatorResult;
-import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import no.nav.brukerdialog.tools.HostUtils;
 import no.nav.common.auth.LoginProvider;
@@ -83,10 +83,6 @@ public class OidcAuthModule implements LoginProvider {
                     return handleValidatedToken(refreshedToken, refreshedTokenValidatorResult.getSubject(), oidcProvider);
                 }
             }
-        }
-
-        if (needToRefreshToken && !optionalRefreshToken.isPresent()) {
-            log.warn("Refresh-token is needed, but not present for " + oidcProvider.getIdentType(requestToken));
         }
 
         if (requestTokenValidatorResult.isValid()) {
