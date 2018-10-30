@@ -83,7 +83,7 @@ public class FasitUtilsIntegrationTest {
         Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("veilarbdialog");
         assertThat(applicationEnvironment.size(), greaterThan(10));
 
-        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitet", "t6");
+        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitet", "q6");
         assertThat(veilarbaktivitetEnvironment.size(), greaterThan(10));
 
         Properties dittnavEnvironment = FasitUtils.getApplicationEnvironment("dittnav", "t1");
