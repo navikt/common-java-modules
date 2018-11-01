@@ -13,7 +13,7 @@ Versjonering av aktor-klient tas hÃ¥nd om av no.nav.sbl:bom, Alt du trenger er Ã
 
 ```
 <dependency>
-    <groupId>no.nav.sbl.dialogarena</groupId>
+    <groupId>no.nav.common</groupId>
     <artifactId>aktor-klient</artifactId>
 </dependency>
 ```

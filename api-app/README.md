@@ -10,7 +10,7 @@ Tas i bruk ved å legge til følgende i applikasjonens parent-pom:
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl.dialogarena</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>api-app-bom</artifactId>
                 <version>RELEASE</version>
                 <type>pom</type>
@@ -31,7 +31,7 @@ Hvis ønskelig, kan api-app sette opp et rest-api og eventuelle soap-tjenester m
 Legg til følgende avhengighet i war-modulen:
 ```
     <dependency>
-        <groupId>no.nav.sbl.dialogarena</groupId>
+        <groupId>no.nav.common</groupId>
         <artifactId>api-app</artifactId>
     </dependency>
 ```

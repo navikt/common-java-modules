@@ -5,13 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>no.nav.sbl</groupId>
+        <groupId>no.nav.common</groupId>
         <artifactId>mor-pom</artifactId>
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <groupId>no.nav.sbl.dialogarena</groupId>
-    <artifactId>common-abac</artifactId>
+    <artifactId>abac</artifactId>
 
     <properties>
         <abac-attributes.version>3.2.11</abac-attributes.version>
@@ -22,7 +21,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>no.nav.sbl</groupId>
+                <groupId>no.nav.common</groupId>
                 <artifactId>bom</artifactId>
                 <version>${project.parent.version}</version>
                 <type>pom</type>
@@ -64,15 +63,15 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>metrics</artifactId>
         </dependency>
         <dependency>
@@ -93,13 +92,13 @@
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>common-types</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>types</artifactId>
         </dependency>
 
         <!-- transitivt -->
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
@@ -121,11 +120,11 @@
 
         <!-- test scope -->
         <dependency>
-            <groupId>no.nav.sbl.dialogarena</groupId>
-            <artifactId>common-test</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>test</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.sbl</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>fasit</artifactId>
         </dependency>
         <dependency>
@@ -157,7 +156,7 @@
             <artifactId>auth</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.dialogarena</groupId>
+            <groupId>no.nav.common</groupId>
             <artifactId>oidc-security</artifactId>
             <type>test-jar</type>
         </dependency>

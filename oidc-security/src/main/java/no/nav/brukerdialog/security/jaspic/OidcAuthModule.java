@@ -1,6 +1,7 @@
 package no.nav.brukerdialog.security.jaspic;
 
 import lombok.SneakyThrows;
+import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidatorResult;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
@@ -19,10 +20,13 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static no.nav.brukerdialog.security.Constants.*;
+import static no.nav.brukerdialog.security.jwks.CacheMissAction.NO_REFRESH;
+import static no.nav.brukerdialog.security.jwks.CacheMissAction.REFRESH;
 import static no.nav.brukerdialog.tools.Utils.getRelativePath;
 
 public class OidcAuthModule implements LoginProvider {
@@ -31,51 +35,60 @@ public class OidcAuthModule implements LoginProvider {
     private static final boolean sslOnlyCookies = !Boolean.valueOf(System.getProperty("develop-local", "false"));
 
     private final List<OidcProvider> providers;
-    private final OidcTokenValidator oidcTokenValidator = new OidcTokenValidator();
+    private final OidcTokenValidator oidcTokenValidator;
 
     public OidcAuthModule(List<OidcProvider> providers) {
+        this(providers, new OidcTokenValidator());
+    }
+
+    OidcAuthModule(List<OidcProvider> providers, OidcTokenValidator oidcTokenValidator) {
         this.providers = providers;
+        this.oidcTokenValidator = oidcTokenValidator;
     }
 
     @Override
     public Optional<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        return providers.stream()
-                .filter(oidcProvider -> oidcProvider.match(httpServletRequest))
-                .findFirst()
-                .flatMap(oidcProvider -> doValidateRequest(httpServletRequest, httpServletResponse, oidcProvider));
+        return Stream.of(NO_REFRESH, REFRESH)
+                .flatMap(cacheControl -> authenticate(httpServletRequest, httpServletResponse, cacheControl))
+                .findFirst();
     }
 
-    private Optional<Subject> doValidateRequest(HttpServletRequest request, HttpServletResponse responseMessage, OidcProvider oidcProvider) {
-        Optional<String> optionalRequestToken = oidcProvider.getToken(request);
+    private Stream<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CacheMissAction cacheMissAction) {
+        return providers.stream().flatMap(oidcProviderHandler -> doValidateRequest(httpServletRequest, httpServletResponse, oidcProviderHandler, cacheMissAction));
+    }
+
+    private Stream<Subject> doValidateRequest(
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse,
+            OidcProvider oidcProvider,
+            CacheMissAction cacheMissAction
+    ) {
+        Optional<String> optionalRequestToken = oidcProvider.getToken(httpServletRequest);
         if (!optionalRequestToken.isPresent()) {
-            return empty();
+            return Stream.empty();
         }
 
         String requestToken = optionalRequestToken.get();
-        OidcTokenValidatorResult requestTokenValidatorResult = oidcTokenValidator.validate(requestToken, oidcProvider);
-        Optional<String> optionalRefreshToken = oidcProvider.getRefreshToken(request);
+        OidcTokenValidatorResult requestTokenValidatorResult = oidcTokenValidator.validate(requestToken, oidcProvider, cacheMissAction);
+        Optional<String> optionalRefreshToken = oidcProvider.getRefreshToken(httpServletRequest);
         boolean needToRefreshToken = needToRefreshToken(requestTokenValidatorResult);
         if (optionalRefreshToken.isPresent() && needToRefreshToken) {
             String refreshToken = optionalRefreshToken.get();
             Optional<String> optionalRefreshedToken = fetchUpdatedToken(refreshToken, requestToken, oidcProvider);
             if (optionalRefreshedToken.isPresent()) {
                 String refreshedToken = optionalRefreshedToken.get();
-                OidcTokenValidatorResult refreshedTokenValidatorResult = oidcTokenValidator.validate(refreshedToken, oidcProvider);
+                OidcTokenValidatorResult refreshedTokenValidatorResult = oidcTokenValidator.validate(refreshedToken, oidcProvider, cacheMissAction);
                 if (refreshedTokenValidatorResult.isValid()) {
-                    addHttpOnlyCookie(request, responseMessage, ID_TOKEN_COOKIE_NAME, refreshedToken);
+                    addHttpOnlyCookie(httpServletRequest, httpServletResponse, ID_TOKEN_COOKIE_NAME, refreshedToken);
                     return handleValidatedToken(refreshedToken, refreshedTokenValidatorResult.getSubject(), oidcProvider);
                 }
             }
         }
 
-        if (needToRefreshToken && !optionalRefreshToken.isPresent()) {
-            log.warn("Refresh-token is needed, but not present for " + oidcProvider.getIdentType(requestToken));
-        }
-
         if (requestTokenValidatorResult.isValid()) {
             return handleValidatedToken(requestToken, requestTokenValidatorResult.getSubject(), oidcProvider);
         }
-        return empty();
+        return Stream.empty();
     }
 
     private boolean needToRefreshToken(OidcTokenValidatorResult validateResult) {
@@ -145,8 +158,8 @@ public class OidcAuthModule implements LoginProvider {
                 : req.getRequestURL().toString() + "?" + req.getQueryString();
     }
 
-    private Optional<Subject> handleValidatedToken(String token, String username, OidcProvider oidcProvider) {
-        return of(new Subject(username, oidcProvider.getIdentType(token), SsoToken.oidcToken(token)));
+    private Stream<Subject> handleValidatedToken(String token, String username, OidcProvider oidcProvider) {
+        return Stream.of(new Subject(username, oidcProvider.getIdentType(token), SsoToken.oidcToken(token)));
     }
 
 }

@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.security.Key;
+import java.util.Optional;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.sbl.rest.RestUtils.withClient;
@@ -28,24 +31,27 @@ public class JsonWebKeyCache {
         this.expectAlgorithmInKey = expectAlgorithmInKey;
     }
 
-    public synchronized Key getVerificationKey(JwtHeader header) {
-        Key key = getCachedKey(header);
-        if (key != null) {
-            return key;
-        }
-        refreshKeyCache();
-        return getCachedKey(header);
+    public Optional<Key> getVerificationKey(JwtHeader header, CacheMissAction cacheMissAction) {
+        return getCachedKey(header).map(Optional::of).orElseGet(() -> {
+            if (cacheMissAction == CacheMissAction.REFRESH) {
+                return getVerificationKeyWithRefresh(header);
+            } else {
+                return empty();
+            }
+        });
     }
 
-    private Key getCachedKey(JwtHeader header) {
-        if (keyCache == null) {
-            return null;
-        }
-        JsonWebKey jwk = keyCache.findJsonWebKey(header.getKid(), "RSA", "sig", expectAlgorithmInKey ? header.getAlgorithm() : null);
-        if (jwk == null) {
-            return null;
-        }
-        return jwk.getKey();
+    private synchronized Optional<Key> getVerificationKeyWithRefresh(JwtHeader header) {
+        return getCachedKey(header).map(Optional::of).orElseGet(() -> {
+            refreshKeyCache();
+            return getCachedKey(header);
+        });
+    }
+
+    private Optional<Key> getCachedKey(JwtHeader header) {
+        return ofNullable(keyCache)
+                .map(cache -> cache.findJsonWebKey(header.getKid(), "RSA", "sig", expectAlgorithmInKey ? header.getAlgorithm() : null))
+                .map(JsonWebKey::getKey);
     }
 
     private void setKeyCache(String jwksAsString) {
