@@ -15,6 +15,7 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.SBS;
 import static no.nav.dialogarena.config.fasit.FasitUtilsTest.testServiceUserCertificate;
+import static no.nav.dialogarena.config.fasit.TestEnvironment.Q6;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -44,7 +45,7 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void shouldReturnUsernamePasswordForDb() throws Exception {
-        DbCredentials dbCredentials = getDbCredentials(T6, "veilarbportefolje");
+        DbCredentials dbCredentials = getDbCredentials(Q6, "veilarbportefolje");
         assertEquals("jdbc:oracle:thin:@a01dbfl033.adeo.no:1521/VEILARBPORTEFOLJE_Q6", dbCredentials.url);
         assertEquals("VEILARBPORTEFOLJE", dbCredentials.username);
         assertNotNull(dbCredentials.password);
@@ -53,10 +54,10 @@ public class FasitUtilsIntegrationTest {
     @Test
     public void getApplicationConfig() {
         ApplicationConfig dittnavApplicationConfig = FasitUtils.getApplicationConfig("dittnav", TEST_ENVIRONMENT);
-        assertThat(dittnavApplicationConfig.domain, equalTo("oera-t.local"));
+        assertThat(dittnavApplicationConfig.domain, equalTo("oera-q.local"));
 
         ApplicationConfig situasjonApplicationConfig = FasitUtils.getApplicationConfig("veilarbaktivitet", TEST_ENVIRONMENT);
-        assertThat(situasjonApplicationConfig.domain, equalTo("test.local"));
+        assertThat(situasjonApplicationConfig.domain, equalTo("preprod.local"));
     }
 
     @Test
@@ -133,7 +134,7 @@ public class FasitUtilsIntegrationTest {
         assertThat(FasitUtils.getOpenAmConfig(), notNullValue());
 
         OpenAmConfig openAmConfig = FasitUtils.getOpenAmConfig(TEST_ENVIRONMENT);
-        assertThat(openAmConfig.username, equalTo("srvOpenam_test"));
+        assertThat(openAmConfig.username, equalTo("deployer"));
         assertThat(openAmConfig.password, not(nullValue()));
 
         assertThat(openAmConfig.logoutUrl, equalTo(String.format("https://tjenester-%s.nav.no/esso/logout", TEST_ENVIRONMENT)));
