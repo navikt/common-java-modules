@@ -72,6 +72,7 @@ public class ApiAppTest {
 
     @SneakyThrows
     private static void setupNavTrustStore() {
+        LOGGER.info("Setting up NAV Truststore");
         ServiceUserCertificate navTrustStore = FasitUtils.getServiceUserCertificate("nav_truststore", FasitUtils.getDefaultEnvironmentClass());
         File navTrustStoreFile = File.createTempFile("nav_truststore", ".jks");
         FileUtils.writeByteArrayToFile(navTrustStoreFile,navTrustStore.getKeystore());
