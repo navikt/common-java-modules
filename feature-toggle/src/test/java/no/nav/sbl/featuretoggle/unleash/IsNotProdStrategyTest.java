@@ -18,7 +18,7 @@ public class IsNotProdStrategyTest {
     public void smoketest() {
         assertThat(isNotProdStrategy.isEnabled(null)).isFalse();
         assertDisabled("p", "q0");
-        assertEnabled("q1", "q6", "t6");
+        assertEnabled("q1", "q6");
     }
 
     private void assertDisabled(String... environments) {

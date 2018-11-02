@@ -24,7 +24,7 @@ public class ByEnvironmentStrategyTest {
         assertDisabled("", "");
         assertDisabled(",,,", "");
 
-        assertEnabled("q6,q1,t6", "q1");
+        assertEnabled("q6,q1", "q1");
     }
 
     private void assertDisabled(String environmentParameter, String environment) {

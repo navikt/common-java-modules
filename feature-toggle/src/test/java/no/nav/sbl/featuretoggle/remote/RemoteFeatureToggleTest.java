@@ -5,6 +5,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Test;
 
 import java.io.IOException;
+import no.nav.dialogarena.config.fasit.FasitUtils;
 
 import static no.nav.sbl.featuretoggle.remote.MockServer.MOCK_RESPONSE;
 import static no.nav.sbl.featuretoggle.remote.MockServer.lagMockServer;
@@ -48,7 +49,7 @@ public class RemoteFeatureToggleTest {
 
     @Test
     public void skal_returnere_default_ved_ssl_feil() {
-        RemoteFeatureToggleRepository repo = new RemoteFeatureToggleRepository("https://feature-t6.nais.preprod.local/fo-feature");
+        RemoteFeatureToggleRepository repo = new RemoteFeatureToggleRepository(String.format("https://feature-%s.nais.preprod.local/fo-feature", FasitUtils.getDefaultEnvironment()));
         RemoteFeatureToggle toggle = lagToggle(repo, "aktivitetsplan.kvp", true);
 
         assertThat(toggle.erAktiv()).isTrue();

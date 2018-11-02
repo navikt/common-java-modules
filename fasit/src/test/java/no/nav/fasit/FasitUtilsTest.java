@@ -1,7 +1,5 @@
 package no.nav.fasit;
 
-import no.nav.fasit.FasitUtils;
-import no.nav.fasit.ServiceUserCertificate;
 import org.junit.Test;
 
 import static no.nav.fasit.FasitUtils.*;
@@ -9,12 +7,9 @@ import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.fasit.FasitUtils.Zone.SBS;
 import static no.nav.fasit.TestEnvironment.Q6;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertThat;
 
 public class FasitUtilsTest {

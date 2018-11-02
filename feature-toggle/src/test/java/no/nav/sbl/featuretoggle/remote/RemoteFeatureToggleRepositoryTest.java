@@ -5,6 +5,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.Ignore;
 import org.junit.Test;
+import no.nav.dialogarena.config.fasit.FasitUtils;
 
 import java.util.Map;
 
@@ -58,7 +59,7 @@ public class RemoteFeatureToggleRepositoryTest {
     @Test
     @Ignore("Skal fungere, men vil ikke ha direkte avhengighet ut i miljø")
     public void cache_fungerer_mot_nginx() {
-        RemoteFeatureToggleRepository repo = new RemoteFeatureToggleRepository("https://app-t6.adeo.no/feature");
+        RemoteFeatureToggleRepository repo = new RemoteFeatureToggleRepository(String.format("https://app-%s.adeo.no/feature", FasitUtils.getDefaultEnvironment()));
         Map<String, Map<String, Boolean>> map1 = repo.get();
         Map<String, Map<String, Boolean>> map2 = repo.get();
 

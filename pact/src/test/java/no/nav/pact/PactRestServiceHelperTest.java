@@ -1,5 +1,6 @@
 package no.nav.pact;
 
+import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,6 +26,6 @@ public class PactRestServiceHelperTest {
 
     @Test
     public void isCloud_Alive() {
-        assertTrue(new PactRestServiceHelper("https://app-t6.adeo.no/veilarbperson" + "/internal/isAlive").withISSO().isAlive());
+        assertTrue(new PactRestServiceHelper(String.format("https://app-%s.adeo.no/veilarbperson", FasitUtils.getDefaultEnvironment()) + "/internal/isAlive").withISSO().isAlive());
     }
 }
