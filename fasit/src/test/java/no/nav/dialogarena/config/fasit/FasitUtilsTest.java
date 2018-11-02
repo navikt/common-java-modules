@@ -21,29 +21,22 @@ public class FasitUtilsTest {
 
     @Test
     public void getEnvironmentClass_() {
-        assertThat(FasitUtils.getEnvironmentClass("t6"), equalTo("t"));
-        assertThat(FasitUtils.getEnvironmentClass("t"), equalTo("t"));
         assertThat(FasitUtils.getEnvironmentClass("q6"), equalTo("q"));
     }
 
     @Test
     public void getOeraLocal_() {
-        assertThat(FasitUtils.getOeraLocal("t6"), equalTo("oera-t.local"));
-        assertThat(FasitUtils.getOeraLocal("t"), equalTo("oera-t.local"));
         assertThat(FasitUtils.getOeraLocal("q6"), equalTo("oera-q.local"));
     }
 
     @Test
     public void getFSSLocal() {
-        assertThat(FasitUtils.getFSSLocal("t6"), equalTo("test.local"));
-        assertThat(FasitUtils.getFSSLocal("t"), equalTo("test.local"));
         assertThat(FasitUtils.getFSSLocal("q6"), equalTo("preprod.local"));
     }
 
     @Test
     public void erEksterntDomene_() {
         assertThat(FasitUtils.erEksterntDomene("adeo.no"), is(false));
-        assertThat(FasitUtils.erEksterntDomene("test.local"), is(false));
         assertThat(FasitUtils.erEksterntDomene("devillo.no"), is(false));
         assertThat(FasitUtils.erEksterntDomene("preprod.local"), is(false));
 
@@ -63,12 +56,7 @@ public class FasitUtilsTest {
     }
 
     @Test
-    public void getDefaultDomain_() throws Exception {
-        setTemporaryProperty(DEFAULT_ENVIRONMENT_VARIABLE_NAME, T6.toString(),()->{
-            assertThat(getDefaultDomain(SBS),equalTo(OERA_T_LOCAL));
-            assertThat(getDefaultDomain(FSS),equalTo(TEST_LOCAL));
-        });
-
+    public void getDefaultDomain_() throws Exception { ;
         setTemporaryProperty(DEFAULT_ENVIRONMENT_VARIABLE_NAME, Q6.toString(),()->{
             assertThat(getDefaultDomain(SBS),equalTo(OERA_Q_LOCAL));
             assertThat(getDefaultDomain(FSS),equalTo(PREPROD_LOCAL));
