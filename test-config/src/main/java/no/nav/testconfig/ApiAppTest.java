@@ -82,7 +82,11 @@ public class ApiAppTest {
 
     public static boolean isUtviklerImage() {
         try {
-            return InetAddress.getByName("fasit.adeo.no").isReachable(5000);
+            boolean reachable = InetAddress.getByName("fasit.adeo.no").isReachable(5000);
+            if (reachable) {
+                LOGGER.info("Assuming access to fasit");
+            }
+            return reachable;
         } catch (IOException e) {
             LOGGER.info("Access check to fasit threw exception, assuming local dev environment");
             return false;
