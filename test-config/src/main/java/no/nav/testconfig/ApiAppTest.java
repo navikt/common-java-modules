@@ -66,7 +66,7 @@ public class ApiAppTest {
 
         if (isUtviklerImage()) {
             WebProxyConfigurator.setupWebProxy();
-            setupNavTrustStore();
+//            setupNavTrustStore();
         }
     }
 
