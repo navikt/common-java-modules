@@ -74,15 +74,32 @@ public class OpenAMUserInfoService {
         if (status < 399) {
             return of(response.readEntity(OpenAMAttributes.class));
         } else {
-            String payload = response.readEntity(String.class);
-            String phrase = response.getStatusInfo().getReasonPhrase();
-            String message = OPENAM_GENERAL_ERROR + "HTTP status: " + status + " " + phrase + ".";
-            if (status == 401) {
-                message += " Response:" + payload;
-            }
-            LOG.error(message);
-            return empty();
+            return handleErrorResponse(response, status);
         }
+    }
+
+    private Optional<OpenAMAttributes> handleErrorResponse(Response response, int status) {
+        String payload = response.readEntity(String.class);
+        if (isInvalidSessionBecauseOfExpiredToken(payload)) {
+            LOG.info(OPENAM_GENERAL_ERROR + "Invalid session because of expired token.");
+        } else {
+            LOG.error(createErrorMessage(response, status, payload));
+        }
+        return empty();
+    }
+
+    private boolean isInvalidSessionBecauseOfExpiredToken(String responsePayload) {
+        return responsePayload.contains("message\":\"Invalid session ID.") &&
+                responsePayload.contains("name\":\"com.sun.identity.idsvcs.TokenExpired");
+    }
+
+    private String createErrorMessage(Response response, int status, String payload) {
+        String phrase = response.getStatusInfo().getReasonPhrase();
+        String message = OPENAM_GENERAL_ERROR + "HTTP status: " + status + " " + phrase + ".";
+        if (status == 401) {
+            message += " Response:" + payload;
+        }
+        return message;
     }
 
     public String getUrl(String token, List<String> attributes) {
