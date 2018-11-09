@@ -349,7 +349,9 @@ public final class Jetty {
         }
 
         HttpConfiguration configuration = new HttpConfiguration();
-        // Increase default buffer sizes to prevent failures due to large responses
+        // Increase default buffer sizes to prevent failures due to large requests or responses
+        // This increases memory usage but seems to be necessary to handle current heavy usage of cookies (!)
+        configuration.setRequestHeaderSize(16384);
         configuration.setResponseHeaderSize(16384);
         configuration.setOutputBufferSize(32768);
 
