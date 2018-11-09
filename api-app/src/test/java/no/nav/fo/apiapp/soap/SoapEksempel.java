@@ -25,7 +25,7 @@ public class SoapEksempel implements HelloWorld {
             case IDENT_FOR_NOSTET_KALL:
                 return new CXFClient<>(HelloWorld.class)
                         // TODO
-                        .address("https://service-gw-t6.test.local/")
+                        .address("https://service-gw-q0.test.local/")
                         .build()
                         .sayHi(IDENT_FOR_UKJENT_FEIL);
             default:
