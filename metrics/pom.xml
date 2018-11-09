@@ -23,6 +23,12 @@
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>util</artifactId>
