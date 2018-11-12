@@ -1,9 +1,7 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.SubjectRule;
-import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.Subject;
+import no.nav.common.auth.TestSubjectUtils;
 import no.nav.dialogarena.mock.MockHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.servicemix.examples.cxf.HelloWorld;
@@ -15,6 +13,8 @@ import org.slf4j.Logger;
 
 import java.net.ConnectException;
 
+import static no.nav.common.auth.SsoToken.Type.EKSTERN_OPENAM;
+import static no.nav.common.auth.SsoToken.Type.OIDC;
 import static no.nav.sbl.dialogarena.common.cxf.JettyTestServer.findFreePort;
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.dialogarena.test.ssl.SSLTestUtils.disableCertificateChecks;
@@ -115,11 +115,19 @@ public class NAVOidcSTSClientIntegrationTest {
     }
 
     private void setOidcToken(String jwt) {
-        subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.oidcToken(jwt)));
+        subjectRule.setSubject(TestSubjectUtils.builder()
+                .tokenType(OIDC)
+                .token(jwt)
+                .build()
+        );
     }
 
-    private void setEksternOpenAmToken(String saml) {
-        subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.eksternOpenAM(saml)));
+    private void setEksternOpenAmToken(String openAmToken) {
+        subjectRule.setSubject(TestSubjectUtils.builder()
+                .tokenType(EKSTERN_OPENAM)
+                .token(openAmToken)
+                .build()
+        );
     }
 
     private void ping(HelloWorld aktoer_v2PortType) {

@@ -3,9 +3,8 @@ package no.nav.sbl.dialogarena.common.abac;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import no.nav.brukerdialog.security.context.SubjectRule;
-import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.Subject;
+import no.nav.common.auth.TestSubjectUtils;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
@@ -114,7 +113,7 @@ public class HttpTest {
     }
 
     private void gittBrukerMedSAMLAssertion() throws ParserConfigurationException {
-        subjectRule.setSubject(new Subject("uid", IdentType.EksternBruker, SsoToken.saml("samlToken")));
+        subjectRule.setSubject(TestSubjectUtils.builder().tokenType(SsoToken.Type.SAML).build());
     }
 
 }

@@ -225,7 +225,7 @@ public class DevelopmentSecurity {
 
     private static Jetty.JettyBuilder configureOpenAm(Jetty.JettyBuilder jettyBuilder, ESSOSecurityConfig essoSecurityConfig) throws IOException {
         OpenAmConfig openAmConfig = FasitUtils.getOpenAmConfig(essoSecurityConfig.environment);
-        List<LoginProvider> loginProviders = singletonList(new OpenAMLoginFilter(new no.nav.common.auth.openam.sbs.OpenAmConfig(openAmConfig.restUrl)));
+        List<LoginProvider> loginProviders = singletonList(new OpenAMLoginFilter(no.nav.common.auth.openam.sbs.OpenAmConfig.builder().restUrl(openAmConfig.restUrl).build()));
         return jettyBuilder.addFilter(new LoginFilter(loginProviders, singletonList(".*")));
     }
 
