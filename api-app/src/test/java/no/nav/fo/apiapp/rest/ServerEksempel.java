@@ -19,7 +19,7 @@ public class ServerEksempel {
                 .build();
     }
 
-    private String string(int sizeKB) {
+    public static String string(int sizeKB) {
         return IntStream.range(0, sizeKB * 1000)
                 .mapToObj(i -> "x")
                 .collect(joining(""));
