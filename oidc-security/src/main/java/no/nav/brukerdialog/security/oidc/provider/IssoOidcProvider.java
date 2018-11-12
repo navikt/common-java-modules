@@ -41,9 +41,7 @@ public class IssoOidcProvider implements OidcProvider {
 
     @Override
     public String getExpectedAudience(String token) {
-        //Biblioteket støtter ikke at man disabler expected audience sjekken dersom den finnes en "aud"-claim i tokenet.
-        //Henter dermed ut aud fra tokenet og setter det som expected.
-        return OidcTokenUtils.getTokenAud(token);
+        return null; // We intentionally expect any or no audience when validating internal oidc tokens
     }
 
     @Override
