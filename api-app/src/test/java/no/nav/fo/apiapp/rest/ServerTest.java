@@ -10,6 +10,12 @@ public class ServerTest extends JettyTest {
     @Test
     public void get() {
         assertThat(getString("/api/server")).hasSize(31_000);
+
+        assertThat(target("/api/server").request()
+                .cookie("LARGE_COOKIE", ServerEksempel.string(15))
+                .get()
+                .getStatus()
+        ).isEqualTo(200);
     }
 
 }
