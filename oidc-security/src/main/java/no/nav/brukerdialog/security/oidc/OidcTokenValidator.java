@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.security.Key;
 import java.util.List;
 
+import static java.util.Optional.ofNullable;
 import static no.nav.brukerdialog.security.jwks.CacheMissAction.REFRESH;
 
 public class OidcTokenValidator {
@@ -56,7 +57,9 @@ public class OidcTokenValidator {
                 .setAllowedClockSkewInSeconds(ALLOWED_CLOCK_SKEW_IN_SECONDS)
                 .setRequireSubject()
                 .setExpectedIssuer(issoExpectedTokenIssuer)
-                .setExpectedAudience(false,expectedAud) //requireAudienceClaim til false slik at det funker om openAM fjerner aud fra token.
+                // Biblioteket støtter ikke at man disabler expected audience sjekken dersom den finnes en "aud"-claim i tokenet.
+                // Henter dermed ut aud fra tokenet og setter det som expected hvis provideren vi ikke forventer et spesifikt audience.
+                .setExpectedAudience(expectedAud != null, ofNullable(expectedAud).orElseGet(() -> OidcTokenUtils.getTokenAud(token)))
                 .setVerificationKey(verificationKey)
                 .build();
 
