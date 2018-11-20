@@ -9,6 +9,7 @@ import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.jwks.JwtHeader;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import no.nav.json.JsonUtils;
+import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
 import org.jose4j.jws.AlgorithmIdentifiers;
@@ -23,6 +24,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jose4j.jws.AlgorithmIdentifiers.NONE;
+import static org.jose4j.jws.AlgorithmIdentifiers.RSA_USING_SHA256;
 
 public class OidcTokenValidatorTest {
 
@@ -34,15 +37,17 @@ public class OidcTokenValidatorTest {
     private TestToken tokenWithInvalidAudience;
     private TestToken tokenWithoutAudience;
     private TestToken tokenWithInvalidIssuer;
+    private TestToken tokenWithoutAlgorithm;
 
     private OidcTokenValidator oidcTokenValidator = new OidcTokenValidator();
 
     @Before
     public void setup() {
-        tokenWithValidAudience = generate(VALID_AUDIENCE, VALID_ISSUER);
-        tokenWithInvalidAudience = generate("invalid audience", VALID_ISSUER);
-        tokenWithoutAudience = generate(null, VALID_ISSUER);
-        tokenWithInvalidIssuer = generate(VALID_AUDIENCE, "invalid issuer");
+        tokenWithValidAudience = generate(VALID_AUDIENCE, VALID_ISSUER, RSA_USING_SHA256);
+        tokenWithInvalidAudience = generate("invalid audience", VALID_ISSUER, RSA_USING_SHA256);
+        tokenWithoutAudience = generate(null, VALID_ISSUER, RSA_USING_SHA256);
+        tokenWithInvalidIssuer = generate(VALID_AUDIENCE, "invalid issuer", RSA_USING_SHA256);
+        tokenWithoutAlgorithm = generate(VALID_AUDIENCE, VALID_ISSUER, NONE);
     }
 
     @Test
@@ -70,6 +75,11 @@ public class OidcTokenValidatorTest {
     @Test
     public void validate__invalid_issuer__invalid() {
         assertThat(validate(tokenWithInvalidIssuer, provider(VALID_AUDIENCE)).getErrorMessage()).contains("iss");
+    }
+
+    @Test
+    public void validate__no_algorithm__invalid() {
+        assertThat(validate(tokenWithoutAlgorithm, provider(VALID_AUDIENCE)).getErrorMessage()).contains("algorithm");
     }
 
     private OidcTokenValidatorResult validate(TestToken testToken, OidcProvider oidcProvider) {
@@ -123,7 +133,7 @@ public class OidcTokenValidatorTest {
 
 
     @SneakyThrows
-    private static TestToken generate(String aud, String issuer) {
+    private static TestToken generate(String aud, String issuer, String algorithm) {
         JwtClaims claims = new JwtClaims();
         claims.setIssuer(issuer);
         claims.setAudience(aud);
@@ -132,12 +142,17 @@ public class OidcTokenValidatorTest {
         claims.setIssuedAtToNow();
         claims.setNotBeforeMinutesInThePast(2);
         claims.setSubject("12345678901");
-        JsonWebSignature jws = new JsonWebSignature();
 
+        JsonWebSignature jws = new JsonWebSignature();
         jws.setPayload(claims.toJson());
-        jws.setKey(RSA_JSON_WEB_KEY.getPrivateKey());
+
+        if(!AlgorithmIdentifiers.NONE.equals(algorithm)){
+            jws.setKey(RSA_JSON_WEB_KEY.getPrivateKey());
+        }
         jws.setKeyIdHeaderValue(RSA_JSON_WEB_KEY.getKeyId());
-        jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+        jws.setAlgorithmHeaderValue(algorithm);
+        jws.setAlgorithmConstraints(AlgorithmConstraints.NO_CONSTRAINTS);
+
         return TestToken.builder()
                 .issuer(issuer)
                 .token(jws.getCompactSerialization())
