@@ -1,5 +1,6 @@
 package no.nav.apiapp.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import no.nav.apiapp.ApiAppServletContextListener;
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
@@ -15,8 +16,12 @@ import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
+import no.nav.sbl.jdbc.DataSourceFactory;
+import no.nav.sbl.jdbc.Database;
+import no.nav.sbl.jdbc.DatabaseSelftest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +127,21 @@ public class Konfigurator implements ApiAppConfigurator {
     @Override
     public ApiAppConfigurator customizeJettyBuilder(Consumer<JettyBuilder> jettyBuilderCustomizer) {
         jettyBuilderCustomizers.add(jettyBuilderCustomizer);
+        return this;
+    }
+
+    @Override
+    public ApiAppConfigurator database(DataSourceFactory.Builder builder) {
+        return database(builder.build());
+    }
+
+    @Override
+    public ApiAppConfigurator database(HikariDataSource hikariDataSource) {
+        springBonner.add(hikariDataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(hikariDataSource);
+        springBonner.add(jdbcTemplate);
+        springBonner.add(new Database(jdbcTemplate));
+        springBonner.add(new DatabaseSelftest(hikariDataSource));
         return this;
     }
 

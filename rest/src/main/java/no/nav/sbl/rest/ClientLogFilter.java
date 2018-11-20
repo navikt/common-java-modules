@@ -7,6 +7,7 @@ import no.nav.log.LogFilter;
 import no.nav.log.MDCConstants;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
+import org.glassfish.jersey.client.ClientRequest;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import static java.util.Arrays.stream;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
 import static no.nav.log.LogFilter.NAV_CALL_ID_HEADER_NAMES;
@@ -57,7 +59,7 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
 
         MultivaluedMap<String, Object> requestHeaders = clientRequestContext.getHeaders();
 
-        of(MDC.get(MDCConstants.MDC_CALL_ID)).ifPresent(callId -> stream(NAV_CALL_ID_HEADER_NAMES).forEach(headerName-> requestHeaders.add(headerName, callId)));
+        of(MDC.get(MDCConstants.MDC_CALL_ID)).ifPresent(callId -> stream(NAV_CALL_ID_HEADER_NAMES).forEach(headerName -> requestHeaders.add(headerName, callId)));
         getApplicationName().ifPresent(applicationName -> requestHeaders.add(LogFilter.CONSUMER_ID_HEADER_NAME, applicationName));
 
         requestHeaders.add(RestUtils.CSRF_COOKIE_NAVN, CSRF_TOKEN);
@@ -98,12 +100,27 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
     public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
         if (!filterConfig.disableMetrics) {
             Timer timer = (Timer) clientRequestContext.getProperty(NAME);
+            int status = clientResponseContext.getStatus();
+            String host = clientRequestContext.getUri().getHost();
+            String path = clientRequestContext.getUri().getPath();
             timer
                     .stop()
-                    .addFieldToReport("httpStatus", clientResponseContext.getStatus())
-                    .addFieldToReport("host", clientRequestContext.getUri().getHost())
-                    .addFieldToReport("path", clientRequestContext.getUri().getPath())
+                    .addFieldToReport("httpStatus", status)
+                    .addFieldToReport("host", host)
+                    .addFieldToReport("path", path)
                     .report();
+
+            MetricsFactory.getMeterRegistry().timer(
+                    "rest_client",
+                    "name",
+                    filterConfig.metricName,
+                    "status",
+                    Integer.toString(status),
+                    "host",
+                    host,
+                    "path",
+                    path
+            ).record(timer.getElpasedTimeInMillis(), MILLISECONDS);
         }
     }
 

@@ -1,7 +1,9 @@
 package no.nav.fo.apiapp;
 
+import com.zaxxer.hikari.HikariDataSource;
 import no.nav.apiapp.ApiApplication.NaisApiApplication;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.apiapp.db.DatabaseExample;
 import no.nav.apiapp.servlet.ForwardServletExample;
 import no.nav.apiapp.servlet.IncludeServletExample;
 import no.nav.fo.apiapp.rest.*;
@@ -13,6 +15,7 @@ import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.jdbc.DataSourceFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -27,7 +30,8 @@ import static no.nav.apiapp.ServletUtil.leggTilServlet;
 @Import({
         AbacContext.class,
         InjectionEksempel.class,
-        EksempelService.class
+        EksempelService.class,
+        DatabaseExample.class
 })
 public class ApplicationConfig implements NaisApiApplication {
 
@@ -108,7 +112,13 @@ public class ApplicationConfig implements NaisApiApplication {
         });
 
         if (!JettyTest.DISABLE_AUTH) {
-            apiAppConfigurator
+            HikariDataSource hikariDataSource = DataSourceFactory.dataSource()
+                    .url("jdbc:h2:mem:")
+                    .username("sa")
+                    .password("")
+                    .build();
+
+            apiAppConfigurator.database(hikariDataSource)
 //                .azureADB2CLogin();
 //                .samlLogin()
                     .sts()

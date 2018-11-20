@@ -48,7 +48,10 @@ public class FasitClientMock implements FasitClient {
         String mockUserName = String.format("mock-user-%s", getCredentialsRequest.applicationName);
         return new ServiceUser()
                 .setUsername(mockUserName)
-                .setPassword("mock-password");
+                .setPassword("mock-password")
+                .setDomain(getCredentialsRequest.domain)
+                .setEnvironment(getCredentialsRequest.environment)
+                ;
     }
 
     @Override

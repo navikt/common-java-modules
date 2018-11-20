@@ -8,12 +8,9 @@ import org.springframework.stereotype.Component;
 import static no.nav.metrics.aspects.AspectUtil.*;
 
 /**
- * HOWTO:
- * - aspectjweaver som en runtime dependency
- * - @EnableAspectJAutoProxy i Spring-config
- * - Gjør TimerAspect tilgjengelig som en Spring-bean
- * - Sørg for at klassen der du bruker @Timed er managed av Spring
+ * @deprecated don't use aspects for metrics, just measure directly using MetricsFactory.getMeterRegistry()
  */
+@Deprecated
 @Aspect
 @Component
 public class TimerAspect {

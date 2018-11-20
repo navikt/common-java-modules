@@ -3,8 +3,9 @@ package no.nav.metrics.aspects;
 import java.lang.annotation.*;
 
 /**
- * Se {@link CountAspect} for eksempler på bruk.
+ * @deprecated don't use aspects for metrics, just measure directly using MetricsFactory.getMeterRegistry()
  */
+@Deprecated
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

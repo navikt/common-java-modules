@@ -22,6 +22,12 @@ public class LogUtilsTest {
         setGlobalLogLevel(INFO);
 
         MDC.put(LogUtilsTest.class.getName(), FNR);
+
+        LOGGER.info("i");
+        LOGGER.debug("d");
+        LOGGER.error("e");
+        LOGGER.warn("w");
+
         LOGGER.info(FNR);
         LOGGER.info("fnr: {}", FNR);
         LOGGER.info("<tag>{}</tag>", FNR);

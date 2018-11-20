@@ -48,9 +48,13 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.ConfigurableWebApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
@@ -79,8 +83,7 @@ import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.springframework.util.StringUtils.isEmpty;
-import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
-import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
+import static org.springframework.web.context.ContextLoader.*;
 
 /*
 - Bruker @WebListener isteden for 'servletContext.addListener(this);'
@@ -90,7 +93,7 @@ import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
  */
 @WebListener
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ApiAppServletContextListener implements WebApplicationInitializer, ServletContextListener, HttpSessionListener {
+public class ApiAppServletContextListener implements WebApplicationInitializer, ServletContextListener, HttpSessionListener, BeanFactoryPostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppServletContextListener.class);
 
@@ -114,7 +117,12 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             "/api/ping"
     );
 
-    private ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
+    private ContextLoaderListener contextLoaderListener = new ContextLoaderListener() {
+        @Override
+        protected void customizeContext(ServletContext sc, ConfigurableWebApplicationContext wac) {
+            super.customizeContext(sc, wac);
+        }
+    };
 
     private final Konfigurator konfigurator;
 
@@ -201,19 +209,15 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
                 oidcProviders.add(new IssoOidcProvider());
             }
 
-            if (detectAndLogProperty(AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA)){
+            if (detectAndLogProperty(AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA)) {
                 oidcProviders.add(new AzureADB2CProvider(AzureADB2CConfig.readFromSystemProperties()));
             }
 
-            if(!oidcProviders.isEmpty()){
+            if (!oidcProviders.isEmpty()) {
                 providers.add(new OidcAuthModule(oidcProviders));
             }
 
             leggTilFilter(servletContextEvent, new LoginFilter(providers, DEFAULT_PUBLIC_PATHS));
-        }
-
-        if (konfigurator != null) {
-            konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
         }
 
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
@@ -241,6 +245,11 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         }
 
         if (apiApplication instanceof ApiApplication.NaisApiApplication) {
+            // TODO poll
+            // - alltid aktivert (som idag)
+            // - opt-in
+            // - opt-out
+            // - eksplisitt valg
             MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
         }
 
@@ -341,6 +350,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     private ApiApplication startSpring(ServletContextEvent servletContextEvent) {
         contextLoaderListener.contextInitialized(servletContextEvent);
         AnnotationConfigWebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
+
         ApiApplication apiApplication = webApplicationContext.getBean(ApiApplication.class);
 
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
@@ -379,4 +389,10 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         return of(servletContext.getInitParameter("disableApiApp")).map(Boolean::parseBoolean).orElse(false);
     }
 
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) throws BeansException {
+        if (konfigurator != null) {
+            konfigurator.getSpringBonner().forEach(b -> configurableListableBeanFactory.registerSingleton(b.getClass().getName(), b));
+        }
+    }
 }

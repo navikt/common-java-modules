@@ -52,7 +52,7 @@ public class ApiAppTest {
     @SneakyThrows
     public static void setupTestContext(Config config) {
         ValidationUtils.validate(config);
-        getLoggerContext().getLogger("ROOT").iteratorForAppenders().forEachRemaining(ApiAppTest::simplifyConsoleAppender);
+       // getLoggerContext().getLogger("ROOT").iteratorForAppenders().forEachRemaining(ApiAppTest::simplifyConsoleAppender);
         LogUtils.setGlobalLogLevel(INFO);
 
         SensuServerThread sensuServerThread = new SensuServerThread();

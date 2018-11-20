@@ -3,9 +3,9 @@ package no.nav.metrics.aspects;
 import java.lang.annotation.*;
 
 /**
- * Kan settes på en klasse eller metode for å måle tiden kall tar, se {@link TimerAspect}.
- * Om den settes på en klasse, vil kun public metoder definert i samme klasse måles, ikke metoder som arves.
+ * @deprecated don't use aspects for metrics, just measure directly using MetricsFactory.getMeterRegistry()
  */
+@Deprecated
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
@@ -14,11 +15,14 @@ import java.util.Collection;
 import java.util.List;
 
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
+import static no.nav.metrics.MetricsFactory.getMeterRegistry;
 
 @Slf4j
 public class SelfTestService {
 
+    private static final MeterRegistry METER_REGISTRY = getMeterRegistry();
     private final List<Pingable> pingables;
 
     private volatile List<SelftestResult> lastResult;
@@ -48,6 +52,11 @@ public class SelfTestService {
         if (!ping.erVellykket() && !ping.erAvskrudd()) {
             log.warn("Feil ved SelfTest av " + metadata.getEndepunkt(), ping.getFeil());
         }
+
+        SelfTestStatus selfTestStatus = computePingResult(ping);
+        METER_REGISTRY.timer("selftest", "id", metadata.getId()).record(responseTime, MILLISECONDS);
+        METER_REGISTRY.counter("selftest", "id", metadata.getId(), "status", selfTestStatus.name()).increment();
+
         return SelftestResult.builder()
                 .id(metadata.getId())
                 .responseTime(responseTime)
@@ -55,7 +64,7 @@ public class SelfTestService {
                 .description(metadata.getBeskrivelse())
                 .errorMessage(ping.getFeilmelding())
                 .critical(metadata.isKritisk())
-                .result(computePingResult(ping))
+                .result(selfTestStatus)
                 .stacktrace(ofNullable(ping.getFeil())
                         .map(ExceptionUtils::getStackTrace)
                         .orElse(null)
@@ -88,6 +97,7 @@ public class SelfTestService {
             if (requestTime > lastResultTime) {
                 lastResult = pingables.stream().map(SelfTestService::doPing).collect(toList());
                 lastResultTime = System.currentTimeMillis();
+                METER_REGISTRY.counter("selftest_errors").increment(lastResult.stream().filter(SelftestResult::harFeil).count());
             }
         }
 

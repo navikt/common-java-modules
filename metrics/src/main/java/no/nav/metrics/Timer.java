@@ -30,7 +30,7 @@ public class Timer extends Metric<Timer> {
         return this;
     }
 
-    private long getElpasedTimeInMillis() {
+    public long getElpasedTimeInMillis() {
         long elapsedTimeNanos = stopTime - startTime;
 
         return NANOSECONDS.toMillis(elapsedTimeNanos);

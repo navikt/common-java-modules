@@ -13,34 +13,9 @@ import static java.lang.Integer.parseInt;
 import static no.nav.metrics.aspects.AspectUtil.*;
 
 /**
- * HOWTO:
- * - aspectjweaver som en runtime dependency
- * - @EnableAspectJAutoProxy i Spring-config
- * - Gjør CountAspect tilgjengelig som en Spring-bean
- * - Sørg for at klassen der du bruker @Count er managed av Spring
- * <p>
- * Kan brukes f. eks. slik:
- * <pre>
- *
- * {@literal @}Count
- * public void methodname() {
- *
- * }
- *
- * eller slik:
- *
- * {@literal @}Count(name = "eventnavn")
- * public void methodname() {
- *
- * }
- *
- * eller om du vil ha med et field i rapporten, slik:
- *
- * {@literal @}Count(name = "eventnavn", fields = {{@literal @}Field(key = "orgnummer", argumentNumber = "2")})
- * public void methodname(String id, String orgnummer) {
- * }
- * </pre>
+ * @deprecated don't use aspects for metrics, just measure directly using MetricsFactory.getMeterRegistry()
  */
+@Deprecated
 @Aspect
 @Component
 public class CountAspect {

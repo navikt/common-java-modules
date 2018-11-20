@@ -1,5 +1,7 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
+import io.micrometer.core.instrument.Timer;
+import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.abac.pep.Utils;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
@@ -28,9 +30,11 @@ public class AbacService  {
 
     private static final String MEDIA_TYPE = "application/xacml+json";
     private static final Logger LOG = getLogger(AbacService.class);
+    private static final String METRIC_NAME = "abac-pdp";
 
     private final Client client;
     private final AbacServiceConfig abacServiceConfig;
+    private final Timer timer = MetricsFactory.getMeterRegistry().timer(METRIC_NAME);
 
     @Inject
     public AbacService(AbacServiceConfig abacServiceConfig) {
@@ -56,7 +60,7 @@ public class AbacService  {
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
         String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
         Response response = timed(
-                "abac-pdp",
+                METRIC_NAME,
                 () -> request(request, client),
                 (timer) -> timer.addTagToReport("resource-attributeid", ressursId)
         );
@@ -76,6 +80,10 @@ public class AbacService  {
     }
 
     private Response request(XacmlRequest request, Client client) {
+        return timer.record(() -> performRequest(request, client));
+    }
+
+    private Response performRequest(XacmlRequest request, Client client) {
         String postingString = XacmlMapper.mapRequestToEntity(request);
         return client.target(abacServiceConfig.getEndpointUrl())
                 .request()
@@ -89,6 +97,5 @@ public class AbacService  {
     private boolean statusCodeIn400Series(int statusCode) {
         return statusCode >= 400 && statusCode < 500;
     }
-
 
 }

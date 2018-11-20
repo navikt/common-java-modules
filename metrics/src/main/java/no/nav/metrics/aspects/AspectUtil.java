@@ -5,6 +5,10 @@ import org.aspectj.lang.JoinPoint;
 
 import static no.nav.metrics.proxy.MetricProxy.DO_NOT_MEASURE_METHOD_NAMES;
 
+/**
+ * @deprecated don't use aspects for metrics, just measure directly using MetricsFactory.getMeterRegistry()
+ */
+@Deprecated
 public class AspectUtil {
 
     public static String lagMetodeTimernavn(JoinPoint joinPoint, String sattNavn) {

@@ -1,8 +1,11 @@
 package no.nav.metrics;
 
+import lombok.SneakyThrows;
+
 public class MetodeTimer {
 
-    public static Object timeMetode(Metodekall metodekall, String timerNavn) throws Throwable {
+    @SneakyThrows
+    public static Object timeMetode(Metodekall metodekall, String timerNavn) {
         Timer timer = MetricsFactory.createTimer(timerNavn);
 
         try {

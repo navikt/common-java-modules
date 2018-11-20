@@ -1,7 +1,9 @@
 package no.nav.sbl.jdbc;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.SneakyThrows;
 import no.nav.metrics.MetodeTimer;
+import no.nav.metrics.MetricsFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,13 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-
 import static java.util.Optional.ofNullable;
 
 public class Database {
 
+    private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
     private final JdbcTemplate jdbcTemplate;
-
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public Database(JdbcTemplate jdbcTemplate) {
@@ -58,11 +59,12 @@ public class Database {
     @SneakyThrows
     @SuppressWarnings("unchecked")
     private <T> T time(String sql, Callable<T> callable) {
-        return (T) MetodeTimer.timeMetode(callable::call, timerNavn(sql));
+        return meterRegistry.timer("db", "sql", sql)
+                .record(() -> (T) MetodeTimer.timeMetode(callable::call, timerNavn(sql)));
     }
 
     private String timerNavn(String sql) {
-        return (sql + ".db").replaceAll("[^\\w]","-");
+        return (sql + ".db").replaceAll("[^\\w]", "-");
     }
 
     @FunctionalInterface

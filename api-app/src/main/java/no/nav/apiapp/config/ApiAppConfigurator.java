@@ -1,9 +1,11 @@
 package no.nav.apiapp.config;
 
+import com.zaxxer.hikari.HikariDataSource;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
+import no.nav.sbl.jdbc.DataSourceFactory;
 
 import java.util.function.Consumer;
 
@@ -21,4 +23,8 @@ public interface ApiAppConfigurator {
 
     ApiAppConfigurator customizeJetty(Consumer<Jetty> jettyCustomizer);
     ApiAppConfigurator customizeJettyBuilder(Consumer<JettyBuilder> jettyBuilderCustomizer);
+
+    ApiAppConfigurator database(DataSourceFactory.Builder builder);
+    ApiAppConfigurator database(HikariDataSource hikariDataSource);
+
 }

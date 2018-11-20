@@ -173,6 +173,14 @@
         </dependency>
 
 
+        <!-- optional modules -->
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>jdbc</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+
         <!-- transitive avhengigheter -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -346,6 +354,11 @@
         <dependency>
             <groupId>org.apache.servicemix.examples</groupId>
             <artifactId>cxf-jaxws-blueprint</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
 
         <!-- Prometheus -->
