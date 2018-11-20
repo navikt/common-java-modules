@@ -672,6 +672,13 @@
             </dependency>
 
 
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+
+
             <!-- annet -->
             <dependency>
                 <groupId>org.picketbox</groupId>
