@@ -69,6 +69,20 @@ public class FasitClientMock implements FasitClient {
     }
 
     @Override
+    public List<Queue> getQueue(GetQueueRequest getQueueRequest) {
+        return Collections.singletonList(new Queue().setName(getQueueRequest.alias));
+    }
+
+    @Override
+    public List<QueueManager> getQueueManager(GetQueueManagerRequest getQueueManagerRequest) {
+        return Collections.singletonList(new QueueManager()
+                .setName(getQueueManagerRequest.alias)
+                .setHostname("localhost")
+                .setPort(7676)
+        );
+    }
+
+    @Override
     public WebServiceEndpoint getWebServiceEndpoint(String alias, String environment) {
         throw new IllegalStateException();
     }

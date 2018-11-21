@@ -22,6 +22,8 @@ public interface FasitClient {
     Properties getApplicationEnvironment(GetApplicationEnvironmentRequest getApplicationEnvironmentRequest);
     Properties getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest);
     LdapConfig getLdapConfig(String environmentClass);
+    List<Queue> getQueue(GetQueueRequest getQueueRequest);
+    List<QueueManager> getQueueManager(GetQueueManagerRequest getQueueManagerRequest);
 
 
     @Builder
@@ -76,5 +78,22 @@ public interface FasitClient {
         public String alias;
         public String environmentClass;
     }
+
+    @Builder
+    @Value
+    class GetQueueRequest {
+        public String alias;
+        public String environment;
+    }
+
+    @Builder
+    @Value
+    class GetQueueManagerRequest {
+        public String alias;
+        public String environmentClass;
+        public String zone;
+    }
+
+
 
 }
