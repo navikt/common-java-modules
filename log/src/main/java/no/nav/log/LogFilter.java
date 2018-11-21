@@ -64,10 +64,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         }
 
         String consumerId = httpServletRequest.getHeader(CONSUMER_ID_HEADER_NAME);
-        String callId = Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpServletRequest::getHeader)
-                .filter(StringUtils::notNullOrEmpty)
-                .findFirst()
-                .orElseGet(LogFilter::generateId);
+        String callId = resolveCallId(httpServletRequest);
 
         MDC.put(MDC_CALL_ID, callId);
         MDC.put(MDC_USER_ID, userId);
@@ -91,6 +88,13 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
             MDC.remove(MDC_CONSUMER_ID);
             MDC.remove(MDC_REQUEST_ID);
         }
+    }
+
+    public static String resolveCallId(HttpServletRequest httpServletRequest) {
+        return Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpServletRequest::getHeader)
+                .filter(StringUtils::notNullOrEmpty)
+                .findFirst()
+                .orElseGet(LogFilter::generateId);
     }
 
     private void generateUserIdCookie(HttpServletResponse httpServletResponse) {
