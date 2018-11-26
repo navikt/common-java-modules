@@ -9,10 +9,7 @@ import com.jcraft.jsch.Session;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.dialogarena.config.fasit.*;
-import no.nav.dialogarena.config.fasit.dto.ApplicationInstance;
-import no.nav.dialogarena.config.fasit.dto.DataSourceResource;
-import no.nav.dialogarena.config.fasit.dto.Resource;
-import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.dialogarena.config.fasit.dto.*;
 import no.nav.json.JsonProvider;
 import no.nav.sbl.rest.RestUtils;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -226,6 +223,57 @@ public class FasitClientImpl implements FasitClient {
                 )
                 .orElseThrow(() -> new IllegalStateException("fant ikke ldap i environmentClass: " + environmentClass))
         );
+    }
+
+    @Override
+    public List<Queue> getQueue(GetQueueRequest getQueueRequest) {
+        return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
+                .queryParam("type", "Queue")
+                .queryParam("alias", getQueueRequest.alias)
+                .queryParam("environment", getQueueRequest.environment)
+                .queryParam("usage", true)
+                .request()
+                .get(QueueDTO.LIST_TYPE)
+                .stream()
+                .map(this::queue)
+                .collect(Collectors.toList())
+        );
+    }
+
+    private Queue queue(QueueDTO queueDTO) {
+        QueueDTO.Properties properties = queueDTO.properties;
+        QueueDTO.Scope scope = queueDTO.scope;
+        return new Queue()
+                .setName(properties.queueName)
+                .setEnvironment(scope.environment);
+    }
+
+    @Override
+    public List<QueueManager> getQueueManager(GetQueueManagerRequest getQueueManagerRequest) {
+        return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
+                .queryParam("type", "QueueManager")
+                .queryParam("alias", getQueueManagerRequest.alias)
+                .queryParam("environmentclass", getQueueManagerRequest.environmentClass)
+                .queryParam("zone", getQueueManagerRequest.zone)
+                .queryParam("usage", true)
+                .request()
+                .get(QueueManagerDTO.LIST_TYPE)
+                .stream()
+                .map(this::queueManager)
+                .collect(Collectors.toList())
+        );
+    }
+
+    private QueueManager queueManager(QueueManagerDTO queueManagerDTO) {
+        QueueManagerDTO.Properties properties = queueManagerDTO.properties;
+        QueueManagerDTO.Scope scope = queueManagerDTO.scope;
+        return new QueueManager()
+                .setPort(properties.port)
+                .setHostname(properties.hostname)
+                .setName(properties.name)
+
+                .setEnvironment(scope.environment)
+                ;
     }
 
     @Override
