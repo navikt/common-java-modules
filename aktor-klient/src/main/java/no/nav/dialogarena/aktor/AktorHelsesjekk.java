@@ -2,7 +2,7 @@ package no.nav.dialogarena.aktor;
 
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
-import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
+import no.nav.tjeneste.virksomhet.aktoer.v2.AktoerV2;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
