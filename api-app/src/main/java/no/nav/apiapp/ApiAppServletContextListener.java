@@ -61,10 +61,7 @@ import javax.servlet.*;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ch.qos.logback.classic.Level.INFO;
@@ -220,7 +217,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         characterEncodingRegistration.setInitParameter("forceEncoding", "true");
 
         WebApplicationContext webApplicationContext = getSpringContext(servletContextEvent);
-        SelfTestService selfTestService = new SelfTestService(webApplicationContext.getBeansOfType(Pingable.class).values());
+        SelfTestService selfTestService = new SelfTestService(resolvePingables(webApplicationContext, konfigurator));
 
         leggTilServlet(servletContextEvent, IsAliveServlet.class, INTERNAL_IS_ALIVE);
         leggTilServlet(servletContextEvent, new IsReadyServlet(selfTestService), INTERNAL_IS_READY);
@@ -240,6 +237,15 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
         LOGGER.info("contextInitialized - slutt");
         apiApplication.startup(servletContext);
+    }
+
+    private Collection<? extends Pingable> resolvePingables(WebApplicationContext webApplicationContext, Konfigurator konfigurator) {
+        List<Pingable> pingables = new ArrayList<>();
+        pingables.addAll(webApplicationContext.getBeansOfType(Pingable.class).values());
+        if (konfigurator != null) {
+            pingables.addAll(konfigurator.getPingables());
+        }
+        return pingables;
     }
 
     private boolean detectAndLogProperty(String propertyName) {

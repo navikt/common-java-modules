@@ -15,14 +15,13 @@ import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
+import no.nav.sbl.dialogarena.types.Pingable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
-import static no.nav.apiapp.ServletUtil.getContext;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -39,6 +38,7 @@ public class Konfigurator implements ApiAppConfigurator {
     private final List<Consumer<JettyBuilder>> jettyBuilderCustomizers = new ArrayList<>();
     private final List<String> publicPaths = new ArrayList<>(ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS);
     private final List<Object> springBonner = new ArrayList<>();
+    private final List<Pingable> pingables = new ArrayList<>();
     private boolean issoLogin;
 
     public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
@@ -125,6 +125,22 @@ public class Konfigurator implements ApiAppConfigurator {
         return this;
     }
 
+    @Override
+    public ApiAppConfigurator selfTest(Pingable pingable) {
+        return selfTests(Collections.singletonList(pingable));
+    }
+
+    @Override
+    public ApiAppConfigurator selfTests(Pingable... pingables) {
+        return selfTests(Arrays.asList(pingables));
+    }
+
+    @Override
+    public ApiAppConfigurator selfTests(Collection<? extends Pingable> pingables) {
+        this.pingables.addAll(pingables);
+        return this;
+    }
+
     private String getConfigProperty(String primaryProperty, String secondaryProperty) {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)
@@ -150,5 +166,9 @@ public class Konfigurator implements ApiAppConfigurator {
 
     public List<Object> getSpringBonner() {
         return springBonner;
+    }
+
+    public List<Pingable> getPingables() {
+        return pingables;
     }
 }
