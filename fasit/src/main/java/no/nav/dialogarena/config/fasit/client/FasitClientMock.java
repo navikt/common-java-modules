@@ -48,7 +48,9 @@ public class FasitClientMock implements FasitClient {
         String mockUserName = String.format("mock-user-%s", getCredentialsRequest.applicationName);
         return new ServiceUser()
                 .setUsername(mockUserName)
-                .setPassword("mock-password");
+                .setPassword("mock-password")
+                .setEnvironment(getCredentialsRequest.environment)
+                .setDomain(getCredentialsRequest.domain);
     }
 
     @Override
@@ -64,6 +66,20 @@ public class FasitClientMock implements FasitClient {
     @Override
     public LdapConfig getLdapConfig(String environment) {
         throw new IllegalStateException();
+    }
+
+    @Override
+    public List<Queue> getQueue(GetQueueRequest getQueueRequest) {
+        return Collections.singletonList(new Queue().setName(getQueueRequest.alias));
+    }
+
+    @Override
+    public List<QueueManager> getQueueManager(GetQueueManagerRequest getQueueManagerRequest) {
+        return Collections.singletonList(new QueueManager()
+                .setName(getQueueManagerRequest.alias)
+                .setHostname("localhost")
+                .setPort(7676)
+        );
     }
 
     @Override

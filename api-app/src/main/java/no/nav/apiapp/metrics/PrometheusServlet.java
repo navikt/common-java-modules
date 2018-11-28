@@ -1,9 +1,11 @@
 package no.nav.apiapp.metrics;
 
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.client.hotspot.DefaultExports;
+import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
@@ -36,6 +38,8 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
     public static final String SELFTEST_STATUS_ID = "selftest_status";
     public static final String SELFTEST_TIME_ID = "selftest_time";
 
+    private static final PrometheusMeterRegistry PROMETHEUS_METER_REGISTRY = (PrometheusMeterRegistry) MetricsFactory.getMeterRegistry();
+
     private final SelfTestService selfTestService;
 
     public PrometheusServlet(SelfTestService selfTestService) {
@@ -54,6 +58,7 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
 
         try(PrintWriter responseWriter = response.getWriter()){
             write(responseWriter, CollectorRegistry.defaultRegistry.metricFamilySamples());
+            responseWriter.write(PROMETHEUS_METER_REGISTRY.scrape());
             write(responseWriter, selfTests());
         }
     }

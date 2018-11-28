@@ -10,11 +10,6 @@
 
     <artifactId>aktor-klient</artifactId>
 
-    <properties>
-        <nav-fim-aktoer-v2-tjenestespesifikasjon.version>2.0.1</nav-fim-aktoer-v2-tjenestespesifikasjon.version>
-    </properties>
-
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -30,10 +25,9 @@
     <dependencies>
         <!--Tjenester-->
         <dependency>
-            <groupId>no.nav.tjenester.fim</groupId>
+            <groupId>no.nav.tjenestespesifikasjoner</groupId>
             <artifactId>nav-fim-aktoer-v2-tjenestespesifikasjon</artifactId>
-            <version>${nav-fim-aktoer-v2-tjenestespesifikasjon.version}</version>
-            <classifier>jaxws</classifier>
+            <version>1.2018.11.20-18.20-f058c54de62c</version>
         </dependency>
 
         <!--Diverse-->
