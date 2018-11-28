@@ -1,16 +1,26 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
+import no.nav.sbl.rest.RestUtils;
 import org.eclipse.jetty.jaas.JAASLoginService;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.RequestLog;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.util.Map;
 
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class JettyBuilderTest {
 
@@ -32,8 +42,8 @@ public class JettyBuilderTest {
         jetty.stop.run();
 
         Map<String, String> contextParams = TestListener.getContextParams();
-        assertThat(contextParams.get("webxml-param"),equalTo("webxml-param"));
-        assertThat(contextParams.get("override-webxml-param"),equalTo("override-webxml-param"));
+        assertThat(contextParams.get("webxml-param")).isEqualTo("webxml-param");
+        assertThat(contextParams.get("override-webxml-param")).isEqualTo("override-webxml-param");
     }
 
     @Test
@@ -49,7 +59,51 @@ public class JettyBuilderTest {
         jetty.start();
         jetty.stop.run();
 
-        assertThat(TestListener.getContextParams(), nullValue());
+        assertThat(TestListener.getContextParams()).isNull();
+    }
+
+
+    @Test
+    public void startJettyWithCustomization() {
+        ServletContextListener servletContextListener = mock(ServletContextListener.class);
+        RequestLog requestLog = mock(RequestLog.class);
+
+        Jetty jetty = usingWar(new File("src/test/webapp"))
+                .at("contextpath")
+                .port(8888)
+                .addCustomizer(new JettyCustomizer() {
+
+                    @Override
+                    public void customize(HttpConfiguration httpConfiguration) {
+                        httpConfiguration.setSendXPoweredBy(true);
+                    }
+
+                    @Override
+                    public void customize(Server server) {
+                        server.setRequestLog(requestLog);
+                    }
+
+                    @Override
+                    public void customize(WebAppContext webAppContext) {
+                        webAppContext.addEventListener(servletContextListener);
+
+                    }
+                })
+                .buildJetty();
+
+        jetty.start();
+
+        RestUtils.withClient(c -> {
+            Response response = c.target("http://localhost:8888/not/found").request().get();
+            assertThat(response.getStatus()).isEqualTo(404);
+            verify(requestLog).log(any(), any());
+            return null;
+        });
+
+        jetty.stop.run();
+
+        verify(servletContextListener).contextInitialized(any());
+        verify(servletContextListener).contextDestroyed(any());
     }
 
     @Test
