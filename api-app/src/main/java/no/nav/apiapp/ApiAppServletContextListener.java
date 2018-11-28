@@ -118,12 +118,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
 
     private final Konfigurator konfigurator;
 
-    static {
-        if (isEnvironmentClass(T)) {
-            setGlobalLogLevel(INFO);
-        }
-    }
-
     // på jboss
     public ApiAppServletContextListener() {
         this(null);
