@@ -20,6 +20,7 @@ import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static no.nav.apiapp.util.ObjectUtils.isEqual;
+import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
@@ -330,6 +331,51 @@ public class FasitUtils {
             default:
                 throw new IllegalStateException(environment);
         }
+    }
+
+    public static Queue getQueue(String alias) {
+        return bestMatch(getQueues(alias));
+    }
+
+    public static List<Queue> getQueues(String alias) {
+        return getQueues(FasitClient.GetQueueRequest.builder()
+                .alias(alias)
+                .environment(getDefaultEnvironment())
+                .build()
+        );
+    }
+
+    public static List<Queue> getQueues(FasitClient.GetQueueRequest getQueueRequest) {
+        return getFasitClient().getQueue(getQueueRequest);
+    }
+
+    public static QueueManager getQueueManager(String alias) {
+        return bestMatch(getQueueManagers(alias));
+    }
+
+    private static <T extends Scoped> T bestMatch(List<T> scoped) {
+        String environment = getDefaultEnvironment();
+        return scoped.stream()
+                .filter(s -> environment.equals(s.getEnvironment()))
+                .findFirst()
+                .orElseGet(() -> scoped.stream()
+                        .filter(s -> nullOrEmpty(s.getEnvironment()))
+                        .findFirst()
+                        .orElseThrow(IllegalStateException::new)
+                );
+    }
+
+    public static List<QueueManager> getQueueManagers(String alias) {
+        return getQueueManagers(FasitClient.GetQueueManagerRequest.builder()
+                .alias(alias)
+                .environmentClass(getDefaultEnvironmentClass())
+                .zone("fss")
+                .build()
+        );
+    }
+
+    public static List<QueueManager> getQueueManagers(FasitClient.GetQueueManagerRequest getQueueManagerRequest) {
+        return getFasitClient().getQueueManager(getQueueManagerRequest);
     }
 
     public enum Zone {

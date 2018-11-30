@@ -5,7 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 public class DataSourceFactory {
 
-    private static final int DEFAULT_POOL_SIZE = 20;
+    private static final int DEFAULT_MAXIMUM_POOL_SIZE = 300;
     private static final int DEFAULT_MINIMUM_IDLE = 1;
 
     private DataSourceFactory() { }
@@ -22,7 +22,7 @@ public class DataSourceFactory {
         private int minimumIdle;
 
         public Builder() {
-            this.maxPoolSize = DEFAULT_POOL_SIZE;
+            this.maxPoolSize = DEFAULT_MAXIMUM_POOL_SIZE;
             this.minimumIdle = DEFAULT_MINIMUM_IDLE;
         }
 

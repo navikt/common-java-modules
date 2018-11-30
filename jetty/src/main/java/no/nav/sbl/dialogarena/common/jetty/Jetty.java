@@ -78,6 +78,7 @@ public final class Jetty {
         private Map<String, DataSource> dataSources = new HashMap<>();
         private String extraClasspath;
         private List<Filter> filters = new ArrayList<>();
+        private List<JettyCustomizer> customizers = new ArrayList<>();
         private boolean disableAnnotationScanning;
         private boolean disableStatistics;
 
@@ -167,6 +168,11 @@ public final class Jetty {
 
         public JettyBuilder addFilter(Filter filter) {
             this.filters.add(filter);
+            return this;
+        }
+
+        public JettyBuilder addCustomizer(JettyCustomizer jettyCustomizer) {
+            this.customizers.add(jettyCustomizer);
             return this;
         }
 
@@ -358,6 +364,8 @@ public final class Jetty {
         // Add support for X-Forwarded headers
         configuration.addCustomizer(new ForwardedRequestCustomizer());
 
+        jettyBuilder.customizers.forEach(customizer -> customizer.customize(configuration));
+
         ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
         httpConnector.setSoLingerTime(-1);
         httpConnector.setPort(port);
@@ -373,11 +381,13 @@ public final class Jetty {
         context.setServer(jetty);
         addWebsocketEndpoints(context);
 
+        jettyBuilder.customizers.forEach(customizer -> customizer.customize(context));
         jetty.setHandler(context);
 
         if(!jettyBuilder.disableStatistics){
             addStatisticsHandler(jetty);
         }
+        jettyBuilder.customizers.forEach(customizer -> customizer.customize(jetty));
 
         return jetty;
     }

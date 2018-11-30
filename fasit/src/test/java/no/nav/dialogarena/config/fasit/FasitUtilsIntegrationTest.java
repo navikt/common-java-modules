@@ -16,7 +16,6 @@ import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
 import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.SBS;
 import static no.nav.dialogarena.config.fasit.FasitUtilsTest.testServiceUserCertificate;
 import static no.nav.dialogarena.config.fasit.TestEnvironment.Q6;
-import static no.nav.dialogarena.config.fasit.TestEnvironment.T6;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
@@ -222,6 +221,35 @@ public class FasitUtilsIntegrationTest {
     public void getTestDataProperty_() {
         assertThat(FasitUtils.getTestDataProperty("sentral_enhet").get(),not(isEmptyOrNullString()));
         assertThat(FasitUtils.getTestDataProperty("not_existing_property").isPresent(),is(false));
+    }
+
+    @Test
+    public void getQueues_() {
+        validateQueue(FasitUtils.getQueue("VARSELPRODUKSJON.VARSLINGER"));
+
+        List<Queue> queues = FasitUtils.getQueues("VARSELPRODUKSJON.VARSLINGER");
+        assertThat(queues, not(empty()));
+        queues.forEach(this::validateQueue);
+    }
+
+    @Test
+    public void getQueueManagers_() {
+        validateQueueManager(FasitUtils.getQueueManager("mqGateway03"));
+
+        List<QueueManager> queueManagers = FasitUtils.getQueueManagers("mqGateway03");
+        assertThat(queueManagers, not(empty()));
+        queueManagers.forEach(this::validateQueueManager);
+    }
+
+    private void validateQueueManager(QueueManager queueManager) {
+        assertThat(queueManager.getHostname(), not(isEmptyOrNullString()));
+        assertThat(queueManager.getPort(), greaterThan(0));
+        assertThat(queueManager.getName(), not(isEmptyOrNullString()));
+    }
+
+    private void validateQueue(Queue queue) {
+        assertThat(queue, notNullValue());
+        assertThat(queue.getName(), not(isEmptyOrNullString()));
     }
 
 }

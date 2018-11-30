@@ -3,7 +3,7 @@ package no.nav.dialogarena.aktor;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
-import no.nav.tjeneste.virksomhet.aktoer.v2.binding.AktoerV2;
+import no.nav.tjeneste.virksomhet.aktoer.v2.AktoerV2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

@@ -1,15 +1,17 @@
 package no.nav.metrics;
 
-import no.nav.metrics.handlers.SensuHandler;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import no.nav.metrics.proxy.EventProxy;
 import no.nav.metrics.proxy.TimerProxy;
-import no.nav.sbl.util.EnvironmentUtils;
 
+import static io.micrometer.prometheus.PrometheusConfig.DEFAULT;
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 public class MetricsFactory {
 
     private static final MetricsClient metricsClient = new MetricsClient();
+    private static final PrometheusMeterRegistry prometheusMeterRegistry = new ProtectedPrometheusMeterRegistry();
 
     public static void enableMetrics(MetricsConfig metricsConfig) {
         MetricsClient.enableMetrics(metricsConfig);
@@ -47,5 +49,20 @@ public class MetricsFactory {
         EventProxy eventProxy = new EventProxy(name, object);
 
         return (T) newProxyInstance(classLoader, classes, eventProxy);
+    }
+
+    public static MeterRegistry getMeterRegistry() {
+        return prometheusMeterRegistry;
+    }
+
+    private static class ProtectedPrometheusMeterRegistry extends PrometheusMeterRegistry {
+        public ProtectedPrometheusMeterRegistry() {
+            super(DEFAULT);
+        }
+
+        @Override
+        public void close() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

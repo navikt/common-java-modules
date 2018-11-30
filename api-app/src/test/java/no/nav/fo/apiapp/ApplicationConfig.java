@@ -21,6 +21,7 @@ import javax.servlet.ServletContext;
 import java.util.Random;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
 
 @Configuration
@@ -106,6 +107,11 @@ public class ApplicationConfig implements NaisApiApplication {
         apiAppConfigurator.customizeJetty(jetty -> {
             jetty.context.setDescriptor("my custom descriptor");
         });
+
+        apiAppConfigurator
+                .selfTest(new PingableEksempel())
+                .selfTests(new PingableEksempel(), new PingableEksempel())
+                .selfTests(asList(new PingableEksempel(), new PingableEksempel(), new PingableEksempel()));
 
         if (!JettyTest.DISABLE_AUTH) {
             apiAppConfigurator
