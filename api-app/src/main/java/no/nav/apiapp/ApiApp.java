@@ -1,26 +1,21 @@
 package no.nav.apiapp;
 
 import lombok.SneakyThrows;
-import no.nav.apiapp.ApiApplication.NaisApiApplication;
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.util.UrlUtils;
 import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
-import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.StringUtils;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +24,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
@@ -59,32 +53,29 @@ public class ApiApp {
 
     @SneakyThrows
     @Deprecated // use runApp
-    public static void startApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
+    public static void startApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
         runApp(apiAppClass,args);
     }
 
     @SneakyThrows
-    public static void runApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
+    public static void runApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
         ApiApp apiApp = startApiApp(apiAppClass, args);
         Jetty jetty = apiApp.jetty;
         jetty.server.join();
     }
 
     @SneakyThrows
-    public static ApiApp startApiApp(Class<? extends NaisApiApplication> apiAppClass, String[] args) {
+    public static ApiApp startApiApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
         setupTrustStore();
-        NaisApiApplication apiApplication = apiAppClass.newInstance();
+        ApiApplication apiApplication = apiAppClass.newInstance();
         Jetty jetty = setupJetty(apiApplication, args);
         reportStartupTime(start);
         return new ApiApp(jetty);
     }
 
-    private static Jetty setupJetty(NaisApiApplication apiApplication, String[] args) throws IOException, InstantiationException, IllegalAccessException {
+    private static Jetty setupJetty(ApiApplication apiApplication, String[] args) throws IOException {
         int httpPort = httpPort(args);
-
-        // TODO disable logging til fil!
-        // TODO gå gjennom common-jetty og gjøre dette mer prodklart!
 
         File file = WarFolderFinderUtil.findPath(apiApplication.getClass());
         LOGGER.info("starter med war på: {}", file.getCanonicalPath());
@@ -107,9 +98,7 @@ public class ApiApp {
         Jetty jetty = konfigurator.buildJetty();
 
         WebAppContext webAppContext = jetty.context;
-        webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
-        ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
-        webAppContext.addEventListener(listener);
+        webAppContext.addEventListener(new ApiAppServletContextListener(konfigurator, apiApplication));
 
         Server server = jetty.server;
         if (contextPath.length() > 1) {

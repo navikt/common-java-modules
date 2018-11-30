@@ -1,6 +1,6 @@
 package no.nav.fo.apiapp;
 
-import no.nav.apiapp.ApiApplication.NaisApiApplication;
+import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.config.ApiAppConfigurator;
 import no.nav.apiapp.servlet.ForwardServletExample;
 import no.nav.apiapp.servlet.IncludeServletExample;
@@ -30,7 +30,7 @@ import static no.nav.apiapp.ServletUtil.leggTilServlet;
         InjectionEksempel.class,
         EksempelService.class
 })
-public class ApplicationConfig implements NaisApiApplication {
+public class ApplicationConfig implements ApiApplication {
 
     @Bean
     public Pingable pingable() {

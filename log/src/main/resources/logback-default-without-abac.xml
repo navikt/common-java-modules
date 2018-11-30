@@ -5,28 +5,19 @@
     <property name="loggingPattern"
               value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}, %X{userId}] ){'- \[, , \] ',''}- %m%n"/>
 
-    <!--
-    Bruker SiftingAppender siden samme logback.xml kan gjelde for flere applikasjoner deployet på samme applikasjonsserver.
-    Dermed kan contextName settes for å unngå at flere applikasjoner forsøker å logge til og rotere samme logfil
-    -->
-    <appender name="file" class="ch.qos.logback.classic.sift.SiftingAppender">
-        <discriminator class="no.nav.log.ContextDiscriminator"/>
-        <sift>
-            <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>${APP_LOG_HOME}/${contextName}.log</file>
-                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                    <fileNamePattern>${APP_LOG_HOME}/${contextName}-%d.log.%i.gz</fileNamePattern>
-                    <maxFileSize>30MB</maxFileSize>
-                    <maxHistory>90</maxHistory>
-                    <!-- default 100 MB, da en basic server har svært lite plass til logger. Særlig når flere apper deployes på den samme serveren -->
-                    <!-- aksesslogger og sensulogger tar også potensielt opp stor plass, ref ATOM-2749 -->
-                    <totalSizeCap>${logback.totalSizeCap:-100MB}</totalSizeCap>
-                </rollingPolicy>
-                <encoder>
-                    <pattern>${loggingPattern}</pattern>
-                </encoder>
-            </appender>
-        </sift>
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${APP_LOG_HOME}/${contextName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${APP_LOG_HOME}/${contextName}-%d.log.%i.gz</fileNamePattern>
+            <maxFileSize>30MB</maxFileSize>
+            <maxHistory>90</maxHistory>
+            <!-- default 100 MB, da en basic server har svært lite plass til logger. Særlig når flere apper deployes på den samme serveren -->
+            <!-- aksesslogger og sensulogger tar også potensielt opp stor plass, ref ATOM-2749 -->
+            <totalSizeCap>${logback.totalSizeCap:-100MB}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${loggingPattern}</pattern>
+        </encoder>
     </appender>
 
     <appender name="syslog" class="no.nav.log.MaskingAppender">
