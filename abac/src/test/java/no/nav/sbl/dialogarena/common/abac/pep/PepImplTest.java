@@ -4,6 +4,7 @@ import no.nav.brukerdialog.security.context.SubjectRule;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
+import no.nav.common.auth.TestSubjectUtils;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
@@ -41,7 +42,7 @@ public class PepImplTest {
     AbacService abacService;
 
     @Rule
-    public SubjectRule subjectRule = new SubjectRule(new Subject("userId", IdentType.InternBruker, SsoToken.oidcToken("token")));
+    public SubjectRule subjectRule = new SubjectRule(TestSubjectUtils.buildDefault());
 
     @Before
     public void setup() {

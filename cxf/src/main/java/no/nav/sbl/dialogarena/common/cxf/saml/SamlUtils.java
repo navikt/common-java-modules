@@ -22,7 +22,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SamlUtils {
 
@@ -37,10 +39,14 @@ public class SamlUtils {
         uid = filterDNtoCNvalue(uid);
         String identType = null;
         List<Attribute> attributes = assertion.getAttributeStatements().get(0).getAttributes();
+
+        Map<String, String> attributeMap = new HashMap<>();
         for (Attribute attribute : attributes) {
             String attributeName = attribute.getName();
             String attributeValue = attribute.getAttributeValues().get(0)
                     .getDOM().getFirstChild().getTextContent();
+
+            attributeMap.put(attributeName, attributeValue);
 
             if (IDENT_TYPE.equalsIgnoreCase(attributeName)) {
                 identType = attributeValue;
@@ -51,7 +57,7 @@ public class SamlUtils {
         if (uid == null) {
             throw new RuntimeException("SAML assertion is missing mandatory element NameId");
         }
-        return new Subject(uid, IdentType.valueOf(identType), SsoToken.saml(getSamlAssertionAsString(assertion)));
+        return new Subject(uid, IdentType.valueOf(identType), SsoToken.saml(getSamlAssertionAsString(assertion), attributeMap));
     }
 
     @SneakyThrows
