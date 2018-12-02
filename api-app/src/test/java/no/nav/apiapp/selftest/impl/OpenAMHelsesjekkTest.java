@@ -24,7 +24,7 @@ public class OpenAMHelsesjekkTest {
 
     @SneakyThrows
     private void helsesjekk(String validOpenAMRestUrl) {
-        new OpenAMHelsesjekk(new OpenAmConfig(validOpenAMRestUrl)).helsesjekk();
+        new OpenAMHelsesjekk(OpenAmConfig.builder().restUrl(validOpenAMRestUrl).build()).helsesjekk();
     }
 
 }
