@@ -77,7 +77,7 @@ public class SubjectHandlerTest {
     }
 
     private Subject newSubject(String uid) {
-        return new Subject(uid, IdentType.values()[0], SsoToken.oidcToken("token"));
+        return TestSubjectUtils.builder().uid(uid).build();
     }
 
     private void assertNoSubject() {

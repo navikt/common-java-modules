@@ -80,13 +80,13 @@ public class OidcAuthModule implements LoginProvider {
                 OidcTokenValidatorResult refreshedTokenValidatorResult = oidcTokenValidator.validate(refreshedToken, oidcProvider, cacheMissAction);
                 if (refreshedTokenValidatorResult.isValid()) {
                     addHttpOnlyCookie(httpServletRequest, httpServletResponse, ID_TOKEN_COOKIE_NAME, refreshedToken);
-                    return handleValidatedToken(refreshedToken, refreshedTokenValidatorResult.getSubject(), oidcProvider);
+                    return handleValidatedToken(refreshedTokenValidatorResult, refreshedToken, refreshedTokenValidatorResult.getSubject(), oidcProvider);
                 }
             }
         }
 
         if (requestTokenValidatorResult.isValid()) {
-            return handleValidatedToken(requestToken, requestTokenValidatorResult.getSubject(), oidcProvider);
+            return handleValidatedToken(requestTokenValidatorResult, requestToken, requestTokenValidatorResult.getSubject(), oidcProvider);
         }
         return Stream.empty();
     }
@@ -158,8 +158,10 @@ public class OidcAuthModule implements LoginProvider {
                 : req.getRequestURL().toString() + "?" + req.getQueryString();
     }
 
-    private Stream<Subject> handleValidatedToken(String token, String username, OidcProvider oidcProvider) {
-        return Stream.of(new Subject(username, oidcProvider.getIdentType(token), SsoToken.oidcToken(token)));
+    private Stream<Subject> handleValidatedToken(OidcTokenValidatorResult requestTokenValidatorResult, String token, String username, OidcProvider oidcProvider) {
+        SsoToken ssoToken = SsoToken.oidcToken(token, requestTokenValidatorResult.getAttributes());
+        Subject subject = new Subject(username, oidcProvider.getIdentType(token), ssoToken);
+        return Stream.of(subject);
     }
 
 }

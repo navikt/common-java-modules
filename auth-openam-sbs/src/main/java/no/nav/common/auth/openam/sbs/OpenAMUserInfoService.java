@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static no.nav.sbl.rest.RestUtils.DEFAULT_CONFIG;
 import static no.nav.sbl.util.StringUtils.of;
@@ -30,17 +30,29 @@ public class OpenAMUserInfoService {
 
     public static final String PARAMETER_UID = "uid";
     public static final String PARAMETER_SECURITY_LEVEL = "SecurityLevel";
-    public static final List<String> SUBJECT_ATTRIBUTES = singletonList(PARAMETER_UID);
 
     private static final String OPENAM_GENERAL_ERROR = "Could not get user attributes from OpenAM. ";
     public static final String BASE_PATH = "/identity/json/attributes";
 
     private final URI endpointURL;
     private final Client client = RestUtils.createClient(DEFAULT_CONFIG.withDisableParameterLogging(true));
+    private final List<String> subjectAttributes;
 
+    @Deprecated
+    public OpenAMUserInfoService(URI endpointURL) {
+        this(OpenAmConfig.builder().restUrl(endpointURL.toString()).build());
+    }
 
     public OpenAMUserInfoService(OpenAmConfig openAmConfig) {
-        endpointURL = resolveEndpointURL(openAmConfig);
+        this.endpointURL = resolveEndpointURL(openAmConfig);
+        this.subjectAttributes = subjectAttributes(openAmConfig);
+    }
+
+    private static List<String> subjectAttributes(OpenAmConfig openAmConfig) {
+        List<String> attributes = new ArrayList<>();
+        attributes.add(PARAMETER_UID);
+        ofNullable(openAmConfig.additionalAttributes).ifPresent(attributes::addAll);
+        return attributes;
     }
 
     private static URI resolveEndpointURL(OpenAmConfig openAmConfig) {
@@ -53,16 +65,16 @@ public class OpenAMUserInfoService {
         return uri;
     }
 
-    public OpenAMUserInfoService(URI endpointURL) {
-        this.endpointURL = endpointURL;
-    }
-
     public Optional<Subject> convertTokenToSubject(String token) {
-        return getUserInfo(token, SUBJECT_ATTRIBUTES).flatMap(openAMAttributes -> createUserInfo(openAMAttributes, token));
+        return getUserInfo(token, subjectAttributes).flatMap(openAMAttributes -> createUserInfo(openAMAttributes, token));
     }
 
     public Optional<Map<String, String>> getUserInfo(String token, List<String> attributes) {
         return of(token).flatMap(t -> checkResponse(requestUserAttributes(t, attributes)).map(this::attributesToMap));
+    }
+
+    public Response requestUserAttributes(String token) {
+        return requestUserAttributes(token, subjectAttributes);
     }
 
     public Response requestUserAttributes(String token, List<String> attributes) {
@@ -85,6 +97,10 @@ public class OpenAMUserInfoService {
         }
     }
 
+    public String getUrl(String token) {
+        return getUrl(token, subjectAttributes);
+    }
+
     public String getUrl(String token, List<String> attributes) {
         UriBuilder uriBuilder = UriBuilder.fromUri(endpointURL).path(BASE_PATH).queryParam("subjectid", token);
         attributes.forEach(a -> uriBuilder.queryParam("attributenames", a));
@@ -103,7 +119,7 @@ public class OpenAMUserInfoService {
     private Optional<Subject> createUserInfo(Map<String, String> attributeMap, String token) {
         if (attributeMap.containsKey(PARAMETER_UID)) {
             String uid = attributeMap.get(PARAMETER_UID);
-            return of(new Subject(uid, IdentType.EksternBruker, SsoToken.eksternOpenAM(token)));
+            return of(new Subject(uid, IdentType.EksternBruker, SsoToken.eksternOpenAM(token, attributeMap)));
         } else {
             LOG.error(OPENAM_GENERAL_ERROR + "Response did not contain attribute " + PARAMETER_UID);
             return empty();
