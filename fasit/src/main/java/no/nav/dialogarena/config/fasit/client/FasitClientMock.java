@@ -40,7 +40,10 @@ public class FasitClientMock implements FasitClient {
 
     @Override
     public ServiceUserCertificate getCertificate(GetCertificateRequest getCertificateRequest) {
-        throw new IllegalStateException();
+        return new ServiceUserCertificate()
+                .setKeystore(new byte[0])
+                .setKeystorealias(getCertificateRequest.alias)
+                .setKeystorepassword("");
     }
 
     @Override
