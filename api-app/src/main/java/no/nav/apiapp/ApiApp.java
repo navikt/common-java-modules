@@ -3,6 +3,7 @@ package no.nav.apiapp;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication.NaisApiApplication;
 import no.nav.apiapp.config.Konfigurator;
+import no.nav.apiapp.jetty.ServerHeaderConfigurator;
 import no.nav.apiapp.util.UrlUtils;
 import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.metrics.Event;
@@ -110,6 +111,8 @@ public class ApiApp {
         webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
         ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
         webAppContext.addEventListener(listener);
+
+        webAppContext.addEventListener(new ServerHeaderConfigurator());
 
         Server server = jetty.server;
         if (contextPath.length() > 1) {
