@@ -1,15 +1,14 @@
 package no.nav.dialogarena.smoketest;
 
-import lombok.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
 import no.nav.brukerdialog.security.oidc.UserTokenProvider;
-import no.nav.dialogarena.config.DevelopmentSecurity;
 
 import javax.ws.rs.core.Cookie;
-
-import static no.nav.dialogarena.config.DevelopmentSecurity.setupIntegrationTestSecurity;
 
 @Getter
 @Setter
@@ -24,8 +23,6 @@ public class SmoketestFSS {
     }
 
     private void setupidcSecurity(SmoketestFSSConfig config) {
-        setupIntegrationTestSecurity(new DevelopmentSecurity.IntegrationTestConfig(config.getApplicationName()));
-
         UserTokenProvider userTokenProvider = new UserTokenProvider();
         OidcCredential token = userTokenProvider.getIdToken();
 
