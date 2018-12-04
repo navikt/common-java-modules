@@ -12,6 +12,8 @@ import no.nav.dialogarena.config.security.ISSOProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.Collections;
+
 import static no.nav.apiapp.TestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -27,7 +29,7 @@ public interface PepClientTester {
         subjectExtension.setSubject(new Subject(
                 veileder.getUsername(),
                 IdentType.InternBruker,
-                SsoToken.oidcToken(ISSOProvider.getISSOToken(veileder))
+                SsoToken.oidcToken(ISSOProvider.getISSOToken(veileder), Collections.emptyMap())
         ));
     }
 

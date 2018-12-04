@@ -8,13 +8,12 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static javax.script.ScriptContext.ENGINE_SCOPE;
 
@@ -34,6 +33,8 @@ public class JavascriptEngine {
 
             httpServletResponse.setStatus(response.status);
             response.headers.forEach(httpServletResponse::setHeader);
+            response.cookies.forEach(httpServletResponse::addCookie);
+
             httpServletResponse.getWriter().write(response.responseTekst);
         }
     }
@@ -63,6 +64,7 @@ public class JavascriptEngine {
         private int status = 200;
         private String responseTekst = "";
         private Map<String, String> headers = new HashMap<>();
+        private List<Cookie> cookies = new ArrayList<>();
 
         public Response(ScriptEngine scriptEngine) {
             this.scriptEngine = scriptEngine;
@@ -74,6 +76,12 @@ public class JavascriptEngine {
 
         public void setHeader(String name, String value) {
             headers.put(name, value);
+        }
+
+        public void addCookie(String name, String value) {
+            Cookie cookie = new Cookie(name, value);
+            cookie.setPath("/");
+            this.cookies.add(cookie);
         }
 
         public void setResponseTekst(String responseTekst) {
