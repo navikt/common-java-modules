@@ -78,10 +78,10 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void getApplicationEnvironment() throws Exception {
-        Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("veilarbdialog");
+        Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("dittnav");
         assertThat(applicationEnvironment.size(), greaterThan(10));
 
-        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitet", TEST_ENVIRONMENT);
+        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("dittnav", TEST_ENVIRONMENT);
         assertThat(veilarbaktivitetEnvironment.size(), greaterThan(10));
 
         Properties dittnavEnvironment = FasitUtils.getApplicationEnvironment("dittnav", "t1");
