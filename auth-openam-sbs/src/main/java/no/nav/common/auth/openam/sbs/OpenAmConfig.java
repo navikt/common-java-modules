@@ -4,10 +4,7 @@ import lombok.Builder;
 import lombok.Value;
 import no.nav.sbl.util.EnvironmentUtils;
 
-import java.util.Collections;
 import java.util.List;
-
-import static no.nav.common.auth.openam.sbs.OpenAMUserInfoService.PARAMETER_UID;
 
 @Value
 @Builder(toBuilder = true)
@@ -18,6 +15,8 @@ public class OpenAmConfig {
 
     public String restUrl;
     public List<String> additionalAttributes;
+    @Builder.Default
+    public OpenAMEventListener openAMEventListener = new OpenAMEventListener.DefaultOpenAMEventListener();
 
     public static OpenAmConfig fromSystemProperties() {
         return OpenAmConfig.builder()

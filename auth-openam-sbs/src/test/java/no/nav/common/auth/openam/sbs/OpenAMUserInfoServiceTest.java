@@ -8,8 +8,8 @@ import no.nav.common.auth.Subject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -19,12 +19,14 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static no.nav.common.auth.SsoToken.Type.EKSTERN_OPENAM;
 import static no.nav.common.auth.openam.sbs.OpenAMUserInfoService.BASE_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 public class OpenAMUserInfoServiceTest {
     private String contentType = "Content-Type";
     private String json = "application/json";
 
+    private OpenAMEventListener openAMEventListener = mock(OpenAMEventListener.class);
     private OpenAMUserInfoService service;
 
     private WireMockConfiguration wireMockConfig = wireMockConfig().port(8000);// No-args constructor defaults to port 8080
@@ -34,7 +36,11 @@ public class OpenAMUserInfoServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        service = new OpenAMUserInfoService(URI.create("http://localhost:8000" + BASE_PATH));
+        service = new OpenAMUserInfoService(OpenAmConfig.builder()
+                .restUrl("http://localhost:8000" + BASE_PATH)
+                .openAMEventListener(openAMEventListener)
+                .build()
+        );
     }
 
     @Test
@@ -77,7 +83,7 @@ public class OpenAMUserInfoServiceTest {
     }
 
     @Test
-    public void returnsFalseWhenStatusIsNotOK() {
+    public void convertTokenToSubject__failed_request__empty_subject() {
         stubFor(get(urlMatching(BASE_PATH + ".*"))
                 .willReturn(aResponse()
                         .withHeader(contentType, json)
@@ -90,7 +96,26 @@ public class OpenAMUserInfoServiceTest {
     }
 
     @Test
-    public void returnsFalseWhenTokenNotOk() {
+    public void convertTokenToSubject__failed_request__sanitized_error() {
+        String token = "sso-token";
+        stubFor(get(urlMatching(BASE_PATH + ".*"))
+                .willReturn(aResponse()
+                        .withHeader(contentType, json)
+                        .withStatus(401)
+                        .withBody(token)));
+
+        service.convertTokenToSubject(token);
+
+        Mockito.verify(openAMEventListener).fetchingUserAttributesFailed(OpenAMEventListener.OpenAmResponse.builder()
+                .status(401)
+                .phrase("Unauthorized")
+                .content("<session id removed>")
+                .build()
+        );
+    }
+
+    @Test
+    public void convertTokenToSubject__request_ok__subject() {
         stubFor(get(urlMatching(BASE_PATH + ".*"))
                 .willReturn(aResponse()
                         .withHeader(contentType, json)
