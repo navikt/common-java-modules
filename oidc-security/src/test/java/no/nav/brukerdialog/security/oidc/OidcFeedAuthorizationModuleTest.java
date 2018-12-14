@@ -1,9 +1,8 @@
 package no.nav.brukerdialog.security.oidc;
 
-import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
+import no.nav.common.auth.TestSubjectUtils;
 import org.junit.Test;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -24,7 +23,7 @@ public class OidcFeedAuthorizationModuleTest {
     }
 
     private boolean isRequestAuthorized(String uid) {
-        Subject subject = new Subject(uid, IdentType.EksternBruker, SsoToken.oidcToken("oidc"));
+        Subject subject = TestSubjectUtils.builder().uid(uid).build();
         return SubjectHandler.withSubject(subject, () -> new OidcFeedAuthorizationModule().isRequestAuthorized("test"));
     }
 }

@@ -8,7 +8,6 @@ import lombok.SneakyThrows;
 import lombok.ToString;
 import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProvider;
 import no.nav.brukerdialog.security.oidc.IdTokenAndRefreshTokenProviderConfig;
-import no.nav.dialogarena.config.DevelopmentSecurity;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.fasit.TestEnvironment;
@@ -35,7 +34,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.HttpHeaders.LOCATION;
-import static no.nav.dialogarena.config.DevelopmentSecurity.DEFAULT_ISSO_RP_USER;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultEnvironment;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getDefaultTestEnvironment;
 import static no.nav.dialogarena.config.fasit.FasitUtils.getEnvironmentClass;
@@ -45,6 +43,7 @@ public class ISSOProvider {
 
     public static final String PRIVELIGERT_VEILEDER = "priveligert_veileder";
 
+    public static final String DEFAULT_ISSO_RP_USER = "isso-rp-user";
     public static final String LOGIN_APPLIKASJON = "veilarblogin";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ISSOProvider.class);
@@ -132,10 +131,14 @@ public class ISSOProvider {
     }
 
     public static String getDefaultRedirectUrl() {
-        return DevelopmentSecurity.getRedirectUrl(getDefaultEnvironment());
+        return getRedirectUrl(getDefaultEnvironment());
     }
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static String getRedirectUrl(String environment) {
+        return String.format("https://app-%s.adeo.no/%s/api/login", environment, LOGIN_APPLIKASJON);
+    }
 
 
     @ToString(doNotUseGetters = true)

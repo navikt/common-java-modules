@@ -2,6 +2,7 @@ package no.nav.apiapp;
 
 import lombok.SneakyThrows;
 import no.nav.apiapp.config.Konfigurator;
+import no.nav.apiapp.jetty.ServerHeaderConfigurator;
 import no.nav.apiapp.util.UrlUtils;
 import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.metrics.Event;
@@ -99,6 +100,8 @@ public class ApiApp {
 
         WebAppContext webAppContext = jetty.context;
         webAppContext.addEventListener(new ApiAppServletContextListener(konfigurator, apiApplication));
+
+        webAppContext.addEventListener(new ServerHeaderConfigurator());
 
         Server server = jetty.server;
         if (contextPath.length() > 1) {

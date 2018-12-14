@@ -1,6 +1,7 @@
 package no.nav.log;
 
 import net.logstash.logback.marker.MapEntriesAppendingMarker;
+import org.slf4j.Logger;
 import org.slf4j.Marker;
 
 import java.util.HashMap;
@@ -29,6 +30,10 @@ public class MarkerBuilder {
         stringBuilder.append(value);
         map.put(fieldName, mask);
         return this;
+    }
+
+    public void logInfo(Logger logger) {
+        log(logger::info);
     }
 
 }
