@@ -18,6 +18,8 @@ import no.nav.apiapp.selftest.impl.STSHelsesjekk;
 import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.util.JbossUtil;
+import no.nav.apiapp.version.Version;
+import no.nav.apiapp.version.VersionService;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
@@ -32,6 +34,7 @@ import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.log.ContextDiscriminator;
 import no.nav.log.LogFilter;
 import no.nav.log.LoginfoServlet;
+import no.nav.log.MarkerBuilder;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
@@ -146,6 +149,10 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextInitialized");
+        final VersionService versionService = new VersionService();
+        List<Version> versions = versionService.getVersions();
+        versions.forEach(v -> new MarkerBuilder().field("component", v.component).field("version", v.version).logInfo(LOGGER));
+
         ServletContext servletContext = servletContextEvent.getServletContext();
         if (disablet(servletContext)) {
             return;
@@ -222,7 +229,7 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         leggTilServlet(servletContextEvent, IsAliveServlet.class, INTERNAL_IS_ALIVE);
         leggTilServlet(servletContextEvent, new IsReadyServlet(selfTestService), INTERNAL_IS_READY);
         leggTilServlet(servletContextEvent, new SelfTestServlet(selfTestService), INTERNAL_SELFTEST);
-        leggTilServlet(servletContextEvent, new PrometheusServlet(selfTestService), INTERNAL_METRICS);
+        leggTilServlet(servletContextEvent, new PrometheusServlet(selfTestService, versions), INTERNAL_METRICS);
         leggTilServlet(servletContextEvent, new SwaggerUIServlet(apiApplication), SWAGGER_PATH + "*");
         leggTilServlet(servletContextEvent, LoginfoServlet.class, LOGINFO_PATH);
 

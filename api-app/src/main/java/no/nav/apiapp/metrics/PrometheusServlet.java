@@ -5,6 +5,7 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.client.hotspot.DefaultExports;
+import no.nav.apiapp.version.Version;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
@@ -16,14 +17,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 import static io.prometheus.client.Collector.Type.GAUGE;
 import static io.prometheus.client.Collector.Type.UNTYPED;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.enumeration;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static no.nav.apiapp.util.StringUtils.of;
@@ -41,9 +41,11 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
     private static final PrometheusMeterRegistry PROMETHEUS_METER_REGISTRY = (PrometheusMeterRegistry) MetricsFactory.getMeterRegistry();
 
     private final SelfTestService selfTestService;
+    private final List<Collector.MetricFamilySamples> versionSamples;
 
-    public PrometheusServlet(SelfTestService selfTestService) {
+    public PrometheusServlet(SelfTestService selfTestService, List<Version> versionSamples) {
         this.selfTestService = selfTestService;
+        this.versionSamples = versions(versionSamples);
     }
 
     @Override
@@ -56,10 +58,11 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType(TextFormat.CONTENT_TYPE_004);
 
-        try(PrintWriter responseWriter = response.getWriter()){
+        try (PrintWriter responseWriter = response.getWriter()) {
             write(responseWriter, CollectorRegistry.defaultRegistry.metricFamilySamples());
             responseWriter.write(PROMETHEUS_METER_REGISTRY.scrape());
             write(responseWriter, selfTests());
+            write(responseWriter, enumeration(versionSamples));
         }
     }
 
@@ -69,6 +72,26 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
                 samplesEnumeration
         );
     }
+
+    private List<Collector.MetricFamilySamples> versions(List<Version> versions) {
+        return singletonList(new Collector.MetricFamilySamples(
+                        "version",
+                        GAUGE,
+                        "displays component versions",
+                        versions.stream().map(this::versionSample).collect(toList())
+                )
+        );
+    }
+
+    private Collector.MetricFamilySamples.Sample versionSample(Version version) {
+        return new Collector.MetricFamilySamples.Sample(
+                "version",
+                asList("component", "version"),
+                asList(version.component, version.version),
+                1.0
+        );
+    }
+
 
     Enumeration<Collector.MetricFamilySamples> selfTests() {
         long start = System.currentTimeMillis();
@@ -104,7 +127,7 @@ public class PrometheusServlet extends io.prometheus.client.exporter.MetricsServ
                 selftestResults.stream().map(result -> pingSample(result, SELFTEST_TIME_ID, result.getResponseTime())).collect(toList())
         ));
 
-        return Collections.enumeration(samples);
+        return enumeration(samples);
     }
 
     static Status aggregertStatus(List<SelftestResult> selftestResults) {
