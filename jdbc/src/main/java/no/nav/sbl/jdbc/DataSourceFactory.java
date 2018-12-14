@@ -2,6 +2,7 @@ package no.nav.sbl.jdbc;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 
 public class DataSourceFactory {
 
@@ -63,6 +64,7 @@ public class DataSourceFactory {
             config.setPassword(this.password);
             config.setMaximumPoolSize(this.maxPoolSize);
             config.setMinimumIdle(this.minimumIdle);
+            config.setMetricsTrackerFactory(new PrometheusMetricsTrackerFactory());
 
             return new HikariDataSource(config);
         }
