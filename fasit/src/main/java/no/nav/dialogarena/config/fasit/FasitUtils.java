@@ -286,11 +286,11 @@ public class FasitUtils {
     }
 
     public static Properties getApplicationProperties(String alias) {
-        return getFasitClient().getApplicationProperties(FasitClient.GetApplicationPropertiesRequest.builder()
+        return bestMatch(getFasitClient().getApplicationProperties(FasitClient.GetApplicationPropertiesRequest.builder()
                 .alias(alias)
                 .environmentClass(getDefaultEnvironmentClass())
                 .build()
-        );
+        ));
     }
 
     public static String getFasitPassword() {
