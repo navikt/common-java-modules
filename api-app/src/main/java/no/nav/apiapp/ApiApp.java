@@ -94,7 +94,7 @@ public class ApiApp {
             jettyBuilder.sslPort(Integer.parseInt(args[1]));
         }
 
-        Konfigurator konfigurator = new Konfigurator(jettyBuilder, apiApplication);
+        Konfigurator konfigurator = new Konfigurator(jettyBuilder);
         apiApplication.configure(konfigurator);
         Jetty jetty = konfigurator.buildJetty();
 
