@@ -96,7 +96,7 @@ public class FasitClientMock implements FasitClient {
     }
 
     @Override
-    public Properties getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest) {
+    public List<ApplicationProperties> getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest) {
         throw new IllegalStateException();
     }
 
