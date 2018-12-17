@@ -27,6 +27,7 @@ public class QueueManagerDTO {
     @Accessors(chain = true)
     public static class Scope {
         public String environment;
+        public String environmentclass;
     }
 
 }

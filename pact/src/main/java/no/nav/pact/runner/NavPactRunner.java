@@ -24,7 +24,7 @@ public class NavPactRunner extends PactRunner {
 
         // optional slik at verdier kan overstyres via lokalt
         if (!getOptionalProperty("PACT_BROKER", "PACT_USERNAME", "PACT_PASSWORD").isPresent()) {
-            RestService pactBrokerUrl = FasitUtils.getRestService("pactbroker").stream().findAny().get();
+            RestService pactBrokerUrl = FasitUtils.getRestService("pactbroker");
             String baseUrl = pactBrokerUrl.getUrl();
             TestUser pactUser = FasitUtils.getTestUser(PACT_USER_FASIT_ALIAS);
 

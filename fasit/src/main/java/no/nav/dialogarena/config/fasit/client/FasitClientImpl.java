@@ -245,7 +245,9 @@ public class FasitClientImpl implements FasitClient {
         QueueDTO.Scope scope = queueDTO.scope;
         return new Queue()
                 .setName(properties.queueName)
-                .setEnvironment(scope.environment);
+                .setEnvironment(scope.environment)
+                .setEnvironmentClass(scope.environmentclass)
+                ;
     }
 
     @Override
@@ -273,6 +275,7 @@ public class FasitClientImpl implements FasitClient {
                 .setName(properties.name)
 
                 .setEnvironment(scope.environment)
+                .setEnvironmentClass(scope.environmentclass)
                 ;
     }
 
