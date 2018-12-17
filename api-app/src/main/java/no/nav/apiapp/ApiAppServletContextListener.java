@@ -153,6 +153,8 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
 
         MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
 
+        webApplicationContext.getAutowireCapableBeanFactory().autowireBean(apiApplication);
+
         LOGGER.info("contextInitialized - slutt");
         apiApplication.startup(servletContext);
     }

@@ -13,16 +13,19 @@ import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.types.Pingable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import java.util.Random;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
+import static no.nav.sbl.util.AssertUtils.assertNotNull;
 
 @Configuration
 @Import({
@@ -32,8 +35,12 @@ import static no.nav.apiapp.ServletUtil.leggTilServlet;
 })
 public class ApplicationConfig implements ApiApplication {
 
+    @Inject
+    private ApplicationContext applicationContext;
+
     @Bean
     public Pingable pingable() {
+        verifyAutowiring();
         return new PingableEksempel();
     }
 
@@ -98,6 +105,8 @@ public class ApplicationConfig implements ApiApplication {
 
     @Override
     public void startup(ServletContext servletContext) {
+        verifyAutowiring();
+
         leggTilServlet(servletContext, ForwardServletExample.class, "/forward");
         leggTilServlet(servletContext, IncludeServletExample.class, "/include");
     }
@@ -121,6 +130,10 @@ public class ApplicationConfig implements ApiApplication {
                     .openAmLogin();
 
         }
+    }
+
+    private void verifyAutowiring() {
+        assertNotNull(applicationContext);
     }
 
     private static Stream<FeedElement<Integer>> streamTilfeldigInt() {
