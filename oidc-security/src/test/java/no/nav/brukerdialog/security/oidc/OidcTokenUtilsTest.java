@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OidcTokenUtilsTest {
 
-    private String testTokenMultipleAudBody = "{\"aud\":\"[testaud1,testaud2]\", \"azp\":\"testazp\"}";
+    private String testTokenMultipleAudBody = "{\"aud\":[\"testaud1\",\"testaud2\"], \"azp\":\"testazp\"}";
     private String testTokenSingleAudBody = "{\"aud\":\"testaud\", \"azp\":\"testazp\"}";
     private String testTokenNoAzpBody = "{\"aud\":\"testaud\"}";
     private String testTokenWithSecurityLevel = "{\"acr\":\"Level4\"}";
