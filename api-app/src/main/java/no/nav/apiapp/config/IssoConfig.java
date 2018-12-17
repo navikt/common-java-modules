@@ -1,15 +1,21 @@
 package no.nav.apiapp.config;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Value
 @Builder
 public class IssoConfig {
-    public String username;
-    public String password;
+
+    public final String username;
+    public final String password;
+
+    public final String issoHostUrl;
+    public final String issoRpUserUsername;
+    public final String issoRpUserPassword;
+    public final String oidcRedirectUrl;
+    public final String issoJwksUrl;
+    public final String issoExpectedTokenIssuer;
+    public final String isAliveUrl;
+
 }

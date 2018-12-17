@@ -168,13 +168,6 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         return getOptionalProperty(StsSecurityConstants.STS_URL_KEY).isPresent();
     }
 
-    private boolean issoBrukes() {
-        boolean harIssoLogin = konfigurator != null && konfigurator.harIssoLogin();
-        boolean autoRegistration = hasRedirectUrl();
-        LOGGER.info("isso? harIssoLogin={} auto={}", harIssoLogin, autoRegistration);
-        return harIssoLogin || autoRegistration;
-    }
-
     @Override
     public void sessionCreated(HttpSessionEvent se) {
         se.getSession().invalidate();
@@ -202,10 +195,6 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
 
         leggTilBonne(servletContextEvent, new LedigDiskPlassHelsesjekk());
         leggTilBonne(servletContextEvent, new TruststoreHelsesjekk());
-        if (issoBrukes()) {
-            leggTilBonne(servletContextEvent, new IssoSystemBrukerTokenHelsesjekk());
-            leggTilBonne(servletContextEvent, new IssoIsAliveHelsesjekk());
-        }
         if (stsBrukes()) {
             leggTilBonne(servletContextEvent, new STSHelsesjekk());
         }
