@@ -22,7 +22,7 @@ public class WarFolderFinderUtil {
      * @param apiAppClass the main application context for the Api-App
      * @return path to the war folder
      */
-    public static File findPath(Class<? extends ApiApplication.NaisApiApplication> apiAppClass) {
+    public static File findPath(Class<? extends ApiApplication> apiAppClass) {
         Optional<File> sourcesPath = locateSourcesPath(apiAppClass);
         if (isRunningLocally(sourcesPath)) {
             return addWebAppFolder(sourcesPath.get());
@@ -32,7 +32,7 @@ public class WarFolderFinderUtil {
         }
     }
 
-    private static Optional<File> locateSourcesPath(Class<? extends ApiApplication.NaisApiApplication> apiAppClass) {
+    private static Optional<File> locateSourcesPath(Class<? extends ApiApplication> apiAppClass) {
         Optional<File> baseDir = locateBaseDir(apiAppClass);
         if (baseDir.isPresent()) {
             File sourcesPath = new File(baseDir.get(), "src/main");
@@ -42,7 +42,7 @@ public class WarFolderFinderUtil {
         }
     }
 
-    private static Optional<File> locateBaseDir(Class<? extends ApiApplication.NaisApiApplication> apiAppClass) {
+    private static Optional<File> locateBaseDir(Class<? extends ApiApplication> apiAppClass) {
         try {
             File classesDir = new File(apiAppClass.getResource("/").toURI());
             File baseDir = new File(classesDir, "../../").getCanonicalFile();

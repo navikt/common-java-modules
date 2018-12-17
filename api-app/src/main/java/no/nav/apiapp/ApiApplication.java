@@ -27,15 +27,7 @@ public interface ApiApplication {
 
     default void shutdown(@SuppressWarnings("unused") ServletContext servletContext){}
 
-    enum Sone{
-        FSS,
-        SBS
-    }
+    void configure(ApiAppConfigurator apiAppConfigurator);
 
-    interface NaisApiApplication extends ApiApplication {
-
-        void configure(ApiAppConfigurator apiAppConfigurator);
-
-    }
 
 }
