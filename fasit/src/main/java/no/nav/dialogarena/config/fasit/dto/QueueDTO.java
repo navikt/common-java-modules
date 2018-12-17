@@ -24,6 +24,7 @@ public class QueueDTO {
     @Accessors(chain = true)
     public static class Scope {
         public String environment;
+        public String environmentclass;
     }
 
 }

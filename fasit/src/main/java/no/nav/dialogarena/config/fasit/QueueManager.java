@@ -11,4 +11,5 @@ public class QueueManager implements Scoped {
     private int port;
 
     public String environment;
+    public String environmentClass;
 }
