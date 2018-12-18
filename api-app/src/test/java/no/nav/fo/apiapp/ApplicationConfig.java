@@ -31,7 +31,9 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
 @Import({
         AbacContext.class,
         InjectionEksempel.class,
-        EksempelService.class
+        EksempelService.class,
+        IocExample.class,
+        IocExample.SpringComponent.class
 })
 public class ApplicationConfig implements ApiApplication {
 

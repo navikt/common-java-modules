@@ -43,6 +43,7 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
@@ -184,6 +185,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     private void konfigurerSpring(ServletContext servletContext) {
         servletContext.setInitParameter(CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
         servletContext.setInitParameter(CONFIG_LOCATION_PARAM, "");
+        servletContext.addListener(RequestContextListener.class);
         contextLoaderListener.setContextInitializers((ApplicationContextInitializer<ConfigurableApplicationContext>) applicationContext -> {
             AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) applicationContext;
             annotationConfigWebApplicationContext.register(apiApplication.getClass());
