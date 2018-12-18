@@ -7,6 +7,7 @@ import no.nav.log.LogFilter;
 import no.nav.log.MDCConstants;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
+import no.nav.sbl.util.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.net.URI;
 
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
 import static no.nav.log.LogFilter.NAV_CALL_ID_HEADER_NAMES;
@@ -79,7 +82,7 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
         if (!filterConfig.disableMetrics) {
             Timer timer = MetricsFactory.createTimer(filterConfig.metricName);
             timer.start();
-            clientRequestContext.setProperty(NAME, timer);
+            clientRequestContext.setProperty(NAME, new Data(timer));
         }
     }
 
@@ -96,20 +99,53 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
 
     @Override
     public void filter(ClientRequestContext clientRequestContext, ClientResponseContext clientResponseContext) throws IOException {
+        requestComplete(clientRequestContext, clientResponseContext.getStatus(), null);
+    }
+
+    public void requestFailed(ClientRequestContext request, Throwable throwable) {
+        LOG.warn(throwable.getMessage(), throwable);
+        requestComplete(request, 520, throwable);
+    }
+
+    private void requestComplete(ClientRequestContext clientRequestContext, int status, Throwable throwable) {
         if (!filterConfig.disableMetrics) {
-            Timer timer = (Timer) clientRequestContext.getProperty(NAME);
+            Data data = (Data) clientRequestContext.getProperty(NAME);
+            Timer timer = data.timer;
+            URI uri = clientRequestContext.getUri();
+            String host = uri.getHost();
+
             timer
                     .stop()
-                    .addFieldToReport("httpStatus", clientResponseContext.getStatus())
-                    .addFieldToReport("host", clientRequestContext.getUri().getHost())
-                    .addFieldToReport("path", clientRequestContext.getUri().getPath())
+                    .addFieldToReport("httpStatus", status)
+                    .addFieldToReport("host", host)
+                    .addFieldToReport("path", uri.getPath())
                     .report();
+
+            MetricsFactory.getMeterRegistry().timer(
+                    "rest_client",
+                    "host",
+                    host,
+                    "status",
+                    Integer.toString(status),
+                    "error",
+                    ofNullable(throwable).map(ExceptionUtils::getRootCause).map(t -> t.getClass().getSimpleName()).orElse("")
+            ).record(System.currentTimeMillis() - data.invocationTimestamp, MILLISECONDS);
         }
     }
 
     private URI uriForLogging(ClientRequestContext clientRequestContext) {
         URI uri = clientRequestContext.getUri();
         return filterConfig.disableParameterLogging ? UriBuilder.fromUri(uri).replaceQuery("").build() : uri;
+    }
+
+    private static class Data {
+        private final long invocationTimestamp = System.currentTimeMillis();
+        private final Timer timer;
+
+        private Data(Timer timer) {
+            this.timer = timer;
+        }
+
     }
 
 }

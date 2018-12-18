@@ -8,4 +8,14 @@ public class ExceptionUtils {
     private static <T extends Throwable> T genericThrow(Throwable e) throws T {
         throw (T) e;
     }
+
+    public static Throwable getRootCause(Throwable throwable) {
+        Throwable cause = throwable.getCause();
+        if (cause != null) {
+            return getRootCause(cause);
+        } else {
+            return throwable;
+        }
+    }
+
 }

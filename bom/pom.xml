@@ -199,6 +199,12 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
+                <artifactId>metrics</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
                 <artifactId>jdbc</artifactId>
                 <version>${project.version}</version>
             </dependency>
