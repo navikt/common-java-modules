@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
@@ -129,6 +130,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
 
         konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
 
+        leggTilFilter(servletContextEvent, ComplianceEnforcementFilter.class, REQUEST);
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
         leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
