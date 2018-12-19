@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.experimental.Wither;
 import no.nav.json.JsonProvider;
+import no.nav.sbl.rest.client.MetricsConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 
@@ -31,17 +32,20 @@ public class RestUtils {
     }
 
     private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
-        ClientConfig clientConfig = new ClientConfig();
-        clientConfig.register(new JsonProvider());
-        clientConfig.register(new ClientLogFilter(ClientLogFilter.ClientLogFilterConfig.builder()
+        ClientLogFilter clientLogFilter = new ClientLogFilter(ClientLogFilter.ClientLogFilterConfig.builder()
                 .disableMetrics(restConfig.disableMetrics)
                 .disableParameterLogging(restConfig.disableParameterLogging)
                 .metricName(metricName)
-                .build()));
+                .build()
+        );
+
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.register(new JsonProvider());
+        clientConfig.register(clientLogFilter);
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
-
+        clientConfig.connectorProvider(new MetricsConnectorProvider(clientConfig.getConnectorProvider(), clientLogFilter));
         return clientConfig;
     }
 

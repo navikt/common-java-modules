@@ -24,6 +24,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
         </dependency>
@@ -83,6 +87,11 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>metrics</artifactId>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
