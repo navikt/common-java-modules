@@ -67,7 +67,7 @@ public class OidcTokenUtils {
         }
     }
 
-    private static String getStringFieldFromToken(String token, String field) {
+    public static String getStringFieldFromToken(String token, String field) {
         return getFieldFromToken(token, field, String.class::cast);
     }
 

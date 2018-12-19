@@ -41,7 +41,7 @@ public class TokenLocator {
         return Optional.empty();
     }
 
-    private Optional<String> getTokenFromHeader(HttpServletRequest request) {
+    public static Optional<String> getTokenFromHeader(HttpServletRequest request) {
         String headerValue = request.getHeader("Authorization");
         return headerValue != null && !headerValue.isEmpty() && headerValue.startsWith("Bearer ")
                 ? Optional.of(headerValue.substring("Bearer ".length()))

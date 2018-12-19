@@ -80,6 +80,17 @@ public class OidcAuthModuleTest {
         verify(provider3, never()).getVerificationKey(any(), eq(REFRESH));
     }
 
+    @Test
+    public void authenticate__ignore_failing_providers() {
+        Subject subject = testSubject("token3");
+        mockValidSubjectForProvider(subject, provider3, NO_REFRESH);
+
+        when(provider1.getToken(httpServletRequest)).thenThrow(Throwable.class);
+        when(provider2.getToken(httpServletRequest)).thenThrow(Throwable.class);
+
+        assertThat(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).hasValue(subject);
+    }
+
     @SneakyThrows
     private void mockValidSubjectForProvider(Subject subject, OidcProvider oidcProvider, CacheMissAction noRefresh) {
         String oidcToken = subject.getSsoToken(OIDC).get();
