@@ -17,7 +17,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import static no.nav.log.MDCConstants.*;
-import static no.nav.sbl.util.LogUtils.buildMarker;
+import static no.nav.sbl.util.LogUtils.logEventBuilder;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 
 
@@ -76,7 +76,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         try {
             filterWithErrorHandling(httpServletRequest, httpServletResponse, filterChain);
 
-            buildMarker()
+            logEventBuilder()
                     .field("status", httpServletResponse.getStatus())
                     .field("method", httpServletRequest.getMethod())
                     .field("path", httpServletRequest.getRequestURI())

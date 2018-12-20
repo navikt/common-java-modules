@@ -1,5 +1,6 @@
 package no.nav.apiapp.rest;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.apiapp.feil.Feil;
 import no.nav.apiapp.feil.FeilDTO;
 import no.nav.apiapp.feil.FeilMapper;
@@ -17,6 +18,7 @@ import javax.ws.rs.ext.Provider;
 import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
 import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
+import static no.nav.sbl.util.LogUtils.logEventBuilder;
 
 @Provider
 public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwable> {
@@ -25,6 +27,8 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     public static final String ESCAPE_REDIRECT_X_HEADER = "X-Escape-5xx-Redirect";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionMapper.class);
+
+    private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
 
     @Inject
     javax.inject.Provider<HttpServletRequest> servletRequestProvider;
@@ -49,20 +53,19 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
         return toResponse(
                 exception,
                 type.getStatus(),
-                FeilMapper.somFeilDTO(exception, type)
+                somFeilDTO(exception, type)
         );
     }
 
     private Response toResponse(Throwable exception, Response.Status status, FeilDTO feil) {
         String path = servletRequestProvider.get().getRequestURI();
-        if(status.getStatusCode() < 500) {
-            LOGGER.warn("{} - {} - {}", path, status, feil);
-            LOGGER.warn(exception.getMessage(), exception);
-        }
-        else {
-            LOGGER.error("{} - {} - {}", path, status, feil);
-            LOGGER.error(exception.getMessage(), exception);
-        }
+        logEventBuilder()
+                .field("path", path)
+                .field("status", status.getStatusCode())
+                .field("id", feil.id)
+                .field("type", feil.type)
+                .error(exception)
+                .log(status.getStatusCode() < 500 ? LOGGER::warn : LOGGER::error);
         logToMetrics(status, path, feil);
         return Response
                 .status(status)
@@ -74,8 +77,18 @@ public class ExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<Throwabl
     }
 
     private void logToMetrics(Response.Status status, String path, FeilDTO feilDTO) {
+        int statusCode = status.getStatusCode();
+
+        meterRegistry.counter(
+                "rest_api_errors",
+                "status",
+                Integer.toString(statusCode),
+                "type",
+                feilDTO.type
+        ).increment();
+
         Event event = MetricsFactory.createEvent("rest-api-error")
-                .addFieldToReport("httpStatus", status.getStatusCode())
+                .addFieldToReport("httpStatus", statusCode)
                 .addFieldToReport("path", path)
                 .addFieldToReport("errorId", feilDTO.id)
                 .addFieldToReport("errorType", feilDTO.type);

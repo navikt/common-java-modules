@@ -7,8 +7,11 @@ import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.xml.ws.soap.SOAPFaultException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import static java.util.Arrays.stream;
 import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.Q;
@@ -57,7 +60,12 @@ public class FeilMapper {
     }
 
     private static FeilDTO.Detaljer finnDetaljer(Throwable exception) {
-        return new FeilDTO.Detaljer(exception.getClass().getName(), exception.getMessage(), finnStackTrace(exception));
+        return new FeilDTO.Detaljer(
+                exception.getClass().getName(),
+                exception.getMessage(),
+                finnStackTrace(exception),
+                finnStackFrames(exception)
+        );
     }
 
     private static String finnStackTrace(Throwable exception) {
@@ -67,6 +75,19 @@ public class FeilMapper {
         } else {
             return stackTrace;
         }
+    }
+
+    private static List<String> finnStackFrames(Throwable exception) {
+        return stackFrames(exception, new ArrayList<>());
+    }
+
+    private static List<String> stackFrames(Throwable throwable, List<String> strings) {
+        if (throwable != null) {
+            strings.add(String.format("%s: %s", throwable.getClass().getSimpleName(), throwable.getMessage()));
+            stream(throwable.getStackTrace()).map(StackTraceElement::toString).forEach(strings::add);
+            stackFrames(throwable.getCause(), strings);
+        }
+        return strings;
     }
 
     public static boolean visDetaljer() {

@@ -23,7 +23,6 @@ import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.common.auth.LoginFilter;
 import no.nav.log.LogFilter;
 import no.nav.log.LoginfoServlet;
-import no.nav.log.MarkerBuilder;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
@@ -62,6 +61,7 @@ import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static no.nav.brukerdialog.security.Constants.hasRedirectUrl;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.sbl.util.LogUtils.logEventBuilder;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
 
@@ -107,7 +107,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         LOGGER.info("contextInitialized");
         final VersionService versionService = new VersionService();
         List<Version> versions = versionService.getVersions();
-        versions.forEach(v -> new MarkerBuilder().field("component", v.component).field("version", v.version).logInfo(LOGGER));
+        versions.forEach(v -> logEventBuilder().field("component", v.component).field("version", v.version).logInfo(LOGGER));
 
         ServletContext servletContext = servletContextEvent.getServletContext();
 

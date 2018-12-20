@@ -2,6 +2,8 @@ package no.nav.apiapp.feil;
 
 import lombok.ToString;
 
+import java.util.List;
+
 @ToString
 public class FeilDTO {
     public final String id;
@@ -19,11 +21,13 @@ public class FeilDTO {
         public final String detaljertType;
         public final String feilMelding;
         public final String stackTrace;
+        public final List<String> stackFrames;
 
-        public Detaljer(String detaljertType, String feilMelding, String stackTrace) {
+        public Detaljer(String detaljertType, String feilMelding, String stackTrace, List<String> stackFrames) {
             this.detaljertType = detaljertType;
             this.feilMelding = feilMelding;
             this.stackTrace = stackTrace;
+            this.stackFrames = stackFrames;
         }
     }
 

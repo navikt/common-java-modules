@@ -3,7 +3,8 @@ package no.nav.sbl.util;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.ContextBase;
-import no.nav.log.MarkerBuilder;
+import no.nav.log.LogEventBuilderWithoutError;
+import no.nav.log.LogEventBuilderWithoutErrorImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,14 @@ public class LogUtils {
         return loggerContext.getLogger(ROOT).getLevel();
     }
 
-    public static MarkerBuilder buildMarker() {
-        return new MarkerBuilder();
+    public static LogEventBuilderWithoutError logEventBuilder() {
+        return new LogEventBuilderWithoutErrorImpl();
+    }
+
+    /** @deprecated use logEventBuilder() */
+    @Deprecated
+    public static LogEventBuilderWithoutError buildMarker() {
+        return logEventBuilder();
     }
 
 }

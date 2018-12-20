@@ -7,7 +7,7 @@ import org.slf4j.MDC;
 
 import static ch.qos.logback.classic.Level.ERROR;
 import static ch.qos.logback.classic.Level.INFO;
-import static no.nav.sbl.util.LogUtils.buildMarker;
+import static no.nav.sbl.util.LogUtils.logEventBuilder;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 
 public class LogUtilsTest {
@@ -29,14 +29,14 @@ public class LogUtilsTest {
 
         LOGGER.error(FNR, new RuntimeException(FNR, new IllegalArgumentException(FNR)));
 
-        buildMarker()
+        logEventBuilder()
                 .field("fnr2",FNR)
                 .field("number",42)
                 .field("a","b")
                 .field("c",null)
                 .log(LOGGER::info);
 
-        buildMarker()
+        logEventBuilder()
                 .log(LOGGER::info)
                 .field("more","stuff")
                 .log(LOGGER::error);
