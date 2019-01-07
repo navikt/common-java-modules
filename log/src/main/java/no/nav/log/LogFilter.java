@@ -56,6 +56,8 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+        long startTime = System.currentTimeMillis();
+
         String userId = resolveUserId(httpServletRequest);
         if (nullOrEmpty(userId)) {
             // user-id tracking only works if the client is stateful and supports cookies.
@@ -80,6 +82,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
                     .field("status", httpServletResponse.getStatus())
                     .field("method", httpServletRequest.getMethod())
                     .field("path", httpServletRequest.getRequestURI())
+                    .field("response_time", System.currentTimeMillis() - startTime)
                     .log(log::info);
 
         } finally {

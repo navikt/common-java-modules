@@ -114,10 +114,6 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         konfigurerSpring(servletContext);
         WebApplicationContext webApplicationContext = startSpring(servletContextEvent);
 
-        leggTilFilter(servletContextEvent, new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
-                .allowClientStorage(true)
-                .build()
-        ));
 
         // Slik at man husker å fjerne constrains fra web.xml
         ConstraintSecurityHandler currentSecurityHandler = (ConstraintSecurityHandler) ConstraintSecurityHandler.getCurrentSecurityHandler();
@@ -131,6 +127,10 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
 
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
         leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
+        leggTilFilter(servletContextEvent, new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
+                .allowClientStorage(true)
+                .build()
+        ));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
         leggTilFilter(servletContextEvent, XFrameOptionsFilter.class);
 
