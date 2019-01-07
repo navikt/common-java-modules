@@ -1,6 +1,8 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 import no.nav.sbl.dialogarena.types.Pingable;
@@ -14,10 +16,13 @@ import java.util.Collection;
 import java.util.List;
 
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
 
 @Slf4j
 public class SelfTestService {
+
+    private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
 
     private final List<Pingable> pingables;
 
@@ -40,11 +45,20 @@ public class SelfTestService {
         return SelfTestStatus.OK;
     }
 
-    private static SelftestResult doPing(Pingable pingable) {
+    private SelftestResult doPing(Pingable pingable) {
         long startTime = System.currentTimeMillis();
         Pingable.Ping ping = performPing(pingable);
         long responseTime = System.currentTimeMillis() - startTime;
         Pingable.Ping.PingMetadata metadata = ofNullable(ping.getMetadata()).orElseGet(SelfTestService::unknownMetadata);
+        SelfTestStatus selfTestStatus = computePingResult(ping);
+
+        meterRegistry.timer("selftest",
+                "id",
+                metadata.getId(),
+                "status",
+                selfTestStatus.name()
+        ).record(responseTime, MILLISECONDS);
+
         if (!ping.erVellykket() && !ping.erAvskrudd()) {
             log.warn("Feil ved SelfTest av " + metadata.getEndepunkt(), ping.getFeil());
         }
@@ -55,7 +69,7 @@ public class SelfTestService {
                 .description(metadata.getBeskrivelse())
                 .errorMessage(ping.getFeilmelding())
                 .critical(metadata.isKritisk())
-                .result(computePingResult(ping))
+                .result(selfTestStatus)
                 .stacktrace(ofNullable(ping.getFeil())
                         .map(ExceptionUtils::getStackTrace)
                         .orElse(null)
@@ -86,8 +100,13 @@ public class SelfTestService {
         // Særlig viktig hvis det tar lang tid å utføre alle pingables
         synchronized (this) {
             if (requestTime > lastResultTime) {
-                lastResult = pingables.stream().map(SelfTestService::doPing).collect(toList());
+                lastResult = pingables.stream().map(this::doPing).collect(toList());
                 lastResultTime = System.currentTimeMillis();
+
+                meterRegistry.timer("selftests",
+                        "status",
+                        getAggregertStatus().name()
+                ).record(lastResultTime - requestTime, MILLISECONDS);
             }
         }
 
