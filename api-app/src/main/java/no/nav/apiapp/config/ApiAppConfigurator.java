@@ -2,6 +2,7 @@ package no.nav.apiapp.config;
 
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
+import no.nav.brukerdialog.security.oidc.provider.SecurityTokenServiceOidcProviderConfig;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
@@ -20,6 +21,8 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig);
     ApiAppConfigurator openAmLogin();
     ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig);
+    ApiAppConfigurator securityTokenServiceLogin();
+    ApiAppConfigurator securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig securityTokenServiceOidcProviderConfig);
     ApiAppConfigurator oidcProvider(OidcProvider oidcProvider);
     ApiAppConfigurator addPublicPath(String path);
 

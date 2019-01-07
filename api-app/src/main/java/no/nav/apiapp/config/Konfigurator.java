@@ -125,6 +125,16 @@ public class Konfigurator implements ApiAppConfigurator {
     }
 
     @Override
+    public ApiAppConfigurator securityTokenServiceLogin() {
+        return securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig.readFromSystemProperties());
+    }
+
+    @Override
+    public ApiAppConfigurator securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig securityTokenServiceOidcProviderConfig) {
+        return oidcProvider(new SecurityTokenServiceOidcProvider(securityTokenServiceOidcProviderConfig));
+    }
+
+    @Override
     public ApiAppConfigurator oidcProvider(OidcProvider oidcProvider) {
         oidcProviders.add(oidcProvider);
         springBonner.add(oidcProvider);
