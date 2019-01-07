@@ -309,6 +309,11 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
+                <artifactId>batch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
                 <artifactId>selftest</artifactId>
                 <version>${project.version}</version>
             </dependency>
