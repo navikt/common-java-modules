@@ -10,6 +10,7 @@ import no.nav.brukerdialog.security.oidc.SystemUserTokenProviderConfig;
 import no.nav.brukerdialog.security.oidc.provider.*;
 import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
 import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
+import no.nav.common.auth.AuthorizationModule;
 import no.nav.common.auth.LoginFilter;
 import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
@@ -40,6 +41,8 @@ public class Konfigurator implements ApiAppConfigurator {
     private final List<String> publicPaths = new ArrayList<>(ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS);
     private final List<Object> springBonner = new ArrayList<>();
     private final List<Pingable> pingables = new ArrayList<>();
+
+    private AuthorizationModule authorizationModule;
 
     public Konfigurator(JettyBuilder jettyBuilder) {
         this.jettyBuilder = jettyBuilder;
@@ -148,6 +151,12 @@ public class Konfigurator implements ApiAppConfigurator {
     }
 
     @Override
+    public ApiAppConfigurator authorizationModule(AuthorizationModule authorizationModule) {
+        this.authorizationModule = authorizationModule;
+        return this;
+    }
+
+    @Override
     public ApiAppConfigurator customizeJetty(Consumer<Jetty> jettyCustomizer) {
         jettyCustomizers.add(jettyCustomizer);
         return this;
@@ -185,8 +194,8 @@ public class Konfigurator implements ApiAppConfigurator {
         if (!oidcProviders.isEmpty()) {
             loginProviders.add(new OidcAuthModule(oidcProviders));
         }
-        if (!loginProviders.isEmpty()) {
-            jettyBuilder.addFilter(new LoginFilter(loginProviders, publicPaths));
+        if (!loginProviders.isEmpty() || authorizationModule != null) {
+            jettyBuilder.addFilter(new LoginFilter(loginProviders, authorizationModule, publicPaths));
         }
         jettyBuilderCustomizers.forEach(c -> c.accept(jettyBuilder));
         Jetty jetty = jettyBuilder.buildJetty();

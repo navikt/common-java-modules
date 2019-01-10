@@ -15,8 +15,9 @@ import static org.mockito.Mockito.when;
 public class LoginFilterTest {
 
     private LoginProvider loginProvider = mock(LoginProvider.class);
-    private LoginFilter loginFilter = new LoginFilter(Arrays.asList(loginProvider), Arrays.asList("/public.*"));
-    
+    private AuthorizationModule authorizationModule = mock(AuthorizationModule.class);
+    private LoginFilter loginFilter = new LoginFilter(Arrays.asList(loginProvider), authorizationModule, Arrays.asList("/public.*"));
+
     @Test
     public void isPublic() throws ServletException {
         loginFilter.init(config("/abc"));

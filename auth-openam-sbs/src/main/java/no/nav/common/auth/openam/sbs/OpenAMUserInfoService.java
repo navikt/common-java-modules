@@ -48,6 +48,7 @@ public class OpenAMUserInfoService {
     private static List<String> subjectAttributes(OpenAmConfig openAmConfig) {
         List<String> attributes = new ArrayList<>();
         attributes.add(PARAMETER_UID);
+        attributes.add(PARAMETER_SECURITY_LEVEL);
         ofNullable(openAmConfig.additionalAttributes).ifPresent(attributes::addAll);
         return attributes;
     }

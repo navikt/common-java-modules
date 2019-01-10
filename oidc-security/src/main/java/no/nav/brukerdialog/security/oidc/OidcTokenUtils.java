@@ -1,9 +1,9 @@
 package no.nav.brukerdialog.security.oidc;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.brukerdialog.security.SecurityLevel;
+import no.nav.common.auth.SsoToken;
 import no.nav.json.JsonUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.List;
@@ -15,10 +15,10 @@ import static no.nav.brukerdialog.security.SecurityLevel.*;
 import static org.jose4j.jwt.ReservedClaimNames.AUDIENCE;
 import static org.jose4j.jwt.ReservedClaimNames.SUBJECT;
 
-
+@Slf4j
 public class OidcTokenUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(OidcTokenUtils.class);
+    public static final String SECURITY_LEVEL_ATTRIBUTE = "acr";
 
     public static String getOpenamClientFromToken(String token) {
         return ofNullable(getTokenAzp(token))
@@ -47,8 +47,18 @@ public class OidcTokenUtils {
     }
 
     public static SecurityLevel getOidcSecurityLevel(String token) {
-        String acr = getStringFieldFromToken(token, "acr");
+        return levelFromAcr(getStringFieldFromToken(token, SECURITY_LEVEL_ATTRIBUTE));
+    }
 
+    public static SecurityLevel getOidcSecurityLevel(SsoToken ssoToken) {
+        return ssoToken.getType() != SsoToken.Type.OIDC ? Ukjent : ofNullable(ssoToken.getAttributes())
+                .map(a -> a.get(SECURITY_LEVEL_ATTRIBUTE))
+                .map(o -> o instanceof String ? (String) o : null)
+                .map(OidcTokenUtils::levelFromAcr)
+                .orElse(Ukjent);
+    }
+
+    private static SecurityLevel levelFromAcr(String acr) {
         if (acr == null) {
             return Ukjent;
         }
