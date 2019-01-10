@@ -231,9 +231,9 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
             leggTilServlet(servletContextEvent, new SoapServlet(), WEBSERVICE_PATH);
         }
 
-        if (apiApplication instanceof ApiApplication.NaisApiApplication) {
-            MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
-        }
+//        if (apiApplication instanceof ApiApplication.NaisApiApplication) {
+//            MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
+//        }
 
         LOGGER.info("contextInitialized - slutt");
         apiApplication.startup(servletContext);
