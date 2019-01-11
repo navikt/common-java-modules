@@ -1,6 +1,7 @@
 package no.nav.brukerdialog.security.jaspic;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidatorResult;
@@ -20,6 +21,7 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.util.Optional.empty;
@@ -29,6 +31,7 @@ import static no.nav.brukerdialog.security.jwks.CacheMissAction.NO_REFRESH;
 import static no.nav.brukerdialog.security.jwks.CacheMissAction.REFRESH;
 import static no.nav.brukerdialog.tools.Utils.getRelativePath;
 
+@Slf4j
 public class OidcAuthModule implements LoginProvider {
 
     private static final Logger log = LoggerFactory.getLogger(OidcAuthModule.class);
@@ -54,7 +57,18 @@ public class OidcAuthModule implements LoginProvider {
     }
 
     private Stream<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CacheMissAction cacheMissAction) {
-        return providers.stream().flatMap(oidcProviderHandler -> doValidateRequest(httpServletRequest, httpServletResponse, oidcProviderHandler, cacheMissAction));
+        return providers.stream().flatMap(catchAndLogErrors(oidcProviderHandler -> doValidateRequest(httpServletRequest, httpServletResponse, oidcProviderHandler, cacheMissAction)));
+    }
+
+    private Function<OidcProvider, Stream<Subject>> catchAndLogErrors(Function<OidcProvider, Stream<Subject>> providerStreamFunction) {
+        return (oidcProvider) -> {
+            try {
+                return providerStreamFunction.apply(oidcProvider);
+            } catch (Throwable t) {
+                log.warn(t.getMessage(), t);
+                return Stream.empty();
+            }
+        };
     }
 
     private Stream<Subject> doValidateRequest(
