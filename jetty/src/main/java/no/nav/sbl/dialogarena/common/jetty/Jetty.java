@@ -162,7 +162,7 @@ public final class Jetty {
         @Deprecated // Sett heller opp LoginFilter manuelt
         public final JettyBuilder configureForJaspic(List<String> ubeskyttet) {
             List<LoginProvider> loginProviders = Collections.singletonList(new OidcAuthModule(Collections.singletonList(new IssoOidcProvider())));
-            addFilter(new LoginFilter(loginProviders, ubeskyttet));
+            addFilter(new LoginFilter(loginProviders, null, ubeskyttet));
             return this;
         }
 
