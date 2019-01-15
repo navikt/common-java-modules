@@ -58,17 +58,20 @@ public class CXFClient<T> {
         return this;
     }
 
+    /** @deprecated use configureStsForSubject() */
     @Deprecated // bruk configureStsForSubject();
     public CXFClient<T> configureStsForExternalSSO() {
         return configureStsForSubject();
     }
 
+    /** @deprecated use configureStsForSubject() */
     @Deprecated // bruk configureStsForSubject();
     public CXFClient<T> configureStsForOnBehalfOfWithJWT() {
         return configureStsForSubject();
     }
 
-    @Deprecated // bruk configureStsForSubject();
+    /** @deprecated use configureStsForSystemUser() */
+    @Deprecated
     public CXFClient<T> configureStsForSystemUserInFSS() {
         return configureStsForSystemUser();
     }
