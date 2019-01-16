@@ -34,6 +34,7 @@ public class RestUtils {
     private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
         ClientLogFilter clientLogFilter = new ClientLogFilter(ClientLogFilter.ClientLogFilterConfig.builder()
                 .disableMetrics(restConfig.disableMetrics)
+                .disableRequestLogging(restConfig.disableRequestLogging)
                 .disableParameterLogging(restConfig.disableParameterLogging)
                 .metricName(metricName)
                 .build()
@@ -98,7 +99,7 @@ public class RestUtils {
 
         public boolean disableMetrics;
         public boolean disableParameterLogging;
-
+        public boolean disableRequestLogging;
     }
 
     private static String getMetricName() {

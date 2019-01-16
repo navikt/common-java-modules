@@ -46,6 +46,7 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
     public static class ClientLogFilterConfig {
         public final String metricName;
         public final boolean disableMetrics;
+        public final boolean disableRequestLogging;
         public final boolean disableParameterLogging;
     }
 
@@ -56,7 +57,9 @@ public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilte
 
     @Override
     public void filter(ClientRequestContext clientRequestContext) throws IOException {
-        LOG.info("{} {}", clientRequestContext.getMethod(), uriForLogging(clientRequestContext));
+        if (!filterConfig.disableRequestLogging) {
+            LOG.info("{} {}", clientRequestContext.getMethod(), uriForLogging(clientRequestContext));
+        }
 
         MultivaluedMap<String, Object> requestHeaders = clientRequestContext.getHeaders();
 
