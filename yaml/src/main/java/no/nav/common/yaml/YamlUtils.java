@@ -14,4 +14,9 @@ public class YamlUtils {
         return objectMapper.readValue(yaml, targetClass);
     }
 
+    @SneakyThrows
+    public static String toYaml(Object value) {
+        return objectMapper.writeValueAsString(value);
+    }
+
 }
