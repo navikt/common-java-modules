@@ -3,7 +3,6 @@ package no.nav.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -17,7 +16,6 @@ import java.time.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.time.LocalTime.NOON;
@@ -66,7 +64,6 @@ public class DateConfiguration {
 
     private abstract static class BaseProvider<T> implements ParamConverter<T> {
 
-        private static final String YYYY_MM_DD_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
         private final Class targetClass;
         private final JsonSerializer<T> serializer;
         private final JsonDeserializer<T> deSerializer;
@@ -87,21 +84,9 @@ public class DateConfiguration {
 
                 @Override
                 public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-                    if(isLocalDate(p.getText())) {
-                        LocalDateProvider localDateProvider = new LocalDateProvider();
-                        of(p.getText())
-                                .map(localDateProvider::fromString)
-                                .orElse(null);
-                    }
                     return of(p.getText())
                             .map(BaseProvider.this::fromString)
                             .orElse(null);
-                }
-
-                private boolean isLocalDate(String dateString) {
-                    Pattern pattern = Pattern.compile(YYYY_MM_DD_PATTERN);
-                    Matcher matcher = pattern.matcher(dateString.trim());
-                    return matcher.matches();
                 }
             };
         }
@@ -126,6 +111,7 @@ public class DateConfiguration {
 
 
     private static class LocalDateProvider extends BaseProvider<LocalDate> {
+        private static final Pattern YYYY_MM_DD_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
 
         private LocalDateProvider() {
             super(LocalDate.class);
@@ -144,8 +130,13 @@ public class DateConfiguration {
         @Override
         public LocalDate fromString(String value) {
             return of(value)
+                    .filter(this::isLocalDate)
                     .map(LocalDate::parse)
-                    .orElse(null);
+                    .orElseGet(() -> super.fromString(value));
+        }
+
+        private boolean isLocalDate(String dateString) {
+            return YYYY_MM_DD_PATTERN.matcher(dateString.trim()).matches();
         }
 
     }

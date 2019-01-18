@@ -122,7 +122,14 @@ public class JsonUtilsTest {
 
         @Test
         public void localDatePaaFormat_yyyy_MM_dd() {
-            JsonUtils.fromJson("{\"dato\":\"2018-05-09\"}", TestDato.class);
+            TestDato testDato = JsonUtils.fromJson("{\"dato\":\"2018-05-09\"}", TestDato.class);
+            assertThat(testDato.dato).isEqualTo(LocalDate.of(2018, 5, 9));
+        }
+
+        @Test
+        public void localDateIsNull() {
+            TestDato testDato = JsonUtils.fromJson("{\"dato\":null}", TestDato.class);
+            assertThat(testDato.dato).isNull();
         }
 
     }
