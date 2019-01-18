@@ -17,6 +17,8 @@ import java.time.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.time.LocalTime.NOON;
 import static java.time.ZoneId.systemDefault;
@@ -64,6 +66,7 @@ public class DateConfiguration {
 
     private abstract static class BaseProvider<T> implements ParamConverter<T> {
 
+        private static final String YYYY_MM_DD_PATTERN = "^\\d{4}-\\d{2}-\\d{2}$";
         private final Class targetClass;
         private final JsonSerializer<T> serializer;
         private final JsonDeserializer<T> deSerializer;
@@ -84,9 +87,21 @@ public class DateConfiguration {
 
                 @Override
                 public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    if(isLocalDate(p.getText())) {
+                        LocalDateProvider localDateProvider = new LocalDateProvider();
+                        of(p.getText())
+                                .map(localDateProvider::fromString)
+                                .orElse(null);
+                    }
                     return of(p.getText())
                             .map(BaseProvider.this::fromString)
                             .orElse(null);
+                }
+
+                private boolean isLocalDate(String dateString) {
+                    Pattern pattern = Pattern.compile(YYYY_MM_DD_PATTERN);
+                    Matcher matcher = pattern.matcher(dateString.trim());
+                    return matcher.matches();
                 }
             };
         }
@@ -124,6 +139,13 @@ public class DateConfiguration {
         @Override
         protected ZonedDateTime from(LocalDate value) {
             return value.atTime(NOON).atZone(DEFAULT_ZONE);
+        }
+
+        @Override
+        public LocalDate fromString(String value) {
+            return of(value)
+                    .map(LocalDate::parse)
+                    .orElse(null);
         }
 
     }
