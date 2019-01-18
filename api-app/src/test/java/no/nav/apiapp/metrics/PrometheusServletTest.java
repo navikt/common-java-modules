@@ -1,19 +1,16 @@
 package no.nav.apiapp.metrics;
 
+import no.nav.apiapp.version.VersionService;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 import no.nav.sbl.dialogarena.types.Pingable;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import static java.util.Arrays.asList;
@@ -28,7 +25,8 @@ import static org.mockito.Mockito.when;
 public class PrometheusServletTest {
 
     private final SelfTestService selfTestService = mock(SelfTestService.class);
-    private final PrometheusServlet prometheusServlet = new PrometheusServlet(selfTestService);
+    private final VersionService versionService = mock(VersionService.class);
+    private final PrometheusServlet prometheusServlet = new PrometheusServlet(selfTestService, versionService.getVersions());
 
     @Test
     public void smoketest() throws IOException {

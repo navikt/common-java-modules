@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.dialogarena.config.fasit.FasitUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -142,7 +143,7 @@ public class FasitClientImpl implements FasitClient {
                         .environment(dto.getEnvironment())
                         .environmentClass(dto.getEnvironmentClass())
                         .build()
-                ).collect(Collectors.toList())
+                ).collect(toList())
         );
     }
 
@@ -200,7 +201,7 @@ public class FasitClientImpl implements FasitClient {
                         .setContextRoots(dto.properties.contextRoots)
                         .setUrl(dto.properties.url)
                         .setEnvironment(dto.scope.environment)
-                ).collect(Collectors.toList())
+                ).collect(toList())
         );
     }
 
@@ -236,7 +237,7 @@ public class FasitClientImpl implements FasitClient {
                 .get(QueueDTO.LIST_TYPE)
                 .stream()
                 .map(this::queue)
-                .collect(Collectors.toList())
+                .collect(toList())
         );
     }
 
@@ -245,7 +246,9 @@ public class FasitClientImpl implements FasitClient {
         QueueDTO.Scope scope = queueDTO.scope;
         return new Queue()
                 .setName(properties.queueName)
-                .setEnvironment(scope.environment);
+                .setEnvironment(scope.environment)
+                .setEnvironmentClass(scope.environmentclass)
+                ;
     }
 
     @Override
@@ -260,7 +263,7 @@ public class FasitClientImpl implements FasitClient {
                 .get(QueueManagerDTO.LIST_TYPE)
                 .stream()
                 .map(this::queueManager)
-                .collect(Collectors.toList())
+                .collect(toList())
         );
     }
 
@@ -273,11 +276,12 @@ public class FasitClientImpl implements FasitClient {
                 .setName(properties.name)
 
                 .setEnvironment(scope.environment)
+                .setEnvironmentClass(scope.environmentclass)
                 ;
     }
 
     @Override
-    public Properties getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest) {
+    public List<ApplicationProperties> getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest) {
         return httpClient(client -> client.target("https://fasit.adeo.no/api/v2/resources")
                 .queryParam("type", "ApplicationProperties")
                 .queryParam("alias", getApplicationPropertiesRequest.alias)
@@ -286,9 +290,8 @@ public class FasitClientImpl implements FasitClient {
                 .request()
                 .get(ApplicationPropertiesDTO.LIST_TYPE)
                 .stream()
-                .findFirst()
-                .map(dto -> stringToProperties(dto.properties.applicationProperties))
-                .orElseThrow(() -> new IllegalStateException("fant ikke application-properties for følgende parametre: " + getApplicationPropertiesRequest))
+                .map(this::toProperties)
+                .collect(toList())
         );
     }
 
@@ -454,9 +457,12 @@ public class FasitClientImpl implements FasitClient {
     }
 
     @SneakyThrows
-    private Properties stringToProperties(String string) {
-        Properties properties = new Properties();
-        properties.load(new ByteArrayInputStream(string.getBytes()));
+    private ApplicationProperties toProperties(ApplicationPropertiesDTO applicationPropertiesDTO) {
+        ApplicationProperties properties = ApplicationProperties.builder()
+                .environment(applicationPropertiesDTO.scope.environment)
+                .environmentClass(applicationPropertiesDTO.scope.environmentclass)
+                .build();
+        properties.load(new ByteArrayInputStream(applicationPropertiesDTO.properties.applicationProperties.getBytes()));
         return properties;
     }
 

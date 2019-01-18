@@ -3,11 +3,14 @@ package no.nav.apiapp.config;
 import no.nav.apiapp.ApiAppServletContextListener;
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
+import no.nav.brukerdialog.security.Constants;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
-import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
-import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
-import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
-import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
+import no.nav.brukerdialog.security.oidc.SystemUserTokenProvider;
+import no.nav.brukerdialog.security.oidc.SystemUserTokenProviderConfig;
+import no.nav.brukerdialog.security.oidc.provider.*;
+import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
+import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
+import no.nav.common.auth.AuthorizationModule;
 import no.nav.common.auth.LoginFilter;
 import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
@@ -31,7 +34,6 @@ public class Konfigurator implements ApiAppConfigurator {
     private static final Logger LOGGER = LoggerFactory.getLogger(Konfigurator.class);
 
     private final JettyBuilder jettyBuilder;
-    private final ApiApplication apiApplication;
     private final List<OidcProvider> oidcProviders = new ArrayList<>();
     private final List<LoginProvider> loginProviders = new ArrayList<>();
     private final List<Consumer<Jetty>> jettyCustomizers = new ArrayList<>();
@@ -39,11 +41,11 @@ public class Konfigurator implements ApiAppConfigurator {
     private final List<String> publicPaths = new ArrayList<>(ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS);
     private final List<Object> springBonner = new ArrayList<>();
     private final List<Pingable> pingables = new ArrayList<>();
-    private boolean issoLogin;
 
-    public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
+    private AuthorizationModule authorizationModule;
+
+    public Konfigurator(JettyBuilder jettyBuilder) {
         this.jettyBuilder = jettyBuilder;
-        this.apiApplication = apiApplication;
     }
 
     @Override
@@ -84,16 +86,35 @@ public class Konfigurator implements ApiAppConfigurator {
         return issoLogin(IssoConfig.builder()
                 .username(getConfigProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, resolveSrvUserPropertyName()))
                 .password(getConfigProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, resolverSrvPasswordPropertyName()))
-                .build());
+                .issoHostUrl(Constants.getIssoHostUrl())
+                .issoRpUserUsername(Constants.getIssoRpUserUsername())
+                .issoRpUserPassword(Constants.getIssoRpUserPassword())
+                .issoJwksUrl(Constants.getIssoJwksUrl())
+                .issoExpectedTokenIssuer(Constants.getIssoExpectedTokenIssuer())
+                .oidcRedirectUrl(Constants.getOidcRedirectUrl())
+                .isAliveUrl(Constants.getIssoIsaliveUrl())
+                .build()
+        );
     }
 
     @Override
     public ApiAppConfigurator issoLogin(IssoConfig issoConfig) {
-        setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, issoConfig.username, PUBLIC);
-        setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, issoConfig.password, SECRET);
-        oidcProviders.add(new IssoOidcProvider());
-        issoLogin = true;
-        return this;
+        SystemUserTokenProviderConfig systemUserTokenProviderConfig = SystemUserTokenProviderConfig.builder()
+                .srvUsername(issoConfig.username)
+                .srvPassword(issoConfig.password)
+                .issoHostUrl(issoConfig.issoHostUrl)
+                .issoRpUserUsername(issoConfig.issoRpUserUsername)
+                .issoRpUserPassword(issoConfig.issoRpUserPassword)
+                .issoJwksUrl(issoConfig.issoJwksUrl)
+                .issoExpectedTokenIssuer(issoConfig.issoExpectedTokenIssuer)
+                .oidcRedirectUrl(issoConfig.oidcRedirectUrl)
+                .build();
+
+        SystemUserTokenProvider systemUserTokenProvider = new SystemUserTokenProvider(systemUserTokenProviderConfig);
+        springBonner.add(systemUserTokenProvider);
+        springBonner.add(new IssoSystemBrukerTokenHelsesjekk(systemUserTokenProvider));
+        springBonner.add(new IssoIsAliveHelsesjekk(issoConfig.isAliveUrl));
+        return oidcProvider(new IssoOidcProvider(IssoOidcProviderConfig.from(systemUserTokenProviderConfig)));
     }
 
     @Override
@@ -103,13 +124,35 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig) {
-        oidcProviders.add(new AzureADB2CProvider(azureADB2CConfig));
+        return oidcProvider(new AzureADB2CProvider(azureADB2CConfig));
+    }
+
+    @Override
+    public ApiAppConfigurator securityTokenServiceLogin() {
+        return securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig.readFromSystemProperties());
+    }
+
+    @Override
+    public ApiAppConfigurator securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig securityTokenServiceOidcProviderConfig) {
+        return oidcProvider(new SecurityTokenServiceOidcProvider(securityTokenServiceOidcProviderConfig));
+    }
+
+    @Override
+    public ApiAppConfigurator oidcProvider(OidcProvider oidcProvider) {
+        oidcProviders.add(oidcProvider);
+        springBonner.add(oidcProvider);
         return this;
     }
 
     @Override
     public ApiAppConfigurator addPublicPath(String path) {
         publicPaths.add(path);
+        return this;
+    }
+
+    @Override
+    public ApiAppConfigurator authorizationModule(AuthorizationModule authorizationModule) {
+        this.authorizationModule = authorizationModule;
         return this;
     }
 
@@ -151,17 +194,13 @@ public class Konfigurator implements ApiAppConfigurator {
         if (!oidcProviders.isEmpty()) {
             loginProviders.add(new OidcAuthModule(oidcProviders));
         }
-        if (!loginProviders.isEmpty()) {
-            jettyBuilder.addFilter(new LoginFilter(loginProviders, publicPaths));
+        if (!loginProviders.isEmpty() || authorizationModule != null) {
+            jettyBuilder.addFilter(new LoginFilter(loginProviders, authorizationModule, publicPaths));
         }
         jettyBuilderCustomizers.forEach(c -> c.accept(jettyBuilder));
         Jetty jetty = jettyBuilder.buildJetty();
         jettyCustomizers.forEach(c -> c.accept(jetty));
         return jetty;
-    }
-
-    public boolean harIssoLogin() {
-        return issoLogin;
     }
 
     public List<Object> getSpringBonner() {

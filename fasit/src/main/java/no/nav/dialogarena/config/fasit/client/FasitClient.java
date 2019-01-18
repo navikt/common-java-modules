@@ -20,7 +20,7 @@ public interface FasitClient {
     ServiceUser getCredentials(GetCredentialsRequest getCredentialsRequest);
     ApplicationConfig getApplicationConfig(GetApplicationConfigRequest getApplicationConfigRequest);
     Properties getApplicationEnvironment(GetApplicationEnvironmentRequest getApplicationEnvironmentRequest);
-    Properties getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest);
+    List<ApplicationProperties> getApplicationProperties(GetApplicationPropertiesRequest getApplicationPropertiesRequest);
     LdapConfig getLdapConfig(String environmentClass);
     List<Queue> getQueue(GetQueueRequest getQueueRequest);
     List<QueueManager> getQueueManager(GetQueueManagerRequest getQueueManagerRequest);

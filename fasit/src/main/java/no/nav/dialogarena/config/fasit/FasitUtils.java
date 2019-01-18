@@ -14,13 +14,14 @@ import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static no.nav.apiapp.util.ObjectUtils.isEqual;
-import static no.nav.sbl.util.StringUtils.nullOrEmpty;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
@@ -110,11 +111,11 @@ public class FasitUtils {
 
     @SneakyThrows
     public static ApplicationConfig getApplicationConfig(String applicationName, String environment) {
-       return getFasitClient().getApplicationConfig(FasitClient.GetApplicationConfigRequest.builder()
-               .applicationName(applicationName)
-               .environment(environment)
-               .build()
-       );
+        return getFasitClient().getApplicationConfig(FasitClient.GetApplicationConfigRequest.builder()
+                .applicationName(applicationName)
+                .environment(environment)
+                .build()
+        );
     }
 
     public static TestUser getTestUser(String userAlias) {
@@ -190,12 +191,16 @@ public class FasitUtils {
         return getOptionalVariableFromPropertyFile(MOCK_VARIABLE_NAME).map(Boolean::parseBoolean).orElse(false);
     }
 
-    public static List<RestService> getRestService(String alias) {
+    public static List<RestService> getRestServices(String alias) {
         return getFasitClient().getRestServices(alias);
     }
 
+    public static RestService getRestService(String alias) {
+        return bestMatch(getRestServices(alias));
+    }
+
     public static RestService getRestService(String alias, String environment) {
-        return getRestService(alias)
+        return getRestServices(alias)
                 .stream()
                 .filter(r -> isEqual(r.getEnvironment(), environment))
                 .findFirst()
@@ -281,11 +286,11 @@ public class FasitUtils {
     }
 
     public static Properties getApplicationProperties(String alias) {
-        return getFasitClient().getApplicationProperties(FasitClient.GetApplicationPropertiesRequest.builder()
+        return bestMatch(getFasitClient().getApplicationProperties(FasitClient.GetApplicationPropertiesRequest.builder()
                 .alias(alias)
                 .environmentClass(getDefaultEnvironmentClass())
                 .build()
-        );
+        ));
     }
 
     public static String getFasitPassword() {
@@ -309,7 +314,7 @@ public class FasitUtils {
     }
 
     public static String getEnvironmentClass(String environment) {
-        return environment.substring(0, 1);
+        return environment == null ? null : environment.substring(0, 1);
     }
 
     public static String getOeraLocal(String environment) {
@@ -355,14 +360,20 @@ public class FasitUtils {
 
     private static <T extends Scoped> T bestMatch(List<T> scoped) {
         String environment = getDefaultEnvironment();
-        return scoped.stream()
-                .filter(s -> environment.equals(s.getEnvironment()))
+        String environmentClass = getEnvironmentClass(environment);
+        Stream<Predicate<T>> matchers = Stream.of(
+                s -> isEqual(environment, s.getEnvironment()),
+                s -> isEqual(environmentClass, s.getEnvironmentClass())
+        );
+        return matchers
+                .flatMap(p -> scoped.stream().filter(p))
                 .findFirst()
-                .orElseGet(() -> scoped.stream()
-                        .filter(s -> nullOrEmpty(s.getEnvironment()))
-                        .findFirst()
-                        .orElseThrow(IllegalStateException::new)
-                );
+                .orElseThrow(() -> new IllegalStateException(String.format(
+                        "no best match for environment=%s or environmentClass=%s among: %s",
+                        environment,
+                        environmentClass,
+                        scoped
+                )));
     }
 
     public static List<QueueManager> getQueueManagers(String alias) {

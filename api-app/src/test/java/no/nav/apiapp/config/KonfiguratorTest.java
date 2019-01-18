@@ -1,6 +1,5 @@
 package no.nav.apiapp.config;
 
-import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.TestContext;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
@@ -18,7 +17,6 @@ public class KonfiguratorTest {
     }
 
     private JettyBuilder jettyBuilder = mock(JettyBuilder.class);
-    private ApiApplication apiApplication = mock(ApiApplication.class);
 
     @Rule
     public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
@@ -30,7 +28,7 @@ public class KonfiguratorTest {
                 .setProperty("SRVTESTAPP_USERNAME", "username")
                 .setProperty("SRVTESTAPP_PASSWORD", "password");
 
-        StsConfig stsConfig = new Konfigurator(jettyBuilder, apiApplication).defaultStsConfig();
+        StsConfig stsConfig = new Konfigurator(jettyBuilder).defaultStsConfig();
         assertThat(stsConfig.url).isEqualTo("test-url");
         assertThat(stsConfig.username).isEqualTo("username");
         assertThat(stsConfig.password).isEqualTo("password");

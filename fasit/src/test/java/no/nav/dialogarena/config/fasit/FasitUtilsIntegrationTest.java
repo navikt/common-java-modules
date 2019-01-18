@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.NotAuthorizedException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -78,10 +79,10 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void getApplicationEnvironment() throws Exception {
-        Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("veilarbdialog");
+        Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("dittnav");
         assertThat(applicationEnvironment.size(), greaterThan(10));
 
-        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("veilarbaktivitet", TEST_ENVIRONMENT);
+        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("dittnav", TEST_ENVIRONMENT);
         assertThat(veilarbaktivitetEnvironment.size(), greaterThan(10));
 
         Properties dittnavEnvironment = FasitUtils.getApplicationEnvironment("dittnav", "t1");
@@ -163,12 +164,20 @@ public class FasitUtilsIntegrationTest {
     }
 
     @Test
+    public void getRestServices_() throws Exception {
+        String alias = "veilarbjobbsokerkompetanseRS";
+        List<RestService> restServices = getRestServices(alias);
+        assertThat(restServices, Matchers.not(empty()));
+        validateRestService(restServices.get(0), alias);
+    }
+
+    @Test
     public void getRestService_() throws Exception {
         String alias = "veilarbjobbsokerkompetanseRS";
-        List<RestService> restServices = getRestService(alias);
-        assertThat(restServices, Matchers.not(empty()));
+        validateRestService(getRestService(alias), alias);
+    }
 
-        RestService restService = restServices.get(0);
+    private void validateRestService(RestService restService, String alias) throws MalformedURLException {
         assertThat(restService.getAlias(), equalTo(alias));
         assertThat(restService.getEnvironment(), Matchers.not(isEmptyString()));
         assertThat(restService.getEnvironmentClass(), Matchers.not(isEmptyString()));
@@ -178,16 +187,15 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void getRestServiceExists() {
-        assertThat(FasitUtils.getRestService("this.does.not.exist"), empty());
+        assertThat(FasitUtils.getRestServices("this.does.not.exist"), empty());
         assertThatThrownBy(() -> FasitUtils.getRestService("this.does.not.exist", "p"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("this.does.not.exist")
                 .hasMessageContaining("p");
 
-        assertThat(FasitUtils.getRestService("fasit.rest.api"), not(empty()));
+        assertThat(FasitUtils.getRestServices("fasit.rest.api"), not(empty()));
         assertThat(FasitUtils.getRestService("fasit.rest.api", "p").getUrl(), startsWith("https://fasit.adeo.no"));
     }
-
 
     @Test
     public void getLoadbalancerConfig_() {
@@ -245,11 +253,13 @@ public class FasitUtilsIntegrationTest {
         assertThat(queueManager.getHostname(), not(isEmptyOrNullString()));
         assertThat(queueManager.getPort(), greaterThan(0));
         assertThat(queueManager.getName(), not(isEmptyOrNullString()));
+        assertThat(queueManager.getEnvironmentClass(), not(isEmptyOrNullString()));
     }
 
     private void validateQueue(Queue queue) {
         assertThat(queue, notNullValue());
         assertThat(queue.getName(), not(isEmptyOrNullString()));
+        assertThat(queue.getEnvironmentClass(), not(isEmptyOrNullString()));
     }
 
 }

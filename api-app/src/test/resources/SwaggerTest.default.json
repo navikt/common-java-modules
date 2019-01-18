@@ -395,6 +395,25 @@
         }
       }
     },
+    "/ioc": {
+      "get": {
+        "tags": [
+          "IocExample"
+        ],
+        "summary": "testIoc",
+        "operationId": "testIoc",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            },
+            "headers": {}
+          }
+        }
+      }
+    },
     "/openam": {
       "get": {
         "tags": [
