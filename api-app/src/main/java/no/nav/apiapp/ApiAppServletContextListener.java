@@ -147,7 +147,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         leggTilServlet(servletContextEvent, new SwaggerUIServlet(apiApplication), SWAGGER_PATH + "*");
         leggTilServlet(servletContextEvent, LoginfoServlet.class, LOGINFO_PATH);
 
-        settOppRestApi(servletContextEvent, apiApplication);
+        settOppRestApi(servletContextEvent, apiApplication, konfigurator);
         if (soapTjenesterEksisterer(servletContext)) {
             leggTilServlet(servletContextEvent, new SoapServlet(), WEBSERVICE_PATH);
         }
@@ -209,8 +209,9 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         getSpringContext(servletContextEvent).getBeanFactory().registerSingleton(bonne.getClass().getName(), bonne);
     }
 
-    private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
-        RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()), apiApplication);
+    private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication, Konfigurator konfigurator) {
+        WebApplicationContext webApplicationContext = getContext(servletContextEvent.getServletContext());
+        RestApplication restApplication = new RestApplication(webApplicationContext, apiApplication, konfigurator);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
         ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, sluttMedSlash(apiApplication.getApiBasePath()) + "*");
         SwaggerResource.setupServlet(servletRegistration);
