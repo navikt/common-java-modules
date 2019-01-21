@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Map;
 
@@ -117,8 +118,19 @@ public class JsonUtilsTest {
             assertThat(toJson(date)).isEqualTo(SERIALISERT_ELDGAMMEL_DATE);
         }
 
-    }
+        @Test
+        public void localDatePaaFormat_yyyy_MM_dd() {
+            TestDato testDato = JsonUtils.fromJson("{\"dato\":\"2018-05-09\"}", TestDato.class);
+            assertThat(testDato.dato).isEqualTo(LocalDate.of(2018, 5, 9));
+        }
 
+        @Test
+        public void localDateIsNull() {
+            TestDato testDato = JsonUtils.fromJson("{\"dato\":null}", TestDato.class);
+            assertThat(testDato.dato).isNull();
+        }
+
+    }
 
     @Value
     private static class TestObject {
@@ -134,6 +146,11 @@ public class JsonUtilsTest {
 
     private static class CircularObject {
         private CircularObject object = this;
+    }
+
+    private static class TestDato {
+        private LocalDate dato;
+        public TestDato() { }
     }
 
 }
