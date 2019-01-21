@@ -1,5 +1,6 @@
 package no.nav.apiapp.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import no.nav.brukerdialog.security.oidc.provider.SecurityTokenServiceOidcProviderConfig;
@@ -34,5 +35,7 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator selfTest(Pingable pingable);
     ApiAppConfigurator selfTests(Pingable... pingables);
     ApiAppConfigurator selfTests(Collection<? extends Pingable> pingables);
+
+    ApiAppConfigurator objectMapper(ObjectMapper objectMapper);
 
 }

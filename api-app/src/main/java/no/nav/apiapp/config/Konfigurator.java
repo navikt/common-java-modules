@@ -1,7 +1,7 @@
 package no.nav.apiapp.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import no.nav.apiapp.ApiAppServletContextListener;
-import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
 import no.nav.brukerdialog.security.Constants;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
@@ -15,6 +15,7 @@ import no.nav.common.auth.LoginFilter;
 import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
+import no.nav.json.JsonProvider;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
@@ -43,6 +44,7 @@ public class Konfigurator implements ApiAppConfigurator {
     private final List<Pingable> pingables = new ArrayList<>();
 
     private AuthorizationModule authorizationModule;
+    private ObjectMapper objectMapper = JsonProvider.createObjectMapper();
 
     public Konfigurator(JettyBuilder jettyBuilder) {
         this.jettyBuilder = jettyBuilder;
@@ -184,6 +186,13 @@ public class Konfigurator implements ApiAppConfigurator {
         return this;
     }
 
+
+    @Override
+    public ApiAppConfigurator objectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        return this;
+    }
+
     private String getConfigProperty(String primaryProperty, String secondaryProperty) {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)
@@ -209,5 +218,9 @@ public class Konfigurator implements ApiAppConfigurator {
 
     public List<Pingable> getPingables() {
         return pingables;
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 }
