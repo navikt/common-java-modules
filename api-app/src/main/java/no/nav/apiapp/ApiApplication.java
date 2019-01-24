@@ -9,14 +9,9 @@ import javax.servlet.ServletContext;
 public interface ApiApplication {
 
     String DEFAULT_API_PATH = "/api/";
-    boolean STSHelsesjekkDefault = true;
 
     default String getApiBasePath(){
         return DEFAULT_API_PATH;
-    }
-
-    default boolean brukSTSHelsesjekk() {
-        return STSHelsesjekkDefault;
     }
 
     default String getContextPath() {

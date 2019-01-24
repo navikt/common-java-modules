@@ -18,8 +18,6 @@ import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.version.Version;
 import no.nav.apiapp.version.VersionService;
-import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
-import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.common.auth.LoginFilter;
 import no.nav.log.LogFilter;
 import no.nav.log.LoginfoServlet;
@@ -51,7 +49,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,7 +57,6 @@ import static java.util.Collections.emptyList;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
-import static no.nav.brukerdialog.security.Constants.hasRedirectUrl;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
@@ -76,12 +72,6 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     public static final String SWAGGER_PATH = "/internal/swagger/";
     public static final String LOGINFO_PATH = "/internal/loginfo";
     public static final String WEBSERVICE_PATH = "/ws/*";
-
-    public static final List<String> DEFAULT_PUBLIC_PATHS = Arrays.asList(
-            "/internal/.*",
-            "/ws/.*",
-            "/api/ping"
-    );
 
     private final ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
     private final ApiApplication apiApplication;

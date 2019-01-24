@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp;
 
 import no.nav.apiapp.ApiApp;
+import no.nav.apiapp.ApiApplication;
 import no.nav.dialogarena.config.fasit.FasitUtils;
 import no.nav.dialogarena.config.fasit.ServiceUser;
 import no.nav.dialogarena.config.fasit.dto.RestService;
@@ -56,9 +57,9 @@ public abstract class JettyTest {
 
     private static Jetty JETTY;
 
-    private static Jetty nyJettyForTest() {
+    public static Jetty nyJettyForTest(Class<? extends ApiApplication> apiAppClass) {
         DISABLE_AUTH = true;
-        ApiApp apiApp = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(tilfeldigPort()), Integer.toString(tilfeldigPort())});
+        ApiApp apiApp = ApiApp.startApiApp(apiAppClass, new String[]{Integer.toString(tilfeldigPort()), Integer.toString(tilfeldigPort())});
         return apiApp.getJetty();
     }
 
@@ -72,7 +73,7 @@ public abstract class JettyTest {
     @BeforeClass
     public static void startJetty() {
         if (JETTY == null) {
-            JETTY = nyJettyForTest();
+            JETTY = nyJettyForTest(ApplicationConfig.class);
             Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
         }
     }
@@ -110,7 +111,7 @@ public abstract class JettyTest {
     }
 
     protected static UriBuilder buildUri(String path) {
-        return UriBuilder.fromPath(APPLICATION_NAME + path).host(getHostName()).scheme("https").port(getPort());
+        return UriBuilder.fromPath(APPLICATION_NAME + path).host(getHostName()).scheme("https").port(getSslPort());
     }
 
     protected String getString(String path) {
@@ -138,11 +139,15 @@ public abstract class JettyTest {
         return cookies;
     }
 
-    protected static int getPort() {
-        return ((ServerConnector) JETTY.server.getConnectors()[1]).getPort();
+    protected static int getSslPort() {
+        return getSslPort(JETTY);
     }
 
-    protected static String getHostName() {
+    public static int getSslPort(Jetty jetty) {
+        return ((ServerConnector) jetty.server.getConnectors()[1]).getPort();
+    }
+
+    public static String getHostName() {
         try {
             return InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {

@@ -18,4 +18,21 @@ public class UrlUtils {
         }
     }
 
+    public static String joinPaths(String... paths) {
+        if (paths == null) {
+            return "/";
+        }
+
+        boolean lastEndsWithSlash = false;
+        StringBuilder sb = new StringBuilder();
+        for (String path : paths) {
+            if (path == null || path.isEmpty() || "/".equals(path)) {
+                continue;
+            }
+            sb.append(lastEndsWithSlash ? path.startsWith("/") ? path.substring(1) : path : path.contains("://") ? path : startMedSlash(path));
+            lastEndsWithSlash = path.endsWith("/");
+        }
+        return sb.length() == 0 ? "/" : sb.toString();
+    }
+
 }
