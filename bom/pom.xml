@@ -997,6 +997,11 @@
                 <version>${cxf-core.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-features-logging</artifactId>
+                <version>${cxf-core.version}</version>
+            </dependency>
+            <dependency>
                 <!-- NB:
                 transitive dependency through wss4j and opensaml, manually upgraded to prevent vulnerabilities in 1.54
                 https://snyk.io/vuln/maven:org.bouncycastle%3Abcprov-jdk15on
