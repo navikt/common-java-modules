@@ -1,7 +1,8 @@
 package no.nav.apiapp.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.apiapp.ApiAppServletContextListener;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
 import no.nav.brukerdialog.security.Constants;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
@@ -26,10 +27,12 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static no.nav.apiapp.util.UrlUtils.joinPaths;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.*;
 
+@Slf4j
 public class Konfigurator implements ApiAppConfigurator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Konfigurator.class);
@@ -39,15 +42,20 @@ public class Konfigurator implements ApiAppConfigurator {
     private final List<LoginProvider> loginProviders = new ArrayList<>();
     private final List<Consumer<Jetty>> jettyCustomizers = new ArrayList<>();
     private final List<Consumer<JettyBuilder>> jettyBuilderCustomizers = new ArrayList<>();
-    private final List<String> publicPaths = new ArrayList<>(ApiAppServletContextListener.DEFAULT_PUBLIC_PATHS);
+    private final List<String> publicPaths = new ArrayList<>();
     private final List<Object> springBonner = new ArrayList<>();
     private final List<Pingable> pingables = new ArrayList<>();
 
     private AuthorizationModule authorizationModule;
     private ObjectMapper objectMapper = JsonProvider.createObjectMapper();
 
-    public Konfigurator(JettyBuilder jettyBuilder) {
+    public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
         this.jettyBuilder = jettyBuilder;
+
+        this
+                .addPublicPath("/internal/.*")
+                .addPublicPath("/ws/.*")
+                .addPublicPath(joinPaths(apiApplication.getApiBasePath(), "/ping"));
     }
 
     @Override
@@ -204,6 +212,12 @@ public class Konfigurator implements ApiAppConfigurator {
             loginProviders.add(new OidcAuthModule(oidcProviders));
         }
         if (!loginProviders.isEmpty() || authorizationModule != null) {
+            log.info("adding {} with loginProviders={} authorizationModule={} publicPaths={}",
+                    LoginFilter.class.getSimpleName(),
+                    loginProviders,
+                    authorizationModule,
+                    publicPaths
+            );
             jettyBuilder.addFilter(new LoginFilter(loginProviders, authorizationModule, publicPaths));
         }
         jettyBuilderCustomizers.forEach(c -> c.accept(jettyBuilder));

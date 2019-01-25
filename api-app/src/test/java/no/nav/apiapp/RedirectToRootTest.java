@@ -14,7 +14,7 @@ public class RedirectToRootTest extends JettyTest {
     @Test
     public void redirectToRoot(){
         withClient(client -> {
-            UriBuilder uriBuilder = UriBuilder.fromPath("/").host(getHostName()).port(getPort()).scheme("https");
+            UriBuilder uriBuilder = UriBuilder.fromPath("/").host(getHostName()).port(getSslPort()).scheme("https");
             Response response = client.target(uriBuilder).request().get();
             assertThat(response.getStatus()).isEqualTo(302);
             assertThat(response.getLocation()).isEqualTo(uriBuilder.path("api-app").build());
