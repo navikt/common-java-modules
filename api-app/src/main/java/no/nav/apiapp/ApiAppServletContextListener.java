@@ -26,6 +26,7 @@ import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.web.security.DisableCacheHeadersFilter;
+import no.nav.sbl.dialogarena.common.web.security.SecurityHeadersFilter;
 import no.nav.sbl.dialogarena.common.web.security.XFrameOptionsFilter;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.types.Pingable;
@@ -122,7 +123,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
         leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
-        leggTilFilter(servletContextEvent, XFrameOptionsFilter.class);
+        leggTilFilter(servletContextEvent, SecurityHeadersFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
