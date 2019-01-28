@@ -7,9 +7,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static no.nav.sbl.rest.RestUtils.CSRF_COOKIE_NAVN;
@@ -23,6 +26,12 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
     private static final Logger LOG = getLogger(CsrfDoubleSubmitCookieFilter.class);
 
     public static final String IGNORED_URLS_INIT_PARAMETER_NAME = "ignoredUrls";
+
+    private static final Set<String> ALLOWED_METHODS = new HashSet<>(asList(
+            "GET",
+            "HEAD",
+            "OPTIONS"
+    ));
 
     private String[] ignoredUrls;
 
@@ -39,7 +48,7 @@ public class CsrfDoubleSubmitCookieFilter implements Filter {
 
         String path = request.getRequestURI().substring(request.getContextPath().length());
         if (stream(ignoredUrls).noneMatch(path::startsWith)) {
-            if ("GET".equals(request.getMethod())) {
+            if (ALLOWED_METHODS.contains(request.getMethod())) {
                 if (request.getCookies() == null || stream(request.getCookies()).noneMatch(cookie -> cookie.getName().equals(CSRF_COOKIE_NAVN))) {
                     response.addCookie(createCsrfProtectionCookie(request));
                 }
