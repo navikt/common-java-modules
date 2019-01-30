@@ -1,14 +1,30 @@
 package no.nav.apiapp.util;
 
+import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import org.junit.Test;
 
-import static no.nav.apiapp.util.UrlUtils.joinPaths;
-import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
-import static no.nav.apiapp.util.UrlUtils.startMedSlash;
+import static no.nav.apiapp.util.UrlUtils.*;
+import static no.nav.sbl.util.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 public class UrlUtilsTest {
+
+    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
+
+    @Test
+    public void clusterUrlForApplication_() {
+        assertThatThrownBy(() -> clusterUrlForApplication("app1")).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
+
+        systemPropertiesRule.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "q0");
+        assertThat(clusterUrlForApplication("app1")).isEqualTo("http://app1.q0.svc.nais.local");
+        assertThat(clusterUrlForApplication("app2")).isEqualTo("http://app2.q0.svc.nais.local");
+
+        systemPropertiesRule.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "default");
+        assertThat(clusterUrlForApplication("app1")).isEqualTo("http://app1.default.svc.nais.local");
+        assertThat(clusterUrlForApplication("app2")).isEqualTo("http://app2.default.svc.nais.local");
+    }
 
     @Test
     public void sluttMedSlash_() {

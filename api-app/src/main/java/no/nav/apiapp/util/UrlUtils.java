@@ -1,6 +1,16 @@
 package no.nav.apiapp.util;
 
+import no.nav.sbl.util.AssertUtils;
+import no.nav.sbl.util.EnvironmentUtils;
+
 public class UrlUtils {
+
+    public static String clusterUrlForApplication(String applicationName) {
+        return String.format("http://%s.%s.svc.nais.local",
+                AssertUtils.assertNotNull(applicationName),
+                EnvironmentUtils.requireNamespace()
+        );
+    }
 
     public static String sluttMedSlash(String path) {
         if (path == null) {
