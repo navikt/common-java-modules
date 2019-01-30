@@ -24,6 +24,8 @@ public class EnvironmentUtils {
     public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME = "FASIT_ENVIRONMENT_NAME";
     public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA = "environment.name";
 
+    public static final String NAIS_NAMESPACE_PROPERTY_NAME = "NAIS_NAMESPACE";
+
     public static final String APP_VERSION_PROPERTY_NAME = "APP_VERSION";
     public static final String APP_VERSION_PROPERTY_NAME_SKYA = "application.version";
 
@@ -81,6 +83,14 @@ public class EnvironmentUtils {
 
     public static Optional<String> getApplicationVersion() {
         return getOptionalProperty(APP_VERSION_PROPERTY_NAME, APP_VERSION_PROPERTY_NAME_SKYA);
+    }
+
+    public static Optional<String> getNamespace() {
+        return getOptionalProperty(NAIS_NAMESPACE_PROPERTY_NAME);
+    }
+
+    public static String requireNamespace() {
+        return getNamespace().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_NAMESPACE_PROPERTY_NAME)));
     }
 
     @SneakyThrows

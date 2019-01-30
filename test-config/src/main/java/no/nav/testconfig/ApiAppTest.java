@@ -61,7 +61,9 @@ public class ApiAppTest {
         setProperty(SENSU_CLIENT_PORT, Integer.toString(sensuServerThread.getPort()), PUBLIC);
 
         setProperty(APP_NAME_PROPERTY_NAME, config.applicationName, PUBLIC);
-        setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FasitUtils.getDefaultEnvironment(), PUBLIC);
+        String environment = FasitUtils.getDefaultEnvironment();
+        setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, environment, PUBLIC);
+        setProperty(NAIS_NAMESPACE_PROPERTY_NAME, environment, PUBLIC);
         SSLTestUtils.disableCertificateChecks();
 
         if (isUtviklerImage()) {

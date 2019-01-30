@@ -116,6 +116,17 @@ public class EnvironmentUtilsTest {
     }
 
     @Test
+    public void getNamespace() {
+        assertThat(EnvironmentUtils.getNamespace()).isEmpty();
+        assertThatThrownBy(EnvironmentUtils::requireNamespace).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
+
+        setTemporaryProperty(NAIS_NAMESPACE_PROPERTY_NAME, "testnamespace", () -> {
+            assertThat(EnvironmentUtils.getNamespace()).hasValue("testnamespace");
+            assertThat(EnvironmentUtils.requireNamespace()).isEqualTo("testnamespace");
+        });
+    }
+
+    @Test
     public void getEnvironmentName() {
         assertThat(EnvironmentUtils.getEnvironmentName()).isEmpty();
         assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
