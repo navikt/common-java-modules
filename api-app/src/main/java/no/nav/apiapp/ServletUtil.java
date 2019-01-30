@@ -8,12 +8,14 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import javax.servlet.*;
 
 import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.springframework.web.context.support.WebApplicationContextUtils.findWebApplicationContext;
 
 public class ServletUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletUtil.class);
+    private static final AtomicInteger counter = new AtomicInteger();
 
     public static WebApplicationContext getContext(ServletContext servletContext) {
         return findWebApplicationContext(servletContext);
@@ -32,7 +34,7 @@ public class ServletUtil {
     }
 
     public static ServletRegistration.Dynamic leggTilServlet(ServletContext servletContext, Class<? extends Servlet> servletClass, String... path) {
-        ServletRegistration.Dynamic dynamic = servletContext.addServlet(servletClass.getName(), servletClass);
+        ServletRegistration.Dynamic dynamic = servletContext.addServlet(uniqueName(servletClass), servletClass);
         dynamic.setLoadOnStartup(0); // provoke any errors early
         dynamic.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servletClass.getName(), path);
@@ -44,7 +46,7 @@ public class ServletUtil {
     }
 
     public static ServletRegistration.Dynamic leggTilServlet(ServletContext servletContext, Servlet servlet, String path) {
-        ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(servlet.getClass().getName(), servlet);
+        ServletRegistration.Dynamic servletRegistration = servletContext.addServlet(uniqueName(servlet.getClass()), servlet);
         servletRegistration.setLoadOnStartup(0); // provoke any errors early
         servletRegistration.addMapping(path);
         LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
@@ -56,7 +58,7 @@ public class ServletUtil {
     }
 
     public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Class<? extends Filter> filterClass) {
-        FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filterClass);
+        FilterRegistration.Dynamic dynamic = servletContext.addFilter(uniqueName(filterClass), filterClass);
         dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
@@ -68,9 +70,13 @@ public class ServletUtil {
 
     public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Filter filter) {
         Class<? extends Filter> filterClass = filter.getClass();
-        FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filter);
+        FilterRegistration.Dynamic dynamic = servletContext.addFilter(uniqueName(filterClass), filter);
         dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
+    }
+
+    private static String uniqueName(Class<?> aClass) {
+        return aClass.getName() + "-" + counter.getAndIncrement();
     }
 }
