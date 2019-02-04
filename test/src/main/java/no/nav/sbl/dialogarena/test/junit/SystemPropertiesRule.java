@@ -23,9 +23,12 @@ public class SystemPropertiesRule implements MethodRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                statement.evaluate();
-                System.getProperties().clear();
-                System.setProperties(copy(INITIAL_SYSTEM_PROPERTIES));
+                try {
+                    statement.evaluate();
+                } finally {
+                    System.getProperties().clear();
+                    System.setProperties(copy(INITIAL_SYSTEM_PROPERTIES));
+                }
             }
         };
     }
