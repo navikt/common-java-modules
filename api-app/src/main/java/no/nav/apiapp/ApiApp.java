@@ -72,6 +72,11 @@ public class ApiApp {
                 .at(contextPath)
                 .port(httpPort)
                 .disableAnnotationScanning();
+
+        if (args.length > 1) {
+            jettyBuilder.sslPort(Integer.parseInt(args[1]));
+        }
+
         Konfigurator konfigurator = new Konfigurator(jettyBuilder, apiApplication);
         apiApplication.configure(konfigurator);
         Jetty jetty = konfigurator.buildJetty();
