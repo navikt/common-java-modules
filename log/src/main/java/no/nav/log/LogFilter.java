@@ -102,6 +102,8 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         Cookie cookie = new Cookie(RANDOM_USER_ID_COOKIE_NAME, userId);
         cookie.setPath("/");
         cookie.setMaxAge(ONE_MONTH_IN_SECONDS);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         httpServletResponse.addCookie(cookie);
     }
 
