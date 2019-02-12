@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static no.nav.apiapp.rest.SwaggerResource.SWAGGER_JSON;
 import static no.nav.apiapp.util.UrlUtils.joinPaths;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
@@ -52,10 +53,12 @@ public class Konfigurator implements ApiAppConfigurator {
     public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
         this.jettyBuilder = jettyBuilder;
 
+        String apiBasePath = apiApplication.getApiBasePath();
         this
                 .addPublicPath("/internal/.*")
                 .addPublicPath("/ws/.*")
-                .addPublicPath(joinPaths(apiApplication.getApiBasePath(), "/ping"));
+                .addPublicPath(joinPaths(apiBasePath, "/ping"))
+                .addPublicPath(joinPaths(apiBasePath, SWAGGER_JSON));
     }
 
     @Override
@@ -211,7 +214,7 @@ public class Konfigurator implements ApiAppConfigurator {
         if (!oidcProviders.isEmpty()) {
             loginProviders.add(new OidcAuthModule(oidcProviders));
         }
-        if (!loginProviders.isEmpty() || authorizationModule != null) {
+        if (hasLogin()) {
             log.info("adding {} with loginProviders={} authorizationModule={} publicPaths={}",
                     LoginFilter.class.getSimpleName(),
                     loginProviders,
@@ -224,6 +227,10 @@ public class Konfigurator implements ApiAppConfigurator {
         Jetty jetty = jettyBuilder.buildJetty();
         jettyCustomizers.forEach(c -> c.accept(jetty));
         return jetty;
+    }
+
+    public boolean hasLogin() {
+        return !oidcProviders.isEmpty() || !loginProviders.isEmpty() || authorizationModule != null;
     }
 
     public List<Object> getSpringBonner() {

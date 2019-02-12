@@ -1,1030 +1,75 @@
 {
-  "swagger": "2.0",
   "basePath": "/api-app/api/",
-  "tags": [
-    {
-      "name": "Eksempel"
-    }
-  ],
-  "paths": {
-    "/ping": {
-      "get": {
-        "tags": [
-          "PingResource"
-        ],
-        "summary": "ping",
-        "operationId": "ping",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/swagger.json": {
-      "get": {
-        "tags": [
-          "SwaggerResource"
-        ],
-        "summary": "getSwaggerJSON",
-        "operationId": "getSwaggerJSON",
-        "parameters": [
-          {
-            "name": "ikke_berik",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/dato/query": {
-      "get": {
-        "tags": [
-          "DatoEksempel"
-        ],
-        "summary": "queryDTO",
-        "operationId": "queryDTO",
-        "parameters": [
-          {
-            "name": "localDate",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date"
-          },
-          {
-            "name": "localDateTime",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "zonedDateTime",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "string",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "timestamp",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "sqlDate",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/DateDTO"
-            },
-            "headers": {}
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "DatoEksempel"
-        ],
-        "summary": "postQueryDTO",
-        "operationId": "postQueryDTO",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/QueryDTO"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/DateDTO"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/dato/dto": {
-      "get": {
-        "tags": [
-          "DatoEksempel"
-        ],
-        "summary": "getDTO",
-        "operationId": "getDTO",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/DateDTO"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/redirect": {
-      "get": {
-        "tags": [
-          "RedirectEksempel"
-        ],
-        "summary": "redirect",
-        "operationId": "redirect",
-        "parameters": [],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/enum/dto/{ordinal}": {
-      "get": {
-        "tags": [
-          "EnumEksempel"
-        ],
-        "summary": "dtoForOrdinal",
-        "operationId": "dtoForOrdinal",
-        "parameters": [
-          {
-            "name": "ordinal",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/EnumDTO"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/enum": {
-      "get": {
-        "tags": [
-          "EnumEksempel"
-        ],
-        "summary": "getEnumer",
-        "operationId": "getEnumer",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "ABC",
-                  "DEF",
-                  "GHI"
-                ]
-              }
-            },
-            "headers": {}
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "EnumEksempel"
-        ],
-        "summary": "pipeDto",
-        "operationId": "pipeDto",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/EnumDTO"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/EnumDTO"
-            },
-            "headers": {}
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "EnumEksempel"
-        ],
-        "summary": "pipeEnum",
-        "operationId": "pipeEnum",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "ABC",
-                "DEF",
-                "GHI"
-              ]
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/enum/{ordinal}": {
-      "get": {
-        "tags": [
-          "EnumEksempel"
-        ],
-        "summary": "enumForOrdinal",
-        "operationId": "enumForOrdinal",
-        "parameters": [
-          {
-            "name": "ordinal",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "ABC",
-                "DEF",
-                "GHI"
-              ]
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/inject": {
-      "get": {
-        "tags": [
-          "InjectionEksempel"
-        ],
-        "summary": "get",
-        "operationId": "get",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/inject/service": {
-      "get": {
-        "tags": [
-          "InjectionEksempel"
-        ],
-        "summary": "getService",
-        "operationId": "getService",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/interface/impl": {
-      "get": {
-        "tags": [
-          "InterfaceEksempelImpl"
-        ],
-        "summary": "implementertGet",
-        "operationId": "implementertGet",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/interface/default": {
-      "get": {
-        "tags": [
-          "InterfaceEksempelImpl"
-        ],
-        "summary": "defaultGet",
-        "operationId": "defaultGet",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/ioc": {
-      "get": {
-        "tags": [
-          "IocExample"
-        ],
-        "summary": "testIoc",
-        "operationId": "testIoc",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/openam": {
-      "get": {
-        "tags": [
-          "OpenAmEksempel"
-        ],
-        "summary": "getIdent",
-        "operationId": "getIdent",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/eksempel": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "get",
-        "operationId": "get",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/eksempel/pipe": {
-      "put": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "pipeData",
-        "operationId": "pipeData",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "object",
-                "properties": {}
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object",
-              "additionalProperties": {
-                "type": "object",
-                "properties": {}
-              }
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/eksempel/ukjent-feil": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "ukjentFeil",
-        "operationId": "ukjentFeil",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/eksempel/tall/{grunnTall}/minus/{tall}": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "minus",
-        "operationId": "minus",
-        "parameters": [
-          {
-            "name": "tall",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "grunnTall",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/eksempel/tall/{grunnTall}/pluss/{tall}": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "pluss",
-        "operationId": "pluss",
-        "parameters": [
-          {
-            "name": "tall",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "grunnTall",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/eksempel/spesial-feil": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "spesialFeil",
-        "operationId": "spesialFeil",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/eksempel/konflikt": {
-      "get": {
-        "tags": [
-          "RestEksempel"
-        ],
-        "summary": "konflikt",
-        "operationId": "konflikt",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/server": {
-      "get": {
-        "tags": [
-          "ServerEksempel"
-        ],
-        "summary": "largeResponse",
-        "operationId": "largeResponse",
-        "parameters": [],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/eksempel/swagger": {
-      "get": {
-        "tags": [
-          "Eksempel"
-        ],
-        "summary": "eksempel-value",
-        "description": "eksempel-notes",
-        "operationId": "medEksplisittDokumentasjon",
-        "parameters": [],
-        "responses": {
-          "1234": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "head": {
-        "tags": [
-          "Eksempel"
-        ],
-        "summary": "medDefaultDokumentasjon",
-        "operationId": "medDefaultDokumentasjon",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Eksempel"
-        ],
-        "summary": "rikRespons",
-        "operationId": "rikRespons",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/RiktObjekt"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/RiktObjekt"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/session": {
-      "get": {
-        "tags": [
-          "KreverSesjon"
-        ],
-        "summary": "getSesjonsId",
-        "operationId": "getSesjonsId",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/feed/{name}": {
-      "get": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "getFeeddata",
-        "operationId": "getFeeddata",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "id",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "page_size",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/FeedResponseObject"
-            },
-            "headers": {}
-          }
-        }
-      },
-      "head": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "webhookCallback",
-        "operationId": "webhookCallback",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/feed": {
-      "get": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "getFeeds",
-        "operationId": "getFeeds",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "headers": {}
-          }
-        }
-      }
-    },
-    "/feed/{name}/webhook": {
-      "put": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "registerWebhook",
-        "operationId": "registerWebhook",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/FeedWebhookRequest"
-            }
-          },
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    },
-    "/feed/feedname": {
-      "get": {
-        "tags": [
-          "FeedController"
-        ],
-        "summary": "getFeedNames",
-        "operationId": "getFeedNames",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [],
-        "responses": {
-          "default": {
-            "description": "successful operation"
-          }
-        }
-      }
-    }
-  },
   "definitions": {
-    "Dynamic": {
-      "type": "object",
-      "properties": {
-        "runAsRole": {
-          "type": "string"
-        },
-        "mappings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "name": {
-          "type": "string"
-        },
-        "className": {
-          "type": "string"
-        },
-        "initParameters": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      }
+    "Comparable": {
+      "type": "object"
     },
     "DateDTO": {
       "type": "object",
       "properties": {
-        "localDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "localDateTime": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "zonedDateTime": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "date": {
-          "type": "string",
-          "format": "date-time"
-        },
         "aBoolean": {
           "type": "boolean"
         },
-        "optionalDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "noOptionalDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "string": {
+        "date": {
+          "format": "date-time",
           "type": "string"
         },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "sqlDate": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "QueryDTO": {
-      "type": "object",
-      "properties": {
         "localDate": {
-          "type": "string",
-          "format": "date"
+          "format": "date",
+          "type": "string"
         },
         "localDateTime": {
-          "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "type": "string"
         },
-        "zonedDateTime": {
-          "type": "string",
-          "format": "date-time"
+        "noOptionalDate": {
+          "format": "date-time",
+          "type": "string"
         },
-        "date": {
-          "type": "string",
-          "format": "date-time"
+        "optionalDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "sqlDate": {
+          "format": "date-time",
+          "type": "string"
         },
         "string": {
           "type": "string"
         },
         "timestamp": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "sqlDate": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "EnumDTO": {
-      "type": "object",
-      "properties": {
-        "enEnum": {
-          "type": "string",
-          "enum": [
-            "ABC",
-            "DEF",
-            "GHI"
-          ]
-        },
-        "enums": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": [
-              "ABC",
-              "DEF",
-              "GHI"
-            ]
-          }
-        }
-      }
-    },
-    "TallRessurs": {
-      "type": "object"
-    },
-    "RiktObjekt": {
-      "type": "object",
-      "properties": {
-        "dato": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "zonedDateTime": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "string": {
+          "format": "date-time",
           "type": "string"
         },
-        "bool": {
-          "type": "boolean"
+        "zonedDateTime": {
+          "format": "date-time",
+          "type": "string"
+        }
+      }
+    },
+    "Dynamic": {
+      "type": "object",
+      "properties": {
+        "className": {
+          "type": "string"
         },
-        "tall": {
-          "type": "integer",
-          "format": "int64"
+        "initParameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
         },
-        "enEnum": {
-          "type": "string",
-          "enum": [
-            "EN",
-            "TO",
-            "TRE"
-          ]
+        "mappings": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "runAsRole": {
+          "type": "string"
         }
       }
     },
@@ -1039,59 +84,185 @@
         }
       }
     },
+    "EnumDTO": {
+      "type": "object",
+      "properties": {
+        "enEnum": {
+          "enum": [
+            "ABC",
+            "DEF",
+            "GHI"
+          ],
+          "type": "string"
+        },
+        "enums": {
+          "items": {
+            "enum": [
+              "ABC",
+              "DEF",
+              "GHI"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        }
+      }
+    },
+    "FeedAuthorizationModule": {
+      "type": "object"
+    },
+    "FeedConsumer": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
+    "FeedConsumerComparable": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
     "FeedController": {
       "type": "object",
       "properties": {
-        "feeds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "feedNames": {
           "$ref": "#/definitions/Response"
+        },
+        "feeds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      }
+    },
+    "FeedElement": {
+      "type": "object",
+      "properties": {
+        "element": {
+          "$ref": "#/definitions/Comparable"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "FeedElementComparable": {
+      "type": "object",
+      "properties": {
+        "element": {
+          "$ref": "#/definitions/Comparable"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "FeedElementObject": {
+      "type": "object",
+      "properties": {
+        "element": {
+          "properties": {},
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "FeedProducer": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
+    "FeedProducerComparable": {
+      "type": "object",
+      "properties": {
+        "authorizationModule": {
+          "$ref": "#/definitions/FeedAuthorizationModule"
+        }
+      }
+    },
+    "FeedResponse": {
+      "type": "object",
+      "properties": {
+        "elements": {
+          "items": {
+            "$ref": "#/definitions/FeedElementComparable"
+          },
+          "type": "array"
+        },
+        "nextPageId": {
+          "type": "string"
+        }
+      }
+    },
+    "FeedResponseObject": {
+      "type": "object",
+      "properties": {
+        "elements": {
+          "items": {
+            "$ref": "#/definitions/FeedElementObject"
+          },
+          "type": "array"
+        },
+        "nextPageId": {
+          "type": "string"
+        }
+      }
+    },
+    "FeedWebhookRequest": {
+      "type": "object",
+      "properties": {
+        "callbackUrl": {
+          "type": "string"
         }
       }
     },
     "Link": {
       "type": "object",
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "uri": {
-          "type": "string",
-          "format": "uri"
-        },
-        "uriBuilder": {
-          "$ref": "#/definitions/UriBuilder"
-        },
         "params": {
-          "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "type": "object"
+        },
+        "rel": {
+          "type": "string"
         },
         "rels": {
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array"
         },
         "title": {
           "type": "string"
         },
-        "rel": {
+        "type": {
           "type": "string"
+        },
+        "uri": {
+          "format": "uri",
+          "type": "string"
+        },
+        "uriBuilder": {
+          "$ref": "#/definitions/UriBuilder"
         }
       }
     },
     "Locale": {
       "type": "object",
       "properties": {
-        "language": {
-          "type": "string"
-        },
         "country": {
           "type": "string"
         },
@@ -1111,11 +282,11 @@
           "type": "string"
         },
         "extensionKeys": {
-          "type": "array",
-          "uniqueItems": true,
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array",
+          "uniqueItems": true
         },
         "iso3Country": {
           "type": "string"
@@ -1123,22 +294,25 @@
         "iso3Language": {
           "type": "string"
         },
+        "language": {
+          "type": "string"
+        },
         "script": {
           "type": "string"
         },
         "unicodeLocaleAttributes": {
-          "type": "array",
-          "uniqueItems": true,
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array",
+          "uniqueItems": true
         },
         "unicodeLocaleKeys": {
-          "type": "array",
-          "uniqueItems": true,
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array",
+          "uniqueItems": true
         },
         "variant": {
           "type": "string"
@@ -1148,22 +322,22 @@
     "MediaType": {
       "type": "object",
       "properties": {
-        "type": {
-          "type": "string"
+        "parameters": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
         },
         "subtype": {
           "type": "string"
         },
-        "parameters": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          }
-        },
-        "wildcardType": {
-          "type": "boolean"
+        "type": {
+          "type": "string"
         },
         "wildcardSubtype": {
+          "type": "boolean"
+        },
+        "wildcardType": {
           "type": "boolean"
         }
       }
@@ -1171,128 +345,191 @@
     "NewCookie": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        },
-        "version": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "path": {
+        "comment": {
           "type": "string"
         },
         "domain": {
           "type": "string"
         },
-        "comment": {
+        "expiry": {
+          "format": "date-time",
           "type": "string"
         },
-        "maxAge": {
-          "type": "integer",
-          "format": "int32"
+        "httpOnly": {
+          "type": "boolean"
         },
-        "expiry": {
-          "type": "string",
-          "format": "date-time"
+        "maxAge": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
         },
         "secure": {
           "type": "boolean"
         },
-        "httpOnly": {
-          "type": "boolean"
+        "value": {
+          "type": "string"
+        },
+        "version": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "QueryDTO": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "localDate": {
+          "format": "date",
+          "type": "string"
+        },
+        "localDateTime": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "sqlDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "string": {
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "zonedDateTime": {
+          "format": "date-time",
+          "type": "string"
         }
       }
     },
     "Response": {
       "type": "object",
       "properties": {
-        "length": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "language": {
-          "$ref": "#/definitions/Locale"
-        },
-        "location": {
-          "type": "string",
-          "format": "uri"
-        },
-        "lastModified": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "date": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "headers": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {}
-            }
-          }
+        "allowedMethods": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
         },
         "cookies": {
-          "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/NewCookie"
-          }
+          },
+          "type": "object"
         },
-        "status": {
-          "type": "integer",
-          "format": "int32"
+        "date": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "entity": {
+          "properties": {},
+          "type": "object"
         },
         "entityTag": {
           "$ref": "#/definitions/EntityTag"
         },
+        "headers": {
+          "additionalProperties": {
+            "items": {
+              "properties": {},
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
+        "language": {
+          "$ref": "#/definitions/Locale"
+        },
+        "lastModified": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "length": {
+          "format": "int32",
+          "type": "integer"
+        },
         "links": {
-          "type": "array",
-          "uniqueItems": true,
           "items": {
             "$ref": "#/definitions/Link"
-          }
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "location": {
+          "format": "uri",
+          "type": "string"
         },
         "mediaType": {
           "$ref": "#/definitions/MediaType"
         },
-        "stringHeaders": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "entity": {
-          "type": "object",
-          "properties": {}
-        },
         "metadata": {
-          "type": "object",
           "additionalProperties": {
-            "type": "array",
             "items": {
-              "type": "object",
-              "properties": {}
-            }
-          }
+              "properties": {},
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        },
+        "status": {
+          "format": "int32",
+          "type": "integer"
         },
         "statusInfo": {
           "$ref": "#/definitions/StatusType"
         },
-        "allowedMethods": {
-          "type": "array",
-          "uniqueItems": true,
-          "items": {
-            "type": "string"
-          }
+        "stringHeaders": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "type": "object"
+        }
+      }
+    },
+    "RiktObjekt": {
+      "type": "object",
+      "properties": {
+        "bool": {
+          "type": "boolean"
+        },
+        "dato": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "enEnum": {
+          "enum": [
+            "EN",
+            "TO",
+            "TRE"
+          ],
+          "type": "string"
+        },
+        "string": {
+          "type": "string"
+        },
+        "tall": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "zonedDateTime": {
+          "format": "date-time",
+          "type": "string"
         }
       }
     },
@@ -1300,7 +537,6 @@
       "type": "object",
       "properties": {
         "family": {
-          "type": "string",
           "enum": [
             "INFORMATIONAL",
             "SUCCESSFUL",
@@ -1308,127 +544,1542 @@
             "CLIENT_ERROR",
             "SERVER_ERROR",
             "OTHER"
-          ]
-        },
-        "statusCode": {
-          "type": "integer",
-          "format": "int32"
+          ],
+          "type": "string"
         },
         "reasonPhrase": {
           "type": "string"
+        },
+        "statusCode": {
+          "format": "int32",
+          "type": "integer"
         }
       }
+    },
+    "TallRessurs": {
+      "type": "object"
     },
     "UriBuilder": {
       "type": "object"
-    },
-    "FeedAuthorizationModule": {
-      "type": "object"
-    },
-    "FeedProducer": {
-      "type": "object",
-      "properties": {
-        "authorizationModule": {
-          "$ref": "#/definitions/FeedAuthorizationModule"
-        }
-      }
-    },
-    "FeedProducerComparable": {
-      "type": "object",
-      "properties": {
-        "authorizationModule": {
-          "$ref": "#/definitions/FeedAuthorizationModule"
-        }
-      }
-    },
-    "FeedConsumer": {
-      "type": "object",
-      "properties": {
-        "authorizationModule": {
-          "$ref": "#/definitions/FeedAuthorizationModule"
-        }
-      }
-    },
-    "FeedConsumerComparable": {
-      "type": "object",
-      "properties": {
-        "authorizationModule": {
-          "$ref": "#/definitions/FeedAuthorizationModule"
-        }
-      }
-    },
-    "FeedWebhookRequest": {
-      "type": "object",
-      "properties": {
-        "callbackUrl": {
-          "type": "string"
-        }
-      }
-    },
-    "Comparable": {
-      "type": "object"
-    },
-    "FeedElement": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "element": {
-          "$ref": "#/definitions/Comparable"
-        }
-      }
-    },
-    "FeedElementComparable": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "element": {
-          "$ref": "#/definitions/Comparable"
-        }
-      }
-    },
-    "FeedElementObject": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "element": {
-          "type": "object",
-          "properties": {}
-        }
-      }
-    },
-    "FeedResponse": {
-      "type": "object",
-      "properties": {
-        "nextPageId": {
-          "type": "string"
-        },
-        "elements": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/FeedElementComparable"
+    }
+  },
+  "paths": {
+    "/dato/dto": {
+      "get": {
+        "operationId": "getDTO",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
           }
-        }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DateDTO"
+            }
+          }
+        },
+        "summary": "getDTO",
+        "tags": [
+          "DatoEksempel"
+        ]
       }
     },
-    "FeedResponseObject": {
-      "type": "object",
-      "properties": {
-        "nextPageId": {
-          "type": "string"
-        },
-        "elements": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/FeedElementObject"
+    "/dato/query": {
+      "get": {
+        "operationId": "queryDTO",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "localDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "localDateTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "sqlDate",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "string",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "timestamp",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "zonedDateTime",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
           }
-        }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DateDTO"
+            }
+          }
+        },
+        "summary": "queryDTO",
+        "tags": [
+          "DatoEksempel"
+        ]
+      },
+      "post": {
+        "operationId": "postQueryDTO",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/QueryDTO"
+            }
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/DateDTO"
+            }
+          }
+        },
+        "summary": "postQueryDTO",
+        "tags": [
+          "DatoEksempel"
+        ]
+      }
+    },
+    "/eksempel": {
+      "get": {
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "get",
+        "tags": [
+          "RestEksempel"
+        ]
+      }
+    },
+    "/eksempel/konflikt": {
+      "get": {
+        "operationId": "konflikt",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "konflikt",
+        "tags": [
+          "RestEksempel"
+        ]
+      }
+    },
+    "/eksempel/pipe": {
+      "put": {
+        "operationId": "pipeData",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "properties": {},
+                "type": "object"
+              }
+            }
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "additionalProperties": {
+                "properties": {},
+                "type": "object"
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "pipeData",
+        "tags": [
+          "RestEksempel"
+        ]
+      }
+    },
+    "/eksempel/spesial-feil": {
+      "get": {
+        "operationId": "spesialFeil",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "spesialFeil",
+        "tags": [
+          "RestEksempel"
+        ]
+      }
+    },
+    "/eksempel/swagger": {
+      "get": {
+        "description": "eksempel-notes",
+        "operationId": "medEksplisittDokumentasjon",
+        "parameters": [
+          {
+            "name": "CUSTOM_HEADER",
+            "in": "header",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "1234": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "eksempel-value",
+        "tags": [
+          "Eksempel"
+        ]
+      },
+      "head": {
+        "operationId": "medDefaultDokumentasjon",
+        "parameters": [
+          {
+            "name": "implisitt-parameter",
+            "in": "header",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "medDefaultDokumentasjon",
+        "tags": [
+          "Eksempel"
+        ]
+      },
+      "post": {
+        "operationId": "rikRespons",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/RiktObjekt"
+            }
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/RiktObjekt"
+            }
+          }
+        },
+        "summary": "rikRespons",
+        "tags": [
+          "Eksempel"
+        ]
+      }
+    },
+    "/eksempel/tall/{grunnTall}/minus/{tall}": {
+      "get": {
+        "operationId": "minus",
+        "parameters": [
+          {
+            "name": "tall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "grunnTall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        "summary": "minus",
+        "tags": [
+          "RestEksempel"
+        ]
+      }
+    },
+    "/eksempel/tall/{grunnTall}/pluss/{tall}": {
+      "get": {
+        "operationId": "pluss",
+        "parameters": [
+          {
+            "name": "tall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "grunnTall",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "format": "int32",
+              "type": "integer"
+            }
+          }
+        },
+        "summary": "pluss",
+        "tags": [
+          "RestEksempel"
+        ]
+      }
+    },
+    "/eksempel/ukjent-feil": {
+      "get": {
+        "operationId": "ukjentFeil",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "ukjentFeil",
+        "tags": [
+          "RestEksempel"
+        ]
+      }
+    },
+    "/enum": {
+      "get": {
+        "operationId": "getEnumer",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "items": {
+                "enum": [
+                  "ABC",
+                  "DEF",
+                  "GHI"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "summary": "getEnumer",
+        "tags": [
+          "EnumEksempel"
+        ]
+      },
+      "post": {
+        "operationId": "pipeDto",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            }
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            }
+          }
+        },
+        "summary": "pipeDto",
+        "tags": [
+          "EnumEksempel"
+        ]
+      },
+      "put": {
+        "operationId": "pipeEnum",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "enum": [
+                "ABC",
+                "DEF",
+                "GHI"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        "summary": "pipeEnum",
+        "tags": [
+          "EnumEksempel"
+        ]
+      }
+    },
+    "/enum/dto/{ordinal}": {
+      "get": {
+        "operationId": "dtoForOrdinal",
+        "parameters": [
+          {
+            "name": "ordinal",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/EnumDTO"
+            }
+          }
+        },
+        "summary": "dtoForOrdinal",
+        "tags": [
+          "EnumEksempel"
+        ]
+      }
+    },
+    "/enum/{ordinal}": {
+      "get": {
+        "operationId": "enumForOrdinal",
+        "parameters": [
+          {
+            "name": "ordinal",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "enum": [
+                "ABC",
+                "DEF",
+                "GHI"
+              ],
+              "type": "string"
+            }
+          }
+        },
+        "summary": "enumForOrdinal",
+        "tags": [
+          "EnumEksempel"
+        ]
+      }
+    },
+    "/feed": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "getFeeds",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "summary": "getFeeds",
+        "tags": [
+          "FeedController"
+        ]
+      }
+    },
+    "/feed/feedname": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "getFeedNames",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "summary": "getFeedNames",
+        "tags": [
+          "FeedController"
+        ]
+      }
+    },
+    "/feed/{name}": {
+      "get": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "getFeeddata",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/FeedResponseObject"
+            }
+          }
+        },
+        "summary": "getFeeddata",
+        "tags": [
+          "FeedController"
+        ]
+      },
+      "head": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "webhookCallback",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "summary": "webhookCallback",
+        "tags": [
+          "FeedController"
+        ]
+      }
+    },
+    "/feed/{name}/webhook": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "registerWebhook",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/FeedWebhookRequest"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "summary": "registerWebhook",
+        "tags": [
+          "FeedController"
+        ]
+      }
+    },
+    "/inject": {
+      "get": {
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "get",
+        "tags": [
+          "InjectionEksempel"
+        ]
+      }
+    },
+    "/inject/service": {
+      "get": {
+        "operationId": "getService",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "getService",
+        "tags": [
+          "InjectionEksempel"
+        ]
+      }
+    },
+    "/interface/default": {
+      "get": {
+        "operationId": "defaultGet",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "defaultGet",
+        "tags": [
+          "InterfaceEksempelImpl"
+        ]
+      }
+    },
+    "/interface/impl": {
+      "get": {
+        "operationId": "implementertGet",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "implementertGet",
+        "tags": [
+          "InterfaceEksempelImpl"
+        ]
+      }
+    },
+    "/ioc": {
+      "get": {
+        "operationId": "testIoc",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "testIoc",
+        "tags": [
+          "IocExample"
+        ]
+      }
+    },
+    "/openam": {
+      "get": {
+        "operationId": "getIdent",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "getIdent",
+        "tags": [
+          "OpenAmEksempel"
+        ]
+      }
+    },
+    "/ping": {
+      "get": {
+        "operationId": "ping",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "ping",
+        "tags": [
+          "PingResource"
+        ]
+      }
+    },
+    "/redirect": {
+      "get": {
+        "operationId": "redirect",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "summary": "redirect",
+        "tags": [
+          "RedirectEksempel"
+        ]
+      }
+    },
+    "/server": {
+      "get": {
+        "operationId": "largeResponse",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "summary": "largeResponse",
+        "tags": [
+          "ServerEksempel"
+        ]
+      }
+    },
+    "/session": {
+      "get": {
+        "operationId": "getSesjonsId",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "summary": "getSesjonsId",
+        "tags": [
+          "KreverSesjon"
+        ]
+      }
+    },
+    "/swagger.json": {
+      "get": {
+        "operationId": "getSwaggerJSON",
+        "parameters": [
+          {
+            "name": "ikke_berik",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "summary": "getSwaggerJSON",
+        "tags": [
+          "SwaggerResource"
+        ]
       }
     }
-  }
+  },
+  "swagger": "2.0",
+  "tags": [
+    {
+      "name": "Eksempel"
+    }
+  ]
 }
