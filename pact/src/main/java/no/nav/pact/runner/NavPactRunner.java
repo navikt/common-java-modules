@@ -1,10 +1,10 @@
 package no.nav.pact.runner;
 
 import au.com.dius.pact.provider.junit.PactRunner;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.TestUser;
-import no.nav.dialogarena.config.fasit.dto.RestService;
-import no.nav.dialogarena.config.security.ISSOProvider;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.TestUser;
+import no.nav.fasit.dto.RestService;
+import no.nav.testconfig.security.ISSOProvider;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 
 import java.net.HttpCookie;

@@ -4,8 +4,8 @@ package no.nav.brukerdialog.security.oidc;
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.TestUser;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.TestUser;
 
 import static no.nav.brukerdialog.security.Constants.*;
 import static no.nav.brukerdialog.security.oidc.SystemUserTokenProvider.konstruerFullstendingAuthUri;

@@ -2,9 +2,9 @@ package no.nav.brukerdialog.security.pingable;
 
 import no.nav.brukerdialog.security.oidc.SystemUserTokenProvider;
 import no.nav.brukerdialog.security.oidc.SystemUserTokenProviderConfig;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.ServiceUser;
+import no.nav.fasit.dto.RestService;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.util.ExceptionUtils;
 import org.junit.BeforeClass;

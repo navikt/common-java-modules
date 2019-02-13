@@ -2,9 +2,9 @@ package no.nav.fo.apiapp;
 
 import no.nav.apiapp.ApiApp;
 import no.nav.apiapp.ApiApplication;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.ServiceUser;
+import no.nav.fasit.dto.RestService;
 import no.nav.json.JsonProvider;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
@@ -36,8 +36,8 @@ import static no.nav.apiapp.ServletUtil.getContext;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME;
 import static no.nav.common.auth.openam.sbs.OpenAmConfig.OPENAM_RESTURL;
-import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
-import static no.nav.dialogarena.config.util.Util.setProperty;
+import static no.nav.fasit.FasitUtils.Zone.FSS;
+import static no.nav.testconfig.util.Util.setProperty;
 
 
 public abstract class JettyTest {

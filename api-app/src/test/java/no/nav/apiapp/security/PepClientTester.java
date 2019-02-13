@@ -6,9 +6,9 @@ import no.nav.brukerdialog.security.context.SubjectExtension;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.TestUser;
-import no.nav.dialogarena.config.security.ISSOProvider;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.TestUser;
+import no.nav.testconfig.security.ISSOProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

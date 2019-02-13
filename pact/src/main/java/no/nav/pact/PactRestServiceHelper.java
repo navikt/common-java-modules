@@ -1,6 +1,6 @@
 package no.nav.pact;
 
-import no.nav.dialogarena.config.security.ISSOProvider;
+import no.nav.testconfig.security.ISSOProvider;
 import no.nav.sbl.rest.RestUtils;
 
 import javax.ws.rs.client.Invocation;
