@@ -4,7 +4,7 @@ import au.com.dius.pact.provider.junit.IgnoreNoPactsToVerify;
 import au.com.dius.pact.provider.junit.TargetRequestFilter;
 import au.com.dius.pact.provider.junit.loader.PactBroker;
 import au.com.dius.pact.provider.junit.loader.PactBrokerAuth;
-import no.nav.dialogarena.config.security.ISSOProvider;
+import no.nav.testconfig.security.ISSOProvider;
 import org.apache.http.HttpRequest;
 import org.apache.http.RequestLine;
 import org.slf4j.Logger;

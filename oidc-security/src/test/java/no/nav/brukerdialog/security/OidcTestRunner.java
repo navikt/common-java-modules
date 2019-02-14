@@ -9,15 +9,14 @@ import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CProvider;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.brukerdialog.tools.SecurityConstants;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUser;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.ServiceUser;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 
 import javax.script.ScriptException;
 import java.io.IOException;
 
 import static java.lang.System.setProperty;
-import static no.nav.brukerdialog.security.jwks.CacheMissAction.REFRESH;
 import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 
 public class OidcTestRunner {

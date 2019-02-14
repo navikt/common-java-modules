@@ -2,7 +2,7 @@ package no.nav.apiapp.selftest.impl;
 
 import lombok.SneakyThrows;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
-import no.nav.dialogarena.config.fasit.FasitUtils;
+import no.nav.fasit.FasitUtils;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
