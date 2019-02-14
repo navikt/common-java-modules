@@ -1,7 +1,9 @@
 package no.nav.fo.apiapp.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import no.nav.fo.apiapp.JettyTest;
@@ -18,7 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SwaggerTest extends JettyTest {
 
-    private ObjectMapper swaggerObjectMapper = Json.mapper();
+    private ObjectMapper swaggerObjectMapper = Json.mapper()
+            .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 
     @Test
     public void getUI() {
@@ -39,7 +43,7 @@ public class SwaggerTest extends JettyTest {
 
     @Test
     public void getSwaggerDefaultJson() throws Exception {
-        sammenlign(get(buildUri("/api/swagger.json").queryParam(IKKE_BERIK).build().toURL()), read("/SwaggerTest.default.json"));
+        sammenlign(get(buildUri("/api/swagger.json").queryParam(IKKE_BERIK, "true").build().toURL()), read("/SwaggerTest.default.json"));
     }
 
     private void assertRedirect(String path, String expectedRedirectPath) {
