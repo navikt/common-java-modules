@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import static no.nav.apiapp.ApiAppServletContextListener.SPRING_CONTEKST_KLASSE_PARAMETER_NAME;
 import static no.nav.metrics.handlers.SensuHandler.SENSU_CLIENT_HOST;
@@ -87,11 +85,7 @@ public class ApiApp {
         webAppContext.setInitParameter(SPRING_CONTEKST_KLASSE_PARAMETER_NAME, apiApplication.getClass().getName());
         ServletContextListener listener = new ApiAppServletContextListener(konfigurator);
         webAppContext.addEventListener(listener);
-
-        // When we embed jetty in this way, some classes might be loaded by the default WebAppClassLoader and some by the system class loader.
-        // These classes will be incompatible with each other. Also, Jetty does not consult the classloader of the webapp when resolving resources
-        // such as the swagger-ui. We mitigate both these problems by installing an empty classloader that will always defer to the system classloader
-        webAppContext.setClassLoader(URLClassLoader.newInstance(new URL[0]));
+        webAppContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 
         try {
             jetty.start();
