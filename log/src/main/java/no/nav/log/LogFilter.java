@@ -79,6 +79,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
             buildMarker()
                     .field("status", httpServletResponse.getStatus())
                     .field("method", httpServletRequest.getMethod())
+                    .field("host", httpServletRequest.getServerName())
                     .field("path", httpServletRequest.getRequestURI())
                     .log(log::info);
 
