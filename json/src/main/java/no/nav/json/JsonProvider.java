@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
@@ -46,7 +45,6 @@ public class JsonProvider extends JacksonJaxbJsonProvider {
     public static ObjectMapper applyDefaultConfiguration(ObjectMapper objectMapper) {
         objectMapper.registerModule(new Jdk8Module())
                 .registerModule(dateModule())
-                .registerModule(new KotlinModule())
                 .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
                 ;
