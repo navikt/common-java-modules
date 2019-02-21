@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import static no.nav.log.MDCConstants.*;
 import static no.nav.sbl.util.LogUtils.buildMarker;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
+import static org.springframework.http.HttpHeaders.SERVER;
 
 
 @Slf4j
@@ -44,14 +45,19 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
      * Filter init param used to specify a {@link Supplier<Boolean>} that will return whether stacktraces should be exposed or not
      * Defaults to always false
      */
-    private Supplier<Boolean> exposeErrorDetails;
+    private final Supplier<Boolean> exposeErrorDetails;
+    private final String serverName;
 
     public LogFilter() {
-        this(() -> false);
+        this(LogFilterConfig.builder()
+                .exposeErrorDetails(() -> false)
+                .build()
+        );
     }
 
-    public LogFilter(Supplier<Boolean> exposeErrorDetails) {
-        this.exposeErrorDetails = exposeErrorDetails;
+    public LogFilter(LogFilterConfig logFilterConfig) {
+        this.exposeErrorDetails = logFilterConfig.getExposeErrorDetails();
+        this.serverName = logFilterConfig.getServerName();
     }
 
     @Override
@@ -71,7 +77,11 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         MDC.put(MDC_CONSUMER_ID, consumerId);
         MDC.put(MDC_REQUEST_ID, generateId());
 
-        httpServletResponse.addHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
+        httpServletResponse.setHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
+
+        if (serverName != null) {
+            httpServletResponse.setHeader(SERVER, serverName);
+        }
 
         try {
             filterWithErrorHandling(httpServletRequest, httpServletResponse, filterChain);

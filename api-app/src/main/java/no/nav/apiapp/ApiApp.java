@@ -2,16 +2,19 @@ package no.nav.apiapp;
 
 import lombok.SneakyThrows;
 import no.nav.apiapp.config.Konfigurator;
-import no.nav.apiapp.jetty.ServerHeaderConfigurator;
+import no.nav.apiapp.feil.FeilMapper;
 import no.nav.apiapp.util.UrlUtils;
 import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.dialogarena.common.jetty.JettyCustomizer;
 import no.nav.sbl.util.StringUtils;
+import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -88,7 +91,12 @@ public class ApiApp {
                 .port(httpPort)
                 .disableAnnotationScanning()
                 .disableStatistics() // statistics should be added last
-                ;
+                .addCustomizer(new JettyCustomizer() {
+                    @Override
+                    public void customize(HttpConfiguration httpConfiguration) {
+                        httpConfiguration.setSendServerVersion(false);
+                    }
+                });
 
         if (args.length > 1) {
             jettyBuilder.sslPort(Integer.parseInt(args[1]));
@@ -100,8 +108,6 @@ public class ApiApp {
 
         WebAppContext webAppContext = jetty.context;
         webAppContext.addEventListener(new ApiAppServletContextListener(konfigurator, apiApplication));
-
-        webAppContext.addEventListener(new ServerHeaderConfigurator());
 
         Server server = jetty.server;
         if (contextPath.length() > 1) {
@@ -116,6 +122,11 @@ public class ApiApp {
         // These classes will be incompatible with each other. Also, Jetty does not consult the classloader of the webapp when resolving resources
         // such as the swagger-ui. We mitigate both these problems by installing an empty classloader that will always defer to the system classloader
         webAppContext.setClassLoader(URLClassLoader.newInstance(new URL[0]));
+
+        ErrorHandler errorHandler = new ErrorHandler();
+        errorHandler.setShowStacks(FeilMapper.visDetaljer());
+        jetty.server.setErrorHandler(errorHandler);
+        jetty.context.setErrorHandler(errorHandler);
 
         try {
             jetty.start();
