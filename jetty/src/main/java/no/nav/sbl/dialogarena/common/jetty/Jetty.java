@@ -52,6 +52,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public final class Jetty {
 
     private static final Logger LOG = LoggerFactory.getLogger(Jetty.class);
+    static final String CLASSPATH_PATTERN = ".*(\\.jar|/(test-)?classes/?)";
 
     public static JettyBuilder usingWar(File file) {
         return new JettyBuilder().war(file);
@@ -325,7 +326,7 @@ public final class Jetty {
         Map<String, String> initParams = webAppContext.getInitParams();
         initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
-        webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, ".*");
+        webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, CLASSPATH_PATTERN);
         addDatasource(webAppContext);
         return webAppContext;
     }
