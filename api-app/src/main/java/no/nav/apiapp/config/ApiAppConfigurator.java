@@ -38,4 +38,6 @@ public interface ApiAppConfigurator {
 
     ApiAppConfigurator objectMapper(ObjectMapper objectMapper);
 
+    ApiAppConfigurator allowAccessToInternalResourcesOn(String domain);
+
 }

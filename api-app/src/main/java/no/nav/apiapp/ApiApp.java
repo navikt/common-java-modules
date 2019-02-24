@@ -8,6 +8,7 @@ import no.nav.apiapp.util.WarFolderFinderUtil;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -26,6 +27,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
+import static no.nav.sbl.dialogarena.common.jetty.ToUrl.JETTY_PRINT_LOCALHOST;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
@@ -83,6 +85,7 @@ public class ApiApp {
 
         String contextPath = StringUtils.of(apiApplication.getContextPath()).map(UrlUtils::startMedSlash).orElse("/");
 
+        EnvironmentUtils.setProperty(JETTY_PRINT_LOCALHOST, "true", PUBLIC);
         Jetty.JettyBuilder jettyBuilder = usingWar(file)
                 .at(contextPath)
                 .port(httpPort)

@@ -120,6 +120,7 @@ public class ApplicationConfig implements ApiApplication {
         });
 
         apiAppConfigurator
+                .allowAccessToInternalResourcesOn("localhost.com")
                 .selfTest(new PingableEksempel())
                 .selfTests(new PingableEksempel(), new PingableEksempel())
                 .selfTests(asList(new PingableEksempel(), new PingableEksempel(), new PingableEksempel()));

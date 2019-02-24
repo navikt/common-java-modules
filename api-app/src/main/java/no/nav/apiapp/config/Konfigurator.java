@@ -46,6 +46,7 @@ public class Konfigurator implements ApiAppConfigurator {
     private final List<String> publicPaths = new ArrayList<>();
     private final List<Object> springBonner = new ArrayList<>();
     private final List<Pingable> pingables = new ArrayList<>();
+    private final List<String> whitelistedDomains = new ArrayList<>();
 
     private AuthorizationModule authorizationModule;
     private ObjectMapper objectMapper = JsonProvider.createObjectMapper();
@@ -204,6 +205,12 @@ public class Konfigurator implements ApiAppConfigurator {
         return this;
     }
 
+    @Override
+    public ApiAppConfigurator allowAccessToInternalResourcesOn(String domain) {
+        this.whitelistedDomains.add(domain);
+        return this;
+    }
+
     private String getConfigProperty(String primaryProperty, String secondaryProperty) {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)
@@ -243,5 +250,9 @@ public class Konfigurator implements ApiAppConfigurator {
 
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+
+    public List<String> getWhitelistedDomains() {
+        return whitelistedDomains;
     }
 }

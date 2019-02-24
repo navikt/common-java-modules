@@ -23,10 +23,8 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -111,7 +109,7 @@ public abstract class JettyTest {
     }
 
     protected static UriBuilder buildUri(String path) {
-        return UriBuilder.fromPath(APPLICATION_NAME + path).host(getHostName()).scheme("https").port(getSslPort());
+        return UriBuilder.fromPath(APPLICATION_NAME + path).host("localhost").scheme("https").port(getSslPort());
     }
 
     protected String getString(String path) {
@@ -145,14 +143,6 @@ public abstract class JettyTest {
 
     public static int getSslPort(Jetty jetty) {
         return ((ServerConnector) jetty.server.getConnectors()[1]).getPort();
-    }
-
-    public static String getHostName() {
-        try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     protected static void setupContext() {

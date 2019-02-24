@@ -9,6 +9,7 @@ import no.nav.apiapp.rest.NavCorsFilter;
 import no.nav.apiapp.rest.RestApplication;
 import no.nav.apiapp.rest.SwaggerResource;
 import no.nav.apiapp.rest.SwaggerUIServlet;
+import no.nav.apiapp.security.InternalProtectionFilter;
 import no.nav.apiapp.selftest.IsAliveServlet;
 import no.nav.apiapp.selftest.IsReadyServlet;
 import no.nav.apiapp.selftest.SelfTestServlet;
@@ -72,6 +73,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     public static final String INTERNAL_METRICS = "/internal/metrics";
     public static final String SWAGGER_PATH = "/internal/swagger/";
     public static final String LOGINFO_PATH = "/internal/loginfo";
+    public static final String INTERNAL_PATH = "/internal/*";
     public static final String WEBSERVICE_PATH = "/ws/*";
 
     private final ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
@@ -124,6 +126,10 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
         leggTilFilter(servletContextEvent, SecurityHeadersFilter.class);
+
+        filterBuilder(new InternalProtectionFilter(konfigurator.getWhitelistedDomains()))
+                .urlPatterns(INTERNAL_PATH)
+                .register(servletContextEvent);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");

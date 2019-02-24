@@ -40,7 +40,7 @@ public class ContextPathTest {
     }
 
     private static Response get(String path) {
-        UriBuilder uriBuilder = UriBuilder.fromPath(path).host(getHostName()).scheme("https").port(getSslPort(jetty));
+        UriBuilder uriBuilder = UriBuilder.fromPath(path).host("localhost").scheme("https").port(getSslPort(jetty));
         return RestUtils.withClient(c -> c.target(uriBuilder).request().get());
     }
 
