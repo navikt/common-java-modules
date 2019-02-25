@@ -1,5 +1,6 @@
 package no.nav.apiapp;
 
+import no.nav.apiapp.servlet.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -51,10 +52,14 @@ public class ServletUtil {
         return servletRegistration;
     }
 
+    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
+    @Deprecated
     public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass) {
         return leggTilFilter(servletContextEvent.getServletContext(), filterClass);
     }
 
+    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
+    @Deprecated
     public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Class<? extends Filter> filterClass) {
         FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filterClass);
         dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
@@ -62,10 +67,14 @@ public class ServletUtil {
         return dynamic;
     }
 
+    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
+    @Deprecated
     public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Filter filter) {
         return leggTilFilter(servletContextEvent.getServletContext(), filter);
     }
 
+    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
+    @Deprecated
     public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Filter filter) {
         Class<? extends Filter> filterClass = filter.getClass();
         FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filter);
@@ -73,4 +82,14 @@ public class ServletUtil {
         LOGGER.info("la til filter [{}]", filterClass.getName());
         return dynamic;
     }
+
+
+    public static FilterBuilder filterBuilder(Class<? extends Filter> filterClass) {
+        return new FilterBuilder(filterClass);
+    }
+
+    public static FilterBuilder filterBuilder(Filter filter) {
+        return new FilterBuilder(filter);
+    }
+
 }
