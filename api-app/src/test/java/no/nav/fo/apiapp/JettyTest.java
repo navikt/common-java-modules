@@ -10,6 +10,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
+import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.server.ServerConnector;
 import org.glassfish.jersey.client.ClientProperties;
@@ -42,7 +43,7 @@ import static no.nav.testconfig.util.Util.setProperty;
 
 public abstract class JettyTest {
 
-    public static boolean DISABLE_AUTH = false;
+    public static boolean DISABLE_AUTH = EnvironmentUtils.getOptionalProperty("DISABLE_AUTH").map(Boolean::parseBoolean).orElse(false);
     public static final String APPLICATION_NAME = "api-app";
 
     static {
