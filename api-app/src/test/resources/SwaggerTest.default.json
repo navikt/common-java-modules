@@ -1310,6 +1310,21 @@
           }
         }
       }
+    },
+    "/toggled": {
+      "get": {
+        "operationId": "isActive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {},
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
     }
   },
   "swagger": "2.0",

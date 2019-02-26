@@ -13,6 +13,8 @@ import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.featuretoggle.unleash.UnleashService;
+import no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +35,8 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
         InjectionEksempel.class,
         EksempelService.class,
         IocExample.class,
-        IocExample.SpringComponent.class
+        IocExample.SpringComponent.class,
+        FeatureToggledExample.class
 })
 public class ApplicationConfig implements ApiApplication {
 
@@ -103,6 +106,15 @@ public class ApplicationConfig implements ApiApplication {
         feedController.addFeed("tilfeldigetall", feedProducerBuilder.build());
         feedController.addFeed("beskyttetStream", feedProducerBuilder.authorizationModule((a) -> false).build());
         return feedController;
+    }
+
+    @Bean
+    public UnleashService unleashService(){
+        return new UnleashService(UnleashServiceConfig.builder()
+                .unleashApiUrl("https://unleash.herokuapp.com/api/")
+                .applicationName("api-app")
+                .build()
+        );
     }
 
     @Override

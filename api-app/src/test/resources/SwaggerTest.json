@@ -2074,6 +2074,44 @@
           "SwaggerResource"
         ]
       }
+    },
+    "/toggled": {
+      "get": {
+        "operationId": "isActive",
+        "parameters": [
+          {
+            "name": "Nav-Consumer-Id",
+            "in": "header",
+            "description": "the consuming entity of the request, typically the name of an application",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "Nav-Call-Id",
+            "in": "header",
+            "description": "a correlation id that is added to logs associated with the request",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            },
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        },
+        "summary": "isActive",
+        "tags": [
+          "FeatureToggledExample"
+        ]
+      }
     }
   },
   "swagger": "2.0",
