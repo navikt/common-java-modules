@@ -2,6 +2,7 @@ package no.nav.fo.apiapp;
 
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.apiapp.servlet.FailingServletExample;
 import no.nav.apiapp.servlet.ForwardServletExample;
 import no.nav.apiapp.servlet.IncludeServletExample;
 import no.nav.fo.apiapp.rest.*;
@@ -123,6 +124,7 @@ public class ApplicationConfig implements ApiApplication {
 
         leggTilServlet(servletContext, ForwardServletExample.class, "/forward");
         leggTilServlet(servletContext, IncludeServletExample.class, "/include");
+        leggTilServlet(servletContext, FailingServletExample.class, "/fail");
     }
 
     @Override

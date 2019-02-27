@@ -20,6 +20,7 @@ import no.nav.apiapp.version.Version;
 import no.nav.apiapp.version.VersionService;
 import no.nav.common.auth.LoginFilter;
 import no.nav.log.LogFilter;
+import no.nav.log.LogFilterConfig;
 import no.nav.log.LoginfoServlet;
 import no.nav.log.MarkerBuilder;
 import no.nav.metrics.MetricsClient;
@@ -30,6 +31,7 @@ import no.nav.sbl.dialogarena.common.web.security.SecurityHeadersFilter;
 import no.nav.sbl.dialogarena.common.web.security.XFrameOptionsFilter;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.LogUtils;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -120,8 +122,13 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
 
         konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
 
+        LogFilterConfig logFilterConfig = LogFilterConfig.builder()
+                .exposeErrorDetails(FeilMapper::visDetaljer)
+                .serverName(EnvironmentUtils.requireApplicationName())
+                .build();
+
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
-        leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
+        leggTilFilter(servletContextEvent, new LogFilter(logFilterConfig));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
         leggTilFilter(servletContextEvent, SecurityHeadersFilter.class);
 
