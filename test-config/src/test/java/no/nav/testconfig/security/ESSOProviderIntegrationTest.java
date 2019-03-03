@@ -1,13 +1,14 @@
 package no.nav.testconfig.security;
 
 import no.nav.common.auth.Subject;
+import no.nav.common.auth.openam.sbs.OpenAMUserInfoService;
 import no.nav.fasit.FasitUtils;
 import no.nav.fasit.TestEnvironment;
-import no.nav.common.auth.openam.sbs.OpenAMUserInfoService;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.URI;
@@ -18,9 +19,10 @@ import java.util.Map;
 import static no.nav.common.auth.openam.sbs.OpenAMLoginFilter.NAV_ESSO_COOKIE_NAVN;
 import static no.nav.common.auth.openam.sbs.OpenAMUserInfoService.PARAMETER_SECURITY_LEVEL;
 import static no.nav.common.auth.openam.sbs.OpenAMUserInfoService.PARAMETER_UID;
-import static no.nav.fasit.TestEnvironment.*;
-import static no.nav.testconfig.security.ESSOProvider.*;
+import static no.nav.fasit.TestEnvironment.Q0;
+import static no.nav.fasit.TestEnvironment.Q6;
 import static no.nav.sbl.rest.RestUtils.withClient;
+import static no.nav.testconfig.security.ESSOProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeTrue;
 
@@ -82,8 +84,10 @@ public class ESSOProviderIntegrationTest {
     private Boolean isAlive(TestEnvironment testEnvironment) {
         return withClient(client -> {
             try {
-                int status = client.target(essoBaseUrl(testEnvironment.toString())).request().get().getStatus();
-                return status == 302; // expecting redirect to login page
+                Response response = client.target(essoBaseUrl(testEnvironment.toString())).request().get();
+                int status = response.getStatus();
+                String loginUrl = response.getLocation().toString().toLowerCase();
+                return status == 302 && loginUrl.contains("login"); // expecting redirect to login page
             } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
                 return false;
