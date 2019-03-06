@@ -197,6 +197,10 @@
             <groupId>no.nav.common</groupId>
             <artifactId>rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
     </dependencies>
 
     <scm>
