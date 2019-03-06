@@ -42,6 +42,10 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
             Object result = invocationHandler.invoke(o, method, objects);
             success = true;
             return result;
+
+        } catch (InvocationTargetException ite) {
+            throw unwrapToExpectedExceptionForTheConsumer(ite);
+
         } finally {
             meterRegistry.timer("cxf_client",
                     "method",
@@ -52,6 +56,10 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
                     stsMode.name()
             ).record(System.currentTimeMillis() - startTime, TimeUnit.MILLISECONDS);
         }
+    }
+
+    private Throwable unwrapToExpectedExceptionForTheConsumer(InvocationTargetException ite) {
+        return ite.getCause();
     }
 
     private InvocationHandler handler(CXFClient<T> cxfClient) {
