@@ -137,8 +137,6 @@ public class ApiAppServletContextListener implements WebApplicationInitializer, 
         ApiApplication apiApplication = startSpring(servletContextEvent);
         konfigurerLogging(servletContext, apiApplication);
 
-        leggTilFilter(servletContextEvent, GZIPFilter.class);
-
         if (skalHaOpenAm(apiApplication)) {
             leggTilFilter(servletContextEvent, OpenAMLoginFilter.class);
             leggTilBonne(servletContextEvent, new OpenAMHelsesjekk());
