@@ -23,7 +23,6 @@ import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.modig.core.context.SubjectHandler;
 import no.nav.modig.security.filter.OpenAMLoginFilter;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
-import no.nav.sbl.dialogarena.common.web.filter.GZIPFilter;
 import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.LogUtils;
 import org.glassfish.jersey.server.ResourceConfig;
