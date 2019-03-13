@@ -67,5 +67,6 @@
     <logger name="org.apache.http.client.protocol.ResponseProcessCookies" level="ERROR"/>
     <logger name="org.apache.wss4j.common.crypto.CryptoBase" level="ERROR"/>
     <logger name="no.nav.modig.content.ValuesFromContentWithResourceBundleFallback" level="ERROR"/>
+    <logger name="org.apache.wicket.protocol.http.RequestLogger" level="WARN"/>
 
 </included>
