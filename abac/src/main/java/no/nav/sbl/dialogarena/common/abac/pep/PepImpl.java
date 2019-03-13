@@ -1,8 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import lombok.SneakyThrows;
-import no.nav.abac.xacml.NavAttributter;
-import no.nav.abac.xacml.StandardAttributter;
+// import no.nav.abac.xacml.NavAttributter;
+// import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
