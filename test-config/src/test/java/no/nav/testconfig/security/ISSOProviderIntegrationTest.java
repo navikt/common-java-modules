@@ -1,7 +1,7 @@
 package no.nav.testconfig.security;
 
+import no.nav.fasit.FasitUtils;
 import no.nav.sbl.dialogarena.test.FasitAssumption;
-import no.nav.testconfig.security.ISSOProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -14,6 +14,7 @@ import static no.nav.fasit.TestEnvironment.Q6;
 import static no.nav.testconfig.security.ISSOProvider.getDefaultRedirectUrl;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 public class ISSOProviderIntegrationTest {
 
@@ -23,6 +24,7 @@ public class ISSOProviderIntegrationTest {
     @BeforeClass
     public static void setup() {
         FasitAssumption.assumeFasitAccessible();
+        assumeFalse(FasitUtils.usingMock());
     }
 
     @Test

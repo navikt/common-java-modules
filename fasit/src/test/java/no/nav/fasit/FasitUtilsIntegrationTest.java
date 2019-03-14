@@ -21,10 +21,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 public class FasitUtilsIntegrationTest {
 
@@ -33,6 +35,7 @@ public class FasitUtilsIntegrationTest {
     @Before
     public void assumeFasit() {
         FasitAssumption.assumeFasitAccessible();
+        assumeFalse(FasitUtils.usingMock());
     }
 
     @Test

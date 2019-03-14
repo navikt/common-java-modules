@@ -1,8 +1,10 @@
 package no.nav.fo.apiapp.selftest;
 
 import no.nav.fo.apiapp.JettyTest;
+import no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Response;
 
@@ -10,6 +12,7 @@ import static no.nav.apiapp.ApiAppServletContextListener.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
+@Category(VirkerIkkeLokaltCategory.class)
 public class SelfTestTest extends JettyTest {
 
     private PingableEksempel pingableEksempel;
