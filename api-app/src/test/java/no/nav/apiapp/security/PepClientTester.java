@@ -25,12 +25,6 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 @ExtendWith(SubjectExtension.class)
 public interface PepClientTester {
 
-    @BeforeAll
-    default void init() {
-        assumeFasitAccessible();
-        assumeFalse(FasitUtils.usingMock());
-    }
-
     PepClient getPepClient();
 
     default void setVeilederFraFasitAlias(String fasitAlias, SubjectExtension.SubjectStore subjectExtension) {
