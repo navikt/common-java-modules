@@ -1,7 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep.domain;
 
 
-import no.nav.abac.xacml.NavAttributter;
+// import no.nav.abac.xacml.NavAttributter;
+import no.nav.sbl.dialogarena.common.abac.pep.NavAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Resource;
 

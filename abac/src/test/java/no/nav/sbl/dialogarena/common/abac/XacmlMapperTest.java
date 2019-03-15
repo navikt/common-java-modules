@@ -1,7 +1,7 @@
 package no.nav.sbl.dialogarena.common.abac;
 
-import no.nav.abac.xacml.NavAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.NavAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import org.junit.Test;
