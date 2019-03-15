@@ -6,9 +6,11 @@ import no.nav.common.metrics.prometheus.MetricsTestUtils;
 import no.nav.common.metrics.prometheus.MetricsTestUtils.PrometheusLine;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
+import no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
@@ -22,6 +24,7 @@ import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
+@Category(VirkerIkkeLokaltCategory.class)
 public class MetricsIntegrationTest {
 
     static {

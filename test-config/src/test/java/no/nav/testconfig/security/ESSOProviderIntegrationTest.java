@@ -24,6 +24,7 @@ import static no.nav.fasit.TestEnvironment.Q6;
 import static no.nav.sbl.rest.RestUtils.withClient;
 import static no.nav.testconfig.security.ESSOProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 
@@ -79,6 +80,7 @@ public class ESSOProviderIntegrationTest {
 
     private void assumeAlive(TestEnvironment testEnvironment) {
         assumeTrue(isAlive(testEnvironment));
+        assumeFalse(FasitUtils.usingMock());
     }
 
     private Boolean isAlive(TestEnvironment testEnvironment) {

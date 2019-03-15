@@ -9,14 +9,17 @@ import no.nav.common.auth.Subject;
 import no.nav.fasit.FasitUtils;
 import no.nav.fasit.TestUser;
 import no.nav.testconfig.security.ISSOProvider;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Collections;
 
 import static no.nav.apiapp.TestData.*;
+import static no.nav.sbl.dialogarena.test.FasitAssumption.assumeFasitAccessible;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @SuppressWarnings("unused")
 @ExtendWith(SubjectExtension.class)

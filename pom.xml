@@ -484,6 +484,21 @@
             </build>
         </profile>
         <profile>
+            <id>lokal</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <properties>
+                                <excludeTags>no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory</excludeTags>
+                            </properties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>opensource</id>
             <distributionManagement>
                 <snapshotRepository>

@@ -15,6 +15,7 @@ import org.junit.Test;
 import javax.servlet.DispatcherType;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.util.EnumSet;
 import java.util.Properties;
@@ -27,12 +28,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SuspendIntegrationTest {
 
 
-    public static final String LOCALHOST = "http://localhost:8080";
+    public String LOCALHOST;
+    public String IS_ALIVE_URL;
+    public String SUSPEND_URL;
+
     public static final String SERVLET_IS_ALIVE = "/internal/isAlive";
     public static final String SERVLET_SUSPEND = "/management/suspend";
 
-    public static final String IS_ALIVE_URL = LOCALHOST + SERVLET_IS_ALIVE;
-    public static final String SUSPEND_URL = LOCALHOST + SERVLET_SUSPEND;
     public static final String AUTH_PROPERTY = "authyauthy";
     public static final String USERNAME = "suspender";
     public static final String PASSWORD = "pwd";
@@ -43,7 +45,13 @@ public class SuspendIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        server = new Server(8080);
+        int port = tilfeldigPort();
+
+        LOCALHOST = "http://localhost:"+port;
+        IS_ALIVE_URL = LOCALHOST + SERVLET_IS_ALIVE;
+        SUSPEND_URL = LOCALHOST + SERVLET_SUSPEND;
+
+        server = new Server(port);
         final Properties properties = new Properties();
         properties.setProperty(AUTH_PROPERTY + ".username", USERNAME);
         properties.setProperty(AUTH_PROPERTY + ".password", PASSWORD);
@@ -67,6 +75,14 @@ public class SuspendIntegrationTest {
 
         server.setHandler(context);
         server.start();
+    }
+
+    public static int tilfeldigPort() {
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            return serverSocket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test

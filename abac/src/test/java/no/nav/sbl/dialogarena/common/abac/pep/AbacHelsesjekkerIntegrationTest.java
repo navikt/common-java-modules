@@ -8,6 +8,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import no.nav.sbl.dialogarena.test.FasitAssumption;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.util.EnvironmentUtils;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,6 +24,8 @@ public class AbacHelsesjekkerIntegrationTest {
     @BeforeClass
     public static void setup() {
         FasitAssumption.assumeFasitAccessible();
+        Assume.assumeFalse(FasitUtils.usingMock());
+
         ServiceUser serviceUser = FasitUtils.getServiceUser("srvveilarbdemo", APPLICATION_NAME);
         RestService restService = FasitUtils.getRestService("abac.pdp.endpoint", serviceUser.environment);
         abacServiceConfig = AbacServiceConfig.builder()
