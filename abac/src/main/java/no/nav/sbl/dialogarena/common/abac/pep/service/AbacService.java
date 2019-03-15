@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
+import no.nav.sbl.dialogarena.common.abac.pep.NavAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.Utils;
 import no.nav.sbl.dialogarena.common.abac.pep.XacmlMapper;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
@@ -17,7 +18,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import static javax.ws.rs.client.Entity.entity;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
+// import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
 import static no.nav.sbl.dialogarena.common.abac.pep.Utils.timed;
 import static no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext.ASK_FOR_PERMISSION;
 import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic;
@@ -54,7 +55,7 @@ public class AbacService  {
 
     @Cacheable(value = ASK_FOR_PERMISSION, keyGenerator = "abacKeyGenerator")
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
-        String ressursId = Utils.getResourceAttribute(request, RESOURCE_FELLES_RESOURCE_TYPE);
+        String ressursId = Utils.getResourceAttribute(request, NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE);
         Response response = timed(
                 "abac-pdp",
                 () -> request(request, client),
