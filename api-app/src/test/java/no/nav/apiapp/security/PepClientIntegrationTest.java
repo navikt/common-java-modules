@@ -6,20 +6,11 @@ import no.nav.fasit.dto.RestService;
 import no.nav.sbl.dialogarena.common.abac.pep.PepImpl;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType.VeilArbPerson;
-import static no.nav.sbl.dialogarena.test.FasitAssumption.assumeFasitAccessible;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class PepClientIntegrationTest implements PepClientTester {
 
-    @BeforeEach
-    public void init() {
-        assumeFasitAccessible();
-        assumeFalse(FasitUtils.usingMock());
-    }
 
     @Override
     public PepClient getPepClient() {

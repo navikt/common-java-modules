@@ -352,6 +352,11 @@
             <groupId>org.apache.servicemix.examples</groupId>
             <artifactId>cxf-jaxws-blueprint</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+        </dependency>
+
 
         <!-- Prometheus -->
         <dependency>
