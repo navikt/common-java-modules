@@ -53,7 +53,9 @@ public class IdTokenAndRefreshTokenProvider {
 
         try {
             urlEncodedRedirectUri = URLEncoder.encode(redirectUri, ENCODING);
+            log.info("Using redirect url: " + urlEncodedRedirectUri);
         } catch (UnsupportedEncodingException e) {
+            log.error("Failed to encode url", e);
             throw new IllegalArgumentException("Could not URL-encode the redirectUri: " + redirectUri);
         }
 
@@ -62,7 +64,7 @@ public class IdTokenAndRefreshTokenProvider {
                 + "&realm=/"
                 + "&redirect_uri=" + urlEncodedRedirectUri
                 + "&code=" + authorizationCode;
-        log.debug("Requesting tokens by POST to " + host);
+        log.info("Requesting tokens by POST to " + host);
         return client.target(host + "/access_token")
                 .request()
                 .header(AUTHORIZATION, TokenProviderUtil.basicCredentials(parameters.username, parameters.password))

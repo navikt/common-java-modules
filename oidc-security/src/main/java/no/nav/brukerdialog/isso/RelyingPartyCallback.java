@@ -83,6 +83,7 @@ public class RelyingPartyCallback {
         try {
             return URLDecoder.decode(urlEncoded, "UTF-8");
         } catch (UnsupportedEncodingException e) {
+            log.error("Failed to decode url: " + urlEncoded, e);
             throw new IllegalArgumentException("Could not URLdecode: " + urlEncoded);
         }
     }
