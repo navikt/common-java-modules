@@ -16,6 +16,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 
+import java.util.Optional;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
@@ -30,7 +32,8 @@ public class VeilarbAbacPepClientTest {
     private static final String AKTOER_ID = "aktorId";
     private static final String APPLICATION_DOMAIN = "veilarb";
     private static final ResourceType RESOURCE_TYPE = ResourceType.Person;
-    private static final String TOKEN = "token";
+    private static final String SYSTEM_TOKEN = "token";
+    public static final String OIDC_TOKEN = "OIDC-token";
 
     private static final String URL_REGEX_AKTOER_ID_WRITE = String.format("/person\\?aktorId=%s&action=update",AKTOER_ID);
     private static final String URL_REGEX_FNR_READ = String.format("/person\\?fnr=%s&action=read",FNR);
@@ -145,7 +148,7 @@ public class VeilarbAbacPepClientTest {
 
         Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
-        Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for %s",BRUKER);
+        Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
 
     }
 
@@ -164,7 +167,7 @@ public class VeilarbAbacPepClientTest {
 
         Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",BRUKER);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
     }
 
     @Test
@@ -187,7 +190,7 @@ public class VeilarbAbacPepClientTest {
 
         Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegex)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",BRUKER);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
     }
 
     @Test
@@ -208,7 +211,7 @@ public class VeilarbAbacPepClientTest {
         Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",BRUKER);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
     }
 
     @Test
@@ -232,12 +235,13 @@ public class VeilarbAbacPepClientTest {
         Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",BRUKER);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
     }
 
     private void lagVeilarbAbacResponse(String pathRegex, String response) {
         givenThat(get(urlMatching(pathRegex))
-                .withHeader("Authorization", matching("Bearer "+TOKEN))
+                .withHeader("Authorization", matching("Bearer "+ SYSTEM_TOKEN))
+                .withHeader("subject",matching(OIDC_TOKEN))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withBody(response)
@@ -249,7 +253,8 @@ public class VeilarbAbacPepClientTest {
         return VeilarbAbacPepClient.ny()
                 .medPep(pep)
                 .medLogger(logger)
-                .medSystemUserTokenProvider(() -> TOKEN)
+                .medSystemUserTokenProvider(() -> SYSTEM_TOKEN)
+                .medOidcTokenProvider(()-> Optional.of(OIDC_TOKEN))
                 .medVeilarbAbacUrl("http://localhost:"+wireMockRule.port());
     }
 }
