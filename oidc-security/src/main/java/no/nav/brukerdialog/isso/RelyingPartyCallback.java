@@ -52,7 +52,7 @@ public class RelyingPartyCallback {
             return Response.status(BAD_REQUEST).build();
         }
 
-        IdTokenAndRefreshToken tokens = tokenProvider.getToken(authorizationCode, uri.getAbsolutePath().toString());
+        IdTokenAndRefreshToken tokens = tokenProvider.getToken(authorizationCode, testHackUrl(uri.getAbsolutePath().toString()));
         OidcCredential token = tokens.getIdToken();
         String refreshToken = tokens.getRefreshToken();
 
@@ -78,6 +78,11 @@ public class RelyingPartyCallback {
         return responseBuilder.build();
     }
 
+    private String testHackUrl(String url) {
+        // Rewrite url to https for test
+        String[] parts = url.split(":");
+        return "https:" + parts[1];
+    }
 
     private static String urlDecode(String urlEncoded) {
         try {
