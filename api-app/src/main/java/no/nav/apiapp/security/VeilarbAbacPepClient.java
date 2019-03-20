@@ -31,8 +31,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     private Supplier<Boolean> brukAktoerIdSupplier = () -> false;
     private Supplier<Boolean> sammenliknTilgangSupplier = () -> false;
     private Supplier<String> systemUserTokenProvider;
-    private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
-    private Supplier<Optional<String>> oidcTokenSupplier = ()->SubjectHandler.getSsoToken(SsoToken.Type.OIDC);
+    private Supplier<Optional<String>> oidcTokenSupplier = () -> SubjectHandler.getSsoToken(SsoToken.Type.OIDC);
 
     private String abacTargetUrl;
     private Pep pep;
@@ -45,13 +44,13 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     }
 
     public void sjekkLesetilgangTilBruker(Bruker bruker) {
-        new Tilgangssjekk(bruker, Action.ActionId.READ, fnr->lagPepClient().sjekkLeseTilgangTilFnr(fnr))
+        new Tilgangssjekk(bruker, Action.ActionId.READ, b -> lagPepClient().sjekkLeseTilgangTilFnr(b.getFnr()))
                 .sjekkTilgangTilBruker();
     }
 
     public void sjekkSkrivetilgangTilBruker(Bruker bruker) {
 
-        new Tilgangssjekk(bruker,Action.ActionId.WRITE, fnr->lagPepClient().sjekkSkriveTilgangTilFnr(fnr))
+        new Tilgangssjekk(bruker, Action.ActionId.WRITE, b -> lagPepClient().sjekkSkriveTilgangTilFnr(b.getFnr()))
                 .sjekkTilgangTilBruker();
     }
 
@@ -80,19 +79,19 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
 
     private PepClient lagPepClient() {
-        return new PepClient(pep, "veilarb",ResourceType.Person);
+        return new PepClient(pep, "veilarb", ResourceType.Person);
     }
 
     private boolean harVeilarbAbacTilgangTilAktoerId(Bruker bruker, Action.ActionId action) {
-        return harVeilarbAbacTilgangTilBruker(bruker,action, "aktorId", Bruker::getAktoerId);
+        return harVeilarbAbacTilgangTilBruker(bruker, action, "aktorId", Bruker::getAktoerId);
     }
 
     private boolean harVeilarbAbacTilgangTilFnr(Bruker bruker, Action.ActionId action) {
-        return harVeilarbAbacTilgangTilBruker(bruker,action, "fnr", Bruker::getFnr);
+        return harVeilarbAbacTilgangTilBruker(bruker, action, "fnr", Bruker::getFnr);
 
     }
 
-    private boolean harVeilarbAbacTilgangTilBruker(Bruker bruker, Action.ActionId action, String idType, Function<Bruker,String> brukerMapper) {
+    private boolean harVeilarbAbacTilgangTilBruker(Bruker bruker, Action.ActionId action, String idType, Function<Bruker, String> brukerMapper) {
         return "permit".equals(RestUtils.withClient(c -> c.target(abacTargetUrl)
                 .path("person")
                 .queryParam(idType, brukerMapper.apply(bruker))
@@ -100,7 +99,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
                 .request()
                 .header(AUTHORIZATION, "Bearer " + systemUserTokenProvider.get())
                 .header("subject", oidcTokenSupplier.get()
-                        .orElseThrow(()->new IllegalStateException("Mangler OIDC-token")))
+                        .orElseThrow(() -> new IllegalStateException("Mangler OIDC-token")))
                 .get(String.class)
         ));
     }
@@ -146,15 +145,15 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         }
 
         public VeilarbAbacPepClient bygg() {
-            if(veilarbAbacPepClient.systemUserTokenProvider==null) {
+            if (veilarbAbacPepClient.systemUserTokenProvider == null) {
                 throw new IllegalStateException("SystemUserTokenProvider er ikke satt");
             }
-            if(veilarbAbacPepClient.pep==null) {
+            if (veilarbAbacPepClient.pep == null) {
                 throw new IllegalStateException("Pep er ikke satt");
             }
 
             veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
-                    .orElseGet(()->clusterUrlForApplication("veilarbabac"));
+                    .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
 
             return veilarbAbacPepClient;
         }
@@ -185,7 +184,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
             public Bruker bygg() {
 
-                if(bruker.fnr==null || bruker.fnr.length()==0 || bruker.aktoerId==null || bruker.aktoerId.length()==0) {
+                if (bruker.fnr == null || bruker.fnr.length() == 0 || bruker.aktoerId == null || bruker.aktoerId.length() == 0) {
                     throw new IllegalStateException("Bruker mangler fødselsnummer og aktørId");
                 }
 
@@ -215,82 +214,107 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
         private final Bruker bruker;
         private final Action.ActionId action;
-        private final Consumer<String> abacSjekker;
+        private final Consumer<Bruker> abacSjekker;
+        private final MetrikkSkriver metrikkSkriver = new MetrikkSkriver();
 
-        private Tilgangssjekk(Bruker bruker, Action.ActionId action, Consumer<String> abacSjekker) {
+        private Tilgangssjekk(Bruker bruker, Action.ActionId action, Consumer<Bruker> abacSjekker) {
             this.bruker = bruker;
             this.action = action;
             this.abacSjekker = abacSjekker;
         }
 
-        public void sjekkTilgangTilBruker() {
-            if(brukAktoerIdSupplier.get() && sammenliknTilgangSupplier.get()) {
-                sjekkOgSammenliknTilgangForAktoerIdOgFnr();
-            } else if (sammenliknTilgangSupplier.get()) {
-                sjekkOgSammenliknTilgangForFnr();
-            } else if(brukAktoerIdSupplier.get()) {
-                sjekkTilgangTilAktoerId();
-            } else {
-                abacSjekker.accept(bruker.getFnr());
-            }
-        }
+        void sjekkTilgangTilBruker() {
+            boolean harTilgang;
 
-        private void sjekkTilgangTilAktoerId() {
-            if(!harVeilarbAbacTilgangTilAktoerId(bruker,action)) {
+            if (brukAktoerIdSupplier.get() && sammenliknTilgangSupplier.get()) {
+                harTilgang = sjekkOgSammenliknTilgangForAktoerIdOgFnr();
+            } else if (sammenliknTilgangSupplier.get()) {
+                harTilgang = sjekkOgSammenliknTilgangForFnr();
+            } else if (brukAktoerIdSupplier.get()) {
+                harTilgang = sjekkTilgangTilAktoerId();
+            } else {
+                harTilgang = sjekkAbacTilgangTilFnr();
+            }
+
+            metrikkSkriver.skrivMetrikk();
+
+            if (!harTilgang) {
                 throw new IngenTilgang();
             }
         }
 
-        private void sjekkOgSammenliknTilgangForFnr() {
-            boolean fnrResultat=false;
-
-            try {
-                fnrResultat = harVeilarbAbacTilgangTilFnr(bruker,action);
-            } catch (Throwable e) {
-                logger.error("Kall mot veilarbac feiler",e);
-            }
-
-            try {
-                abacSjekker.accept(bruker.getFnr());
-            } catch(IngenTilgang e) {
-                if(fnrResultat) {
-                    loggAvvik();
-                }
-
-                throw e;
-            }
-
-            if(!fnrResultat) {
-                loggAvvik();
-            }
+        private boolean sjekkTilgangTilAktoerId() {
+            return harVeilarbAbacTilgangTilAktoerId(bruker, action);
         }
 
-        private void sjekkOgSammenliknTilgangForAktoerIdOgFnr() {
-            boolean fnrResultat = harVeilarbAbacTilgangTilFnr(bruker,action);
-            boolean aktoerIdResultat = harVeilarbAbacTilgangTilAktoerId(bruker,action);
+        private boolean sjekkOgSammenliknTilgangForFnr() {
+            Boolean veilarbAbacResultat=null;
 
-            if(fnrResultat!=aktoerIdResultat) {
-                loggAvvik();
+            try {
+                veilarbAbacResultat = harVeilarbAbacTilgangTilFnr(bruker, action);
+            } catch (Throwable e) {
+                // Ignorer feilen. Vi kjører videre med Abac direkte
+                logger.error("Kall mot veilarbac feiler", e);
+            }
+
+            boolean abacResultat = sjekkAbacTilgangTilFnr();
+
+            if (veilarbAbacResultat!=null && abacResultat != veilarbAbacResultat) {
+                registrerAvvik();
+            }
+
+            return abacResultat;
+        }
+
+        private boolean sjekkOgSammenliknTilgangForAktoerIdOgFnr() {
+            boolean fnrResultat = harVeilarbAbacTilgangTilFnr(bruker, action);
+            boolean aktoerIdResultat = harVeilarbAbacTilgangTilAktoerId(bruker, action);
+
+            if (fnrResultat != aktoerIdResultat) {
+                registrerAvvik();
             }
 
             // Stoler mest på fnr-resultatet
-            if(!fnrResultat) {
-                throw new IngenTilgang();
+            return fnrResultat;
+        }
+
+        private boolean sjekkAbacTilgangTilFnr() {
+            try {
+                abacSjekker.accept(bruker);
+                return true;
+            } catch (IngenTilgang e) {
+                return false;
             }
         }
 
-
-        private void loggAvvik() {
+        private void registrerAvvik() {
             logger.warn("Fikk avvik i tilgang for %s", bruker.getAktoerId());
 
-            meterRegistry.counter("veilarabac-abac-pep-avvik",
-                    "brukerId",
-                    brukAktoerIdSupplier.get() ? "aktoerId" : "fnr",
-                    "identType",
-                    SubjectHandler.getIdentType().map(Enum::name).orElse("unknown"),
-                    "action",
-                    action.name()
-            ).increment();
+            metrikkSkriver.erAvvik = true;
+        }
+
+
+        private class MetrikkSkriver {
+
+            private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
+
+            boolean erAvvik = false;
+
+            private void skrivMetrikk() {
+                meterRegistry.counter("veilarabac-abac-pep",
+                        "brukerId",
+                        brukAktoerIdSupplier.get() ? "aktoerId" : "fnr",
+                        "identType",
+                        SubjectHandler.getIdentType().map(Enum::name).orElse("unknown"),
+                        "action",
+                        action.name(),
+                        "avvik",
+                        Boolean.toString(erAvvik)
+                ).increment();
+            }
+
         }
     }
+
+
 }
