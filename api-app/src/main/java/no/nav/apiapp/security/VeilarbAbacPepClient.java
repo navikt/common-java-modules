@@ -224,19 +224,23 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         }
 
         void sjekkTilgangTilBruker() {
+
+            Boolean brukAktoerId = brukAktoerIdSupplier.get();
+            Boolean sammenliknTilgang = sammenliknTilgangSupplier.get();
+
             boolean harTilgang;
 
-            if (brukAktoerIdSupplier.get() && sammenliknTilgangSupplier.get()) {
+            if (brukAktoerId && sammenliknTilgang) {
                 harTilgang = sjekkOgSammenliknTilgangForAktoerIdOgFnr();
-            } else if (sammenliknTilgangSupplier.get()) {
+            } else if (sammenliknTilgang) {
                 harTilgang = sjekkOgSammenliknTilgangForFnr();
-            } else if (brukAktoerIdSupplier.get()) {
+            } else if (brukAktoerId) {
                 harTilgang = sjekkTilgangTilAktoerId();
             } else {
                 harTilgang = sjekkAbacTilgangTilFnr();
             }
 
-            metrikkSkriver.skrivMetrikk();
+            metrikkSkriver.skrivMetrikk(brukAktoerId,action);
 
             if (!harTilgang) {
                 throw new IngenTilgang();
@@ -254,7 +258,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
                 veilarbAbacResultat = harVeilarbAbacTilgangTilFnr(bruker, action);
             } catch (Throwable e) {
                 // Ignorer feilen. Vi kjører videre med Abac direkte
-                logger.error("Kall mot veilarbac feiler", e);
+                logger.error("Kall mot veilarbAbac feiler", e);
             }
 
             boolean abacResultat = sjekkAbacTilgangTilFnr();
@@ -292,28 +296,27 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
             metrikkSkriver.erAvvik = true;
         }
+    }
 
+    private class MetrikkSkriver {
 
-        private class MetrikkSkriver {
+        private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
 
-            private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
+        private boolean erAvvik = false;
 
-            boolean erAvvik = false;
-
-            private void skrivMetrikk() {
-                meterRegistry.counter("veilarabac-abac-pep",
-                        "brukerId",
-                        brukAktoerIdSupplier.get() ? "aktoerId" : "fnr",
-                        "identType",
-                        SubjectHandler.getIdentType().map(Enum::name).orElse("unknown"),
-                        "action",
-                        action.name(),
-                        "avvik",
-                        Boolean.toString(erAvvik)
-                ).increment();
-            }
-
+        private void skrivMetrikk(Boolean brukAktoerId, Action.ActionId action) {
+            meterRegistry.counter("veilarabac-abac-pep",
+                    "brukerId",
+                    brukAktoerId ? "aktoerId" : "fnr",
+                    "identType",
+                    SubjectHandler.getIdentType().map(Enum::name).orElse("unknown"),
+                    "action",
+                    action.name(),
+                    "avvik",
+                    Boolean.toString(erAvvik)
+            ).increment();
         }
+
     }
 
 
