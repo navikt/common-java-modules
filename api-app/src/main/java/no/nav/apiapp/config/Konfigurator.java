@@ -3,8 +3,10 @@ package no.nav.apiapp.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.apiapp.ApiApplication;
+import no.nav.apiapp.security.ApiAppAuthorizationModule;
 import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
 import no.nav.brukerdialog.security.Constants;
+import no.nav.brukerdialog.security.SecurityLevel;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
 import no.nav.brukerdialog.security.oidc.SystemUserTokenProvider;
 import no.nav.brukerdialog.security.oidc.SystemUserTokenProviderConfig;
@@ -49,6 +51,7 @@ public class Konfigurator implements ApiAppConfigurator {
 
     private AuthorizationModule authorizationModule;
     private ObjectMapper objectMapper = JsonProvider.createObjectMapper();
+    private SecurityLevel defaultSecurityLevel = SecurityLevel.Level4;
 
     public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
         this.jettyBuilder = jettyBuilder;
@@ -133,6 +136,12 @@ public class Konfigurator implements ApiAppConfigurator {
     @Override
     public ApiAppConfigurator azureADB2CLogin() {
         return azureADB2CLogin(AzureADB2CConfig.readFromSystemProperties());
+    }
+
+    @Override
+    public ApiAppConfigurator defaultSecurityLevel(SecurityLevel defaultSecurityLevel) {
+        this.defaultSecurityLevel = defaultSecurityLevel;
+        return this;
     }
 
     @Override
@@ -221,7 +230,10 @@ public class Konfigurator implements ApiAppConfigurator {
                     authorizationModule,
                     publicPaths
             );
-            jettyBuilder.addFilter(new LoginFilter(loginProviders, authorizationModule, publicPaths));
+            jettyBuilder.addFilter(new LoginFilter(
+                    loginProviders,
+                    new ApiAppAuthorizationModule(authorizationModule, defaultSecurityLevel),
+                    publicPaths));
         }
         jettyBuilderCustomizers.forEach(c -> c.accept(jettyBuilder));
         Jetty jetty = jettyBuilder.buildJetty();

@@ -8,8 +8,6 @@ import no.nav.common.auth.openam.sbs.OpenAmUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static no.nav.common.auth.SsoToken.Type.EKSTERN_OPENAM;
-
 public class SecurityLevelAuthorizationModule implements AuthorizationModule {
 
     private final int minimumLevel;
@@ -23,7 +21,11 @@ public class SecurityLevelAuthorizationModule implements AuthorizationModule {
         return subject != null && getSecurityLevel(subject) >= minimumLevel;
     }
 
-    private int getSecurityLevel(Subject subject) {
+    public static boolean authorized(Subject subject, HttpServletRequest httpServletRequest, int minimumLevel) {
+        return subject != null && getSecurityLevel(subject) >= minimumLevel;
+    }
+
+    private static int getSecurityLevel(Subject subject) {
         SsoToken ssoToken = subject.getSsoToken();
         switch (ssoToken.getType()) {
             case OIDC:

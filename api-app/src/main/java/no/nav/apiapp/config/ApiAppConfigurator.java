@@ -1,6 +1,7 @@
 package no.nav.apiapp.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.brukerdialog.security.SecurityLevel;
 import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
 import no.nav.brukerdialog.security.oidc.provider.OidcProvider;
 import no.nav.brukerdialog.security.oidc.provider.SecurityTokenServiceOidcProviderConfig;
@@ -20,6 +21,7 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator issoLogin();
     ApiAppConfigurator issoLogin(IssoConfig issoConfig);
     ApiAppConfigurator azureADB2CLogin();
+    ApiAppConfigurator defaultSecurityLevel(SecurityLevel defaultSecurityLevel);
     ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig);
     ApiAppConfigurator openAmLogin();
     ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig);
