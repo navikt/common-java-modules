@@ -4,16 +4,6 @@ These libraries are in use by many applications in NAV.
 
 ## Building the libraries
 
-For the time being, you need to install
-[the sanitized fork of modig-testcertificates](https://github.com/navikt/modig-testcertificates-safe-fork),
-otherwise you will not be able to build.
-
-```
-git clone https://github.com/navikt/modig-testcertificates-safe-fork
-cd modig-testcertificates-safe-fork
-mvn clean install
-```
-
 In order to build `common-java-modules`, run from the root directory:
 
 ```
