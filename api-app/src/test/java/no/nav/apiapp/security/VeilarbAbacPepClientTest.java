@@ -31,7 +31,7 @@ public class VeilarbAbacPepClientTest {
     private static final String FNR = "fnr";
     private static final String AKTOER_ID = "aktorId";
     private static final String APPLICATION_DOMAIN = "veilarb";
-    private static final ResourceType RESOURCE_TYPE = ResourceType.Person;
+    private static final ResourceType RESOURCE_TYPE = ResourceType.VeilArbPerson;
     private static final String SYSTEM_TOKEN = "token";
     public static final String OIDC_TOKEN = "OIDC-token";
 
