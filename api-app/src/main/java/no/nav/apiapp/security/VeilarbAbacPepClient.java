@@ -106,8 +106,6 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
         private Optional<String> veilarbAbacUrl = Optional.empty();
         private Pep pep;
-        private String applicationDomain = "veilarb";
-        private ResourceType resourceType = ResourceType.VeilArbPerson;
 
         public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
             veilarbAbacPepClient.brukAktoerIdSupplier = featureToggleSupplier;
@@ -144,23 +142,6 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             return this;
         }
 
-        public Builder medResourceType(ResourceType resourceType) {
-            if(resourceType==null) {
-                throw new IllegalArgumentException("resourceType kan ikke være null");
-            }
-            this.resourceType = resourceType;
-            return this;
-        }
-
-        public Builder medApplicationDomain(String applicationDomain) {
-            if(StringUtils.nullOrEmpty(applicationDomain)) {
-                throw new IllegalArgumentException("applicationDomain kan ikke være tom");
-            }
-
-            this.applicationDomain = applicationDomain;
-            return this;
-        }
-
         public VeilarbAbacPepClient bygg() {
             if (veilarbAbacPepClient.systemUserTokenProvider == null) {
                 throw new IllegalStateException("SystemUserTokenProvider er ikke satt");
@@ -169,7 +150,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
                 throw new IllegalStateException("Pep er ikke satt");
             }
 
-            veilarbAbacPepClient.pepClient = new PepClient(pep,applicationDomain,resourceType);
+            veilarbAbacPepClient.pepClient = new PepClient(pep, "veilarb", ResourceType.VeilArbPerson);
 
             veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
                     .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
