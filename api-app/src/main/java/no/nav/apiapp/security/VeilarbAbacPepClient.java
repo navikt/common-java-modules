@@ -4,6 +4,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
+import no.nav.apiapp.util.StringUtils;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.SubjectHandler;
 import no.nav.metrics.MetricsFactory;
@@ -20,6 +21,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static no.nav.apiapp.util.StringUtils.nullOrEmpty;
 import static no.nav.apiapp.util.UrlUtils.clusterUrlForApplication;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -34,7 +36,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     private Supplier<Optional<String>> oidcTokenSupplier = () -> SubjectHandler.getSsoToken(SsoToken.Type.OIDC);
 
     private String abacTargetUrl;
-    private Pep pep;
+    private PepClient pepClient;
 
     private VeilarbAbacPepClient() {
     }
@@ -44,13 +46,13 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     }
 
     public void sjekkLesetilgangTilBruker(Bruker bruker) {
-        new Tilgangssjekk(bruker, Action.ActionId.READ, b -> lagPepClient().sjekkLeseTilgangTilFnr(b.getFnr()))
+        new Tilgangssjekk(bruker, Action.ActionId.READ, b -> pepClient.sjekkLeseTilgangTilFnr(b.getFoedselsnummer()))
                 .sjekkTilgangTilBruker();
     }
 
     public void sjekkSkrivetilgangTilBruker(Bruker bruker) {
 
-        new Tilgangssjekk(bruker, Action.ActionId.WRITE, b -> lagPepClient().sjekkSkriveTilgangTilFnr(b.getFnr()))
+        new Tilgangssjekk(bruker, Action.ActionId.WRITE, b -> pepClient.sjekkSkriveTilgangTilFnr(b.getFoedselsnummer()))
                 .sjekkTilgangTilBruker();
     }
 
@@ -78,16 +80,12 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     }
 
 
-    private PepClient lagPepClient() {
-        return new PepClient(pep, "veilarb", ResourceType.Person);
-    }
-
     private boolean harVeilarbAbacTilgangTilAktoerId(Bruker bruker, Action.ActionId action) {
         return harVeilarbAbacTilgangTilBruker(bruker, action, "aktorId", Bruker::getAktoerId);
     }
 
     private boolean harVeilarbAbacTilgangTilFnr(Bruker bruker, Action.ActionId action) {
-        return harVeilarbAbacTilgangTilBruker(bruker, action, "fnr", Bruker::getFnr);
+        return harVeilarbAbacTilgangTilBruker(bruker, action, "fnr", Bruker::getFoedselsnummer);
 
     }
 
@@ -108,6 +106,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
         VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
         private Optional<String> veilarbAbacUrl = Optional.empty();
+        private Pep pep;
 
         public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
             veilarbAbacPepClient.brukAktoerIdSupplier = featureToggleSupplier;
@@ -120,7 +119,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         }
 
         public Builder medPep(Pep pep) {
-            veilarbAbacPepClient.pep = pep;
+            this.pep = pep;
             return this;
         }
 
@@ -148,9 +147,11 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             if (veilarbAbacPepClient.systemUserTokenProvider == null) {
                 throw new IllegalStateException("SystemUserTokenProvider er ikke satt");
             }
-            if (veilarbAbacPepClient.pep == null) {
+            if (this.pep == null) {
                 throw new IllegalStateException("Pep er ikke satt");
             }
+
+            veilarbAbacPepClient.pepClient = new PepClient(pep, "veilarb", ResourceType.VeilArbPerson);
 
             veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
                     .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
@@ -163,6 +164,8 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
         private String fnr;
         private String aktoerId;
+        private Function<String, String> aktoerIdTilFnr;
+        private Function<String, String> fnrTilAktoerId ;
 
         public static Builder ny() {
             return new Builder();
@@ -182,10 +185,27 @@ public class VeilarbAbacPepClient implements Helsesjekk {
                 return this;
             }
 
-            public Bruker bygg() {
+            public Builder medAktoerIdTilFoedselsnummerKonvertering(Function<String,String> aktoerIdTilFnr) {
+                bruker.aktoerIdTilFnr=aktoerIdTilFnr;
+                return this;
+            }
 
-                if (bruker.fnr == null || bruker.fnr.length() == 0 || bruker.aktoerId == null || bruker.aktoerId.length() == 0) {
-                    throw new IllegalStateException("Bruker mangler fødselsnummer og aktørId");
+            public Builder medFoedselnummerTilAktoerIdKonvertering(Function<String,String> fnrTilAktoerId) {
+                bruker.fnrTilAktoerId=fnrTilAktoerId;
+                return this;
+            }
+
+            public Bruker bygg() {
+                if ((nullOrEmpty(bruker.fnr) && nullOrEmpty(bruker.aktoerId))) {
+                    throw new IllegalStateException("Bruker mangler både fødselsnummer og aktørId");
+                }
+
+                if (nullOrEmpty(bruker.fnr) && bruker.aktoerIdTilFnr==null) {
+                    throw new IllegalStateException("Bruker mangler fødselsnummer og konverterer fra aktørId");
+                }
+
+                if (nullOrEmpty (bruker.aktoerId) && bruker.fnrTilAktoerId==null) {
+                    throw new IllegalStateException("Bruker mangler aktørId og konverterer fra fnr");
                 }
 
                 return bruker;
@@ -193,11 +213,17 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
         }
 
-        public String getFnr() {
+        public String getFoedselsnummer() {
+            if(fnr==null) {
+                fnr = aktoerIdTilFnr.apply(aktoerId);
+            }
             return fnr;
         }
 
         public String getAktoerId() {
+            if(aktoerId==null) {
+                aktoerId = fnrTilAktoerId.apply(fnr);
+            }
             return aktoerId;
         }
 
