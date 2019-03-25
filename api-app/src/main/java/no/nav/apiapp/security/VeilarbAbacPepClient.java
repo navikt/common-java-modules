@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static no.nav.apiapp.util.StringUtils.nullOrEmpty;
 import static no.nav.apiapp.util.UrlUtils.clusterUrlForApplication;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -195,15 +196,15 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             }
 
             public Bruker bygg() {
-                if ((StringUtils.nullOrEmpty(bruker.fnr) && StringUtils.nullOrEmpty(bruker.aktoerId))) {
+                if ((nullOrEmpty(bruker.fnr) && nullOrEmpty(bruker.aktoerId))) {
                     throw new IllegalStateException("Bruker mangler både fødselsnummer og aktørId");
                 }
 
-                if ((bruker.fnr == null || bruker.fnr.length() == 0) && bruker.aktoerIdTilFnr==null) {
+                if (nullOrEmpty(bruker.fnr) && bruker.aktoerIdTilFnr==null) {
                     throw new IllegalStateException("Bruker mangler fødselsnummer og konverterer fra aktørId");
                 }
 
-                if ((bruker.aktoerId == null || bruker.aktoerId.length() == 0) && bruker.fnrTilAktoerId==null) {
+                if (nullOrEmpty (bruker.aktoerId) && bruker.fnrTilAktoerId==null) {
                     throw new IllegalStateException("Bruker mangler aktørId og konverterer fra fnr");
                 }
 
