@@ -13,6 +13,9 @@ import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.jaspi.JaspiAuthenticatorFactory;
 import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.*;
@@ -79,6 +82,7 @@ public final class Jetty {
         private String extraClasspath;
         private ServerAuthModule serverAuthModule;
         private List<String> jaspicUbeskyttet = new ArrayList<>();
+        private List<JettyCustomizer> customizers = new ArrayList<>();
         private boolean disableAnnotationScanning;
 
 
@@ -158,6 +162,11 @@ public final class Jetty {
         public final JettyBuilder configureForJaspic(ServerAuthModule serverAuthModule, List<String> ubeskyttet) {
             this.serverAuthModule = serverAuthModule;
             this.jaspicUbeskyttet = ubeskyttet;
+            return this;
+        }
+
+        public JettyBuilder addCustomizer(JettyCustomizer jettyCustomizer) {
+            this.customizers.add(jettyCustomizer);
             return this;
         }
 
@@ -263,7 +272,7 @@ public final class Jetty {
         this.serverAuthModule = builder.serverAuthModule;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
-        this.server = setupJetty(new Server());
+        this.server = setupJetty(new Server(), builder);
         this.developmentMode = builder.developmentMode;
     }
 
@@ -361,14 +370,23 @@ public final class Jetty {
         }
     }
 
-    private Server setupJetty(final Server jetty) {
+    private Server setupJetty(final Server jetty, JettyBuilder jettyBuilder) {
         if (serverAuthModule != null) {
             registerOidcAuthModule(serverAuthModule, context.getServletContext());
         }
         Resource.setDefaultUseCaches(false);
 
         HttpConfiguration configuration = new HttpConfiguration();
+        // Increase default buffer sizes to prevent failures due to large requests or responses
+        // This increases memory usage but seems to be necessary to handle current heavy usage of cookies (!)
+        configuration.setRequestHeaderSize(16384);
+        configuration.setResponseHeaderSize(16384);
         configuration.setOutputBufferSize(32768);
+
+        // Add support for X-Forwarded headers
+        configuration.addCustomizer(new ForwardedRequestCustomizer());
+
+        jettyBuilder.customizers.forEach(customizer -> customizer.customize(configuration));
 
         ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
         httpConnector.setSoLingerTime(-1);
@@ -384,7 +402,11 @@ public final class Jetty {
         jetty.setConnectors(connectors);
         context.setServer(jetty);
         addWebsocketEndpoints(context);
+
+        jettyBuilder.customizers.forEach(customizer -> customizer.customize(context));
         jetty.setHandler(context);
+
+        jettyBuilder.customizers.forEach(customizer -> customizer.customize(jetty));
         return jetty;
     }
 
