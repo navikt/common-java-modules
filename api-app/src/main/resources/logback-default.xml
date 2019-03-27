@@ -46,7 +46,7 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <root level="${ROOT_LOG_LEVEL:-TRACE}">
+    <root level="${ROOT_LOG_LEVEL:-INFO}">
         <if condition='isNull("jboss.server.name")'>
             <then>
                 <!-- nais+local -->
