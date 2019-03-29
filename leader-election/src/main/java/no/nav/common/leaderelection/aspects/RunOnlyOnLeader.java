@@ -1,4 +1,4 @@
-package no.nav.sbl.leaderelection.aspects;
+package no.nav.common.leaderelection.aspects;
 
 import java.lang.annotation.*;
 
