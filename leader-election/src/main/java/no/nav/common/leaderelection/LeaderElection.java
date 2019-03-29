@@ -7,14 +7,13 @@ import javax.ws.rs.core.MediaType;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import static java.lang.System.getProperty;
 import static javax.ws.rs.client.ClientBuilder.newClient;
 
 public class LeaderElection {
     private static Client client = newClient();
 
     public static boolean isLeader() {
-        JSONObject leaderJson = getJSONFromUrl(getProperty("ELECTOR_PATH"));
+        JSONObject leaderJson = getJSONFromUrl(System.getenv("ELECTOR_PATH"));
         String leader = leaderJson.getString("name");
         try {
             return leader.equals(InetAddress.getLocalHost().getHostName());
