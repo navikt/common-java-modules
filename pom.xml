@@ -48,7 +48,7 @@
         <module>jetty</module>
         <module>json</module>
         <module>log</module>
-        <module>leaderelection</module>
+        <module>leader-election</module>
         <module>metrics</module>
         <module>oidc-security</module>
         <module>pact</module>

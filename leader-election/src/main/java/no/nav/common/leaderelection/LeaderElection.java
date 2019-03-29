@@ -1,4 +1,4 @@
-package no.nav.sbl.leaderelection;
+package no.nav.common.leaderelection;
 
 import org.json.JSONObject;
 
