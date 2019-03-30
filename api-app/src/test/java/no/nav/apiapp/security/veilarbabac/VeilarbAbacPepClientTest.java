@@ -1,4 +1,4 @@
-package no.nav.apiapp.security;
+package no.nav.apiapp.security.veilarbabac;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
@@ -21,6 +21,8 @@ import java.util.Optional;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.newRequestPattern;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.fail;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.READ;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.WRITE;
@@ -30,6 +32,7 @@ public class VeilarbAbacPepClientTest {
 
     private static final String FNR = "fnr";
     private static final String AKTOER_ID = "aktorId";
+    private static final String ENHET_ID = "enhetId";
     private static final String APPLICATION_DOMAIN = "veilarb";
     private static final ResourceType RESOURCE_TYPE = ResourceType.VeilArbPerson;
     private static final String SYSTEM_TOKEN = "token";
@@ -38,12 +41,13 @@ public class VeilarbAbacPepClientTest {
     private static final String URL_REGEX_AKTOER_ID_WRITE = String.format("/person\\?aktorId=%s&action=update",AKTOER_ID);
     private static final String URL_REGEX_FNR_READ = String.format("/person\\?fnr=%s&action=read",FNR);
     private static final String URL_REGEX_AKTOER_ID_READ = String.format("/person\\?aktorId=%s&action=read",AKTOER_ID);
+    private static final String URL_REGEX_ENHET_READ = String.format("/enhet\\?enhetId=%s&action=read",ENHET_ID);
 
     private BiasedDecisionResponse PERMIT = new BiasedDecisionResponse(Decision.Permit, new XacmlResponse());
     private BiasedDecisionResponse DENY = new BiasedDecisionResponse(Decision.Deny, new XacmlResponse());
 
 
-    private static final VeilarbAbacPepClient.Bruker BRUKER = VeilarbAbacPepClient.Bruker.ny()
+    private static final Bruker BRUKER = Bruker.ny()
             .medFoedeselsnummer(FNR)
             .medAktoerId(AKTOER_ID)
             .bygg();
@@ -53,6 +57,10 @@ public class VeilarbAbacPepClientTest {
 
     private final Pep pep = mock(Pep.class);
     private final Logger logger = mock(Logger.class);
+    public static final RequestData PEP_REQUEST_DATA_ENHET = new RequestData()
+            .withResourceType(ResourceType.Enhet)
+            .withDomain(APPLICATION_DOMAIN)
+            .withEnhet(ENHET_ID);
 
     @Before
     public void setup() throws PepException {
@@ -237,6 +245,60 @@ public class VeilarbAbacPepClientTest {
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
     }
+
+    @Test
+    public void testSammenliknAbacOgVeilarbabacMedEnhet() throws PepException {
+
+        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(PERMIT);
+
+        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, "permit");
+
+        VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
+                .sammenlikneTilgang(()->true)
+                .bygg();
+
+        assertTrue(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
+        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
+        Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for %s",ENHET_ID);
+
+    }
+
+    @Test
+    public void testSammenliknAbacOgVeilarbabacMedEnhetUlikResonse() throws PepException {
+
+        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(DENY);
+
+        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, "permit");
+
+        VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
+                .sammenlikneTilgang(()->true)
+                .bygg();
+
+        assertFalse(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
+        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",ENHET_ID);
+    }
+
+    @Test
+    public void testSammenliknAbacOgVeilarbabacMedEnhetUlikResonseOGVeilarbAbacForetrukket() throws PepException {
+
+        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(DENY);
+
+        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, "permit");
+
+        VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
+                .sammenlikneTilgang(()->true)
+                .foretrekkVeilarbAbacResultat(()->true)
+                .bygg();
+
+        assertTrue(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
+        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",ENHET_ID);
+    }
+
 
     private void lagVeilarbAbacResponse(String pathRegex, String response) {
         givenThat(get(urlMatching(pathRegex))
