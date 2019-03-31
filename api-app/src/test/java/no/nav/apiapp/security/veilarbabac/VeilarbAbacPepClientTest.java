@@ -45,12 +45,8 @@ public class VeilarbAbacPepClientTest {
 
     private BiasedDecisionResponse PERMIT = new BiasedDecisionResponse(Decision.Permit, new XacmlResponse());
     private BiasedDecisionResponse DENY = new BiasedDecisionResponse(Decision.Deny, new XacmlResponse());
-
-
-    private static final Bruker BRUKER = Bruker.ny()
-            .medFoedeselsnummer(FNR)
-            .medAktoerId(AKTOER_ID)
-            .bygg();
+    
+    private static final Bruker BRUKER = Bruker.fraFnr(FNR).medAktoerId(AKTOER_ID);
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
