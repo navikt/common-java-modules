@@ -1,5 +1,8 @@
 package no.nav.common.leaderelection;
 
+import lombok.SneakyThrows;
+import no.nav.json.JsonUtils;
+import no.nav.sbl.rest.RestUtils;
 import org.json.JSONObject;
 
 import javax.ws.rs.client.Client;
@@ -10,21 +13,23 @@ import java.net.UnknownHostException;
 import static javax.ws.rs.client.ClientBuilder.newClient;
 
 public class LeaderElection {
-    private static Client client = newClient();
 
+    @SneakyThrows
     public static boolean isLeader() {
-        JSONObject leaderJson = getJSONFromUrl(System.getenv("ELECTOR_PATH"));
-        String leader = leaderJson.getString("name");
-        try {
-            return leader.equals(InetAddress.getLocalHost().getHostName());
-        } catch (UnknownHostException e) {
-            return false;
+        String electorPath = System.getenv("ELECTOR_PATH");
+        if (electorPath == null) {
+            throw new RuntimeException("Fant ikke ELECTOR_PATH, husk å sett `leaderElection: true` i nais.yaml");
         }
-    }
 
-    private static JSONObject getJSONFromUrl(String url) {
-        return client.target("http://" + url)
-                .request(MediaType.APPLICATION_JSON)
-                .get(JSONObject.class);
+        String entity = RestUtils.withClient(client -> client
+                .target("http://" + electorPath)
+                .request()
+                .get()
+                .readEntity(String.class)
+        );
+
+        LeaderResponse leader = JsonUtils.fromJson(entity, LeaderResponse.class);
+
+        return InetAddress.getLocalHost().getHostName().equals(leader.getName());
     }
 }
