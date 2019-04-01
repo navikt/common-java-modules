@@ -1,72 +1,43 @@
 package no.nav.apiapp.security.veilarbabac;
 
-import java.util.function.Function;
+import no.nav.sbl.util.StringUtils;
 
-import static no.nav.apiapp.util.StringUtils.nullOrEmpty;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 public class Bruker {
 
-    private String fnr;
-    private String aktoerId;
-    private Function<String, String> aktoerIdTilFnr;
-    private Function<String, String> fnrTilAktoerId ;
+    private String fnr, originaltFnr;
+    private String aktoerId, originalAktoerId;
+    private Supplier<String> aktoerIdSupplier;
+    private Supplier<String> fnrSupplier;
 
-    public static Builder ny() {
-        return new Builder();
+    public static FnrBuilder fraFnr(String fnr) {
+        if (StringUtils.nullOrEmpty(fnr)) {
+            throw new IllegalArgumentException("fnr må ha verdi");
+        }
+
+        return new FnrBuilder(fnr);
     }
 
-    public static class Builder {
-
-        Bruker bruker = new Bruker();
-
-        public Builder medFoedeselsnummer(String fnr) {
-            bruker.fnr = fnr;
-            return this;
+    public static AktoerIdBuilder fraAktoerId(String aktoerId) {
+        if (StringUtils.nullOrEmpty(aktoerId)) {
+            throw new IllegalArgumentException("aktoerId må ha verdi");
         }
 
-        public Builder medAktoerId(String aktoerId) {
-            bruker.aktoerId = aktoerId;
-            return this;
-        }
-
-        public Builder medAktoerIdTilFoedselsnummerKonvertering(Function<String,String> aktoerIdTilFnr) {
-            bruker.aktoerIdTilFnr=aktoerIdTilFnr;
-            return this;
-        }
-
-        public Builder medFoedselnummerTilAktoerIdKonvertering(Function<String,String> fnrTilAktoerId) {
-            bruker.fnrTilAktoerId=fnrTilAktoerId;
-            return this;
-        }
-
-        public Bruker bygg() {
-            if ((nullOrEmpty(bruker.fnr) && nullOrEmpty(bruker.aktoerId))) {
-                throw new IllegalStateException("Bruker mangler både fødselsnummer og aktørId");
-            }
-
-            if (nullOrEmpty(bruker.fnr) && bruker.aktoerIdTilFnr==null) {
-                throw new IllegalStateException("Bruker trenger fødselsnummer eller konverterer fra aktørId");
-            }
-
-            if (nullOrEmpty (bruker.aktoerId) && bruker.fnrTilAktoerId==null) {
-                throw new IllegalStateException("Bruker trenger aktørId eller konverterer fra fnr");
-            }
-
-            return bruker;
-        }
-
+        return new AktoerIdBuilder(aktoerId);
     }
 
     public String getFoedselsnummer() {
-        if(fnr==null) {
-            fnr = aktoerIdTilFnr.apply(aktoerId);
+        if (fnr == null) {
+            fnr = fnrSupplier.get();
         }
         return fnr;
     }
 
     public String getAktoerId() {
-        if(aktoerId==null) {
-            aktoerId = fnrTilAktoerId.apply(fnr);
+        if (aktoerId == null) {
+            aktoerId = aktoerIdSupplier.get();
         }
         return aktoerId;
     }
@@ -77,5 +48,69 @@ public class Bruker {
                 "fnr='" + fnr + '\'' +
                 ", aktoerId='" + aktoerId + '\'' +
                 '}';
+    }
+
+    // Regner bruker som lik hvis originalt fnr og/eller aktørId er like
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bruker bruker = (Bruker) o;
+        return Objects.equals(originaltFnr, bruker.originaltFnr) &&
+                Objects.equals(originalAktoerId, bruker.originalAktoerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(originaltFnr, originalAktoerId);
+    }
+
+
+    public static class FnrBuilder {
+
+        Bruker bruker = new Bruker();
+
+        private FnrBuilder(String fnr) {
+            bruker.fnr = bruker.originaltFnr = fnr;
+        }
+
+        public Bruker medAktoerId(String aktoerId) {
+            if (StringUtils.nullOrEmpty(aktoerId)) {
+                throw new IllegalArgumentException("aktoerId må ha verdi");
+            }
+
+            bruker.aktoerId = bruker.originalAktoerId = aktoerId;
+
+            return bruker;
+        }
+
+        public Bruker medAktoerIdSupplier(Supplier<String> aktoerIdSupplier) {
+            bruker.aktoerIdSupplier = aktoerIdSupplier;
+            return bruker;
+        }
+
+    }
+
+    public static class AktoerIdBuilder {
+
+        Bruker bruker = new Bruker();
+
+        private AktoerIdBuilder(String aktoerId) {
+            bruker.aktoerId = bruker.originalAktoerId = aktoerId;
+        }
+
+        public Bruker medFoedselsnummer(String fnr) {
+            if (StringUtils.nullOrEmpty(fnr)) {
+                throw new IllegalArgumentException("fnr må ha verdi");
+            }
+
+            bruker.fnr = bruker.originaltFnr = fnr;
+            return bruker;
+        }
+
+        public Bruker medFoedselnummerSupplier(Supplier<String> fnrSupplier) {
+            bruker.fnrSupplier = fnrSupplier;
+            return bruker;
+        }
     }
 }
