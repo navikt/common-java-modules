@@ -16,7 +16,7 @@ public class ElectorMock {
                 .willReturn(
                         aResponse()
                                 .withHeader("Content-Type", "text/plain; charset=utf-8")
-                                .withBody(String.format("{\"name:\" : \"%s\"}", getHostName()))
+                                .withBody(String.format("{\"name\" : \"%s\"}", getHostName()))
                 ));
         return electorServer;
     }
