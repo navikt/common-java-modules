@@ -1,25 +1,19 @@
 package no.nav.common.leaderelection;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.json.JsonUtils;
 import no.nav.sbl.rest.RestUtils;
-import org.json.JSONObject;
+import no.nav.sbl.util.EnvironmentUtils;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.MediaType;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-import static javax.ws.rs.client.ClientBuilder.newClient;
-
+@Slf4j
 public class LeaderElection {
 
     @SneakyThrows
     public static boolean isLeader() {
-        String electorPath = System.getenv("ELECTOR_PATH");
-        if (electorPath == null) {
-            throw new RuntimeException("Fant ikke ELECTOR_PATH, husk å sett `leaderElection: true` i nais.yaml");
-        }
+        String electorPath = EnvironmentUtils.getRequiredProperty("ELECTOR_PATH");
 
         String entity = RestUtils.withClient(client -> client
                 .target("http://" + electorPath)
@@ -31,5 +25,9 @@ public class LeaderElection {
         LeaderResponse leader = JsonUtils.fromJson(entity, LeaderResponse.class);
 
         return InetAddress.getLocalHost().getHostName().equals(leader.getName());
+    }
+
+    public static boolean isNotLeader() {
+        return !isLeader();
     }
 }
