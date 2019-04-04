@@ -34,6 +34,11 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>metrics</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId></groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
