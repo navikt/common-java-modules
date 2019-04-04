@@ -59,7 +59,7 @@ class TilgangssjekkEnhet {
             harTilgang = sjekkTilgang();
         }
 
-        metrikk.loggMetrikk(Enhet);
+        metrikk.loggMetrikk(Enhet,foretrekkVeilarbAbac);
 
         return harTilgang;
     }
