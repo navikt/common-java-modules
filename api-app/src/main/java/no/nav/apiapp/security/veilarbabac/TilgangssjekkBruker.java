@@ -75,7 +75,7 @@ class TilgangssjekkBruker {
             harTilgang = sjekkAbacTilgangTilFnr();
         }
 
-        metrikk.loggMetrikk(brukAktoerId ? PersonAktoerId : PersonFoedselsnummer);
+        metrikk.loggMetrikk(brukAktoerId ? PersonAktoerId : PersonFoedselsnummer,foretrekkVeilarbAbac);
 
         if (!harTilgang) {
             throw new IngenTilgang();

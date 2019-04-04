@@ -31,8 +31,8 @@ class MetrikkLogger {
         this.erAvvik = true;
     }
 
-    void loggMetrikk(Tilgangstype tilgangstype) {
-        meterRegistry.counter("veilarabac-abac-pep",
+    void loggMetrikk(Tilgangstype tilgangstype, boolean foretrekkVeilarbabac) {
+        meterRegistry.counter("veilarbabac-pepclient",
                 "tilgangstype",
                 tilgangstype.name(),
                 "identType",
@@ -40,7 +40,9 @@ class MetrikkLogger {
                 "action",
                 action,
                 "avvik",
-                Boolean.toString(erAvvik)
+                Boolean.toString(erAvvik),
+                "foretrekkVeilarbAbac",
+                Boolean.toString(foretrekkVeilarbabac)
         ).increment();
 
         if(erAvvik) {
