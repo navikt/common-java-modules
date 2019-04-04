@@ -1,6 +1,6 @@
 language: java
 script:
-  - mvn clean install -q -B -Plokal
+  - mvn clean install -q -B -Plokal -Dorg.slf4j.simpleLogger.defaultLogLevel=warn
 jdk:
   - openjdk8
 
