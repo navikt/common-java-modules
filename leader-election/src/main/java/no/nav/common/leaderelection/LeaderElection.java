@@ -1,31 +1,33 @@
 package no.nav.common.leaderelection;
 
-import org.json.JSONObject;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.json.JsonUtils;
+import no.nav.sbl.rest.RestUtils;
+import no.nav.sbl.util.EnvironmentUtils;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.MediaType;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
-import static java.lang.System.getProperty;
-import static javax.ws.rs.client.ClientBuilder.newClient;
-
+@Slf4j
 public class LeaderElection {
-    private static Client client = newClient();
 
+    @SneakyThrows
     public static boolean isLeader() {
-        JSONObject leaderJson = getJSONFromUrl(getProperty("ELECTOR_PATH"));
-        String leader = leaderJson.getString("name");
-        try {
-            return leader.equals(InetAddress.getLocalHost().getHostName());
-        } catch (UnknownHostException e) {
-            return false;
-        }
+        String electorPath = EnvironmentUtils.getRequiredProperty("ELECTOR_PATH");
+
+        String entity = RestUtils.withClient(client -> client
+                .target("http://" + electorPath)
+                .request()
+                .get()
+                .readEntity(String.class)
+        );
+
+        LeaderResponse leader = JsonUtils.fromJson(entity, LeaderResponse.class);
+
+        return InetAddress.getLocalHost().getHostName().equals(leader.getName());
     }
 
-    private static JSONObject getJSONFromUrl(String url) {
-        return client.target("http://" + url)
-                .request(MediaType.APPLICATION_JSON)
-                .get(JSONObject.class);
+    public static boolean isNotLeader() {
+        return !isLeader();
     }
 }
