@@ -31,6 +31,7 @@ public class FasitUtils {
     public static final String FASIT_PASSWORD_VARIABLE_NAME = "domenepassord";
     public static final String DEFAULT_ENVIRONMENT_VARIABLE_NAME = "testmiljo";
     public static final String MOCK_VARIABLE_NAME = "mock";
+    private static final String MOCK_ENVIRONMENT_VARIABLE = "FASIT_MOCK_ENABLED";
 
     private static final File fasitPropertyFile = new File(System.getProperty("user.home"), "fasit.properties");
 
@@ -188,7 +189,8 @@ public class FasitUtils {
     }
 
     public static boolean usingMock() {
-        return getOptionalVariableFromPropertyFile(MOCK_VARIABLE_NAME).map(Boolean::parseBoolean).orElse(false);
+        return getOptionalVariableFromPropertyFile(MOCK_VARIABLE_NAME).map(Boolean::parseBoolean)
+                .orElse(Boolean.parseBoolean(System.getenv(MOCK_ENVIRONMENT_VARIABLE)));
     }
 
     public static List<RestService> getRestServices(String alias) {
