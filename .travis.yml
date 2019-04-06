@@ -1,12 +1,37 @@
 language: java
 script:
   - mvn clean install -q -B -Plokal
+  - |
+    set -e
+    if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
+        openssl aes-256-cbc -K $encrypted_4732598df4ca_key -iv $encrypted_4732598df4ca_iv \
+          -in travis/codesigning.asc.enc -out travis/codesigning.asc -d
+
+        echo "Importing GPG key into keyring"
+        gpg --fast-import travis/codesigning.asc
+
+        TIME=$(TZ="Europe/Oslo" date +%Y.%m.%d-%H.%M)
+        COMMIT=$(git rev-parse --short=12 HEAD)
+        VERSION="1.$TIME-$COMMIT"
+        echo "Setting version $VERSION"
+
+        mvn -B versions:set -DnewVersion="$VERSION"
+        mvn -B versions:commit
+
+        echo "Running release"
+        travis_wait 40 mvn -q -B --settings travis/settings.xml deploy -Prelease -DskipTests=true
+    fi
 jdk:
   - openjdk8
 before_install:
   - openssl aes-256-cbc -K $encrypted_4732598df4ca_key -iv $encrypted_4732598df4ca_iv
-    -in codesigning.asc.enc -out codesigning.asc -d
+    -in travis/codesigning.asc.enc -out travis/codesigning.asc -d
 env:
   global:
+  - OSSRH_JIRA_USERNAME=navikt
+  - GPG_KEY_NAME=navikt
   - secure: y/7F6XMKr4Ufh5XFjAHe5poVQlEtXP1k+LON9oXesF79HDVkYKxP4nf1Vt0Ax13FZoV8ChHBmmWALHODQxRty43ihPOFb1VPNgNkb24x85vK6XWiDHFxM8GnGVmPq4DkTtKKFsPMWPKgK42jwgIc6pNV4LyN6X2DjqhrH0mbB5lD1oqpnUpjA4xZ301W3+oeRY995FzFDG/fNqKy/cGVKgYSOPN+LT7Zw4DmLzgJG/3yE0q1sj73ctaHukKHOZmVurdt7iZFJtlLrC3bIwTVpctFwc+Kug+edN1qc8iJdTc2493Ts/ZGwR9Hnwb77EW5guDFKGBM/3lE1IfGIOJ3X/R5vXuTG+2fWbOu11tAuT++7vTRKH60MzV28y3E36NPQDXsXUeS8wXH6uRvCgKwrOjDk6DundMcLn/iPd6wR5DqOvc9KZJ38mxGIBQZ2LktLyIeE0yy1LIY4IB0BIednncymtw2iId7JyPS0wJFkKiAZcD9uFwb7sX7n8uzOEZIGEqONDIah0yaB2vLusC+DiFz3OC3w6k9rUy6xLTMYVhL5JWnm/PvXqoQLEiC0kOfcnbYoQff/VviCd8RXemH7oCD9qgm6SVcjDDSb1psQMdxHcPeU83b5PXmNDgVz7E2hvE599pDgplgWTlCy35SeU84NpQgjQsHsVgug60leoE=
   - secure: MTFXb3VmlGe4s1rA19bLAAaAChwkymd3PNN3mumRdU0tNPC5WzgwjX+6i4gY1R9OGIluJ0G6WClrxscYxD7Cuwim1cEzFwefLwQ71OAX61GaRCp7bKGccCvg1RZqaPo7n+hNSrt8snViMJOxkO2uNb0CuFG2bx9be6UeZSve+dD3SI8hTPCxVMqt0BFSZ8WLKD8vZMVdraC0wJIKZtDvlYyhIiRGGj6mQDHAVZl2ZRpBnzJEvBPWKqZVHv8FN5IhxBybFVwShZniXSE7khDZVEokfoyzjJ3JdrQ0TBsUhTScLkupxfUJsIsIvlncKv7tZy8GJQEGiMARQroS35K4NktAqbXy9OYFz5jOSCVKVcY/AsYEh+lo/gezxD6OugdzfuPomm5STsVn8W7/kQsy/y5N3rQfhLvWAnUmDrYLg0mMAjJAXMXPm4/EhA0fAfMaBUIHDwOdjzG1wVUY3XlbvWhqilQYSST8Mm0u9HYFV0m1/fWA6exLfcSGCae2PmKdpLn/4YAIiTVAezajzXJ8l/Dfy8h25AuAWumBZqsmWg0oP2jdD+2vMX0lzjOkvLZBCO81ljFP9S3DnV6xGzND4czm8ixWtzlhNQJfI7wVZh8KILZO6ecUuowiEARkVZGNSktIk9cfvgOJtcWl07izQU0NtkFJ2dHiAckmdscnyh8=
+cache:
+  directories:
+    - $HOME/.m2

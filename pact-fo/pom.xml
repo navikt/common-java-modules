@@ -28,10 +28,22 @@
         <dependency>
             <groupId>au.com.dius</groupId>
             <artifactId>pact-jvm-provider-junit_2.12</artifactId>
+            <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>au.com.dius</groupId>
             <artifactId>pact-jvm-consumer_2.12</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-model-jvm_2.10</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>au.com.dius</groupId>
+            <artifactId>pact-jvm-provider-junit_2.12</artifactId>
             <scope>compile</scope>
         </dependency>
 

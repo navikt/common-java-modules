@@ -10,8 +10,13 @@ In order to build `common-java-modules`, run from the root directory:
 mvn clean install
 ```
 
-Currently, they do not build outside of NAV's internal network, because of dependencies that are
-not yet open source. However, our end goal is to be able to release these libraries to Maven Central.
+Currently, all tests do not run outside of NAV's internal network, because of dependencies on internal resources. In order to run tests without network or on an external build server, use:
+
+```
+mvn clean install -Plokal
+```
+
+
 
 ## Retrieving Git history
 
