@@ -135,7 +135,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         }
     }
 
-    private String resolveUserId(HttpServletRequest httpServletRequest) {
+    public String resolveUserId(HttpServletRequest httpServletRequest) {
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
