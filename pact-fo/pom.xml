@@ -102,6 +102,7 @@
             <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

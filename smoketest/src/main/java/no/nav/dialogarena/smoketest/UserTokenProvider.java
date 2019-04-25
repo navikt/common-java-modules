@@ -1,8 +1,9 @@
-package no.nav.brukerdialog.security.oidc;
+package no.nav.dialogarena.smoketest;
 
 
 import no.nav.brukerdialog.security.domain.IdTokenAndRefreshToken;
 import no.nav.brukerdialog.security.domain.OidcCredential;
+import no.nav.brukerdialog.security.oidc.*;
 import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
 import no.nav.fasit.FasitUtils;
 import no.nav.fasit.TestUser;
