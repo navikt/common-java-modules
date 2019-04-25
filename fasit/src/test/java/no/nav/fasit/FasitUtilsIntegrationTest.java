@@ -146,7 +146,7 @@ public class FasitUtilsIntegrationTest {
     @Test
     public void getTestUser() {
         TestUser serviceUser = FasitUtils.getTestUser("priveligert_veileder");
-        assertThat(serviceUser.username, equalTo("Z990286"));
+        assertThat(serviceUser.username, equalTo("Z992478"));
         assertThat(serviceUser.password, not(nullValue()));
 
         TestUser serviceUserT4 = FasitUtils.getTestUser("privat_bruker", TEST_ENVIRONMENT);
