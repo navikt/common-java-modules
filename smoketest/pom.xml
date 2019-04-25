@@ -34,12 +34,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>oidc-security</artifactId>
-            <type>test-jar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.common</groupId>
             <artifactId>test-config</artifactId>
             <scope>compile</scope>
         </dependency>

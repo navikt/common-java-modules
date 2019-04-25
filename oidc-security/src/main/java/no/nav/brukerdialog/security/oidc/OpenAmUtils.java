@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 
-class OpenAmUtils {
+public class OpenAmUtils {
 
     public static String getSessionToken(String username, String password, String authorizeUrl, Client client) {
         Response response = client
