@@ -34,4 +34,8 @@ public class RestServiceDTO {
         return exposedby.get("application");
     }
 
+    public String getZone() {
+        return scope.get("zone");
+    }
+
 }

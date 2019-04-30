@@ -15,13 +15,16 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static no.nav.apiapp.util.ObjectUtils.isEqual;
+import static no.nav.sbl.util.StringUtils.isEqualIgnoreCase;
 import static org.slf4j.LoggerFactory.getLogger;
 
 
@@ -170,7 +173,7 @@ public class FasitUtils {
                 .stream()
                 .filter(c -> environment.equals(c.environment))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(String.format("fant ikke '%s' i environment '%s'",
+                .orElseThrow(() -> new IllegalStateException(format("fant ikke '%s' i environment '%s'",
                         alias,
                         environment
                 )));
@@ -201,13 +204,30 @@ public class FasitUtils {
         return bestMatch(getRestServices(alias));
     }
 
+    @Deprecated
     public static RestService getRestService(String alias, String environment) {
+
         return getRestServices(alias)
                 .stream()
                 .filter(r -> isEqual(r.getEnvironment(), environment))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(String.format("did not find %s in %s", alias, environment)));
+                .orElseThrow(() -> new IllegalStateException(format("did not find %s in %s", alias, environment)));
     }
+
+    public static RestService getRestService(String alias, String environment, String zone) {
+        List<RestService> restServices = getRestServices(alias)
+                .stream()
+                .filter(r -> isEqualIgnoreCase(r.getEnvironment(), environment))
+                .filter(r -> isEqualIgnoreCase(r.getZone(), zone))
+                .collect(toList());
+
+        if (restServices.size() != 1) {
+            throw new IllegalStateException(format("did not find exactly one %s in env: %s zone: %s", alias, environment, zone));
+        }
+
+        return restServices.get(0);
+    }
+
 
     public static WebServiceEndpoint getWebServiceEndpoint(String alias) {
         return getWebServiceEndpoint(alias, getDefaultEnvironment());
@@ -370,7 +390,7 @@ public class FasitUtils {
         return matchers
                 .flatMap(p -> scoped.stream().filter(p))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException(String.format(
+                .orElseThrow(() -> new IllegalStateException(format(
                         "no best match for environment=%s or environmentClass=%s among: %s",
                         environment,
                         environmentClass,
