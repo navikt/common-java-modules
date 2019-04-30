@@ -5,6 +5,7 @@ import no.nav.apiapp.selftest.Helsesjekk;
 import no.nav.apiapp.selftest.HelsesjekkMetadata;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.SubjectHandler;
+import no.nav.sbl.dialogarena.common.abac.pep.NavAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
@@ -12,6 +13,7 @@ import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.client.WebTarget;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -22,9 +24,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class VeilarbAbacPepClient implements Helsesjekk {
 
-    private static final String RESOURCE_PERSON = "person";
-    private static final String RESOURCE_ENHET = "enhet";
-    private static final String RESOURCE_PING = "ping";
+    private static final String PATH_PERSON = "person";
+    private static final String PATH_ENHET = "enhet";
+    private static final String PATH_PING = "ping";
 
     private static final String ACTION_READ = "read";
     private static final String ACTION_UPDATE = "update";
@@ -43,6 +45,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
     private String abacTargetUrl;
     private PepClient pepClient;
+    private String veilarbacOverstyrtRessurs;
 
     private VeilarbAbacPepClient() {
     }
@@ -54,8 +57,8 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     public void sjekkLesetilgangTilBruker(Bruker bruker) {
         new TilgangssjekkBruker()
                 .metrikkLogger(logger,ACTION_READ,bruker::getAktoerId)
-                .veilarbAbacFnrSjekker(() -> harVeilarbAbacTilgang(RESOURCE_PERSON, ACTION_READ, IDTYPE_FNR, bruker.getFoedselsnummer()))
-                .veilarbAbacAktoerIdSjekker(() -> harVeilarbAbacTilgang(RESOURCE_PERSON, ACTION_READ, IDTYPE_AKTOR_ID, bruker.getAktoerId()))
+                .veilarbAbacFnrSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_READ, IDTYPE_FNR, bruker.getFoedselsnummer()))
+                .veilarbAbacAktoerIdSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_READ, IDTYPE_AKTOR_ID, bruker.getAktoerId()))
                 .abacFnrSjekker(() -> pepClient.sjekkLeseTilgangTilFnr(bruker.getFoedselsnummer()))
                 .foretrekkVeilarbAbac(foretrekkVeilarbAbacSupplier.get())
                 .brukAktoerId(brukAktoerIdSupplier.get())
@@ -66,8 +69,8 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     public void sjekkSkrivetilgangTilBruker(Bruker bruker) {
         new TilgangssjekkBruker()
                 .metrikkLogger(logger,ACTION_UPDATE, bruker::getAktoerId)
-                .veilarbAbacFnrSjekker(() -> harVeilarbAbacTilgang(RESOURCE_PERSON, ACTION_UPDATE, IDTYPE_FNR, bruker.getFoedselsnummer()))
-                .veilarbAbacAktoerIdSjekker(() -> harVeilarbAbacTilgang(RESOURCE_PERSON, ACTION_UPDATE, IDTYPE_AKTOR_ID, bruker.getAktoerId()))
+                .veilarbAbacFnrSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_UPDATE, IDTYPE_FNR, bruker.getFoedselsnummer()))
+                .veilarbAbacAktoerIdSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_UPDATE, IDTYPE_AKTOR_ID, bruker.getAktoerId()))
                 .abacFnrSjekker(() -> pepClient.sjekkSkriveTilgangTilFnr(bruker.getFoedselsnummer()))
                 .foretrekkVeilarbAbac(foretrekkVeilarbAbacSupplier.get())
                 .brukAktoerId(brukAktoerIdSupplier.get())
@@ -79,7 +82,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
         return new TilgangssjekkEnhet()
                 .metrikkLogger(logger,ACTION_READ,()->enhetId)
-                .veilarbAbacSjekker(() -> harVeilarbAbacTilgang(RESOURCE_ENHET, ACTION_READ, IDTYPE_ENHET_ID, enhetId))
+                .veilarbAbacSjekker(() -> harVeilarbAbacTilgang(PATH_ENHET, ACTION_READ, IDTYPE_ENHET_ID, enhetId))
                 .abacSjekker(() -> harAbacTilgangTilEnhet(enhetId))
                 .foretrekkVeilarbAbac(foretrekkVeilarbAbacSupplier.get())
                 .sammenliknTilgang(sammenliknTilgangSupplier.get())
@@ -90,7 +93,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     @Override
     public void helsesjekk() {
         int status = RestUtils.withClient(c -> c.target(abacTargetUrl)
-                .path(RESOURCE_PING)
+                .path(PATH_PING)
                 .request()
                 .get()
                 .getStatus());
@@ -118,11 +121,11 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         }
     }
 
-    private boolean harVeilarbAbacTilgang(String resource, String action, String idType, String id) {
-        return "permit".equals(RestUtils.withClient(c -> c.target(abacTargetUrl)
-                .path(resource)
+    private boolean harVeilarbAbacTilgang(String path, String action, String idType, String id) {
+        return "permit".equals(RestUtils.withClient(c -> overstyrRessurs(c.target(abacTargetUrl)
+                .path(path)
                 .queryParam(idType, id)
-                .queryParam("action", action)
+                .queryParam("action", action))
                 .request()
                 .header(AUTHORIZATION, "Bearer " + systemUserTokenProvider.get())
                 .header("subject", oidcTokenSupplier.get()
@@ -131,10 +134,20 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         ));
     }
 
+    private WebTarget overstyrRessurs(WebTarget webTarget) {
+        if(veilarbacOverstyrtRessurs !=null) {
+            return webTarget.queryParam("resource", veilarbacOverstyrtRessurs);
+        } else {
+            return webTarget;
+        }
+    }
+
     public static class Builder {
 
         VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
         private Optional<String> veilarbAbacUrl = Optional.empty();
+        private ResourceType resourceType = ResourceType.VeilArbPerson;
+
         private Pep pep;
 
         public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
@@ -177,6 +190,12 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             return this;
         }
 
+        public Builder medResourceTypePerson() {
+            this.resourceType = ResourceType.Person;
+            veilarbAbacPepClient.veilarbacOverstyrtRessurs = NavAttributter.RESOURCE_FELLES_PERSON;
+            return this;
+        }
+
         public VeilarbAbacPepClient bygg() {
             if (veilarbAbacPepClient.systemUserTokenProvider == null) {
                 throw new IllegalStateException("SystemUserTokenProvider er ikke satt");
@@ -185,7 +204,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
                 throw new IllegalStateException("Pep er ikke satt");
             }
 
-            veilarbAbacPepClient.pepClient = new PepClient(pep, "veilarb", ResourceType.VeilArbPerson);
+            veilarbAbacPepClient.pepClient = new PepClient(pep, "veilarb", resourceType);
 
             veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
                     .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
