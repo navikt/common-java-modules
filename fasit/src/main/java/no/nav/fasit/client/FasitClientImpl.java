@@ -141,6 +141,7 @@ public class FasitClientImpl implements FasitClient {
                         .application(dto.getApplication())
                         .environment(dto.getEnvironment())
                         .environmentClass(dto.getEnvironmentClass())
+                        .zone(dto.getZone())
                         .build()
                 ).collect(toList())
         );

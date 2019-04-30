@@ -13,5 +13,6 @@ public class RestService implements Scoped {
     private String environment;
     private String environmentClass;
     private String application;
+    private String zone;
 
 }
