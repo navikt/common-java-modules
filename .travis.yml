@@ -1,4 +1,7 @@
 language: java
+branches:
+  except:
+    - /^[0-9]\.20[0-9].*/
 script:
 - mvn clean install -q -B -Plokal
 - |
