@@ -100,6 +100,9 @@ public class JettyTest {
 
     @SneakyThrows
     public void stopJetty() {
+        if (jettyTest == null) {
+            return;
+        }
         JETTY.server.stop();
         JETTY = null;
     }
