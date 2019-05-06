@@ -1,5 +1,8 @@
 package no.nav.fo.apiapp;
 
+import lombok.Builder;
+import lombok.SneakyThrows;
+import lombok.Value;
 import no.nav.apiapp.ApiApp;
 import no.nav.apiapp.ApiApplication;
 import no.nav.fasit.FasitUtils;
@@ -14,6 +17,7 @@ import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.server.ServerConnector;
 import org.glassfish.jersey.client.ClientProperties;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +45,44 @@ import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.testconfig.util.Util.setProperty;
 
 
-public abstract class JettyTest {
+public class JettyTest {
+
+    private static JettyTest jettyTest;
+
+    @BeforeClass
+    public static void setUp() {
+        jettyTest = new JettyTest().startJetty();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        jettyTest.stopJetty();
+    }
 
     public static boolean DISABLE_AUTH = EnvironmentUtils.getOptionalProperty("DISABLE_AUTH").map(Boolean::parseBoolean).orElse(false);
     public static final String APPLICATION_NAME = "api-app";
 
-    static {
+    private Client client = ClientBuilder.newBuilder()
+            .register(new JsonProvider())
+            .property(ClientProperties.FOLLOW_REDIRECTS, "false")
+            .build();
+
+    private Map<String, NewCookie> cookies = new HashMap<>();
+
+
+    public JettyTest() {
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
                 .applicationName(APPLICATION_NAME)
+                .build()
+        );
+        setupContext();
+    }
+
+    public JettyTest(JettyTestConfig testConfig) {
+        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
+                .applicationName(APPLICATION_NAME)
+                .allowClientStorage(testConfig.isAllowClientStorage())
+                .disablePragmaHeader(testConfig.isDisablePragmaHeader())
                 .build()
         );
         setupContext();
@@ -64,19 +98,18 @@ public abstract class JettyTest {
         return apiApp.getJetty();
     }
 
-    private Client client = ClientBuilder.newBuilder()
-            .register(new JsonProvider())
-            .property(ClientProperties.FOLLOW_REDIRECTS, "false")
-            .build();
+    @SneakyThrows
+    public void stopJetty() {
+        JETTY.server.stop();
+        JETTY = null;
+    }
 
-    private Map<String, NewCookie> cookies = new HashMap<>();
-
-    @BeforeClass
-    public static void startJetty() {
+    public JettyTest startJetty() {
         if (JETTY == null) {
             JETTY = nyJettyForTest(ApplicationConfig.class);
             Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
         }
+        return this;
     }
 
     public static int tilfeldigPort() {
