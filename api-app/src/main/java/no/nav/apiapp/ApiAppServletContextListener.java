@@ -28,7 +28,6 @@ import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.web.security.DisableCacheHeadersFilter;
 import no.nav.sbl.dialogarena.common.web.security.SecurityHeadersFilter;
-import no.nav.sbl.dialogarena.common.web.security.XFrameOptionsFilter;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.util.EnvironmentUtils;
@@ -61,6 +60,7 @@ import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.sbl.util.EnvironmentUtils.getPropertyAsBooleanOrElseFalse;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
 
@@ -108,7 +108,8 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         WebApplicationContext webApplicationContext = startSpring(servletContextEvent);
 
         leggTilFilter(servletContextEvent, new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
-                .allowClientStorage(true)
+                .allowClientStorage(getPropertyAsBooleanOrElseFalse("ALLOW_CLIENT_STORAGE"))
+                .disablePragmaHeader(getPropertyAsBooleanOrElseFalse("DISABLE_PRAGMA_HEADER"))
                 .build()
         ));
 
