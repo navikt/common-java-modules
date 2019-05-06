@@ -24,7 +24,7 @@ script:
       git config --global user.email "travis@travis-ci.org"
       git config --global user.name "Travis CI"
 
-      git remote add common https://"$GH_TOKEN"@github.com/navikt/common-java-modules.git > /dev/null 2>&1
+      git remote add common https://"${GH_TOKEN}"@github.com/navikt/common-java-modules.git > /dev/null 2>&1
 
       git tag -a $VERSION -m $VERSION HEAD
       git push --tags --quiet --set-upstream common PUS-201-legger-paa-tags
