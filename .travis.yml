@@ -1,9 +1,12 @@
 language: java
+branches:
+  except:
+    - /^[0-9]\.20[0-9].*/
 script:
 - mvn clean install -q -B -Plokal
 - |
   set -e
-  if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
+  if [ "$TRAVIS_BRANCH" = 'PUS-201-ikke-bygg-tag' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then
       openssl aes-256-cbc -K $encrypted_4732598df4ca_key -iv $encrypted_4732598df4ca_iv \
         -in travis/codesigning.asc.enc -out travis/codesigning.asc -d
 
@@ -27,7 +30,7 @@ script:
       git remote add common https://${GH_TOKEN}@github.com/navikt/common-java-modules.git > /dev/null 2>&1
 
       git tag -a $VERSION -m $VERSION HEAD
-      git push --tags --quiet --set-upstream common master
+      git push --tags --quiet --set-upstream common PUS-201-ikke-bygg-tag
   fi
 jdk:
 - openjdk8
