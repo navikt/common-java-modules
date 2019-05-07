@@ -142,6 +142,42 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         }
     }
 
+    /**
+     * Bygger VeilarbabacPepClient
+     *
+     * Krever at følgende metoder blir kalt før bygg():
+     * - medPep()
+     * - medSystemUserTokenProvider()
+     *
+     * Standard oppførsel er
+     * - bruker-autorisering: Abac blir kalt med fnr
+     * - enhet-autorisering: Abac blir kalt med enhetId
+     *
+     * Annen oppførsel kan konfigureres med toggle-suppliers:
+     * - A: brukAktoerId(...) Hvis supplier gir true, så brukes aktørId i stedet for fnr. Betyr implisitt kall til Veilarbabac
+     * - S: sammenlikneTilgang(...) Hvis supplier gir true , sammenlikne (hvis relevant) resultatene fra Abac og Veilarbabac og logg evt forskjell
+     * - V: foretrekkVeilarbAbacResultat(...): Hvis supplier gir true og det foreligger resultat fra både Abac og Veilarbabac, fortrekk Veilarbabac
+     *
+     * Effekt av feature toggels for bruker-autorisering:
+     * - (Ingen):   Abac kalles med fnr
+     * - A:         Veilarbabac kalles med aktørId
+     * - A+S:       Veilarbabac kalles med aktørId, Abac kalles med fnr. Avvik i resultat logges. Abac-resultat foretrekkes
+     * - A+V:       Samme som A (bare Veilarbabac som kalles)
+     * - A+S+V:     Veilarbabac kalles med aktørId, Abac kalles med fnr. Avvik i resultat logges. Veilarbabac-resultat foretrekkes
+     * - S:         Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Abac-resultat foretrekkes
+     * - S+V:       Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Veilarbabac-resultat foretrekkes
+     * - V:         Veilarbabac kalles med fnr.
+     *
+     * Effekt av feature toggles for enhet-autorisering:
+     * - (Ingen):   Abac kalles med enhetId
+     * - A:         Abac kalles med enhetId
+     * - A+S:       (Samme som S)
+     * - A+V:       (Samme som V)
+     * - A+S+V:     (Samme som S+V)
+     * - S:         Veilarbabac og Abac kalles med enhetId. Avvik i resultat logges. Abac-resultat foretrekkes
+     * - S+V:       Veilarbabac og Abac kalles med enhet. Avvik i resultat logges. Veilarbabac-resultat foretrekkes
+     * - V:         Veilarbabac kalles med enhetId.
+     **/
     public static class Builder {
 
         VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
@@ -190,6 +226,11 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             return this;
         }
 
+        /**
+         * NavAttributter.RESOURCE_VEILARB_PERSON brukes er standard ressurs mot Abac, og implisitt i Veilarbabac
+         * Kall denne for å bruke NavAttributter.RESOURCE_FELLES_PERSON i stedet
+         * @return Builder
+         */
         public Builder medResourceTypePerson() {
             this.resourceType = ResourceType.Person;
             veilarbAbacPepClient.veilarbacOverstyrtRessurs = NavAttributter.RESOURCE_FELLES_PERSON;
