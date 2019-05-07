@@ -11,13 +11,13 @@ import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class HttpHeaderTest extends JettyTest{
+public class HttpHeaderTest extends JettyTest {
 
-    private JettyTest jettyTest;
+    private JettyTest jettyTestInstance;
 
     @After
-    public void stoppJetty() {
-        jettyTest.stopJetty();
+    public void shutDownJettyInstance() {
+        jettyTestInstance.stopJetty();
     }
 
     @Test
@@ -27,7 +27,7 @@ public class HttpHeaderTest extends JettyTest{
                 .disablePragmaHeader(false)
                 .build();
 
-        jettyTest = new JettyTest(config).startJetty();
+        jettyTestInstance = new JettyTest(config).startJetty();
 
         Response response = get("/api/eksempel");
         sjekkStatus(response,OK);
@@ -41,7 +41,7 @@ public class HttpHeaderTest extends JettyTest{
                 .disablePragmaHeader(true)
                 .build();
 
-        jettyTest = new JettyTest(config).startJetty();
+        jettyTestInstance = new JettyTest(config).startJetty();
 
         Response response = get("/api/eksempel");
         sjekkStatus(response,OK);
@@ -55,7 +55,7 @@ public class HttpHeaderTest extends JettyTest{
                 .allowClientStorage(true)
                 .build();
 
-        jettyTest = new JettyTest(config).startJetty();
+        jettyTestInstance = new JettyTest(config).startJetty();
 
         Response response = get("/api/eksempel");
         sjekkStatus(response,OK);

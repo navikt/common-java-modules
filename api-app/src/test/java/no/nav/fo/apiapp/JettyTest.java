@@ -1,8 +1,6 @@
 package no.nav.fo.apiapp;
 
-import lombok.Builder;
 import lombok.SneakyThrows;
-import lombok.Value;
 import no.nav.apiapp.ApiApp;
 import no.nav.apiapp.ApiApplication;
 import no.nav.fasit.FasitUtils;
@@ -100,7 +98,7 @@ public class JettyTest {
 
     @SneakyThrows
     public void stopJetty() {
-        if (jettyTest == null) {
+        if (jettyTest == null || JETTY == null) {
             return;
         }
         JETTY.server.stop();
