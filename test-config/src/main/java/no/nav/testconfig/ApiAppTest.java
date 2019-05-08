@@ -25,8 +25,10 @@ import javax.validation.constraints.NotEmpty;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Optional;
 
 import static ch.qos.logback.classic.Level.INFO;
+import static java.util.Optional.ofNullable;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -47,6 +49,9 @@ public class ApiAppTest {
     public static class Config {
         @NotEmpty
         public String applicationName;
+
+        public Boolean allowClientStorage;
+        public Boolean disablePragmaHeader;
     }
 
     @SneakyThrows
@@ -65,6 +70,9 @@ public class ApiAppTest {
         setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, environment, PUBLIC);
         setProperty(NAIS_NAMESPACE_PROPERTY_NAME, environment, PUBLIC);
         SSLTestUtils.disableCertificateChecks();
+
+        setProperty("ALLOW_CLIENT_STORAGE", ofNullable(config.allowClientStorage).map(Object::toString).orElse("false"), PUBLIC);
+        setProperty("DISABLE_PRAGMA_HEADER", ofNullable(config.disablePragmaHeader).map(Object::toString).orElse("false"), PUBLIC);
 
         if (isUtviklerImage()) {
             WebProxyConfigurator.setupWebProxy();

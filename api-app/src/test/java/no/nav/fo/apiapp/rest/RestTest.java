@@ -15,24 +15,20 @@ import static javax.ws.rs.core.Response.Status.*;
 import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.json.JsonUtils.fromJson;
 import static no.nav.json.TestUtils.assertEqualJson;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RestTest extends JettyTest {
 
     @Test
     public void get() {
-        assertThat(getString("/api/eksempel"), equalTo("eksempel"));
+        assertThat(getString("/api/eksempel")).isEqualToIgnoringCase("eksempel");
     }
 
     @Test
     public void noCache() {
         Response response = get("/api/eksempel");
         sjekkStatus(response,OK);
-        assertThat(response.getHeaderString(CACHE_CONTROL), equalTo("no-cache"));
+        assertThat(response.getHeaderString(CACHE_CONTROL)).isEqualToIgnoringCase("no-cache, no-store, must-revalidate");
     }
 
     @Test
@@ -70,17 +66,17 @@ public class RestTest extends JettyTest {
     }
 
     private void sjekkStatus(Response response, Response.Status status) {
-        assertThat(response.getStatus(), equalTo(status.getStatusCode()));
+        assertThat(response.getStatus()).isEqualTo(status.getStatusCode());
     }
 
     private void sjekkFeilInformasjon(Response response, FeilType type) {
         String json = response.readEntity(String.class);
         Map<String, Object> feilDTO = fromJson(json, Map.class);
-        assertThat(feilDTO.get("id"), notNullValue());
-        assertThat(feilDTO.get("type"), equalTo(type.name()));
-        assertThat(feilDTO.get("detaljer"), notNullValue());
+        assertThat(feilDTO.get("id")).isNotNull();
+        assertThat(feilDTO.get("type")).isEqualTo(type.name());
+        assertThat(feilDTO.get("detaljer")).isNotNull();
 
-        assertThat(response.getHeaderString(ExceptionMapper.ESCAPE_REDIRECT_HEADER), not(isEmptyOrNullString()));
+        assertThat(response.getHeaderString(ExceptionMapper.ESCAPE_REDIRECT_HEADER)).isNotEmpty();
     }
 
 }
