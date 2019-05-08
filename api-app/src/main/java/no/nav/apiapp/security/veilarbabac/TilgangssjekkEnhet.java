@@ -71,35 +71,39 @@ class TilgangssjekkEnhet {
             veilarbAbacResultat = tryggSjekkTilgangVeilarbAbac();
         }
 
-        return veilarbAbacResultat.orElseGet(() -> abacSjekker.get());
+        return veilarbAbacResultat.orElse(tryggSjekkTilgangAbac().orElse(false));
       }
 
     private boolean sjekkOgSammenliknTilgang() {
 
         Optional<Boolean> veilarbAbacResultat = tryggSjekkTilgangVeilarbAbac();
+        Optional<Boolean> abacResultat = tryggSjekkTilgangAbac();
 
-        boolean abacResultat = abacSjekker.get();
-
-        if (veilarbAbacResultat.isPresent() && abacResultat != veilarbAbacResultat.get()) {
+        if (veilarbAbacResultat.isPresent() && abacResultat.isPresent() && !veilarbAbacResultat.equals(abacResultat)) {
             metrikk.erAvvik();
         }
 
-        if(foretrekkVeilarbAbac && veilarbAbacResultat.isPresent()) {
-            return veilarbAbacResultat.get();
-        } else {
-            return abacResultat;
+        return foretrekkVeilarbAbac
+                ? veilarbAbacResultat.orElse(abacResultat.orElse(false))
+                : abacResultat.orElse(veilarbAbacResultat.orElse(false));
+     }
+
+    private Optional<Boolean> tryggSjekkTilgangAbac() {
+        try {
+            return Optional.of(abacSjekker.get());
+        } catch(Throwable e) {
+            logger.error("Kall mot Abac (enhetId) feiler", e);
         }
+        return Optional.empty();
     }
 
     private Optional<Boolean> tryggSjekkTilgangVeilarbAbac() {
-        Boolean veilarbAbacResultat = null;
-
         try {
-            veilarbAbacResultat = veilarbAbacSjekker.get();
+            return Optional.of(veilarbAbacSjekker.get());
         } catch(Throwable e) {
-            logger.error("Kall mot veilarbAbac feiler", e);
+            logger.error("Kall mot veilarbAbac (enhetId) feiler", e);
         }
-        return Optional.ofNullable(veilarbAbacResultat);
+        return Optional.empty();
     }
 
 }

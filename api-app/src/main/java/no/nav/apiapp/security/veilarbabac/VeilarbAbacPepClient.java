@@ -161,11 +161,11 @@ public class VeilarbAbacPepClient implements Helsesjekk {
      * Effekt av feature toggels for bruker-autorisering:
      * - (Ingen):   Abac kalles med fnr
      * - A:         Veilarbabac kalles med aktørId
-     * - A+S:       Veilarbabac kalles med aktørId, Abac kalles med fnr. Avvik i resultat logges. Abac-resultat foretrekkes
-     * - A+V:       Samme som A (bare Veilarbabac som kalles)
-     * - A+S+V:     Veilarbabac kalles med aktørId, Abac kalles med fnr. Avvik i resultat logges. Veilarbabac-resultat foretrekkes
-     * - S:         Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Abac-resultat foretrekkes
-     * - S+V:       Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Veilarbabac-resultat foretrekkes
+     * - A+S:       Veilarbabac kalles med aktørId, deretter med fnr. Avvik i resultat logges. Fnr-resultat foretrekkes dersom det foreligger
+     * - A+V:       (Samme som A)
+     * - A+S+V:     (Samme som A+S)
+     * - S:         Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Abac-resultat foretrekkes dersom det foreligger
+     * - S+V:       Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Veilarbabac-resultat foretrekkes dersom det foreligger
      * - V:         Veilarbabac kalles med fnr.
      *
      * Effekt av feature toggles for enhet-autorisering:

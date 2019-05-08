@@ -3,6 +3,7 @@ package no.nav.apiapp.security.veilarbabac;
 import no.nav.apiapp.feil.IngenTilgang;
 import org.slf4j.Logger;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static no.nav.apiapp.security.veilarbabac.MetrikkLogger.Tilgangstype.PersonAktoerId;
@@ -70,9 +71,9 @@ class TilgangssjekkBruker {
         } else if (sammenliknTilgang) {
             harTilgang = sjekkOgSammenliknTilgangForFnr();
         } else if (brukAktoerId) {
-            harTilgang = sjekkTilgangTilAktoerId();
+            harTilgang = tryggVeilarbabacAktorIdSjekker().orElse(false);
         } else {
-            harTilgang = sjekkAbacTilgangTilFnr();
+            harTilgang = tryggAbacFnrSjekker().orElse(false);
         }
 
         metrikk.loggMetrikk(brukAktoerId ? PersonAktoerId : PersonFoedselsnummer,foretrekkVeilarbAbac);
@@ -82,52 +83,65 @@ class TilgangssjekkBruker {
         }
     }
 
-    private boolean sjekkTilgangTilAktoerId() {
-        return veilarbabacAktoerIdSjekker.get();
-    }
-
     private boolean sjekkOgSammenliknTilgangForFnr() {
-        Boolean veilarbAbacResultat=null;
+        Optional<Boolean> veilarbAbacResultat = tryggVeilarbabacFnrSjekker();
+        Optional<Boolean> abacResultat = tryggAbacFnrSjekker();
 
-        try {
-            veilarbAbacResultat = veilarbabacFnrSjekker.get();
-        } catch (Throwable e) {
-            // Ignorer feilen. Vi kjører videre med Abac direkte
-            logger.error("Kall mot veilarbAbac feiler", e);
-        }
-
-        boolean abacResultat = sjekkAbacTilgangTilFnr();
-
-        if (veilarbAbacResultat!=null && abacResultat != veilarbAbacResultat) {
+        if (veilarbAbacResultat.isPresent() && abacResultat.isPresent() && !abacResultat.equals(veilarbAbacResultat)) {
             metrikk.erAvvik();
         }
 
-        if(veilarbAbacResultat!=null && foretrekkVeilarbAbac) {
-            return veilarbAbacResultat;
-        } else {
-            return abacResultat;
-        }
-    }
+        return foretrekkVeilarbAbac
+                ? veilarbAbacResultat.orElse(abacResultat.orElse(false))
+                : abacResultat.orElse(veilarbAbacResultat.orElse(false));
+
+      }
 
     private boolean sjekkOgSammenliknTilgangForAktoerIdOgFnr() {
-        boolean fnrResultat = veilarbabacFnrSjekker.get();
-        boolean aktoerIdResultat = veilarbabacAktoerIdSjekker.get();
+        Optional<Boolean> aktoerIdResultat = tryggVeilarbabacAktorIdSjekker();
+        Optional<Boolean> fnrResultat = tryggVeilarbabacFnrSjekker();
 
-        if (fnrResultat != aktoerIdResultat) {
+        if (fnrResultat.isPresent() && aktoerIdResultat.isPresent() && !fnrResultat.equals(aktoerIdResultat)) {
             metrikk.erAvvik();;
         }
 
-        // Stoler mest på fnr-resultatet
+        // Stoler mest på fnr-resultatet hvis begge finnes, men prøver å gi et resultat
+        return fnrResultat.orElse(aktoerIdResultat.orElse(false));
+    }
+
+    private Optional<Boolean> tryggVeilarbabacFnrSjekker() {
+        Optional<Boolean> fnrResultat=Optional.empty();
+
+        try {
+            fnrResultat = Optional.of(veilarbabacFnrSjekker.get());
+        } catch(Throwable e) {
+            logger.error("Kall mot veilarbAbac (fnr) feiler", e);
+        }
         return fnrResultat;
     }
 
-    private boolean sjekkAbacTilgangTilFnr() {
+    private Optional<Boolean> tryggVeilarbabacAktorIdSjekker() {
+        Optional<Boolean> aktoerIdResultat=Optional.empty();
+
         try {
-            abacFnrSjekker.run();
-            return true;
-        } catch (IngenTilgang e) {
-            return false;
+            aktoerIdResultat = Optional.of(veilarbabacAktoerIdSjekker.get());
+        } catch(Throwable e) {
+            // Ignorer feilen. Vi kjører videre med fnr
+            logger.error("Kall mot veilarbAbac (aktørId) feiler", e);
         }
+        return aktoerIdResultat;
     }
 
+    private Optional<Boolean> tryggAbacFnrSjekker() {
+        try {
+            abacFnrSjekker.run();
+            return Optional.of(true);
+        } catch (IngenTilgang e) {
+            return Optional.of(false);
+        }
+        catch(Throwable e) {
+            logger.error("Kall mot abac feiler", e);
+        }
+        return Optional.empty();
+    }
 }
