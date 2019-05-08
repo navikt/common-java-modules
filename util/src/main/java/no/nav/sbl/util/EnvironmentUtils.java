@@ -55,6 +55,13 @@ public class EnvironmentUtils {
         return of(propertyValue);
     }
 
+    public static boolean getPropertyAsBooleanOrElseFalse(String propertyName) {
+        return EnvironmentUtils
+                .getOptionalProperty(propertyName)
+                .map(Boolean::parseBoolean)
+                .orElse(false);
+    }
+
     public static EnviromentClass getEnvironmentClass() {
         return getEnvironmentName()
                 .map(e -> Character.toString(e.charAt(0)).toUpperCase())

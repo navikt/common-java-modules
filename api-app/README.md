@@ -43,4 +43,22 @@ Hvis ikke annotasjonsscanning brukes, legg til følgende i web.xml:
         <listener-class>no.nav.apiapp.ApiAppServletContextListener</listener-class>
     </listener>
 ```
- 
+
+### 3) Konfigurering av HTTP-headere
+
+Som default returnerer api-app headere som slår av all caching på klientsiden:
+
+```
+Cache-Control: no-cache no-store must-revalidate
+Pragma: no-cache
+```
+
+For å tillate lagring av data på klienten kan følgende miljøvariabel settes i applikasjonen:
+
+`ALLOW_CLIENT_STORAGE=true`
+
+Cache-Control-headeren vil da se slik ut: 
+
+`Cache-Control: no-cache`
+
+Man kan også fjerne Pragma-headeren ved å definere `DISABLE_PRAGMA_HEADER=true`
