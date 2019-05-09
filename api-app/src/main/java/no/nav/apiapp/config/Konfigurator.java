@@ -29,6 +29,8 @@ import java.util.function.Consumer;
 
 import static no.nav.apiapp.rest.SwaggerResource.SWAGGER_JSON;
 import static no.nav.apiapp.util.UrlUtils.joinPaths;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.configureAzureAdForExternalUsers;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.configureAzureAdForInternalUsers;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -131,13 +133,26 @@ public class Konfigurator implements ApiAppConfigurator {
     }
 
     @Override
+    @Deprecated
     public ApiAppConfigurator azureADB2CLogin() {
-        return azureADB2CLogin(AzureADB2CConfig.readFromSystemProperties());
+        return azureADB2CLogin(configureAzureAdForExternalUsers());
     }
 
     @Override
+    @Deprecated
     public ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig) {
         return oidcProvider(new AzureADB2CProvider(azureADB2CConfig));
+    }
+
+
+    @Override
+    public ApiAppConfigurator validateAzureAdExternalUserTokens() {
+        return oidcProvider(new AzureADB2CProvider(configureAzureAdForExternalUsers()));
+    }
+
+    @Override
+    public ApiAppConfigurator validateAzureAdInternalUsersTokens() {
+        return oidcProvider(new AzureADB2CProvider(configureAzureAdForInternalUsers()));
     }
 
     @Override

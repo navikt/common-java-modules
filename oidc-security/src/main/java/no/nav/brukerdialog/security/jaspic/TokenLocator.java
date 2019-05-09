@@ -3,9 +3,6 @@ package no.nav.brukerdialog.security.jaspic;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
-import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
-import static no.nav.brukerdialog.security.Constants.REFRESH_TOKEN_COOKIE_NAME;
-
 
 public class TokenLocator {
 

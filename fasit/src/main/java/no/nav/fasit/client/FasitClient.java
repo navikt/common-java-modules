@@ -11,6 +11,7 @@ import java.util.Properties;
 public interface FasitClient {
     String getBaseUrl(GetBaseUrlRequest getBaseUrlRequest);
     OpenAmConfig getOpenAmConfig(String environment);
+    AzureOidcConfig getAzureOidcConfig(String alias, String envClass, FasitUtils.Zone zone);
     List<RestService> getRestServices(String alias);
     WebServiceEndpoint getWebServiceEndpoint(String alias, String environment);
     List<LoadBalancerConfig> getLoadbalancerConfig(String alias);
@@ -92,7 +93,4 @@ public interface FasitClient {
         public String environmentClass;
         public String zone;
     }
-
-
-
 }

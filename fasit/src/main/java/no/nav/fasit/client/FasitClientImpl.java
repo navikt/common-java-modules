@@ -73,6 +73,18 @@ public class FasitClientImpl implements FasitClient {
     }
 
     @Override
+    public AzureOidcConfig getAzureOidcConfig(String alias, String envClass, Zone zone) {
+        String url = format("https://fasit.adeo.no/api/v2/resources?alias=%s&type=AzureOIDC&environmentclass=%s&zone=%s&usage=false&page=0&pr_page=100",
+                alias,
+                envClass,
+                zone.name().toLowerCase()
+        );
+
+        List<AzureOidcConfig> configs = fetchJsonObjects(url, AzureOidcConfig.class);
+        return configs.stream().findFirst().orElseThrow(RuntimeException::new);
+    }
+
+    @Override
     public DbCredentials getDbCredentials(GetDbCredentialsRequest getDbCredentialsRequest) {
         List<ApplicationInstance> applications = fetchJsonObjects(format("https://fasit.adeo.no/api/v2/applicationinstances/application/%s", getDbCredentialsRequest.applicationName), ApplicationInstance.class);
         ApplicationInstance application = applications
