@@ -9,7 +9,7 @@ script:
   MODULES="$(git diff-tree --no-commit-id --name-only -r $COMMIT_HASH | cut -d'/' -f1 | uniq | grep -v '\.' | grep -v CODEOWNERS | tr '\n' ',' | sed 's/,$//')"
   echo "Running tests for modules: $MODULES"
   if [ ! -z "$MODULES" ]; then
-      mvn -q -B -V -pl "$MODULES" -amd verify -Plokal
+      mvn -q -B -V -pl "$MODULES" -amd verify -Plokal | grep -v ERROR
   fi
 - |
   set -e
