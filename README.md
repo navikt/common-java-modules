@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/navikt/common-java-modules.svg?branch=master)](https://travis-ci.com/navikt/common-java-modules)
+
 # NAV common Java modules
 
 These libraries are in use by many applications in NAV.
