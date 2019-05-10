@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/navikt/common-java-modules.svg?branch=master)](https://travis-ci.com/navikt/common-java-modules)
+[![Maven Central](https://img.shields.io/maven-central/v/no.nav.common/bom.svg)](https://search.maven.org/search?q=g:no.nav.common) [![Build Status](https://travis-ci.com/navikt/common-java-modules.svg?branch=master)](https://travis-ci.com/navikt/common-java-modules) 
 
 # NAV common Java modules
 
