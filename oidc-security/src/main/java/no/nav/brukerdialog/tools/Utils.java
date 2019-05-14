@@ -2,6 +2,8 @@ package no.nav.brukerdialog.tools;
 
 
 import no.nav.brukerdialog.security.oidc.OidcTokenException;
+import no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig;
+import no.nav.sbl.util.EnvironmentUtils;
 
 import java.util.List;
 
