@@ -152,7 +152,7 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator validateAzureAdInternalUsersTokens() {
-        return oidcProvider(new AzureADB2CProvider(configureAzureAdForInternalUsers()));
+        return oidcProvider(new InternalUserLoginProvider(configureAzureAdForInternalUsers()));
     }
 
     @Override
