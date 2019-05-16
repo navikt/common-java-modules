@@ -3,7 +3,14 @@ branches:
   except:
     - /^[0-9]\.20[0-9].*/
 script:
-- mvn clean install -q -B -Plokal
+- |
+  set -e
+  COMMIT_HASH="$(git log -1 --invert-grep --grep='Merge' --pretty=format:"%h")"
+  MODULES="$(git diff-tree --no-commit-id --name-only -r $COMMIT_HASH | cut -d'/' -f1 | uniq | grep -v '\.' | grep -v CODEOWNERS | tr '\n' ',' | sed 's/,$//')"
+  echo "Running tests for modules: $MODULES"
+  if [ ! -z "$MODULES" ]; then
+      mvn -q -B -V -pl "$MODULES" -amd verify -Plokal | grep -v ERROR
+  fi
 - |
   set -e
   if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" == 'false' ]; then

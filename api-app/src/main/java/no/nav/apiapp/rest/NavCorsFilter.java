@@ -44,7 +44,7 @@ public class NavCorsFilter implements Filter {
 
     private static String validerSubdomene(String subdomene) {
         if (subdomene.charAt(0) != '.') {
-            throw new IllegalArgumentException("tillatt skal være subdomene, f.eks. '.nav.no' ikke 'nav.no'");
+                throw new IllegalArgumentException("tillatt skal være subdomene, f.eks. '.nav.no' ikke 'nav.no'");
         }
         return subdomene;
     }

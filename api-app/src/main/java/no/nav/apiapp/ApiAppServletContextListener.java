@@ -46,6 +46,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.RequestContextFilter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpSessionEvent;
@@ -132,6 +133,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         leggTilFilter(servletContextEvent, new LogFilter(logFilterConfig));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
         leggTilFilter(servletContextEvent, SecurityHeadersFilter.class);
+        leggTilFilter(servletContextEvent, RequestContextFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
@@ -184,7 +186,6 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     private void konfigurerSpring(ServletContext servletContext) {
         servletContext.setInitParameter(CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
         servletContext.setInitParameter(CONFIG_LOCATION_PARAM, "");
-        servletContext.addListener(RequestContextListener.class);
         contextLoaderListener.setContextInitializers((ApplicationContextInitializer<ConfigurableApplicationContext>) applicationContext -> {
             AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) applicationContext;
             annotationConfigWebApplicationContext.register(apiApplication.getClass());
