@@ -16,18 +16,20 @@ import static java.util.Optional.empty;
 
 public class AzureADB2CProvider implements OidcProvider {
 
-    public static final String AZUREADB2C_OIDC_COOKIE_NAME = "selvbetjening-idtoken";
-    private static final TokenLocator TOKEN_LOCATOR = new TokenLocator(AZUREADB2C_OIDC_COOKIE_NAME, null);
+    private final TokenLocator tokenLocator;
+    private final IdentType identType;
 
     private final String expectedAudience;
     private final JsonWebKeyCache keyCache;
     private final String expectedIssuer;
 
-    public AzureADB2CProvider(AzureADB2CConfig azureADB2CConfig) {
-        this.expectedAudience = azureADB2CConfig.expectedAudience;
-        IssuerMetaData issuerMetaData = RestUtils.withClient(client -> client.target(azureADB2CConfig.discoveryUrl).request().get(IssuerMetaData.class));
+    public AzureADB2CProvider(AzureADB2CConfig config) {
+        this.expectedAudience = config.expectedAudience;
+        IssuerMetaData issuerMetaData = RestUtils.withClient(client -> client.target(config.discoveryUrl).request().get(IssuerMetaData.class));
         this.expectedIssuer = issuerMetaData.issuer;
         this.keyCache = new JsonWebKeyCache(issuerMetaData.jwks_uri, false);
+        this.tokenLocator = new TokenLocator(config.tokenName, null);
+        this.identType = config.identType;
     }
 
     @Override
@@ -42,12 +44,12 @@ public class AzureADB2CProvider implements OidcProvider {
 
     @Override
     public Optional<Key> getVerificationKey(JwtHeader header, CacheMissAction cacheMissAction) {
-        return keyCache.getVerificationKey(header,cacheMissAction);
+        return keyCache.getVerificationKey(header, cacheMissAction);
     }
 
     @Override
     public Optional<String> getToken(HttpServletRequest httpServletRequest) {
-        return TOKEN_LOCATOR.getToken(httpServletRequest);
+        return tokenLocator.getToken(httpServletRequest);
     }
 
     @Override
@@ -62,7 +64,7 @@ public class AzureADB2CProvider implements OidcProvider {
 
     @Override
     public IdentType getIdentType(String token) {
-        return IdentType.EksternBruker;
+        return this.identType;
     }
 
     @SuppressWarnings("unused")

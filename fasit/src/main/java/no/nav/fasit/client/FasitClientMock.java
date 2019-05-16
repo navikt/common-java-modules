@@ -21,6 +21,16 @@ public class FasitClientMock implements FasitClient {
     }
 
     @Override
+    public AzureOidcConfig getAzureOidcConfig(String alias, String envClass, FasitUtils.Zone zone) {
+        AzureOidcConfigProperties properties = AzureOidcConfigProperties.builder()
+                .callbackUri("test-callback-uri")
+                .clientId("test-client-id")
+                .discoveryUri("test-discovery-uri")
+                .build();
+        return AzureOidcConfig.builder().properties(properties).build();
+    }
+
+    @Override
     public List<RestService> getRestServices(String alias) {
         return Collections.singletonList(RestService.builder()
                 .url(mockUrl(alias))

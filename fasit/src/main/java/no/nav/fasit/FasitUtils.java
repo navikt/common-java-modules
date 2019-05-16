@@ -9,13 +9,13 @@ import no.nav.fasit.client.FasitClient;
 import no.nav.fasit.client.FasitClientImpl;
 import no.nav.fasit.client.FasitClientMock;
 import no.nav.fasit.dto.RestService;
+import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
@@ -72,6 +72,10 @@ public class FasitUtils {
     public static String getVariable(String variableName) {
         return ofNullable(System.getProperty(variableName, System.getenv(variableName)))
                 .orElseGet(() -> getVariableFromPropertyFile(variableName));
+    }
+
+    public static AzureOidcConfig getAzureOidcConfig(String alias, Zone zone) {
+        return getFasitClient().getAzureOidcConfig(alias, getDefaultEnvironmentClass(), zone);
     }
 
     private static String getVariableFromPropertyFile(String variableName) {

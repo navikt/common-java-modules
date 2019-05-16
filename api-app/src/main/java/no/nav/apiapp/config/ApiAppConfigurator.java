@@ -23,6 +23,10 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator azureADB2CLogin(AzureADB2CConfig azureADB2CConfig);
     ApiAppConfigurator openAmLogin();
     ApiAppConfigurator openAmLogin(OpenAmConfig openAmConfig);
+
+    ApiAppConfigurator validateAzureAdExternalUserTokens();
+    ApiAppConfigurator validateAzureAdInternalUsersTokens();
+
     ApiAppConfigurator securityTokenServiceLogin();
     ApiAppConfigurator securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig securityTokenServiceOidcProviderConfig);
     ApiAppConfigurator oidcProvider(OidcProvider oidcProvider);

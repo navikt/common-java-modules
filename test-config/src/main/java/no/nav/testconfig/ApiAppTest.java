@@ -11,6 +11,7 @@ import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
+import no.nav.fasit.AzureOidcConfig;
 import no.nav.fasit.FasitUtils;
 import no.nav.fasit.ServiceUserCertificate;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
@@ -25,10 +26,12 @@ import javax.validation.constraints.NotEmpty;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Optional;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.util.Optional.ofNullable;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.INTERNAL_USERS_AZUREAD_B2C_CLIENTID_PROPERTY_NAME;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME;
+import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -52,6 +55,8 @@ public class ApiAppTest {
 
         public Boolean allowClientStorage;
         public Boolean disablePragmaHeader;
+
+        public boolean setUpInternalAzureAdTokenValidation;
     }
 
     @SneakyThrows
@@ -73,6 +78,12 @@ public class ApiAppTest {
 
         setProperty("ALLOW_CLIENT_STORAGE", ofNullable(config.allowClientStorage).map(Object::toString).orElse("false"), PUBLIC);
         setProperty("DISABLE_PRAGMA_HEADER", ofNullable(config.disablePragmaHeader).map(Object::toString).orElse("false"), PUBLIC);
+
+        if (config.setUpInternalAzureAdTokenValidation) {
+            AzureOidcConfig azureOidcConfig = FasitUtils.getAzureOidcConfig("loginservice_oidc", FSS);
+            setProperty(INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME, azureOidcConfig.getProperties().getDiscoveryUri(), PUBLIC);
+            setProperty(INTERNAL_USERS_AZUREAD_B2C_CLIENTID_PROPERTY_NAME, azureOidcConfig.getProperties().getClientId(), PUBLIC);
+        }
 
         if (isUtviklerImage()) {
             WebProxyConfigurator.setupWebProxy();
