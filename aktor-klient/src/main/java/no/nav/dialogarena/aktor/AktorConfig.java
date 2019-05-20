@@ -18,6 +18,7 @@ import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
 public class AktorConfig {
 
     public static final String AKTOER_ENDPOINT_URL = "aktoer.endpoint.url";
+    private static final String AKTOER_ENDPOINT_URL_NAIS = "AKTOER_V2_ENDPOINTURL";
 
     protected static final String FNR_FROM_AKTOR_ID = "fnrFromAktorId";
     protected static final String AKTOR_ID_FROM_FNR = "aktorIdFromFnr";
@@ -43,7 +44,7 @@ public class AktorConfig {
     }
 
     static String getAktorEndpointUrl() {
-        return getRequiredProperty(AKTOER_ENDPOINT_URL);
+        return getRequiredProperty(AKTOER_ENDPOINT_URL, AKTOER_ENDPOINT_URL_NAIS);
     }
 
 }
