@@ -1,6 +1,7 @@
 package no.nav.log;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.utils.IdUtils;
 import no.nav.sbl.util.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.context.EnvironmentAware;
@@ -13,9 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.function.Supplier;
 
+import static no.nav.common.utils.IdUtils.generateId;
 import static no.nav.log.MDCConstants.*;
 import static no.nav.sbl.util.LogUtils.buildMarker;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
@@ -105,7 +106,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         return Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpServletRequest::getHeader)
                 .filter(StringUtils::notNullOrEmpty)
                 .findFirst()
-                .orElseGet(LogFilter::generateId);
+                .orElseGet(IdUtils::generateId);
     }
 
     private void generateUserIdCookie(HttpServletResponse httpServletResponse) {
@@ -145,11 +146,6 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
             }
         }
         return null;
-    }
-
-    private static String generateId() {
-        UUID uuid = UUID.randomUUID();
-        return Long.toHexString(uuid.getMostSignificantBits()) + Long.toHexString(uuid.getLeastSignificantBits());
     }
 
 }
