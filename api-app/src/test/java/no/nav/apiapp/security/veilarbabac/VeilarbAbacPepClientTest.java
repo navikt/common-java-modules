@@ -173,7 +173,7 @@ public class VeilarbAbacPepClientTest {
 
         Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class VeilarbAbacPepClientTest {
 
         Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegex)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
     }
 
     @Test
@@ -217,7 +217,7 @@ public class VeilarbAbacPepClientTest {
         Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
     }
 
     @Test
@@ -241,7 +241,7 @@ public class VeilarbAbacPepClientTest {
         Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
     }
 
     @Test
@@ -258,7 +258,7 @@ public class VeilarbAbacPepClientTest {
         assertTrue(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
         Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
-        Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for %s",ENHET_ID);
+        Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for {}",ENHET_ID);
 
     }
 
@@ -276,7 +276,7 @@ public class VeilarbAbacPepClientTest {
         assertFalse(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
         Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",ENHET_ID);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",ENHET_ID);
     }
 
     @Test
@@ -294,7 +294,7 @@ public class VeilarbAbacPepClientTest {
         assertTrue(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
         Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
-        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for %s",ENHET_ID);
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",ENHET_ID);
     }
 
     @Test

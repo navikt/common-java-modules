@@ -46,7 +46,7 @@ class MetrikkLogger {
         ).increment();
 
         if(erAvvik) {
-            logger.warn("Fikk avvik i tilgang for %s", idSupplier.get());
+            logger.warn("Fikk avvik i tilgang for {}", idSupplier.get());
         }
     }
 
