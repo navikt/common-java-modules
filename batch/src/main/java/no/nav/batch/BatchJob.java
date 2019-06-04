@@ -14,27 +14,22 @@ public class BatchJob {
 
     private static String MDC_JOB_ID = "jobId";
 
-    public static Optional<String> run(Runnable runnable) {
+    public static Optional<Object> runAsyncOnLeader(Runnable runnable) {
         if (isNotLeader()) {
             return Optional.empty();
         }
-        String jobId = generateId();
-        log.info("Running job with jobId {}", jobId);
-        MDC.put(MDC_JOB_ID, jobId);
-        runnable.run();
-        MDC.remove(MDC_JOB_ID);
-        return Optional.of(jobId);
+        return Optional.of(runAsync(runnable));
     }
 
-    public static Optional<String> runAsync(Runnable runnable) {
-        if (isNotLeader()) {
-            return Optional.empty();
-        }
+
+    public static String runAsync(Runnable runnable) {
         String jobId = generateId();
         log.info("Running job with jobId {}", jobId);
-        MDC.put(MDC_JOB_ID, jobId);
-        CompletableFuture.runAsync(runnable);
-        MDC.remove(MDC_JOB_ID);
-        return Optional.of(jobId);
+        CompletableFuture.runAsync(() -> {
+            MDC.put(MDC_JOB_ID, jobId);
+            runnable.run();
+            MDC.remove(MDC_JOB_ID);
+        });
+        return jobId;
     }
 }
