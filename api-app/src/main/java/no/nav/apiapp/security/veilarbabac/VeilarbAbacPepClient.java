@@ -25,7 +25,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class VeilarbAbacPepClient implements Helsesjekk {
 
     private static final String PATH_PERSON = "person";
-    private static final String PATH_ENHET = "enhet";
+    private static final String PATH_ENHET = "veilarbenhet";
     private static final String PATH_PING = "ping";
 
     private static final String ACTION_READ = "read";
