@@ -43,7 +43,7 @@ public class VeilarbAbacPepClientTest {
     private static final String URL_REGEX_AKTOER_ID_WRITE = String.format("/person\\?aktorId=%s&action=update",AKTOER_ID);
     private static final String URL_REGEX_FNR_READ = String.format("/person\\?fnr=%s&action=read",FNR);
     private static final String URL_REGEX_AKTOER_ID_READ = String.format("/person\\?aktorId=%s&action=read",AKTOER_ID);
-    private static final String URL_REGEX_ENHET_READ = String.format("/enhet\\?enhetId=%s&action=read",ENHET_ID);
+    private static final String URL_REGEX_ENHET_READ = String.format("/veilarbenhet\\?enhetId=%s&action=read",ENHET_ID);
 
     private BiasedDecisionResponse PERMIT = new BiasedDecisionResponse(Decision.Permit, new XacmlResponse());
     private BiasedDecisionResponse DENY = new BiasedDecisionResponse(Decision.Deny, new XacmlResponse());
