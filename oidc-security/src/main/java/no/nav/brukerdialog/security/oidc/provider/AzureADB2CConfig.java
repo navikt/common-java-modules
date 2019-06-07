@@ -36,7 +36,7 @@ public class AzureADB2CConfig {
                 .discoveryUrl(getRequiredProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL, AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA))
                 .expectedAudience(getRequiredProperty(EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE, AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME_SKYA))
                 .identType(EksternBruker)
-                .tokenName(AZUREADB2C_OIDC_COOKIE_NAME_FSS)
+                .tokenName(AZUREADB2C_OIDC_COOKIE_NAME_SBS)
                 .build();
     }
 
@@ -45,7 +45,7 @@ public class AzureADB2CConfig {
                 .discoveryUrl(getRequiredProperty(INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME))
                 .expectedAudience(getRequiredProperty(INTERNAL_USERS_AZUREAD_B2C_CLIENTID_PROPERTY_NAME))
                 .identType(InternBruker)
-                .tokenName(AZUREADB2C_OIDC_COOKIE_NAME_SBS)
+                .tokenName(AZUREADB2C_OIDC_COOKIE_NAME_FSS)
                 .build();
     }
 }
