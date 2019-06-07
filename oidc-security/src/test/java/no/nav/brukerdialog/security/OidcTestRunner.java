@@ -38,7 +38,7 @@ public class OidcTestRunner {
         ServiceUser srvveilarbdirigent = FasitUtils.getServiceUser("srvveilarbdemo", applicationName);
         ServiceUser isso_rp_user = FasitUtils.getServiceUser("isso-rp-user", applicationName);
         String redirectlUrl = FasitUtils.getRestService("veilarblogin.redirect-url", FasitUtils.getDefaultEnvironment()).getUrl();
-        AzureOidcConfig oidcEssoConfig = FasitUtils.getAzureOidcConfig("loginservice_oidc", FasitUtils.Zone.FSS);
+        AzureOidcConfig oidcIssoConfig = FasitUtils.getAzureOidcConfig("loginservice_oidc", FasitUtils.Zone.FSS);
 
         setProperty(Constants.ISSO_HOST_URL_PROPERTY_NAME, issoHost);
         setProperty(Constants.ISSO_RP_USER_USERNAME_PROPERTY_NAME, isso_rp_user.getUsername());
@@ -78,8 +78,8 @@ public class OidcTestRunner {
 
         // ISSO (AzureAD)
         AzureADB2CProvider azureADB2CProviderESSO = new AzureADB2CProvider(AzureADB2CConfig.builder()
-                .discoveryUrl(oidcEssoConfig.getProperties().getDiscoveryUri())
-                .expectedAudience(oidcEssoConfig.getProperties().getClientId())
+                .discoveryUrl(oidcIssoConfig.getProperties().getDiscoveryUri())
+                .expectedAudience(oidcIssoConfig.getProperties().getClientId())
                 .identType(IdentType.InternBruker)
                 .tokenName(Constants.AZUREADB2C_OIDC_COOKIE_NAME_FSS)
                 .build()
