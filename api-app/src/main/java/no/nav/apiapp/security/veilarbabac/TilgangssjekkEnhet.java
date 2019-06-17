@@ -79,8 +79,14 @@ class TilgangssjekkEnhet {
         Optional<Boolean> veilarbAbacResultat = tryggSjekkTilgangVeilarbAbac();
         Optional<Boolean> abacResultat = tryggSjekkTilgangAbac();
 
-        if (veilarbAbacResultat.isPresent() && abacResultat.isPresent() && !veilarbAbacResultat.equals(abacResultat)) {
-            metrikk.erAvvik();
+        if(!veilarbAbacResultat.isPresent() && !abacResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac og abac med enhetId. Mangler svar fra begge! Returnerer deny");
+        } else if (!veilarbAbacResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac og abac med enhetId. Mangler svar fra veilarbabac");
+        } else if (!abacResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac og abac med enhetId. Mangler svar fra abac");
+        } else if(!abacResultat.equals(veilarbAbacResultat)) {
+            metrikk.erAvvik("Veilarbabac og abac med enhetId. Veilarbabac gir "+ veilarbAbacResultat.get() + " og abac "+abacResultat.get());
         }
 
         return foretrekkVeilarbAbac

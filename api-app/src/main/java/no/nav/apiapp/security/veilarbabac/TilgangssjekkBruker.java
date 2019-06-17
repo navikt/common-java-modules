@@ -63,7 +63,6 @@ class TilgangssjekkBruker {
 
     void sjekkTilgangTilBruker() {
 
-
         boolean harTilgang;
 
         if (brukAktoerId && sammenliknTilgang) {
@@ -76,7 +75,7 @@ class TilgangssjekkBruker {
             harTilgang = tryggAbacFnrSjekker().orElse(false);
         }
 
-        metrikk.loggMetrikk(brukAktoerId ? PersonAktoerId : PersonFoedselsnummer,foretrekkVeilarbAbac);
+        metrikk.loggMetrikk(brukAktoerId ? PersonAktoerId : PersonFoedselsnummer, foretrekkVeilarbAbac);
 
         if (!harTilgang) {
             throw new IngenTilgang();
@@ -87,8 +86,14 @@ class TilgangssjekkBruker {
         Optional<Boolean> veilarbAbacResultat = tryggVeilarbabacFnrSjekker();
         Optional<Boolean> abacResultat = tryggAbacFnrSjekker();
 
-        if (veilarbAbacResultat.isPresent() && abacResultat.isPresent() && !abacResultat.equals(veilarbAbacResultat)) {
-            metrikk.erAvvik();
+        if(!veilarbAbacResultat.isPresent() && !abacResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac og abac med fnr. Mangler svar fra begge! Returnerer deny");
+        } else if (!veilarbAbacResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac og abac med fnr. Mangler svar fra veilarbabac");
+        } else if (!abacResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac og abac med fnr. Mangler svar fra abac");
+        } else if(!abacResultat.equals(veilarbAbacResultat)) {
+            metrikk.erAvvik("Veilarbabac og abac med fnr. Veilarbabac gir "+ veilarbAbacResultat.get() + " og abac "+abacResultat.get());
         }
 
         return foretrekkVeilarbAbac
@@ -101,12 +106,21 @@ class TilgangssjekkBruker {
         Optional<Boolean> aktoerIdResultat = tryggVeilarbabacAktorIdSjekker();
         Optional<Boolean> fnrResultat = tryggVeilarbabacFnrSjekker();
 
-        if (fnrResultat.isPresent() && aktoerIdResultat.isPresent() && !fnrResultat.equals(aktoerIdResultat)) {
-            metrikk.erAvvik();;
+        if(!fnrResultat.isPresent() && !aktoerIdResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac med aktørId og fnr. Mangler svar for begge! Fallback til abac");
+        } else if(!fnrResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac med aktørId og fnr. Mangler svar for fnr");
+        } else if(!aktoerIdResultat.isPresent()) {
+            metrikk.erAvvik("Veilarbabac med aktørId og fnr. Mangler svar for aktørId");
+        } else if(!fnrResultat.equals(aktoerIdResultat)) {
+            metrikk.erAvvik("Veilarbabac med aktørId og fnr. Fnr gir "+ fnrResultat.get() + " og aktørId "+aktoerIdResultat);
         }
 
-        // Stoler mest på fnr-resultatet hvis begge finnes, men prøver å gi et resultat
-        return fnrResultat.orElse(aktoerIdResultat.orElse(false));
+        // Stoler mest på fnr-resultatet hvis begge finnes, men prøver å gi et resultat. Abac som fallback
+        return fnrResultat
+                .orElse(aktoerIdResultat
+                        .orElseGet(()->tryggAbacFnrSjekker()
+                                .orElse(false)));
     }
 
     private Optional<Boolean> tryggVeilarbabacFnrSjekker() {
@@ -126,7 +140,6 @@ class TilgangssjekkBruker {
         try {
             aktoerIdResultat = Optional.of(veilarbabacAktoerIdSjekker.get());
         } catch(Throwable e) {
-            // Ignorer feilen. Vi kjører videre med fnr
             logger.error("Kall mot veilarbAbac (aktørId) feiler", e);
         }
         return aktoerIdResultat;
