@@ -22,7 +22,7 @@ import static no.nav.apiapp.util.UrlUtils.clusterUrlForApplication;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class VeilarbAbacPepClient implements Helsesjekk {
+public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
 
     private static final String PATH_PERSON = "person";
     private static final String PATH_ENHET = "veilarbenhet";
@@ -46,7 +46,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     private String abacTargetUrl;
     private PepClient pepClient;
     private String veilarbacOverstyrtRessurs;
-    private Builder builder;
+    private Builder endringsbygger;
 
     private VeilarbAbacPepClient() {
     }
@@ -55,7 +55,13 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         return new Builder();
     }
 
-    public Builder endre() { return this.builder; }
+    public Builder endre() {
+        if(endringsbygger==null) {
+            throw new IllegalStateException("Kan ikke endre VeilarbPepClient. Mangler endringsbygger");
+        }
+
+        return endringsbygger;
+    }
 
     public void sjekkLesetilgangTilBruker(Bruker bruker) {
         new TilgangssjekkBruker()
@@ -181,14 +187,15 @@ public class VeilarbAbacPepClient implements Helsesjekk {
      * - S+V:       Veilarbabac og Abac kalles med enhet. Avvik i resultat logges. Veilarbabac-resultat foretrekkes
      * - V:         Veilarbabac kalles med enhetId.
      **/
-    public static class Builder {
+    public static class Builder implements Cloneable {
 
+        private VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
         private Optional<String> veilarbAbacUrl = Optional.empty();
         private ResourceType resourceType = ResourceType.VeilArbPerson;
 
         private Pep pep;
 
-        public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
+         public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
             veilarbAbacPepClient.brukAktoerIdSupplier = featureToggleSupplier;
             return this;
         }
@@ -239,6 +246,11 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             return this;
         }
 
+        /**
+         * NavAttributter.RESOURCE_VEILARB_PERSON brukes er standard ressurs mot Abac, og implisitt i Veilarbabac
+         * Kall denne for å bruke NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING i stedet
+         * @return Builder
+         */
         public Builder medResourceTypeUnderOppfolging() {
             this.resourceType = ResourceType.VeilArbUnderOppfolging;
             veilarbAbacPepClient.veilarbacOverstyrtRessurs = NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING;
@@ -246,11 +258,10 @@ public class VeilarbAbacPepClient implements Helsesjekk {
         }
 
         public VeilarbAbacPepClient bygg() {
-            VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
-
             if (veilarbAbacPepClient.systemUserTokenProvider == null) {
                 throw new IllegalStateException("SystemUserTokenProvider er ikke satt");
             }
+
             if (this.pep == null) {
                 throw new IllegalStateException("Pep er ikke satt");
             }
@@ -258,9 +269,16 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             veilarbAbacPepClient.pepClient = new PepClient(pep, "veilarb", resourceType);
 
             veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
-                    .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
+                        .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
 
-            veilarbAbacPepClient.builder = this;
+            try {
+                Builder endringsbygger =  (Builder)this.clone();
+                endringsbygger.veilarbAbacPepClient = (VeilarbAbacPepClient) veilarbAbacPepClient.clone();
+                veilarbAbacPepClient.endringsbygger = endringsbygger;
+
+            } catch(CloneNotSupportedException e) {
+                throw new IllegalStateException("Klarte ikke å klone for endringsbygging",e);
+            }
 
             return veilarbAbacPepClient;
         }
