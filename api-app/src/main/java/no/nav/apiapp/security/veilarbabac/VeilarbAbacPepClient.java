@@ -46,6 +46,7 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     private String abacTargetUrl;
     private PepClient pepClient;
     private String veilarbacOverstyrtRessurs;
+    private Builder builder;
 
     private VeilarbAbacPepClient() {
     }
@@ -53,6 +54,8 @@ public class VeilarbAbacPepClient implements Helsesjekk {
     public static Builder ny() {
         return new Builder();
     }
+
+    public Builder endre() { return this.builder; }
 
     public void sjekkLesetilgangTilBruker(Bruker bruker) {
         new TilgangssjekkBruker()
@@ -180,7 +183,6 @@ public class VeilarbAbacPepClient implements Helsesjekk {
      **/
     public static class Builder {
 
-        VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
         private Optional<String> veilarbAbacUrl = Optional.empty();
         private ResourceType resourceType = ResourceType.VeilArbPerson;
 
@@ -237,7 +239,15 @@ public class VeilarbAbacPepClient implements Helsesjekk {
             return this;
         }
 
+        public Builder medResourceTypeUnderOppfolging() {
+            this.resourceType = ResourceType.VeilArbUnderOppfolging;
+            veilarbAbacPepClient.veilarbacOverstyrtRessurs = NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING;
+            return this;
+        }
+
         public VeilarbAbacPepClient bygg() {
+            VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
+
             if (veilarbAbacPepClient.systemUserTokenProvider == null) {
                 throw new IllegalStateException("SystemUserTokenProvider er ikke satt");
             }
@@ -249,6 +259,8 @@ public class VeilarbAbacPepClient implements Helsesjekk {
 
             veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
                     .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
+
+            veilarbAbacPepClient.builder = this;
 
             return veilarbAbacPepClient;
         }
