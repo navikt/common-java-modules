@@ -236,7 +236,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
         }
 
         /**
-         * NavAttributter.RESOURCE_VEILARB_PERSON brukes er standard ressurs mot Abac, og implisitt i Veilarbabac
+         * NavAttributter.RESOURCE_VEILARB_PERSON er standard ressurs mot Abac, og implisitt i Veilarbabac
          * Kall denne for å bruke NavAttributter.RESOURCE_FELLES_PERSON i stedet
          * @return Builder
          */
@@ -247,7 +247,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
         }
 
         /**
-         * NavAttributter.RESOURCE_VEILARB_PERSON brukes er standard ressurs mot Abac, og implisitt i Veilarbabac
+         * NavAttributter.RESOURCE_VEILARB_PERSON er standard ressurs mot Abac, og implisitt i Veilarbabac
          * Kall denne for å bruke NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING i stedet
          * @return Builder
          */
