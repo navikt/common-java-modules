@@ -195,7 +195,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
 
         private Pep pep;
 
-         public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
+        public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
             veilarbAbacPepClient.brukAktoerIdSupplier = featureToggleSupplier;
             return this;
         }
