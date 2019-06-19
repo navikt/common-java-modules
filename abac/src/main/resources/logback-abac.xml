@@ -26,4 +26,21 @@
         <appender-ref ref="tjenestekall-abac-async-file"/>
     </logger>
 
+    <appender name="auditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%m%n%xEx</pattern>
+        </layout>
+
+        <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
+            <host>audit.nais</host>
+            <port>6514</port>
+            <ident>${applicationName}</ident>
+            <maxMessageLength>128000</maxMessageLength>
+        </syslogConfig>
+    </appender>
+
+    <logger level="INFO" name="auditLogger" additivity="false">
+        <appender-ref ref="auditLogger" />
+    </logger>
+
 </included>
