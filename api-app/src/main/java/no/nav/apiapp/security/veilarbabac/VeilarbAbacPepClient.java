@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.client.WebTarget;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
@@ -22,7 +23,7 @@ import static no.nav.apiapp.util.UrlUtils.clusterUrlForApplication;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
+public class VeilarbAbacPepClient implements Helsesjekk {
 
     private static final String PATH_PERSON = "person";
     private static final String PATH_ENHET = "veilarbenhet";
@@ -46,7 +47,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
     private String abacTargetUrl;
     private PepClient pepClient;
     private String veilarbacOverstyrtRessurs;
-    private Builder endringsbygger;
+    private Builder kopiBygger;
 
     private VeilarbAbacPepClient() {
     }
@@ -56,11 +57,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
     }
 
     public Builder endre() {
-        if (endringsbygger == null) {
-            throw new IllegalStateException("Kan ikke endre VeilarbPepClient. Mangler endringsbygger");
-        }
-
-        return endringsbygger;
+        return kopiBygger;
     }
 
     public void sjekkLesetilgangTilBruker(Bruker bruker) {
@@ -187,51 +184,68 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
      * - S+V:       Veilarbabac og Abac kalles med enhet. Avvik i resultat logges. Veilarbabac-resultat foretrekkes
      * - V:         Veilarbabac kalles med enhetId.
      **/
-    public static class Builder implements Cloneable {
+    public static class Builder {
 
         private VeilarbAbacPepClient veilarbAbacPepClient = new VeilarbAbacPepClient();
-        private Optional<String> veilarbAbacUrl = Optional.empty();
+        private String veilarbAbacUrl = null;
         private ResourceType resourceType = ResourceType.VeilArbPerson;
-
         private Pep pep;
 
-        public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
+        private final Builder kopiBuilder;
+
+        private Builder() {
+            this(true);
+        }
+
+        private Builder(boolean erOriginal) {
+           kopiBuilder = erOriginal ? new Builder(false) : null;
+        }
+
+         public Builder brukAktoerId(Supplier<Boolean> featureToggleSupplier) {
             veilarbAbacPepClient.brukAktoerIdSupplier = featureToggleSupplier;
+            hvisKopiBuilder(b->b.brukAktoerId(featureToggleSupplier));
             return this;
         }
 
         public Builder sammenlikneTilgang(Supplier<Boolean> featureToggleSupplier) {
             veilarbAbacPepClient.sammenliknTilgangSupplier = featureToggleSupplier;
+            hvisKopiBuilder(b->b.sammenlikneTilgang(featureToggleSupplier));
             return this;
         }
 
         public Builder foretrekkVeilarbAbacResultat(Supplier<Boolean> featureToggleSupplier) {
             veilarbAbacPepClient.foretrekkVeilarbAbacSupplier = featureToggleSupplier;
+            hvisKopiBuilder(b->b.foretrekkVeilarbAbacResultat(featureToggleSupplier));
             return this;
         }
 
         public Builder medPep(Pep pep) {
             this.pep = pep;
+            hvisKopiBuilder(b->b.pep = pep);
             return this;
         }
 
         public Builder medVeilarbAbacUrl(String url) {
-            veilarbAbacUrl = Optional.of(url);
+            veilarbAbacUrl = url;
+            hvisKopiBuilder(b->b.veilarbAbacUrl = url);
             return this;
         }
 
         public Builder medLogger(Logger logger) {
             veilarbAbacPepClient.logger = logger;
+            hvisKopiBuilder(b->b.medLogger(logger));
             return this;
         }
 
         public Builder medSystemUserTokenProvider(Supplier<String> systemUserTokenProvider) {
             veilarbAbacPepClient.systemUserTokenProvider = systemUserTokenProvider;
+            hvisKopiBuilder(b->b.medSystemUserTokenProvider(systemUserTokenProvider));
             return this;
         }
 
         public Builder medOidcTokenProvider(Supplier<Optional<String>> oidcTokenSupplier) {
             veilarbAbacPepClient.oidcTokenSupplier = oidcTokenSupplier;
+            hvisKopiBuilder(b->b.medOidcTokenProvider(oidcTokenSupplier));
             return this;
         }
 
@@ -244,6 +258,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
         public Builder medResourceTypePerson() {
             this.resourceType = ResourceType.Person;
             veilarbAbacPepClient.veilarbacOverstyrtRessurs = NavAttributter.RESOURCE_FELLES_PERSON;
+            hvisKopiBuilder(Builder::medResourceTypePerson);
             return this;
         }
 
@@ -256,6 +271,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
         public Builder medResourceTypeUnderOppfolging() {
             this.resourceType = ResourceType.VeilArbUnderOppfolging;
             veilarbAbacPepClient.veilarbacOverstyrtRessurs = NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING;
+            hvisKopiBuilder(Builder::medResourceTypeUnderOppfolging);
             return this;
         }
 
@@ -270,20 +286,21 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
 
             veilarbAbacPepClient.pepClient = new PepClient(pep, "veilarb", resourceType);
 
-            veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
-                    .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
+            veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl == null
+                    ? clusterUrlForApplication("veilarbabac") : veilarbAbacUrl;
 
-            try {
-                Builder endringsbygger = (Builder) this.clone();
-                endringsbygger.veilarbAbacPepClient = (VeilarbAbacPepClient) veilarbAbacPepClient.clone();
-                veilarbAbacPepClient.endringsbygger = endringsbygger;
-
-            } catch (CloneNotSupportedException e) {
-                throw new IllegalStateException("Klarte ikke å klone for endringsbygging", e);
-            }
+            hvisKopiBuilder(b->veilarbAbacPepClient.kopiBygger = b);
 
             return veilarbAbacPepClient;
         }
+
+        private void hvisKopiBuilder(Consumer<Builder> oppdatering) {
+            if(kopiBuilder!=null) {
+                oppdatering.accept(kopiBuilder);
+            }
+        }
+
+
     }
 
 }
