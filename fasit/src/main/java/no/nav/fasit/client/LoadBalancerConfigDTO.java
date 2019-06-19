@@ -13,6 +13,7 @@ public class LoadBalancerConfigDTO {
 
     public Scope scope;
     public Properties properties;
+    public String alias;
 
     @Data
     @Accessors(chain = true)

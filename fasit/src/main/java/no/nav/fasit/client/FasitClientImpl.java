@@ -209,6 +209,7 @@ public class FasitClientImpl implements FasitClient {
                 .request()
                 .get(LoadBalancerConfigDTO.LIST_TYPE)
                 .stream()
+                .filter(dto->alias!=null && alias.equals(dto.alias))
                 .map(dto -> new LoadBalancerConfig()
                         .setContextRoots(dto.properties.contextRoots)
                         .setUrl(dto.properties.url)
