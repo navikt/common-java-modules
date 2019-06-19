@@ -14,7 +14,7 @@ public class BatchJob {
 
     private static String MDC_JOB_ID = "jobId";
 
-    public static Optional<Object> runAsyncOnLeader(Runnable runnable) {
+    public static Optional<String> runAsyncOnLeader(Runnable runnable) {
         if (isNotLeader()) {
             return Optional.empty();
         }
