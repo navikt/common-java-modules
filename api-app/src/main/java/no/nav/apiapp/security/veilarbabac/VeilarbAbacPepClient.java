@@ -56,7 +56,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
     }
 
     public Builder endre() {
-        if(endringsbygger==null) {
+        if (endringsbygger == null) {
             throw new IllegalStateException("Kan ikke endre VeilarbPepClient. Mangler endringsbygger");
         }
 
@@ -65,7 +65,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
 
     public void sjekkLesetilgangTilBruker(Bruker bruker) {
         new TilgangssjekkBruker()
-                .metrikkLogger(logger,ACTION_READ,bruker::getAktoerId)
+                .metrikkLogger(logger, ACTION_READ, bruker::getAktoerId)
                 .veilarbAbacFnrSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_READ, IDTYPE_FNR, bruker.getFoedselsnummer()))
                 .veilarbAbacAktoerIdSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_READ, IDTYPE_AKTOR_ID, bruker.getAktoerId()))
                 .abacFnrSjekker(() -> pepClient.sjekkLeseTilgangTilFnr(bruker.getFoedselsnummer()))
@@ -77,7 +77,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
 
     public void sjekkSkrivetilgangTilBruker(Bruker bruker) {
         new TilgangssjekkBruker()
-                .metrikkLogger(logger,ACTION_UPDATE, bruker::getAktoerId)
+                .metrikkLogger(logger, ACTION_UPDATE, bruker::getAktoerId)
                 .veilarbAbacFnrSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_UPDATE, IDTYPE_FNR, bruker.getFoedselsnummer()))
                 .veilarbAbacAktoerIdSjekker(() -> harVeilarbAbacTilgang(PATH_PERSON, ACTION_UPDATE, IDTYPE_AKTOR_ID, bruker.getAktoerId()))
                 .abacFnrSjekker(() -> pepClient.sjekkSkriveTilgangTilFnr(bruker.getFoedselsnummer()))
@@ -90,7 +90,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
     public boolean harTilgangTilEnhet(String enhetId) {
 
         return new TilgangssjekkEnhet()
-                .metrikkLogger(logger,ACTION_READ,()->enhetId)
+                .metrikkLogger(logger, ACTION_READ, () -> enhetId)
                 .veilarbAbacSjekker(() -> harVeilarbAbacTilgang(PATH_ENHET, ACTION_READ, IDTYPE_ENHET_ID, enhetId))
                 .abacSjekker(() -> harAbacTilgangTilEnhet(enhetId))
                 .foretrekkVeilarbAbac(foretrekkVeilarbAbacSupplier.get())
@@ -144,7 +144,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
     }
 
     private WebTarget overstyrRessurs(WebTarget webTarget) {
-        if(veilarbacOverstyrtRessurs !=null) {
+        if (veilarbacOverstyrtRessurs != null) {
             return webTarget.queryParam("resource", veilarbacOverstyrtRessurs);
         } else {
             return webTarget;
@@ -153,20 +153,20 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
 
     /**
      * Bygger VeilarbabacPepClient
-     *
+     * <p>
      * Krever at følgende metoder blir kalt før bygg():
      * - medPep()
      * - medSystemUserTokenProvider()
-     *
+     * <p>
      * Standard oppførsel er
      * - bruker-autorisering: Abac blir kalt med fnr
      * - enhet-autorisering: Abac blir kalt med enhetId
-     *
+     * <p>
      * Annen oppførsel kan konfigureres med toggle-suppliers:
      * - A: brukAktoerId(...) Hvis supplier gir true, så brukes aktørId i stedet for fnr. Betyr implisitt kall til Veilarbabac
      * - S: sammenlikneTilgang(...) Hvis supplier gir true , sammenlikne (hvis relevant) resultatene fra Abac og Veilarbabac og logg evt forskjell
      * - V: foretrekkVeilarbAbacResultat(...): Hvis supplier gir true og det foreligger resultat fra både Abac og Veilarbabac, fortrekk Veilarbabac
-     *
+     * <p>
      * Effekt av feature toggels for bruker-autorisering:
      * - (Ingen):   Abac kalles med fnr
      * - A:         Veilarbabac kalles med aktørId
@@ -176,7 +176,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
      * - S:         Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Abac-resultat foretrekkes dersom det foreligger
      * - S+V:       Veilarbabac og Abac kalles med fnr. Avvik i resultat logges. Veilarbabac-resultat foretrekkes dersom det foreligger
      * - V:         Veilarbabac kalles med fnr.
-     *
+     * <p>
      * Effekt av feature toggles for enhet-autorisering:
      * - (Ingen):   Abac kalles med enhetId
      * - A:         Abac kalles med enhetId
@@ -238,6 +238,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
         /**
          * NavAttributter.RESOURCE_VEILARB_PERSON er standard ressurs mot Abac, og implisitt i Veilarbabac
          * Kall denne for å bruke NavAttributter.RESOURCE_FELLES_PERSON i stedet
+         *
          * @return Builder
          */
         public Builder medResourceTypePerson() {
@@ -249,6 +250,7 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
         /**
          * NavAttributter.RESOURCE_VEILARB_PERSON er standard ressurs mot Abac, og implisitt i Veilarbabac
          * Kall denne for å bruke NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING i stedet
+         *
          * @return Builder
          */
         public Builder medResourceTypeUnderOppfolging() {
@@ -269,15 +271,15 @@ public class VeilarbAbacPepClient implements Helsesjekk, Cloneable {
             veilarbAbacPepClient.pepClient = new PepClient(pep, "veilarb", resourceType);
 
             veilarbAbacPepClient.abacTargetUrl = veilarbAbacUrl
-                        .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
+                    .orElseGet(() -> clusterUrlForApplication("veilarbabac"));
 
             try {
-                Builder endringsbygger =  (Builder)this.clone();
+                Builder endringsbygger = (Builder) this.clone();
                 endringsbygger.veilarbAbacPepClient = (VeilarbAbacPepClient) veilarbAbacPepClient.clone();
                 veilarbAbacPepClient.endringsbygger = endringsbygger;
 
-            } catch(CloneNotSupportedException e) {
-                throw new IllegalStateException("Klarte ikke å klone for endringsbygging",e);
+            } catch (CloneNotSupportedException e) {
+                throw new IllegalStateException("Klarte ikke å klone for endringsbygging", e);
             }
 
             return veilarbAbacPepClient;
