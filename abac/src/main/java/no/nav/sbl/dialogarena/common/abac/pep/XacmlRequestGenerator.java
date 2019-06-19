@@ -61,6 +61,8 @@ class XacmlRequestGenerator {
                 return Resources.makeVeilArbResource(requestData);
             case VeilArbPerson:
                 return Resources.makeVeilArbPersonResource(requestData);
+            case VeilArbUnderOppfolging:
+                return Resources.makeVeilArbUnderOppfolgingResource(requestData);
             case Modia:
                 return Resources.makeModiaResource(requestData);
             case Enhet:

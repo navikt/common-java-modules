@@ -327,6 +327,39 @@ public class VeilarbAbacPepClientTest {
         WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrt)));
     }
 
+    @Test
+    public void testEndring() {
+        String urlRegexAktoerIdReadOverstyrtPerson = URL_REGEX_AKTOER_ID_READ
+                + "&resource="+NavAttributter.RESOURCE_FELLES_PERSON;
+
+        String urlRegexAktoerIdReadOverstyrtUnderOppfolging = URL_REGEX_AKTOER_ID_READ
+                + "&resource="+NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING;
+
+        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtPerson, "permit");
+        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtUnderOppfolging, "permit");
+
+        VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
+                .brukAktoerId(()->true)
+                .medResourceTypePerson()
+                .bygg();
+
+        VeilarbAbacPepClient veilarbAbacPepClient2 = veilarbAbacPepClient
+                .endre()
+                .medResourceTypeUnderOppfolging()
+                .bygg();
+
+        veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtPerson)));
+        WireMock.verify(0, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtUnderOppfolging)));
+
+        veilarbAbacPepClient2.sjekkLesetilgangTilBruker(BRUKER);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtPerson)));
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtUnderOppfolging)));
+
+        veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
+        WireMock.verify(2, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtPerson)));
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtUnderOppfolging)));
+    }
 
     private void lagVeilarbAbacResponse(String pathRegex, String response) {
         givenThat(get(urlMatching(pathRegex))
