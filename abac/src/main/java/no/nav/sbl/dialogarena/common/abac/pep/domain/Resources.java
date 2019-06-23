@@ -67,4 +67,12 @@ public class Resources {
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, requestData.getFnr()));
         return resource;
     }
+
+    public static Resource makeVeilArbUnderOppfolgingResource(RequestData requestData) {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, requestData.getFnr()));
+        return resource;
+    }
 }

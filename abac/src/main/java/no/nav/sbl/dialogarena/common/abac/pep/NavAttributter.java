@@ -70,6 +70,7 @@ public final class NavAttributter {
     public static final String RESOURCE_VEILARB_KONTOR_LAAS = "no.nav.abac.attributter.resource.veilarb.kontor_laas";
     public static final String RESOURCE_VEILARB_OPPFOELGINGSENHET = "no.nav.abac.attributter.resource.veilarb.oppfoelgingsenhet";
     public static final String RESOURCE_VEILARB_PERSON = "no.nav.abac.attributter.resource.veilarb.person";
+    public static final String RESOURCE_VEILARB_UNDER_OPPFOLGING = "no.nav.abac.attributter.resource.veilarb.under_oppfoelging";
     public static final String SUBJECT_FELLES_AKTOERID_SUBJECT = "no.nav.abac.attributter.subject.felles.aktoerId_subject";
     public static final String SUBJECT_FELLES_ALDER = "no.nav.abac.attributter.subject.felles.alder";
     public static final String SUBJECT_FELLES_AUTHENTICATIONLEVEL = "no.nav.abac.attributter.subject.felles.authenticationLevel";
