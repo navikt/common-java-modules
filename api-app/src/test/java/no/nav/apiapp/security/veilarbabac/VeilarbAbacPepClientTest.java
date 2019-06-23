@@ -356,8 +356,8 @@ public class VeilarbAbacPepClientTest {
         String urlRegexAktoerIdReadOverstyrtUnderOppfolging = URL_REGEX_AKTOER_ID_READ
                 + "&resource="+NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING;
 
-        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtPerson, "permit");
-        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtUnderOppfolging, "permit");
+        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtPerson, 200,"permit");
+        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtUnderOppfolging, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .brukAktoerId(()->true)
