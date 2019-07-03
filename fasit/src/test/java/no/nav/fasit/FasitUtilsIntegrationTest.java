@@ -160,11 +160,6 @@ public class FasitUtilsIntegrationTest {
         FasitUtilsTest.testServiceUserCertificate(serviceUserCertificate);
     }
 
-    @Test(expected = NotAuthorizedException.class)
-    public void getPCertificate() throws Exception {
-        FasitUtils.getServiceUserCertificate("srvHenvendelse", "p");
-    }
-
     @Test
     public void getRestServices_() throws Exception {
         String alias = "veilarbjobbsokerkompetanseRS";
