@@ -268,10 +268,10 @@ public class VeilarbAbacPepClient implements Helsesjekk {
          *
          * @return Builder
          */
-        public Builder medResourceTypeUnderOppfolging() {
+        public Builder medResourceTypeUnderOppfolgingNiva3() {
             this.resourceType = ResourceType.VeilArbUnderOppfolging;
             veilarbAbacPepClient.veilarbacOverstyrtRessurs = NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING;
-            hvisKopiBuilder(Builder::medResourceTypeUnderOppfolging);
+            hvisKopiBuilder(Builder::medResourceTypeUnderOppfolgingNiva3);
             return this;
         }
 
