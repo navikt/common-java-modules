@@ -345,7 +345,7 @@ public class VeilarbAbacPepClientTest {
 
         VeilarbAbacPepClient veilarbAbacPepClient2 = veilarbAbacPepClient
                 .endre()
-                .medResourceTypeUnderOppfolging()
+                .medResourceTypeUnderOppfolgingNiva3()
                 .bygg();
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
