@@ -1076,7 +1076,7 @@
                 <groupId>com.oracle.jdbc</groupId>
                 <artifactId>ojdbc6</artifactId>
                 <version>11.2.0.4</version>
-                <scope>runtime</scope>
+                <scope>test</scope>
             </dependency>
 
 
