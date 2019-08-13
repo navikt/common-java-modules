@@ -13,9 +13,9 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.support.StaticApplicationContext;
 
 import javax.ws.rs.client.Client;
@@ -59,7 +59,7 @@ public class IntegrationTest {
     private Server producerServer;
     private Server consumerServer;
 
-    @Before
+    @BeforeEach
     public void before() {
         producerServer = new Server(PRODUCER_PORT);
         consumerServer = new Server(CONSUMER_PORT);
@@ -71,7 +71,7 @@ public class IntegrationTest {
         );
     }
 
-    @After
+    @AfterEach
     public void after() {
         producerServer.server.shutdownNow();
         consumerServer.server.shutdownNow();
