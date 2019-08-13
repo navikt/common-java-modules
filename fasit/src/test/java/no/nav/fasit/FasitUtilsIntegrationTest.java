@@ -4,6 +4,7 @@ import no.nav.fasit.dto.RestService;
 import no.nav.sbl.dialogarena.test.FasitAssumption;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.NotAuthorizedException;
@@ -28,6 +29,7 @@ import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
+@Ignore
 public class FasitUtilsIntegrationTest {
 
     private String TEST_ENVIRONMENT = "q6";
