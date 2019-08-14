@@ -5,7 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -32,6 +35,8 @@ public class EnvironmentUtils {
 
     public static final String JBOSS_PROPERTY_KEY = "jboss.home.dir";
 
+    public static final String CONFIGMAP_NAME = getOptionalProperty("CONFIGMAP_NAME").orElse(null);
+
     public static void setProperty(String name, String value, Type type) {
         LOGGER.info("{}={}", name, type.format(value));
         System.setProperty(name, value);
@@ -42,6 +47,7 @@ public class EnvironmentUtils {
                 .orElseThrow(() -> new IllegalStateException(createErrorMessage(propertyName, otherPropertyNames)));
     }
 
+    @SneakyThrows
     public static Optional<String> getOptionalProperty(String propertyName, String... otherPropertyNames) {
         String propertyValue = EnvironmentUtils.getProperty(propertyName);
         if (nullOrEmpty(propertyValue) && otherPropertyNames != null) {
@@ -50,6 +56,12 @@ public class EnvironmentUtils {
                     .filter(StringUtils::notNullOrEmpty)
                     .findFirst()
                     .orElse(null);
+        }
+
+        if (propertyValue == null && CONFIGMAP_NAME != null) {
+            String filePath = String.format("/var/run/configmaps/%s/%s", CONFIGMAP_NAME, propertyName.toLowerCase());
+            List<String> lines = Files.readAllLines(Paths.get(filePath));
+            propertyValue = lines.stream().findFirst().orElse(null);
         }
 
         return of(propertyValue);

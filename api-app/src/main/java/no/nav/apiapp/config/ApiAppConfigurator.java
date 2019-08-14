@@ -41,5 +41,4 @@ public interface ApiAppConfigurator {
     ApiAppConfigurator selfTests(Collection<? extends Pingable> pingables);
 
     ApiAppConfigurator objectMapper(ObjectMapper objectMapper);
-
 }
