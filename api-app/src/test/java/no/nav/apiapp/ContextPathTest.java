@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.util.function.Consumer;
 
+import static no.nav.fo.apiapp.rest.JettyTestUtils.getHostName;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ContextPathTest extends JettyTest {

@@ -3,6 +3,7 @@ package no.nav.apiapp.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.apiapp.ApiApplication;
+import no.nav.apiapp.security.ApiAppAuthorizationModule;
 import no.nav.apiapp.selftest.impl.OpenAMHelsesjekk;
 import no.nav.brukerdialog.security.Constants;
 import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
@@ -14,6 +15,7 @@ import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.common.auth.AuthorizationModule;
 import no.nav.common.auth.LoginFilter;
 import no.nav.common.auth.LoginProvider;
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.openam.sbs.OpenAMLoginFilter;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
 import no.nav.json.JsonProvider;
@@ -51,6 +53,8 @@ public class Konfigurator implements ApiAppConfigurator {
 
     private AuthorizationModule authorizationModule;
     private ObjectMapper objectMapper = JsonProvider.createObjectMapper();
+    private SecurityLevel defaultSecurityLevel = null;
+    private Map<SecurityLevel, List<String>> securityLevelForBasePaths = new HashMap<>();
 
     public Konfigurator(JettyBuilder jettyBuilder, ApiApplication apiApplication) {
         this.jettyBuilder = jettyBuilder;
@@ -151,6 +155,18 @@ public class Konfigurator implements ApiAppConfigurator {
     }
 
     @Override
+    public ApiAppConfigurator validateAzureAdExternalUserTokens(SecurityLevel defaultSecurityLevel) {
+        this.defaultSecurityLevel = defaultSecurityLevel;
+        return validateAzureAdExternalUserTokens();
+    }
+
+    @Override
+    public ApiAppConfigurator customSecurityLevelForExternalUsers(SecurityLevel securityLevel, String... basePath) {
+        this.securityLevelForBasePaths.put(securityLevel, Arrays.asList(basePath));
+        return this;
+    }
+
+    @Override
     public ApiAppConfigurator validateAzureAdInternalUsersTokens() {
         return oidcProvider(new InternalUserLoginProvider(configureAzureAdForInternalUsers()));
     }
@@ -236,7 +252,10 @@ public class Konfigurator implements ApiAppConfigurator {
                     authorizationModule,
                     publicPaths
             );
-            jettyBuilder.addFilter(new LoginFilter(loginProviders, authorizationModule, publicPaths));
+            jettyBuilder.addFilter(new LoginFilter(
+                    loginProviders,
+                    new ApiAppAuthorizationModule(authorizationModule, defaultSecurityLevel, securityLevelForBasePaths),
+                    publicPaths));
         }
         jettyBuilderCustomizers.forEach(c -> c.accept(jettyBuilder));
         Jetty jetty = jettyBuilder.buildJetty();
