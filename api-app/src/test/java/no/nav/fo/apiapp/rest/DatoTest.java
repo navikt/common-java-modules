@@ -6,8 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
-
-import java.sql.Time;
 import java.util.TimeZone;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;

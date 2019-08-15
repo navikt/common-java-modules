@@ -1,9 +1,10 @@
 package no.nav.common.auth.openam.sbs;
 
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
 
 import static java.util.Optional.ofNullable;
-import static no.nav.common.auth.openam.sbs.SecurityLevel.*;
+import static no.nav.common.auth.SecurityLevel.*;
 
 public class OpenAmUtils {
 

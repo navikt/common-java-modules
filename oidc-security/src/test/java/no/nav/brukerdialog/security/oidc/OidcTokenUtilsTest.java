@@ -1,6 +1,6 @@
 package no.nav.brukerdialog.security.oidc;
 
-import no.nav.brukerdialog.security.SecurityLevel;
+import no.nav.common.auth.SecurityLevel;
 import org.junit.Test;
 
 import java.util.Base64;

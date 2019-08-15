@@ -1,4 +1,4 @@
-package no.nav.brukerdialog.security;
+package no.nav.common.auth;
 
 public enum SecurityLevel {
     Level1(1),
