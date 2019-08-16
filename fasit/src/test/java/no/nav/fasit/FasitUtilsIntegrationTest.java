@@ -4,6 +4,7 @@ import no.nav.fasit.dto.RestService;
 import no.nav.sbl.dialogarena.test.FasitAssumption;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.NotAuthorizedException;
