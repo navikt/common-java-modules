@@ -104,7 +104,7 @@ public class VeilarbAbacPepClientTest {
 
     @Test
     public void testVeilarbAbacMedLesetilgangForAktoerId() {
-        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .brukAktoerId(()->true)
@@ -117,7 +117,7 @@ public class VeilarbAbacPepClientTest {
 
     @Test
     public void testVeilarbAbacMedSkrivetilgangForAktoerId()  {
-        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_WRITE, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_WRITE, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .brukAktoerId(()->true)
@@ -130,7 +130,7 @@ public class VeilarbAbacPepClientTest {
     @Test(expected = IngenTilgang.class)
     public void testVeilarbAbacUtenLesetilgangForAktoerId()  {
 
-        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, "hallo");
+        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 200, "hallo");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .brukAktoerId(()->true)
@@ -144,7 +144,7 @@ public class VeilarbAbacPepClientTest {
 
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(PERMIT);
 
-        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -154,7 +154,7 @@ public class VeilarbAbacPepClientTest {
 
         Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
-        Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for %s",AKTOER_ID);
+        Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
 
     }
 
@@ -163,7 +163,7 @@ public class VeilarbAbacPepClientTest {
 
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(PERMIT);
 
-        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, "hallo");
+        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "hallo");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -183,7 +183,7 @@ public class VeilarbAbacPepClientTest {
 
         String urlRegex = URL_REGEX_FNR_READ;
 
-        lagVeilarbAbacResponse(urlRegex, "permit");
+        lagVeilarbAbacResponse(urlRegex, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -204,8 +204,8 @@ public class VeilarbAbacPepClientTest {
 
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(DENY);
 
-        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, "permit");
-        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, "deny");
+        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 200, "deny");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -221,12 +221,33 @@ public class VeilarbAbacPepClientTest {
     }
 
     @Test
+    public void testSammenliknAktoerIdOgFnrVeilarbabacMedLesetilgangBeggeFeiler_FallbackTilAbac() throws PepException {
+
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(PERMIT);
+
+        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 400, "feil");
+        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 400, "feil");
+
+        VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
+                .sammenlikneTilgang(()->true)
+                .brukAktoerId(()->true)
+                .bygg();
+
+        veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
+
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
+        Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
+    }
+
+    @Test
     public void testSammenliknAktoerIdOgFnrVeilarbabacMedLesetilgangFnrIkkeOk() throws PepException {
 
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(DENY);
 
-        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, "deny");
-        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "deny");
+        lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -249,7 +270,7 @@ public class VeilarbAbacPepClientTest {
 
         when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(PERMIT);
 
-        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -267,7 +288,7 @@ public class VeilarbAbacPepClientTest {
 
         when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(DENY);
 
-        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -284,7 +305,7 @@ public class VeilarbAbacPepClientTest {
 
         when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(DENY);
 
-        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, "permit");
+        lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .sammenlikneTilgang(()->true)
@@ -315,7 +336,7 @@ public class VeilarbAbacPepClientTest {
     public void testVeilarbAbacMedOverstyrtRessurs() {
         String urlRegexAktoerIdReadOverstyrt = URL_REGEX_AKTOER_ID_READ
                 + "&resource="+NavAttributter.RESOURCE_FELLES_PERSON;
-        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrt, "permit");
+        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrt, 200, "permit");
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .brukAktoerId(()->true)
@@ -327,13 +348,46 @@ public class VeilarbAbacPepClientTest {
         WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrt)));
     }
 
+    @Test
+    public void testEndring() {
+        String urlRegexAktoerIdReadOverstyrtPerson = URL_REGEX_AKTOER_ID_READ
+                + "&resource="+NavAttributter.RESOURCE_FELLES_PERSON;
 
-    private void lagVeilarbAbacResponse(String pathRegex, String response) {
+        String urlRegexAktoerIdReadOverstyrtUnderOppfolging = URL_REGEX_AKTOER_ID_READ
+                + "&resource="+NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING;
+
+        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtPerson, 200,"permit");
+        lagVeilarbAbacResponse(urlRegexAktoerIdReadOverstyrtUnderOppfolging, 200, "permit");
+
+        VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
+                .brukAktoerId(()->true)
+                .medResourceTypePerson()
+                .bygg();
+
+        VeilarbAbacPepClient veilarbAbacPepClient2 = veilarbAbacPepClient
+                .endre()
+                .medResourceTypeUnderOppfolgingNiva3()
+                .bygg();
+
+        veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtPerson)));
+        WireMock.verify(0, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtUnderOppfolging)));
+
+        veilarbAbacPepClient2.sjekkLesetilgangTilBruker(BRUKER);
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtPerson)));
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtUnderOppfolging)));
+
+        veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
+        WireMock.verify(2, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtPerson)));
+        WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegexAktoerIdReadOverstyrtUnderOppfolging)));
+    }
+
+    private void lagVeilarbAbacResponse(String pathRegex, int statuskode, String response) {
         givenThat(get(urlMatching(pathRegex))
                 .withHeader("Authorization", matching("Bearer "+ SYSTEM_TOKEN))
                 .withHeader("subject",matching(OIDC_TOKEN))
                 .willReturn(aResponse()
-                        .withStatus(200)
+                        .withStatus(statuskode)
                         .withBody(response)
                 )
         );

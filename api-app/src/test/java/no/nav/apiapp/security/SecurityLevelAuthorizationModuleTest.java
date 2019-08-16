@@ -1,6 +1,7 @@
 package no.nav.apiapp.security;
 
 import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import org.junit.Test;
@@ -16,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityLevelAuthorizationModuleTest {
 
-    private SecurityLevelAuthorizationModule securityLevelAuthorizationModule = new SecurityLevelAuthorizationModule(3);
+    private SecurityLevelAuthorizationModule securityLevelAuthorizationModule = new SecurityLevelAuthorizationModule(SecurityLevel.Level3);
 
     @Test
     public void authorized__no_subject() {

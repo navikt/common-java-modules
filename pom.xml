@@ -69,7 +69,7 @@
     </modules>
 
     <prerequisites>
-        <maven>3.0.4</maven>
+        <maven>3.6.1</maven>
     </prerequisites>
 
     <properties>
@@ -418,20 +418,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19</version>
-                <!-- tilgjengeliggjør junit5 for surefire slik at slike tester kjøres  -->
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>${junit.platform.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.vintage</groupId>
-                        <artifactId>junit-vintage-engine</artifactId>
-                        <version>${junit.vintage.version}</version>
-                    </dependency>
-                </dependencies>
+                <version>3.0.0-M3</version>
                 <configuration>
 
                     <!-- Ellers vil maven kun kjøre tester som slutter på 'Test' (!) -->
@@ -452,11 +439,27 @@
                     <argLine>${jacoco.agent.argLine} -Xmx2g</argLine>
 
                     <!--
-                     maven-surefire default er forkCount=1 + reuseForks=true
-                     dvs at surefire vil kjøre alle testene i en og samme jvm pr maven-modul
+                    Å sette `reuseFork` til `true` vil føre til at surefire fyrer opp en separat JVM for hver
+                    eneste testklasse.
+
+                    Dette fører til ekstremt treg eksekvering av tester (i ett tilfelle 4-5 min kontra
+                    20-30 sekunder om satt til `false`)
+
+                    Merk at å sette denne til `true` krever at man skriver tester som er godt isolerte fra hverandre.
+                    F.eks. kan det føre til problemer å sette statiske eller globale felter i klasser
+                    som gjenbrukes på tvers av testmetoder. Sørg for å lage en ny instanse av slike felter for hver
+                    testmetode ved bruk av @BeforeEach (JUnit 5) eller lignende for å unngå tilstandsfulle testklasser.
+
+                    Se følgende link for flere detaljer:
+
+                    https://maven.apache.org/surefire/maven-surefire-plugin/examples/ fork-options-and-parallel-execution.html
+
                     -->
-                    <reuseForks>false
-                    </reuseForks> <!-- fører til at hver test-klasse kjøres i egen jvm. Dermed oppnår vi bedre isolasjon mellom potensielt skjøre tester, som kan finne på å mutere på global state etc -->
+                    <reuseForks>true</reuseForks>
+
+                    <forkCount>1C</forkCount> <!-- fyr opp 1 JVM per cpu-kjerne -->
+
+                    <argLine>-Xmx1024m</argLine> <!-- Gi nok minne for å unngå terminerende JVM-er -->
 
                     <!-- fjerner edge-caser ved nøstede classloadere, som f.eks. hvis man tester med jetty -->
                     <useSystemClassLoader>false</useSystemClassLoader>

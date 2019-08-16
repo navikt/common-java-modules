@@ -21,13 +21,14 @@ import static org.mockito.Mockito.mock;
 public class PipingRestClientTest {
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(58089);
+    public WireMockRule wireMockRule = new WireMockRule(0);
 
     private HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-    private PipingRestClient fasitClient = new PipingRestClient(this::httpServletRequestProvider, "http://localhost:58089");
 
     @Test
     public void getList() {
+        PipingRestClient fasitClient = new PipingRestClient(this::httpServletRequestProvider, "http://localhost:" + wireMockRule.port());
+
         String json = "[{\"name\": \"veilarbaktivitet\"}]";
 
         givenThat(get(urlEqualTo("/conf/applications"))

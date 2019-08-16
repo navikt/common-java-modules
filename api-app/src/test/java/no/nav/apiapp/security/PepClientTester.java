@@ -53,7 +53,8 @@ public interface PepClientTester {
     default void sjekkTilgangTilFnr_veilederHarTilgang(SubjectExtension.SubjectStore subjectExtension) {
         setVeilederFraFasitAlias(PRIVELIGERT_VEILEDER_ALIAS, subjectExtension);
         PepClient pepClient = getPepClient();
-        pepClient.sjekkLeseTilgangTilFnr(hentFnrFraFasit());
+        String fnr = hentFnrFraFasit();
+        pepClient.sjekkLeseTilgangTilFnr(fnr);
     }
 
     @Test

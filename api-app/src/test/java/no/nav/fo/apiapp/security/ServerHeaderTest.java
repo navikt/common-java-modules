@@ -6,6 +6,7 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 
 import static no.nav.apiapp.ApiAppServletContextListener.INTERNAL_IS_ALIVE;
+import static no.nav.fo.apiapp.rest.JettyTestUtils.APPLICATION_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 

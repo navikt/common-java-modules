@@ -3,7 +3,6 @@ package no.nav.fo.apiapp.rest;
 import no.nav.fo.apiapp.JettyTest;
 import org.junit.Test;
 
-import javax.ws.rs.client.SyncInvoker;
 import javax.ws.rs.core.Response;
 
 import java.net.URI;

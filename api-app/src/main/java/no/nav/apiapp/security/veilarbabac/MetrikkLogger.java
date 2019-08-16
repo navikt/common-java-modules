@@ -15,6 +15,7 @@ class MetrikkLogger {
     private String action = "read";
     private Supplier<String> idSupplier = ()->"";
     private Logger logger;
+    private String avvikbeskrivelse = "";
 
     MetrikkLogger(Logger logger, String action, Supplier<String> idSupplier) {
         this.action = action;
@@ -27,8 +28,9 @@ class MetrikkLogger {
         return this;
     }
 
-    void erAvvik() {
+    void erAvvik(String beskrivelse) {
         this.erAvvik = true;
+        this.avvikbeskrivelse = beskrivelse;
     }
 
     void loggMetrikk(Tilgangstype tilgangstype, boolean foretrekkVeilarbabac) {
@@ -41,11 +43,14 @@ class MetrikkLogger {
                 action,
                 "avvik",
                 Boolean.toString(erAvvik),
+                "avviksbeskrivelse",
+                avvikbeskrivelse,
                 "foretrekkVeilarbAbac",
                 Boolean.toString(foretrekkVeilarbabac)
         ).increment();
 
         if(erAvvik) {
+            //
             logger.warn("Fikk avvik i tilgang for {}", idSupplier.get());
         }
     }

@@ -1,7 +1,7 @@
 package no.nav.brukerdialog.security.oidc;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.brukerdialog.security.SecurityLevel;
+import no.nav.common.auth.SecurityLevel;
 import no.nav.common.auth.SsoToken;
 import no.nav.json.JsonUtils;
 
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static java.util.Optional.ofNullable;
-import static no.nav.brukerdialog.security.SecurityLevel.*;
+import static no.nav.common.auth.SecurityLevel.*;
 import static org.jose4j.jwt.ReservedClaimNames.AUDIENCE;
 import static org.jose4j.jwt.ReservedClaimNames.SUBJECT;
 

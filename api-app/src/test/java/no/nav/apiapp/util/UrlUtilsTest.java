@@ -1,7 +1,7 @@
 package no.nav.apiapp.util;
 
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static no.nav.apiapp.util.UrlUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;

@@ -193,7 +193,7 @@ public class FasitClientImpl implements FasitClient {
         for (JsonNode node : nodes) {
             applicationConfig.hostname = node.get("hostname").textValue();
             applicationConfig.deployerUsername = node.get("username").textValue();
-            applicationConfig.deployerPasswordUrl = node.get("passwordRef").textValue();
+            applicationConfig.deployerPasswordUrl = node.get("passwordref").textValue();
         }
 
         LOG.info("{} = {}", getApplicationConfigRequest.applicationName, applicationConfig);
@@ -209,6 +209,7 @@ public class FasitClientImpl implements FasitClient {
                 .request()
                 .get(LoadBalancerConfigDTO.LIST_TYPE)
                 .stream()
+                .filter(dto->alias!=null && alias.equals(dto.alias))
                 .map(dto -> new LoadBalancerConfig()
                         .setContextRoots(dto.properties.contextRoots)
                         .setUrl(dto.properties.url)

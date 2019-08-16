@@ -4,6 +4,7 @@ import no.nav.fasit.dto.RestService;
 import no.nav.sbl.dialogarena.test.FasitAssumption;
 import org.hamcrest.Matchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.NotAuthorizedException;
@@ -146,7 +147,7 @@ public class FasitUtilsIntegrationTest {
     @Test
     public void getTestUser() {
         TestUser serviceUser = FasitUtils.getTestUser("priveligert_veileder");
-        assertThat(serviceUser.username, equalTo("Z992478"));
+        assertThat(serviceUser.username, equalTo("Z990336"));
         assertThat(serviceUser.password, not(nullValue()));
 
         TestUser serviceUserT4 = FasitUtils.getTestUser("privat_bruker", TEST_ENVIRONMENT);
@@ -158,11 +159,6 @@ public class FasitUtilsIntegrationTest {
     public void getQCertificate() throws Exception {
         ServiceUserCertificate serviceUserCertificate = FasitUtils.getServiceUserCertificate("srvHenvendelse", "q");
         FasitUtilsTest.testServiceUserCertificate(serviceUserCertificate);
-    }
-
-    @Test(expected = NotAuthorizedException.class)
-    public void getPCertificate() throws Exception {
-        FasitUtils.getServiceUserCertificate("srvHenvendelse", "p");
     }
 
     @Test

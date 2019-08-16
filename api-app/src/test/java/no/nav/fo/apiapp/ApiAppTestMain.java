@@ -1,5 +1,6 @@
 package no.nav.fo.apiapp;
 
+import no.nav.fo.apiapp.rest.JettyTestUtils;
 import no.nav.testconfig.ApiAppTest;
 
 public class ApiAppTestMain {
@@ -9,7 +10,7 @@ public class ApiAppTestMain {
                 .applicationName("api-app")
                 .build()
         );
-        JettyTest.setupContext();
+        JettyTestUtils.setupContext();
         ApiAppMain.main();
     }
 
