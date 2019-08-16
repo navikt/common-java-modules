@@ -34,5 +34,4 @@ public class KonfiguratorTest {
         assertThat(stsConfig.username).isEqualTo("username");
         assertThat(stsConfig.password).isEqualTo("password");
     }
-
 }
