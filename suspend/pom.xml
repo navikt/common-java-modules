@@ -22,11 +22,6 @@
         </dependencies>
     </dependencyManagement>
 
-
-    <properties>
-        <java.jdk.version>1.7</java.jdk.version>
-    </properties>
-
     <dependencies>
 
         <!-- Third party dependencies -->

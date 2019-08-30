@@ -1,12 +1,13 @@
 package no.nav.sbl.util;
 
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import lombok.SneakyThrows;
 import org.junit.Test;
 
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -46,7 +47,11 @@ public class XMLCalendarUtilsTest {
         assertThat(timestamp, equalTo(new Timestamp(xmlGregorianCalendar.toGregorianCalendar().getTimeInMillis())));
     }
 
+    @SneakyThrows
     private XMLGregorianCalendar nyXmlGregorianCalendar() {
-        return XMLGregorianCalendarImpl.createDateTime(2010, 6, 24, 16, 39, 11);
+        DatatypeFactory datatypeFactory = DatatypeFactory.newInstance();
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.set(2010, 6, 24, 16, 39, 11);
+        return datatypeFactory.newXMLGregorianCalendar(cal);
     }
 }

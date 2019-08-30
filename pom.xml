@@ -80,7 +80,7 @@
         <junit.vintage.version>5.1.1</junit.vintage.version>
 
 
-        <java.jdk.version>1.8</java.jdk.version>
+        <java.jdk.version>12</java.jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>codestyle/nav-mod/checkstyle.xml</checkstyle.config.location>
         <pmd.config.location>codestyle/nav-mod/pmd.xml</pmd.config.location>
@@ -126,10 +126,9 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.3</version>
+                    <version>3.8.1</version>
                     <configuration>
-                        <source>${java.jdk.version}</source>
-                        <target>${java.jdk.version}</target>
+                        <release>${java.jdk.version}</release>
                     </configuration>
                 </plugin>
                 <plugin>
