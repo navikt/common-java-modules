@@ -100,7 +100,7 @@
         <junit.version>4.12</junit.version>
         <mockito.version>2.2.27</mockito.version>
         <mockito-all.version>1.10.19</mockito-all.version>
-        <jmockit.version>1.20</jmockit.version>
+        <jmockit.version>1.23</jmockit.version>
         <org.eclipse.jetty.version>9.3.0.M2</org.eclipse.jetty.version>
         <pact-jvm.version>3.5.23</pact-jvm.version>
         <!-- NB: junit5 versjon settes i mor-pom  -->

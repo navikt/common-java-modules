@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 public class TimerTest {
@@ -43,7 +44,7 @@ public class TimerTest {
 
     @Test
     public void elapsedTimeReturnsDifferenceBetweenStartAndStopTimeInMillis(@Mocked System mockedSystem) {
-        new NonStrictExpectations() {
+        new Expectations() {
             {
                 System.nanoTime();
                 result = 1000000;
@@ -53,9 +54,7 @@ public class TimerTest {
 
         timer.start().stop();
 
-        long elpasedTimeInMillis = Deencapsulation.invoke(timer, "getElpasedTimeInMillis");
-
-        assertEquals(NANOSECONDS.toMillis(2000000), elpasedTimeInMillis);
+        assertEquals(NANOSECONDS.toMillis(2000000), getTimeElapsedInMillis());
     }
 
     @Test(expected = RuntimeException.class)
@@ -64,14 +63,16 @@ public class TimerTest {
     }
 
     @Test
-    public void timerIsResetAfterReport() {
-        new StrictExpectations(timer) {
-            {
-                Deencapsulation.invoke(timer, "reset");
-                times = 1;
-            }
-        };
+    public void timerIsResetAfterReport() throws InterruptedException {
+        timer.start();
+        Thread.sleep(2);
+        timer.stop();
+        assertThat(getTimeElapsedInMillis()).isGreaterThan(0);
+        timer.report();
+        assertThat(getTimeElapsedInMillis()).isZero();
+    }
 
-        timer.start().stop().report();
+    private long getTimeElapsedInMillis() {
+        return Deencapsulation.invoke(timer, "getElpasedTimeInMillis");
     }
 }
