@@ -64,6 +64,11 @@ public class NavCorsFilter implements Filter {
             httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, originHeader);
             httpServletResponse.setHeader("Access-Control-Allow-Credentials", "true");
             httpServletResponse.setHeader("Access-Control-Allow-Methods", ALLOWED_METHODS);
+
+            if (httpServletRequest.getMethod().equals("OPTIONS")) {
+                httpServletResponse.setStatus(HttpServletResponse.SC_ACCEPTED);
+                return;
+            }
         }
         chain.doFilter(request, response);
     }
