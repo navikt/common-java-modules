@@ -39,19 +39,27 @@ class NavCorsFilterTest {
     @Test
     public void hentKommaseparertListe() {
         System.clearProperty(CORS_ALLOWED_ORIGINS);
-        assertThat(getAllowedOrigins()).isEmpty();
+        assertThat(createCorsOrigin().value).isEmpty();
         System.setProperty(CORS_ALLOWED_ORIGINS, "");
-        assertThat(getAllowedOrigins()).isEmpty();
+        assertThat(createCorsOrigin().value).isEmpty();
         System.setProperty(CORS_ALLOWED_ORIGINS, ".nav.no,.oera.no");
-        assertThat(getAllowedOrigins()).containsExactlyInAnyOrder(".nav.no", ".oera.no");
+        assertThat(createCorsOrigin().value).containsExactlyInAnyOrder(".nav.no", ".oera.no");
         System.setProperty(CORS_ALLOWED_ORIGINS, " .nav.no, .oera.no ");
-        assertThat(getAllowedOrigins()).containsExactlyInAnyOrder(".nav.no", ".oera.no");
+        assertThat(createCorsOrigin().value).containsExactlyInAnyOrder(".nav.no", ".oera.no");
     }
 
     @Test
     public void krevSubdomene() {
         System.setProperty(CORS_ALLOWED_ORIGINS, "ikke.subdomene.no");
-        assertThatThrownBy(NavCorsFilter::getAllowedOrigins).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(NavCorsFilterTest::createCorsOrigin).isInstanceOf(IllegalArgumentException.class);
     }
 
+    private static CorsHeader createCorsOrigin() {
+        return new CorsHeader(
+                "Access-Control-Allow-Origin",
+                CORS_ALLOWED_ORIGINS,
+                Collections.emptyList(),
+                NavCorsFilter::validerAllowOrigin
+        );
+    }
 }
