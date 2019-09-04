@@ -23,9 +23,10 @@ public class NavCorsFilter implements Filter {
     public static final String CORS_ALLOWED_CREDENTIALS = "cors.allow.credentials";
     public static final String CORS_MAX_AGE = "cors.maxage";
 
-    private static final List<String> DEFAULT_ALLOWED_METHODS = asList("GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS");
+    static final List<String> DEFAULT_ALLOWED_METHODS = asList("GET", "HEAD", "POST", "PATCH", "PUT", "DELETE", "OPTIONS");
+    static final List<String> DEFAULT_ALLOWED_HEADERS = asList("Accept", "Accept-language", "Content-Language", "Content-Type");
 
-    private static final CorsHeader CORS_ORIGIN = new CorsHeader(
+    private static final CorsHeader CORS_ORIGIN = new OriginCorsHeader(
             "Access-Control-Allow-Origin",
             CORS_ALLOWED_ORIGINS,
             Collections.emptyList(),
@@ -54,7 +55,7 @@ public class NavCorsFilter implements Filter {
     private static final CorsHeader CORS_HEADERS= new CorsHeader(
             "Access-Control-Allow-Headers",
             CORS_ALLOWED_HEADERS,
-            asList("Accept", "Accept-language", "Content-Language", "Content-Type"),
+            DEFAULT_ALLOWED_HEADERS,
             NavCorsFilter::validerAllowHeader
     );
 
@@ -78,7 +79,8 @@ public class NavCorsFilter implements Filter {
         if (validOrigin(originHeader, CORS_ORIGIN.value)) {
             HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-            CORS_HEADER_LIST.forEach((corsHeader) -> corsHeader.apply(httpServletResponse));
+            CORS_HEADER_LIST.forEach((corsHeader) -> corsHeader.apply(httpServletRequest, httpServletResponse));
+            httpServletResponse.setHeader("Vary", "Origin");
 
             if (httpServletRequest.getMethod().equals("OPTIONS")) {
                 httpServletResponse.setStatus(HttpServletResponse.SC_ACCEPTED);
@@ -133,17 +135,23 @@ public class NavCorsFilter implements Filter {
         return header;
     }
 
-    static class CorsHeader {
+    public static class CorsHeader {
         final String header;
+        final String environmentPropery;
         final List<String> value;
         final String stringValue;
+        final List<String> defaultValue;
+        final Function<String, String> validator;
 
-        CorsHeader(String header, String environmentPropery, String defaultValue, Function<String, String> validator) {
+        public CorsHeader(String header, String environmentPropery, String defaultValue, Function<String, String> validator) {
             this(header, environmentPropery, asList(defaultValue), validator);
         }
 
-        CorsHeader(String header, String environmentPropery, List<String> defaultValue, Function<String, String> validator) {
+        public CorsHeader(String header, String environmentPropery, List<String> defaultValue, Function<String, String> validator) {
             this.header = header;
+            this.environmentPropery = environmentPropery;
+            this.defaultValue = defaultValue;
+            this.validator = validator;
             this.value = getOptionalProperty(environmentPropery)
                     .map(string -> string.split(","))
                     .map(Stream::of)
@@ -154,8 +162,18 @@ public class NavCorsFilter implements Filter {
             this.stringValue = String.join(", ", this.value);
         }
 
-        void apply(HttpServletResponse response) {
+        void apply(HttpServletRequest request, HttpServletResponse response) {
             response.setHeader(header, stringValue);
+        }
+    }
+    public static class OriginCorsHeader extends CorsHeader {
+        public OriginCorsHeader(String header, String environmentPropery, List<String> defaultValue, Function<String, String> validator) {
+            super(header, environmentPropery, defaultValue, validator);
+        }
+
+        @Override
+        void apply(HttpServletRequest request, HttpServletResponse response) {
+            response.setHeader(header, request.getHeader(ORIGIN));
         }
     }
 }
