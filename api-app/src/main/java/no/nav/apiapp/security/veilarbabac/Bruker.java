@@ -1,6 +1,6 @@
 package no.nav.apiapp.security.veilarbabac;
 
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 
 import java.util.Objects;
 import java.util.function.Supplier;

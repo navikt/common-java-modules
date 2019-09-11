@@ -2,7 +2,7 @@ package no.nav.apiapp.version;
 
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 
 import java.io.InputStream;
 import java.net.URL;

@@ -1,6 +1,6 @@
 package no.nav.sbl.dialogarena.common.jetty;
 
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;

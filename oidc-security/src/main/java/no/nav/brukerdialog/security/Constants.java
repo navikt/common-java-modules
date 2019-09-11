@@ -1,7 +1,7 @@
 package no.nav.brukerdialog.security;
 
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getRequiredProperty;
 
 public class Constants {
 

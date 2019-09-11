@@ -1,7 +1,7 @@
 package no.nav.fo.apiapp.rest;
 
 import no.nav.fo.apiapp.EksempelService;
-import no.nav.sbl.util.AssertUtils;
+import no.nav.util.sbl.AssertUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;

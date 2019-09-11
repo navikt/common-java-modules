@@ -11,9 +11,9 @@ import java.net.HttpCookie;
 import java.util.List;
 
 import static javax.ws.rs.core.UriBuilder.fromUri;
-import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-import static no.nav.sbl.util.EnvironmentUtils.setProperty;
+import static no.nav.util.sbl.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.setProperty;
 
 public class NavPactRunner extends PactRunner {
 

@@ -3,13 +3,12 @@ package no.nav.brukerdialog.security.oidc;
 import lombok.Builder;
 import lombok.Value;
 import no.nav.brukerdialog.security.Constants;
-import no.nav.sbl.util.EnvironmentUtils;
 
 import static no.nav.brukerdialog.tools.SecurityConstants.SYSTEMUSER_PASSWORD;
 import static no.nav.brukerdialog.tools.SecurityConstants.SYSTEMUSER_USERNAME;
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
-import static no.nav.sbl.util.EnvironmentUtils.resolveSrvUserPropertyName;
-import static no.nav.sbl.util.EnvironmentUtils.resolverSrvPasswordPropertyName;
+import static no.nav.util.sbl.EnvironmentUtils.getRequiredProperty;
+import static no.nav.util.sbl.EnvironmentUtils.resolveSrvUserPropertyName;
+import static no.nav.util.sbl.EnvironmentUtils.resolverSrvPasswordPropertyName;
 
 @Builder
 @Value

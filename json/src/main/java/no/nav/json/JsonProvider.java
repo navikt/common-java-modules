@@ -16,8 +16,8 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.json.DateConfiguration.dateModule;
-import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
-import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
+import static no.nav.util.sbl.EnvironmentUtils.EnviromentClass.T;
+import static no.nav.util.sbl.EnvironmentUtils.isEnvironmentClass;
 
 @Produces({"*/*", APPLICATION_JSON})
 @Consumes({"*/*", APPLICATION_JSON})

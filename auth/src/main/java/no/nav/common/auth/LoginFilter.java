@@ -1,7 +1,7 @@
 package no.nav.common.auth;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

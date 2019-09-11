@@ -4,7 +4,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 import org.junit.Before;
 import org.junit.Test;
 

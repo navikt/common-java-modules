@@ -1,8 +1,8 @@
 package no.nav.common.auth;
 
 import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.sbl.util.fn.UnsafeRunnable;
-import no.nav.sbl.util.fn.UnsafeSupplier;
+import no.nav.function.UnsafeRunnable;
+import no.nav.function.UnsafeSupplier;
 
 import java.util.Optional;
 import java.util.function.Supplier;

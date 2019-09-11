@@ -1,6 +1,6 @@
 package no.nav.fo.feed.util;
 
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 import org.junit.After;
 import org.junit.Test;
 

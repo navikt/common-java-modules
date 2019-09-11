@@ -1,7 +1,7 @@
 package no.nav.apiapp.util;
 
-import no.nav.sbl.util.AssertUtils;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.AssertUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 
 public class UrlUtils {
 

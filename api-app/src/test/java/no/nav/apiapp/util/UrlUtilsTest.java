@@ -4,7 +4,7 @@ import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import org.junit.jupiter.api.Test;
 
 import static no.nav.apiapp.util.UrlUtils.*;
-import static no.nav.sbl.util.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
+import static no.nav.util.sbl.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

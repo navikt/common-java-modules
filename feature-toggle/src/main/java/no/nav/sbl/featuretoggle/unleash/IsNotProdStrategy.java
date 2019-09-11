@@ -5,7 +5,7 @@ import no.finn.unleash.strategy.Strategy;
 
 import java.util.Map;
 
-import static no.nav.sbl.util.EnvironmentUtils.getEnvironmentName;
+import static no.nav.util.sbl.EnvironmentUtils.getEnvironmentName;
 
 public class IsNotProdStrategy implements Strategy {
 

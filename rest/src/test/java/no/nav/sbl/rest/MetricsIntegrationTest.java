@@ -19,7 +19,7 @@ import java.util.List;
 import static ch.qos.logback.classic.Level.INFO;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static no.nav.common.metrics.prometheus.MetricsTestUtils.equalCounter;
-import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
+import static no.nav.log.sbl.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j

@@ -7,7 +7,7 @@ import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
+import static no.nav.util.sbl.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 

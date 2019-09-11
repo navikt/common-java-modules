@@ -1,16 +1,18 @@
 package no.nav.metrics;
 
-import lombok.extern.slf4j.Slf4j;
 import no.nav.metrics.handlers.InfluxHandler;
 import no.nav.metrics.handlers.SensuHandler;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
+import org.slf4j.Logger;
 
+import java.net.UnknownHostException;
 import java.util.Map;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-@Slf4j
 public class MetricsClient {
+
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(MetricsClient.class);
 
     private static volatile boolean metricsReportEnabled;
     private static volatile SensuHandler sensuHandler;
@@ -18,7 +20,11 @@ public class MetricsClient {
 
     static {
         if (EnvironmentUtils.isRunningOnJboss()) {
-            enableMetrics(MetricsConfig.resolveSkyaConfig());
+            try {
+                enableMetrics(MetricsConfig.resolveSkyaConfig());
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             log.warn("metrics was not automatically enabled");
         }

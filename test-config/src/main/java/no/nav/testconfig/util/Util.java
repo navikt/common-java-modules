@@ -2,7 +2,7 @@ package no.nav.testconfig.util;
 
 import lombok.SneakyThrows;
 import no.nav.sbl.rest.RestUtils;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ws.rs.client.Client;

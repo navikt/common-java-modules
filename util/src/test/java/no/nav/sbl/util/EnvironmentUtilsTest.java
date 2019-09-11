@@ -1,16 +1,19 @@
 package no.nav.sbl.util;
 
+import no.nav.util.sbl.EnvironmentUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.UnknownHostException;
+
 import static java.lang.System.setProperty;
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
-import static no.nav.sbl.util.EnvironmentUtils.*;
-import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.*;
-import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
-import static no.nav.sbl.util.PropertyUtils.getOptionalProperty;
-import static no.nav.sbl.util.PropertyUtils.getRequiredProperty;
+import static no.nav.util.sbl.EnvironmentUtils.*;
+import static no.nav.util.sbl.EnvironmentUtils.EnviromentClass.*;
+import static no.nav.util.sbl.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.util.sbl.EnvironmentUtils.Type.SECRET;
+import static no.nav.util.sbl.PropertyUtils.getOptionalProperty;
+import static no.nav.util.sbl.PropertyUtils.getRequiredProperty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -138,7 +141,7 @@ public class EnvironmentUtilsTest {
     }
 
     @Test
-    public void resolveHostname() {
+    public void resolveHostname() throws UnknownHostException {
         assertThat(EnvironmentUtils.resolveHostName()).isNotEmpty();
     }
 

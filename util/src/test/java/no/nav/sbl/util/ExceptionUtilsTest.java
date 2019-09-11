@@ -1,5 +1,6 @@
 package no.nav.sbl.util;
 
+import no.nav.util.sbl.ExceptionUtils;
 import org.junit.Test;
 
 import java.io.IOException;

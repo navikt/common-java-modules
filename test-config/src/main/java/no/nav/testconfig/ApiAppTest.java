@@ -16,7 +16,7 @@ import no.nav.fasit.FasitUtils;
 import no.nav.fasit.ServiceUserCertificate;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
-import no.nav.sbl.util.LogUtils;
+import no.nav.log.sbl.LogUtils;
 import no.nav.validation.ValidationUtils;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -34,9 +34,9 @@ import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.INTERN
 import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
-import static no.nav.sbl.util.EnvironmentUtils.*;
-import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
+import static no.nav.util.sbl.EnvironmentUtils.*;
+import static no.nav.util.sbl.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.util.sbl.EnvironmentUtils.Type.SECRET;
 
 public class ApiAppTest {
 

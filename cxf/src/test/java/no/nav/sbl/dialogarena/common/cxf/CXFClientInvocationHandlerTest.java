@@ -1,7 +1,7 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.sbl.util.EnvironmentUtils;
-import no.nav.sbl.util.PropertyUtils;
+import no.nav.util.sbl.EnvironmentUtils;
+import no.nav.util.sbl.PropertyUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;

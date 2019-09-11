@@ -2,7 +2,7 @@ package no.nav.apiapp.util;
 
 import org.junit.Test;
 
-import static no.nav.apiapp.util.ObjectUtils.*;
+import static no.nav.util.apiapp.ObjectUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 

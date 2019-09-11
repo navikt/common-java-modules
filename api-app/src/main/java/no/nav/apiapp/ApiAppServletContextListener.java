@@ -1,6 +1,7 @@
 package no.nav.apiapp;
 
 
+import lombok.SneakyThrows;
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.feil.FeilMapper;
 import no.nav.apiapp.metrics.PrometheusFilter;
@@ -30,8 +31,8 @@ import no.nav.sbl.dialogarena.common.web.security.DisableCacheHeadersFilter;
 import no.nav.sbl.dialogarena.common.web.security.SecurityHeadersFilter;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.types.Pingable;
-import no.nav.sbl.util.EnvironmentUtils;
-import no.nav.sbl.util.LogUtils;
+import no.nav.util.sbl.EnvironmentUtils;
+import no.nav.log.sbl.LogUtils;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.util.security.Constraint;
@@ -43,7 +44,6 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.RequestContextFilter;
@@ -60,8 +60,8 @@ import static java.util.Collections.emptyList;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-import static no.nav.sbl.util.EnvironmentUtils.getPropertyAsBooleanOrElseFalse;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getPropertyAsBooleanOrElseFalse;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
 
@@ -96,6 +96,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         LogUtils.shutDownLogback();
     }
 
+    @SneakyThrows
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         LOGGER.info("contextInitialized");

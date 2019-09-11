@@ -1,8 +1,8 @@
 package no.nav.log;
 
-import lombok.extern.slf4j.Slf4j;
-import no.nav.common.utils.IdUtils;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.common.IdUtils;
+import no.nav.util.sbl.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -16,16 +16,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import static no.nav.common.utils.IdUtils.generateId;
 import static no.nav.log.MDCConstants.*;
-import static no.nav.sbl.util.LogUtils.buildMarker;
-import static no.nav.sbl.util.StringUtils.nullOrEmpty;
+import static no.nav.log.sbl.LogUtils.buildMarker;
+import static no.nav.util.common.IdUtils.generateId;
+import static no.nav.util.sbl.StringUtils.nullOrEmpty;
 import static org.springframework.http.HttpHeaders.SERVER;
 
 
-@Slf4j
 public class LogFilter extends OncePerRequestFilter implements EnvironmentAware {
 
+    private static final Logger log = org.slf4j.LoggerFactory.getLogger(LogFilter.class);
 
     public static final String CONSUMER_ID_HEADER_NAME = "Nav-Consumer-Id";
 

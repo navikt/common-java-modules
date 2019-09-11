@@ -18,7 +18,7 @@ import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
 import static no.nav.json.JsonProvider.createObjectMapper;
 import static no.nav.json.JsonUtils.*;
-import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
+import static no.nav.util.sbl.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

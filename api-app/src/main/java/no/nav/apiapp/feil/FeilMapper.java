@@ -11,10 +11,10 @@ import java.util.Optional;
 
 import static no.nav.apiapp.feil.FeilType.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
-import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.Q;
-import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-import static no.nav.sbl.util.EnvironmentUtils.isEnvironmentClass;
+import static no.nav.util.sbl.EnvironmentUtils.EnviromentClass.Q;
+import static no.nav.util.sbl.EnvironmentUtils.EnviromentClass.T;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.isEnvironmentClass;
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 
 public class FeilMapper {

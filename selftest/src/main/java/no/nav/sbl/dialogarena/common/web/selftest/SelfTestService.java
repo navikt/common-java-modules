@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 import no.nav.sbl.dialogarena.types.Pingable;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.time.LocalDateTime;

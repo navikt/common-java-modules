@@ -1,6 +1,6 @@
 package no.nav.sbl.featuretoggle;
 
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
 
 /**
  * @deprecated current recommendation is to use Unleash for feature toggling, see UnleashService

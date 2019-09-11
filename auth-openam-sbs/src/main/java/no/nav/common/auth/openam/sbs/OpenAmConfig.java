@@ -2,7 +2,7 @@ package no.nav.common.auth.openam.sbs;
 
 import lombok.Builder;
 import lombok.Value;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 
 import java.util.List;
 

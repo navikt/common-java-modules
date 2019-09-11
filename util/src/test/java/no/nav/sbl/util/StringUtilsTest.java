@@ -1,9 +1,10 @@
 package no.nav.sbl.util;
 
+import no.nav.util.sbl.StringUtils;
 import org.junit.Test;
 
-import static no.nav.sbl.util.StringUtils.notNullOrEmpty;
-import static no.nav.sbl.util.StringUtils.nullOrEmpty;
+import static no.nav.util.sbl.StringUtils.notNullOrEmpty;
+import static no.nav.util.sbl.StringUtils.nullOrEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StringUtilsTest {

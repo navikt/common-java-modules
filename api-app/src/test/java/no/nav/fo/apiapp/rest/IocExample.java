@@ -1,7 +1,5 @@
 package no.nav.fo.apiapp.rest;
 
-import lombok.Builder;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static no.nav.sbl.util.AssertUtils.assertTrue;
+import static no.nav.util.sbl.AssertUtils.assertTrue;
 
 @Slf4j
 @Path("/ioc")

@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static no.nav.apiapp.ServletUtil.leggTilServlet;
-import static no.nav.sbl.util.AssertUtils.assertNotNull;
+import static no.nav.util.sbl.AssertUtils.assertNotNull;
 
 @Configuration
 @Import({

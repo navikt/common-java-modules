@@ -8,7 +8,7 @@ import static no.nav.brukerdialog.security.Constants.AZUREADB2C_OIDC_COOKIE_NAME
 import static no.nav.brukerdialog.security.Constants.AZUREADB2C_OIDC_COOKIE_NAME_SBS;
 import static no.nav.brukerdialog.security.domain.IdentType.EksternBruker;
 import static no.nav.brukerdialog.security.domain.IdentType.InternBruker;
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getRequiredProperty;
 
 @Value
 @Builder

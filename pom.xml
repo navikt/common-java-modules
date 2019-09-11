@@ -46,6 +46,7 @@
         <module>fasit</module>
         <module>feature-toggle</module>
         <module>feed</module>
+        <module>function</module>
         <module>jdbc</module>
         <module>jetty</module>
         <module>json</module>

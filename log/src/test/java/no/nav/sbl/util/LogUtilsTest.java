@@ -7,8 +7,8 @@ import org.slf4j.MDC;
 
 import static ch.qos.logback.classic.Level.ERROR;
 import static ch.qos.logback.classic.Level.INFO;
-import static no.nav.sbl.util.LogUtils.buildMarker;
-import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
+import static no.nav.log.sbl.LogUtils.buildMarker;
+import static no.nav.log.sbl.LogUtils.setGlobalLogLevel;
 
 public class LogUtilsTest {
 

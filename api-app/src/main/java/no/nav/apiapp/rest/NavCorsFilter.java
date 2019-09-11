@@ -1,6 +1,6 @@
 package no.nav.apiapp.rest;
 
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
 
 public class NavCorsFilter implements Filter {
 

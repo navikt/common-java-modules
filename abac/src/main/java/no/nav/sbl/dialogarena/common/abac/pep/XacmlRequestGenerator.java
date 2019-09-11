@@ -6,8 +6,8 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
-import no.nav.sbl.util.EnvironmentUtils;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.EnvironmentUtils;
+import no.nav.util.sbl.StringUtils;
 
 /*
 import static no.nav.abac.xacml.NavAttributter.ENVIRONMENT_FELLES_PEP_ID;

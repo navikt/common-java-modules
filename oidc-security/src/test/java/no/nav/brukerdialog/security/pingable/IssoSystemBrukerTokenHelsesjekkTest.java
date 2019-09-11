@@ -6,7 +6,7 @@ import no.nav.fasit.FasitUtils;
 import no.nav.fasit.ServiceUser;
 import no.nav.fasit.dto.RestService;
 import no.nav.sbl.dialogarena.types.Pingable;
-import no.nav.sbl.util.ExceptionUtils;
+import no.nav.util.sbl.ExceptionUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,7 +22,7 @@ import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static no.nav.brukerdialog.security.Constants.REFRESH_TIME;
 import static no.nav.sbl.dialogarena.test.FasitAssumption.assumeFasitAccessible;
-import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
+import static no.nav.log.sbl.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assume.assumeFalse;
 

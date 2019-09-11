@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static no.nav.sbl.util.AssertUtils.assertNotNull;
+import static no.nav.util.sbl.AssertUtils.assertNotNull;
 
 public class JwtTestTokenIssuer {
 

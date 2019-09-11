@@ -15,7 +15,7 @@ import static java.util.Optional.ofNullable;
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static no.nav.sbl.rest.RestUtils.withClient;
-import static no.nav.sbl.util.StringUtils.assertNotNullOrEmpty;
+import static no.nav.util.sbl.StringUtils.assertNotNullOrEmpty;
 
 public class JsonWebKeyCache {
 

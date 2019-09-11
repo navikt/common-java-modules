@@ -9,7 +9,7 @@ import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.JettyCustomizer;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -29,10 +29,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 import static no.nav.sbl.dialogarena.common.jetty.Jetty.usingWar;
-import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
-import static no.nav.sbl.util.EnvironmentUtils.setProperty;
+import static no.nav.util.sbl.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.util.sbl.EnvironmentUtils.Type.SECRET;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.setProperty;
 
 public class ApiApp {
 

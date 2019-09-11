@@ -4,7 +4,7 @@ import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.sbl.rest.RestUtils;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
@@ -20,7 +20,7 @@ import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static no.nav.sbl.rest.RestUtils.DEFAULT_CONFIG;
-import static no.nav.sbl.util.StringUtils.of;
+import static no.nav.util.sbl.StringUtils.of;
 
 public class OpenAMUserInfoService {
 

@@ -1,5 +1,6 @@
 package no.nav.common.utils;
 
+import no.nav.util.common.CollectionUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;

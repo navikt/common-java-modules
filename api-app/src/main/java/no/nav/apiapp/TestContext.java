@@ -3,7 +3,7 @@ package no.nav.apiapp;
 import java.util.stream.Stream;
 
 import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
-import static no.nav.sbl.util.EnvironmentUtils.*;
+import static no.nav.util.sbl.EnvironmentUtils.*;
 
 public class TestContext {
 

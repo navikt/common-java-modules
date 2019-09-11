@@ -5,7 +5,7 @@ import lombok.Value;
 
 import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_PASSWORD;
 import static no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants.SYSTEMUSER_USERNAME;
-import static no.nav.sbl.util.EnvironmentUtils.*;
+import static no.nav.util.sbl.EnvironmentUtils.*;
 
 @Value
 @Builder

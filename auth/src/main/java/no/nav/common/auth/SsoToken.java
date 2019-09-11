@@ -8,8 +8,8 @@ import java.util.Map;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.unmodifiableMap;
 import static no.nav.common.auth.SsoToken.Type.*;
-import static no.nav.sbl.util.AssertUtils.assertNotNull;
-import static no.nav.sbl.util.StringUtils.assertNotNullOrEmpty;
+import static no.nav.util.sbl.AssertUtils.assertNotNull;
+import static no.nav.util.sbl.StringUtils.assertNotNullOrEmpty;
 
 @Getter
 @EqualsAndHashCode

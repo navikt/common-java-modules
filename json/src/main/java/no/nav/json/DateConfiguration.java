@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 import static java.time.LocalTime.NOON;
 import static java.time.ZoneId.systemDefault;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-import static no.nav.sbl.util.StringUtils.of;
+import static no.nav.util.sbl.StringUtils.of;
 
 public class DateConfiguration {
 

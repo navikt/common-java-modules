@@ -7,7 +7,7 @@ import no.nav.log.LogFilter;
 import no.nav.log.MDCConstants;
 import no.nav.metrics.MetricsFactory;
 import no.nav.metrics.Timer;
-import no.nav.sbl.util.ExceptionUtils;
+import no.nav.util.sbl.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -27,9 +27,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
 import static no.nav.log.LogFilter.NAV_CALL_ID_HEADER_NAMES;
-import static no.nav.sbl.util.EnvironmentUtils.getApplicationName;
-import static no.nav.sbl.util.ListUtils.mutableList;
-import static no.nav.sbl.util.StringUtils.of;
+import static no.nav.util.sbl.EnvironmentUtils.getApplicationName;
+import static no.nav.util.sbl.ListUtils.mutableList;
+import static no.nav.util.sbl.StringUtils.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class ClientLogFilter implements ClientResponseFilter, ClientRequestFilter {

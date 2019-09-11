@@ -1,8 +1,7 @@
 package no.nav.apiapp;
 
 import no.nav.apiapp.config.ApiAppConfigurator;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Environment;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 
 import javax.servlet.ServletContext;
 

@@ -2,7 +2,7 @@ package no.nav.sbl.featuretoggle.unleash;
 
 
 import no.finn.unleash.strategy.Strategy;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 
 import java.util.Arrays;
 import java.util.Map;

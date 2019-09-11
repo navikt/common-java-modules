@@ -2,9 +2,8 @@ package no.nav.brukerdialog.security.oidc.provider;
 
 import lombok.Builder;
 import lombok.Value;
-import no.nav.sbl.util.EnvironmentUtils;
 
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getRequiredProperty;
 
 @Builder
 @Value

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import static java.lang.System.getProperty;
 import static net.sf.ehcache.config.PersistenceConfiguration.Strategy.LOCALTEMPSWAP;
 import static net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU;
-import static no.nav.sbl.util.EnvironmentUtils.getRequiredProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getRequiredProperty;
 
 @Configuration
 @Import({AktorHelsesjekk.class, AktorServiceImpl.class})

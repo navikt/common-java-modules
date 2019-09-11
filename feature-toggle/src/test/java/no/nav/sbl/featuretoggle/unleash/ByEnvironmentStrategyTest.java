@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static no.nav.sbl.dialogarena.test.SystemProperties.setTemporaryProperty;
-import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
+import static no.nav.util.sbl.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByEnvironmentStrategyTest {

@@ -2,7 +2,7 @@ package no.nav.common.auth.openam.sbs;
 
 import no.nav.common.auth.LoginProvider;
 import no.nav.common.auth.Subject;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

@@ -2,9 +2,8 @@ package no.nav.sbl.rest;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import no.nav.log.LogFilter;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.MDC;

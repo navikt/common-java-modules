@@ -2,7 +2,7 @@ package no.nav.log;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import no.nav.sbl.util.LogUtils;
+import no.nav.log.sbl.LogUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static no.nav.sbl.util.LogUtils.getRootLevel;
+import static no.nav.log.sbl.LogUtils.getRootLevel;
 
 
 public class LoginfoServlet extends HttpServlet{

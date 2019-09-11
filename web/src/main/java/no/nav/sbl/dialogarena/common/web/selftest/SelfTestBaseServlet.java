@@ -1,10 +1,11 @@
 package no.nav.sbl.dialogarena.common.web.selftest;
 
+import lombok.SneakyThrows;
 import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
 import no.nav.sbl.dialogarena.common.web.selftest.generators.SelftestHtmlGenerator;
 import no.nav.sbl.dialogarena.common.web.selftest.generators.SelftestJsonGenerator;
 import no.nav.sbl.dialogarena.types.Pingable;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +50,7 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
         }
     }
 
+    @SneakyThrows
     protected String getHost() {
         return EnvironmentUtils.resolveHostName();
     }

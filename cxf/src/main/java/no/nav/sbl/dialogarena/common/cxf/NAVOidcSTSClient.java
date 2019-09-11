@@ -3,7 +3,7 @@ package no.nav.sbl.dialogarena.common.cxf;
 import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.common.auth.SsoToken;
 import no.nav.sbl.dialogarena.common.cxf.saml.ClaimsCallbackHandler;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.tokenstore.MemoryTokenStoreFactory;

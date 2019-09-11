@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static no.nav.common.leaderelection.LeaderElection.isNotLeader;
-import static no.nav.common.utils.IdUtils.generateId;
+import static no.nav.util.common.IdUtils.generateId;
 
 @Slf4j
 public class BatchJob {

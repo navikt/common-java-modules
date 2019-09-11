@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import no.nav.fo.apiapp.rest.JettyTestUtils;
 import no.nav.json.JsonProvider;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 import org.glassfish.jersey.client.ClientProperties;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

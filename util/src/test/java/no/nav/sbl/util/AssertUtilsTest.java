@@ -2,8 +2,8 @@ package no.nav.sbl.util;
 
 import org.junit.Test;
 
-import static no.nav.sbl.util.AssertUtils.assertNotNull;
-import static no.nav.sbl.util.AssertUtils.assertTrue;
+import static no.nav.util.sbl.AssertUtils.assertNotNull;
+import static no.nav.util.sbl.AssertUtils.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

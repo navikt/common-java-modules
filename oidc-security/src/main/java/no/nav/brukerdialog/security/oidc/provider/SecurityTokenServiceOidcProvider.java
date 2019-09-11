@@ -5,9 +5,8 @@ import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.jwks.JsonWebKeyCache;
 import no.nav.brukerdialog.security.jwks.JwtHeader;
-import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
 import no.nav.sbl.rest.RestUtils;
-import no.nav.sbl.util.EnumUtils;
+import no.nav.util.sbl.EnumUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Key;
@@ -15,7 +14,7 @@ import java.util.Optional;
 
 import static no.nav.brukerdialog.security.jaspic.TokenLocator.getTokenFromHeader;
 import static no.nav.brukerdialog.security.oidc.OidcTokenUtils.getStringFieldFromToken;
-import static no.nav.sbl.util.StringUtils.assertNotNullOrEmpty;
+import static no.nav.util.sbl.StringUtils.assertNotNullOrEmpty;
 
 public class SecurityTokenServiceOidcProvider implements OidcProvider {
 

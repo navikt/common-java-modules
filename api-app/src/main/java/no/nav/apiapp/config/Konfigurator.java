@@ -33,9 +33,9 @@ import static no.nav.apiapp.rest.SwaggerResource.SWAGGER_JSON;
 import static no.nav.apiapp.util.UrlUtils.joinPaths;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.configureAzureAdForExternalUsers;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.configureAzureAdForInternalUsers;
-import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
-import static no.nav.sbl.util.EnvironmentUtils.*;
+import static no.nav.util.sbl.EnvironmentUtils.Type.PUBLIC;
+import static no.nav.util.sbl.EnvironmentUtils.Type.SECRET;
+import static no.nav.util.sbl.EnvironmentUtils.*;
 
 @Slf4j
 public class Konfigurator implements ApiAppConfigurator {

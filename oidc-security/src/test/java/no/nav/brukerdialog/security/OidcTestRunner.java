@@ -14,13 +14,12 @@ import no.nav.fasit.AzureOidcConfig;
 import no.nav.fasit.FasitUtils;
 import no.nav.fasit.ServiceUser;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
-import no.nav.sbl.util.StringUtils;
 
 import javax.script.ScriptException;
 import java.io.IOException;
 
 import static java.lang.System.setProperty;
-import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
+import static no.nav.util.sbl.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 
 public class OidcTestRunner {
 

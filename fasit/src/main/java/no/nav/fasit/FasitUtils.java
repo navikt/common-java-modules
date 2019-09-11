@@ -9,8 +9,7 @@ import no.nav.fasit.client.FasitClient;
 import no.nav.fasit.client.FasitClientImpl;
 import no.nav.fasit.client.FasitClientMock;
 import no.nav.fasit.dto.RestService;
-import no.nav.sbl.util.EnvironmentUtils;
-import no.nav.sbl.util.StringUtils;
+import no.nav.util.sbl.StringUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -23,8 +22,8 @@ import static java.lang.String.format;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static no.nav.apiapp.util.ObjectUtils.isEqual;
-import static no.nav.sbl.util.StringUtils.isEqualIgnoreCase;
+import static no.nav.util.apiapp.ObjectUtils.isEqual;
+import static no.nav.util.sbl.StringUtils.isEqualIgnoreCase;
 import static org.slf4j.LoggerFactory.getLogger;
 
 

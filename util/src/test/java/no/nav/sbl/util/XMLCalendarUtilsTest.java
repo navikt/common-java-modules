@@ -1,6 +1,7 @@
 package no.nav.sbl.util;
 
 import lombok.SneakyThrows;
+import no.nav.util.sbl.XMLCalendarUtils;
 import org.junit.Test;
 
 import javax.xml.datatype.DatatypeFactory;

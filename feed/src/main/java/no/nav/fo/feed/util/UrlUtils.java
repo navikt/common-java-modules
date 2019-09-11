@@ -1,13 +1,13 @@
 package no.nav.fo.feed.util;
 
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.util.sbl.EnvironmentUtils;
 
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
 
 public class UrlUtils {
 

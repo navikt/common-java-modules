@@ -1,5 +1,6 @@
 package no.nav.sbl.util;
 
+import no.nav.util.sbl.ListUtils;
 import org.junit.Test;
 
 import java.util.Arrays;

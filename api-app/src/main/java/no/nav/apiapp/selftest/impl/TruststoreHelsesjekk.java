@@ -5,7 +5,7 @@ import no.nav.apiapp.selftest.HelsesjekkMetadata;
 
 import static no.nav.apiapp.ApiApp.NAV_TRUSTSTORE_PATH;
 import static no.nav.apiapp.ApiApp.TRUSTSTORE;
-import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.util.sbl.EnvironmentUtils.getOptionalProperty;
 
 public class TruststoreHelsesjekk implements Helsesjekk {
 
