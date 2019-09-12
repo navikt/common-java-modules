@@ -464,7 +464,7 @@
                     -->
                     <reuseForks>true</reuseForks>
 
-                    <forkCount>1C</forkCount> <!-- fyr opp 1 JVM per cpu-kjerne -->
+                    <forkCount>0</forkCount>
 
                     <argLine>-Xmx1024m</argLine> <!-- Gi nok minne for å unngå terminerende JVM-er -->
 
