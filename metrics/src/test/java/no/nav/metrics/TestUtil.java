@@ -63,7 +63,7 @@ public class TestUtil {
         return new SensuHandler(testConfig(port));
     }
 
-    private static MetricsConfig testConfig(int port) {
+    public static MetricsConfig testConfig(int port) {
         return MetricsConfig.withSensuDefaults(MetricsConfig.builder()
                 .application("testApp")
                 .sensuHost("localhost")

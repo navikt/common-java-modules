@@ -18,7 +18,7 @@ public class MetricsFactory {
     }
 
     public static Timer createTimer(String name) {
-        return new Timer(metricsClient, name);
+        return new Timer(metricsClient, name, new Timing() {});
     }
 
     public static Event createEvent(String name) {

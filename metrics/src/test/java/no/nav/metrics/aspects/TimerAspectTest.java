@@ -1,22 +1,27 @@
 package no.nav.metrics.aspects;
 
-import mockit.*;
-import no.nav.metrics.MetodeTimer;
 import no.nav.metrics.Metodekall;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.Test;
 
+import java.util.function.Function;
+
 import static no.nav.metrics.TestUtil.lagAspectProxy;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class TimerAspectTest {
 
     @Test
-    public void metoderMedTimedAnnotasjonBlirTruffetAvAspect(@Mocked final TimerAspect aspect) throws Throwable {
-        new Expectations() {{
-            aspect.timerPaMetode((ProceedingJoinPoint) any, (Timed) any);
-            result = "proxyTimed";
-        }};
+    public void metoderMedTimedAnnotasjonBlirTruffetAvAspect() throws Throwable {
+
+        TimerAspect aspect = new TimerAspect() {
+            @Override
+            public Object timerPaMetode(ProceedingJoinPoint joinPoint, Timed timed) throws Throwable {
+                return "proxyTimed";
+            }
+        };
 
         TimedMetoder proxy = lagAspectProxy(new TimedMetoder(), aspect);
 
@@ -24,13 +29,14 @@ public class TimerAspectTest {
         assertEquals("originalIkkeTimed", proxy.ikkeTimed());
     }
 
-
     @Test
-    public void metoderPaKlasseMedAnnotasjonBlirTruffetAvAspect(@Mocked final TimerAspect aspect) throws Throwable {
-        new Expectations() {{
-            aspect.timerPaKlasse((ProceedingJoinPoint) any, (Timed) any);
-            result = "proxyTimed";
-        }};
+    public void metoderPaKlasseMedAnnotasjonBlirTruffetAvAspect() throws Throwable {
+        TimerAspect aspect = new TimerAspect() {
+            @Override
+            public Object timerPaKlasse(ProceedingJoinPoint joinPoint, Timed timed) throws Throwable {
+                return "proxyTimed";
+            }
+        };
 
         TimedKlasse proxy = lagAspectProxy(new TimedKlasse(), aspect);
 
@@ -39,13 +45,15 @@ public class TimerAspectTest {
     }
 
     @Test
-    public void metoderPaKlasseMedAnnotasjonBlirIgnorert(@Mocked final MetodeTimer metodeTimer) throws Throwable {
-        new Expectations() {{
-            MetodeTimer.timeMetode((Metodekall) any, anyString);
-            result = "timedMetode";
-        }};
+    public void metoderPaKlasseMedAnnotasjonBlirIgnorert() throws Throwable {
+        TimerAspect aspect = new TimerAspect() {
+            @Override
+            Object timeMetode(Metodekall metodekall, String timerNavn) throws Throwable {
+                return "timedMetode";
+            }
+        };
 
-        TimedKlasseMedIgnorerteMetoder proxy = lagAspectProxy(new TimedKlasseMedIgnorerteMetoder(), new TimerAspect());
+        TimedKlasseMedIgnorerteMetoder proxy = lagAspectProxy(new TimedKlasseMedIgnorerteMetoder(), aspect);
 
         assertEquals("timedMetode", proxy.timed1());
         assertEquals("timedMetode", proxy.timed2());
@@ -53,10 +61,15 @@ public class TimerAspectTest {
         assertEquals("toString", proxy.toString());
     }
 
-
     @Test
-    public void timeMetodeBlirKaltMedRiktigNavn(@Mocked final MetodeTimer metodeTimer) throws Throwable {
-        TimerAspect aspect = new TimerAspect();
+    public void timeMetodeBlirKaltMedRiktigNavn() throws Throwable {
+        Function func = mock(Function.class);
+        TimerAspect aspect = new TimerAspect() {
+            @Override
+            Object timeMetode(Metodekall metodekall, String timerNavn) throws Throwable {
+                return func.apply(timerNavn);
+            }
+        };
 
         TimedKlasse timedKlasse = lagAspectProxy(new TimedKlasse(), aspect);
         timedKlasse.timed1();
@@ -66,21 +79,16 @@ public class TimerAspectTest {
         timedMetoder.timed();
         timedMetoder.timedMedNavn();
 
-        TimedKlasseMedIgnorerteMetoder ignorerteMetoder = lagAspectProxy(new TimedKlasseMedIgnorerteMetoder(), new TimerAspect());
+        TimedKlasseMedIgnorerteMetoder ignorerteMetoder = lagAspectProxy(new TimedKlasseMedIgnorerteMetoder(), aspect);
         ignorerteMetoder.timed1();
 
+        verify(func).apply("TimedKlasse.timed1");
+        verify(func).apply("TimedKlasse.timed2");
+        verify(func).apply("TimedMetoder.timed");
+        verify(func).apply("customTimerNavn");
+        verify(func).apply("customKlasseTimer.timed1");
 
-        new Verifications() {{
-            MetodeTimer.timeMetode((Metodekall) any, "TimedKlasse.timed1");
-            MetodeTimer.timeMetode((Metodekall) any, "TimedKlasse.timed2");
-
-            MetodeTimer.timeMetode((Metodekall) any, "TimedMetoder.timed");
-            MetodeTimer.timeMetode((Metodekall) any, "customTimerNavn");
-
-            MetodeTimer.timeMetode((Metodekall) any, "customKlasseTimer.timed1");
-        }};
     }
-
 
     private static class TimedMetoder {
         @Timed
@@ -128,5 +136,4 @@ public class TimerAspectTest {
             return "toString";
         }
     }
-
 }

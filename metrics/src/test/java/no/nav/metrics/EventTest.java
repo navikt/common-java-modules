@@ -1,33 +1,20 @@
 package no.nav.metrics;
 
-import mockit.Mocked;
-import mockit.Verifications;
 import org.junit.Test;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class EventTest {
 
-    @Mocked
-    private MetricsClient metricsClient;
-
     @Test
-    @SuppressWarnings("unchecked")
-    public void kallTilMetricsClientSkalBenytteNavnPaEvent() throws Exception {
+    public void kallTilMetricsClientSkalBenytteNavnPaEvent() {
+        MetricsClient metricsClient = mock(MetricsClient.class);
         final String navnPaEvent = "navnPaEvent";
 
         new Event(metricsClient, navnPaEvent).report();
 
-        new Verifications() {
-            {
-                String metricName;
-                metricsClient.report(metricName = withCapture(), (Map<String, Object>) any,(Map<String, String>) any, anyLong);
-                times = 1;
-
-                assertTrue(metricName.contains(navnPaEvent));
-            }
-        };
+        verify(metricsClient).report(contains(navnPaEvent), any(),any(), anyLong());
     }
 }

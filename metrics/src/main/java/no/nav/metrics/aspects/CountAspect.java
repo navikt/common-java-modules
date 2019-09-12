@@ -1,6 +1,7 @@
 package no.nav.metrics.aspects;
 
 import no.nav.metrics.MetodeEvent;
+import no.nav.metrics.Metodekall;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -54,7 +55,7 @@ public class CountAspect {
         AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
         String eventNavn = lagMetodeTimernavn(joinPoint, count.name());
 
-        return MetodeEvent.eventForMetode(metodekall, eventNavn, finnArgumentVerdier(joinPoint, count));
+        return eventForMetode(metodekall, eventNavn, finnArgumentVerdier(joinPoint, count));
     }
 
     @Around("publicMethod() && @within(count)")
@@ -66,7 +67,7 @@ public class CountAspect {
         AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
         String eventNavn = lagKlasseTimernavn(joinPoint, count.name());
 
-        return MetodeEvent.eventForMetode(metodekall, eventNavn);
+        return eventForMetode(metodekall, eventNavn);
     }
 
     private Map<String, String> finnArgumentVerdier(JoinPoint joinPoint, Count count) {
@@ -84,5 +85,13 @@ public class CountAspect {
         }
 
         return verdier;
+    }
+
+    Object eventForMetode(Metodekall metodekall, String eventNavn) throws Throwable {
+        return eventForMetode(metodekall, eventNavn, null);
+    }
+
+    Object eventForMetode(Metodekall metodekall, String eventNavn, Map<String, String> verdier) throws Throwable {
+        return MetodeEvent.eventForMetode(metodekall, eventNavn, verdier);
     }
 }
