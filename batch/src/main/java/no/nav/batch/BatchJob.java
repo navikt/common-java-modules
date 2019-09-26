@@ -18,18 +18,24 @@ public class BatchJob {
         if (isNotLeader()) {
             return Optional.empty();
         }
-        return Optional.of(runAsync(runnable));
+        String value = runAsync(runnable);
+        return Optional.of(value);
     }
 
 
     public static String runAsync(Runnable runnable) {
         String jobId = generateId();
         log.info("Running job with jobId {}", jobId);
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             MDC.put(MDC_JOB_ID, jobId);
             runnable.run();
             MDC.remove(MDC_JOB_ID);
         });
+
+        future.exceptionally(e -> {
+            throw new RuntimeException(e);
+        });
+
         return jobId;
     }
 }
