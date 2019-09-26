@@ -43,7 +43,7 @@ public class FasitUtilsIntegrationTest {
     public void resolveDomain_() throws Exception {
         assertThat(resolveDomain("feature", TEST_ENVIRONMENT), equalTo(PREPROD_LOCAL));
         assertThat(resolveDomain("veilarbaktivitet", TEST_ENVIRONMENT), equalTo(PREPROD_LOCAL));
-        assertThat(resolveDomain("dittnav", "q1"), equalTo(OERA_Q_LOCAL));
+        assertThat(resolveDomain("pensjon-sbs", "q1"), equalTo(OERA_Q_LOCAL));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void getApplicationConfig() {
-        ApplicationConfig dittnavApplicationConfig = FasitUtils.getApplicationConfig("dittnav", TEST_ENVIRONMENT);
+        ApplicationConfig dittnavApplicationConfig = FasitUtils.getApplicationConfig("pensjon-sbs", TEST_ENVIRONMENT);
         assertThat(dittnavApplicationConfig.domain, equalTo("oera-q.local"));
 
         ApplicationConfig situasjonApplicationConfig = FasitUtils.getApplicationConfig("veilarbaktivitet", TEST_ENVIRONMENT);
@@ -82,13 +82,13 @@ public class FasitUtilsIntegrationTest {
 
     @Test
     public void getApplicationEnvironment() throws Exception {
-        Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("dittnav");
+        Properties applicationEnvironment = FasitUtils.getApplicationEnvironment("varsel");
         assertThat(applicationEnvironment.size(), greaterThan(10));
 
-        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("dittnav", TEST_ENVIRONMENT);
+        Properties veilarbaktivitetEnvironment = FasitUtils.getApplicationEnvironment("varsel", TEST_ENVIRONMENT);
         assertThat(veilarbaktivitetEnvironment.size(), greaterThan(10));
 
-        Properties dittnavEnvironment = FasitUtils.getApplicationEnvironment("dittnav", "t1");
+        Properties dittnavEnvironment = FasitUtils.getApplicationEnvironment("varsel", "t1");
         assertThat(dittnavEnvironment.size(), greaterThan(10));
     }
 

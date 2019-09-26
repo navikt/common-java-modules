@@ -70,6 +70,11 @@
             <artifactId>wiremock</artifactId>
             <version>2.22.0</version>
         </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
