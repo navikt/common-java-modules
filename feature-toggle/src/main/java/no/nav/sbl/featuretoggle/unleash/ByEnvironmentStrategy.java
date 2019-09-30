@@ -4,10 +4,8 @@ package no.nav.sbl.featuretoggle.unleash;
 import no.finn.unleash.strategy.Strategy;
 import no.nav.sbl.util.EnvironmentUtils;
 
-import java.util.Arrays;
 import java.util.Map;
 
-import static java.util.Optional.ofNullable;
 
 public class ByEnvironmentStrategy implements Strategy {
 
@@ -17,16 +15,13 @@ public class ByEnvironmentStrategy implements Strategy {
     }
 
     @Override
-    public boolean isEnabled(Map<String, String> map) {
-        return ofNullable(map)
-                .map(m -> m.get("miljø")).map(s -> s.split(","))
-                .map(Arrays::stream)
-                .map(s -> s.anyMatch(this::isEnvironment))
-                .orElse(false);
+    public boolean isEnabled(Map<String, String> parameters) {
+        return ToggleChecker.isToggleEnabled("miljø", parameters, ByEnvironmentStrategy::isEnvironment);
     }
 
-    private boolean isEnvironment(String environment) {
-        return EnvironmentUtils.getEnvironmentName().map(environment::equals).orElse(false);
+    private static boolean isEnvironment(String toggleEnvironment) {
+        String environment = EnvironmentUtils.getEnvironmentName().orElse("NO_ENVIRONMENT");
+        return environment.equalsIgnoreCase(toggleEnvironment);
     }
 
 }

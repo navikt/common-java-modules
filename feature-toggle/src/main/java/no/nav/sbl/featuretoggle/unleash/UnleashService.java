@@ -62,7 +62,9 @@ public class UnleashService implements Pingable, UnleashSubscriber {
         List<Strategy> list = new ArrayList<>(strategies);
         list.addAll(Arrays.asList(
                 new IsNotProdStrategy(),
-                new ByEnvironmentStrategy()
+                new ByEnvironmentStrategy(),
+                new ByNamespaceStrategy(),
+                new ByClusterStrategy()
         ));
         return list.toArray(new Strategy[0]);
     }
