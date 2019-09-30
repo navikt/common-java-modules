@@ -20,6 +20,7 @@ public class EnvironmentUtils {
 
     public static final String APP_NAME_PROPERTY_NAME = "NAIS_APP_NAME";
     public static final String NAIS_NAMESPACE_PROPERTY_NAME = "NAIS_NAMESPACE";
+    public static final String NAIS_CLUSTER_NAME_PROPERTY_NAME = "NAIS_CLUSTER_NAME";
 
     public static final String APP_NAME_PROPERTY_NAME_SKYA = "applicationName";
 
@@ -95,6 +96,10 @@ public class EnvironmentUtils {
 
     public static Optional<String> getNamespace() {
         return getOptionalProperty(NAIS_NAMESPACE_PROPERTY_NAME);
+    }
+
+    public static Optional<String> getClusterName() {
+        return getOptionalProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME);
     }
 
     public static String requireNamespace() {
