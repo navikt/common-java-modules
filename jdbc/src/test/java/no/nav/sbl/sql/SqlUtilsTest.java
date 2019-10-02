@@ -21,12 +21,14 @@ public class SqlUtilsTest {
 
     public final static String TESTTABLE1 = "TESTTABLE1";
     public final static String TESTTABLE2 = "TESTTABLE2";
+    public final static String TESTTABLE3 = "TESTTABLE3";
     public final static String ID = "ID";
     public final static String NAVN = "NAVN";
     public final static String DEAD = "DEAD";
     public final static String BIRTHDAY = "BIRTHDAY";
     public final static String NUMBER_OF_PETS = "NUMBER_OF_PETS";
     public final static String ADDRESS = "ADDRESS";
+    public final static String BANK_NAME = "BANK_NAME";
     public final static String TEST_ID_SEQ = "TEST_ID_SEQ";
 
     private JdbcTemplate db;
@@ -45,6 +47,12 @@ public class SqlUtilsTest {
         db.update("CREATE TABLE TESTTABLE2 (\n" +
                 "  ID VARCHAR(255) NOT NULL,\n" +
                 "  ADDRESS VARCHAR(255),\n" +
+                "  PRIMARY KEY(ID)\n" +
+                ")"
+        );
+        db.update("CREATE TABLE TESTTABLE3 (\n" +
+                "  ID VARCHAR(255) NOT NULL,\n" +
+                "  BANK_NAME VARCHAR(255),\n" +
                 "  PRIMARY KEY(ID)\n" +
                 ")"
         );
@@ -186,13 +194,16 @@ public class SqlUtilsTest {
     public void leftJoinOn() {
         getTestobjectWithId("007").toInsertQuery(db, TESTTABLE1).execute();
         db.execute("INSERT INTO TESTTABLE2 (ID, ADDRESS) VALUES ('007', 'andeby')");
+        db.execute("INSERT INTO TESTTABLE3 (ID, BANK_NAME) VALUES ('007', 'kvackeby banken')");
         Testobject retrieved = Testobject
-                .getSelectWithAddressQuery(db, TESTTABLE1)
+                .getSelectWithAddressAndBankQuery(db, TESTTABLE1)
                 .leftJoinOn(TESTTABLE2, ID, ID)
+                .leftJoinOn(TESTTABLE3, ID, ID)
                 .where(WhereClause.equals(ID, "007"))
                 .execute();
 
         assertThat(retrieved.getAddress()).isEqualTo("andeby");
+        assertThat(retrieved.getBankName()).isEqualTo("kvackeby banken");
     }
 
     @Test

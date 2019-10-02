@@ -29,7 +29,7 @@ public class SelectQuery<T> {
     private String groupBy;
     private Integer offset;
     private Integer rowCount;
-    private Tuple3<String, String, String> leftJoinOn;
+    private List<Tuple3<String, String, String>> leftJoinOn = new ArrayList<>();
 
     SelectQuery(JdbcTemplate db, String tableName, Function<ResultSet, T> mapper) {
         this.db = db;
@@ -39,7 +39,7 @@ public class SelectQuery<T> {
     }
 
     public SelectQuery<T> leftJoinOn(String joinTableName, String leftOn, String rightOn) {
-        leftJoinOn = Tuple.of(joinTableName, leftOn, rightOn);
+        leftJoinOn.add(Tuple.of(joinTableName, leftOn, rightOn));
         return this;
     }
 
@@ -133,13 +133,14 @@ public class SelectQuery<T> {
                 .append("FROM ")
                 .append(tableName);
 
-        if (Objects.nonNull(leftJoinOn)) {
-            sqlBuilder.append(String.format(" LEFT JOIN %s ON %s.%s = %s.%s",
-                    leftJoinOn._1,
-                    tableName,
-                    leftJoinOn._2,
-                    leftJoinOn._1,
-                    leftJoinOn._3));
+        if (!leftJoinOn.isEmpty()) {
+            leftJoinOn.forEach(leftJoinStatement ->
+                    sqlBuilder.append(String.format(" LEFT JOIN %s ON %s.%s = %s.%s",
+                            leftJoinStatement._1,
+                            tableName,
+                            leftJoinStatement._2,
+                            leftJoinStatement._1,
+                            leftJoinStatement._3)));
         }
 
         if (this.where != null) {
