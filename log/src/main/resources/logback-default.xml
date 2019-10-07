@@ -2,5 +2,4 @@
 <included>
     <include resource="logback-abac.xml"/>
     <include resource="logback-default-without-abac.xml"/>
-
 </included>

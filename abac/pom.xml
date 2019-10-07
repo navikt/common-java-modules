@@ -57,6 +57,10 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.papertrailapp</groupId>
+            <artifactId>logback-syslog4j</artifactId>
+        </dependency>
+        <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>util</artifactId>
         </dependency>
