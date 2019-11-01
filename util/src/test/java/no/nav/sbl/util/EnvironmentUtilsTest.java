@@ -129,11 +129,21 @@ public class EnvironmentUtilsTest {
     @Test
     public void getEnvironmentName() {
         assertThat(EnvironmentUtils.getEnvironmentName()).isEmpty();
+        assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(APP_ENVIRONMENT_NAME_PROPERTY_NAME);
         assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
+        assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA);
 
-        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "q42", () -> {
-            assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q42");
-            assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q42");
+        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA, "q41", () -> {
+            assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q41");
+            assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q41");
+            setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "q42", () -> {
+                assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q42");
+                assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q42");
+                setTemporaryProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, "q43", () -> {
+                    assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q43");
+                    assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q43");
+                });
+            });
         });
     }
 
