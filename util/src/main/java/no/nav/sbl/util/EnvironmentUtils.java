@@ -25,6 +25,7 @@ public class EnvironmentUtils {
     public static final String APP_NAME_PROPERTY_NAME_SKYA = "applicationName";
 
     public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME = "FASIT_ENVIRONMENT_NAME";
+    public static final String APP_ENVIRONMENT_NAME_PROPERTY_NAME = "APP_ENVIRONMENT_NAME";
     public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA = "environment.name";
 
 
@@ -83,11 +84,15 @@ public class EnvironmentUtils {
     }
 
     public static Optional<String> getEnvironmentName() {
-        return getOptionalProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA);
+        return getOptionalProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA);
     }
 
     public static String requireEnvironmentName() {
-        return getEnvironmentName().orElseThrow(() -> new IllegalStateException(createErrorMessage(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA)));
+        return getEnvironmentName().orElseThrow(() ->
+                new IllegalStateException(
+                        createErrorMessage(APP_ENVIRONMENT_NAME_PROPERTY_NAME,
+                                FASIT_ENVIRONMENT_NAME_PROPERTY_NAME,
+                                FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA)));
     }
 
     public static Optional<String> getApplicationVersion() {
