@@ -2,6 +2,7 @@ package no.nav.common.utils;
 
 import lombok.SneakyThrows;
 import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -11,7 +12,8 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
-import static no.nav.common.utils.NaisUtils.CONFIG_MAPS_PATH;
+import static no.nav.common.utils.NaisUtils.CONFIG_MAPS_BASE_PATH_PROPERTY_NAME;
+import static no.nav.common.utils.NaisUtils.SECRETS_BASE_PATH_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
@@ -22,6 +24,12 @@ public class NaisUtilsTest {
 
     @Rule
     public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
+
+    @Before
+    public void setup() {
+        systemPropertiesRule.setProperty(SECRETS_BASE_PATH_PROPERTY_NAME, tmp.getRoot().getAbsolutePath());
+
+    }
 
     @Test
     @SneakyThrows
@@ -37,7 +45,7 @@ public class NaisUtilsTest {
         createFolder("creds");
         writeFile("creds/username", "the username");
         writeFile("creds/password", "the password");
-        NaisUtils.Credentials credentials = NaisUtils.getCredentials(tempPath("creds"));
+        NaisUtils.Credentials credentials = NaisUtils.getCredentials("creds");
         assertThat(credentials.username).isEqualTo("the username");
         assertThat(credentials.password).isEqualTo("the password");
     }
@@ -47,20 +55,15 @@ public class NaisUtilsTest {
         createFolder("creds");
         writeFile("creds/un", "the username");
         writeFile("creds/pw", "the password");
-        NaisUtils.Credentials credentials = NaisUtils.getCredentials(tempPath("creds"), "un", "pw");
+        NaisUtils.Credentials credentials = NaisUtils.getCredentials("creds", "un", "pw");
         assertThat(credentials.username).isEqualTo("the username");
         assertThat(credentials.password).isEqualTo("the password");
     }
 
     @Test
-    public void defaultPath() {
-        assertThat(NaisUtils.getDefaultSecretPath("path")).isEqualTo("/var/run/secrets/nais.io" + "/path");
-    }
-
-    @Test
     public void readConfigMap() {
         createFolder("configMaps", "configMap");
-        systemPropertiesRule.setProperty(CONFIG_MAPS_PATH, tempPath("configMaps"));
+        systemPropertiesRule.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
         writeFile("configMaps/configMap/KEY_1", "VALUE 1");
         writeFile("configMaps/configMap/KEY_2", "VALUE 2");
@@ -78,7 +81,7 @@ public class NaisUtilsTest {
     @Test
     public void cherryPickFromConfigMap() {
         createFolder("configMaps", "configMap");
-        systemPropertiesRule.setProperty(CONFIG_MAPS_PATH, tempPath("configMaps"));
+        systemPropertiesRule.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
         writeFile("configMaps/configMap/KEY_1", "VALUE 1");
         writeFile("configMaps/configMap/KEY_2", "VALUE 2");
@@ -94,7 +97,7 @@ public class NaisUtilsTest {
     @Test
     public void cherryPickFromConfigMapFailsWhenKeyIsNotFound() {
         createFolder("configMaps", "configMap");
-        systemPropertiesRule.setProperty(CONFIG_MAPS_PATH, tempPath("configMaps"));
+        systemPropertiesRule.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
         writeFile("configMaps/configMap/KEY_1", "VALUE 1");
         writeFile("configMaps/configMap/KEY_2", "VALUE 2");

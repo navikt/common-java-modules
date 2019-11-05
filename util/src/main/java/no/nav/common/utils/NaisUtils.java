@@ -17,11 +17,12 @@ import static java.lang.String.format;
 
 public class NaisUtils {
 
-    private static String DEFAULT_SECRETS_PATH = "/var/run/secrets/nais.io";
+    public static String SECRETS_BASE_PATH_PROPERTY_NAME = "SECRETS_BASE_PATH";
+    private static String DEFAULT_SECRETS_BASE_PATH = "/var/run/secrets/nais.io";
     private static String DEFAULT_CREDENTIALS_USERNAME_FILE = "username";
     private static String DEFAULT_CREDENTIALS_PASSWORD_FILE = "password";
 
-    public static String CONFIG_MAPS_PATH = "CONFIG_MAPS_PATH";
+    public static String CONFIG_MAPS_BASE_PATH_PROPERTY_NAME = "CONFIG_BASE_MAPS_PATH";
     private static String DEFAULT_CONFIG_MAPS_PATH = "/var/run/configmaps";
 
     public static class Credentials {
@@ -34,18 +35,19 @@ public class NaisUtils {
         }
     }
 
-    public static Credentials getCredentials(String credentialsPath,
+    public static Credentials getCredentials(String secretName,
                                              String usernameFileName,
                                              String passwordFileName) {
-        Path path = Paths.get(credentialsPath);
+        String credentialsBasePath = EnvironmentUtils.getOptionalProperty(SECRETS_BASE_PATH_PROPERTY_NAME).orElse(DEFAULT_SECRETS_BASE_PATH);
+        Path path = Paths.get(credentialsBasePath, secretName);
         String username = getFileContent(path.resolve(usernameFileName));
         String password = getFileContent(path.resolve(passwordFileName));
 
         return new Credentials(username, password);
     }
 
-    public static Credentials getCredentials(String path) {
-        return getCredentials(path, DEFAULT_CREDENTIALS_USERNAME_FILE, DEFAULT_CREDENTIALS_PASSWORD_FILE);
+    public static Credentials getCredentials(String secretName) {
+        return getCredentials(secretName, DEFAULT_CREDENTIALS_USERNAME_FILE, DEFAULT_CREDENTIALS_PASSWORD_FILE);
     }
 
     public static String getFileContent(String path) {
@@ -67,10 +69,6 @@ public class NaisUtils {
         return Files.readAllLines(path);
     }
 
-    public static String getDefaultSecretPath(String secret) {
-        return Paths.get(DEFAULT_SECRETS_PATH, secret).toString();
-    }
-
     public static void addConfigMapToEnv(String configMap) {
         addMapToEnv(readConfigMap(configMap));
     }
@@ -85,7 +83,7 @@ public class NaisUtils {
 
     @SneakyThrows
     public static Map<String, String> readConfigMap(String configMap) {
-        String configMapsPath = EnvironmentUtils.getOptionalProperty(CONFIG_MAPS_PATH).orElse(DEFAULT_CONFIG_MAPS_PATH);
+        String configMapsPath = EnvironmentUtils.getOptionalProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME).orElse(DEFAULT_CONFIG_MAPS_PATH);
         Path path = Paths.get(configMapsPath, configMap);
         Stream<Path> files = Files.walk(path, 1).filter(Files::isRegularFile);
 
