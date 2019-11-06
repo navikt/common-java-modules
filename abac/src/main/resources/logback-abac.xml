@@ -18,4 +18,8 @@
         </syslogConfig>
     </appender>
 
+    <logger name="AuditLogger" level="${ABAC_TJENESTEKALL_LOG_LEVEL:-INFO}" additivity="false">
+        <appender-ref ref="AuditLogger"/>
+    </logger>
+
 </included>
