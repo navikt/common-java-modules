@@ -1,6 +1,7 @@
 package no.nav.apiapp.selftest;
 
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
+import no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus.OK;
+import static no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus.WARNING;
 
 public class IsReadyServlet extends HttpServlet {
 
@@ -24,7 +26,8 @@ public class IsReadyServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
         if (!ready) {
-            ready = selfTestService.selfTest().getAggregateResult() == OK;
+            SelfTestStatus aggregateResult = selfTestService.selfTest().getAggregateResult();
+            ready = aggregateResult == OK || aggregateResult == WARNING;
         }
 
         httpServletResponse.setStatus(ready ? SC_OK : SC_SERVICE_UNAVAILABLE);
