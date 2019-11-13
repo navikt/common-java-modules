@@ -10,7 +10,7 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>batch</artifactId>
+    <artifactId>jobutils</artifactId>
 
     <dependencyManagement>
         <dependencies>
@@ -30,45 +30,13 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>leader-election</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-        </dependency>
     </dependencies>
-
-
-    <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/common/batch.git</developerConnection>
-        <url>http://stash.devillo.no/scm/common/batch.git</url>
-        <tag>HEAD</tag>
-    </scm>
 
 </project>
