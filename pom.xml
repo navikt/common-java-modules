@@ -39,7 +39,7 @@
         <module>app-mock</module>
         <module>auth</module>
         <module>auth-openam-sbs</module>
-        <module>batch</module>
+        <module>jobutils</module>
         <module>bom</module>
         <module>cache</module>
         <module>cxf</module>

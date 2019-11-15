@@ -310,7 +310,7 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>batch</artifactId>
+                <artifactId>jobutils</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
