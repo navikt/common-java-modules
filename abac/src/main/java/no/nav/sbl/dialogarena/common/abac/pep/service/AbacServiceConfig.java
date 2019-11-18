@@ -11,7 +11,6 @@ import static no.nav.sbl.util.EnvironmentUtils.*;
 @Builder
 public class AbacServiceConfig {
 
-    public static final String ABAC_ENDPOINT_URL_PROPERTY_NAME_SKYA = "abac.endpoint.url";
     public static final String ABAC_ENDPOINT_URL_PROPERTY_NAME = "ABAC_PDP_ENDPOINT_URL";
 
     private String username;
@@ -22,7 +21,7 @@ public class AbacServiceConfig {
         return AbacServiceConfig.builder()
                 .username(getOptionalProperty(SYSTEMUSER_USERNAME).orElseGet(() -> getRequiredProperty(SYSTEMUSER_USERNAME, resolveSrvUserPropertyName())))
                 .password(getOptionalProperty(SYSTEMUSER_PASSWORD).orElseGet(() -> getRequiredProperty(SYSTEMUSER_PASSWORD, resolverSrvPasswordPropertyName())))
-                .endpointUrl(getRequiredProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME, ABAC_ENDPOINT_URL_PROPERTY_NAME_SKYA))
+                .endpointUrl(getRequiredProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME))
                 .build();
     }
 

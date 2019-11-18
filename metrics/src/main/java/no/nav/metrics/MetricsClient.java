@@ -17,11 +17,7 @@ public class MetricsClient {
     private static volatile MetricsConfig metricsConfig;
 
     static {
-        if (EnvironmentUtils.isRunningOnJboss()) {
-            enableMetrics(MetricsConfig.resolveSkyaConfig());
-        } else {
-            log.warn("metrics was not automatically enabled");
-        }
+        log.warn("metrics was not automatically enabled");
     }
 
     public static void enableMetrics(MetricsConfig metricsConfig) {

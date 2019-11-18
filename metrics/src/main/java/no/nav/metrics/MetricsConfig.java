@@ -33,10 +33,6 @@ public class MetricsConfig {
     private int batchesPerSecond;
     private int batchSize;
 
-    public static MetricsConfig resolveSkyaConfig() {
-        return defaultConfig("localhost", 3030);
-    }
-
     public static MetricsConfig resolveNaisConfig() {
         return defaultConfig("sensu.nais", 3030);
     }

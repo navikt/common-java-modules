@@ -6,8 +6,6 @@ import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
 
 public class DataSourceFactory {
 
-    // default maximum pool size at SKYA was 300
-    // using lower value since current applications probably scales more horizontally than on SKYA
     private static final int DEFAULT_MAXIMUM_POOL_SIZE = 150;
     private static final int DEFAULT_MINIMUM_IDLE = 1;
 
