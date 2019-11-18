@@ -131,18 +131,13 @@ public class EnvironmentUtilsTest {
         assertThat(EnvironmentUtils.getEnvironmentName()).isEmpty();
         assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(APP_ENVIRONMENT_NAME_PROPERTY_NAME);
         assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
-        assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA);
 
-        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA, "q41", () -> {
-            assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q41");
-            assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q41");
-            setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "q42", () -> {
-                assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q42");
-                assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q42");
-                setTemporaryProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, "q43", () -> {
-                    assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q43");
-                    assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q43");
-                });
+        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "q42", () -> {
+            assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q42");
+            assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q42");
+            setTemporaryProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, "q43", () -> {
+                assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q43");
+                assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q43");
             });
         });
     }
@@ -154,8 +149,6 @@ public class EnvironmentUtilsTest {
 
     @Test
     public void resolveSrvUserPropertyName() {
-        assertThatThrownBy(EnvironmentUtils::resolveSrvUserPropertyName).hasMessageContaining("applicationName");
-
         setTemporaryProperty(APP_NAME_PROPERTY_NAME, "testapp", () -> {
             assertThat(EnvironmentUtils.resolveSrvUserPropertyName()).isEqualTo("SRVTESTAPP_USERNAME");
             assertThat(EnvironmentUtils.resolverSrvPasswordPropertyName()).isEqualTo("SRVTESTAPP_PASSWORD");

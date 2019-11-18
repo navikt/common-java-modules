@@ -810,10 +810,6 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${javax.servlet-api.version}</version>
-                <!--
-                provided er korrekt på jboss mens compile mest naturlig og korrekt på nais.
-                Tilrettelegger for det siste, så får legacy-prosjekter heller sette denne som provided hvis dette medfører prblemer
-                -->
             </dependency>
             <dependency>
                 <groupId>javax.websocket</groupId>
