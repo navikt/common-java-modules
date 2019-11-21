@@ -18,6 +18,8 @@ import static org.glassfish.jersey.client.ClientProperties.*;
 public class RestUtils {
 
     public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
+    public static final String CONSUMER_ID_HEADER_NAME = "Nav-Consumer-Id";
+    public static final String CALL_ID_HEADER_NAME = "Nav-Call-Id";
 
     public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
     public static final RestConfig LONG_READ_CONFIG = DEFAULT_CONFIG.withReadTimeout(DEFAULT_CONFIG.readTimeout * 4);
@@ -61,6 +63,7 @@ public class RestUtils {
         return new JerseyClientBuilder()
                 .sslContext(riktigSSLContext())
                 .withConfig(createClientConfig(restConfig, metricName))
+                .register(new DefaultHeadersFilter())
                 .build();
     }
 
