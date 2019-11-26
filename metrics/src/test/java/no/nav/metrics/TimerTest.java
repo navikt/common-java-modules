@@ -1,61 +1,34 @@
 package no.nav.metrics;
 
-import mockit.*;
 import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
+import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TimerTest {
     private Timer timer;
-    @Mocked
-    MetricsClient metricsClient;
+    private MetricsClient metricsClient;
+    private Timing timing;
 
     @Before
     public void setUp() {
-        timer = new Timer(metricsClient, "timer");
+        metricsClient = mock(MetricsClient.class);
+        timing = mock(Timing.class);
+        timer = new Timer(metricsClient, "timer", timing);
     }
 
     @Test
-    public void startUsesNanoTime(@Mocked System mockedSystem) {
+    public void elapsedTimeReturnsDifferenceBetweenStartAndStopTimeInMillis() {
+        when(timing.nanoTime()).thenReturn(1000000L);
         timer.start();
-
-        new Verifications() {
-            {
-                System.nanoTime();
-                times = 1;
-            }
-        };
-    }
-
-    @Test
-    public void stopUsesNanoTime(@Mocked System mockedSystem) {
+        when(timing.nanoTime()).thenReturn(3000000L);
         timer.stop();
 
-        new Verifications() {
-            {
-                System.nanoTime();
-                times = 1;
-            }
-        };
-    }
-
-    @Test
-    public void elapsedTimeReturnsDifferenceBetweenStartAndStopTimeInMillis(@Mocked System mockedSystem) {
-        new NonStrictExpectations() {
-            {
-                System.nanoTime();
-                result = 1000000;
-                result = 3000000;
-            }
-        };
-
-        timer.start().stop();
-
-        long elpasedTimeInMillis = Deencapsulation.invoke(timer, "getElpasedTimeInMillis");
-
-        assertEquals(NANOSECONDS.toMillis(2000000), elpasedTimeInMillis);
+        assertEquals(NANOSECONDS.toMillis(2000000), timer.getElpasedTimeInMillis());
     }
 
     @Test(expected = RuntimeException.class)
@@ -64,14 +37,13 @@ public class TimerTest {
     }
 
     @Test
-    public void timerIsResetAfterReport() {
-        new StrictExpectations(timer) {
-            {
-                Deencapsulation.invoke(timer, "reset");
-                times = 1;
-            }
-        };
-
-        timer.start().stop().report();
+    public void timerIsResetAfterReport(){
+        when(timing.nanoTime()).thenReturn(1000000L);
+        timer.start();
+        when(timing.nanoTime()).thenReturn(2000000L);
+        timer.stop();
+        assertEquals(NANOSECONDS.toMillis(1000000), timer.getElpasedTimeInMillis());
+        timer.report();
+        assertThat(timer.getElpasedTimeInMillis()).isZero();
     }
 }

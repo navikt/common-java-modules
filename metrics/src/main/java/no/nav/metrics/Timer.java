@@ -5,6 +5,9 @@ import java.util.HashMap;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 public class Timer extends Metric<Timer> {
+
+    private final Timing timing;
+
     /*
         Bruker både measureTimestamp og startTime fordi System.nanoTime()
         skal brukes for tidsmåling og System.currentTimeMillis() for å
@@ -14,23 +17,24 @@ public class Timer extends Metric<Timer> {
     private long startTime;
     private long stopTime;
 
-    Timer(MetricsClient metricsClient, String name) {
+    Timer(MetricsClient metricsClient, String name, Timing timing) {
         super(metricsClient, name + ".timer");
+        this.timing = timing;
     }
 
     public Timer start() {
-        measureTimestamp = System.currentTimeMillis();
-        startTime = System.nanoTime();
+        measureTimestamp = timing.currentTimeMillis();
+        startTime = timing.nanoTime();
         return this;
     }
 
     public Timer stop() {
-        stopTime = System.nanoTime();
+        stopTime = timing.nanoTime();
         addFieldToReport("value", getElpasedTimeInMillis());
         return this;
     }
 
-    private long getElpasedTimeInMillis() {
+    long getElpasedTimeInMillis() {
         long elapsedTimeNanos = stopTime - startTime;
 
         return NANOSECONDS.toMillis(elapsedTimeNanos);

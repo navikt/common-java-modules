@@ -1,9 +1,11 @@
 package no.nav.metrics;
 
+import java.util.function.Function;
+
 public class MetodeTimer {
 
-    public static Object timeMetode(Metodekall metodekall, String timerNavn) throws Throwable {
-        Timer timer = MetricsFactory.createTimer(timerNavn);
+    static Object timeMetode(Metodekall metodekall, String timerNavn, Function<String, Timer> createTimer) throws Throwable {
+        Timer timer = createTimer.apply(timerNavn);
 
         try {
             timer.start();
@@ -19,6 +21,9 @@ public class MetodeTimer {
         } finally {
             timer.stop().report();
         }
+    }
 
+    public static Object timeMetode(Metodekall metodekall, String timerNavn) throws Throwable {
+        return timeMetode(metodekall, timerNavn, MetricsFactory::createTimer);
     }
 }

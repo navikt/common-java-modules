@@ -1,8 +1,11 @@
 package no.nav.metrics.aspects;
 
 import no.nav.metrics.MetodeTimer;
+import no.nav.metrics.Metodekall;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
 import static no.nav.metrics.aspects.AspectUtil.*;
@@ -27,7 +30,7 @@ public class TimerAspect {
         AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
         String timerName = lagMetodeTimernavn(joinPoint, timed.name());
 
-        return MetodeTimer.timeMetode(metodekall, timerName);
+        return timeMetode(metodekall, timerName);
     }
 
     @SuppressWarnings("ProhibitedExceptionThrown")
@@ -40,6 +43,10 @@ public class TimerAspect {
         AspectMetodekall metodekall = new AspectMetodekall(joinPoint);
         String timerNavn = lagKlasseTimernavn(joinPoint, timed.name());
 
+        return timeMetode(metodekall, timerNavn);
+    }
+
+    Object timeMetode(Metodekall metodekall, String timerNavn) throws Throwable {
         return MetodeTimer.timeMetode(metodekall, timerNavn);
     }
 }

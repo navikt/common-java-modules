@@ -1,20 +1,18 @@
 package no.nav.metrics.aspects;
 
-import mockit.Expectations;
-import mockit.Mocked;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AspectUtilTest {
 
-    @Mocked
-    JoinPoint joinPoint;
+    JoinPoint joinPoint = mock(JoinPoint.class);
 
-    @Mocked
-    Signature signature;
+    Signature signature = mock(Signature.class);
 
     @Test
     public void lagMetodeTimernavn() {
@@ -54,14 +52,8 @@ public class AspectUtilTest {
     }
 
     private void settOppNavneMock() {
-        new Expectations() {{
-            signature.getDeclaringType();
-            result = AspectUtilTest.class; // Bare for å ha noe
-            signature.getName();
-            result = "metode1";
-            joinPoint.getSignature();
-            result = signature;
-        }};
-
+        when(signature.getDeclaringType()).thenReturn(AspectUtilTest.class); // Bare for å ha noe
+        when(signature.getName()).thenReturn("metode1");
+        when(joinPoint.getSignature()).thenReturn(signature);
     }
 }
