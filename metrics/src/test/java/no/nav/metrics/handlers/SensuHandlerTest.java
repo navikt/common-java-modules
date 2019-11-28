@@ -1,63 +1,69 @@
 package no.nav.metrics.handlers;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
-import no.nav.metrics.TestUtil;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static no.nav.metrics.TestUtil.testConfig;
 import static org.junit.Assert.assertTrue;
 
 public class SensuHandlerTest {
 
-    @Test
-    public void skriverJsonTilSocket(@Mocked Socket socket, @Mocked final BufferedWriter writer) throws Exception {
-        SensuHandler sensuHandler = TestUtil.sensuHandlerForTest(socket.getLocalPort());
-        sensuHandler.report("testOutput");
+    private ServerSocket serverSocket;
 
-        Thread.sleep(500); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
-
-        final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
-
-        new Verifications() {{
-            List<String> writtenJSON = new ArrayList<>();
-
-            writer.write(withCapture(writtenJSON));
-            String json = finnJsonString(writtenJSON);
-
-            assertTrue(new JSONObject(json).similar(forventet));
-        }};
-
+    @Before
+    public void setup() throws IOException {
+        serverSocket = new ServerSocket(0);
     }
 
     @Test
-    public void senderDataPaNyNarSocketConnectionFeiler(@Mocked final Socket socket, @Mocked final BufferedWriter writer) throws Exception {
-        new Expectations() {{
-            socket.connect((SocketAddress) any, anyInt);
-            result = new IOException("dummy connection feil"); // Første kallet feiler
-            result = null;
-        }};
-
-        SensuHandler sensuHandler = TestUtil.sensuHandlerForTest(socket.getLocalPort());
+    public void skriverJsonTilSocket() throws Exception {
+        AtomicReference<JSONObject> jsonObjectAtomicReference = new AtomicReference<>();
+        SensuHandler sensuHandler = new SensuHandler(testConfig(serverSocket.getLocalPort())) {
+            @Override
+            void writeToSensu(JSONObject jsonObject, Socket socket) throws IOException {
+                jsonObjectAtomicReference.set(jsonObject);
+                super.writeToSensu(jsonObject, socket);
+            }
+        };
         sensuHandler.report("testOutput");
+        Thread.sleep(500); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
 
+        final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
+        assertTrue(jsonObjectAtomicReference.get().similar(forventet));
+
+
+    }
+
+
+    @Test
+    public void senderDataPaNyNarSocketConnectionFeiler() throws Exception {
+        AtomicReference<JSONObject> jsonObjectAtomicReference = new AtomicReference<>();
+        SensuHandler sensuHandler = new SensuHandler(testConfig(serverSocket.getLocalPort())) {
+            int attempt = 0;
+
+            @Override
+            void writeToSensu(JSONObject jsonObject, Socket socket) throws IOException {
+                if (attempt == 0) {
+                    attempt += 1;
+                    throw new IOException("dummy connection feil");
+                }
+                jsonObjectAtomicReference.set(jsonObject);
+                super.writeToSensu(jsonObject, socket);
+            }
+        };
+
+        sensuHandler.report("testOutput");
         Thread.sleep(1100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt (1000ms delay pga feilende kall + litt)
 
         final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
-        new Verifications() {{
-            String writtenJSON;
-
-            writer.write(writtenJSON = withCapture());
-            assertTrue(new JSONObject(writtenJSON).similar(forventet));
-        }};
+        assertTrue(jsonObjectAtomicReference.get().similar(forventet));
 
 
     }
@@ -66,7 +72,6 @@ public class SensuHandlerTest {
         return writtenStrings.stream()
                 .filter(s -> s.startsWith("{"))
                 .findFirst()
-                .orElseThrow(()-> new IllegalArgumentException(writtenStrings.toString()));
+                .orElseThrow(() -> new IllegalArgumentException(writtenStrings.toString()));
     }
-
 }

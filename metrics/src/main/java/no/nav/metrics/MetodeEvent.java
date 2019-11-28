@@ -1,6 +1,7 @@
 package no.nav.metrics;
 
 import java.util.Map;
+import java.util.function.Function;
 
 public class MetodeEvent {
 
@@ -9,8 +10,14 @@ public class MetodeEvent {
     }
 
     public static Object eventForMetode(Metodekall metodekall, String eventNavn, Map<String, String> verdier) throws Throwable {
-        Event event = MetricsFactory.createEvent(eventNavn);
+        return eventForMetode(metodekall, eventNavn, verdier, MetricsFactory::createEvent);
+    }
 
+    static Object eventForMetode(Metodekall metodekall,
+                                 String eventNavn,
+                                 Map<String, String> verdier,
+                                 Function<String, Event> createEvent) throws Throwable {
+        Event event = createEvent.apply(eventNavn);
         if (verdier != null) {
             for (Map.Entry<String, String> verdi : verdier.entrySet()) {
                 event.addFieldToReport(verdi.getKey(), verdi.getValue());
