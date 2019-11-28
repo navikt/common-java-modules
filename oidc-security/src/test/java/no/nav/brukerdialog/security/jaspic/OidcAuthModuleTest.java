@@ -18,6 +18,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.Map;
+import java.util.UUID;
+
 import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 import static no.nav.brukerdialog.security.jwks.CacheMissAction.NO_REFRESH;
@@ -54,6 +57,14 @@ public class OidcAuthModuleTest {
     @Test
     public void authenticate__matching_token__returns_subject() {
         Subject subject = testSubject("token3");
+        mockValidSubjectForProvider(subject, provider3, NO_REFRESH);
+
+        assertThat(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).hasValue(subject);
+    }
+
+    @Test
+    public void authenticate__matching_token__returns_subject_azure_ad() {
+        Subject subject = testSubjectAzureAD("token3");
         mockValidSubjectForProvider(subject, provider3, NO_REFRESH);
 
         assertThat(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).hasValue(subject);
@@ -106,6 +117,21 @@ public class OidcAuthModuleTest {
         String uid = "test-subject";
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setSubject(uid);
+        jwtClaims.setExpirationTimeMinutesInTheFuture(600);
+        return TestSubjectUtils.builder()
+                .uid(uid)
+                .identType(IDENT_TYPE)
+                .token(token)
+                .tokenType(OIDC)
+                .attributes(jwtClaims.getClaimsMap())
+                .build();
+    }
+
+    private Subject testSubjectAzureAD(String token) {
+        String uid = "test-subject";
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setSubject(UUID.randomUUID().toString());
+        jwtClaims.setClaim("NAVident", uid);
         jwtClaims.setExpirationTimeMinutesInTheFuture(600);
         return TestSubjectUtils.builder()
                 .uid(uid)
