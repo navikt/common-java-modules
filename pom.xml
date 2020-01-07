@@ -66,6 +66,7 @@
         <module>web</module>
         <module>validation</module>
         <module>yaml</module>
+        <module>nais</module>
     </modules>
 
     <prerequisites>
