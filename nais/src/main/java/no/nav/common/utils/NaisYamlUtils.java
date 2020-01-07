@@ -28,7 +28,7 @@ public class NaisYamlUtils {
             public String type;
         }
 
-        public static class LivenessEnpoint {
+        public static class LivenessEndpoint {
             public String path;
             public String port;
             public Integer initialDelay;
@@ -37,7 +37,7 @@ public class NaisYamlUtils {
             public Integer failureThreshold;
         }
 
-        public static class ReadinessEnpoint {
+        public static class ReadinessEndpoint {
             public String path;
             public String port;
             public Integer initialDelay;
@@ -76,7 +76,7 @@ public class NaisYamlUtils {
             public List<VaultPath> paths;
         }
 
-        public static class FiledFrom {
+        public static class FilesFrom {
             public String configmap;
             public String mountPath;
         }
@@ -98,14 +98,14 @@ public class NaisYamlUtils {
             public String image;
             public Integer port;
             public Strategy strategy;
-            public LivenessEnpoint liveness;
-            public ReadinessEnpoint readiness;
+            public LivenessEndpoint liveness;
+            public ReadinessEndpoint readiness;
             public Prometheus prometheus;
             public Resources resources;
             public List<String> ingresses;
             public Replicas replicas;
             public Vault vault;
-            public List<FiledFrom> filesFrom;
+            public List<FilesFrom> filesFrom;
             public List<EnvProperty> env;
             public String preStopHookPath;
             public Boolean leaderElection;
