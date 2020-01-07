@@ -15,10 +15,6 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-/**
- * @Deprecated 01.2020 moved to new module no.nav.common:nais
- */
-@Deprecated
 public class NaisUtils {
 
     public static String SECRETS_BASE_PATH_PROPERTY_NAME = "SECRETS_BASE_PATH";
@@ -33,7 +29,7 @@ public class NaisUtils {
         public final String username;
         public final String password;
 
-        public Credentials(String username, String password) {
+        private Credentials(String username, String password) {
             this.username = username;
             this.password = password;
         }
