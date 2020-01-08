@@ -1,4 +1,4 @@
-package no.nav.common.utils;
+package no.nav.common.nais.utils;
 
 import no.nav.common.yaml.YamlUtils;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
-package no.nav.common.utils;
+package no.nav.common.nais.utils;
 
-import no.nav.common.utils.NaisYamlUtils.NaiseratorSpec;
+import no.nav.common.nais.utils.NaisYamlUtils.NaiseratorSpec;
 import org.junit.Test;
 
 import java.util.Properties;
