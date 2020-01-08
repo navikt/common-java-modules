@@ -370,6 +370,16 @@
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>time</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>nais</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- SLUTT COMMON -->
 
             <dependency>
