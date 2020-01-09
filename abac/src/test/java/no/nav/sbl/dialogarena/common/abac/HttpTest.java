@@ -7,6 +7,7 @@ import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.TestSubjectUtils;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
@@ -83,7 +84,7 @@ public class HttpTest {
 
     @Test
     public void doesItWork() throws Exception {
-        BiasedDecisionResponse response = pep.isServiceCallAllowedWithIdent("id", "domain", "10108000398");
+        BiasedDecisionResponse response = pep.isServiceCallAllowedWithIdent("id", "domain", AbacPersonId.fnr("10108000398"));
         assertThat(response.getBiasedDecision(), Matchers.equalTo(Decision.Permit));
     }
 
@@ -99,7 +100,7 @@ public class HttpTest {
         int TESTS = 1000;
         ForkJoinPool fjp = new ForkJoinPool(32);
         List<Callable<BiasedDecisionResponse>> tasks = IntStream.range(0, TESTS)
-                .mapToObj((i) -> (Callable<BiasedDecisionResponse>) () -> pep.isServiceCallAllowedWithIdent("id" + String.valueOf(i), "domain", "10108000398"))
+                .mapToObj((i) -> (Callable<BiasedDecisionResponse>) () -> pep.isServiceCallAllowedWithIdent("id" + String.valueOf(i), "domain", AbacPersonId.fnr("10108000398")))
                 .collect(Collectors.toList());
 
         List<Future<BiasedDecisionResponse>> futures = fjp.invokeAll(tasks);

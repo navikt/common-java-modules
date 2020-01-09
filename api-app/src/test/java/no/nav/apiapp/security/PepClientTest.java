@@ -2,6 +2,7 @@ package no.nav.apiapp.security;
 
 import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 public class PepClientTest {
 
-    private static final String FNR = "fnr";
+    private static final AbacPersonId FNR = AbacPersonId.fnr("fnr");
     private static final String APPLICATION_DOMAIN = "test";
     private static final ResourceType RESOURCE_TYPE = ResourceType.values()[0];
     private BiasedDecisionResponse PERMIT = new BiasedDecisionResponse(Decision.Permit, new XacmlResponse());
@@ -40,7 +41,7 @@ public class PepClientTest {
     @Test
     public void sjekkLeseTilgangTilFnr_har_tilgang() throws PepException {
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE)).thenReturn(PERMIT);
-        assertThat(pepClient.sjekkLeseTilgangTilFnr(FNR)).isEqualTo(FNR);
+        assertThat(pepClient.sjekkLeseTilgangTilFnr(FNR.getId())).isEqualTo(FNR);
     }
 
     @Test(expected = IngenTilgang.class)
