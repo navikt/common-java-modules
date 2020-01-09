@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.sbl.dialogarena.common.abac.pep.NavAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
@@ -33,7 +34,7 @@ import static org.mockito.Mockito.*;
 
 public class VeilarbAbacPepClientTest {
 
-    private static final String FNR = "fnr";
+    private static final AbacPersonId FNR = AbacPersonId.fnr("fnr");
     private static final String AKTOER_ID = "aktorId";
     private static final String ENHET_ID = "enhetId";
     private static final String APPLICATION_DOMAIN = "veilarb";
@@ -48,7 +49,7 @@ public class VeilarbAbacPepClientTest {
     private BiasedDecisionResponse PERMIT = new BiasedDecisionResponse(Decision.Permit, new XacmlResponse());
     private BiasedDecisionResponse DENY = new BiasedDecisionResponse(Decision.Deny, new XacmlResponse());
     
-    private static final Bruker BRUKER = Bruker.fraFnr(FNR).medAktoerId(AKTOER_ID);
+    private static final Bruker BRUKER = Bruker.fraFnr(FNR.getId()).medAktoerId(AKTOER_ID);
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);

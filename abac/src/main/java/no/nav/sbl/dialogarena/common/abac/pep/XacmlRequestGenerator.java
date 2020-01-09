@@ -1,7 +1,5 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-// import no.nav.abac.xacml.NavAttributter;
-// import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Resources;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
@@ -9,11 +7,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.StringUtils;
 
-/*
-import static no.nav.abac.xacml.NavAttributter.ENVIRONMENT_FELLES_PEP_ID;
-import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_DOMENE;
-import static no.nav.abac.xacml.StandardAttributter.ACTION_ID;
-*/
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class XacmlRequestGenerator {
@@ -92,7 +85,7 @@ class XacmlRequestGenerator {
                     " saml-token: " + maskToken(requestData.getSamlToken()) +
                     " subject-id: " + requestData.getSubjectId() +
                     " domain: " + requestData.getDomain() +
-                    " fnr: " + requestData.getFnr() +
+                    (requestData.getPersonId().isFnr() ? "fnr: " : "aktor-id: ") + requestData.getPersonId().getId() +
                     " credential resource: " + requestData.getCredentialResource() +
                     "\nProvide OIDC-token or subject-ID, domain, fnr and " +
                     " name of credential resource.");

@@ -1,8 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import lombok.SneakyThrows;
-// import no.nav.abac.xacml.NavAttributter;
-// import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
 
 import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -43,16 +42,16 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, String fnr) throws PepException {
-        validateFnr(fnr);
+    public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, AbacPersonId personId) throws PepException {
+        validatePersonId(personId);
         final String token = extractOidcTokenBody(oidcTokenBody);
-        return isServiceCallAllowed(token, null, domain, fnr, ResourceType.Person);
+        return isServiceCallAllowed(token, null, domain, personId, ResourceType.Person);
     }
 
     @Override
-    public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, String fnr) throws PepException {
-        validateFnr(fnr);
-        return isServiceCallAllowed(null, ident, domain, fnr, ResourceType.Person);
+    public BiasedDecisionResponse isServiceCallAllowedWithIdent(String ident, String domain, AbacPersonId personId) throws PepException {
+        validatePersonId(personId);
+        return isServiceCallAllowed(null, ident, domain, personId, ResourceType.Person);
     }
 
     @Override
@@ -80,10 +79,10 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain, Action.ActionId action, ResourceType resourceType) throws PepException {
-        validateFnr(fnr);
+    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType) throws PepException {
+        validatePersonId(personId);
         return harTilgang(nyRequest()
-                .withFnr(fnr)
+                .withPersonId(personId)
                 .withAction(action)
                 .withDomain(domain)
                 .withResourceType(resourceType)
@@ -92,7 +91,7 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException {
-        return harInnloggetBrukerTilgangTilPerson(fnr, domain, Action.ActionId.READ, ResourceType.Person);
+        return harInnloggetBrukerTilgangTilPerson(AbacPersonId.fnr(fnr), domain, Action.ActionId.READ, ResourceType.Person);
     }
 
     @Override
@@ -107,12 +106,12 @@ public class PepImpl implements Pep {
         }
     }
 
-    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, String fnr, ResourceType resourceType) throws PepException {
+    private BiasedDecisionResponse isServiceCallAllowed(String oidcToken, String subjectId, String domain, AbacPersonId personId, ResourceType resourceType) throws PepException {
         return harTilgang(buildRequest()
                 .withOidcToken(oidcToken)
                 .withSubjectId(subjectId)
                 .withDomain(domain)
-                .withFnr(fnr)
+                .withPersonId(personId)
                 .withResourceType(resourceType)
         );
     }
@@ -193,12 +192,16 @@ public class PepImpl implements Pep {
         return abacService.getAbacServiceConfig().getUsername();
     }
 
-    private void validateFnr(String fnr) {
-        if (!StringUtils.isNumeric(fnr) || fnr.length() != 11) {
-            final String message = "Fnr " + fnr + " is not valid";
+    private void validatePersonId(AbacPersonId personId) {
+        if (personId == null || (personId.isFnr() && !isValidFnr(personId.getId()))) {
+            final String message = "Fnr " + Optional.ofNullable(personId).map(AbacPersonId::getId).orElse("<empty>") + " is not valid";
             LOG.error(message);
             throw new IllegalArgumentException(message);
         }
+    }
+
+    private boolean isValidFnr(String fnr) {
+        return StringUtils.isNumeric(fnr) || fnr.length() == 11;
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {

@@ -3,7 +3,7 @@ package no.nav.apiapp.security;
 import lombok.SneakyThrows;
 import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
-import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
@@ -69,7 +69,7 @@ public class PepClient {
     }
 
     private String sjekkTilgang(String fnr, Action.ActionId action) throws PepException {
-        if (erPermit(pep.harInnloggetBrukerTilgangTilPerson(fnr, applicationDomain, action, resourceType))) {
+        if (erPermit(pep.harInnloggetBrukerTilgangTilPerson(AbacPersonId.fnr(fnr), applicationDomain, action, resourceType))) {
             return fnr;
         } else {
             throw new IngenTilgang();
