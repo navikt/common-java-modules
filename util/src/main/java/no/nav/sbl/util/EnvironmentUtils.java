@@ -22,17 +22,11 @@ public class EnvironmentUtils {
     public static final String NAIS_NAMESPACE_PROPERTY_NAME = "NAIS_NAMESPACE";
     public static final String NAIS_CLUSTER_NAME_PROPERTY_NAME = "NAIS_CLUSTER_NAME";
 
-    public static final String APP_NAME_PROPERTY_NAME_SKYA = "applicationName";
-
     public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME = "FASIT_ENVIRONMENT_NAME";
     public static final String APP_ENVIRONMENT_NAME_PROPERTY_NAME = "APP_ENVIRONMENT_NAME";
-    public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA = "environment.name";
 
 
     public static final String APP_VERSION_PROPERTY_NAME = "APP_VERSION";
-    public static final String APP_VERSION_PROPERTY_NAME_SKYA = "application.version";
-
-    public static final String JBOSS_PROPERTY_KEY = "jboss.home.dir";
 
     public static void setProperty(String name, String value, Type type) {
         LOGGER.info("{}={}", name, type.format(value));
@@ -76,27 +70,23 @@ public class EnvironmentUtils {
     }
 
     public static Optional<String> getApplicationName() {
-        return getOptionalProperty(APP_NAME_PROPERTY_NAME, APP_NAME_PROPERTY_NAME_SKYA);
+        return getOptionalProperty(APP_NAME_PROPERTY_NAME);
     }
 
     public static String requireApplicationName() {
-        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(APP_NAME_PROPERTY_NAME, APP_NAME_PROPERTY_NAME_SKYA)));
+        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(APP_NAME_PROPERTY_NAME)));
     }
 
     public static Optional<String> getEnvironmentName() {
-        return getOptionalProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA);
+        return getOptionalProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
     }
 
     public static String requireEnvironmentName() {
-        return getEnvironmentName().orElseThrow(() ->
-                new IllegalStateException(
-                        createErrorMessage(APP_ENVIRONMENT_NAME_PROPERTY_NAME,
-                                FASIT_ENVIRONMENT_NAME_PROPERTY_NAME,
-                                FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA)));
+        return getEnvironmentName().orElseThrow(() -> new IllegalStateException(createErrorMessage(APP_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME)));
     }
 
     public static Optional<String> getApplicationVersion() {
-        return getOptionalProperty(APP_VERSION_PROPERTY_NAME, APP_VERSION_PROPERTY_NAME_SKYA);
+        return getOptionalProperty(APP_VERSION_PROPERTY_NAME);
     }
 
     public static Optional<String> getNamespace() {
@@ -129,10 +119,6 @@ public class EnvironmentUtils {
         return System.getProperty(propertyName, System.getenv(propertyName));
     }
 
-    public static boolean isRunningOnJboss() {
-        return getOptionalProperty(JBOSS_PROPERTY_KEY).isPresent();
-    }
-
     public static String resolveSrvUserPropertyName() {
         return "SRV" + resolveApplicationName() + "_USERNAME";
     }
@@ -150,7 +136,6 @@ public class EnvironmentUtils {
         T,
         Q,
         P,
-
         M // mock
     }
 
@@ -159,9 +144,8 @@ public class EnvironmentUtils {
         PUBLIC;
 
         public String format(String value) {
-            switch (this) {
-                case PUBLIC:
-                    return value;
+            if (this == Type.PUBLIC) {
+                return value;
             }
             return "*******";
         }

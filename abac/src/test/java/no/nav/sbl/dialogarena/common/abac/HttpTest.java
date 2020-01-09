@@ -10,6 +10,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
+import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,6 +34,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig.ABAC_ENDPOINT_URL_PROPERTY_NAME;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -45,6 +47,9 @@ public class HttpTest {
 
     @Rule
     public SubjectRule subjectRule = new SubjectRule();
+
+    @Rule
+    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule().setProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME, "https://wasapp-q0.adeo.no/asm-pdp/authorize");
 
     private static MockWebServer server;
     private static final MockResponse MOCK_RESPONSE = new MockResponse()

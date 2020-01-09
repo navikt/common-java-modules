@@ -22,10 +22,6 @@ public class AzureADB2CConfig {
     public static final String INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME = "LOGINSERVICE_OIDC_DISCOVERYURI";
     public static final String INTERNAL_USERS_AZUREAD_B2C_PASSWORD = "LOGINSERVICE_OIDC_PASSWORD";
 
-    public static final String AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA = "aad_b2c_discovery.url";
-    public static final String AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME_SKYA = "aad_b2c_clientid.username";
-
-
     public final String discoveryUrl;
     public final String expectedAudience;
     public final String tokenName;
@@ -33,8 +29,8 @@ public class AzureADB2CConfig {
 
     public static AzureADB2CConfig configureAzureAdForExternalUsers() {
         return AzureADB2CConfig.builder()
-                .discoveryUrl(getRequiredProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL, AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME_SKYA))
-                .expectedAudience(getRequiredProperty(EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE, AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME_SKYA))
+                .discoveryUrl(getRequiredProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL))
+                .expectedAudience(getRequiredProperty(EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE))
                 .identType(EksternBruker)
                 .tokenName(AZUREADB2C_OIDC_COOKIE_NAME_SBS)
                 .build();
