@@ -32,6 +32,10 @@
             <groupId>no.nav.common</groupId>
             <artifactId>yaml</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.jknack</groupId>
+            <artifactId>handlebars</artifactId>
+        </dependency>
 
         <!-- logging -->
         <dependency>
