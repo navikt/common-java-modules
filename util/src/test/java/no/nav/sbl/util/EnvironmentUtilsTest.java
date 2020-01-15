@@ -149,9 +149,9 @@ public class EnvironmentUtilsTest {
 
     @Test
     public void resolveSrvUserPropertyName() {
-        setTemporaryProperty(APP_NAME_PROPERTY_NAME, "testapp", () -> {
-            assertThat(EnvironmentUtils.resolveSrvUserPropertyName()).isEqualTo("SRVTESTAPP_USERNAME");
-            assertThat(EnvironmentUtils.resolverSrvPasswordPropertyName()).isEqualTo("SRVTESTAPP_PASSWORD");
+        setTemporaryProperty(APP_NAME_PROPERTY_NAME, "testapp-med-rart-navn", () -> {
+            assertThat(EnvironmentUtils.resolveSrvUserPropertyName()).isEqualTo("SRVTESTAPP_MED_RART_NAVN_USERNAME");
+            assertThat(EnvironmentUtils.resolverSrvPasswordPropertyName()).isEqualTo("SRVTESTAPP_MED_RART_NAVN_PASSWORD");
         });
     }
 
