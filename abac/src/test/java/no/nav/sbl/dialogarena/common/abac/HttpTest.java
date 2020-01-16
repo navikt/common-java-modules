@@ -10,7 +10,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
-import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
@@ -48,9 +47,6 @@ public class HttpTest {
     @Rule
     public SubjectRule subjectRule = new SubjectRule();
 
-    @Rule
-    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule().setProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME, "https://wasapp-q0.adeo.no/asm-pdp/authorize");
-
     private static MockWebServer server;
     private static final MockResponse MOCK_RESPONSE = new MockResponse()
             .throttleBody(16, 250, TimeUnit.MILLISECONDS)
@@ -77,7 +73,7 @@ public class HttpTest {
         server.start();
 
         HttpUrl url = server.url("/asm-pdp/authorize");
-        System.setProperty("abac.endpoint.url", url.toString());
+        System.setProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME, url.toString());
     }
 
     @AfterClass
