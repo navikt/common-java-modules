@@ -120,15 +120,19 @@ public class EnvironmentUtils {
     }
 
     public static String resolveSrvUserPropertyName() {
-        return "SRV" + resolveApplicationName() + "_USERNAME";
+        return asNaisProperty("SRV" + resolveApplicationName() + "_USERNAME");
     }
 
     public static String resolverSrvPasswordPropertyName() {
-        return "SRV" + resolveApplicationName() + "_PASSWORD";
+        return asNaisProperty("SRV" + resolveApplicationName() + "_PASSWORD");
     }
 
     private static String resolveApplicationName() {
         return EnvironmentUtils.requireApplicationName().toUpperCase();
+    }
+
+    private static String asNaisProperty(String value) {
+        return value.replaceAll("\\W", "_");
     }
 
     public enum EnviromentClass {
