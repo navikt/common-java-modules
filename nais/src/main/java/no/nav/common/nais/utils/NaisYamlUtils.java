@@ -1,5 +1,8 @@
 package no.nav.common.nais.utils;
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import lombok.SneakyThrows;
 import no.nav.common.yaml.YamlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +125,14 @@ public class NaisYamlUtils {
 
     public static NaiseratorSpec getConfig(String path) {
         String content = NaisUtils.getFileContent(path);
+        return YamlUtils.fromYaml(content, NaiseratorSpec.class);
+    }
+
+    @SneakyThrows
+    public static NaiseratorSpec getTemplatedConfig(String path, Object vars) {
+        Handlebars handlebars = new Handlebars();
+        Template template = handlebars.compileInline(NaisUtils.getFileContent(path));
+        String content = template.apply(vars);
         return YamlUtils.fromYaml(content, NaiseratorSpec.class);
     }
 

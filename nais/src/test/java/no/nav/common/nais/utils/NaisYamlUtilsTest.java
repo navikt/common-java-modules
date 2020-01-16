@@ -3,8 +3,12 @@ package no.nav.common.nais.utils;
 import no.nav.common.nais.utils.NaisYamlUtils.NaiseratorSpec;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NaisYamlUtilsTest {
@@ -107,5 +111,44 @@ public class NaisYamlUtilsTest {
         NaisYamlUtils.loadFromYaml(base + "min-nais-example.yaml", target);
 
         assertThat(target).hasSize(0);
+    }
+
+    @Test
+    public void getTemplatedConfig_handles_null() {
+        NaiseratorSpec config = NaisYamlUtils.getTemplatedConfig(
+                base + "min-nais-templated-example.yaml",
+                null
+        );
+
+        assertThat(config.metadata.namespace).isEqualTo("default");
+        assertThat(config.spec.image).isNull();
+        assertThat(config.spec.ingresses).isNull();
+        assertThat(config.spec.env).isNull();
+    }
+
+    @Test
+    public void getTemplatedConfig_interpoleates_all_values() {
+        String namespace = "q0";
+        String image = "no.nav.testimage";
+        List<String> ingresses = asList("http://url.nav.no", "https://url.nav.no");
+        Map<String, String> env = new HashMap<>();
+        env.put("envprops1", "envvalue1");
+        env.put("envprops2", "envvalue2");
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("namespace", namespace);
+        context.put("image", image);
+        context.put("ingresses", ingresses);
+        context.put("env", env);
+
+        NaiseratorSpec config = NaisYamlUtils.getTemplatedConfig(
+                base + "min-nais-templated-example.yaml",
+                context
+        );
+
+        assertThat(config.metadata.namespace).isEqualTo(namespace);
+        assertThat(config.spec.image).isEqualTo(image);
+        assertThat(config.spec.ingresses).hasSize(ingresses.size());
+        assertThat(config.spec.env).hasSize(env.size());
     }
 }
