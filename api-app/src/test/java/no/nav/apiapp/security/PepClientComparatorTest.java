@@ -11,8 +11,9 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-import static no.nav.sbl.util.AssertUtils.assertTrue;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -23,7 +24,7 @@ public class PepClientComparatorTest {
     private final Pep pepSammenligneMed = mock(Pep.class);
     private final VeilarbPepClient veilarbPepClient = new VeilarbPepClient(pepSammenligneMed);
     private final Logger log = mock(Logger.class);
-    private final PepClientComparatorImpl comparator = new PepClientComparatorImpl(log);
+    private final PepClientComparatorImpl sammenligner = new PepClientComparatorImpl(log);
     private final Bruker bruker = Bruker.fraFnr("fnr").medAktoerId("aktorId");
     private final AbacPersonId abacPersonId = AbacPersonId.fnr("fnr");
     private final String enhet = "enhet";
@@ -38,10 +39,10 @@ public class PepClientComparatorTest {
 
     @Test
     public void exceptionVedIngenTilgang__permitForBegge__sjekkLesetilgang() {
-        pepOrginalPermit();
-        pepSammenligneMedPermit();
+        pepPermit(pepOrginal);
+        pepPermit(pepSammenligneMed);
 
-        comparator.get(
+        sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                 () -> veilarbPepClient.sjekkLesetilgang(abacPersonId));
 
@@ -50,10 +51,10 @@ public class PepClientComparatorTest {
 
     @Test
     public void exceptionVedIngenTilgang__permitForBegge__sjekkSkrivegang() {
-        pepOrginalPermit();
-        pepSammenligneMedPermit();
+        pepPermit(pepOrginal);
+        pepPermit(pepSammenligneMed);
 
-        comparator.get(
+        sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkSkrivetilgangTilBruker(bruker),
                 () -> veilarbPepClient.sjekkSkrivetilgang(abacPersonId));
 
@@ -61,37 +62,37 @@ public class PepClientComparatorTest {
     }
 
     @Test
-    public void exceptionVedIngenTilgang__denyForSammenligneMed() {
-        pepOrginalPermit();
-        pepSammenligneMedDeny();
+    public void exceptionVedIngenTilgang__permitForOrginal__denyForSammenligneMed() {
+        pepPermit(pepOrginal);
+        pepDeny(pepSammenligneMed);
 
-        comparator.get(
+        sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                 () -> veilarbPepClient.sjekkLesetilgang(abacPersonId));
 
-        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet tilgang fikk ingen tilgang");
+        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet permit fikk deny.");
     }
 
     @Test
-    public void exceptionVedIngenTilgang__denyForOrginal() {
-        pepOrginalDeny();
-        pepSammenligneMedPermit();
+    public void exceptionVedIngenTilgang__denyForOrginal__permitForSammenligneMed() {
+        pepDeny(pepOrginal);
+        pepPermit(pepSammenligneMed);
 
         assertThatThrownBy(() ->
-                comparator.get(
+                sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                         () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
                 .isInstanceOf(IngenTilgang.class);
 
-        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet ingen tilgang fikk tilgang");
+        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet deny fikk permit.");
     }
 
     @Test
     public void exceptionVedIngenTilgang__permitForOrginal__feilForSammenligneMed() {
-        pepOrginalPermit();
-        pepSammenligneMedFeil();
+        pepPermit(pepOrginal);
+        pepFeil(pepSammenligneMed);
 
-        comparator.get(
+        sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                 () -> veilarbPepClient.sjekkLesetilgang(abacPersonId));
 
@@ -100,11 +101,11 @@ public class PepClientComparatorTest {
 
     @Test
     public void exceptionVedIngenTilgang__denyForOrginal__feilForSammenligneMed() {
-        pepOrginalDeny();
-        pepSammenligneMedFeil();
+        pepDeny(pepOrginal);
+        pepFeil(pepSammenligneMed);
 
         assertThatThrownBy(() ->
-                comparator.get(
+                sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                         () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
                 .isInstanceOf(IngenTilgang.class);
@@ -114,25 +115,25 @@ public class PepClientComparatorTest {
 
     @Test
     public void exceptionVedIngenTilgang__feilForOrginal__permitForSammenligneMed() {
-        pepOrginalMedFeil();
-        pepSammenligneMedPermit();
+        pepFeil(pepOrginal);
+        pepPermit(pepSammenligneMed);
 
         assertThatThrownBy(() ->
-                comparator.get(
+                sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                         () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
                 .isInstanceOf(IngenTilgang.class);
 
-        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet ingen tilgang fikk tilgang");
+        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet deny fikk permit.");
     }
 
     @Test
     public void exceptionVedIngenTilgang__feilForOrginal__denyForSammenligneMed() {
-        pepOrginalMedFeil();
-        pepSammenligneMedDeny();
+        pepFeil(pepOrginal);
+        pepDeny(pepSammenligneMed);
 
         assertThatThrownBy(() ->
-                comparator.get(
+                sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                         () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
                 .isInstanceOf(IngenTilgang.class);
@@ -142,11 +143,11 @@ public class PepClientComparatorTest {
 
     @Test
     public void exceptionVedIngenTilgang__feilForOrginal__feilForSammenligneMed() {
-        pepOrginalMedFeil();
-        pepSammenligneMedFeil();
+        pepFeil(pepOrginal);
+        pepFeil(pepSammenligneMed);
 
         assertThatThrownBy(() ->
-                comparator.get(
+                sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
                         () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
                 .isInstanceOf(IngenTilgang.class);
@@ -154,54 +155,200 @@ public class PepClientComparatorTest {
         forventLoggetFeil();
     }
 
-    @Test(expected = IngenTilgang.class)
+    @Test
     public void exceptionVedIngenTilgang__denyForBegge() {
-        pepOrginalDeny();
-        pepSammenligneMedDeny();
-        comparator.get(
-                () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                () -> veilarbPepClient.sjekkLesetilgang(abacPersonId));
+        pepDeny(pepOrginal);
+        pepDeny(pepSammenligneMed);
 
-        forventLoggetFeil();
+        assertThatThrownBy(() ->
+        sammenligner.get(
+                () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
+                () -> veilarbPepClient.sjekkLesetilgang(abacPersonId))).isInstanceOf(IngenTilgang.class);
+
+        forventIngenLogging();
     }
 
-
     @Test
-    public void booleanForTilgangssjekk_harTilgangTilEnhet() {
-        when(pepOrginal.nyRequest()).thenReturn(new RequestData());
-        when(pepOrginal.harTilgang(any(RequestData.class))).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
-        when(pepSammenligneMed.nyRequest()).thenReturn(new RequestData());
-        when(pepSammenligneMed.harTilgang(any(RequestData.class))).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
-        boolean resultat = comparator.get(
+    public void booleanForTilgangssjekk__permitForBegge__harTilgangTilEnhet() {
+        pepPermit(pepOrginal);
+        pepPermit(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
                 () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
                 () -> veilarbPepClient.harTilgangTilEnhet(enhet));
 
         assertTrue(resultat);
+
+        forventIngenLogging();
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__permitForOrginal__denyForSammenligneMed() {
+        pepPermit(pepOrginal);
+        pepDeny(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertTrue(resultat);
+
+        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet permit fikk deny.");
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__denyForOrginal__permitForSammenligneMed() {
+        pepDeny(pepOrginal);
+        pepPermit(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertFalse(resultat);
+
+        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet deny fikk permit.");
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__permitForOrginal__feilForSammenligneMed() {
+        pepPermit(pepOrginal);
+        pepFeil(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertTrue(resultat);
+
+        forventLoggetFeil();
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__denyForOrginal__feilForSammenligneMed() {
+        pepDeny(pepOrginal);
+        pepFeil(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertFalse(resultat);
+
+        forventLoggetFeil();
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__feilForOrginal__permitForSammenligneMed() {
+        pepFeil(pepOrginal);
+        pepPermit(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertFalse(resultat);
+
+        forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet deny fikk permit.");
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__feilForOrginal__denyForSammenligneMed() {
+        pepFeil(pepOrginal);
+        pepDeny(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertFalse(resultat);
+
+        forventIngenLogging();
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__feilForOrginal__feilForSammenligneMed() {
+        pepFeil(pepOrginal);
+        pepFeil(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertFalse(resultat);
+
+        forventLoggetFeil();
+    }
+
+    @Test
+    public void booleanForTilgangssjekk__denyForBegge() {
+        pepDeny(pepOrginal);
+        pepDeny(pepSammenligneMed);
+
+        boolean resultat = sammenligner.get(
+                () -> veilarbAbacPepClient.harTilgangTilEnhet(enhet),
+                () -> veilarbPepClient.harTilgangTilEnhet(enhet));
+
+        assertFalse(resultat);
+
+        forventIngenLogging();
+    }
+
+    @Test
+    public void veilarbPepClient__booleanForTilgangssjekk__kasterExceptionVedFeil() {
+        Pep pep1 = mock(Pep.class);
+        VeilarbPepClient client1 = new VeilarbPepClient(pep1);
+        Pep pep2 = mock(Pep.class);
+        VeilarbPepClient client2 = new VeilarbPepClient(pep2);
+
+        pepFeil(pep1);
+        pepPermit(pep2);
+
+        assertThatThrownBy(() ->
+                sammenligner.get(
+                        () -> client1.harTilgangTilEnhet(enhet),
+                        () -> client2.harTilgangTilEnhet(enhet))
+        ).isInstanceOf(RuntimeException.class);
+
+        forventIngenLogging();
+    }
+
+    @Test
+    public void veilarbPepClient__exceptionVedIngenTilgang__kasterExceptionVedFeil() {
+        Pep pep1 = mock(Pep.class);
+        VeilarbPepClient client1 = new VeilarbPepClient(pep1);
+        Pep pep2 = mock(Pep.class);
+        VeilarbPepClient client2 = new VeilarbPepClient(pep2);
+
+        pepFeil(pep1);
+        pepPermit(pep2);
+
+        assertThatThrownBy(() ->
+                sammenligner.get(
+                        () -> client1.sjekkSkrivetilgang(AbacPersonId.fnr("fnr")),
+                        () -> client2.sjekkSkrivetilgang(AbacPersonId.aktorId("aktorId")))
+        ).isInstanceOf(RuntimeException.class);
+
+        forventIngenLogging();
     }
 
 
-    private void pepOrginalPermit() {
-        when(pepOrginal.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
+    private void pepPermit(Pep pep) {
+        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
+        when(pep.nyRequest()).thenReturn(new RequestData());
+        when(pep.harTilgang(any(RequestData.class))).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
     }
 
-    private void pepOrginalDeny() {
-        when(pepOrginal.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
+    private void pepDeny(Pep pep) {
+        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
+        when(pep.nyRequest()).thenReturn(new RequestData());
+        when(pep.harTilgang(any(RequestData.class))).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
     }
 
-    private void pepOrginalMedFeil() {
-        when(pepOrginal.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenThrow(new RuntimeException("feil"));
-    }
-
-    private void pepSammenligneMedPermit() {
-        when(pepSammenligneMed.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
-    }
-
-    private void pepSammenligneMedDeny() {
-        when(pepSammenligneMed.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
-    }
-
-    private void pepSammenligneMedFeil() {
-        when(pepSammenligneMed.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenThrow(new RuntimeException("feil"));
+    private void pepFeil(Pep pep) {
+        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenThrow(new RuntimeException("feil"));
+        when(pep.nyRequest()).thenReturn(new RequestData());
+        when(pep.harTilgang(any(RequestData.class))).thenThrow(new RuntimeException("feil"));
     }
 
     private void forventIngenLogging() {

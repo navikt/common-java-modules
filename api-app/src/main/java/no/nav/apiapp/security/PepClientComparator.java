@@ -1,17 +1,21 @@
 package no.nav.apiapp.security;
 
 import no.nav.apiapp.feil.IngenTilgang;
+import no.nav.sbl.util.fn.DeferredVoid;
 import org.slf4j.Logger;
 
 import java.util.function.Supplier;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * Temporary comparator for regression testing
+ */
 public class PepClientComparator {
 
     private static PepClientComparatorImpl comparator = new PepClientComparatorImpl();
 
-    public static void get(Deferred orginal, Deferred sammenligneMed) {
+    public static void get(DeferredVoid orginal, DeferredVoid sammenligneMed) {
         comparator.get(orginal, sammenligneMed);
     }
 
@@ -21,9 +25,6 @@ public class PepClientComparator {
 
 }
 
-/**
- * Temporary comparator for regression testing
- */
 class PepClientComparatorImpl {
 
     private Logger log = getLogger(PepClientComparatorImpl.class);
@@ -49,16 +50,16 @@ class PepClientComparatorImpl {
 
         boolean isEqual = sammenligneMedResultat != null && orginalResultat == sammenligneMedResultat;
 
-        if (!isEqual && !sammenligneMedFeilet) {
-            String expected = orginalResultat ? "tilgang" : "ingen tilgang";
-            String got = sammenligneMedResultat != null ? (sammenligneMedResultat ? "tilgang" : "ingen tilgang") : "<ingen verdi>";
-            log.warn("Avvik i resultat fra pep sammenligning. Forventet " + expected + " fikk " + got);
+        if (!isEqual && !sammenligneMedFeilet && sammenligneMedResultat != null) {
+            String expected = orginalResultat ? "permit" : "deny";
+            String got = sammenligneMedResultat ? "permit" : "deny";
+            log.warn("Avvik i resultat fra pep sammenligning. Forventet " + expected + " fikk " + got + ".");
         }
 
         return orginalResultat;
     }
 
-    void get(Deferred orginal, Deferred sammenligneMed) {
+    void get(DeferredVoid orginal, DeferredVoid sammenligneMed) {
         IngenTilgang ingenTilgangOrginal = null;
 
         try {
@@ -83,19 +84,13 @@ class PepClientComparatorImpl {
                         (ingenTilgangOrginal == null && ingenTilgangSecondary == null);
 
         if (!isEqual && !sammenligneMedFeilet) {
-            String expected = ingenTilgangOrginal != null ? "ingen tilgang" : "tilgang";
-            String got = ingenTilgangSecondary != null ? "ingen tilgang" : "tilgang";
-            log.warn("Avvik i resultat fra pep sammenligning. Forventet " + expected + " fikk " + got);
+            String expected = ingenTilgangOrginal != null ? "deny" : "permit";
+            String got = ingenTilgangSecondary != null ? "deny" : "permit";
+            log.warn("Avvik i resultat fra pep sammenligning. Forventet " + expected + " fikk " + got + ".");
         }
-
 
         if (ingenTilgangOrginal != null) {
             throw ingenTilgangOrginal;
         }
     }
-}
-
-interface Deferred {
-
-    void get();
 }
