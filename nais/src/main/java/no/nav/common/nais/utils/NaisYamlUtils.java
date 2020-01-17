@@ -137,7 +137,10 @@ public class NaisYamlUtils {
     }
 
     public static void loadFromYaml(String path, Properties target) {
-        NaiseratorSpec yaml = getConfig(path);
+        loadFromYaml(getConfig(path), target);
+    }
+
+    public static void loadFromYaml(NaiseratorSpec yaml, Properties target) {
         List<NaiseratorSpec.EnvProperty> env = Optional.ofNullable(yaml)
                 .map((e) -> e.spec)
                 .map((s) -> s.env)
@@ -160,5 +163,9 @@ public class NaisYamlUtils {
 
     public static void loadFromYaml(String path) {
         loadFromYaml(path, System.getProperties());
+    }
+
+    public static void loadFromYaml(NaiseratorSpec yaml) {
+        loadFromYaml(yaml, System.getProperties());
     }
 }
