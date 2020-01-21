@@ -42,7 +42,7 @@ public class VeilarbAbacPepClientTest {
     public static final String OIDC_TOKEN = "OIDC-token";
 
     private static final String URL_REGEX_AKTOER_ID_WRITE = String.format("/person\\?aktorId=%s&action=update",AKTOER_ID);
-    private static final String URL_REGEX_FNR_READ = String.format("/person\\?fnr=%s&action=read",FNR);
+    private static final String URL_REGEX_FNR_READ = String.format("/person\\?fnr=%s&action=read",FNR.getId());
     private static final String URL_REGEX_AKTOER_ID_READ = String.format("/person\\?aktorId=%s&action=read",AKTOER_ID);
     private static final String URL_REGEX_ENHET_READ = String.format("/veilarbenhet\\?enhetId=%s&action=read",ENHET_ID);
 
