@@ -41,7 +41,7 @@ public class PepClientTest {
     @Test
     public void sjekkLeseTilgangTilFnr_har_tilgang() throws PepException {
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE)).thenReturn(PERMIT);
-        assertThat(pepClient.sjekkLeseTilgangTilFnr(FNR.getId())).isEqualTo(FNR);
+        assertThat(pepClient.sjekkLeseTilgangTilFnr(FNR.getId())).isEqualTo(FNR.getId());
     }
 
     @Test(expected = IngenTilgang.class)
@@ -52,7 +52,7 @@ public class PepClientTest {
     @Test
     public void sjekkSkriveTilgangTilFnr_har_tilgang() throws PepException {
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, RESOURCE_TYPE)).thenReturn(PERMIT);
-        assertThat(pepClient.sjekkSkriveTilgangTilFnr("fnr")).isEqualTo(FNR);
+        assertThat(pepClient.sjekkSkriveTilgangTilFnr("fnr")).isEqualTo(FNR.getId());
     }
 
 }
