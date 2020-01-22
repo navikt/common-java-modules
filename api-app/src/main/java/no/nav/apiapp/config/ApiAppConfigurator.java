@@ -53,6 +53,8 @@ public interface ApiAppConfigurator {
 
     ApiAppConfigurator validateAzureAdInternalUsersTokens();
 
+    ApiAppConfigurator validateAzureAdInternalUsersTokens(AzureADB2CConfig config);
+
     ApiAppConfigurator securityTokenServiceLogin();
     ApiAppConfigurator securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig securityTokenServiceOidcProviderConfig);
     ApiAppConfigurator oidcProvider(OidcProvider oidcProvider);

@@ -172,6 +172,11 @@ public class Konfigurator implements ApiAppConfigurator {
     }
 
     @Override
+    public ApiAppConfigurator validateAzureAdInternalUsersTokens(AzureADB2CConfig config) {
+        return oidcProvider(new InternalUserLoginProvider(config));
+    }
+
+    @Override
     public ApiAppConfigurator securityTokenServiceLogin() {
         return securityTokenServiceLogin(SecurityTokenServiceOidcProviderConfig.readFromSystemProperties());
     }
