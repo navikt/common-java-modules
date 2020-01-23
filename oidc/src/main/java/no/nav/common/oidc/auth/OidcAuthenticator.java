@@ -1,4 +1,4 @@
-package no.nav.common.oidc.jaxrs;
+package no.nav.common.oidc.auth;
 
 import lombok.Value;
 import no.nav.brukerdialog.security.domain.IdentType;

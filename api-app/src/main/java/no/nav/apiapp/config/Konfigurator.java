@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.apiapp.ApiApplication;
 import no.nav.common.oidc.OidcTokenValidator;
-import no.nav.common.oidc.jaxrs.OidcAuthenticationFilter;
-import no.nav.common.oidc.jaxrs.OidcAuthenticator;
-import no.nav.common.oidc.jaxrs.OidcAuthenticatorConfig;
+import no.nav.common.oidc.auth.OidcAuthenticationFilter;
+import no.nav.common.oidc.auth.OidcAuthenticator;
+import no.nav.common.oidc.auth.OidcAuthenticatorConfig;
 import no.nav.common.oidc.utils.TokenLocator;
 import no.nav.json.JsonProvider;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
@@ -134,10 +134,6 @@ public class Konfigurator implements ApiAppConfigurator {
         Jetty jetty = jettyBuilder.buildJetty();
         jettyCustomizers.forEach(c -> c.accept(jetty));
         return jetty;
-    }
-
-    public boolean hasLogin() {
-        return !oidcAuthenticators.isEmpty();
     }
 
     public List<Pingable> getPingables() {

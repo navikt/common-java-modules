@@ -6,6 +6,7 @@ import no.nav.apiapp.security.veilarbabac.VeilarbAbacPepClient;
 import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
 import org.junit.Test;
@@ -22,7 +23,7 @@ public class PepClientComparatorTest {
     private static final String SYSTEM_TOKEN = "token";
     private final Pep pepOrginal = mock(Pep.class);
     private final Pep pepSammenligneMed = mock(Pep.class);
-    private final VeilarbPepClient veilarbPepClient = new VeilarbPepClient(pepSammenligneMed);
+    private final PepClient veilarbPepClient = new PepClient(pepSammenligneMed, "veilarb", ResourceType.VeilArbPerson);
     private final Logger log = mock(Logger.class);
     private final PepClientComparatorImpl sammenligner = new PepClientComparatorImpl(log);
     private final Bruker bruker = Bruker.fraFnr("fnr").medAktoerId("aktorId");
@@ -297,9 +298,9 @@ public class PepClientComparatorTest {
     @Test
     public void veilarbPepClient__booleanForTilgangssjekk__kasterExceptionVedFeil() {
         Pep pep1 = mock(Pep.class);
-        VeilarbPepClient client1 = new VeilarbPepClient(pep1);
+        PepClient client1 = new PepClient(pep1, "veilarb", ResourceType.VeilArbPerson);
         Pep pep2 = mock(Pep.class);
-        VeilarbPepClient client2 = new VeilarbPepClient(pep2);
+        PepClient client2 = new PepClient(pep2, "veilarb", ResourceType.VeilArbPerson);
 
         pepFeil(pep1);
         pepPermit(pep2);
@@ -316,9 +317,9 @@ public class PepClientComparatorTest {
     @Test
     public void veilarbPepClient__exceptionVedIngenTilgang__kasterExceptionVedFeil() {
         Pep pep1 = mock(Pep.class);
-        VeilarbPepClient client1 = new VeilarbPepClient(pep1);
+        PepClient client1 = new PepClient(pep1, "veilarb", ResourceType.VeilArbPerson);
         Pep pep2 = mock(Pep.class);
-        VeilarbPepClient client2 = new VeilarbPepClient(pep2);
+        PepClient client2 = new PepClient(pep2, "veilarb", ResourceType.VeilArbPerson);
 
         pepFeil(pep1);
         pepPermit(pep2);
