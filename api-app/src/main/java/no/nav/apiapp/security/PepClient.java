@@ -41,12 +41,22 @@ public class PepClient {
 
     @SneakyThrows
     public String sjekkLeseTilgangTilFnr(String fnr) {
-        return sjekkTilgang(fnr, READ);
+        return sjekkTilgang(AbacPersonId.fnr(fnr), READ).getId();
     }
 
     @SneakyThrows
     public String sjekkSkriveTilgangTilFnr(String fnr) {
-        return sjekkTilgang(fnr, WRITE);
+        return sjekkTilgang(AbacPersonId.fnr(fnr), WRITE).getId();
+    }
+
+    @SneakyThrows
+    public void sjekkLesetilgang(AbacPersonId personId) {
+        sjekkTilgang(personId, READ, resourceType);
+    }
+
+    @SneakyThrows
+    public void sjekkSkrivetilgang(AbacPersonId personId) {
+        sjekkTilgang(personId, WRITE, resourceType);
     }
 
     public void sjekkTilgangTilEnhet(String enhet) throws IngenTilgang, PepException {
@@ -68,9 +78,17 @@ public class PepClient {
         return erPermit(r);
     }
 
-    private String sjekkTilgang(String fnr, Action.ActionId action) throws PepException {
-        if (erPermit(pep.harInnloggetBrukerTilgangTilPerson(AbacPersonId.fnr(fnr), applicationDomain, action, resourceType))) {
-            return fnr;
+    public AbacPersonId sjekkTilgang(AbacPersonId personId, Action.ActionId action) throws PepException {
+        return sjekkTilgang(personId, action, resourceType);
+    }
+
+    public AbacPersonId sjekkTilgang(AbacPersonId personId, Action.ActionId action, ResourceType resourceType) {
+        return sjekkTilgang(personId, applicationDomain, action, resourceType);
+    }
+
+    public AbacPersonId sjekkTilgang(AbacPersonId personId, String applicationDomain, Action.ActionId action, ResourceType resourceType) {
+        if (erPermit(pep.harInnloggetBrukerTilgangTilPerson(personId, applicationDomain, action, resourceType))) {
+            return personId;
         } else {
             throw new IngenTilgang();
         }
