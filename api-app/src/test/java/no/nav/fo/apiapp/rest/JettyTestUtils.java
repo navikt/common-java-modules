@@ -50,7 +50,11 @@ public class JettyTestUtils {
     private static void setProperties() {
         String securityTokenService = FasitUtils.getBaseUrl("securityTokenService", FSS);
         ServiceUser srvveilarbdemo = FasitUtils.getServiceUser("srvveilarbdemo", "veilarbdemo");
-        RestService abacEndpoint = FasitUtils.getRestService("abac.pdp.endpoint", srvveilarbdemo.getEnvironment());
+
+        RestService abacEndpoint = FasitUtils.getRestServices("abac.pdp.endpoint").stream()
+                .filter(rs -> srvveilarbdemo.getEnvironment().equals(rs.getEnvironment()) && rs.getApplication() == null)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("fant ikke abac.pdp.endpoint i Fasit"));
 
         setProperty(StsSecurityConstants.STS_URL_KEY, securityTokenService);
         setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
