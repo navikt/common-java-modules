@@ -73,6 +73,7 @@
         <javax.websocket.version>1.1</javax.websocket.version>
 
         <!-- DIV -->
+        <nimbus.version>6.23</nimbus.version>
         <prometheus.version>0.4.0</prometheus.version>
         <swagger.version>1.5.13</swagger.version>
         <swagger-ui.version>2.2.10</swagger-ui.version>
@@ -247,6 +248,11 @@
             <dependency>
                 <groupId>no.nav.common</groupId>
                 <artifactId>auth-openam-sbs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
+                <artifactId>oidc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -711,6 +717,12 @@
 
 
             <!-- annet -->
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>oauth2-oidc-sdk</artifactId>
+                <classifier>jdk8</classifier>
+                <version>${nimbus.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.picketbox</groupId>
                 <artifactId>picketbox</artifactId>
