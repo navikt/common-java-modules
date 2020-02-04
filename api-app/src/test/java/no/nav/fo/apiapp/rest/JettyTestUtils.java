@@ -21,7 +21,6 @@ import java.net.UnknownHostException;
 
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE;
-import static no.nav.common.auth.openam.sbs.OpenAmConfig.OPENAM_RESTURL;
 import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.testconfig.util.Util.setProperty;
 
@@ -55,8 +54,6 @@ public class JettyTestUtils {
         setProperty(StsSecurityConstants.STS_URL_KEY, securityTokenService);
         setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
         setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
-
-        setProperty(OPENAM_RESTURL, "https://itjenester-" + FasitUtils.getDefaultTestEnvironment().toString() + ".oera.no/esso");
 
         ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
         setProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL, FasitUtils.getBaseUrl("aad_b2c_discovery"));

@@ -38,7 +38,6 @@
         <module>api-app</module>
         <module>app-mock</module>
         <module>auth</module>
-        <module>auth-openam-sbs</module>
         <module>jobutils</module>
         <module>bom</module>
         <module>cache</module>
@@ -52,6 +51,7 @@
         <module>log</module>
         <module>leader-election</module>
         <module>metrics</module>
+        <module>oidc</module>
         <module>oidc-security</module>
         <module>pact-fo</module>
         <module>rest</module>

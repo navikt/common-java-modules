@@ -1,7 +1,8 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import no.nav.brukerdialog.security.context.SubjectHandler;
 import no.nav.common.auth.SsoToken;
+import no.nav.common.auth.Subject;
+import no.nav.common.auth.SubjectHandler;
 import no.nav.sbl.dialogarena.common.cxf.saml.ClaimsCallbackHandler;
 import no.nav.sbl.util.StringUtils;
 import org.apache.cxf.Bus;
@@ -72,7 +73,9 @@ public class NAVOidcSTSClient extends STSClient {
     }
 
     private String getUserId() {
-        return stsType == SYSTEM_USER_IN_FSS ? StringUtils.toString(getProperty(SecurityConstants.USERNAME)) : SubjectHandler.getSubjectHandler().getUid();
+        return stsType == SYSTEM_USER_IN_FSS
+                ? StringUtils.toString(getProperty(SecurityConstants.USERNAME))
+                : SubjectHandler.getSubject().orElseThrow(() -> new RuntimeException("Klarte ikke å hente uid fra subject")).getUid();
     }
 
     private void ensureTokenStoreExists() {
