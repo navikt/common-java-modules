@@ -720,7 +720,6 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <classifier>jdk8</classifier>
                 <version>${nimbus.version}</version>
             </dependency>
             <dependency>

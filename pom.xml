@@ -52,6 +52,7 @@
         <module>log</module>
         <module>leader-election</module>
         <module>metrics</module>
+        <module>oidc</module>
         <module>oidc-security</module>
         <module>pact-fo</module>
         <module>rest</module>

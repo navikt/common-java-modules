@@ -122,18 +122,16 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
             throw new IllegalStateException("api-apper bruker ikke container-login lenger, men setter istede opp " + LoginFilter.class.getName() + ". Vennligst fjern security constraints fra web.xml: " + constraints);
         }
 
-        konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
-
         LogFilterConfig logFilterConfig = LogFilterConfig.builder()
                 .exposeErrorDetails(FeilMapper::visDetaljer)
                 .serverName(EnvironmentUtils.requireApplicationName())
                 .build();
 
-        leggTilFilter(servletContextEvent, PrometheusFilter.class);
-        leggTilFilter(servletContextEvent, new LogFilter(logFilterConfig));
-        leggTilFilter(servletContextEvent, NavCorsFilter.class);
-        leggTilFilter(servletContextEvent, SecurityHeadersFilter.class);
-        leggTilFilter(servletContextEvent, RequestContextFilter.class);
+        filterBuilder(PrometheusFilter.class).register(servletContext);
+        filterBuilder(new LogFilter(logFilterConfig)).register(servletContext);
+        filterBuilder(NavCorsFilter.class).register(servletContext);
+        filterBuilder(SecurityHeadersFilter.class).register(servletContext);
+        filterBuilder(RequestContextFilter.class).register(servletContext);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
@@ -179,9 +177,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     }
 
     @Override
-    public void sessionDestroyed(HttpSessionEvent se) {
-
-    }
+    public void sessionDestroyed(HttpSessionEvent se) {}
 
     private void konfigurerSpring(ServletContext servletContext) {
         servletContext.setInitParameter(CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());

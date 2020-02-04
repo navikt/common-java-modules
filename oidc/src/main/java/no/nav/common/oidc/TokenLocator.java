@@ -8,6 +8,11 @@ public class TokenLocator {
     private final String idTokenCookieName;
     private final String refreshTokenCookieName;
 
+    public TokenLocator(String idTokenCookieName) {
+        this.idTokenCookieName = idTokenCookieName;
+        this.refreshTokenCookieName = null;
+    }
+
     public TokenLocator(String idTokenCookieName, String refreshTokenCookieName) {
         this.idTokenCookieName = idTokenCookieName;
         this.refreshTokenCookieName = refreshTokenCookieName;

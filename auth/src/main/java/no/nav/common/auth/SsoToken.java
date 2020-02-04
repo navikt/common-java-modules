@@ -18,7 +18,7 @@ public class SsoToken {
     private final String token;
     private final Map<String, Object> attributes;
 
-    SsoToken(Type type, String token, Map<String, ?> attributes) {
+    SsoToken(Type type, String token, Map<String, Object> attributes) {
         assertNotNull(type);
         assertNotNull(attributes);
         assertNotNullOrEmpty(token);
@@ -28,39 +28,15 @@ public class SsoToken {
         this.attributes = unmodifiableMap(attributes);
     }
 
-    /**
-     * @deprecated use overloaded method - attributes should be provided
-     */
-    @Deprecated
-    public static SsoToken oidcToken(String token) {
-        return oidcToken(token, emptyMap());
-    }
-
-    public static SsoToken oidcToken(String token, Map<String, ?> attributes) {
+    public static SsoToken oidcToken(String token, Map<String, Object> attributes) {
         return new SsoToken(OIDC, token, attributes);
     }
 
-    /**
-     * @deprecated use overloaded method - attributes should be provided
-     */
-    @Deprecated
-    public static SsoToken saml(String samlAssertion) {
-        return saml(samlAssertion, emptyMap());
-    }
-
-    public static SsoToken saml(String samlAssertion, Map<String, ?> attributes) {
+    public static SsoToken saml(String samlAssertion, Map<String, Object> attributes) {
         return new SsoToken(SAML, samlAssertion, attributes);
     }
 
-    /**
-     * @deprecated use overloaded method - attributes should be provided
-     */
-    @Deprecated
-    public static SsoToken eksternOpenAM(String token) {
-        return eksternOpenAM(token, emptyMap());
-    }
-
-    public static SsoToken eksternOpenAM(String token, Map<String, ?> attributes) {
+    public static SsoToken eksternOpenAM(String token, Map<String, Object> attributes) {
         return new SsoToken(EKSTERN_OPENAM, token, attributes);
     }
 
