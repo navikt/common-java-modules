@@ -1,9 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import no.nav.brukerdialog.security.context.SubjectRule;
-import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.Subject;
 import no.nav.common.auth.TestSubjectUtils;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
@@ -15,7 +12,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -26,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.System.setProperty;
 import static no.nav.sbl.dialogarena.common.abac.pep.utils.SecurityUtilsTest.TOKEN;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -104,12 +99,12 @@ public class PepImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void notNumericFnrThrowsIllegalArgumentException() throws PepException {
-        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", "xxxxxx4444");
+        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", AbacPersonId.fnr("xxxxxx4444"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongLengthOfFnrThrowsIllegalArgumentException() throws PepException {
-        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", "xxxx4444");
+        pep.isServiceCallAllowedWithIdent("Z999000", "veilarb", AbacPersonId.fnr("xxxx4444"));
     }
 
     private XacmlResponse getMockResponse(Decision decision) {
