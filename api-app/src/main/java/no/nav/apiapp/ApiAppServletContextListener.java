@@ -1,6 +1,7 @@
 package no.nav.apiapp;
 
 
+import no.nav.apiapp.auth.OidcAuthenticationFilter;
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.feil.FeilMapper;
 import no.nav.apiapp.metrics.PrometheusFilter;
@@ -18,7 +19,6 @@ import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.version.Version;
 import no.nav.apiapp.version.VersionService;
-import no.nav.common.auth.LoginFilter;
 import no.nav.log.LogFilter;
 import no.nav.log.LogFilterConfig;
 import no.nav.log.LoginfoServlet;
@@ -119,7 +119,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         List<ConstraintMapping> constraintMappings = currentSecurityHandler != null ? currentSecurityHandler.getConstraintMappings() : emptyList();
         if (constraintMappings.size() > 2) { // Jetty setter opp 2 contraints by default
             List<Constraint> constraints = constraintMappings.subList(2, constraintMappings.size()).stream().map(ConstraintMapping::getConstraint).collect(Collectors.toList());
-            throw new IllegalStateException("api-apper bruker ikke container-login lenger, men setter istede opp " + LoginFilter.class.getName() + ". Vennligst fjern security constraints fra web.xml: " + constraints);
+            throw new IllegalStateException("api-apper bruker ikke container-login lenger, men setter istede opp " + OidcAuthenticationFilter.class.getName() + ". Vennligst fjern security constraints fra web.xml: " + constraints);
         }
 
         LogFilterConfig logFilterConfig = LogFilterConfig.builder()

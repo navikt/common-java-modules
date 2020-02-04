@@ -86,7 +86,7 @@ public class OidcAuthenticationFilter implements Filter {
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
-    private boolean isPublic(HttpServletRequest httpServletRequest) {
+    boolean isPublic(HttpServletRequest httpServletRequest) {
         return publicPatterns.stream().anyMatch(p -> p.matcher(httpServletRequest.getRequestURI()).matches());
     }
 

@@ -2,10 +2,6 @@ package no.nav.sbl.dialogarena.common.jetty;
 
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.jetty.JettyStatisticsCollector;
-import no.nav.brukerdialog.security.jaspic.OidcAuthModule;
-import no.nav.brukerdialog.security.oidc.provider.IssoOidcProvider;
-import no.nav.common.auth.LoginFilter;
-import no.nav.common.auth.LoginProvider;
 import org.apache.commons.lang3.ArrayUtils;
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.jaas.JAASLoginService;
@@ -22,7 +18,6 @@ import org.eclipse.jetty.webapp.*;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.naming.NamingException;
 import javax.servlet.*;
@@ -37,7 +32,6 @@ import java.net.URL;
 import java.util.*;
 
 import static java.lang.System.setProperty;
-import static java.util.Collections.*;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static javax.servlet.DispatcherType.REQUEST;
@@ -154,18 +148,6 @@ public final class Jetty {
             return this;
         }
 
-        @Deprecated // Sett heller opp LoginFilter manuelt
-        public final JettyBuilder configureForJaspic() {
-            return configureForJaspic(emptyList());
-        }
-
-        @Deprecated // Sett heller opp LoginFilter manuelt
-        public final JettyBuilder configureForJaspic(List<String> ubeskyttet) {
-            List<LoginProvider> loginProviders = Collections.singletonList(new OidcAuthModule(Collections.singletonList(new IssoOidcProvider())));
-            addFilter(new LoginFilter(loginProviders, null, ubeskyttet));
-            return this;
-        }
-
         public JettyBuilder addFilter(Filter filter) {
             this.filters.add(filter);
             return this;
@@ -173,19 +155,6 @@ public final class Jetty {
 
         public JettyBuilder addCustomizer(JettyCustomizer jettyCustomizer) {
             this.customizers.add(jettyCustomizer);
-            return this;
-        }
-
-        public final JettyBuilder addDatasourceByPropertyFile(String propertyFile) throws IOException {
-            DriverManagerDataSource dataSource = new DriverManagerDataSource();
-            Properties env = readProperties(propertyFile);
-            dataSource.setDriverClassName(env.getProperty("driverClassName"));
-            dataSource.setUrl(env.getProperty("url"));
-            dataSource.setUsername(env.getProperty("username"));
-            dataSource.setPassword(env.getProperty("password"));
-            String jndiName = env.getProperty("jndiname");
-
-            dataSources.put(jndiName, dataSource);
             return this;
         }
 
