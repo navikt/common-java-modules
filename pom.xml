@@ -38,7 +38,6 @@
         <module>api-app</module>
         <module>app-mock</module>
         <module>auth</module>
-        <module>auth-openam-sbs</module>
         <module>jobutils</module>
         <module>bom</module>
         <module>cache</module>

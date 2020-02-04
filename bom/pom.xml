@@ -247,11 +247,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>auth-openam-sbs</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
                 <artifactId>oidc</artifactId>
                 <version>${project.version}</version>
             </dependency>

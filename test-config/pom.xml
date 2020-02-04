@@ -88,10 +88,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>auth-openam-sbs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.common</groupId>
             <artifactId>test</artifactId>
             <scope>compile</scope>
         </dependency>
