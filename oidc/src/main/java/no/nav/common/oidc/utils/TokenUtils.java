@@ -1,4 +1,4 @@
-package no.nav.apiapp.auth;
+package no.nav.common.oidc.utils;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;

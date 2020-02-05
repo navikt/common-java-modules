@@ -1,4 +1,4 @@
-package no.nav.apiapp.auth;
+package no.nav.common.oidc.jaxrs;
 
 import lombok.Value;
 import lombok.experimental.Wither;

@@ -1,7 +1,5 @@
 package no.nav.apiapp;
 
-
-import no.nav.apiapp.auth.OidcAuthenticationFilter;
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.feil.FeilMapper;
 import no.nav.apiapp.metrics.PrometheusFilter;
@@ -19,6 +17,7 @@ import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.version.Version;
 import no.nav.apiapp.version.VersionService;
+import no.nav.common.oidc.jaxrs.OidcAuthenticationFilter;
 import no.nav.log.LogFilter;
 import no.nav.log.LogFilterConfig;
 import no.nav.log.LoginfoServlet;
@@ -43,7 +42,6 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.RequestContextFilter;

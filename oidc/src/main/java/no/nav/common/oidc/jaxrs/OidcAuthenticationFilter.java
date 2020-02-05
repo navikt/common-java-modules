@@ -1,13 +1,15 @@
-package no.nav.apiapp.auth;
+package no.nav.common.oidc.jaxrs;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
-import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
+import no.nav.common.oidc.utils.TokenUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +22,8 @@ import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toList;
 
-@Slf4j
 public class OidcAuthenticationFilter implements Filter {
+    private static final Logger logger = LoggerFactory.getLogger(OidcAuthenticationFilter.class);
 
     private final List<OidcAuthenticator> oidcAuthenticators;
     private final List<String> publicPaths;
@@ -40,7 +42,7 @@ public class OidcAuthenticationFilter implements Filter {
                 .map(path -> "^" + contextPath + path)
                 .map(Pattern::compile)
                 .collect(toList());
-        log.info("initialized {} with public patterns: {}", OidcAuthenticationFilter.class.getName(), publicPatterns);
+        logger.info("initialized {} with public patterns: {}", OidcAuthenticationFilter.class.getName(), publicPatterns);
     }
 
     private String contextPath(FilterConfig filterConfig) {
@@ -86,7 +88,7 @@ public class OidcAuthenticationFilter implements Filter {
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
-    boolean isPublic(HttpServletRequest httpServletRequest) {
+    public boolean isPublic(HttpServletRequest httpServletRequest) {
         return publicPatterns.stream().anyMatch(p -> p.matcher(httpServletRequest.getRequestURI()).matches());
     }
 

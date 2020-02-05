@@ -1,5 +1,6 @@
-package no.nav.apiapp.auth;
+package no.nav.common.oidc;
 
+import no.nav.common.oidc.jaxrs.OidcAuthenticationFilter;
 import org.junit.Test;
 
 import javax.servlet.FilterConfig;

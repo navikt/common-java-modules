@@ -1,7 +1,7 @@
 package no.nav.apiapp.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import no.nav.apiapp.auth.OidcAuthenticatorConfig;
+import no.nav.common.oidc.jaxrs.OidcAuthenticatorConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
 import no.nav.sbl.dialogarena.types.Pingable;

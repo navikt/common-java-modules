@@ -1,9 +1,9 @@
-package no.nav.apiapp.auth;
+package no.nav.common.oidc.jaxrs;
 
 import lombok.Value;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.oidc.OidcTokenValidator;
-import no.nav.common.oidc.TokenLocator;
+import no.nav.common.oidc.utils.TokenLocator;
 
 @Value
 public class OidcAuthenticator {
