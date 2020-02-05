@@ -17,7 +17,7 @@ import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.version.Version;
 import no.nav.apiapp.version.VersionService;
-import no.nav.common.oidc.jaxrs.OidcAuthenticationFilter;
+import no.nav.common.oidc.auth.OidcAuthenticationFilter;
 import no.nav.log.LogFilter;
 import no.nav.log.LogFilterConfig;
 import no.nav.log.LoginfoServlet;

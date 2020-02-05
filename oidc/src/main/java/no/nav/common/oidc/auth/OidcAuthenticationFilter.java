@@ -1,4 +1,4 @@
-package no.nav.common.oidc.jaxrs;
+package no.nav.common.oidc.auth;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
