@@ -40,7 +40,7 @@ public class RestApplication extends Application {
                 new NavMetricsBinder(),
                 parameterConverterProvider(),
                 new PingResource(),
-                new SwaggerResource(apiApplication, konfigurator.hasLogin())
+                new SwaggerResource(apiApplication)
         ));
         singeltons.addAll(getBeansWithAnnotation(Provider.class));
         singeltons.addAll(getBeansWithAnnotation(Path.class));
