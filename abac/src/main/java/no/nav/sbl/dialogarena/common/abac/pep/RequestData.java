@@ -6,8 +6,6 @@ import lombok.experimental.Wither;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 
-import java.util.Objects;
-
 @Getter
 @Wither
 @EqualsAndHashCode
@@ -20,7 +18,7 @@ public class RequestData {
     private String samlToken;
     private String subjectId;
     private String domain;
-    private String fnr;
+    private AbacPersonId personId;
     private String enhet;
     private Action.ActionId action = Action.ActionId.READ;
     private ResourceType resourceType;
