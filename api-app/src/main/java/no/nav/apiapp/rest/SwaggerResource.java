@@ -7,9 +7,12 @@ import io.swagger.jaxrs.config.ReaderConfigUtils;
 import io.swagger.jaxrs.listing.BaseApiListingResource;
 import io.swagger.models.Operation;
 import io.swagger.models.Swagger;
+import io.swagger.models.parameters.HeaderParameter;
+import io.swagger.models.properties.StringProperty;
 import io.swagger.util.Json;
 import lombok.SneakyThrows;
 import no.nav.apiapp.ApiApplication;
+import no.nav.log.LogFilter;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -39,13 +42,15 @@ public class SwaggerResource extends BaseApiListingResource {
     public static final String IKKE_BERIK = "ikke_berik";
 
     private final ApiApplication apiApplication;
+    private final boolean hasLogin;
 
     public static void setupServlet(ServletRegistration.Dynamic servletRegistration) {
         servletRegistration.setInitParameter("scan.all.resources", "true");
     }
 
-    public SwaggerResource(ApiApplication apiApplication) {
+    public SwaggerResource(ApiApplication apiApplication, boolean hasLogin) {
         this.apiApplication = apiApplication;
+        this.hasLogin = hasLogin;
     }
 
     @Inject
@@ -120,6 +125,34 @@ public class SwaggerResource extends BaseApiListingResource {
         ofNullable(swaggerRequest.swagger.getPath(path))
                 .flatMap(swaggerPath -> getOperation(swaggerPath, method))
                 .ifPresent(operation -> {
+
+                    HeaderParameter consumerIdParameter = new HeaderParameter();
+                    consumerIdParameter.setName(LogFilter.CONSUMER_ID_HEADER_NAME);
+                    consumerIdParameter.setDescription("the consuming entity of the request, typically the name of an application");
+                    consumerIdParameter.setType("string");
+                    operation.addParameter(consumerIdParameter);
+
+                    HeaderParameter callIdParameter = new HeaderParameter();
+                    callIdParameter.setName(LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME);
+                    callIdParameter.setDescription("a correlation id that is added to logs associated with the request");
+                    callIdParameter.setType("string");
+                    operation.addParameter(callIdParameter);
+
+                    if (hasLogin) {
+                        HeaderParameter authorizationParameters = new HeaderParameter();
+                        authorizationParameters.setName(HttpHeaders.AUTHORIZATION);
+                        authorizationParameters.setType("string");
+                        operation.addParameter(authorizationParameters);
+
+                        io.swagger.models.Response response = new io.swagger.models.Response();
+                        response.setDescription("the request was not authenticated or authorized");
+                        operation.response(401, response);
+                    }
+
+                    operation.getResponses().values().forEach(response->{
+                        response.addHeader(LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME, new StringProperty());
+                    });
+
                     if (ofNullable(operation.getTags()).map(List::isEmpty).orElse(true)) {
                         operation.addTag(contextClass.getSimpleName());
                     }

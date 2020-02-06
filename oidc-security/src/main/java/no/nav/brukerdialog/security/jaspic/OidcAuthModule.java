@@ -1,6 +1,7 @@
 package no.nav.brukerdialog.security.jaspic;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.brukerdialog.security.jwks.CacheMissAction;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidator;
 import no.nav.brukerdialog.security.oidc.OidcTokenValidatorResult;
@@ -20,19 +21,21 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
+import static java.util.Optional.*;
 import static no.nav.brukerdialog.security.Constants.*;
 import static no.nav.brukerdialog.security.jwks.CacheMissAction.NO_REFRESH;
 import static no.nav.brukerdialog.security.jwks.CacheMissAction.REFRESH;
 import static no.nav.brukerdialog.tools.Utils.getRelativePath;
 
+@Slf4j
 public class OidcAuthModule implements LoginProvider {
 
     private static final Logger log = LoggerFactory.getLogger(OidcAuthModule.class);
     private static final boolean sslOnlyCookies = !Boolean.valueOf(System.getProperty("develop-local", "false"));
+    public static final String AZURE_AD_CLAIM = "NAVident";
 
     private final List<OidcProvider> providers;
     private final OidcTokenValidator oidcTokenValidator;
@@ -54,7 +57,18 @@ public class OidcAuthModule implements LoginProvider {
     }
 
     private Stream<Subject> authenticate(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, CacheMissAction cacheMissAction) {
-        return providers.stream().flatMap(oidcProviderHandler -> doValidateRequest(httpServletRequest, httpServletResponse, oidcProviderHandler, cacheMissAction));
+        return providers.stream().flatMap(catchAndLogErrors(oidcProviderHandler -> doValidateRequest(httpServletRequest, httpServletResponse, oidcProviderHandler, cacheMissAction)));
+    }
+
+    private Function<OidcProvider, Stream<Subject>> catchAndLogErrors(Function<OidcProvider, Stream<Subject>> providerStreamFunction) {
+        return (oidcProvider) -> {
+            try {
+                return providerStreamFunction.apply(oidcProvider);
+            } catch (Throwable t) {
+                log.warn(t.getMessage(), t);
+                return Stream.empty();
+            }
+        };
     }
 
     private Stream<Subject> doValidateRequest(
@@ -80,13 +94,13 @@ public class OidcAuthModule implements LoginProvider {
                 OidcTokenValidatorResult refreshedTokenValidatorResult = oidcTokenValidator.validate(refreshedToken, oidcProvider, cacheMissAction);
                 if (refreshedTokenValidatorResult.isValid()) {
                     addHttpOnlyCookie(httpServletRequest, httpServletResponse, ID_TOKEN_COOKIE_NAME, refreshedToken);
-                    return handleValidatedToken(refreshedTokenValidatorResult, refreshedToken, refreshedTokenValidatorResult.getSubject(), oidcProvider);
+                    return handleValidatedToken(refreshedTokenValidatorResult, refreshedToken, oidcProvider);
                 }
             }
         }
 
         if (requestTokenValidatorResult.isValid()) {
-            return handleValidatedToken(requestTokenValidatorResult, requestToken, requestTokenValidatorResult.getSubject(), oidcProvider);
+            return handleValidatedToken(requestTokenValidatorResult, requestToken, oidcProvider);
         }
         return Stream.empty();
     }
@@ -158,8 +172,12 @@ public class OidcAuthModule implements LoginProvider {
                 : req.getRequestURL().toString() + "?" + req.getQueryString();
     }
 
-    private Stream<Subject> handleValidatedToken(OidcTokenValidatorResult requestTokenValidatorResult, String token, String username, OidcProvider oidcProvider) {
+    private Stream<Subject> handleValidatedToken(OidcTokenValidatorResult requestTokenValidatorResult, String token, OidcProvider oidcProvider) {
         SsoToken ssoToken = SsoToken.oidcToken(token, requestTokenValidatorResult.getAttributes());
+        String username = ofNullable(requestTokenValidatorResult.getAttributes().get(AZURE_AD_CLAIM))
+                .map((object) -> (String)object)
+                .orElseGet(requestTokenValidatorResult::getSubject);
+
         Subject subject = new Subject(username, oidcProvider.getIdentType(token), ssoToken);
         return Stream.of(subject);
     }

@@ -1,17 +1,12 @@
 package no.nav.fo.apiapp;
 
-import no.nav.apiapp.ApiApp;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.dialogarena.config.fasit.dto.RestService;
+import lombok.SneakyThrows;
+import no.nav.fo.apiapp.rest.JettyTestUtils;
 import no.nav.json.JsonProvider;
-import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
-import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
-import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
-import no.nav.testconfig.ApiAppTest;
-import org.eclipse.jetty.server.ServerConnector;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.glassfish.jersey.client.ClientProperties;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,46 +16,32 @@ import javax.ws.rs.client.*;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.apiapp.ServletUtil.getContext;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME;
-import static no.nav.common.auth.openam.sbs.OpenAmConfig.OPENAM_RESTURL;
-import static no.nav.dialogarena.config.fasit.FasitUtils.Zone.FSS;
-import static no.nav.dialogarena.config.util.Util.setProperty;
+import static no.nav.fo.apiapp.rest.JettyTestUtils.*;
 
 
-public abstract class JettyTest {
+public class JettyTest {
 
-    public static boolean DISABLE_AUTH = false;
+    private static JettyTest jettyTest;
+
+    @BeforeClass
+    public static void setUp() {
+        jettyTest = new JettyTest().startJetty();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        jettyTest.stopJetty();
+    }
+
+    public static boolean DISABLE_AUTH = EnvironmentUtils.getOptionalProperty("DISABLE_AUTH").map(Boolean::parseBoolean).orElse(false);
     public static final String APPLICATION_NAME = "api-app";
-
-    static {
-        ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
-                .applicationName(APPLICATION_NAME)
-                .build()
-        );
-        setupContext();
-    }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
-
-    private static Jetty JETTY;
-
-    private static Jetty nyJettyForTest() {
-        DISABLE_AUTH = true;
-        ApiApp apiApp = ApiApp.startApiApp(ApplicationConfig.class, new String[]{Integer.toString(tilfeldigPort()), Integer.toString(tilfeldigPort())});
-        return apiApp.getJetty();
-    }
 
     private Client client = ClientBuilder.newBuilder()
             .register(new JsonProvider())
@@ -69,20 +50,35 @@ public abstract class JettyTest {
 
     private Map<String, NewCookie> cookies = new HashMap<>();
 
-    @BeforeClass
-    public static void startJetty() {
-        if (JETTY == null) {
-            JETTY = nyJettyForTest();
-            Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
-        }
+
+    public JettyTest() {
+        setupContext();
     }
 
-    public static int tilfeldigPort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public JettyTest(JettyTestConfig testConfig) {
+        setupContext(testConfig);
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JettyTest.class);
+
+    private static Jetty JETTY;
+
+    @SneakyThrows
+    public void stopJetty() {
+        if (jettyTest == null || JETTY == null) {
+            return;
         }
+        JETTY.server.stop();
+        JETTY = null;
+    }
+
+    public JettyTest startJetty() {
+        if (JETTY == null) {
+            DISABLE_AUTH = true;
+            JETTY = nyJettyForTest(ApplicationConfig.class);
+            Runtime.getRuntime().addShutdownHook(new Thread(JETTY.stop::run));
+        }
+        return this;
     }
 
     protected Response get(String path) {
@@ -110,7 +106,7 @@ public abstract class JettyTest {
     }
 
     protected static UriBuilder buildUri(String path) {
-        return UriBuilder.fromPath(APPLICATION_NAME + path).host(getHostName()).scheme("https").port(getPort());
+        return UriBuilder.fromPath(APPLICATION_NAME + path).host(getHostName()).scheme("https").port(getSslPort());
     }
 
     protected String getString(String path) {
@@ -138,36 +134,7 @@ public abstract class JettyTest {
         return cookies;
     }
 
-    protected static int getPort() {
-        return ((ServerConnector) JETTY.server.getConnectors()[1]).getPort();
+    protected static int getSslPort() {
+        return JettyTestUtils.getSslPort(JETTY);
     }
-
-    protected static String getHostName() {
-        try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected static void setupContext() {
-        String securityTokenService = FasitUtils.getBaseUrl("securityTokenService", FSS);
-        ServiceUser srvveilarbdemo = FasitUtils.getServiceUser("srvveilarbdemo", "veilarbdemo");
-        RestService abacEndpoint = FasitUtils.getRestService("abac.pdp.endpoint", srvveilarbdemo.getEnvironment());
-
-        setProperty(StsSecurityConstants.STS_URL_KEY, securityTokenService);
-        setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
-        setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
-
-        setProperty(OPENAM_RESTURL, "https://itjenester-" + FasitUtils.getDefaultTestEnvironment().toString() + ".oera.no/esso");
-
-        ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
-        setProperty(AZUREAD_B2C_DISCOVERY_URL_PROPERTY_NAME, FasitUtils.getBaseUrl("aad_b2c_discovery"));
-        setProperty(AZUREAD_B2C_EXPECTED_AUDIENCE_PROPERTY_NAME, azureADClientId.username);
-
-        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
-        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
-        setProperty(AbacServiceConfig.ABAC_ENDPOINT_URL_PROPERTY_NAME, abacEndpoint.getUrl());
-    }
-
 }

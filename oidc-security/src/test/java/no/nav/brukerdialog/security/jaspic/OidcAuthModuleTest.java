@@ -18,6 +18,9 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.Map;
+import java.util.UUID;
+
 import static java.util.Arrays.asList;
 import static java.util.Optional.of;
 import static no.nav.brukerdialog.security.jwks.CacheMissAction.NO_REFRESH;
@@ -60,6 +63,14 @@ public class OidcAuthModuleTest {
     }
 
     @Test
+    public void authenticate__matching_token__returns_subject_azure_ad() {
+        Subject subject = testSubjectAzureAD("token3");
+        mockValidSubjectForProvider(subject, provider3, NO_REFRESH);
+
+        assertThat(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).hasValue(subject);
+    }
+
+    @Test
     public void authenticate__key_rotation__refresh_key_cache_and_return_subject() {
         Subject subject = testSubject("token3");
         mockValidSubjectForProvider(subject, provider3, REFRESH);
@@ -80,6 +91,17 @@ public class OidcAuthModuleTest {
         verify(provider3, never()).getVerificationKey(any(), eq(REFRESH));
     }
 
+    @Test
+    public void authenticate__ignore_failing_providers() {
+        Subject subject = testSubject("token3");
+        mockValidSubjectForProvider(subject, provider3, NO_REFRESH);
+
+        when(provider1.getToken(httpServletRequest)).thenThrow(Throwable.class);
+        when(provider2.getToken(httpServletRequest)).thenThrow(Throwable.class);
+
+        assertThat(oidcAuthModule.authenticate(httpServletRequest, httpServletResponse)).hasValue(subject);
+    }
+
     @SneakyThrows
     private void mockValidSubjectForProvider(Subject subject, OidcProvider oidcProvider, CacheMissAction noRefresh) {
         String oidcToken = subject.getSsoToken(OIDC).get();
@@ -95,6 +117,21 @@ public class OidcAuthModuleTest {
         String uid = "test-subject";
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setSubject(uid);
+        jwtClaims.setExpirationTimeMinutesInTheFuture(600);
+        return TestSubjectUtils.builder()
+                .uid(uid)
+                .identType(IDENT_TYPE)
+                .token(token)
+                .tokenType(OIDC)
+                .attributes(jwtClaims.getClaimsMap())
+                .build();
+    }
+
+    private Subject testSubjectAzureAD(String token) {
+        String uid = "test-subject";
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setSubject(UUID.randomUUID().toString());
+        jwtClaims.setClaim("NAVident", uid);
         jwtClaims.setExpirationTimeMinutesInTheFuture(600);
         return TestSubjectUtils.builder()
                 .uid(uid)

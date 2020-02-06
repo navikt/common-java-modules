@@ -5,25 +5,21 @@
     <property name="loggingPattern"
               value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}] ){'- \[, , \] ',''}- %m%n"/>
 
-    <appender name="tjenestekall-abac" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${SERVICE_CALLS_HOME}/${THIS_LIBRARY}-tjenestekall.log</file>
-        <append>true</append>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${SERVICE_CALLS_HOME}/${THIS_LIBRARY}-tjenestekall.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>1</maxHistory>
-        </rollingPolicy>
-        <encoder>
+    <appender name="AuditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>%date{ISO8601} ${applicationName} %level %mdc %m%n%rEx</pattern>
-        </encoder>
-    </appender>
+        </layout>
 
-
-    <appender name="tjenestekall-abac-async-file" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="tjenestekall-abac"/>
+        <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
+            <host>audit.nais</host>
+            <port>6514</port>
+            <ident>${applicationName}</ident>
+            <maxMessageLength>128000</maxMessageLength>
+        </syslogConfig>
     </appender>
 
     <logger name="AuditLogger" level="${ABAC_TJENESTEKALL_LOG_LEVEL:-INFO}" additivity="false">
-        <appender-ref ref="tjenestekall-abac-async-file"/>
+        <appender-ref ref="AuditLogger"/>
     </logger>
 
 </included>

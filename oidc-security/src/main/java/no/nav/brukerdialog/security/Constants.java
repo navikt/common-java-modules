@@ -17,6 +17,9 @@ public class Constants {
     public static final String ISSO_JWKS_URL_PROPERTY_NAME = "isso-jwks.url";
     public static final String ISSO_ISALIVE_URL_PROPERTY_NAME = "isso.isalive.url";
 
+    public static final String AZUREADB2C_OIDC_COOKIE_NAME_SBS = "selvbetjening-idtoken";
+    public static final String AZUREADB2C_OIDC_COOKIE_NAME_FSS = "isso-idtoken";
+
     public static String getIssoHostUrl() {
         return getRequiredProperty(ISSO_HOST_URL_PROPERTY_NAME, "ISSO_HOST_URL");
     }

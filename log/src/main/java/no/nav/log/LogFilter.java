@@ -1,6 +1,7 @@
 package no.nav.log;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.utils.IdUtils;
 import no.nav.sbl.util.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.context.EnvironmentAware;
@@ -13,12 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.function.Supplier;
 
+import static no.nav.common.utils.IdUtils.generateId;
 import static no.nav.log.MDCConstants.*;
 import static no.nav.sbl.util.LogUtils.buildMarker;
 import static no.nav.sbl.util.StringUtils.nullOrEmpty;
+import static org.springframework.http.HttpHeaders.SERVER;
 
 
 @Slf4j
@@ -44,14 +46,19 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
      * Filter init param used to specify a {@link Supplier<Boolean>} that will return whether stacktraces should be exposed or not
      * Defaults to always false
      */
-    private Supplier<Boolean> exposeErrorDetails;
+    private final Supplier<Boolean> exposeErrorDetails;
+    private final String serverName;
 
     public LogFilter() {
-        this(() -> false);
+        this(LogFilterConfig.builder()
+                .exposeErrorDetails(() -> false)
+                .build()
+        );
     }
 
-    public LogFilter(Supplier<Boolean> exposeErrorDetails) {
-        this.exposeErrorDetails = exposeErrorDetails;
+    public LogFilter(LogFilterConfig logFilterConfig) {
+        this.exposeErrorDetails = logFilterConfig.getExposeErrorDetails();
+        this.serverName = logFilterConfig.getServerName();
     }
 
     @Override
@@ -71,7 +78,11 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         MDC.put(MDC_CONSUMER_ID, consumerId);
         MDC.put(MDC_REQUEST_ID, generateId());
 
-        httpServletResponse.addHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
+        httpServletResponse.setHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
+
+        if (serverName != null) {
+            httpServletResponse.setHeader(SERVER, serverName);
+        }
 
         try {
             filterWithErrorHandling(httpServletRequest, httpServletResponse, filterChain);
@@ -79,6 +90,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
             buildMarker()
                     .field("status", httpServletResponse.getStatus())
                     .field("method", httpServletRequest.getMethod())
+                    .field("host", httpServletRequest.getServerName())
                     .field("path", httpServletRequest.getRequestURI())
                     .log(log::info);
 
@@ -94,7 +106,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         return Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpServletRequest::getHeader)
                 .filter(StringUtils::notNullOrEmpty)
                 .findFirst()
-                .orElseGet(LogFilter::generateId);
+                .orElseGet(IdUtils::generateId);
     }
 
     private void generateUserIdCookie(HttpServletResponse httpServletResponse) {
@@ -102,6 +114,8 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         Cookie cookie = new Cookie(RANDOM_USER_ID_COOKIE_NAME, userId);
         cookie.setPath("/");
         cookie.setMaxAge(ONE_MONTH_IN_SECONDS);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         httpServletResponse.addCookie(cookie);
     }
 
@@ -122,7 +136,7 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         }
     }
 
-    private String resolveUserId(HttpServletRequest httpServletRequest) {
+    public String resolveUserId(HttpServletRequest httpServletRequest) {
         Cookie[] cookies = httpServletRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -132,11 +146,6 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
             }
         }
         return null;
-    }
-
-    private static String generateId() {
-        UUID uuid = UUID.randomUUID();
-        return Long.toHexString(uuid.getMostSignificantBits()) + Long.toHexString(uuid.getLeastSignificantBits());
     }
 
 }

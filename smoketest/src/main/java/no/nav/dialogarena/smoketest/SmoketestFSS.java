@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import no.nav.brukerdialog.security.domain.OidcCredential;
 import no.nav.brukerdialog.security.oidc.OidcTokenUtils;
-import no.nav.brukerdialog.security.oidc.UserTokenProvider;
 
 import javax.ws.rs.core.Cookie;
 

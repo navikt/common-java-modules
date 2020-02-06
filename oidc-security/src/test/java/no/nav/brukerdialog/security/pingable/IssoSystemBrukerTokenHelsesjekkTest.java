@@ -2,9 +2,9 @@ package no.nav.brukerdialog.security.pingable;
 
 import no.nav.brukerdialog.security.oidc.SystemUserTokenProvider;
 import no.nav.brukerdialog.security.oidc.SystemUserTokenProviderConfig;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUser;
-import no.nav.dialogarena.config.fasit.dto.RestService;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.ServiceUser;
+import no.nav.fasit.dto.RestService;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.util.ExceptionUtils;
 import org.junit.BeforeClass;
@@ -24,6 +24,7 @@ import static no.nav.brukerdialog.security.Constants.REFRESH_TIME;
 import static no.nav.sbl.dialogarena.test.FasitAssumption.assumeFasitAccessible;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 
 public class IssoSystemBrukerTokenHelsesjekkTest {
@@ -38,6 +39,7 @@ public class IssoSystemBrukerTokenHelsesjekkTest {
     @BeforeClass
     public static void setup() {
         assumeFasitAccessible();
+        assumeFalse(FasitUtils.usingMock());
         systemUserTokenProviderConfig = resolveValidConfiguration();
         setGlobalLogLevel(INFO);
         setProperty(REFRESH_TIME, Integer.toString(MAX_VALUE / 2000)); // slik at hver ping fører til refresh, se SystemUserTokenProvider.tokenIsSoonExpired()

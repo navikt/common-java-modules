@@ -3,9 +3,6 @@ package no.nav.brukerdialog.security.jaspic;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
-import static no.nav.brukerdialog.security.Constants.ID_TOKEN_COOKIE_NAME;
-import static no.nav.brukerdialog.security.Constants.REFRESH_TOKEN_COOKIE_NAME;
-
 
 public class TokenLocator {
 
@@ -41,7 +38,7 @@ public class TokenLocator {
         return Optional.empty();
     }
 
-    private Optional<String> getTokenFromHeader(HttpServletRequest request) {
+    public static Optional<String> getTokenFromHeader(HttpServletRequest request) {
         String headerValue = request.getHeader("Authorization");
         return headerValue != null && !headerValue.isEmpty() && headerValue.startsWith("Bearer ")
                 ? Optional.of(headerValue.substring("Bearer ".length()))

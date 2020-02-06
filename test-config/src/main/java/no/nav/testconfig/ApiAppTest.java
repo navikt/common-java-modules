@@ -11,8 +11,9 @@ import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import no.nav.dialogarena.config.fasit.ServiceUserCertificate;
+import no.nav.fasit.AzureOidcConfig;
+import no.nav.fasit.FasitUtils;
+import no.nav.fasit.ServiceUserCertificate;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.sbl.util.LogUtils;
@@ -27,6 +28,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import static ch.qos.logback.classic.Level.INFO;
+import static java.util.Optional.ofNullable;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.INTERNAL_USERS_AZUREAD_B2C_CLIENTID_PROPERTY_NAME;
+import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME;
+import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
 import static no.nav.sbl.util.EnvironmentUtils.*;
@@ -47,6 +52,11 @@ public class ApiAppTest {
     public static class Config {
         @NotEmpty
         public String applicationName;
+
+        public Boolean allowClientStorage;
+        public Boolean disablePragmaHeader;
+
+        public boolean setUpInternalAzureAdTokenValidation;
     }
 
     @SneakyThrows
@@ -61,8 +71,19 @@ public class ApiAppTest {
         setProperty(SENSU_CLIENT_PORT, Integer.toString(sensuServerThread.getPort()), PUBLIC);
 
         setProperty(APP_NAME_PROPERTY_NAME, config.applicationName, PUBLIC);
-        setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, FasitUtils.getDefaultEnvironment(), PUBLIC);
+        String environment = FasitUtils.getDefaultEnvironment();
+        setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, environment, PUBLIC);
+        setProperty(NAIS_NAMESPACE_PROPERTY_NAME, environment, PUBLIC);
         SSLTestUtils.disableCertificateChecks();
+
+        setProperty("ALLOW_CLIENT_STORAGE", ofNullable(config.allowClientStorage).map(Object::toString).orElse("false"), PUBLIC);
+        setProperty("DISABLE_PRAGMA_HEADER", ofNullable(config.disablePragmaHeader).map(Object::toString).orElse("false"), PUBLIC);
+
+        if (config.setUpInternalAzureAdTokenValidation) {
+            AzureOidcConfig azureOidcConfig = FasitUtils.getAzureOidcConfig("loginservice_oidc", FSS);
+            setProperty(INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME, azureOidcConfig.getProperties().getDiscoveryUri(), PUBLIC);
+            setProperty(INTERNAL_USERS_AZUREAD_B2C_CLIENTID_PROPERTY_NAME, azureOidcConfig.getProperties().getClientId(), PUBLIC);
+        }
 
         if (isUtviklerImage()) {
             WebProxyConfigurator.setupWebProxy();

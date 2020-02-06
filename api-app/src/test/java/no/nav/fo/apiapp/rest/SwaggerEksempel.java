@@ -1,6 +1,7 @@
 package no.nav.fo.apiapp.rest;
 
 import io.swagger.annotations.*;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.*;
 import java.time.ZonedDateTime;
@@ -11,6 +12,7 @@ import java.util.Date;
         description = "deeeesc"
 )
 @Path("/eksempel/swagger")
+@Slf4j
 public class SwaggerEksempel {
 
 
@@ -21,12 +23,13 @@ public class SwaggerEksempel {
     )
     @ApiResponse(code = 345, message = "asdfaf")
     @GET
-    public String medEksplisittDokumentasjon() {
+    public String medEksplisittDokumentasjon(@HeaderParam("CUSTOM_HEADER") String customHeader) {
+        log.info(customHeader);
         return "test";
     }
 
     @HEAD
-    @ApiImplicitParam(name = "implisitt-parameter2")
+    @ApiImplicitParams(@ApiImplicitParam(name = "implisitt-parameter", paramType = "header", type = "string"))
     public String medDefaultDokumentasjon() {
         return "test";
     }
@@ -45,8 +48,8 @@ public class SwaggerEksempel {
         public EnEnum enEnum;
     }
 
-    public enum  EnEnum {
-        EN,TO,TRE;
+    public enum EnEnum {
+        EN, TO, TRE;
     }
 
 }

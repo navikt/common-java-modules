@@ -68,6 +68,17 @@ public class CsrfDoubleSubmitCookieFilterTest {
     }
 
     @Test
+    public void skal_ikke_filtrere_ugyldige_csrf_head_requests() throws ServletException, IOException {
+        when(mockHttpServletRequest.getMethod()).thenReturn("HEAD");
+        when(mockHttpServletRequest.getHeader(NAV_CSRF_PROTECTION)).thenReturn("Dette er en ugyldig header");
+
+        filter.doFilter(mockHttpServletRequest, mockHttpServletResponse, mockFilterChain);
+
+        verify(mockHttpServletResponse, times(0)).sendError(anyInt(), anyString());
+        verify(mockFilterChain, times(1)).doFilter(mockHttpServletRequest, mockHttpServletResponse);
+    }
+
+    @Test
     public void skal_filtrere_ugyldige_csrf_state_endring_requests_og_gi_feilmelding() throws ServletException, IOException {
         when(mockHttpServletRequest.getHeader(NAV_CSRF_PROTECTION)).thenReturn("Dette er en ugyldig header");
         filter.doFilter(mockHttpServletRequest, mockHttpServletResponse, mockFilterChain);

@@ -1,0 +1,26 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: nais-testapp
+  {{#if namespace}}
+  namespace: {{namespace}}
+  {{else}}
+  namespace: default
+  {{/if}}
+  labels:
+    team: aura
+spec:
+  image: {{image}}
+  {{#if ingresses}}
+  ingresses:
+    {{#each ingresses}}
+    - {{this}}
+    {{/each}}
+  {{/if}}
+  {{#if env}}
+  env:
+    {{#each env}}
+    - name: {{@key}}
+      value: "{{this}}"
+    {{/each}}
+  {{/if}}

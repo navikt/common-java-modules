@@ -7,6 +7,7 @@ import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.TestSubjectUtils;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
@@ -33,6 +34,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig.ABAC_ENDPOINT_URL_PROPERTY_NAME;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -72,7 +74,7 @@ public class HttpTest {
         server.start();
 
         HttpUrl url = server.url("/asm-pdp/authorize");
-        System.setProperty("abac.endpoint.url", url.toString());
+        System.setProperty(ABAC_ENDPOINT_URL_PROPERTY_NAME, url.toString());
     }
 
     @AfterClass
@@ -82,7 +84,7 @@ public class HttpTest {
 
     @Test
     public void doesItWork() throws Exception {
-        BiasedDecisionResponse response = pep.isServiceCallAllowedWithIdent("id", "domain", "10108000398");
+        BiasedDecisionResponse response = pep.isServiceCallAllowedWithIdent("id", "domain", AbacPersonId.fnr("10108000398"));
         assertThat(response.getBiasedDecision(), Matchers.equalTo(Decision.Permit));
     }
 
@@ -98,7 +100,7 @@ public class HttpTest {
         int TESTS = 1000;
         ForkJoinPool fjp = new ForkJoinPool(32);
         List<Callable<BiasedDecisionResponse>> tasks = IntStream.range(0, TESTS)
-                .mapToObj((i) -> (Callable<BiasedDecisionResponse>) () -> pep.isServiceCallAllowedWithIdent("id" + String.valueOf(i), "domain", "10108000398"))
+                .mapToObj((i) -> (Callable<BiasedDecisionResponse>) () -> pep.isServiceCallAllowedWithIdent("id" + String.valueOf(i), "domain", AbacPersonId.fnr("10108000398")))
                 .collect(Collectors.toList());
 
         List<Future<BiasedDecisionResponse>> futures = fjp.invokeAll(tasks);

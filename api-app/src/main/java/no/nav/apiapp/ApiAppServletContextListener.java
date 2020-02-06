@@ -18,19 +18,19 @@ import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.version.Version;
 import no.nav.apiapp.version.VersionService;
-import no.nav.brukerdialog.security.pingable.IssoIsAliveHelsesjekk;
-import no.nav.brukerdialog.security.pingable.IssoSystemBrukerTokenHelsesjekk;
 import no.nav.common.auth.LoginFilter;
 import no.nav.log.LogFilter;
+import no.nav.log.LogFilterConfig;
 import no.nav.log.LoginfoServlet;
 import no.nav.log.MarkerBuilder;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
 import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.web.security.DisableCacheHeadersFilter;
-import no.nav.sbl.dialogarena.common.web.security.XFrameOptionsFilter;
+import no.nav.sbl.dialogarena.common.web.security.SecurityHeadersFilter;
 import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.util.EnvironmentUtils;
 import no.nav.sbl.util.LogUtils;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -46,12 +46,12 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.RequestContextFilter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,8 +61,8 @@ import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
-import static no.nav.brukerdialog.security.Constants.hasRedirectUrl;
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.sbl.util.EnvironmentUtils.getPropertyAsBooleanOrElseFalse;
 import static org.springframework.web.context.ContextLoader.CONFIG_LOCATION_PARAM;
 import static org.springframework.web.context.ContextLoader.CONTEXT_CLASS_PARAM;
 
@@ -77,12 +77,6 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     public static final String SWAGGER_PATH = "/internal/swagger/";
     public static final String LOGINFO_PATH = "/internal/loginfo";
     public static final String WEBSERVICE_PATH = "/ws/*";
-
-    public static final List<String> DEFAULT_PUBLIC_PATHS = Arrays.asList(
-            "/internal/.*",
-            "/ws/.*",
-            "/api/ping"
-    );
 
     private final ContextLoaderListener contextLoaderListener = new ContextLoaderListener();
     private final ApiApplication apiApplication;
@@ -116,7 +110,8 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         WebApplicationContext webApplicationContext = startSpring(servletContextEvent);
 
         leggTilFilter(servletContextEvent, new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
-                .allowClientStorage(true)
+                .allowClientStorage(getPropertyAsBooleanOrElseFalse("ALLOW_CLIENT_STORAGE"))
+                .disablePragmaHeader(getPropertyAsBooleanOrElseFalse("DISABLE_PRAGMA_HEADER"))
                 .build()
         ));
 
@@ -130,11 +125,17 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
 
         konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
 
+        LogFilterConfig logFilterConfig = LogFilterConfig.builder()
+                .exposeErrorDetails(FeilMapper::visDetaljer)
+                .serverName(EnvironmentUtils.requireApplicationName())
+                .build();
+
         leggTilFilter(servletContextEvent, ComplianceEnforcementFilter.class, REQUEST);
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
-        leggTilFilter(servletContextEvent, new LogFilter(FeilMapper::visDetaljer));
+        leggTilFilter(servletContextEvent, new LogFilter(logFilterConfig));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);
-        leggTilFilter(servletContextEvent, XFrameOptionsFilter.class);
+        leggTilFilter(servletContextEvent, SecurityHeadersFilter.class);
+        leggTilFilter(servletContextEvent, RequestContextFilter.class);
 
         FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
@@ -149,7 +150,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         leggTilServlet(servletContextEvent, new SwaggerUIServlet(apiApplication), SWAGGER_PATH + "*");
         leggTilServlet(servletContextEvent, LoginfoServlet.class, LOGINFO_PATH);
 
-        settOppRestApi(servletContextEvent, apiApplication);
+        settOppRestApi(servletContextEvent, apiApplication, konfigurator);
         if (soapTjenesterEksisterer(servletContext)) {
             leggTilServlet(servletContextEvent, new SoapServlet(), WEBSERVICE_PATH);
         }
@@ -187,7 +188,6 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     private void konfigurerSpring(ServletContext servletContext) {
         servletContext.setInitParameter(CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
         servletContext.setInitParameter(CONFIG_LOCATION_PARAM, "");
-        servletContext.addListener(RequestContextListener.class);
         contextLoaderListener.setContextInitializers((ApplicationContextInitializer<ConfigurableApplicationContext>) applicationContext -> {
             AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) applicationContext;
             annotationConfigWebApplicationContext.register(apiApplication.getClass());
@@ -211,8 +211,9 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         getSpringContext(servletContextEvent).getBeanFactory().registerSingleton(bonne.getClass().getName(), bonne);
     }
 
-    private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication) {
-        RestApplication restApplication = new RestApplication(getContext(servletContextEvent.getServletContext()), apiApplication);
+    private void settOppRestApi(ServletContextEvent servletContextEvent, ApiApplication apiApplication, Konfigurator konfigurator) {
+        WebApplicationContext webApplicationContext = getContext(servletContextEvent.getServletContext());
+        RestApplication restApplication = new RestApplication(webApplicationContext, apiApplication, konfigurator);
         ServletContainer servlet = new ServletContainer(ResourceConfig.forApplication(restApplication));
         ServletRegistration.Dynamic servletRegistration = leggTilServlet(servletContextEvent, servlet, sluttMedSlash(apiApplication.getApiBasePath()) + "*");
         SwaggerResource.setupServlet(servletRegistration);

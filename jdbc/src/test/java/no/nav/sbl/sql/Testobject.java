@@ -18,6 +18,7 @@ import static no.nav.sbl.sql.SqlUtilsTest.*;
 public class Testobject {
     String navn;
     String address;
+    String bankName;
     String id;
     Timestamp birthday;
     boolean dead;
@@ -33,24 +34,26 @@ public class Testobject {
     }
 
     @SneakyThrows
-    public static Testobject mapperWithAddress(ResultSet rs) {
+    public static Testobject mapperWithAddressAndBank(ResultSet rs) {
         return new Testobject()
                 .setBirthday(rs.getTimestamp(BIRTHDAY))
                 .setDead(rs.getBoolean(DEAD))
                 .setId(rs.getString(ID))
                 .setNavn(rs.getString(NAVN))
                 .setNumberOfPets(rs.getInt(NUMBER_OF_PETS))
-                .setAddress(rs.getString(ADDRESS));
+                .setAddress(rs.getString(ADDRESS))
+                .setBankName(rs.getString(BANK_NAME));
     }
 
-    public static SelectQuery<Testobject> getSelectWithAddressQuery(JdbcTemplate db, String table) {
-        return SqlUtils.select(db, table, Testobject::mapperWithAddress)
+    public static SelectQuery<Testobject> getSelectWithAddressAndBankQuery(JdbcTemplate db, String table) {
+        return SqlUtils.select(db, table, Testobject::mapperWithAddressAndBank)
                 .column(BIRTHDAY)
                 .column(DEAD)
                 .column(ID)
                 .column(NAVN)
                 .column(NUMBER_OF_PETS)
-                .column(ADDRESS);
+                .column(ADDRESS)
+                .column(BANK_NAME);
     }
 
     public static SelectQuery<Testobject> getSelectQuery(JdbcTemplate db, String table) {

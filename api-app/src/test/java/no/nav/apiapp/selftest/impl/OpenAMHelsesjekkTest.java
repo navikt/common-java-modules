@@ -2,17 +2,26 @@ package no.nav.apiapp.selftest.impl;
 
 import lombok.SneakyThrows;
 import no.nav.common.auth.openam.sbs.OpenAmConfig;
-import no.nav.dialogarena.config.fasit.FasitUtils;
-import org.junit.jupiter.api.Test;
+import no.nav.fasit.FasitUtils;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
+import static no.nav.sbl.dialogarena.test.FasitAssumption.assumeFasitAccessible;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assume.assumeFalse;
 
 public class OpenAMHelsesjekkTest {
+
+    @BeforeClass
+    public static void init() {
+        assumeFasitAccessible();
+        assumeFalse(FasitUtils.usingMock());
+    }
 
     private String validOpenAMRestUrl = FasitUtils.getOpenAmConfig().restUrl;
 
     @Test
-    public void ok() throws Throwable {
+    public void ok() {
         helsesjekk(validOpenAMRestUrl);
     }
 

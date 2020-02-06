@@ -1,7 +1,5 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.abac.xacml.NavAttributter;
-import no.nav.abac.xacml.StandardAttributter;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
@@ -31,7 +29,7 @@ public class XacmlRequestGeneratorTest {
                 .withOidcToken(MockXacmlRequest.OIDC_TOKEN)
                 .withSamlToken(MockXacmlRequest.SAML_TOKEN)
                 .withSubjectId(MockXacmlRequest.SUBJECT_ID)
-                .withFnr(MockXacmlRequest.FNR)
+                .withPersonId(MockXacmlRequest.FNR)
                 .withResourceType(ResourceType.Person)
                 .withDomain(MockXacmlRequest.DOMAIN)
                 .withCredentialResource(MockXacmlRequest.CREDENTIAL_RESOURCE);
@@ -74,7 +72,7 @@ public class XacmlRequestGeneratorTest {
         List<Attribute> expectedAttributes = new ArrayList<>();
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
         expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MockXacmlRequest.DOMAIN));
-        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, MockXacmlRequest.FNR));
+        expectedAttributes.add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, MockXacmlRequest.FNR.getId()));
 
         assertThat(resource.getAttribute(), is(expectedAttributes));
     }

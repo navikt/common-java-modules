@@ -1,7 +1,8 @@
 package no.nav.sbl.dialogarena.common.abac.pep.domain;
 
 
-import no.nav.abac.xacml.NavAttributter;
+import no.nav.sbl.dialogarena.common.abac.pep.NavAttributter;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Resource;
 
@@ -19,7 +20,7 @@ public class Resources {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, requestData.getFnr()));
+        resource.getAttribute().add(personIdAttribute(requestData.getPersonId()));
         return resource;
     }
 
@@ -63,7 +64,23 @@ public class Resources {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_PERSON));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, requestData.getFnr()));
+        resource.getAttribute().add(personIdAttribute(requestData.getPersonId()));
         return resource;
+    }
+
+    public static Resource makeVeilArbUnderOppfolgingResource(RequestData requestData) {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        resource.getAttribute().add(personIdAttribute(requestData.getPersonId()));
+        return resource;
+    }
+
+    private static Attribute personIdAttribute(AbacPersonId personId) {
+        if (personId.isFnr()) {
+            return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, personId.getId());
+        } else {
+            return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, personId.getId());
+        }
     }
 }

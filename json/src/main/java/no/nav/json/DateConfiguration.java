@@ -3,7 +3,6 @@ package no.nav.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
@@ -17,6 +16,7 @@ import java.time.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static java.time.LocalTime.NOON;
 import static java.time.ZoneId.systemDefault;
@@ -111,6 +111,7 @@ public class DateConfiguration {
 
 
     private static class LocalDateProvider extends BaseProvider<LocalDate> {
+        private static final Pattern YYYY_MM_DD_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
 
         private LocalDateProvider() {
             super(LocalDate.class);
@@ -124,6 +125,18 @@ public class DateConfiguration {
         @Override
         protected ZonedDateTime from(LocalDate value) {
             return value.atTime(NOON).atZone(DEFAULT_ZONE);
+        }
+
+        @Override
+        public LocalDate fromString(String value) {
+            return of(value)
+                    .filter(this::isLocalDate)
+                    .map(LocalDate::parse)
+                    .orElseGet(() -> super.fromString(value));
+        }
+
+        private boolean isLocalDate(String dateString) {
+            return YYYY_MM_DD_PATTERN.matcher(dateString.trim()).matches();
         }
 
     }

@@ -2,6 +2,7 @@ package no.nav.fo.apiapp;
 
 import no.nav.apiapp.ApiApplication;
 import no.nav.apiapp.config.ApiAppConfigurator;
+import no.nav.apiapp.servlet.FailingServletExample;
 import no.nav.apiapp.servlet.ForwardServletExample;
 import no.nav.apiapp.servlet.IncludeServletExample;
 import no.nav.fo.apiapp.rest.*;
@@ -13,6 +14,8 @@ import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
 import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.featuretoggle.unleash.UnleashService;
+import no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +36,8 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
         InjectionEksempel.class,
         EksempelService.class,
         IocExample.class,
-        IocExample.SpringComponent.class
+        IocExample.SpringComponent.class,
+        FeatureToggledExample.class
 })
 public class ApplicationConfig implements ApiApplication {
 
@@ -105,12 +109,22 @@ public class ApplicationConfig implements ApiApplication {
         return feedController;
     }
 
+    @Bean
+    public UnleashService unleashService(){
+        return new UnleashService(UnleashServiceConfig.builder()
+                .unleashApiUrl("https://unleash.herokuapp.com/api/")
+                .applicationName("api-app")
+                .build()
+        );
+    }
+
     @Override
     public void startup(ServletContext servletContext) {
         verifyAutowiring();
 
         leggTilServlet(servletContext, ForwardServletExample.class, "/forward");
         leggTilServlet(servletContext, IncludeServletExample.class, "/include");
+        leggTilServlet(servletContext, FailingServletExample.class, "/fail");
     }
 
     @Override

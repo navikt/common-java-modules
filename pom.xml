@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -12,7 +13,7 @@
     <url>https://github.com/navikt/common-java-modules</url>
 
     <groupId>no.nav.common</groupId>
-	<artifactId>mor-pom</artifactId>
+    <artifactId>mor-pom</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -25,7 +26,8 @@
 
     <developers>
         <developer>
-            <organization>NAV (Arbeids- og velferdsdirektoratet) - The Norwegian Labour and Welfare Administration</organization>
+            <organization>NAV (Arbeids- og velferdsdirektoratet) - The Norwegian Labour and Welfare Administration
+            </organization>
             <organizationUrl>https://www.nav.no</organizationUrl>
         </developer>
     </developers>
@@ -37,7 +39,7 @@
         <module>app-mock</module>
         <module>auth</module>
         <module>auth-openam-sbs</module>
-        <module>batch</module>
+        <module>jobutils</module>
         <module>bom</module>
         <module>cache</module>
         <module>cxf</module>
@@ -48,10 +50,10 @@
         <module>jetty</module>
         <module>json</module>
         <module>log</module>
-        <module>leaderelection</module>
+        <module>leader-election</module>
         <module>metrics</module>
         <module>oidc-security</module>
-        <module>pact</module>
+        <module>pact-fo</module>
         <module>rest</module>
         <module>selftest</module>
         <module>smoketest</module>
@@ -64,10 +66,11 @@
         <module>web</module>
         <module>validation</module>
         <module>yaml</module>
+        <module>nais</module>
     </modules>
 
     <prerequisites>
-        <maven>3.0.4</maven>
+        <maven>3.6.1</maven>
     </prerequisites>
 
     <properties>
@@ -108,9 +111,9 @@
         </dependency>
     </dependencies>
 
-	<build>
-		<pluginManagement>
-			<plugins>
+    <build>
+        <pluginManagement>
+            <plugins>
 
                 <!-- CORE PLUGINS -->
 
@@ -294,6 +297,7 @@
                                 <name>.settings/org.eclipse.core.resources.prefs</name>
                                 <content>
                                     <![CDATA[eclipse.preferences.version=1
+                                    <![CDATA[eclipse.preferences.version=1
                                     encoding/<project>=${project.build.sourceEncoding}]]>
                                 </content>
                             </file>
@@ -316,15 +320,15 @@
                             </goals>
                             <configuration>
                                 <rules>
-                                    <dependencyConvergence />
+                                    <dependencyConvergence/>
                                 </rules>
                                 <fail>true</fail>
                             </configuration>
                         </execution>
                     </executions>
                 </plugin>
-			</plugins>
-		</pluginManagement>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
@@ -415,20 +419,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19</version>
-                <!-- tilgjengeliggjør junit5 for surefire slik at slike tester kjøres  -->
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>${junit.platform.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.vintage</groupId>
-                        <artifactId>junit-vintage-engine</artifactId>
-                        <version>${junit.vintage.version}</version>
-                    </dependency>
-                </dependencies>
+                <version>3.0.0-M3</version>
                 <configuration>
 
                     <!-- Ellers vil maven kun kjøre tester som slutter på 'Test' (!) -->
@@ -449,10 +440,27 @@
                     <argLine>${jacoco.agent.argLine} -Xmx2g</argLine>
 
                     <!--
-                     maven-surefire default er forkCount=1 + reuseForks=true
-                     dvs at surefire vil kjøre alle testene i en og samme jvm pr maven-modul
+                    Å sette `reuseFork` til `true` vil føre til at surefire fyrer opp en separat JVM for hver
+                    eneste testklasse.
+
+                    Dette fører til ekstremt treg eksekvering av tester (i ett tilfelle 4-5 min kontra
+                    20-30 sekunder om satt til `false`)
+
+                    Merk at å sette denne til `true` krever at man skriver tester som er godt isolerte fra hverandre.
+                    F.eks. kan det føre til problemer å sette statiske eller globale felter i klasser
+                    som gjenbrukes på tvers av testmetoder. Sørg for å lage en ny instanse av slike felter for hver
+                    testmetode ved bruk av @BeforeEach (JUnit 5) eller lignende for å unngå tilstandsfulle testklasser.
+
+                    Se følgende link for flere detaljer:
+
+                    https://maven.apache.org/surefire/maven-surefire-plugin/examples/ fork-options-and-parallel-execution.html
+
                     -->
-                    <reuseForks>false</reuseForks> <!-- fører til at hver test-klasse kjøres i egen jvm. Dermed oppnår vi bedre isolasjon mellom potensielt skjøre tester, som kan finne på å mutere på global state etc -->
+                    <reuseForks>true</reuseForks>
+
+                    <forkCount>1C</forkCount> <!-- fyr opp 1 JVM per cpu-kjerne -->
+
+                    <argLine>-Xmx1024m</argLine> <!-- Gi nok minne for å unngå terminerende JVM-er -->
 
                     <!-- fjerner edge-caser ved nøstede classloadere, som f.eks. hvis man tester med jetty -->
                     <useSystemClassLoader>false</useSystemClassLoader>
@@ -463,8 +471,39 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.9.4</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>true</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <executions>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>deploy</phase>
+                        <!-- By default, this is the phase deploy goal will bind to -->
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <serverId>ossrh</serverId>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
         </plugins>
-	</build>
+    </build>
 
     <profiles>
         <profile>
@@ -484,53 +523,18 @@
             </build>
         </profile>
         <profile>
-            <id>opensource</id>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-                <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
+            <id>lokal</id>
             <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-release-plugin</artifactId>
-                            <version>2.5.3</version>
-                            <configuration>
-                                <autoVersionSubmodules>true</autoVersionSubmodules>
-                                <useReleaseProfile>true</useReleaseProfile>
-                                <releaseProfiles>release</releaseProfiles>
-                                <goals>deploy</goals>
-                            </configuration>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.sonatype.plugins</groupId>
-                            <artifactId>nexus-staging-maven-plugin</artifactId>
-                            <version>1.6.8</version>
-                            <executions>
-                                <execution>
-                                    <id>default-deploy</id>
-                                    <phase>deploy</phase>
-                                    <!-- By default, this is the phase deploy goal will bind to -->
-                                    <goals>
-                                        <goal>deploy</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                            <configuration>
-                                <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                                <serverId>ossrh</serverId>
-                                <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <properties>
+                                <excludeTags>no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory</excludeTags>
+                            </properties>
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
         <profile>
@@ -538,9 +542,20 @@
             <build>
                 <plugins>
                     <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.0.1</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -577,15 +592,14 @@
     </scm>
 
     <distributionManagement>
-        <repository>
-            <id>repo.adeo.no-releases</id>
-            <url>https://repo.adeo.no/repository/maven-releases</url>
-        </repository>
         <snapshotRepository>
-            <id>repo.adeo.no-snapshots</id>
-            <url>https://repo.adeo.no/repository/maven-snapshots</url>
-            <uniqueVersion>false</uniqueVersion>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
 
     <ciManagement>

@@ -1,11 +1,20 @@
 package no.nav.sbl.util;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class StringUtils {
 
     public static boolean notNullOrEmpty(String string) {
         return string != null && string.trim().length() > 0;
+    }
+
+    public static boolean isEqualIgnoreCase(String a, String b) {
+        if (a == null || b == null) {
+            return Objects.equals(a, b);
+        }
+
+        return a.toLowerCase().equals(b.toLowerCase());
     }
 
     public static Optional<String> of(String string) {

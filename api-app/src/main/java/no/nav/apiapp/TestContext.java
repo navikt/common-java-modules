@@ -14,11 +14,8 @@ public class TestContext {
                 SYSTEMUSER_USERNAME,
                 SYSTEMUSER_PASSWORD,
                 FASIT_ENVIRONMENT_NAME_PROPERTY_NAME,
-                FASIT_ENVIRONMENT_NAME_PROPERTY_NAME_SKYA,
                 APP_NAME_PROPERTY_NAME,
-                APP_NAME_PROPERTY_NAME_SKYA,
-                APP_VERSION_PROPERTY_NAME,
-                APP_VERSION_PROPERTY_NAME_SKYA
+                APP_VERSION_PROPERTY_NAME
         ).forEach(System::clearProperty);
     }
 

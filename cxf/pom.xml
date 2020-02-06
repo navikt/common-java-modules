@@ -128,6 +128,13 @@
             <groupId>no.nav.common</groupId>
             <artifactId>auth</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>metrics</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -196,6 +203,10 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
         </dependency>
     </dependencies>
 

@@ -1,35 +1,29 @@
 package no.nav.sbl.dialogarena.common.cxf;
 
-import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.cxf.message.Message;
-import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
-import static java.util.Optional.ofNullable;
-import static no.nav.metrics.MetricsFactory.createTimerProxyForWebService;
 
 public class CXFClient<T> {
 
     public final JaxWsProxyFactoryBean factoryBean = new JaxWsProxyFactoryBean();
-    private final Class<T> serviceClass;
-    private final List<Handler> handlerChain = new ArrayList<>();
-    private boolean configureStsForExternalSSO, configureStsForSystemUser, configureStsForOnBehalfOfWithJWT;
+    final Class<T> serviceClass;
+    final List<Handler> handlerChain = new ArrayList<>();
+
+    STSMode stsMode = STSMode.NO_STS;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
-    private boolean metrics;
 
     public CXFClient(Class<T> serviceClass) {
         boolean loggSecurityHeader = Boolean.getBoolean("no.nav.sbl.dialogarena.common.cxf.cxfclient.logging.logg-securityheader");
@@ -49,27 +43,35 @@ public class CXFClient<T> {
         return this;
     }
 
+    @Deprecated // noop - all clients now comes with metrics out of the box
     public CXFClient<T> withMetrics(){
-        metrics = true;
         return this;
     }
 
-    public CXFClient<T> configureStsForExternalSSO() {
-        configureStsForExternalSSO = true;
+    public CXFClient<T> configureStsForSubject() {
+        this.stsMode = STSMode.SUBJECT;
         return this;
     }
 
     public CXFClient<T> configureStsForSystemUser() {
-        configureStsForSystemUser = true;
+        this.stsMode = STSMode.SYSTEM_USER;
         return this;
     }
 
+    /** @deprecated use configureStsForSubject() */
+    @Deprecated // bruk configureStsForSubject();
+    public CXFClient<T> configureStsForExternalSSO() {
+        return configureStsForSubject();
+    }
+
+    /** @deprecated use configureStsForSubject() */
+    @Deprecated // bruk configureStsForSubject();
     public CXFClient<T> configureStsForOnBehalfOfWithJWT() {
-        configureStsForOnBehalfOfWithJWT = true;
-        return this;
+        return configureStsForSubject();
     }
 
-    @Deprecated // bruk configureStsForSystemUser();
+    /** @deprecated use configureStsForSystemUser() */
+    @Deprecated
     public CXFClient<T> configureStsForSystemUserInFSS() {
         return configureStsForSystemUser();
     }
@@ -116,31 +118,11 @@ public class CXFClient<T> {
 
     public T build() {
         factoryBean.getFeatures().add(new TimeoutFeature(receiveTimeout, connectionTimeout));
-        T portType = factoryBean.create(serviceClass);
-        Client client = ClientProxy.getClient(portType);
-        disableCNCheckIfConfigured(client);
-
-        if (configureStsForExternalSSO) {
-            STSConfigurationUtil.configureStsForExternalSSO(client);
-        }
-        if (configureStsForSystemUser) {
-            STSConfigurationUtil.configureStsForSystemUserInFSS(client);
-        }
-        if(configureStsForOnBehalfOfWithJWT) {
-            OidcClientWrapper.configureStsForOnBehalfOfWithJWT(client);
-        }
-
-        ((BindingProvider) portType).getBinding().setHandlerChain(handlerChain);
-        return metrics ? createTimerProxyForWebService(serviceClass.getSimpleName(), portType, serviceClass) : portType;
-    }
-
-    private static void disableCNCheckIfConfigured(Client client) {
-        HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
-        TLSClientParameters tlsClientParameters = ofNullable(httpConduit.getTlsClientParameters()).orElseGet(TLSClientParameters::new);
-        if (Boolean.valueOf(getProperty("disable.ssl.cn.check", "false"))) {
-            tlsClientParameters.setDisableCNCheck(true);
-        }
-        httpConduit.setTlsClientParameters(tlsClientParameters);
+        return (T) Proxy.newProxyInstance(
+                Thread.currentThread().getContextClassLoader(),
+                new Class[]{serviceClass},
+                new CXFClientInvocationHandler(this)
+        );
     }
 
 }

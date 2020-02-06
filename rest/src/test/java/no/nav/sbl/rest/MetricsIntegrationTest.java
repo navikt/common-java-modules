@@ -6,9 +6,11 @@ import no.nav.common.metrics.prometheus.MetricsTestUtils;
 import no.nav.common.metrics.prometheus.MetricsTestUtils.PrometheusLine;
 import no.nav.metrics.MetricsClient;
 import no.nav.metrics.MetricsConfig;
+import no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
@@ -16,12 +18,12 @@ import java.util.List;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static java.util.Arrays.stream;
 import static no.nav.common.metrics.prometheus.MetricsTestUtils.equalCounter;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
+@Category(VirkerIkkeLokaltCategory.class)
 public class MetricsIntegrationTest {
 
     static {
@@ -31,7 +33,7 @@ public class MetricsIntegrationTest {
     private static final int TIMEOUT = 3000;
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(58089);
+    public WireMockRule wireMockRule = new WireMockRule(0);
 
     @Test
     public void metrikkerSendesTilSensuSocket() throws Exception {
@@ -45,7 +47,7 @@ public class MetricsIntegrationTest {
             ));
 
             givenThat(get(urlEqualTo("/")).willReturn(aResponse().withStatus(200)));
-            RestUtils.withClient(c -> c.target("http://localhost:58089").request().get());
+            RestUtils.withClient(c -> c.target("http://localhost:" + wireMockRule.port()).request().get());
 
             String sensuMetricMessage = IOUtils.toString(sensuServerSocketMock.accept().getInputStream(), Charset.defaultCharset());
             assertThat(sensuMetricMessage).isNotEmpty();
@@ -57,8 +59,8 @@ public class MetricsIntegrationTest {
         givenThat(get(urlEqualTo("/")).willReturn(aResponse().withStatus(200)));
         givenThat(get(urlEqualTo("/timeout")).willReturn(aResponse().withStatus(200).withFixedDelay(2 * TIMEOUT)));
 
-        getAndForget("http://127.0.0.1:58089");
-        getAndForget("http://127.0.0.2:58089/timeout");
+        getAndForget("http://127.0.0.1:" + wireMockRule.port());
+        getAndForget("http://127.0.0.2:" + wireMockRule.port() + "/timeout");
         getAndForget("http://127.0.0.3:1234");
         getAndForget("http://does.not.exist");
 

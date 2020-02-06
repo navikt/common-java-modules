@@ -71,14 +71,10 @@ public class SensuHandler {
                     JSONObject jsonObject = createJSON(influxOutput);
 
                     try (Socket socket = new Socket()) {
-                        BufferedWriter writer = connectToSensu(socket);
-
-                        writer.write(jsonObject.toString());
-                        writer.newLine();
-                        writer.flush();
+                        writeToSensu(jsonObject, socket);
                     } catch (IOException e) {
                         reportQueue.addAll(reports); // Legger tilbake i køen
-                        logger.error("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}",  e.getClass().getSimpleName(), e.getMessage());
+                        logger.error("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}", e.getClass().getSimpleName(), e.getMessage());
                         Thread.sleep(retryInterval); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
 
@@ -91,14 +87,20 @@ public class SensuHandler {
             }
 
         }
+    }
 
-        private BufferedWriter connectToSensu(Socket socket) throws IOException {
-            InetSocketAddress inetSocketAddress = new InetSocketAddress(sensuHost, sensuPort);
-            socket.connect(inetSocketAddress, 500);
-            return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        }
+    void writeToSensu(JSONObject jsonObject, Socket socket) throws IOException {
+        BufferedWriter writer = connectToSensu(socket);
 
+        writer.write(jsonObject.toString());
+        writer.newLine();
+        writer.flush();
+    }
 
+    private BufferedWriter connectToSensu(Socket socket) throws IOException {
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(sensuHost, sensuPort);
+        socket.connect(inetSocketAddress, 500);
+        return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
     public void report(String output) {

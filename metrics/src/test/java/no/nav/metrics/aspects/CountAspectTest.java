@@ -1,22 +1,28 @@
 package no.nav.metrics.aspects;
 
-import mockit.*;
-import no.nav.metrics.*;
+import no.nav.metrics.Metodekall;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 import static no.nav.metrics.TestUtil.lagAspectProxy;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class CountAspectTest {
 
-
     @Test
-    public void metoderMedCountAnnotasjonBlirTruffetAvAspect(@Mocked final CountAspect aspect) throws Throwable {
-        new Expectations() {{
-            aspect.countPaMetode((ProceedingJoinPoint) any, (Count) any);
-            result = "proxyCount";
-        }};
+    public void metoderMedCountAnnotasjonBlirTruffetAvAspect() throws Throwable {
+        CountAspect aspect = new CountAspect() {
+            @Override
+            public Object countPaMetode(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
+                return "proxyCount";
+            }
+        };
 
         CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), aspect);
 
@@ -25,49 +31,60 @@ public class CountAspectTest {
     }
 
     @Test
-    public void metoderPaKlasseMedAnnotasjonBlirTruffetAvAspect(@Mocked final CountAspect aspect) throws Throwable {
-        new Expectations() {{
-            aspect.countPaKlasse((ProceedingJoinPoint) any, (Count) any);
-            result = "proxyCount";
-        }};
-
+    public void metoderPaKlasseMedAnnotasjonBlirTruffetAvAspect() throws Throwable {
+        CountAspect aspect = new CountAspect() {
+            @Override
+            public Object countPaKlasse(ProceedingJoinPoint joinPoint, Count count) throws Throwable {
+                return "proxyCount";
+            }
+        };
         CountKlasse proxy = lagAspectProxy(new CountKlasse(), aspect);
 
         assertEquals("proxyCount", proxy.count());
     }
 
     @Test
-    public void metoderPaKlasseMedAnnotasjonBlirRiktigIgnorert(@Mocked final MetodeEvent event) throws Throwable {
-        new Expectations() {{
-            MetodeEvent.eventForMetode((Metodekall) any, anyString);
-            result = "eventMetode";
-        }};
+    public void metoderPaKlasseMedAnnotasjonBlirRiktigIgnorert() throws Throwable {
+        CountAspect aspect = new CountAspect() {
+            @Override
+            Object eventForMetode(Metodekall metodekall, String eventNavn) throws Throwable {
+                return "eventMetode";
+            }
+        };
 
-        CountKlasseMedIgnorerteMetoder proxy = lagAspectProxy(new CountKlasseMedIgnorerteMetoder(), new CountAspect());
+        CountKlasseMedIgnorerteMetoder proxy = lagAspectProxy(new CountKlasseMedIgnorerteMetoder(), aspect);
 
         assertEquals("eventMetode", proxy.event1());
         assertEquals("ignorert1", proxy.ignorert1());
     }
 
     @Test
-    public void fieldsSattPaCountBlirInkludertIEventet(@Mocked final Event event) throws Throwable {
-        CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), new CountAspect());
+    public void fieldsSattPaCountBlirInkludertIEventet() throws Throwable {
+        CountAspect aspect = new CountAspect() {
+            @Override
+            Object eventForMetode(Metodekall metodekall, String eventNavn, Map<String, String> verdier) throws Throwable {
+                assertThat(verdier, hasEntry("customKey", "testArg2"));
+                assertEquals(verdier.size(), 1);
+                return super.eventForMetode(metodekall, eventNavn, verdier);
+            }
+        };
+
+        CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), aspect);
 
         countMetoder.countMedFields("testArg1", "testArg2", "testArg3");
-
-        new Verifications() {{
-            event.addFieldToReport("customKey", "testArg2");
-
-            event.addFieldToReport("str2", "testArg2");
-            times = 0;
-            event.addFieldToReport("str3", "testArg3");
-            times = 0;
-        }};
     }
 
     @Test
-    public void countAspectLagerEventsMedRiktigeNavn(@Mocked final MetricsFactory factory) {
-        CountAspect aspect = new CountAspect();
+    public void countAspectLagerEventsMedRiktigeNavn() {
+        final ArrayList<String> methodNames = new ArrayList<>();
+
+        CountAspect aspect = new CountAspect() {
+            @Override
+            Object eventForMetode(Metodekall metodekall, String eventNavn, Map<String, String> verdier) throws Throwable {
+                methodNames.add(eventNavn);
+                return super.eventForMetode(metodekall, eventNavn, verdier);
+            }
+        };
 
         CountMetoder countMetoder = lagAspectProxy(new CountMetoder(), aspect);
         countMetoder.count();
@@ -79,14 +96,7 @@ public class CountAspectTest {
         CountKlasseMedIgnorerteMetoder ignorerteMetoder = lagAspectProxy(new CountKlasseMedIgnorerteMetoder(), aspect);
         ignorerteMetoder.event1();
 
-        new Verifications() {{
-            MetricsFactory.createEvent("CountMetoder.count");
-            MetricsFactory.createEvent("customName");
-
-            MetricsFactory.createEvent("CountKlasse.count");
-
-            MetricsFactory.createEvent("customName.event1");
-        }};
+        assertThat(methodNames, containsInAnyOrder("CountMetoder.count", "customName", "CountKlasse.count", "customName.event1"));
     }
 
     private static class CountMetoder {

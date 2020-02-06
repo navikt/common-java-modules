@@ -80,6 +80,7 @@
             <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
@@ -321,6 +322,11 @@
             <artifactId>fasit</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>feature-toggle</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
@@ -328,11 +334,19 @@
             <groupId>no.nav.common</groupId>
             <artifactId>oidc-security</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>auth</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>metrics</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
@@ -347,6 +361,11 @@
             <groupId>org.apache.servicemix.examples</groupId>
             <artifactId>cxf-jaxws-blueprint</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+        </dependency>
+
 
         <!-- Prometheus -->
         <dependency>

@@ -10,6 +10,7 @@ import java.io.IOException;
 public class DisableCacheHeadersFilter implements Filter {
 
     private final boolean allowClientStorage;
+    private final boolean disablePragmaHeader;
 
     @SuppressWarnings("unused")
     public DisableCacheHeadersFilter() {
@@ -18,10 +19,12 @@ public class DisableCacheHeadersFilter implements Filter {
 
     public DisableCacheHeadersFilter(Config config) {
         this.allowClientStorage = config.allowClientStorage;
+        this.disablePragmaHeader = config.disablePragmaHeader;
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -31,7 +34,11 @@ public class DisableCacheHeadersFilter implements Filter {
         } else {
             response.setHeader("cache-control", "no-cache, no-store, must-revalidate");
         }
-        response.setHeader("pragma", "no-cache");
+
+        if (!disablePragmaHeader) {
+            response.setHeader("pragma", "no-cache");
+        }
+
         response.setHeader("expires", "0");
         filterChain.doFilter(servletRequest, response);
     }
@@ -43,6 +50,7 @@ public class DisableCacheHeadersFilter implements Filter {
     @Value
     public static class Config {
         private boolean allowClientStorage;
+        private boolean disablePragmaHeader;
     }
 
 }

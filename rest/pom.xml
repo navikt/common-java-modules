@@ -64,10 +64,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
 
         <!-- transitivt -->
         <dependency>
@@ -92,6 +88,7 @@
             <groupId>no.nav.common</groupId>
             <artifactId>metrics</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

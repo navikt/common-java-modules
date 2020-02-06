@@ -6,6 +6,7 @@ import lombok.experimental.Wither;
 import no.nav.sbl.util.EnvironmentUtils;
 
 import static no.nav.sbl.util.EnvironmentUtils.getOptionalProperty;
+import static no.nav.sbl.util.EnvironmentUtils.requireNamespace;
 
 @Value
 @Wither
@@ -32,10 +33,6 @@ public class MetricsConfig {
     private int batchesPerSecond;
     private int batchSize;
 
-    public static MetricsConfig resolveSkyaConfig() {
-        return defaultConfig("localhost", 3030);
-    }
-
     public static MetricsConfig resolveNaisConfig() {
         return defaultConfig("sensu.nais", 3030);
     }
@@ -46,7 +43,7 @@ public class MetricsConfig {
                 .sensuPort(getOptionalProperty(SENSU_CLIENT_PORT).map(Integer::parseInt).orElse(port))
 
                 .application(EnvironmentUtils.requireApplicationName())
-                .environment(EnvironmentUtils.requireEnvironmentName())
+                .environment(EnvironmentUtils.getEnvironmentName().orElse(requireNamespace()))
                 .hostname(EnvironmentUtils.resolveHostName())
 
                 .build()

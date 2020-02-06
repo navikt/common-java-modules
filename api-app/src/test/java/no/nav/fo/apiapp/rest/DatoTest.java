@@ -1,14 +1,30 @@
 package no.nav.fo.apiapp.rest;
 
 import no.nav.fo.apiapp.JettyTest;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
+import java.util.TimeZone;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.json.TestUtils.assertEqualJson;
 
 public class DatoTest extends JettyTest {
+
+    private static TimeZone currentTimeZone ;
+
+    @BeforeClass
+    public static void setup() {
+        currentTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+2"));
+    }
+
+    @AfterClass
+    public static void teardown() {
+        TimeZone.setDefault(currentTimeZone);
+    }
 
     // NB: backenden sender 2017-05-10T01:02:03.000000004+02:00[Europe/Paris]
     private static final String DTO_JSON = "{" +
