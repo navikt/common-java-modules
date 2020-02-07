@@ -80,7 +80,9 @@ public class OidcAuthenticationFilter implements Filter {
 
                     SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
                     return;
-                } catch (ParseException | JOSEException | BadJOSEException ignored) {}
+                } catch (ParseException | JOSEException | BadJOSEException ignored) {
+                    System.out.println(ignored);
+                }
             }
 
         }
