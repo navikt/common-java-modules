@@ -14,4 +14,10 @@ public class OidcAuthenticator {
 
     public IdentType identType;
 
+    public static OidcAuthenticator fromConfig(OidcAuthenticatorConfig config) {
+        OidcTokenValidator validator = new OidcTokenValidator(config.discoveryUrl, config.clientId);
+        TokenLocator locator = new TokenLocator(config.idTokenCookieName);
+        return new OidcAuthenticator(validator, locator, config.identType);
+    }
+
 }

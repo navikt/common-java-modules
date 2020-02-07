@@ -1,11 +1,13 @@
 package no.nav.common.oidc.auth;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
 import no.nav.brukerdialog.security.domain.IdentType;
 
-@Value
 @Wither
+@NoArgsConstructor
+@AllArgsConstructor
 public class OidcAuthenticatorConfig {
 
     public String discoveryUrl;

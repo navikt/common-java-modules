@@ -16,27 +16,28 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OidcProviderTestRule extends ExternalResource {
 
+    private static Map<Integer, JwtTestTokenIssuerConfig> issuerConfigMap = new HashMap<>();
+
+    private static Map<Integer, JwtTestTokenIssuer> issuerMap = new HashMap<>();
+
     private final int port;
+
     private Server httpServer;
 
-    public OidcProviderTestRule(int port) {
+    private final JwtTestTokenIssuerConfig issuerConfig;
+
+    private final JwtTestTokenIssuer issuer;
+
+    public OidcProviderTestRule(int port, JwtTestTokenIssuerConfig issuerConfig) {
         this.port = port;
+        this.issuerConfig = issuerConfig;
+        this.issuer = JwtTestTokenUtil.testTokenIssuer(issuerConfig);
     }
-
-    private static JwtTestTokenIssuerConfig azureConfig =
-            JwtTestTokenIssuerConfig.builder()
-                    .id("oidc-provider-test-rule-aadb2c")
-                    .issuer("oidc-provider-test-rule-aadb2c")
-                    .audience("oidc-provider-test-rule")
-                    .build();
-
-
-    private static JwtTestTokenIssuer testTokenIssuer = JwtTestTokenUtil.testTokenIssuer(azureConfig);
-
-
 
     @Override
     protected void before() throws Throwable {
@@ -50,6 +51,9 @@ public class OidcProviderTestRule extends ExternalResource {
     }
 
     private void startServer() throws Exception {
+        issuerConfigMap.put(port, issuerConfig);
+        issuerMap.put(port, issuer);
+
         ServletContextHandler contextHandler = new ServletContextHandler();
         contextHandler.setContextPath("/");
 
@@ -69,6 +73,9 @@ public class OidcProviderTestRule extends ExternalResource {
 
 
     private void stopServer() throws Exception {
+        issuerConfigMap.remove(port);
+        issuerMap.remove(port);
+
         if (httpServer != null) {
             httpServer.stop();
         }
@@ -76,15 +83,19 @@ public class OidcProviderTestRule extends ExternalResource {
 
 
     public String getToken(JwtTestTokenIssuer.Claims claims) {
-        return testTokenIssuer.issueTestToken(claims);
+        return issuer.issueTestToken(claims);
     }
 
     public String getAudience() {
-        return azureConfig.audience;
+        return issuerConfig.audience;
     }
 
     public String getDiscoveryUri() {
         return basePath() + "/discovery";
+    }
+
+    public String getJwksUri() {
+        return basePath() + "/jwks";
     }
 
     private String basePath() {
@@ -99,14 +110,16 @@ public class OidcProviderTestRule extends ExternalResource {
         @Path("/discovery")
         @Produces(MediaType.APPLICATION_JSON)
         public IssuerMetaData discovery(@Context ContainerRequest request) {
-            return new IssuerMetaData(azureConfig.issuer, request.getBaseUri().toString() + "jwks");
+            JwtTestTokenIssuerConfig config = issuerConfigMap.get(request.getBaseUri().getPort());
+            return new IssuerMetaData(config.issuer, request.getBaseUri().toString() + "jwks");
         }
 
         @GET
         @Path("/jwks")
         @Produces(MediaType.APPLICATION_JSON)
-        public String jwt() {
-            return testTokenIssuer.getKeySetJson();
+        public String jwt(@Context ContainerRequest request) {
+            JwtTestTokenIssuer issuer = issuerMap.get(request.getBaseUri().getPort());
+            return issuer.getKeySetJson();
         }
 
         @Value

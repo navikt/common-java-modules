@@ -73,9 +73,7 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator addOidcAuthenticator(OidcAuthenticatorConfig config) {
-        OidcTokenValidator validator = new OidcTokenValidator(config.discoveryUrl, config.clientId);
-        TokenLocator locator = new TokenLocator(config.idTokenCookieName);
-        oidcAuthenticators.add(new OidcAuthenticator(validator, locator, config.identType));
+        oidcAuthenticators.add(OidcAuthenticator.fromConfig(config));
         return this;
     }
 
