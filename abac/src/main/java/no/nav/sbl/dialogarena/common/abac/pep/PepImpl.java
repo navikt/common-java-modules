@@ -201,7 +201,7 @@ public class PepImpl implements Pep {
     }
 
     private boolean isValidFnr(String fnr) {
-        return StringUtils.isNumeric(fnr) || fnr.length() == 11;
+        return StringUtils.isNumeric(fnr) && fnr.length() == 11;
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {
