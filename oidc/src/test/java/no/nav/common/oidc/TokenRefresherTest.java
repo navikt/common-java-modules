@@ -1,14 +1,17 @@
 package no.nav.common.oidc;
 
+import no.nav.common.oidc.utils.TokenRefresher;
 import no.nav.testconfig.security.JwtTestTokenIssuerConfig;
 import no.nav.testconfig.security.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class OidcDiscoveryConfigurationClientTest {
+public class TokenRefresherTest {
 
     private final static JwtTestTokenIssuerConfig issuerConfig = JwtTestTokenIssuerConfig.builder()
             .id("oidc-provider-test-rule-aadb2c")
@@ -20,12 +23,15 @@ public class OidcDiscoveryConfigurationClientTest {
     public OidcProviderTestRule oidcProviderRule = new OidcProviderTestRule(SocketUtils.findAvailableTcpPort(), issuerConfig);
 
     @Test
-    public void shouldRetrieveDiscoveryConfig() {
-        OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
-        OidcDiscoveryConfiguration config = client.fetchDiscoveryConfiguration(oidcProviderRule.getDiscoveryUri());
+    public void shouldRefreshToken() {
+        Optional<String> refreshedToken = TokenRefresher.refreshIdToken(oidcProviderRule.getRefreshUri(), "refresh-token");
+        assertThat(refreshedToken.isPresent()).isTrue();
+    }
 
-        assertThat(config.issuer).matches("oidc-provider-test-rule-aadb2c");
-        assertThat(config.jwksUri).matches(oidcProviderRule.getJwksUri());
+    @Test
+    public void shouldReturnEmptyIfWrongUrl() {
+        Optional<String> refreshedToken = TokenRefresher.refreshIdToken("http://not-a-real-host.test/refresh", "refresh-token");
+        assertThat(refreshedToken.isPresent()).isFalse();
     }
 
 }

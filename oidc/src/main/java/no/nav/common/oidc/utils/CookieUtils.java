@@ -31,13 +31,7 @@ public class CookieUtils {
     }
 
     public static String cookieDomain(HttpServletRequest request) {
-        return cookieDomain(request.getServerName());
-    }
-
-    private static String cookieDomain(String serverName) {
-        if (Boolean.parseBoolean(System.getProperty("develop-local", "false"))) {
-            return null; //må ha null som domain når kjører lokalt
-        }
+        String serverName = request.getServerName();
         return serverName.substring(serverName.indexOf('.') + 1);
     }
 

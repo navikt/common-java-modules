@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static java.util.Collections.singletonList;
+import static no.nav.brukerdialog.security.Constants.REFRESH_TOKEN_COOKIE_NAME;
 import static no.nav.common.oidc.Constants.ISSO_ID_TOKEN_COOKIE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -59,7 +61,9 @@ public class OidcAuthenticationFilterTest {
                 .withDiscoveryUrl(azureAdOidcProviderRule.getDiscoveryUri())
                 .withClientId(azureAdOidcProviderRule.getAudience())
                 .withIdTokenCookieName(ISSO_ID_TOKEN_COOKIE_NAME)
-                .withIdentType(IdentType.InternBruker);
+                .withIdentType(IdentType.InternBruker)
+                .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
+                .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME);
 
         openAMAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(openAMOidcProviderRule.getDiscoveryUri())
@@ -72,7 +76,7 @@ public class OidcAuthenticationFilterTest {
     public void isPublic() {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
                 Collections.emptyList(),
-                Collections.singletonList("/public.*")
+                singletonList("/public.*")
         );
 
         authenticationFilter.init(config("/abc"));
@@ -92,8 +96,8 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void returns401IfMissingToken() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                Collections.singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                Collections.singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
+                singletonList("/public.*")
         );
 
         authenticationFilter.init(config("/abc"));
@@ -101,6 +105,8 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
+
+        when(servletRequest.getCookies()).thenReturn(new Cookie[]{});
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
@@ -110,8 +116,8 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void returns401IfWrongToken() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                Collections.singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                Collections.singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
+                singletonList("/public.*")
         );
 
         authenticationFilter.init(config("/abc"));
@@ -133,8 +139,8 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void authorizedRequestIsForwarded() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                Collections.singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                Collections.singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
+                singletonList("/public.*")
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -164,7 +170,7 @@ public class OidcAuthenticationFilterTest {
                         OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig),
                         OidcAuthenticator.fromConfig(openAMAuthenticatorConfig)
                 ),
-                Collections.singletonList("/public.*")
+                singletonList("/public.*")
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -182,6 +188,98 @@ public class OidcAuthenticationFilterTest {
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
+        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
+        verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+    }
+
+    @Test
+    public void shouldNotRefreshTokenWhenNotExpired() throws IOException, ServletException {
+        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
+                singletonList("/public.*")
+        );
+
+        JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
+        String token = azureAdOidcProviderRule.getToken(claims);
+
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+        HttpServletRequest servletRequest = request("/hello");
+
+        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
+                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)
+        });
+
+        authenticationFilter.init(config("/abc"));
+
+        authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
+
+        verify(servletResponse, never()).addCookie(any());
+        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
+        verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+    }
+
+    @Test
+    public void shouldRefreshTokenWhenSoonToBeExpired() throws IOException, ServletException {
+        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
+                singletonList("/public.*")
+        );
+
+        JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
+        long threeMinutesFuture = (System.currentTimeMillis() + (1000 * 60 * 3)) / 1000;
+        claims.setClaim("exp", threeMinutesFuture);
+        String token = azureAdOidcProviderRule.getToken(claims);
+
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+        HttpServletRequest servletRequest = request("/hello");
+
+        when(servletRequest.getServerName()).thenReturn("test.local");
+        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
+                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token),
+                new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
+        });
+
+        authenticationFilter.init(config("/abc"));
+
+        authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
+
+        verify(servletResponse, atLeastOnce()).addCookie(any());
+        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
+        verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+    }
+
+    @Test
+    public void shouldNotRefreshTokenIfExpiredWhenMissingConfig() throws IOException, ServletException {
+        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
+                singletonList(OidcAuthenticator.fromConfig(openAMAuthenticatorConfig)),
+                singletonList("/public.*")
+        );
+
+        JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
+        long threeMinutesFuture = (System.currentTimeMillis() + (1000 * 60 * 3)) / 1000;
+        claims.setClaim("exp", threeMinutesFuture);
+        String token = openAMOidcProviderRule.getToken(claims);
+
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+        HttpServletRequest servletRequest = request("/hello");
+
+        when(servletRequest.getServerName()).thenReturn("test.local");
+        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
+                new Cookie(openAMAuthenticatorConfig.idTokenCookieName, token),
+                new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
+        });
+
+        authenticationFilter.init(config("/abc"));
+
+        authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
+
+        verify(servletResponse, never()).addCookie(any());
         verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);

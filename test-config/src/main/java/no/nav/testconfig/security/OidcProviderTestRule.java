@@ -1,5 +1,7 @@
 package no.nav.testconfig.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -12,6 +14,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.rules.ExternalResource;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -21,9 +24,11 @@ import java.util.Map;
 
 public class OidcProviderTestRule extends ExternalResource {
 
-    private static Map<Integer, JwtTestTokenIssuerConfig> issuerConfigMap = new HashMap<>();
+    private static final Map<Integer, JwtTestTokenIssuerConfig> issuerConfigMap = new HashMap<>();
 
-    private static Map<Integer, JwtTestTokenIssuer> issuerMap = new HashMap<>();
+    private static final Map<Integer, JwtTestTokenIssuer> issuerMap = new HashMap<>();
+
+    private static final ObjectMapper jsonMapper = new ObjectMapper();
 
     private final int port;
 
@@ -98,6 +103,10 @@ public class OidcProviderTestRule extends ExternalResource {
         return basePath() + "/jwks";
     }
 
+    public String getRefreshUri() {
+        return basePath() + "/refresh";
+    }
+
     private String basePath() {
         return "http://localhost:" + port;
     }
@@ -122,10 +131,24 @@ public class OidcProviderTestRule extends ExternalResource {
             return issuer.getKeySetJson();
         }
 
+        @POST
+        @Path("/refresh")
+        @Produces(MediaType.APPLICATION_JSON)
+        public String refresh(@Context ContainerRequest request) throws JsonProcessingException {
+            JwtTestTokenIssuer issuer = issuerMap.get(request.getBaseUri().getPort());
+            String idToken = issuer.issueTestToken(new JwtTestTokenIssuer.Claims("subject"));
+            return jsonMapper.writeValueAsString(new RefreshResult(idToken));
+        }
+
         @Value
         private static class IssuerMetaData {
             public String issuer;
             public String jwks_uri;
+        }
+
+        @Value
+        private static class RefreshResult {
+            String idToken;
         }
     }
 }
