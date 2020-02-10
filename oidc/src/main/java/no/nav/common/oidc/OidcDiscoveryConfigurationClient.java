@@ -1,6 +1,7 @@
 package no.nav.common.oidc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,10 +15,10 @@ public class OidcDiscoveryConfigurationClient {
 
 	private final ObjectMapper jsonMapper = new ObjectMapper();
 
+	@SneakyThrows
 	public OidcDiscoveryConfiguration fetchDiscoveryConfiguration(String discoveryUrl) {
 
 		try (CloseableHttpResponse response = httpClient.execute(new HttpGet(discoveryUrl))) {
-
 			HttpEntity entity = response.getEntity();
 
 			if (entity != null) {
@@ -26,8 +27,6 @@ public class OidcDiscoveryConfigurationClient {
 			}
 
 			throw new IllegalArgumentException("HttpResponse is missing entity");
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 
 	}

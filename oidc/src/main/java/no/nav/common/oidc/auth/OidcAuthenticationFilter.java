@@ -7,23 +7,32 @@ import com.nimbusds.jwt.JWTParser;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
+import no.nav.common.oidc.utils.CookieUtils;
+import no.nav.common.oidc.utils.TokenRefresher;
 import no.nav.common.oidc.utils.TokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toList;
+import static no.nav.common.oidc.utils.TokenUtils.expiresWithin;
+import static no.nav.common.oidc.utils.TokenUtils.hasMatchingIssuer;
 
 public class OidcAuthenticationFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(OidcAuthenticationFilter.class);
+
+    // Check if the token is about to expire within the next 5 minutes
+    private static final long CHECK_EXPIRES_WITHIN = 1000 * 60 * 5;
 
     private final List<OidcAuthenticator> oidcAuthenticators;
     private final List<String> publicPaths;
@@ -65,11 +74,21 @@ public class OidcAuthenticationFilter implements Filter {
 
         for (OidcAuthenticator authenticator : oidcAuthenticators) {
 
-            Optional<String> token = authenticator.idTokenLocator.getToken(httpServletRequest);
+            Optional<String> token = authenticator.tokenLocator.getIdToken(httpServletRequest);
 
             if (token.isPresent()) {
                 try {
                     JWT jwtToken = JWTParser.parse(token.get());
+
+                    Optional<String> refreshedIdToken = refreshIdTokenIfNecessary(jwtToken, authenticator, httpServletRequest);
+
+                    if (refreshedIdToken.isPresent()) {
+                        jwtToken = JWTParser.parse(refreshedIdToken.get());
+
+                        String idTokenCookieName = authenticator.tokenLocator.getIdTokenCookieName();
+                        addNewIdTokenCookie(idTokenCookieName, jwtToken, httpServletRequest, httpServletResponse);
+                    }
+
                     authenticator.tokenValidator.validate(jwtToken);
 
                     SsoToken ssoToken = SsoToken.oidcToken(token.get(), jwtToken.getJWTClaimsSet().getClaims());
@@ -80,14 +99,36 @@ public class OidcAuthenticationFilter implements Filter {
 
                     SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
                     return;
-                } catch (ParseException | JOSEException | BadJOSEException ignored) {
-                    System.out.println(ignored);
-                }
+                } catch (ParseException | JOSEException | BadJOSEException ignored) {}
             }
 
         }
 
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+
+    private void addNewIdTokenCookie(
+            String idTokenCookieName, JWT jwtToken, HttpServletRequest request, HttpServletResponse response
+    ) throws ParseException {
+        Date cookieExpiration = jwtToken.getJWTClaimsSet().getExpirationTime();
+        Cookie newIdCookie = CookieUtils.createCookie(idTokenCookieName, jwtToken.getParsedString(), cookieExpiration, request);
+        response.addCookie(newIdCookie);
+    }
+
+    private Optional<String> refreshIdTokenIfNecessary(JWT token, OidcAuthenticator authenticator, HttpServletRequest request) {
+        boolean needsToBeRefreshed = hasMatchingIssuer(token, authenticator.tokenValidator.getIssuer())
+                && expiresWithin(token, CHECK_EXPIRES_WITHIN);
+
+        // Check if issuer matches and token has expired or will expire soon
+        if (needsToBeRefreshed) {
+            Optional<Cookie> refreshCookie = authenticator.tokenLocator.getRefreshTokenCookie(request);
+
+            if (refreshCookie.isPresent() && authenticator.refreshUrl != null) {
+                return TokenRefresher.refreshIdToken(authenticator.refreshUrl, refreshCookie.get().getValue());
+            }
+        }
+
+        return Optional.empty();
     }
 
     public boolean isPublic(HttpServletRequest httpServletRequest) {

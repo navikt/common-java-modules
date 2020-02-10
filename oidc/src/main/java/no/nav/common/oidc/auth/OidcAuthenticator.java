@@ -10,14 +10,20 @@ public class OidcAuthenticator {
 
     public OidcTokenValidator tokenValidator;
 
-    public TokenLocator idTokenLocator;
+    public TokenLocator tokenLocator;
 
     public IdentType identType;
 
+    public String refreshUrl;
+
     public static OidcAuthenticator fromConfig(OidcAuthenticatorConfig config) {
+        if (!config.isValid()) {
+            throw new IllegalStateException("OidcAuthenticatorConfig is missing one or more values");
+        }
+
         OidcTokenValidator validator = new OidcTokenValidator(config.discoveryUrl, config.clientId);
-        TokenLocator locator = new TokenLocator(config.idTokenCookieName);
-        return new OidcAuthenticator(validator, locator, config.identType);
+        TokenLocator locator = new TokenLocator(config.idTokenCookieName, config.refreshTokenCookieName);
+        return new OidcAuthenticator(validator, locator, config.identType, config.refreshUrl);
     }
 
 }

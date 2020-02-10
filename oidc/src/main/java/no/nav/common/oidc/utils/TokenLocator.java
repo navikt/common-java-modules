@@ -1,5 +1,6 @@
 package no.nav.common.oidc.utils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
@@ -18,28 +19,34 @@ public class TokenLocator {
         this.refreshTokenCookieName = refreshTokenCookieName;
     }
 
-    public Optional<String> getToken(HttpServletRequest request) {
-        Optional<String> tokenFromCookie = getCookie(request, idTokenCookieName);
+    public String getIdTokenCookieName() {
+        return idTokenCookieName;
+    }
+
+    public String getRefreshTokenCookieName() {
+        return refreshTokenCookieName;
+    }
+
+    public Optional<String> getIdToken(HttpServletRequest request) {
+        Optional<String> tokenFromCookie = getIdTokenCookie(request).map(Cookie::getValue);
+
         if (tokenFromCookie.isPresent()) {
             return tokenFromCookie;
         }
+
         return getTokenFromHeader(request);
     }
 
     public Optional<String> getRefreshToken(HttpServletRequest request) {
-        return getCookie(request, refreshTokenCookieName);
+        return getRefreshTokenCookie(request).map(Cookie::getValue);
     }
 
-    private Optional<String> getCookie(HttpServletRequest request, String cookieName) {
-        if (request.getCookies() == null) {
-            return Optional.empty();
-        }
-        for (javax.servlet.http.Cookie c : request.getCookies()) {
-            if (c.getName().equals(cookieName) && c.getValue() != null) {
-                return Optional.of(c.getValue());
-            }
-        }
-        return Optional.empty();
+    public Optional<Cookie> getIdTokenCookie(HttpServletRequest request) {
+        return CookieUtils.getCookie(idTokenCookieName, request);
+    }
+
+    public Optional<Cookie> getRefreshTokenCookie(HttpServletRequest request) {
+        return CookieUtils.getCookie(refreshTokenCookieName, request);
     }
 
     public static Optional<String> getTokenFromHeader(HttpServletRequest request) {
