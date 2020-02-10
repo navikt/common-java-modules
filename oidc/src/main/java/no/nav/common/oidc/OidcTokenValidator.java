@@ -21,13 +21,18 @@ public class OidcTokenValidator {
 
     private final IDTokenValidator validator;
 
+    private final String issuer;
+
     public OidcTokenValidator(String oidcDiscoveryUrl, String clientId) {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
         OidcDiscoveryConfiguration config = client.fetchDiscoveryConfiguration(oidcDiscoveryUrl);
+
+        issuer = config.issuer;
         validator = createValidator(config.issuer, config.jwksUri, JWS_ALGORITHM, clientId);
     }
 
     public OidcTokenValidator(String issuerUrl, String jwksUrl, JWSAlgorithm algorithm, String clientId) {
+        issuer = issuerUrl;
         validator = createValidator(issuerUrl, jwksUrl, algorithm, clientId);
     }
 
@@ -37,6 +42,10 @@ public class OidcTokenValidator {
 
     public IDTokenClaimsSet validate(String token) throws ParseException, JOSEException, BadJOSEException {
         return validate(JWTParser.parse(token));
+    }
+
+    public String getIssuer() {
+        return issuer;
     }
 
     @SneakyThrows

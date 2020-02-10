@@ -5,6 +5,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import no.nav.brukerdialog.security.domain.IdentType;
 
 import java.text.ParseException;
+import java.util.Date;
 
 import static no.nav.common.oidc.Constants.AAD_NAV_IDENT_CLAIM;
 
@@ -22,6 +23,25 @@ public class TokenUtils {
         }
 
         return subject;
+    }
+
+    public static boolean hasMatchingIssuer(JWT jwt, String issuer) {
+        try {
+            return jwt.getJWTClaimsSet().getIssuer().equals(issuer);
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    public static boolean expiresWithin(JWT jwt, long withinMillis) {
+        try {
+            Date tokenExpiration = jwt.getJWTClaimsSet().getExpirationTime();
+            long expirationTime = tokenExpiration.getTime() - withinMillis;
+
+            return System.currentTimeMillis() > expirationTime;
+        } catch (ParseException e) {
+            return true;
+        }
     }
 
 }
