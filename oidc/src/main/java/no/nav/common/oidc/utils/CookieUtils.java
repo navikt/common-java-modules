@@ -17,14 +17,28 @@ public class CookieUtils {
         return Optional.empty();
     }
 
-    public static Cookie fromCookie(Cookie cookie, String name, String value) {
+    public static Cookie createCookie(String name, String value, String domain, int maxAge, boolean secure) {
         Cookie newCookie = new Cookie(name, value);
-        newCookie.setDomain(cookie.getDomain());
-        newCookie.setHttpOnly(cookie.isHttpOnly());
-        newCookie.setSecure(cookie.getSecure());
-        newCookie.setPath(cookie.getPath());
-        newCookie.setMaxAge(cookie.getMaxAge());
+        newCookie.setDomain(domain);
+        newCookie.setHttpOnly(true);
+        newCookie.setSecure(secure);
+        newCookie.setMaxAge(maxAge);
         return newCookie;
+    }
+
+    public static Cookie createCookie(String name, String value, Date expireAt, HttpServletRequest request) {
+        return createCookie(name, value, cookieDomain(request), dateToCookieMaxAge(expireAt), request.isSecure());
+    }
+
+    public static String cookieDomain(HttpServletRequest request) {
+        return cookieDomain(request.getServerName());
+    }
+
+    private static String cookieDomain(String serverName) {
+        if (Boolean.parseBoolean(System.getProperty("develop-local", "false"))) {
+            return null; //må ha null som domain når kjører lokalt
+        }
+        return serverName.substring(serverName.indexOf('.') + 1);
     }
 
     public static int dateToCookieMaxAge(Date date) {
