@@ -33,6 +33,12 @@ public class TokenUtils {
         }
     }
 
+    /**
+     * Checks if JWT token has expired or will expire within {@param withinMillis}
+     * @param jwt token that will be checked
+     * @param withinMillis if the token expires within this time then it is regarded as expired
+     * @return true if the token is expired or will expire within {@param withinMillis}, false otherwise
+     */
     public static boolean expiresWithin(JWT jwt, long withinMillis) {
         try {
             Date tokenExpiration = jwt.getJWTClaimsSet().getExpirationTime();

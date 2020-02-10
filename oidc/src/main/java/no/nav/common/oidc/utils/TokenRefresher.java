@@ -25,7 +25,7 @@ public class TokenRefresher {
 
             if (entity != null) {
                 String jsonData = EntityUtils.toString(entity);
-                RefreshResult result = jsonMapper.readValue(jsonData, RefreshResult.class);
+                RefreshIdTokenResult result = jsonMapper.readValue(jsonData, RefreshIdTokenResult.class);
                 return Optional.of(result.idToken);
             }
 
@@ -36,10 +36,10 @@ public class TokenRefresher {
     }
 
     private static HttpPost createRefreshPost(String refreshUrl, String refreshToken) throws JsonProcessingException, UnsupportedEncodingException {
-        RefreshDTO refreshDTO = new RefreshDTO();
-        refreshDTO.refreshToken = refreshToken;
+        RefreshIdTokenDTO refreshIdTokenDTO = new RefreshIdTokenDTO();
+        refreshIdTokenDTO.refreshToken = refreshToken;
 
-        String postBody = jsonMapper.writeValueAsString(refreshDTO);
+        String postBody = jsonMapper.writeValueAsString(refreshIdTokenDTO);
 
         HttpPost post = new HttpPost(refreshUrl);
         post.setEntity(new StringEntity(postBody));
@@ -47,12 +47,12 @@ public class TokenRefresher {
         return post;
     }
 
-    private static class RefreshDTO {
-        String refreshToken;
+    public static class RefreshIdTokenDTO {
+        public String refreshToken;
     }
 
-    private static class RefreshResult {
-        String idToken;
+    public static class RefreshIdTokenResult {
+        public String idToken;
     }
 
 }
