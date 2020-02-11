@@ -193,7 +193,7 @@ public class PepImpl implements Pep {
     }
 
     private void validatePersonId(AbacPersonId personId) {
-        if (personId == null || (personId.isFnr() && !isValidFnr(personId.getId()))) {
+        if (personId == null || (AbacPersonId.Type.FNR.equals(personId.getType()) && !isValidFnr(personId.getId()))) {
             final String message = "Fnr " + Optional.ofNullable(personId).map(AbacPersonId::getId).orElse("<empty>") + " is not valid";
             LOG.error(message);
             throw new IllegalArgumentException(message);
@@ -201,7 +201,7 @@ public class PepImpl implements Pep {
     }
 
     private boolean isValidFnr(String fnr) {
-        return StringUtils.isNumeric(fnr) || fnr.length() == 11;
+        return StringUtils.isNumeric(fnr) && fnr.length() == 11;
     }
 
     private XacmlResponse askForPermission(XacmlRequest request) throws PepException {

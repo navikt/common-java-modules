@@ -12,7 +12,7 @@ public class AbacPersonId {
         this.type = type;
     }
 
-    private enum Type {
+    public enum Type {
         FNR,
         AKTOR_ID
     }
@@ -25,16 +25,12 @@ public class AbacPersonId {
         return new AbacPersonId(aktorId, Type.AKTOR_ID);
     }
 
-    public boolean isFnr() {
-        return Type.FNR.equals(type);
-    }
-
-    public boolean isAktorId() {
-        return Type.AKTOR_ID.equals(type);
-    }
-
     public String getId() {
         return id;
+    }
+
+    public Type getType() {
+        return type;
     }
 
     @Override
