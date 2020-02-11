@@ -9,10 +9,10 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
-import lombok.SneakyThrows;
 import no.nav.common.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.oidc.discovery.OidcDiscoveryConfigurationClient;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Optional;
@@ -53,11 +53,14 @@ public class OidcTokenValidator {
         return issuer;
     }
 
-    @SneakyThrows
     private IDTokenValidator createValidator(String issuerUrl, String jwksUrl, JWSAlgorithm algorithm, String clientId) {
         Issuer issuer = new Issuer(issuerUrl);
         ClientID clientID = new ClientID(clientId);
-        return new IDTokenValidator(issuer, clientID, algorithm, new URL(jwksUrl));
+        try {
+            return new IDTokenValidator(issuer, clientID, algorithm, new URL(jwksUrl));
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Invalid jwks URL " + jwksUrl);
+        }
     }
 
 }

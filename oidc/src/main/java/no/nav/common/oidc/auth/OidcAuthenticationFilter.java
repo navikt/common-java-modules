@@ -99,7 +99,9 @@ public class OidcAuthenticationFilter implements Filter {
 
                     SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
                     return;
-                } catch (ParseException | JOSEException | BadJOSEException ignored) {}
+                } catch (ParseException | JOSEException | BadJOSEException exception) {
+                    logger.info("Token validation failed", exception);
+                }
             }
 
         }

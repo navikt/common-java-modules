@@ -42,13 +42,15 @@ public class SwaggerResource extends BaseApiListingResource {
     public static final String IKKE_BERIK = "ikke_berik";
 
     private final ApiApplication apiApplication;
+    private final boolean hasAuthentication;
 
     public static void setupServlet(ServletRegistration.Dynamic servletRegistration) {
         servletRegistration.setInitParameter("scan.all.resources", "true");
     }
 
-    public SwaggerResource(ApiApplication apiApplication) {
+    public SwaggerResource(ApiApplication apiApplication, boolean hasAuthentication) {
         this.apiApplication = apiApplication;
+        this.hasAuthentication = hasAuthentication;
     }
 
     @Inject
@@ -136,10 +138,12 @@ public class SwaggerResource extends BaseApiListingResource {
                     callIdParameter.setType("string");
                     operation.addParameter(callIdParameter);
 
-                    HeaderParameter authorizationParameters = new HeaderParameter();
-                    authorizationParameters.setName(HttpHeaders.AUTHORIZATION);
-                    authorizationParameters.setType("string");
-                    operation.addParameter(authorizationParameters);
+                    if (hasAuthentication) {
+                        HeaderParameter authorizationParameters = new HeaderParameter();
+                        authorizationParameters.setName(HttpHeaders.AUTHORIZATION);
+                        authorizationParameters.setType("string");
+                        operation.addParameter(authorizationParameters);
+                    }
 
                     io.swagger.models.Response authorizationResponse = new io.swagger.models.Response();
                     authorizationResponse.setDescription("the request was not authenticated or authorized");

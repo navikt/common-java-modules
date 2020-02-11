@@ -134,6 +134,10 @@ public class Konfigurator implements ApiAppConfigurator {
         return jetty;
     }
 
+    public boolean hasOidcAuthentication() {
+        return !oidcAuthenticators.isEmpty();
+    }
+
     public List<Pingable> getPingables() {
         return pingables;
     }

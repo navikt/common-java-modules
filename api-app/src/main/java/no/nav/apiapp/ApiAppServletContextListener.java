@@ -181,7 +181,7 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     private void konfigurerSpring(ServletContext servletContext) {
         servletContext.setInitParameter(CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
         servletContext.setInitParameter(CONFIG_LOCATION_PARAM, "");
-        contextLoaderListener.setContextInitializers((ApplicationContextInitializer<ConfigurableApplicationContext>) applicationContext -> {
+        contextLoaderListener.setContextInitializers(applicationContext -> {
             AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) applicationContext;
             annotationConfigWebApplicationContext.register(apiApplication.getClass());
         });
