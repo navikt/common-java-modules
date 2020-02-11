@@ -2,9 +2,6 @@
 <included>
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
 
-    <property name="loggingPattern"
-              value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}, %X{userId}] ){'- \[, , \] ',''}- %m%n"/>
-
     <appender name="stdout_json" class="no.nav.log.MaskingAppender">
         <appender name="stdout_json_masked" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
