@@ -1,6 +1,5 @@
 package no.nav.apiapp.security;
 
-import lombok.SneakyThrows;
 import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
@@ -22,41 +21,26 @@ public class PepClient {
     private final String applicationDomain;
     private final ResourceType resourceType;
 
-    @Deprecated
-    public PepClient(Pep pep, String applicationDomain) {
-        this(pep, applicationDomain, ResourceType.Person);
-    }
-
     public PepClient(Pep pep, String applicationDomain, ResourceType resourceType) {
         this.pep = pep;
         this.applicationDomain = applicationDomain;
         this.resourceType = resourceType;
     }
 
-    @SneakyThrows
-    @Deprecated
-    public String sjekkTilgangTilFnr(String fnr) {
-        return sjekkLeseTilgangTilFnr(fnr);
+    public String sjekkLesetilgangTilFnr(String fnr) {
+        return sjekkTilgangTilPerson(AbacPersonId.fnr(fnr), READ).getId();
     }
 
-    @SneakyThrows
-    public String sjekkLeseTilgangTilFnr(String fnr) {
-        return sjekkTilgang(AbacPersonId.fnr(fnr), READ).getId();
+    public String sjekkSkrivetilgangTilFnr(String fnr) {
+        return sjekkTilgangTilPerson(AbacPersonId.fnr(fnr), WRITE).getId();
     }
 
-    @SneakyThrows
-    public String sjekkSkriveTilgangTilFnr(String fnr) {
-        return sjekkTilgang(AbacPersonId.fnr(fnr), WRITE).getId();
+    public String sjekkLesetilgangTilAktorId(String aktorId) {
+        return sjekkTilgangTilPerson(AbacPersonId.aktorId(aktorId), READ).getId();
     }
 
-    @SneakyThrows
-    public void sjekkLesetilgang(AbacPersonId personId) {
-        sjekkTilgang(personId, READ, resourceType);
-    }
-
-    @SneakyThrows
-    public void sjekkSkrivetilgang(AbacPersonId personId) {
-        sjekkTilgang(personId, WRITE, resourceType);
+    public String sjekkSkrivetilgangTilAktorId(String aktorId) {
+        return sjekkTilgangTilPerson(AbacPersonId.aktorId(aktorId), WRITE).getId();
     }
 
     public void sjekkTilgangTilEnhet(String enhet) throws IngenTilgang, PepException {
@@ -78,15 +62,15 @@ public class PepClient {
         return erPermit(r);
     }
 
-    public AbacPersonId sjekkTilgang(AbacPersonId personId, Action.ActionId action) throws PepException {
-        return sjekkTilgang(personId, action, resourceType);
+    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, Action.ActionId action) throws PepException {
+        return sjekkTilgangTilPerson(personId, action, resourceType);
     }
 
-    public AbacPersonId sjekkTilgang(AbacPersonId personId, Action.ActionId action, ResourceType resourceType) {
-        return sjekkTilgang(personId, applicationDomain, action, resourceType);
+    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, Action.ActionId action, ResourceType resourceType) {
+        return sjekkTilgangTilPerson(personId, applicationDomain, action, resourceType);
     }
 
-    public AbacPersonId sjekkTilgang(AbacPersonId personId, String applicationDomain, Action.ActionId action, ResourceType resourceType) {
+    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, String applicationDomain, Action.ActionId action, ResourceType resourceType) {
         if (erPermit(pep.harInnloggetBrukerTilgangTilPerson(personId, applicationDomain, action, resourceType))) {
             return personId;
         } else {

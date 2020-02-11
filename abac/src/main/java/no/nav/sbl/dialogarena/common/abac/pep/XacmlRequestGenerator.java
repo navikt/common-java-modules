@@ -85,7 +85,7 @@ class XacmlRequestGenerator {
                     " saml-token: " + maskToken(requestData.getSamlToken()) +
                     " subject-id: " + requestData.getSubjectId() +
                     " domain: " + requestData.getDomain() +
-                    (requestData.getPersonId().isFnr() ? "fnr: " : "aktor-id: ") + requestData.getPersonId().getId() +
+                    requestData.getPersonId().getType().name().toLowerCase() + ":" + requestData.getPersonId().getId() +
                     " credential resource: " + requestData.getCredentialResource() +
                     "\nProvide OIDC-token or subject-ID, domain, fnr and " +
                     " name of credential resource.");
