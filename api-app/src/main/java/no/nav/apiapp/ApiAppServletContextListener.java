@@ -106,11 +106,11 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         konfigurerSpring(servletContext);
         WebApplicationContext webApplicationContext = startSpring(servletContextEvent);
 
-        leggTilFilter(servletContextEvent, new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
+        filterBuilder(new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
                 .allowClientStorage(getPropertyAsBooleanOrElseFalse("ALLOW_CLIENT_STORAGE"))
                 .disablePragmaHeader(getPropertyAsBooleanOrElseFalse("DISABLE_PRAGMA_HEADER"))
                 .build()
-        ));
+        )).register(servletContextEvent.getServletContext());
 
         // Slik at man husker å fjerne constrains fra web.xml
         ConstraintSecurityHandler currentSecurityHandler = (ConstraintSecurityHandler) ConstraintSecurityHandler.getCurrentSecurityHandler();
@@ -131,7 +131,8 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         filterBuilder(SecurityHeadersFilter.class).register(servletContext);
         filterBuilder(RequestContextFilter.class).register(servletContext);
 
-        FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
+        FilterRegistration.Dynamic characterEncodingRegistration =  filterBuilder(CharacterEncodingFilter.class)
+                .register(servletContextEvent.getServletContext());
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
         characterEncodingRegistration.setInitParameter("forceEncoding", "true");
 
