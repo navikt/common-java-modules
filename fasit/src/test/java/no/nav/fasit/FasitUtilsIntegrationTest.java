@@ -191,8 +191,8 @@ public class FasitUtilsIntegrationTest {
                 .hasMessageContaining("this.does.not.exist")
                 .hasMessageContaining("p");
 
-        assertThat(FasitUtils.getRestServices("fasit.rest.api"), not(empty()));
-        assertThat(FasitUtils.getRestService("fasit.rest.api", "p").getUrl(), startsWith("https://fasit.adeo.no"));
+        assertThat(FasitUtils.getRestServices("veilArbOppfolgingAPI"), not(empty()));
+        assertThat(FasitUtils.getRestService("veilArbOppfolgingAPI", "p").getUrl(), endsWith("/veilarboppfolging/api"));
     }
 
     @Test
