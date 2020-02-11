@@ -37,24 +37,24 @@ public class PepClientTest {
 
     @Test(expected = IngenTilgang.class)
     public void sjekkLeseTilgangTilFnr() {
-        pepClient.sjekkLeseTilgangTilFnr("fnr");
+        pepClient.sjekkLesetilgangTilFnr("fnr");
     }
 
     @Test
     public void sjekkLeseTilgangTilFnr_har_tilgang() {
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE)).thenReturn(PERMIT);
-        assertThat(pepClient.sjekkLeseTilgangTilFnr(FNR.getId())).isEqualTo(FNR.getId());
+        assertThat(pepClient.sjekkLesetilgangTilFnr(FNR.getId())).isEqualTo(FNR.getId());
     }
 
     @Test(expected = IngenTilgang.class)
     public void sjekkSkriveTilgangTilFnr() {
-        pepClient.sjekkSkriveTilgangTilFnr("fnr");
+        pepClient.sjekkSkrivetilgangTilFnr("fnr");
     }
 
     @Test
     public void sjekkSkriveTilgangTilFnr_har_tilgang() {
         when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, RESOURCE_TYPE)).thenReturn(PERMIT);
-        assertThat(pepClient.sjekkSkriveTilgangTilFnr("fnr")).isEqualTo(FNR.getId());
+        assertThat(pepClient.sjekkSkrivetilgangTilFnr("fnr")).isEqualTo(FNR.getId());
     }
 
     @Test

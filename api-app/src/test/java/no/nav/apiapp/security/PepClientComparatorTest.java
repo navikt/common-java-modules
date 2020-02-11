@@ -27,7 +27,7 @@ public class PepClientComparatorTest {
     private final Logger log = mock(Logger.class);
     private final PepClientComparatorImpl sammenligner = new PepClientComparatorImpl(log);
     private final Bruker bruker = Bruker.fraFnr("fnr").medAktoerId("aktorId");
-    private final AbacPersonId abacPersonId = AbacPersonId.fnr("fnr");
+    private final String fnr = "fnr";
     private final String enhet = "enhet";
 
     VeilarbAbacPepClient.Builder builder = VeilarbAbacPepClient.ny()
@@ -45,7 +45,7 @@ public class PepClientComparatorTest {
 
         sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                () -> veilarbPepClient.sjekkLesetilgang(abacPersonId));
+                () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr));
 
         forventIngenLogging();
     }
@@ -57,7 +57,7 @@ public class PepClientComparatorTest {
 
         sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkSkrivetilgangTilBruker(bruker),
-                () -> veilarbPepClient.sjekkSkrivetilgang(abacPersonId));
+                () -> veilarbPepClient.sjekkSkrivetilgangTilFnr(fnr));
 
         forventIngenLogging();
     }
@@ -69,7 +69,7 @@ public class PepClientComparatorTest {
 
         sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                () -> veilarbPepClient.sjekkLesetilgang(abacPersonId));
+                () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr));
 
         forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet permit fikk deny.");
     }
@@ -82,7 +82,7 @@ public class PepClientComparatorTest {
         assertThatThrownBy(() ->
                 sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                        () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
+                        () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr)))
                 .isInstanceOf(IngenTilgang.class);
 
         forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet deny fikk permit.");
@@ -95,7 +95,7 @@ public class PepClientComparatorTest {
 
         sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                () -> veilarbPepClient.sjekkLesetilgang(abacPersonId));
+                () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr));
 
         forventLoggetFeil();
     }
@@ -108,7 +108,7 @@ public class PepClientComparatorTest {
         assertThatThrownBy(() ->
                 sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                        () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
+                        () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr)))
                 .isInstanceOf(IngenTilgang.class);
 
         forventLoggetFeil();
@@ -122,7 +122,7 @@ public class PepClientComparatorTest {
         assertThatThrownBy(() ->
                 sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                        () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
+                        () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr)))
                 .isInstanceOf(IngenTilgang.class);
 
         forventLoggetAvvik("Avvik i resultat fra pep sammenligning. Forventet deny fikk permit.");
@@ -136,7 +136,7 @@ public class PepClientComparatorTest {
         assertThatThrownBy(() ->
                 sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                        () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
+                        () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr)))
                 .isInstanceOf(IngenTilgang.class);
 
         forventIngenLogging();
@@ -150,7 +150,7 @@ public class PepClientComparatorTest {
         assertThatThrownBy(() ->
                 sammenligner.get(
                         () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                        () -> veilarbPepClient.sjekkLesetilgang(abacPersonId)))
+                        () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr)))
                 .isInstanceOf(IngenTilgang.class);
 
         forventLoggetFeil();
@@ -164,7 +164,7 @@ public class PepClientComparatorTest {
         assertThatThrownBy(() ->
         sammenligner.get(
                 () -> veilarbAbacPepClient.sjekkLesetilgangTilBruker(bruker),
-                () -> veilarbPepClient.sjekkLesetilgang(abacPersonId))).isInstanceOf(IngenTilgang.class);
+                () -> veilarbPepClient.sjekkLesetilgangTilFnr(fnr))).isInstanceOf(IngenTilgang.class);
 
         forventIngenLogging();
     }
@@ -326,8 +326,8 @@ public class PepClientComparatorTest {
 
         assertThatThrownBy(() ->
                 sammenligner.get(
-                        () -> client1.sjekkSkrivetilgang(AbacPersonId.fnr("fnr")),
-                        () -> client2.sjekkSkrivetilgang(AbacPersonId.aktorId("aktorId")))
+                        () -> client1.sjekkSkrivetilgangTilFnr(fnr),
+                        () -> client2.sjekkSkrivetilgangTilAktorId("aktorId"))
         ).isInstanceOf(RuntimeException.class);
 
         forventIngenLogging();

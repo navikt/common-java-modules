@@ -69,13 +69,13 @@ public class PepClientIntegrationTest {
     @Test
     public void sjekkTilgangTilFnr_veilederHarTilgang() {
         setVeileder(PRIVELIGERT_VEILEDER);
-        pepClient.sjekkLeseTilgangTilFnr(FNR);
+        pepClient.sjekkLesetilgangTilFnr(FNR);
     }
 
     @Test
     public void sjekkTilgangTilFnr_veilederHarIkkeTilgang() {
         setVeileder(LITE_PRIVELIGERT_VEILEDER);
-        assertThatThrownBy(() -> pepClient.sjekkLeseTilgangTilFnr(FNR)).isExactlyInstanceOf(IngenTilgang.class);
+        assertThatThrownBy(() -> pepClient.sjekkLesetilgangTilFnr(FNR)).isExactlyInstanceOf(IngenTilgang.class);
     }
 
     @Test
