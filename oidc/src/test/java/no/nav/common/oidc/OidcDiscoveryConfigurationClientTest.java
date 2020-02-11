@@ -1,10 +1,14 @@
 package no.nav.common.oidc;
 
+import no.nav.common.oidc.discovery.OidcDiscoveryConfiguration;
+import no.nav.common.oidc.discovery.OidcDiscoveryConfigurationClient;
 import no.nav.testconfig.security.JwtTestTokenIssuerConfig;
 import no.nav.testconfig.security.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,10 +26,11 @@ public class OidcDiscoveryConfigurationClientTest {
     @Test
     public void shouldRetrieveDiscoveryConfig() {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
-        OidcDiscoveryConfiguration config = client.fetchDiscoveryConfiguration(oidcProviderRule.getDiscoveryUri());
+        Optional<OidcDiscoveryConfiguration> config = client.fetchDiscoveryConfiguration(oidcProviderRule.getDiscoveryUri());
 
-        assertThat(config.issuer).matches("oidc-provider-test-rule-aadb2c");
-        assertThat(config.jwksUri).matches(oidcProviderRule.getJwksUri());
+        assertThat(config.isPresent()).isTrue();
+        assertThat(config.get().issuer).matches("oidc-provider-test-rule-aadb2c");
+        assertThat(config.get().jwksUri).matches(oidcProviderRule.getJwksUri());
     }
 
 }

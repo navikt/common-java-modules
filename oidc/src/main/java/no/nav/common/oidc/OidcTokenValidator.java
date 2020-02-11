@@ -10,10 +10,12 @@ import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
 import lombok.SneakyThrows;
+import no.nav.common.oidc.discovery.OidcDiscoveryConfiguration;
+import no.nav.common.oidc.discovery.OidcDiscoveryConfigurationClient;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.Optional;
 
 public class OidcTokenValidator {
 
@@ -25,7 +27,10 @@ public class OidcTokenValidator {
 
     public OidcTokenValidator(String oidcDiscoveryUrl, String clientId) {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
-        OidcDiscoveryConfiguration config = client.fetchDiscoveryConfiguration(oidcDiscoveryUrl);
+        Optional<OidcDiscoveryConfiguration> optionalConfig = client.fetchDiscoveryConfiguration(oidcDiscoveryUrl);
+        OidcDiscoveryConfiguration config = optionalConfig.orElseThrow(
+                () -> new RuntimeException("Unable to retrieve discovery config from " + oidcDiscoveryUrl)
+        );
 
         issuer = config.issuer;
         validator = createValidator(config.issuer, config.jwksUri, JWS_ALGORITHM, clientId);
