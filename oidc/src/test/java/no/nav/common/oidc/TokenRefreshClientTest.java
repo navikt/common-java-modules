@@ -1,17 +1,15 @@
 package no.nav.common.oidc;
 
-import no.nav.common.oidc.utils.TokenRefresher;
+import no.nav.common.oidc.utils.TokenRefreshClient;
 import no.nav.testconfig.security.JwtTestTokenIssuerConfig;
 import no.nav.testconfig.security.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
-import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class TokenRefresherTest {
+public class TokenRefreshClientTest {
 
     private final static JwtTestTokenIssuerConfig issuerConfig = JwtTestTokenIssuerConfig.builder()
             .id("oidc-provider-test-rule-aadb2c")
@@ -24,14 +22,15 @@ public class TokenRefresherTest {
 
     @Test
     public void shouldRefreshToken() {
-        Optional<String> refreshedToken = TokenRefresher.refreshIdToken(oidcProviderRule.getRefreshUri(), "refresh-token");
-        assertThat(refreshedToken.isPresent()).isTrue();
+        TokenRefreshClient refreshClient = new TokenRefreshClient();
+        assertThatCode(() -> refreshClient.refreshIdToken(oidcProviderRule.getRefreshUri(), "refresh-token"))
+                .doesNotThrowAnyException();
     }
 
-    @Test
-    public void shouldReturnEmptyIfWrongUrl() {
-        Optional<String> refreshedToken = TokenRefresher.refreshIdToken("http://not-a-real-host.test/refresh", "refresh-token");
-        assertThat(refreshedToken.isPresent()).isFalse();
+    @Test(expected = Exception.class)
+    public void shouldThrowIfWrongUrl() {
+        TokenRefreshClient refreshClient = new TokenRefreshClient();
+        refreshClient.refreshIdToken("http://not-a-real-host.test/refresh", "refresh-token");
     }
 
 }

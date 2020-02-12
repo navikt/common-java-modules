@@ -8,7 +8,7 @@ import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
 import no.nav.common.oidc.utils.CookieUtils;
-import no.nav.common.oidc.utils.TokenRefresher;
+import no.nav.common.oidc.utils.TokenRefreshClient;
 import no.nav.common.oidc.utils.TokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +35,17 @@ public class OidcAuthenticationFilter implements Filter {
     private static final long CHECK_EXPIRES_WITHIN = 1000 * 60 * 5;
 
     private final List<OidcAuthenticator> oidcAuthenticators;
+
     private final List<String> publicPaths;
+
+    private final TokenRefreshClient tokenRefreshClient;
 
     private List<Pattern> publicPatterns;
 
     public OidcAuthenticationFilter(List<OidcAuthenticator> oidcAuthenticators, List<String> publicPaths) {
         this.oidcAuthenticators = oidcAuthenticators;
         this.publicPaths = publicPaths;
+        tokenRefreshClient = new TokenRefreshClient();
     }
 
     @Override
@@ -121,12 +125,16 @@ public class OidcAuthenticationFilter implements Filter {
         boolean needsToBeRefreshed = hasMatchingIssuer(token, authenticator.tokenValidator.getIssuer())
                 && expiresWithin(token, CHECK_EXPIRES_WITHIN);
 
-        // Check if issuer matches and token has expired or will expire soon
         if (needsToBeRefreshed) {
             Optional<Cookie> refreshCookie = authenticator.tokenLocator.getRefreshTokenCookie(request);
 
             if (refreshCookie.isPresent() && authenticator.refreshUrl != null) {
-                return TokenRefresher.refreshIdToken(authenticator.refreshUrl, refreshCookie.get().getValue());
+                try {
+                    return Optional.of(tokenRefreshClient.refreshIdToken(authenticator.refreshUrl, refreshCookie.get().getValue()));
+                } catch (Exception e) {
+                    logger.error("Unable to refresh id token", e);
+                    return Optional.empty();
+                }
             }
         }
 

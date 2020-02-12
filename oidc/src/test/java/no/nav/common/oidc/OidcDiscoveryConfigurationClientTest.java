@@ -8,7 +8,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;
 
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,11 +25,16 @@ public class OidcDiscoveryConfigurationClientTest {
     @Test
     public void shouldRetrieveDiscoveryConfig() {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
-        Optional<OidcDiscoveryConfiguration> config = client.fetchDiscoveryConfiguration(oidcProviderRule.getDiscoveryUri());
+        OidcDiscoveryConfiguration config = client.fetchDiscoveryConfiguration(oidcProviderRule.getDiscoveryUri());
 
-        assertThat(config.isPresent()).isTrue();
-        assertThat(config.get().issuer).matches("oidc-provider-test-rule-aadb2c");
-        assertThat(config.get().jwksUri).matches(oidcProviderRule.getJwksUri());
+        assertThat(config.issuer).matches("oidc-provider-test-rule-aadb2c");
+        assertThat(config.jwksUri).matches(oidcProviderRule.getJwksUri());
+    }
+
+    @Test(expected = Exception.class)
+    public void shouldThrowIfWrongUrl() {
+        OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
+        client.fetchDiscoveryConfiguration("http://not-a-real-host.test/discovery");
     }
 
 }

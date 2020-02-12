@@ -69,9 +69,5 @@
             <groupId>no.nav.common</groupId>
             <artifactId>test-config</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-        </dependency>
     </dependencies>
 </project>

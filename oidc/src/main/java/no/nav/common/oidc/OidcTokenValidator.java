@@ -15,7 +15,6 @@ import no.nav.common.oidc.discovery.OidcDiscoveryConfigurationClient;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Optional;
 
 public class OidcTokenValidator {
 
@@ -27,10 +26,7 @@ public class OidcTokenValidator {
 
     public OidcTokenValidator(String oidcDiscoveryUrl, String clientId) {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
-        Optional<OidcDiscoveryConfiguration> optionalConfig = client.fetchDiscoveryConfiguration(oidcDiscoveryUrl);
-        OidcDiscoveryConfiguration config = optionalConfig.orElseThrow(
-                () -> new RuntimeException("Unable to retrieve discovery config from " + oidcDiscoveryUrl)
-        );
+        OidcDiscoveryConfiguration config = client.fetchDiscoveryConfiguration(oidcDiscoveryUrl);
 
         issuer = config.issuer;
         validator = createValidator(config.issuer, config.jwksUri, JWS_ALGORITHM, clientId);
