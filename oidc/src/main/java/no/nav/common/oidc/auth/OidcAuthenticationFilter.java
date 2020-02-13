@@ -95,7 +95,7 @@ public class OidcAuthenticationFilter implements Filter {
 
                     authenticator.tokenValidator.validate(jwtToken);
 
-                    SsoToken ssoToken = SsoToken.oidcToken(token.get(), jwtToken.getJWTClaimsSet().getClaims());
+                    SsoToken ssoToken = SsoToken.oidcToken(jwtToken.getParsedString(), jwtToken.getJWTClaimsSet().getClaims());
                     Subject subject = new Subject(
                             TokenUtils.getUid(jwtToken, authenticator.identType),
                             authenticator.identType, ssoToken
