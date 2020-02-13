@@ -25,6 +25,11 @@ public class TokenRefreshClient {
                 .request()
                 .post(json(new RefreshIdTokenRequest(refreshToken)));
 
+        if (response.getStatus() >= 300) {
+            String responseStr = response.readEntity(String.class);
+            throw new RuntimeException(String.format("Received unexpected status %d from %s when refreshing id token. Response: %s", response.getStatus(), refreshUrl, responseStr));
+        }
+
         return response.readEntity(RefreshIdTokenResponse.class).idToken;
     }
 
