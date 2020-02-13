@@ -10,6 +10,8 @@ import java.util.TimeZone;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.json.TestUtils.assertEqualJson;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 
 public class DatoTest extends JettyTest {
 
@@ -141,6 +143,8 @@ public class DatoTest extends JettyTest {
     private void testPost(String queryParis, String dtoFraParisQuery) {
         String response = target("/api/dato/query")
                 .request()
+                .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, "callId")
+                .header(CONSUMER_ID_HEADER_NAME, "consumerId")
                 .post(Entity.entity(queryParis, APPLICATION_JSON_TYPE))
                 .readEntity(String.class);
         assertEqualJson(response, dtoFraParisQuery);
@@ -156,6 +160,8 @@ public class DatoTest extends JettyTest {
                 .queryParam("timestamp", queryDato)
                 .queryParam("sqlDate", queryDato)
                 .request()
+                .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, "callId")
+                .header(CONSUMER_ID_HEADER_NAME, "consumerId")
                 .get()
                 .readEntity(String.class);
         assertEqualJson(forventetRespons, response);

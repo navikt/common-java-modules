@@ -24,6 +24,8 @@ import java.util.function.Function;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 import static no.nav.apiapp.ServletUtil.getContext;
 import static no.nav.fo.apiapp.rest.JettyTestUtils.*;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 
 
 public class JettyTest {
@@ -85,10 +87,20 @@ public class JettyTest {
         return request(path, SyncInvoker::get);
     }
 
+    protected Response get(URI uri) {
+        return request(uri, SyncInvoker::get);
+    }
+
     protected Response request(String path, Function<Invocation.Builder, Response> ex) {
-        URI uri = uri(path);
+        return request(uri(path), ex);
+    }
+
+    protected Response request(URI uri, Function<Invocation.Builder, Response> ex) {
         LOGGER.info("request: {}", uri);
-        Invocation.Builder request = client.target(uri).request();
+        Invocation.Builder request = client.target(uri)
+                .request()
+                .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, "callId")
+                .header(CONSUMER_ID_HEADER_NAME, "consumerId");
         cookies.forEach((k, v) -> request.cookie(k, v.getValue()));
         Response response = ex.apply(request);
         response.getCookies().forEach((k, v) -> cookies.put(k, v));

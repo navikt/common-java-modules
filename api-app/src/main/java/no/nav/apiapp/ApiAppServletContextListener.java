@@ -130,7 +130,11 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
                 .serverName(EnvironmentUtils.requireApplicationName())
                 .build();
 
-        leggTilFilter(servletContextEvent, ComplianceEnforcementFilter.class, REQUEST);
+        filterBuilder(ComplianceEnforcementFilter.class)
+                .dispatcherTypes(REQUEST)
+                .urlPatterns(apiApplication.getApiBasePath() + "*")
+                .register(servletContextEvent);
+
         leggTilFilter(servletContextEvent, PrometheusFilter.class);
         leggTilFilter(servletContextEvent, new LogFilter(logFilterConfig));
         leggTilFilter(servletContextEvent, NavCorsFilter.class);

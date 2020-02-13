@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
@@ -38,12 +39,12 @@ public class SwaggerTest extends JettyTest {
 
     @Test
     public void getSwaggerJson() throws Exception {
-        sammenlign(get(uri("/api/swagger.json").toURL()), read("/SwaggerTest.json"));
+        sammenlign(getSwaggerConfig(uri("/api/swagger.json")), read("/SwaggerTest.json"));
     }
 
     @Test
     public void getSwaggerDefaultJson() throws Exception {
-        sammenlign(get(buildUri("/api/swagger.json").queryParam(IKKE_BERIK, "true").build().toURL()), read("/SwaggerTest.default.json"));
+        sammenlign(getSwaggerConfig(buildUri("/api/swagger.json").queryParam(IKKE_BERIK, "true").build()), read("/SwaggerTest.default.json"));
     }
 
     private void assertRedirect(String path, String expectedRedirectPath) {
@@ -64,8 +65,9 @@ public class SwaggerTest extends JettyTest {
             .isEqualTo(forventet);
     }
 
-    private Swagger get(URL src) throws IOException {
-        return swaggerObjectMapper.readValue(src, Swagger.class);
+    private Swagger getSwaggerConfig(URI uri) throws IOException {
+        String content = get(uri).readEntity(String.class);
+        return swaggerObjectMapper.readValue(content, Swagger.class);
     }
 
 }
