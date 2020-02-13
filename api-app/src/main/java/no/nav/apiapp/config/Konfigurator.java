@@ -240,6 +240,12 @@ public class Konfigurator implements ApiAppConfigurator {
         return this;
     }
 
+    @Override
+    public ApiAppConfigurator enableCXFSecureLogs() {
+        System.setProperty("CXF_SECURE_LOG", "on");
+        return this;
+    }
+
     private String getConfigProperty(String primaryProperty, String secondaryProperty) {
         LOGGER.info("reading config-property {} / {}", primaryProperty, secondaryProperty);
         return getOptionalProperty(primaryProperty)

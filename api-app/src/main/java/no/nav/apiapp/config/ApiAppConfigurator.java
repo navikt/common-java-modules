@@ -70,4 +70,5 @@ public interface ApiAppConfigurator {
 
     ApiAppConfigurator objectMapper(ObjectMapper objectMapper);
 
+    ApiAppConfigurator enableCXFSecureLogs();
 }
