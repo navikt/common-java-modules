@@ -77,10 +77,13 @@ public class Resources {
     }
 
     private static Attribute personIdAttribute(AbacPersonId personId) {
-        if (personId.isFnr()) {
-            return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, personId.getId());
-        } else {
-            return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, personId.getId());
+        switch (personId.getType()) {
+            case FNR:
+                return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, personId.getId());
+            case AKTOR_ID:
+                return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, personId.getId());
+            default:
+                throw new IllegalStateException("Ukjent verdi for person id type: " + personId.getType());
         }
     }
 }
