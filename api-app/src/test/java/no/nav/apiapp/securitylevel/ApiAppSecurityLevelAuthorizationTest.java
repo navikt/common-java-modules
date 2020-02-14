@@ -13,12 +13,15 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import static javax.ws.rs.core.HttpHeaders.USER_AGENT;
 import static no.nav.brukerdialog.security.oidc.OidcTokenUtils.SECURITY_LEVEL_ATTRIBUTE;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL;
 import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE;
 import static no.nav.common.auth.SecurityLevel.*;
 import static no.nav.common.auth.SecurityLevel.Level2;
 import static no.nav.fo.apiapp.rest.JettyTestUtils.*;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApiAppSecurityLevelAuthorizationTest {
@@ -110,6 +113,7 @@ public class ApiAppSecurityLevelAuthorizationTest {
     private Response get(String path, SecurityLevel securityLevel) {
         return client.target(uriBuilder.toString() + path)
                 .request()
+                .header(USER_AGENT, "mozilla chrome IE etc")
                 .header("Authorization", "Bearer " + oidcProviderTestRule.getToken(
                         new JwtTestTokenIssuer
                                 .Claims("0")

@@ -9,6 +9,8 @@ import javax.ws.rs.core.UriBuilder;
 import java.util.function.Consumer;
 
 import static no.nav.fo.apiapp.rest.JettyTestUtils.getHostName;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ContextPathTest extends JettyTest {
@@ -25,7 +27,11 @@ public class ContextPathTest extends JettyTest {
 
     private Response getWithContextPath(String path) {
         UriBuilder uriBuilder = UriBuilder.fromPath(path).host(getHostName()).scheme("https").port(getSslPort());
-        return RestUtils.withClient(c -> c.target(uriBuilder).request().get());
+        return RestUtils.withClient(c -> c.target(uriBuilder)
+                .request()
+                .header(PREFERRED_NAV_CALL_ID_HEADER_NAME, "callId")
+                .header(CONSUMER_ID_HEADER_NAME, "consumerId")
+                .get()
+        );
     }
-
 }
