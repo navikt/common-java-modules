@@ -44,17 +44,16 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
+            <artifactId>oidc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
             <artifactId>abac</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>auth</artifactId>
         </dependency>
-        <dependency>
-            <groupId>no.nav.common</groupId>
-            <artifactId>auth-openam-sbs</artifactId>
-        </dependency>
-
         <!-- dialogarena -->
         <dependency>
             <groupId>no.nav.common</groupId>
