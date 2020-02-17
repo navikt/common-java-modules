@@ -29,8 +29,6 @@ import java.net.InetAddress;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.util.Optional.ofNullable;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.INTERNAL_USERS_AZUREAD_B2C_CLIENTID_PROPERTY_NAME;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME;
 import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
@@ -39,6 +37,10 @@ import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 
 public class ApiAppTest {
+
+    private static final String INTERNAL_USERS_AZUREAD_B2C_CLIENTID_PROPERTY_NAME = "LOGINSERVICE_OIDC_CLIENTID";
+
+    private static final String INTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URI_PROPERTY_NAME = "LOGINSERVICE_OIDC_DISCOVERYURI";
 
     static {
         System.setProperty("SERVICE_CALLS_HOME", "target/log/accesslog");

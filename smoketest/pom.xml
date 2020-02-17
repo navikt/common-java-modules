@@ -29,11 +29,6 @@
     <dependencies>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>oidc-security</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.common</groupId>
             <artifactId>test-config</artifactId>
             <scope>compile</scope>
         </dependency>

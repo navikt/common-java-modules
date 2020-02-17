@@ -29,7 +29,6 @@ public class VersionService {
                 version("logback", ch.qos.logback.core.Context.class),
                 version("cxf", org.apache.cxf.Bus.class),
                 version("jersey", org.glassfish.jersey.CommonProperties.class),
-                version("jose4j", org.jose4j.jwt.JwtClaims.class),
                 version("ehcache", net.sf.ehcache.Ehcache.class),
                 version("micrometer", io.micrometer.core.instrument.Meter.class),
                 version("jackson", com.fasterxml.jackson.core.JsonFactory.class)

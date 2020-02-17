@@ -24,8 +24,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
-import static no.nav.brukerdialog.security.Constants.REFRESH_TOKEN_COOKIE_NAME;
-import static no.nav.common.oidc.Constants.ISSO_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.oidc.Constants.AZURE_AD_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.oidc.Constants.REFRESH_TOKEN_COOKIE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -60,7 +60,7 @@ public class OidcAuthenticationFilterTest {
         azureAdAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(azureAdOidcProviderRule.getDiscoveryUri())
                 .withClientId(azureAdOidcProviderRule.getAudience())
-                .withIdTokenCookieName(ISSO_ID_TOKEN_COOKIE_NAME)
+                .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
                 .withIdentType(IdentType.InternBruker)
                 .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
                 .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME);
@@ -68,7 +68,7 @@ public class OidcAuthenticationFilterTest {
         openAMAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(openAMOidcProviderRule.getDiscoveryUri())
                 .withClientId(openAMOidcProviderRule.getAudience())
-                .withIdTokenCookieName(ISSO_ID_TOKEN_COOKIE_NAME)
+                .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
                 .withIdentType(IdentType.InternBruker);
     }
 
