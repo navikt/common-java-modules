@@ -1,5 +1,8 @@
 package no.nav.apiapp.config;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.util.ContextInitializer;
+import ch.qos.logback.core.joran.spi.JoranException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.apiapp.ApiApplication;
@@ -23,9 +26,12 @@ import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
 import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.sbl.util.EnvironmentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.NOPLoggerFactory;
 
+import java.net.URL;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -242,7 +248,16 @@ public class Konfigurator implements ApiAppConfigurator {
 
     @Override
     public ApiAppConfigurator enableCXFSecureLogs() {
-        System.setProperty("CXF_SECURE_LOG", "on");
+        try {
+            EnvironmentUtils.setProperty("CXF_SECURE_LOG", "enabled", PUBLIC);
+            LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+            context.reset();
+            ContextInitializer ci = new ContextInitializer(context);
+            ci.autoConfig();
+        } catch (JoranException e) {
+            throw new RuntimeException("Failed to enable CXF secure logs", e);
+        }
+
         return this;
     }
 

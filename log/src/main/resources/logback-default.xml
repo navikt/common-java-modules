@@ -3,4 +3,5 @@
     <include resource="logback-stdout-json.xml"/>
     <include resource="logback-naudit.xml"/>
     <include resource="logback-securelogs.xml"/>
+    <include resource="logback-cxf.xml"/>
 </included>

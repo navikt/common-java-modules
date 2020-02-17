@@ -13,15 +13,6 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
-    <if condition='isDefined("CXF_SECURE_LOG")'>
-        <logger name="org.apache.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}" additivity="false">
-            <appender-ref ref="secureLog" />
-        </logger>
-        <logger name="no.nav.sbl.dialogarena.common.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}" additivity="false">
-            <appender-ref ref="secureLog" />
-        </logger>
-    </if>
-
     <logger name="SecureLog" level="${SECURE_LOG_LEVEL:-INFO}" additivity="false">
         <appender-ref ref="secureLog"/>
     </logger>

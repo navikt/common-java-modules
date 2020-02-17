@@ -2,13 +2,13 @@
 <included scan="true" scanPeriod="30 seconds">
     <appender name="AuditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%date{ISO8601} ${applicationName} %level %mdc %m%n%rEx</pattern>
+            <pattern>%m%n%xEx</pattern>
         </layout>
 
         <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
             <host>audit.nais</host>
             <port>6514</port>
-            <ident>${applicationName}</ident>
+            <ident>${NAIS_APP_NAME}</ident>
             <maxMessageLength>128000</maxMessageLength>
         </syslogConfig>
     </appender>
