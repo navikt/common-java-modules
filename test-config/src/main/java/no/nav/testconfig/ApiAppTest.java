@@ -13,17 +13,12 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import no.nav.fasit.AzureOidcConfig;
 import no.nav.fasit.FasitUtils;
-import no.nav.fasit.ServiceUserCertificate;
 import no.nav.sbl.dialogarena.test.WebProxyConfigurator;
 import no.nav.sbl.dialogarena.test.ssl.SSLTestUtils;
 import no.nav.sbl.util.LogUtils;
-import no.nav.validation.ValidationUtils;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.NotEmpty;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -34,7 +29,6 @@ import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_HOST;
 import static no.nav.metrics.MetricsConfig.SENSU_CLIENT_PORT;
 import static no.nav.sbl.util.EnvironmentUtils.*;
 import static no.nav.sbl.util.EnvironmentUtils.Type.PUBLIC;
-import static no.nav.sbl.util.EnvironmentUtils.Type.SECRET;
 
 public class ApiAppTest {
 
@@ -52,7 +46,6 @@ public class ApiAppTest {
     @Value
     @Builder
     public static class Config {
-        @NotEmpty
         public String applicationName;
 
         public Boolean allowClientStorage;
@@ -63,7 +56,7 @@ public class ApiAppTest {
 
     @SneakyThrows
     public static void setupTestContext(Config config) {
-        ValidationUtils.validate(config);
+        validateConfig(config);
         getLoggerContext().getLogger("ROOT").iteratorForAppenders().forEachRemaining(ApiAppTest::simplifyConsoleAppender);
         LogUtils.setGlobalLogLevel(INFO);
 
@@ -89,20 +82,14 @@ public class ApiAppTest {
 
         if (isUtviklerImage()) {
             WebProxyConfigurator.setupWebProxy();
-//            setupNavTrustStore();
         }
     }
 
-    @SneakyThrows
-    private static void setupNavTrustStore() {
-        LOGGER.info("Setting up NAV Truststore");
-        ServiceUserCertificate navTrustStore = FasitUtils.getServiceUserCertificate("nav_truststore", FasitUtils.getDefaultEnvironmentClass());
-        File navTrustStoreFile = File.createTempFile("nav_truststore", ".jks");
-        FileUtils.writeByteArrayToFile(navTrustStoreFile,navTrustStore.getKeystore());
-        setProperty("javax.net.ssl.trustStore", navTrustStoreFile.getAbsolutePath(), PUBLIC);
-        setProperty("javax.net.ssl.trustStorePassword", navTrustStore.getKeystorepassword(), SECRET);
+    private static void validateConfig(Config config) {
+        if (config.applicationName == null || config.applicationName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Config mangler verdi 'applicationName'");
+        }
     }
-
 
     public static boolean isUtviklerImage() {
         try {

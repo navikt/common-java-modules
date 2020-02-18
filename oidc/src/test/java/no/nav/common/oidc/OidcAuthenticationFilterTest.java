@@ -24,8 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static java.util.Collections.singletonList;
-import static no.nav.common.oidc.Constants.AZURE_AD_ID_TOKEN_COOKIE_NAME;
-import static no.nav.common.oidc.Constants.REFRESH_TOKEN_COOKIE_NAME;
+import static no.nav.common.oidc.Constants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -68,7 +67,7 @@ public class OidcAuthenticationFilterTest {
         openAMAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(openAMOidcProviderRule.getDiscoveryUri())
                 .withClientId(openAMOidcProviderRule.getAudience())
-                .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
+                .withIdTokenCookieName(OPEN_AM_ID_TOKEN_COOKIE_NAME)
                 .withIdentType(IdentType.InternBruker);
     }
 

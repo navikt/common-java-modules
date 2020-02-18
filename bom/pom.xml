@@ -103,7 +103,6 @@
         <mockito.version>2.2.27</mockito.version>
         <mockito-all.version>1.10.19</mockito-all.version>
         <org.eclipse.jetty.version>9.3.0.M2</org.eclipse.jetty.version>
-        <pact-jvm.version>3.5.23</pact-jvm.version>
         <!-- NB: junit5 versjon settes i mor-pom  -->
     </properties>
 
@@ -279,11 +278,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>validation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
                 <artifactId>web</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -324,19 +318,7 @@
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
-                <artifactId>pact-fo</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
 
-            <dependency>
-                <groupId>no.nav.common</groupId>
-                <artifactId>smoketest</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
                 <artifactId>cxf</artifactId>
@@ -791,11 +773,6 @@
 
             <!-- javax -->
             <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>2.0.1.Final</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
                 <version>1</version>
@@ -1214,79 +1191,6 @@
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <!-- PACT Testing -->
-            <dependency>
-                <groupId>au.com.dius</groupId>
-                <artifactId>pact-jvm-provider-junit_2.12</artifactId>
-                <version>${pact-jvm.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>au.com.dius</groupId>
-                <artifactId>pact-jvm-model</artifactId>
-                <version>${pact-jvm.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>au.com.dius</groupId>
-                <artifactId>pact-jvm-consumer_2.12</artifactId>
-                <version>${pact-jvm.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>au.com.dius</groupId>
-                <artifactId>pact-jvm-consumer-junit_2.12</artifactId>
-                <version>${pact-jvm.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>au.com.dius</groupId>
-                <artifactId>pact-jvm-consumer-junit5_2.12</artifactId>
-                <version>${pact-jvm.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>au.com.dius</groupId>
-                <artifactId>pact-jvm-consumer-java8_2.12</artifactId>
-                <version>${pact-jvm.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
