@@ -20,44 +20,20 @@ public class SsoToken {
 
     SsoToken(Type type, String token, Map<String, ?> attributes) {
         assertNotNull(type);
-        assertNotNull(attributes);
         assertNotNullOrEmpty(token);
+        assertNotNull(attributes);
 
         this.type = type;
         this.token = token;
         this.attributes = unmodifiableMap(attributes);
     }
 
-    /**
-     * @deprecated use overloaded method - attributes should be provided
-     */
-    @Deprecated
-    public static SsoToken oidcToken(String token) {
-        return oidcToken(token, emptyMap());
-    }
-
     public static SsoToken oidcToken(String token, Map<String, ?> attributes) {
         return new SsoToken(OIDC, token, attributes);
     }
 
-    /**
-     * @deprecated use overloaded method - attributes should be provided
-     */
-    @Deprecated
-    public static SsoToken saml(String samlAssertion) {
-        return saml(samlAssertion, emptyMap());
-    }
-
     public static SsoToken saml(String samlAssertion, Map<String, ?> attributes) {
         return new SsoToken(SAML, samlAssertion, attributes);
-    }
-
-    /**
-     * @deprecated use overloaded method - attributes should be provided
-     */
-    @Deprecated
-    public static SsoToken eksternOpenAM(String token) {
-        return eksternOpenAM(token, emptyMap());
     }
 
     public static SsoToken eksternOpenAM(String token, Map<String, ?> attributes) {

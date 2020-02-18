@@ -594,6 +594,14 @@
             "schema": {
               "$ref": "#/definitions/DateDTO"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "getDTO",
@@ -680,6 +688,14 @@
             "schema": {
               "$ref": "#/definitions/DateDTO"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "queryDTO",
@@ -724,6 +740,14 @@
             "schema": {
               "$ref": "#/definitions/DateDTO"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "postQueryDTO",
@@ -762,6 +786,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "get",
@@ -799,6 +831,14 @@
             },
             "schema": {
               "type": "string"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -854,6 +894,14 @@
               },
               "type": "object"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "pipeData",
@@ -891,6 +939,14 @@
             },
             "schema": {
               "type": "string"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -937,6 +993,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "eksempel-value",
@@ -978,6 +1042,14 @@
             },
             "schema": {
               "type": "string"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1022,6 +1094,14 @@
             },
             "schema": {
               "$ref": "#/definitions/RiktObjekt"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1076,6 +1156,14 @@
               "format": "int32",
               "type": "integer"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "minus",
@@ -1129,6 +1217,14 @@
               "format": "int32",
               "type": "integer"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "pluss",
@@ -1166,6 +1262,14 @@
             },
             "schema": {
               "type": "string"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1213,6 +1317,14 @@
               },
               "type": "array"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "getEnumer",
@@ -1256,6 +1368,14 @@
             },
             "schema": {
               "$ref": "#/definitions/EnumDTO"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1306,6 +1426,14 @@
               ],
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "pipeEnum",
@@ -1350,6 +1478,14 @@
             },
             "schema": {
               "$ref": "#/definitions/EnumDTO"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1401,6 +1537,14 @@
               ],
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "enumForOrdinal",
@@ -1448,6 +1592,14 @@
               },
               "type": "array"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "getFeeds",
@@ -1482,6 +1634,14 @@
           "application/json"
         ],
         "responses": {
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          },
           "default": {
             "description": "successful operation",
             "headers": {
@@ -1552,6 +1712,14 @@
             "schema": {
               "$ref": "#/definitions/FeedResponseObject"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "getFeeddata",
@@ -1590,6 +1758,14 @@
           "application/json"
         ],
         "responses": {
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          },
           "default": {
             "description": "successful operation",
             "headers": {
@@ -1645,6 +1821,14 @@
           "application/json"
         ],
         "responses": {
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          },
           "default": {
             "description": "successful operation",
             "headers": {
@@ -1690,6 +1874,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "get",
@@ -1727,6 +1919,14 @@
             },
             "schema": {
               "type": "string"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1766,6 +1966,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "defaultGet",
@@ -1803,6 +2011,14 @@
             },
             "schema": {
               "type": "string"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1842,6 +2058,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "testIoc",
@@ -1879,6 +2103,14 @@
             },
             "schema": {
               "type": "string"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
@@ -1918,6 +2150,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "ping",
@@ -1946,6 +2186,14 @@
           }
         ],
         "responses": {
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          },
           "default": {
             "description": "successful operation",
             "headers": {
@@ -1981,6 +2229,14 @@
           }
         ],
         "responses": {
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          },
           "default": {
             "description": "successful operation",
             "headers": {
@@ -2026,6 +2282,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
           }
         },
         "summary": "getSesjonsId",
@@ -2060,6 +2324,14 @@
           }
         ],
         "responses": {
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
+            }
+          },
           "default": {
             "description": "successful operation",
             "headers": {
@@ -2104,6 +2376,14 @@
             },
             "schema": {
               "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "the request was not authenticated or authorized",
+            "headers": {
+              "Nav-Call-Id": {
+                "type": "string"
+              }
             }
           }
         },
