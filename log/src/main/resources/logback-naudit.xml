@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included scan="true" scanPeriod="30 seconds">
-    <property name="THIS_LIBRARY" value="abac"/>
-
-    <property name="loggingPattern"
-              value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}] ){'- \[, , \] ',''}- %m%n"/>
-
     <appender name="AuditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%date{ISO8601} ${applicationName} %level %mdc %m%n%rEx</pattern>
+            <pattern>%m%n%xEx</pattern>
         </layout>
 
         <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
             <host>audit.nais</host>
             <port>6514</port>
-            <ident>${applicationName}</ident>
+            <ident>${NAIS_APP_NAME}</ident>
             <maxMessageLength>128000</maxMessageLength>
         </syslogConfig>
     </appender>
 
-    <logger name="AuditLogger" level="${ABAC_TJENESTEKALL_LOG_LEVEL:-INFO}" additivity="false">
+    <logger name="AuditLogger" level="${NAUDIT_LOG_LEVEL:-INFO}" additivity="false">
         <appender-ref ref="AuditLogger"/>
     </logger>
-
 </included>
