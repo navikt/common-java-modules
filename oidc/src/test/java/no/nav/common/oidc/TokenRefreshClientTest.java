@@ -1,6 +1,5 @@
 package no.nav.common.oidc;
 
-import no.nav.common.oidc.utils.TokenRefreshClient;
 import no.nav.testconfig.security.JwtTestTokenIssuerConfig;
 import no.nav.testconfig.security.OidcProviderTestRule;
 import org.junit.Rule;
