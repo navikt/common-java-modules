@@ -23,7 +23,9 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Run tests
-        run: mvn -B -Plokal verify
+        env:
+          FASIT_MOCK_ENABLED: true
+        run: mvn -q -B -V verify -Plokal | grep -v ERROR
 
   build-and-publish:
     name: Build and push
@@ -48,7 +50,6 @@ jobs:
 
       - name: Setup variables
         run: |
-          echo ::set-env name=COMMIT_HASH::$(git log -1 --invert-grep --grep='Merge' --pretty=format:"%h")
           echo ::set-env name=TIME::$(TZ="Europe/Oslo" date +%Y.%m.%d-%H.%M)
           echo ::set-env name=COMMIT::$(git rev-parse --short=12 HEAD)
           echo ::set-env name=VERSION::"1.$TIME-$COMMIT"
