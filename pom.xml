@@ -601,10 +601,4 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
-    <ciManagement>
-        <system>travis</system>
-        <url>https://travis-ci.org/navikt/common-java-modules</url>
-    </ciManagement>
-
 </project>
