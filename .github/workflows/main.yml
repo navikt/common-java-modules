@@ -25,7 +25,7 @@ jobs:
       - name: Run tests
         env:
           FASIT_MOCK_ENABLED: true
-        run: mvn -q -B -V verify -Plokal | grep -v ERROR
+        run: mvn -B -V -Plokal verify
 
   build-and-publish:
     name: Build and push
@@ -48,21 +48,20 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - name: Setup variables
-        run: |
-          echo ::set-env name=TIME::$(TZ="Europe/Oslo" date +%Y.%m.%d-%H.%M)
-          echo ::set-env name=COMMIT::$(git rev-parse --short=12 HEAD)
-          echo ::set-env name=VERSION::"1.$TIME-$COMMIT"
+      - name: Create Version
+        run: echo ::set-env name=VERSION::"1.$(TZ="Europe/Oslo" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)"
 
       - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          maven_goals_phases: versions:set versions:commit deploy
-          maven_args: -Prelease -DskipTests=true -DnewVersion="$VERSION"
-          gpg_private_key: ${{ secrets.GPG_KEYS }}
-          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          nexus_username: ${{ secrets.SONATYPE_USER }}
-          nexus_password: ${{ secrets.SONATYPE_PASSWORD }}
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
+          GPG_KEYS: ${{ secrets.GPG_KEYS }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          export GPG_TTY=$(tty) && echo $GPG_KEYS | base64 --decode | gpg --fast-import --batch
+          mvn versions:set versions:commit -DnewVersion="$VERSION"
+          mvn -B -Prelease -DskipTests=true --settings ./settings.xml deploy
 
       - name: Create release
         uses: actions/create-release@v1
