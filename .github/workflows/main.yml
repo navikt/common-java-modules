@@ -25,7 +25,7 @@ jobs:
       - name: Run tests
         env:
           FASIT_MOCK_ENABLED: true
-        run: mvn -B -V -Plokal verify
+        run: mvn -B -V -Plocal verify
 
   build-and-publish:
     name: Build and push

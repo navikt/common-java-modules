@@ -5,9 +5,7 @@ import no.nav.common.metrics.prometheus.MetricsTestUtils;
 import no.nav.common.metrics.prometheus.MetricsTestUtils.PrometheusLine;
 import no.nav.fo.apiapp.JettyTest;
 import no.nav.fo.apiapp.rest.RestEksempel;
-import no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -17,6 +15,9 @@ import static no.nav.apiapp.ApiAppServletContextListener.INTERNAL_METRICS;
 import static no.nav.common.metrics.prometheus.MetricsTestUtils.equalCounter;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * This test fails when run locally
+ */
 public class MetricsTest extends JettyTest {
 
     @Test
@@ -25,7 +26,6 @@ public class MetricsTest extends JettyTest {
     }
 
     @Test
-    @Category(VirkerIkkeLokaltCategory.class)
     public void exports_structured_api_metrics() {
         IntStream.range(0, 5).forEach(i -> get("/api/ping"));
         IntStream.range(0, 10).forEach(i -> get("/api/eksempel/konflikt"));
