@@ -4,12 +4,10 @@ import no.nav.apiapp.feil.FeilType;
 import no.nav.apiapp.feil.VersjonsKonflikt;
 import no.nav.fo.apiapp.JettyTest;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
-import no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 import javax.xml.soap.SOAPFault;
 import javax.xml.ws.soap.SOAPFaultException;
@@ -20,7 +18,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-@Category(VirkerIkkeLokaltCategory.class)
+/**
+ * This test fails when run locally
+ */
 public class SoapTest extends JettyTest {
 
     private static HelloWorld helloWorld;

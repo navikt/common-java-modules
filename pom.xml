@@ -419,7 +419,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M3</version>
+                <version>3.0.0-M4</version>
                 <configuration>
 
                     <!-- Ellers vil maven kun kjøre tester som slutter på 'Test' (!) -->
@@ -523,15 +523,18 @@
             </build>
         </profile>
         <profile>
-            <id>lokal</id>
+            <id>local</id>
             <build>
                 <plugins>
                     <plugin>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <properties>
-                                <excludeTags>no.nav.sbl.dialogarena.test.junit.VirkerIkkeLokaltCategory</excludeTags>
-                            </properties>
+                            <excludes>
+                                <exclude>**/MetricsIntegrationTest.java</exclude>
+                                <exclude>**/MetricsTest.java</exclude>
+                                <exclude>**/SelfTestTest.java</exclude>
+                                <exclude>**/SoapTest.java</exclude>
+                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -576,6 +579,13 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <!-- Prevent `gpg` from using pinentry programs -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -601,10 +611,4 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
-    <ciManagement>
-        <system>travis</system>
-        <url>https://travis-ci.org/navikt/common-java-modules</url>
-    </ciManagement>
-
 </project>
