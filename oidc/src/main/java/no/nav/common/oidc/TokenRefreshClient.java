@@ -1,4 +1,4 @@
-package no.nav.common.oidc.utils;
+package no.nav.common.oidc;
 
 import no.nav.sbl.rest.RestUtils;
 
@@ -15,7 +15,7 @@ public class TokenRefreshClient {
         this(RestUtils.createClient());
     }
 
-    TokenRefreshClient(Client client) {
+    public TokenRefreshClient(Client client) {
         this.client = client;
     }
 

@@ -5,6 +5,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import no.nav.brukerdialog.security.domain.IdentType;
 
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Date;
 
 import static no.nav.common.oidc.Constants.AAD_NAV_IDENT_CLAIM;

@@ -16,17 +16,6 @@ har gjerne enorme avhengighetstre, jmf følgende applikasjonstre for en hello-wo
  |  |  +- org.apache.httpcomponents:httpclient:jar:4.3.6:compile
  |  |  \- org.apache.httpcomponents:httpcore:jar:4.4:compile
  |  +- no.nav.modig:modig-security-core:jar:3.0.4:compile
- |  +- no.nav.dialogarena:oidc-security:jar:2017.09.21.15.29:compile
- |  |  +- no.nav.sbl.dialogarena:feed:jar:2017.09.21.15.29:compile
- |  |  |  \- org.quartz-scheduler:quartz:jar:2.2.1:compile
- |  |  |     \- c3p0:c3p0:jar:0.9.1.1:compile
- |  |  +- no.nav.sbl:rest:jar:2017.09.21.15.29:compile
- |  |  +- org.glassfish.jersey.core:jersey-client:jar:2.22.1:compile
- |  |  +- org.glassfish.jersey.media:jersey-media-json-jackson:jar:2.22.1:runtime
- |  |  |  +- org.glassfish.jersey.ext:jersey-entity-filtering:jar:2.22.1:runtime
- |  |  |  \- com.fasterxml.jackson.jaxrs:jackson-jaxrs-base:jar:2.5.4:compile
- |  |  +- org.json:json:jar:20160810:compile
- |  |  \- org.bitbucket.b_c:jose4j:jar:0.5.0:compile
  |  +- no.nav.sbl.dialogarena:common-abac:jar:2017.09.21.15.29:compile
  |  |  +- no.nav.abac.policies:abac-attribute-constants:jar:1.1.1-SNAPSHOT:compile
  |  |  +- com.google.code.gson:gson:jar:2.7:compile
