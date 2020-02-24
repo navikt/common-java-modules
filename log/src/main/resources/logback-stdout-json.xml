@@ -2,10 +2,16 @@
 <included>
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
 
-    <property name="loggingPattern"
-              value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}, %X{userId}] ){'- \[, , \] ',''}- %m%n"/>
-
     <appender name="stdout_json" class="no.nav.log.MaskingAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>
+                    return level != ERROR &amp;&amp; (logger.contains("org.apache.cxf") || logger.contains("no.nav.sbl.dialogarena.common.cxf"));
+                </expression>
+            </evaluator>
+            <onMatch>DENY</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
+        </filter>
         <appender name="stdout_json_masked" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         </appender>

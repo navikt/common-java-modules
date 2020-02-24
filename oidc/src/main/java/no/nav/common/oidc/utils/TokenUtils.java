@@ -35,10 +35,10 @@ public class TokenUtils {
     }
 
     /**
-     * Checks if JWT token has expired or will expire within {@param withinMillis}
+     * Checks if JWT token has expired or will expire within {@code withinMillis}
      * @param jwt token that will be checked
      * @param withinMillis if the token expires within this time then it is regarded as expired
-     * @return true if the token is expired or will expire within {@param withinMillis}, false otherwise
+     * @return true if the token is expired or will expire within {@code withinMillis}, false otherwise
      */
     public static boolean expiresWithin(JWT jwt, long withinMillis) {
         try {

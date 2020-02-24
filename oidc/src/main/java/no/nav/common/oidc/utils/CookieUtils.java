@@ -3,19 +3,19 @@ package no.nav.common.oidc.utils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
 public class CookieUtils {
 
     public static Optional<Cookie> getCookie(String cookieName, HttpServletRequest request) {
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals(cookieName) && cookie.getValue() != null) {
-                return Optional.of(cookie);
-            }
-        }
-
-        return Optional.empty();
+        return Optional.ofNullable(request.getCookies())
+                .flatMap(cookies -> Arrays
+                        .stream(cookies)
+                        .filter(cookie -> cookie.getName().equals(cookieName) && cookie.getValue() != null)
+                        .findFirst()
+                );
     }
 
     public static Cookie createCookie(String name, String value, String domain, int maxAge, boolean secure) {
