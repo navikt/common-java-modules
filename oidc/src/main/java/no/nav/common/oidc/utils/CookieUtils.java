@@ -2,6 +2,7 @@ package no.nav.common.oidc.utils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
@@ -32,7 +33,16 @@ public class CookieUtils {
 
     public static String cookieDomain(HttpServletRequest request) {
         String serverName = request.getServerName();
-        return serverName.substring(serverName.indexOf('.') + 1);
+        return extractCookieDomain(serverName);
+    }
+
+    public static String cookieDomain(UriInfo uri) {
+        String host = uri.getBaseUri().getHost();
+        return extractCookieDomain(host);
+    }
+
+    public static String extractCookieDomain(String host) {
+        return host.substring(host.indexOf('.') + 1);
     }
 
     public static int dateToCookieMaxAge(Date date) {

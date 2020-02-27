@@ -15,6 +15,9 @@ import static no.nav.apiapp.ApiAppServletContextListener.INTERNAL_METRICS;
 import static no.nav.common.metrics.prometheus.MetricsTestUtils.equalCounter;
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * This test fails when run locally
+ */
 public class MetricsTest extends JettyTest {
 
     @Test

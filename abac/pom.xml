@@ -151,12 +151,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>oidc-security</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.common</groupId>
             <artifactId>auth</artifactId>
             <type>test-jar</type>
             <scope>test</scope>

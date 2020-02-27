@@ -13,12 +13,9 @@ import org.junit.Test;
 import java.util.List;
 
 import static java.util.Collections.emptyMap;
-import static no.nav.common.auth.SsoToken.eksternOpenAM;
 import static no.nav.common.auth.SsoToken.oidcToken;
 import static no.nav.common.metrics.prometheus.MetricsTestUtils.equalCounter;
-import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.STS_URL_KEY;
-import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.SYSTEMUSER_PASSWORD;
-import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.SYSTEMUSER_USERNAME;
+import static no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants.*;
 import static no.nav.sbl.util.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 import static no.nav.sbl.util.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;

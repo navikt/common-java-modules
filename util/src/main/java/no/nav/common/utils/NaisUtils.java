@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 /**
- * @Deprecated 01.2020 moved to new module no.nav.common:nais
+ * Deprecated 01.2020 moved to new module no.nav.common:nais
  */
 @Deprecated
 public class NaisUtils {

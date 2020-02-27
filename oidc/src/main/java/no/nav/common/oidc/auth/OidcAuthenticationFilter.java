@@ -9,7 +9,7 @@ import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
 import no.nav.common.oidc.utils.CookieUtils;
-import no.nav.common.oidc.utils.TokenRefreshClient;
+import no.nav.common.oidc.TokenRefreshClient;
 import no.nav.common.oidc.utils.TokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

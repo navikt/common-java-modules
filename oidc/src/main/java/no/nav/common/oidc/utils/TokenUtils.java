@@ -5,6 +5,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import no.nav.brukerdialog.security.domain.IdentType;
 
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Date;
 
 import static no.nav.common.oidc.Constants.AAD_NAV_IDENT_CLAIM;
@@ -34,10 +35,10 @@ public class TokenUtils {
     }
 
     /**
-     * Checks if JWT token has expired or will expire within {@param withinMillis}
+     * Checks if JWT token has expired or will expire within {@code withinMillis}
      * @param jwt token that will be checked
      * @param withinMillis if the token expires within this time then it is regarded as expired
-     * @return true if the token is expired or will expire within {@param withinMillis}, false otherwise
+     * @return true if the token is expired or will expire within {@code withinMillis}, false otherwise
      */
     public static boolean expiresWithin(JWT jwt, long withinMillis) {
         try {
