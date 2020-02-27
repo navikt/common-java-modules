@@ -4,6 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
@@ -104,7 +105,11 @@ public class OidcAuthenticationFilter implements Filter {
                     SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
                     return;
                 } catch (ParseException | JOSEException | BadJOSEException exception) {
-                    logger.info("Token validation failed", exception);
+                    if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {
+                        logger.info("Token validation failed", exception);
+                    } else {
+                        logger.error("Token validation failed", exception);
+                    }
                 }
             }
 
@@ -146,6 +151,7 @@ public class OidcAuthenticationFilter implements Filter {
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+    }
 
 }
