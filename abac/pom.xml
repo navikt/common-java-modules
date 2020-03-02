@@ -53,16 +53,12 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.papertrailapp</groupId>
-            <artifactId>logback-syslog4j</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>log</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
@@ -152,12 +148,6 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>auth</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.common</groupId>
-            <artifactId>oidc-security</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>

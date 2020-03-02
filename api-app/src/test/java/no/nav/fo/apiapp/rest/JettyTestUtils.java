@@ -13,21 +13,19 @@ import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.server.ServerConnector;
 
-import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL;
-import static no.nav.brukerdialog.security.oidc.provider.AzureADB2CConfig.EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE;
-import static no.nav.common.auth.openam.sbs.OpenAmConfig.OPENAM_RESTURL;
 import static no.nav.fasit.FasitUtils.Zone.FSS;
 import static no.nav.testconfig.util.Util.setProperty;
 
 public class JettyTestUtils {
 
     public static final String APPLICATION_NAME = "api-app";
+    private static final String EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL = "AAD_B2C_DISCOVERY_URL";
+    private static final String EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE = "AAD_B2C_CLIENTID_USERNAME";
 
     public static void setupContext() {
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
@@ -60,8 +58,6 @@ public class JettyTestUtils {
         setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
         setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
 
-        setProperty(OPENAM_RESTURL, "https://itjenester-" + FasitUtils.getDefaultTestEnvironment().toString() + ".oera.no/esso");
-
         ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
         setProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL, FasitUtils.getBaseUrl("aad_b2c_discovery"));
         setProperty(EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE, azureADClientId.username);
@@ -82,10 +78,6 @@ public class JettyTestUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static UriBuilder uriBuilder(String path, Jetty jetty) {
-        return UriBuilder.fromPath(path).host(getHostName()).scheme("https").port(getSslPort(jetty));
     }
 
     public static String getHostName() {

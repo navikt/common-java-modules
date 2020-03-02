@@ -139,12 +139,8 @@ public class ApplicationConfig implements ApiApplication {
                 .selfTests(asList(new PingableEksempel(), new PingableEksempel(), new PingableEksempel()));
 
         if (!JettyTest.DISABLE_AUTH) {
-            apiAppConfigurator
-//                .azureADB2CLogin();
-//                .samlLogin()
-                    .sts()
-                    .openAmLogin();
-
+            apiAppConfigurator.sts();
+            // openAmLogin();
         }
     }
 

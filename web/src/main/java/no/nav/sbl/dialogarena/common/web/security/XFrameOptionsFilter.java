@@ -12,10 +12,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * <p>
  * Legger til X-Frame-Options på responsen for å unngå click-jacking angrep
- * <p/>
+ * </p>
+ * <p>
  * Setter DENY per default - noe som betyr at filtrerte ressurser ikke kan frames
- * <p/>
+ * </p>
  * http://tools.ietf.org/html/draft-ietf-websec-x-frame-options-01
  */
 public class XFrameOptionsFilter implements Filter {

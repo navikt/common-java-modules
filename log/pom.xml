@@ -65,6 +65,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.papertrailapp</groupId>
+            <artifactId>logback-syslog4j</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <version>4.10</version>

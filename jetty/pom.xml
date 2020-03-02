@@ -32,10 +32,6 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.common</groupId>
-            <artifactId>oidc-security</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -134,6 +130,11 @@
         <dependency>
             <groupId>org.picketbox</groupId>
             <artifactId>picketbox</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>rest</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

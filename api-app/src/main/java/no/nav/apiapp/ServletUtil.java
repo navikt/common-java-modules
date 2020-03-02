@@ -8,8 +8,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import javax.servlet.*;
 
-import java.util.EnumSet;
-
 import static org.springframework.web.context.support.WebApplicationContextUtils.findWebApplicationContext;
 
 public class ServletUtil {
@@ -51,50 +49,6 @@ public class ServletUtil {
         LOGGER.info("la til servlet [{}] på [{}]", servlet, path);
         return servletRegistration;
     }
-
-    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
-    @Deprecated
-    public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass) {
-        return leggTilFilter(servletContextEvent.getServletContext(), filterClass);
-    }
-
-    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
-    @Deprecated
-    public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Class<? extends Filter> filterClass) {
-        return leggTilFilter(servletContext, filterClass, EnumSet.allOf(DispatcherType.class));
-    }
-
-    public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Class<? extends Filter> filterClass, DispatcherType... dispatcherTypes) {
-        return leggTilFilter(servletContextEvent.getServletContext(), filterClass, dispatcherTypes);
-    }
-
-    public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Class<? extends Filter> filterClass, DispatcherType... dispatcherTypes) {
-        return leggTilFilter(servletContext, filterClass, EnumSet.of(dispatcherTypes[0], dispatcherTypes));
-    }
-
-    public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Class<? extends Filter> filterClass, EnumSet<DispatcherType> dispatcherTypes) {
-        FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filterClass);
-        dynamic.addMappingForUrlPatterns(dispatcherTypes, false, "/*");
-        LOGGER.info("la til filter [{}] for {}", filterClass.getName(), dispatcherTypes);
-        return dynamic;
-    }
-
-    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
-    @Deprecated
-    public static FilterRegistration.Dynamic leggTilFilter(ServletContextEvent servletContextEvent, Filter filter) {
-        return leggTilFilter(servletContextEvent.getServletContext(), filter);
-    }
-
-    /** @deprecated use filterBuilder() for more control. Also, this method always adds all dispatcher types which is probably the wrong default  */
-    @Deprecated
-    public static FilterRegistration.Dynamic leggTilFilter(ServletContext servletContext, Filter filter) {
-        Class<? extends Filter> filterClass = filter.getClass();
-        FilterRegistration.Dynamic dynamic = servletContext.addFilter(filterClass.getName(), filter);
-        dynamic.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
-        LOGGER.info("la til filter [{}]", filterClass.getName());
-        return dynamic;
-    }
-
 
     public static FilterBuilder filterBuilder(Class<? extends Filter> filterClass) {
         return new FilterBuilder(filterClass);

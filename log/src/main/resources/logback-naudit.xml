@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included scan="true" scanPeriod="30 seconds">
+    <appender name="AuditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%m%n%xEx</pattern>
+        </layout>
+
+        <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
+            <host>audit.nais</host>
+            <port>6514</port>
+            <ident>${NAIS_APP_NAME}</ident>
+            <maxMessageLength>128000</maxMessageLength>
+        </syslogConfig>
+    </appender>
+
+    <logger name="AuditLogger" level="${NAUDIT_LOG_LEVEL:-INFO}" additivity="false">
+        <appender-ref ref="AuditLogger"/>
+    </logger>
+</included>

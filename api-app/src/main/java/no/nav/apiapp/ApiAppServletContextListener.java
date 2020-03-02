@@ -1,6 +1,5 @@
 package no.nav.apiapp;
 
-
 import no.nav.apiapp.config.Konfigurator;
 import no.nav.apiapp.feil.FeilMapper;
 import no.nav.apiapp.metrics.PrometheusFilter;
@@ -18,7 +17,7 @@ import no.nav.apiapp.selftest.impl.TruststoreHelsesjekk;
 import no.nav.apiapp.soap.SoapServlet;
 import no.nav.apiapp.version.Version;
 import no.nav.apiapp.version.VersionService;
-import no.nav.common.auth.LoginFilter;
+import no.nav.common.oidc.auth.OidcAuthenticationFilter;
 import no.nav.log.LogFilter;
 import no.nav.log.LogFilterConfig;
 import no.nav.log.LoginfoServlet;
@@ -39,11 +38,8 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.filter.RequestContextFilter;
@@ -109,21 +105,19 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         konfigurerSpring(servletContext);
         WebApplicationContext webApplicationContext = startSpring(servletContextEvent);
 
-        leggTilFilter(servletContextEvent, new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
+        filterBuilder(new DisableCacheHeadersFilter(DisableCacheHeadersFilter.Config.builder()
                 .allowClientStorage(getPropertyAsBooleanOrElseFalse("ALLOW_CLIENT_STORAGE"))
                 .disablePragmaHeader(getPropertyAsBooleanOrElseFalse("DISABLE_PRAGMA_HEADER"))
                 .build()
-        ));
+        )).register(servletContextEvent.getServletContext());
 
         // Slik at man husker å fjerne constrains fra web.xml
         ConstraintSecurityHandler currentSecurityHandler = (ConstraintSecurityHandler) ConstraintSecurityHandler.getCurrentSecurityHandler();
         List<ConstraintMapping> constraintMappings = currentSecurityHandler != null ? currentSecurityHandler.getConstraintMappings() : emptyList();
         if (constraintMappings.size() > 2) { // Jetty setter opp 2 contraints by default
             List<Constraint> constraints = constraintMappings.subList(2, constraintMappings.size()).stream().map(ConstraintMapping::getConstraint).collect(Collectors.toList());
-            throw new IllegalStateException("api-apper bruker ikke container-login lenger, men setter istede opp " + LoginFilter.class.getName() + ". Vennligst fjern security constraints fra web.xml: " + constraints);
+            throw new IllegalStateException("api-apper bruker ikke container-login lenger, men setter istede opp " + OidcAuthenticationFilter.class.getName() + ". Vennligst fjern security constraints fra web.xml: " + constraints);
         }
-
-        konfigurator.getSpringBonner().forEach(b -> leggTilBonne(servletContextEvent, b));
 
         LogFilterConfig logFilterConfig = LogFilterConfig.builder()
                 .exposeErrorDetails(FeilMapper::visDetaljer)
@@ -135,13 +129,14 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
                 .urlPatterns(apiApplication.getApiBasePath() + "*")
                 .register(servletContextEvent);
 
-        leggTilFilter(servletContextEvent, PrometheusFilter.class);
-        leggTilFilter(servletContextEvent, new LogFilter(logFilterConfig));
-        leggTilFilter(servletContextEvent, NavCorsFilter.class);
-        leggTilFilter(servletContextEvent, SecurityHeadersFilter.class);
-        leggTilFilter(servletContextEvent, RequestContextFilter.class);
+        filterBuilder(PrometheusFilter.class).register(servletContext);
+        filterBuilder(new LogFilter(logFilterConfig)).register(servletContext);
+        filterBuilder(NavCorsFilter.class).register(servletContext);
+        filterBuilder(SecurityHeadersFilter.class).register(servletContext);
+        filterBuilder(RequestContextFilter.class).register(servletContext);
 
-        FilterRegistration.Dynamic characterEncodingRegistration = leggTilFilter(servletContextEvent, CharacterEncodingFilter.class);
+        FilterRegistration.Dynamic characterEncodingRegistration =  filterBuilder(CharacterEncodingFilter.class)
+                .register(servletContextEvent.getServletContext());
         characterEncodingRegistration.setInitParameter("encoding", "UTF-8");
         characterEncodingRegistration.setInitParameter("forceEncoding", "true");
 
@@ -185,14 +180,12 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
     }
 
     @Override
-    public void sessionDestroyed(HttpSessionEvent se) {
-
-    }
+    public void sessionDestroyed(HttpSessionEvent se) {}
 
     private void konfigurerSpring(ServletContext servletContext) {
         servletContext.setInitParameter(CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
         servletContext.setInitParameter(CONFIG_LOCATION_PARAM, "");
-        contextLoaderListener.setContextInitializers((ApplicationContextInitializer<ConfigurableApplicationContext>) applicationContext -> {
+        contextLoaderListener.setContextInitializers(applicationContext -> {
             AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext = (AnnotationConfigWebApplicationContext) applicationContext;
             annotationConfigWebApplicationContext.register(apiApplication.getClass());
         });
