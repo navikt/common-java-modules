@@ -38,8 +38,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -55,6 +53,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static javax.servlet.DispatcherType.REQUEST;
 import static no.nav.apiapp.ServletUtil.*;
 import static no.nav.apiapp.soap.SoapServlet.soapTjenesterEksisterer;
 import static no.nav.apiapp.util.UrlUtils.sluttMedSlash;
@@ -124,6 +123,11 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
                 .exposeErrorDetails(FeilMapper::visDetaljer)
                 .serverName(EnvironmentUtils.requireApplicationName())
                 .build();
+
+        filterBuilder(ComplianceEnforcementFilter.class)
+                .dispatcherTypes(REQUEST)
+                .urlPatterns(apiApplication.getApiBasePath() + "*")
+                .register(servletContextEvent);
 
         filterBuilder(PrometheusFilter.class).register(servletContext);
         filterBuilder(new LogFilter(logFilterConfig)).register(servletContext);
