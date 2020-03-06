@@ -35,6 +35,7 @@
     <modules>
         <module>abac</module>
         <module>aktor-klient</module>
+        <module>aktorregister-klient</module>
         <module>api-app</module>
         <module>app-mock</module>
         <module>auth</module>
