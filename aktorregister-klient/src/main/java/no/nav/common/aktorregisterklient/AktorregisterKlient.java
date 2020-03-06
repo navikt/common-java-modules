@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
 
-public class AktørregisterKlient {
+public class AktorregisterKlient {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AktørregisterKlient.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AktorregisterKlient.class);
 
-    private final String aktørregisterUrl;
+    private final String aktorregisterUrl;
 
     private final String consumingApplication;
 
@@ -28,8 +28,8 @@ public class AktørregisterKlient {
 
     private final OkHttpClient client;
 
-    public AktørregisterKlient(String aktørregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
-        this.aktørregisterUrl = aktørregisterUrl;
+    public AktorregisterKlient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
+        this.aktorregisterUrl = aktorregisterUrl;
         this.consumingApplication = consumingApplication;
         this.tokenSupplier = tokenSupplier;
 
@@ -45,16 +45,16 @@ public class AktørregisterKlient {
        return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
     }
 
-    public Optional<String> hentAktørId(String fnr) {
+    public Optional<String> hentAktorId(String fnr) {
         return hentEnkeltIdent(fnr, Identgruppe.AktoerId);
     }
 
-    public List<Map.Entry<String, Optional<String>>> hentFlereAktørIder(List<String> fnrListe) {
+    public List<Map.Entry<String, Optional<String>>> hentFlereAktorIder(List<String> fnrListe) {
         return hentFlereIdenter(fnrListe, Identgruppe.AktoerId);
     }
 
-    private Optional<String> hentEnkeltIdent(String aktørIdEllerFnr, Identgruppe identgruppe) {
-        return hentIdenter(Collections.singletonList(aktørIdEllerFnr), identgruppe)
+    private Optional<String> hentEnkeltIdent(String aktorIdEllerFnr, Identgruppe identgruppe) {
+        return hentIdenter(Collections.singletonList(aktorIdEllerFnr), identgruppe)
                 .entrySet()
                 .stream()
                 .filter(this::filtrerIkkeGjeldendeIdent)
@@ -63,16 +63,16 @@ public class AktørregisterKlient {
                 .map(i -> i.ident);
     }
 
-    private List<Map.Entry<String, Optional<String>>> hentFlereIdenter(List<String> aktørIdEllerFnrListe, Identgruppe identgruppe) {
-        return hentIdenter(aktørIdEllerFnrListe, identgruppe)
+    private List<Map.Entry<String, Optional<String>>> hentFlereIdenter(List<String> aktorIdEllerFnrListe, Identgruppe identgruppe) {
+        return hentIdenter(aktorIdEllerFnrListe, identgruppe)
                 .entrySet()
                 .stream()
                 .map(this::mapIdentEntry)
                 .collect(Collectors.toList());
     }
 
-    String createRequestUrl(String aktørregisterUrl, Identgruppe identgruppe) {
-        return String.format("%s/identer?gjeldende=true&identgruppe=%s", aktørregisterUrl, valueOf(identgruppe));
+    String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe) {
+        return String.format("%s/identer?gjeldende=true&identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
     }
 
     private boolean filtrerIkkeGjeldendeIdent(Map.Entry<String, IdentData> identEntry) {
@@ -89,11 +89,11 @@ public class AktørregisterKlient {
         return new AbstractMap.SimpleEntry<>(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident));
     }
 
-    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkørIder, Identgruppe identgruppe) {
-        String personidenter = String.join(",", fnrEllerAtkørIder);
+    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) {
+        String personidenter = String.join(",", fnrEllerAtkorIder);
 
         Request request = new Request.Builder()
-                .url(createRequestUrl(aktørregisterUrl, identgruppe))
+                .url(createRequestUrl(aktorregisterUrl, identgruppe))
                 .addHeader("Nav-Call-Id", UUID.randomUUID().toString())
                 .addHeader("Nav-Consumer-Id", consumingApplication)
                 .addHeader("Nav-Personidenter", personidenter)
@@ -109,7 +109,7 @@ public class AktørregisterKlient {
             String body = response.body().string();
             return objectMapper.readValue(body, new TypeReference<Map<String, IdentData>>() {});
         } catch (Exception e) {
-            LOGGER.error("Klarte ikke å gjøre oppslag mot aktørregister", e);
+            LOGGER.error("Klarte ikke å gjore oppslag mot aktorregister", e);
             return Collections.emptyMap();
         }
     }
@@ -128,7 +128,7 @@ public class AktørregisterKlient {
 
     private static class Ident {
 
-        public String ident; // fnr eller aktørid
+        public String ident; // fnr eller aktorid
 
         public Identgruppe identgruppe;
 
