@@ -33,7 +33,7 @@ public class AktørregisterKlientTest {
     public void lagerKorrektUrlForFnrTilAktørId() {
         AktørregisterKlient klient = new AktørregisterKlient("", "", null);
 
-        String requestUrl= klient.createRequestUrl("https://app-q0.adeo.no/aktoerregister/api/v1", Identgruppe.AktoerId);
+        String requestUrl= klient.createRequestUrl("https://app-q0.adeo.no/aktoerregister/api/v1", AktørregisterKlient.Identgruppe.AktoerId);
 
         assertEquals("https://app-q0.adeo.no/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=AktoerId", requestUrl);
     }
@@ -42,7 +42,7 @@ public class AktørregisterKlientTest {
     public void lagerKorrektUrlForAktørIdTilFnr() {
         AktørregisterKlient klient = new AktørregisterKlient("", "", null);
 
-        String requestUrl= klient.createRequestUrl("https://app-q0.adeo.no/aktoerregister/api/v1", Identgruppe.NorskIdent);
+        String requestUrl= klient.createRequestUrl("https://app-q0.adeo.no/aktoerregister/api/v1", AktørregisterKlient.Identgruppe.NorskIdent);
 
         assertEquals("https://app-q0.adeo.no/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=NorskIdent", requestUrl);
     }

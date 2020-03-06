@@ -114,6 +114,10 @@ public class AktørregisterKlient {
         }
     }
 
+    enum Identgruppe {
+        NorskIdent, AktoerId
+    }
+
     private static class IdentData {
 
         public List<Ident> identer;
