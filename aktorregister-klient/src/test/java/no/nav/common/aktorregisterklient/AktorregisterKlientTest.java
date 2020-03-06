@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -33,18 +32,18 @@ public class AktorregisterKlientTest {
     public void lagerKorrektUrlForFnrTilAktorId() {
         AktorregisterKlient klient = new AktorregisterKlient("", "", null);
 
-        String requestUrl= klient.createRequestUrl("https://app-q0.adeo.no/aktoerregister/api/v1", AktorregisterKlient.Identgruppe.AktoerId);
+        String requestUrl= klient.createRequestUrl("https://test.local/aktoerregister/api/v1", AktorregisterKlient.Identgruppe.AktoerId);
 
-        assertEquals("https://app-q0.adeo.no/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=AktoerId", requestUrl);
+        assertEquals("https://test.local/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=AktoerId", requestUrl);
     }
 
     @Test
     public void lagerKorrektUrlForAktorIdTilFnr() {
         AktorregisterKlient klient = new AktorregisterKlient("", "", null);
 
-        String requestUrl= klient.createRequestUrl("https://app-q0.adeo.no/aktoerregister/api/v1", AktorregisterKlient.Identgruppe.NorskIdent);
+        String requestUrl= klient.createRequestUrl("https://test.local/aktoerregister/api/v1", AktorregisterKlient.Identgruppe.NorskIdent);
 
-        assertEquals("https://app-q0.adeo.no/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=NorskIdent", requestUrl);
+        assertEquals("https://test.local/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=NorskIdent", requestUrl);
     }
 
     @Test
@@ -79,10 +78,10 @@ public class AktorregisterKlientTest {
 
         AktorregisterKlient klient = new AktorregisterKlient(baseUrl, "test", emptyTokenSupplier);
 
-        List<Map.Entry<String, Optional<String>>> identEntries = klient.hentFlereAktorIder(Arrays.asList(FNR_1, FNR_2));
+        List<IdentOppslag> identOppslag = klient.hentAktorId(Arrays.asList(FNR_1, FNR_2));
 
-        assertEquals(identEntries.size(), 2);
-        identEntries.forEach(entry -> assertTrue(entry.getValue().isPresent()));
+        assertEquals(identOppslag.size(), 2);
+        identOppslag.forEach(oppslag -> assertTrue(oppslag.getIdentFraRegister().isPresent()));
     }
 
 
@@ -118,10 +117,10 @@ public class AktorregisterKlientTest {
 
         AktorregisterKlient klient = new AktorregisterKlient(baseUrl, "test", emptyTokenSupplier);
 
-        List<Map.Entry<String, Optional<String>>> identEntries = klient.hentFlereFnr(Arrays.asList(AKTOR_ID_1, AKTOR_ID_2));
+        List<IdentOppslag> identOppslag = klient.hentFnr(Arrays.asList(AKTOR_ID_1, AKTOR_ID_2));
 
-        assertEquals(identEntries.size(), 2);
-        identEntries.forEach(entry -> assertTrue(entry.getValue().isPresent()));
+        assertEquals(identOppslag.size(), 2);
+        identOppslag.forEach(oppslag -> assertTrue(oppslag.getIdentFraRegister().isPresent()));
     }
 
     @Test

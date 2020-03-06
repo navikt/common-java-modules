@@ -41,15 +41,15 @@ public class AktorregisterKlient {
         return hentEnkeltIdent(aktorId, Identgruppe.NorskIdent);
     }
 
-    public List<Map.Entry<String, Optional<String>>> hentFlereFnr(List<String> aktorIdListe) {
-       return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
-    }
-
     public Optional<String> hentAktorId(String fnr) {
         return hentEnkeltIdent(fnr, Identgruppe.AktoerId);
     }
 
-    public List<Map.Entry<String, Optional<String>>> hentFlereAktorIder(List<String> fnrListe) {
+    public List<IdentOppslag> hentFnr(List<String> aktorIdListe) {
+       return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
+    }
+
+    public List<IdentOppslag> hentAktorId(List<String> fnrListe) {
         return hentFlereIdenter(fnrListe, Identgruppe.AktoerId);
     }
 
@@ -63,11 +63,11 @@ public class AktorregisterKlient {
                 .map(i -> i.ident);
     }
 
-    private List<Map.Entry<String, Optional<String>>> hentFlereIdenter(List<String> aktorIdEllerFnrListe, Identgruppe identgruppe) {
+    private List<IdentOppslag> hentFlereIdenter(List<String> aktorIdEllerFnrListe, Identgruppe identgruppe) {
         return hentIdenter(aktorIdEllerFnrListe, identgruppe)
                 .entrySet()
                 .stream()
-                .map(this::mapIdentEntry)
+                .map(this::tilIdentOppslag)
                 .collect(Collectors.toList());
     }
 
@@ -84,9 +84,9 @@ public class AktorregisterKlient {
         return identer.stream().filter(ident -> ident.gjeldende).findFirst();
     }
 
-    private Map.Entry<String, Optional<String>> mapIdentEntry(Map.Entry<String, IdentData> identEntry) {
+    private IdentOppslag tilIdentOppslag(Map.Entry<String, IdentData> identEntry) {
         Optional<Ident> gjeldendeIdent = finnGjeldendeIdent(identEntry.getValue().identer);
-        return new AbstractMap.SimpleEntry<>(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident));
+        return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
     private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) {
