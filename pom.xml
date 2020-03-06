@@ -58,7 +58,6 @@
         <module>suspend</module>
         <module>test</module>
         <module>test-config</module>
-        <module>time</module>
         <module>types</module>
         <module>util</module>
         <module>web</module>
