@@ -29,24 +29,6 @@ public class AktorregisterKlientTest {
     private static final String AKTOR_ID_2 = "103xxx3839212";
 
     @Test
-    public void lagerKorrektUrlForFnrTilAktorId() {
-        AktorregisterKlient klient = new AktorregisterKlient("", "", null);
-
-        String requestUrl= klient.createRequestUrl("https://test.local/aktoerregister/api/v1", AktorregisterKlient.Identgruppe.AktoerId);
-
-        assertEquals("https://test.local/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=AktoerId", requestUrl);
-    }
-
-    @Test
-    public void lagerKorrektUrlForAktorIdTilFnr() {
-        AktorregisterKlient klient = new AktorregisterKlient("", "", null);
-
-        String requestUrl= klient.createRequestUrl("https://test.local/aktoerregister/api/v1", AktorregisterKlient.Identgruppe.NorskIdent);
-
-        assertEquals("https://test.local/aktoerregister/api/v1/identer?gjeldende=true&identgruppe=NorskIdent", requestUrl);
-    }
-
-    @Test
     public void skalHenteAktorIdForFnr() {
         String json = TestUtils.readTestResourceFile("aktorid-to-fnr-single.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
@@ -145,6 +127,48 @@ public class AktorregisterKlientTest {
                 .withHeader("Nav-Call-Id", new AnythingPattern())
                 .withHeader("Nav-Consumer-Id", new EqualToPattern(consumingApplication))
                 .withHeader("Nav-Personidenter", new EqualToPattern(AKTOR_ID_1))
+        );
+    }
+
+    @Test
+    public void skalBrukeKorrektUrlForAktorId() {
+        String json = TestUtils.readTestResourceFile("fnr-to-aktorid-single.json");
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+
+        givenThat(get(anyUrl())
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json))
+        );
+
+        AktorregisterKlient klient = new AktorregisterKlient(baseUrl, "", emptyTokenSupplier);
+
+        klient.hentAktorId(FNR_1);
+
+        verify(getRequestedFor(urlPathEqualTo("/identer"))
+                .withQueryParam("gjeldende", new EqualToPattern("true"))
+                .withQueryParam("identgruppe", new EqualToPattern("AktoerId"))
+        );
+    }
+
+    @Test
+    public void skalBrukeKorrektUrlForFnr() {
+        String json = TestUtils.readTestResourceFile("aktorid-to-fnr-single.json");
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+
+        givenThat(get(anyUrl())
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json))
+        );
+
+        AktorregisterKlient klient = new AktorregisterKlient(baseUrl, "", emptyTokenSupplier);
+
+        klient.hentFnr(AKTOR_ID_1);
+
+        verify(getRequestedFor(urlPathEqualTo("/identer"))
+                .withQueryParam("gjeldende", new EqualToPattern("true"))
+                .withQueryParam("identgruppe", new EqualToPattern("NorskIdent"))
         );
     }
 

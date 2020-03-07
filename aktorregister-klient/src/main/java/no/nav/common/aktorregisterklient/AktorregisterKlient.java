@@ -71,7 +71,7 @@ public class AktorregisterKlient {
                 .collect(Collectors.toList());
     }
 
-    String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe) {
+    private String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe) {
         return String.format("%s/identer?gjeldende=true&identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
     }
 
