@@ -12,10 +12,6 @@
 
     <artifactId>feature-toggle</artifactId>
 
-    <properties>
-        <okhttp.version>3.11.0</okhttp.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -95,13 +91,11 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>${okhttp.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>${okhttp.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
