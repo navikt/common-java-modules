@@ -23,7 +23,7 @@ import java.util.Properties;
 import static javax.servlet.http.HttpServletResponse.*;
 import static no.nav.sbl.dialogarena.common.suspend.BasicAuthenticationFilter.AUTH_PROPERTY_NAME;
 import static no.nav.sbl.dialogarena.common.suspend.SuspendServlet.SHUTDOWN_TIME;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class SuspendIntegrationTest {
 
@@ -143,7 +143,7 @@ public class SuspendIntegrationTest {
     }
 
     private void assertResponseCode(HttpURLConnection httpURLConnection, int responseCode) throws IOException {
-        assertThat(httpURLConnection.getResponseCode()).isEqualTo(responseCode);
+        assertEquals(httpURLConnection.getResponseCode(), responseCode);
     }
 
     private HttpURLConnection GETisAlive() throws IOException {
