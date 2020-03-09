@@ -44,9 +44,10 @@
         Ref https://jira.adeo.no/browse/F17HL4-565
         -->
         <cxf-core.version>3.2.6</cxf-core.version>
-        <jaxws-api.version>2.3.1</jaxws-api.version>
-
         <xml-apis.version>1.4.01</xml-apis.version>
+        <jaxws-api.version>2.3.1</jaxws-api.version>
+        <jaxws-ri.version>2.3.2</jaxws-ri.version>
+        <javax-activation.version>1.2.0</javax-activation.version>
 
         <!-- JMS -->
         <activemq.version>5.7.0</activemq.version>
@@ -1016,6 +1017,17 @@
                 <groupId>javax.xml.ws</groupId>
                 <artifactId>jaxws-api</artifactId>
                 <version>${jaxws-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-ri</artifactId>
+                <version>${jaxws-ri.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>javax.activation</artifactId>
+                <version>${javax-activation.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
