@@ -1,0 +1,22 @@
+{
+  "103xxx1557327": {
+    "identer": [
+      {
+        "ident": "260xxx55159",
+        "identgruppe": "NorskIdent",
+        "gjeldende": true
+      }
+    ],
+    "feilmelding": null
+  },
+  "103xxx3839212": {
+    "identer": [
+      {
+        "ident": "080xxx07100",
+        "identgruppe": "NorskIdent",
+        "gjeldende": true
+      }
+    ],
+    "feilmelding": null
+  }
+}
