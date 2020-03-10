@@ -43,7 +43,6 @@
         <module>bom</module>
         <module>cache</module>
         <module>cxf</module>
-        <module>fasit</module>
         <module>feature-toggle</module>
         <module>feed</module>
         <module>jdbc</module>

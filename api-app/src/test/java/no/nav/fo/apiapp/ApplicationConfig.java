@@ -32,7 +32,7 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
 
 @Configuration
 @Import({
-        AbacContext.class,
+        // AbacContext.class,
         InjectionEksempel.class,
         EksempelService.class,
         IocExample.class,
