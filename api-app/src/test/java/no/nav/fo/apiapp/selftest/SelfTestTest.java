@@ -9,9 +9,6 @@ import javax.ws.rs.core.Response;
 import static no.nav.apiapp.ApiAppServletContextListener.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * This test fails when run locally
- */
 public class SelfTestTest extends JettyTest {
 
     private PingableEksempel pingableEksempel;

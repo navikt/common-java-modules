@@ -20,9 +20,6 @@ import static no.nav.common.metrics.prometheus.MetricsTestUtils.equalCounter;
 import static no.nav.sbl.util.LogUtils.setGlobalLogLevel;
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * This test fails when run locally
- */
 @Slf4j
 public class MetricsIntegrationTest {
 
@@ -81,7 +78,7 @@ public class MetricsIntegrationTest {
         assertThat(scrape).anySatisfy(equalCounter(new PrometheusLine("rest_client_seconds_count", 1)
                 .addLabel("host", "127.0.0.3")
                 .addLabel("status", "520")
-                .addLabel("error", "ConnectException")
+                .addLabel("error", "SocketTimeoutException")
         ));
 
         assertThat(scrape).anySatisfy(equalCounter(new PrometheusLine("rest_client_seconds_count", 1)
