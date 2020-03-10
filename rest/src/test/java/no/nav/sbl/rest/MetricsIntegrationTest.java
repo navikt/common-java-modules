@@ -58,7 +58,6 @@ public class MetricsIntegrationTest {
 
         getAndForget("http://127.0.0.1:" + wireMockRule.port());
         getAndForget("http://127.0.0.2:" + wireMockRule.port() + "/timeout");
-        getAndForget("http://127.0.0.3:1234");
         getAndForget("http://does.not.exist");
 
         List<PrometheusLine> scrape = MetricsTestUtils.scrape();
@@ -71,12 +70,6 @@ public class MetricsIntegrationTest {
 
         assertThat(scrape).anySatisfy(equalCounter(new PrometheusLine("rest_client_seconds_count", 1)
                 .addLabel("host", "127.0.0.2")
-                .addLabel("status", "520")
-                .addLabel("error", "SocketTimeoutException")
-        ));
-
-        assertThat(scrape).anySatisfy(equalCounter(new PrometheusLine("rest_client_seconds_count", 1)
-                .addLabel("host", "127.0.0.3")
                 .addLabel("status", "520")
                 .addLabel("error", "SocketTimeoutException")
         ));
