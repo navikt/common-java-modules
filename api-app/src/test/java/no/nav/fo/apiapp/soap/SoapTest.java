@@ -7,6 +7,7 @@ import no.nav.sbl.dialogarena.common.cxf.CXFClient;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.soap.SOAPFault;
