@@ -137,6 +137,10 @@ public class JettyTest {
         return request(path, r -> r.post(Entity.entity(jsonPayload, APPLICATION_JSON_TYPE))).readEntity(String.class);
     }
 
+    protected void addBean(Object bean) {
+        JETTY.context.addBean(bean);
+    }
+
     protected <T> T getBean(Class<T> aClass) {
         WebApplicationContext webApplicationContext = getContext(JETTY.context.getServletContext());
         return webApplicationContext.getBean(aClass);
