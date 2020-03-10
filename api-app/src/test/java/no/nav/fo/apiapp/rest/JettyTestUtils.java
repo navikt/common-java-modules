@@ -2,13 +2,9 @@ package no.nav.fo.apiapp.rest;
 
 import no.nav.apiapp.ApiApp;
 import no.nav.apiapp.ApiApplication;
-import no.nav.fasit.FasitUtils;
-import no.nav.fasit.ServiceUser;
-import no.nav.fasit.dto.RestService;
 import no.nav.fo.apiapp.JettyTestConfig;
 import no.nav.sbl.dialogarena.common.abac.pep.CredentialConstants;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
-import no.nav.sbl.dialogarena.common.cxf.StsSecurityConstants;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.testconfig.ApiAppTest;
 import org.eclipse.jetty.server.ServerConnector;
@@ -18,18 +14,17 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 
-import static no.nav.fasit.FasitUtils.Zone.FSS;
+import static no.nav.testconfig.ApiAppTest.DEFAULT_ENVIRONMENT;
 import static no.nav.testconfig.util.Util.setProperty;
 
 public class JettyTestUtils {
 
     public static final String APPLICATION_NAME = "api-app";
-    private static final String EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL = "AAD_B2C_DISCOVERY_URL";
-    private static final String EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE = "AAD_B2C_CLIENTID_USERNAME";
 
     public static void setupContext() {
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
                 .applicationName(APPLICATION_NAME)
+                .environment(DEFAULT_ENVIRONMENT)
                 .build()
         );
         setProperties();
@@ -38,6 +33,7 @@ public class JettyTestUtils {
     public static void setupContext(JettyTestConfig testConfig) {
         ApiAppTest.setupTestContext(ApiAppTest.Config.builder()
                 .applicationName(APPLICATION_NAME)
+                .environment(DEFAULT_ENVIRONMENT)
                 .allowClientStorage(testConfig.isAllowClientStorage())
                 .disablePragmaHeader(testConfig.isDisablePragmaHeader())
                 .build()
@@ -46,25 +42,9 @@ public class JettyTestUtils {
     }
 
     private static void setProperties() {
-        String securityTokenService = FasitUtils.getBaseUrl("securityTokenService", FSS);
-        ServiceUser srvveilarbdemo = FasitUtils.getServiceUser("srvveilarbdemo", "veilarbdemo");
-
-        RestService abacEndpoint = FasitUtils.getRestServices("abac.pdp.endpoint").stream()
-                .filter(rs -> srvveilarbdemo.getEnvironment().equals(rs.getEnvironment()) && rs.getApplication() == null)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("fant ikke abac.pdp.endpoint i Fasit"));
-
-        setProperty(StsSecurityConstants.STS_URL_KEY, securityTokenService);
-        setProperty(StsSecurityConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
-        setProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
-
-        ServiceUser azureADClientId = FasitUtils.getServiceUser("aad_b2c_clientid", "veilarbdemo");
-        setProperty(EXTERNAL_USERS_AZUREAD_B2C_DISCOVERY_URL, FasitUtils.getBaseUrl("aad_b2c_discovery"));
-        setProperty(EXTERNAL_USERS_AZUREAD_B2C_EXPECTED_AUDIENCE, azureADClientId.username);
-
-        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, srvveilarbdemo.getUsername());
-        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, srvveilarbdemo.getPassword());
-        setProperty(AbacServiceConfig.ABAC_ENDPOINT_URL_PROPERTY_NAME, abacEndpoint.getUrl());
+        setProperty(AbacServiceConfig.ABAC_ENDPOINT_URL_PROPERTY_NAME, "http://test.local");
+        setProperty(CredentialConstants.SYSTEMUSER_USERNAME, "srvveilarbdemo");
+        setProperty(CredentialConstants.SYSTEMUSER_PASSWORD, "ikke-riktig-passord");
     }
 
     public static Jetty nyJettyForTest(Class<? extends ApiApplication> apiAppClass) {

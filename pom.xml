@@ -43,7 +43,6 @@
         <module>bom</module>
         <module>cache</module>
         <module>cxf</module>
-        <module>fasit</module>
         <module>feature-toggle</module>
         <module>feed</module>
         <module>jdbc</module>
@@ -509,40 +508,6 @@
     </build>
 
     <profiles>
-        <profile>
-            <id>smoketest</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <properties>
-                                <includeTags>smoketest</includeTags>
-                                <excludeTags>overskriv_default_exclude_tags</excludeTags>
-                            </properties>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>local</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/MetricsIntegrationTest.java</exclude>
-                                <exclude>**/MetricsTest.java</exclude>
-                                <exclude>**/SelfTestTest.java</exclude>
-                                <exclude>**/SoapTest.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>release</id>
             <build>
