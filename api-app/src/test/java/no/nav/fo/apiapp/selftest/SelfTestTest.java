@@ -23,9 +23,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * This test fails when run locally
- */
 public class SelfTestTest extends JettyTest {
 
     private PingableEksempel pingableEksempel;

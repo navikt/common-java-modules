@@ -23,9 +23,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Run tests
-        env:
-          FASIT_MOCK_ENABLED: true
-        run: mvn -B -V -Plocal verify
+        run: mvn -B -V verify
 
   build-and-publish:
     name: Build and push

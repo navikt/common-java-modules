@@ -44,10 +44,16 @@ public class MetricsTestUtils {
 
         PrometheusLine prometheusLine = new PrometheusLine(metricName, Double.parseDouble(value));
         ofNullable(matcher.group(3)).ifPresent(labels -> stream(labels.split(",")).forEach(label -> {
+            if (!label.contains("=")) {
+                return;
+            }
+
             String[] split = label.split("=");
             String valueQuoted = split[1];
+
             prometheusLine.addLabel(split[0], valueQuoted.substring(1, valueQuoted.length() - 1));
         }));
+
         return prometheusLine;
     }
 
