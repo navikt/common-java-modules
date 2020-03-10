@@ -34,6 +34,8 @@ public class ApiAppTest {
         System.setProperty("APP_LOG_HOME", "target/log");
     }
 
+    public static final String DEFAULT_ENVIRONMENT = "q0";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiAppTest.class);
 
     @Value

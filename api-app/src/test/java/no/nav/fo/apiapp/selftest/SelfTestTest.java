@@ -31,10 +31,7 @@ public class SelfTestTest extends JettyTest {
     private PingableEksempel pingableEksempel;
 
     @Before
-    public void setup() throws IOException, NoSuchFieldException {
-//        AbacService service = mock(AbacService.class);
-//        when(service.askForPermission(any())).thenReturn(null);
-//        addBean(service);
+    public void setup() {
         pingableEksempel = getBean(PingableEksempel.class);
         pingableEksempel.setOk(true);
     }
