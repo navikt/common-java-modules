@@ -76,7 +76,7 @@
         <junit.vintage.version>5.1.1</junit.vintage.version>
 
 
-        <java.jdk.version>11</java.jdk.version>
+        <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>codestyle/nav-mod/checkstyle.xml</checkstyle.config.location>
         <pmd.config.location>codestyle/nav-mod/pmd.xml</pmd.config.location>
@@ -124,8 +124,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <configuration>
-                        <source>${java.jdk.version}</source>
-                        <target>${java.jdk.version}</target>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -237,7 +237,7 @@
                     <artifactId>maven-pmd-plugin</artifactId>
                     <version>3.13.0</version>
                     <configuration>
-                        <targetJdk>${java.jdk.version}</targetJdk>
+                        <targetJdk>${java.version}</targetJdk>
                         <rulesets>
                             <ruleset>${pmd.config.location}</ruleset>
                         </rulesets>
@@ -526,7 +526,10 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.1</version>
+                        <configuration>
+                            <source>${java.version}</source>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
