@@ -91,6 +91,8 @@ public class TimerAspectTest {
     }
 
     private static class TimedMetoder {
+        public TimedMetoder() {}
+
         @Timed
         public String timed() {
             return "originalTimed";
@@ -108,6 +110,8 @@ public class TimerAspectTest {
 
     @Timed
     private static class TimedKlasse {
+        public TimedKlasse() {}
+
         public String timed1() {
             return "timed1";
         }
@@ -119,6 +123,8 @@ public class TimerAspectTest {
 
     @Timed(ignoredMethods = "ignorert1", name = "customKlasseTimer")
     private static class TimedKlasseMedIgnorerteMetoder {
+        public TimedKlasseMedIgnorerteMetoder() {}
+
         public String timed1() {
             return "timed1";
         }

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
 
 public class CXFClient<T> {
