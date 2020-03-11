@@ -1,8 +1,8 @@
 package no.nav.fo.apiapp.rest;
 
-import no.nav.apiapp.feil.FeilType;
 import no.nav.apiapp.rest.ExceptionMapper;
 import no.nav.fo.apiapp.JettyTest;
+import no.nav.sbl.dialogarena.types.feil.FeilType;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
@@ -12,7 +12,7 @@ import java.util.Map;
 import static javax.ws.rs.client.Entity.entity;
 import static javax.ws.rs.core.HttpHeaders.CACHE_CONTROL;
 import static javax.ws.rs.core.Response.Status.*;
-import static no.nav.apiapp.feil.FeilType.*;
+import static no.nav.sbl.dialogarena.types.feil.FeilType.*;
 import static no.nav.json.JsonUtils.fromJson;
 import static no.nav.json.TestUtils.assertEqualJson;
 import static org.assertj.core.api.Assertions.assertThat;

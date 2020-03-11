@@ -1,4 +1,4 @@
-package no.nav.apiapp.feil;
+package no.nav.sbl.dialogarena.types.feil;
 
 import javax.ws.rs.core.Response;
 

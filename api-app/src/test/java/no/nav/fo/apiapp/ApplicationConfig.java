@@ -12,7 +12,6 @@ import no.nav.fo.apiapp.soap.SoapEksempel;
 import no.nav.fo.feed.common.FeedElement;
 import no.nav.fo.feed.controller.FeedController;
 import no.nav.fo.feed.producer.FeedProducer;
-import no.nav.sbl.dialogarena.common.abac.pep.context.AbacContext;
 import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.featuretoggle.unleash.UnleashService;
 import no.nav.sbl.featuretoggle.unleash.UnleashServiceConfig;
@@ -32,7 +31,6 @@ import static no.nav.sbl.util.AssertUtils.assertNotNull;
 
 @Configuration
 @Import({
-        // AbacContext.class,
         InjectionEksempel.class,
         EksempelService.class,
         IocExample.class,

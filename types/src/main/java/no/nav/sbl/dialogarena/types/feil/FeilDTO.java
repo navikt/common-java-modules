@@ -1,8 +1,5 @@
-package no.nav.apiapp.feil;
+package no.nav.sbl.dialogarena.types.feil;
 
-import lombok.ToString;
-
-@ToString
 public class FeilDTO {
     public final String id;
     public final String type;
@@ -14,7 +11,6 @@ public class FeilDTO {
         this.detaljer = detaljer;
     }
 
-    @ToString
     public static class Detaljer {
         public final String detaljertType;
         public final String feilMelding;
@@ -25,6 +21,23 @@ public class FeilDTO {
             this.feilMelding = feilMelding;
             this.stackTrace = stackTrace;
         }
+
+        @Override
+        public String toString() {
+            return "Detaljer{" +
+                    "detaljertType='" + detaljertType + '\'' +
+                    ", feilMelding='" + feilMelding + '\'' +
+                    ", stackTrace='" + stackTrace + '\'' +
+                    '}';
+        }
     }
 
+    @Override
+    public String toString() {
+        return "FeilDTO{" +
+                "id='" + id + '\'' +
+                ", type='" + type + '\'' +
+                ", detaljer=" + detaljer +
+                '}';
+    }
 }

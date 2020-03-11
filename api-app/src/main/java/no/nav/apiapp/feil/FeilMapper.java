@@ -1,6 +1,9 @@
 package no.nav.apiapp.feil;
 
 import no.nav.apiapp.soap.SoapFeilMapper;
+import no.nav.sbl.dialogarena.types.feil.Feil;
+import no.nav.sbl.dialogarena.types.feil.FeilDTO;
+import no.nav.sbl.dialogarena.types.feil.FeilType;
 import org.apache.commons.codec.binary.Hex;
 
 import javax.ws.rs.NotAuthorizedException;
@@ -9,7 +12,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 import java.security.SecureRandom;
 import java.util.Optional;
 
-import static no.nav.apiapp.feil.FeilType.*;
+import static no.nav.sbl.dialogarena.types.feil.FeilType.*;
 import static no.nav.apiapp.util.EnumUtils.valueOfOptional;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.Q;
 import static no.nav.sbl.util.EnvironmentUtils.EnviromentClass.T;

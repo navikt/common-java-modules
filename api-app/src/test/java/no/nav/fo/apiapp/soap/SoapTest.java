@@ -1,9 +1,9 @@
 package no.nav.fo.apiapp.soap;
 
-import no.nav.apiapp.feil.FeilType;
-import no.nav.apiapp.feil.VersjonsKonflikt;
 import no.nav.fo.apiapp.JettyTest;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
+import no.nav.sbl.dialogarena.types.feil.FeilType;
+import no.nav.sbl.dialogarena.types.feil.VersjonsKonflikt;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.BeforeClass;
