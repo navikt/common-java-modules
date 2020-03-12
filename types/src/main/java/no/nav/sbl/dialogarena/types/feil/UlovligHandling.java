@@ -1,6 +1,6 @@
-package no.nav.apiapp.feil;
+package no.nav.sbl.dialogarena.types.feil;
 
-import static no.nav.apiapp.feil.FeilType.UGYLDIG_HANDLING;
+import static no.nav.sbl.dialogarena.types.feil.FeilType.UGYLDIG_HANDLING;
 
 @SuppressWarnings("unused")
 public class UlovligHandling extends Feil {

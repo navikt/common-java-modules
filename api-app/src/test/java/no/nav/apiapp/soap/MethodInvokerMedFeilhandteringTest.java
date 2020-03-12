@@ -1,8 +1,7 @@
 package no.nav.apiapp.soap;
 
 import no.nav.apiapp.TestContext;
-import no.nav.apiapp.feil.Feil;
-import no.nav.apiapp.feil.FeilType;
+import no.nav.sbl.dialogarena.types.feil.FeilType;
 import org.junit.Test;
 
 import javax.xml.soap.SOAPFault;

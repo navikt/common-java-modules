@@ -1,9 +1,6 @@
-package no.nav.apiapp.feil;
+package no.nav.sbl.dialogarena.types.feil;
 
 import javax.ws.rs.core.Response;
-
-import static javax.ws.rs.core.Response.Status.*;
-import static no.nav.apiapp.util.EnumUtils.getName;
 
 public class Feil extends RuntimeException {
 

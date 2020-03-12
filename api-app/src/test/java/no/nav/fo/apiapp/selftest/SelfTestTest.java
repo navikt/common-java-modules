@@ -1,27 +1,13 @@
 package no.nav.fo.apiapp.selftest;
 
 import no.nav.fo.apiapp.JettyTest;
-import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
-import no.nav.sbl.dialogarena.common.abac.pep.Pep;
-import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
-import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
-import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 
-import java.io.IOException;
-
 import static no.nav.apiapp.ApiAppServletContextListener.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SelfTestTest extends JettyTest {
 
