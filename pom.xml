@@ -37,7 +37,6 @@
         <module>aktor-klient</module>
         <module>aktorregister-klient</module>
         <module>api-app</module>
-        <module>app-mock</module>
         <module>auth</module>
         <module>jobutils</module>
         <module>bom</module>
@@ -54,7 +53,6 @@
         <module>oidc</module>
         <module>rest</module>
         <module>selftest</module>
-        <module>suspend</module>
         <module>test</module>
         <module>test-config</module>
         <module>types</module>

@@ -1,9 +1,8 @@
-package no.nav.dialogarena.mock;
+package no.nav.sbl.dialogarena.common.cxf;
 
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.URLResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-// TODO
 public class MockHandler extends ResourceHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MockServer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MockHandler.class);
     private static final String PATH_PATH = "/mockserver";
     private static final List<String> EXTENSIONS = Arrays.asList("json", "xml");
 
@@ -48,14 +46,6 @@ public class MockHandler extends ResourceHandler {
             }
 
             String pathInfo = target.substring(this.contextPath.length()) + "." + baseRequest.getMethod();
-            String jsPath = pathInfo + ".js";
-
-            Resource javascript = getResource(jsPath);
-            if (javascript.exists()) {
-                JavascriptEngine.evaluateJavascript(javascript, request, httpServletResponse);
-                baseRequest.setHandled(true);
-                return;
-            }
 
             for (String extension : EXTENSIONS) {
                 String jsonPath = pathInfo + "." + extension;
