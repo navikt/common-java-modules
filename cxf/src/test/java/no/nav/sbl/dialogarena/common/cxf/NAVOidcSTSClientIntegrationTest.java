@@ -2,7 +2,6 @@ package no.nav.sbl.dialogarena.common.cxf;
 
 import no.nav.brukerdialog.security.context.SubjectRule;
 import no.nav.common.auth.TestSubjectUtils;
-import no.nav.dialogarena.mock.MockHandler;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.After;
