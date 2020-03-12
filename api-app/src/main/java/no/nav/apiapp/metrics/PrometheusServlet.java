@@ -6,10 +6,10 @@ import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import io.prometheus.client.hotspot.DefaultExports;
 import no.nav.apiapp.version.Version;
+import no.nav.common.health.SelfTestService;
+import no.nav.common.health.domain.Selftest;
+import no.nav.common.health.domain.SelftestResult;
 import no.nav.metrics.MetricsFactory;
-import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
-import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
-import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

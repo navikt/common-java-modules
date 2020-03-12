@@ -52,7 +52,7 @@
         <module>metrics</module>
         <module>oidc</module>
         <module>rest</module>
-        <module>selftest</module>
+        <module>health</module>
         <module>test</module>
         <module>test-config</module>
         <module>types</module>

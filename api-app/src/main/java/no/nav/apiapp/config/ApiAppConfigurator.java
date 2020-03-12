@@ -1,10 +1,10 @@
 package no.nav.apiapp.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.common.health.domain.Pingable;
 import no.nav.common.oidc.auth.OidcAuthenticatorConfig;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.Jetty.JettyBuilder;
-import no.nav.sbl.dialogarena.types.Pingable;
 
 import java.util.Collection;
 import java.util.function.Consumer;

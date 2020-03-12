@@ -1,10 +1,10 @@
 package no.nav.fo.apiapp.selftest;
 
-import no.nav.sbl.dialogarena.types.Pingable;
-import no.nav.sbl.dialogarena.types.Pingable.Ping.PingMetadata;
+import no.nav.common.health.domain.Pingable;
+import no.nav.common.health.domain.Pingable.Ping.PingMetadata;
 
-import static no.nav.sbl.dialogarena.types.Pingable.Ping.feilet;
-import static no.nav.sbl.dialogarena.types.Pingable.Ping.lyktes;
+import static no.nav.common.health.domain.Pingable.Ping.feilet;
+import static no.nav.common.health.domain.Pingable.Ping.lyktes;
 
 public class PingableEksempel implements Pingable {
 

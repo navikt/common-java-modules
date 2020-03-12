@@ -1,11 +1,11 @@
 package no.nav.apiapp.metrics;
 
 import no.nav.apiapp.version.VersionService;
-import no.nav.sbl.dialogarena.common.web.selftest.SelfTestService;
-import no.nav.sbl.dialogarena.common.web.selftest.SelfTestStatus;
-import no.nav.sbl.dialogarena.common.web.selftest.domain.Selftest;
-import no.nav.sbl.dialogarena.common.web.selftest.domain.SelftestResult;
-import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.common.health.SelfTestService;
+import no.nav.common.health.SelfTestStatus;
+import no.nav.common.health.domain.Pingable;
+import no.nav.common.health.domain.Selftest;
+import no.nav.common.health.domain.SelftestResult;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 

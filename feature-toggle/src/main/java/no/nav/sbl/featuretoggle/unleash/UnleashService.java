@@ -14,8 +14,8 @@ import no.finn.unleash.util.UnleashConfig;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
+import no.nav.common.health.domain.Pingable;
 import no.nav.metrics.MetricsFactory;
-import no.nav.sbl.dialogarena.types.Pingable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

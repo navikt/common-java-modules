@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>selftest</artifactId>
+            <artifactId>health</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>

@@ -1,7 +1,7 @@
 package no.nav.apiapp.selftest.impl;
 
-import no.nav.apiapp.selftest.Helsesjekk;
-import no.nav.apiapp.selftest.HelsesjekkMetadata;
+import no.nav.common.health.Helsesjekk;
+import no.nav.common.health.HelsesjekkMetadata;
 
 import java.io.File;
 

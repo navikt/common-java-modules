@@ -1,8 +1,8 @@
 package no.nav.apiapp.selftest.impl;
 
 import lombok.SneakyThrows;
-import no.nav.apiapp.selftest.Helsesjekk;
-import no.nav.apiapp.selftest.HelsesjekkMetadata;
+import no.nav.common.health.Helsesjekk;
+import no.nav.common.health.HelsesjekkMetadata;
 import no.nav.sbl.dialogarena.common.cxf.STSConfigurationUtil;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
