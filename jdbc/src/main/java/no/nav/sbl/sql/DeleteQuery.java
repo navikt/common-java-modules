@@ -4,9 +4,6 @@ import lombok.SneakyThrows;
 import no.nav.sbl.sql.where.WhereClause;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import static no.nav.sbl.sql.Utils.timedPreparedStatement;
-
-
 public class DeleteQuery {
     private final JdbcTemplate db;
     private final String tableName;
@@ -33,7 +30,7 @@ public class DeleteQuery {
 
         String sql = createDeleteStatement();
 
-        return timedPreparedStatement(sql, () -> db.update(sql, this.where.getArgs()));
+        return db.update(sql, this.where.getArgs());
     }
 
     private String createDeleteStatement() {

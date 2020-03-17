@@ -9,7 +9,6 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 public class UpdateQuery {
     private final JdbcTemplate db;
@@ -62,7 +61,7 @@ public class UpdateQuery {
 
         String sql = sqlBuilder.toString();
 
-        return timedPreparedStatement(sql,()-> db.update(sql, createSqlArgumentArray()));
+        return db.update(sql, createSqlArgumentArray());
     }
 
     private Object[] createSqlArgumentArray() {
