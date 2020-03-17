@@ -18,7 +18,6 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static no.nav.sbl.sql.UpsertQuery.ApplyTo.INSERT;
 import static no.nav.sbl.sql.UpsertQuery.ApplyTo.UPDATE;
-import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 @Slf4j
 public class UpsertQuery {
@@ -101,7 +100,7 @@ public class UpsertQuery {
                     log.debug(String.format("[UpsertQuery] Sql: %s \n [UpsertQuery] Params: %s", upsertStatement, this.setParams));
                     Boolean result;
                     try {
-                        result = timedPreparedStatement(upsertStatement, ps::execute);
+                        result = ps.execute();
                     } catch (Exception e) {
                         throw Lombok.sneakyThrow(e);
                     }

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
-import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 public class InsertQuery {
     private final JdbcTemplate db;
@@ -44,7 +43,7 @@ public class InsertQuery {
                 .collect(Collectors.toList())
                 .toArray();
 
-        return timedPreparedStatement(sql, () -> db.update(sql, args));
+        return db.update(sql, args);
     }
 
     private String createSqlStatement() {

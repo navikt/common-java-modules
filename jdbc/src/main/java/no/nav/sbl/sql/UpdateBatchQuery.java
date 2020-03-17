@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.joining;
-import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 public class UpdateBatchQuery<T> {
     private final JdbcTemplate db;
@@ -57,7 +56,7 @@ public class UpdateBatchQuery<T> {
             return null;
         }
         String sql = createSql(data.get(0));
-        return timedPreparedStatement(sql, () -> db.batchUpdate(sql, new BatchPreparedStatementSetter() {
+        return db.batchUpdate(sql, new BatchPreparedStatementSetter() {
 
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -83,7 +82,7 @@ public class UpdateBatchQuery<T> {
             public int getBatchSize() {
                 return data.size();
             }
-        }));
+        });
     }
 
     static void setParam(PreparedStatement ps, int i, Class type, Object value) throws SQLException {

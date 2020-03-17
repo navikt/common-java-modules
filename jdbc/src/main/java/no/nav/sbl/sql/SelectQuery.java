@@ -12,11 +12,8 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static no.nav.sbl.sql.Utils.timedPreparedStatement;
 
 
 public class SelectQuery<T> {
@@ -81,13 +78,11 @@ public class SelectQuery<T> {
         Object[] args = Option.of(this.where).map(WhereClause::getArgs).getOrElse(new Object[]{});
 
         RowMapper<T> mapper = (rs, rowNum) -> this.mapper.apply(rs);
-        return timedPreparedStatement(sql, () -> {
-            List<T> result = db.query(sql, args, mapper);
-            if (result.isEmpty()) {
-                return null;
-            }
-            return result.get(0);
-        });
+        List<T> result = db.query(sql, args, mapper);
+        if (result.isEmpty()) {
+            return null;
+        }
+        return result.get(0);
     }
 
     @SneakyThrows
@@ -99,7 +94,7 @@ public class SelectQuery<T> {
 
         RowMapper<T> mapper = (rs, rowNum) -> this.mapper.apply(rs);
 
-        return timedPreparedStatement(sql, () -> db.query(sql, args, mapper));
+        return db.query(sql, args, mapper);
     }
 
     private void validate() {
