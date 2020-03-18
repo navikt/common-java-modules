@@ -4,6 +4,15 @@
 
 These libraries are in use by many applications in NAV.
 
+## Version 1
+This version is tightly coupled to `api-app` and contains many modules that can be considered deprecated after the release of version 2.
+This version will continue to live on the `master` branch until most users of `common-java-modules` has migrated over to version 2.
+If possible, no new features should be added to version 1.
+
+## Version 2
+Version 2 removes all of the deprecated modules from version 1 (including `api-app`) and aims to provide framework agnostic modules that can be used in any application.
+
+
 ## Building the libraries
 
 In order to build `common-java-modules`, run from the root directory:
@@ -17,15 +26,6 @@ Currently, all tests do not run outside of NAV's internal network, because of de
 ```
 mvn clean install -Plokal
 ```
-
-
-
-## Retrieving Git history
-
-The pre-merge Git history may appear lost, but it is possible to do `git blame`
-on specific files to see who worked on that file last.
-
---------
 
 ### Contact
 
