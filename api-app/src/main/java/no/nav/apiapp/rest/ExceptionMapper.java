@@ -1,10 +1,10 @@
 package no.nav.apiapp.rest;
 
+import no.nav.apiapp.feil.Feil;
+import no.nav.apiapp.feil.FeilDTO;
 import no.nav.apiapp.feil.FeilMapper;
 import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
-import no.nav.sbl.dialogarena.types.feil.Feil;
-import no.nav.sbl.dialogarena.types.feil.FeilDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

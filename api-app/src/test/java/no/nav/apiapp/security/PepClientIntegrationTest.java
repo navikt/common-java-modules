@@ -1,15 +1,14 @@
-package no.nav.sbl.dialogarena.common.abac;
+package no.nav.apiapp.security;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.brukerdialog.security.context.SubjectRule;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
-import no.nav.sbl.dialogarena.common.abac.pep.PepClient;
 import no.nav.sbl.dialogarena.common.abac.pep.PepImpl;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
-import no.nav.sbl.dialogarena.types.feil.IngenTilgang;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
