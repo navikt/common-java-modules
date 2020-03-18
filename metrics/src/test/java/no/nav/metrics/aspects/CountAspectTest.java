@@ -100,8 +100,6 @@ public class CountAspectTest {
     }
 
     private static class CountMetoder {
-        public CountMetoder() {}
-
         @Count
         public String count() {
             return "count";
@@ -119,8 +117,6 @@ public class CountAspectTest {
 
     @Count
     private static class CountKlasse {
-        public CountKlasse() {}
-
         public String count() {
             return "count";
         }
@@ -128,8 +124,6 @@ public class CountAspectTest {
 
     @Count(ignoredMethods = "ignorert1", name = "customName")
     private static class CountKlasseMedIgnorerteMetoder {
-        public CountKlasseMedIgnorerteMetoder() {}
-
         public String event1() {
             return "event1";
         }

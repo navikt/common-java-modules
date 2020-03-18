@@ -1,10 +1,10 @@
 package no.nav.sbl.util;
 
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.junit.Test;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -47,11 +47,6 @@ public class XMLCalendarUtilsTest {
     }
 
     private XMLGregorianCalendar nyXmlGregorianCalendar() {
-        try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(2010, 6, 24, 16, 39, 11, 0, 467);
-        } catch (DatatypeConfigurationException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return XMLGregorianCalendarImpl.createDateTime(2010, 6, 24, 16, 39, 11);
     }
 }
