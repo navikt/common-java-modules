@@ -1,16 +1,19 @@
-package no.nav.sbl.dialogarena.common.abac.pep;
+package no.nav.apiapp.security;
 
+import no.nav.apiapp.feil.IngenTilgang;
+import no.nav.sbl.dialogarena.common.abac.pep.Pep;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
-import no.nav.sbl.dialogarena.types.feil.IngenTilgang;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.READ;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.WRITE;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision.Permit;
+
 
 public class PepClient {
 

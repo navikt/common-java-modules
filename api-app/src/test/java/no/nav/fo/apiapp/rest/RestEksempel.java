@@ -1,7 +1,7 @@
 package no.nav.fo.apiapp.rest;
 
-import no.nav.sbl.dialogarena.types.feil.Feil;
-import no.nav.sbl.dialogarena.types.feil.VersjonsKonflikt;
+import no.nav.apiapp.feil.Feil;
+import no.nav.apiapp.feil.VersjonsKonflikt;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;

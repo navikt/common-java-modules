@@ -1,8 +1,11 @@
 package no.nav.apiapp.soap;
 
 import lombok.SneakyThrows;
+import no.nav.apiapp.feil.FeilDTO;
+import no.nav.apiapp.util.StringUtils;
 import no.nav.metrics.MetodeTimer;
-import no.nav.sbl.dialogarena.types.feil.FeilDTO;
+import no.nav.metrics.MetricsClient;
+import no.nav.metrics.MetricsFactory;
 import org.apache.cxf.jaxws.JAXWSMethodInvoker;
 import org.apache.cxf.message.Exchange;
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import javax.xml.ws.soap.SOAPFaultException;
 import java.lang.reflect.Method;
 
 import static no.nav.apiapp.feil.FeilMapper.somFeilDTO;
+import static no.nav.apiapp.util.EnumUtils.getName;
 import static no.nav.apiapp.util.StringUtils.notNullOrEmpty;
 import static no.nav.json.JsonUtils.toJson;
 

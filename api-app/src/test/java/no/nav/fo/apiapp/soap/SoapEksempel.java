@@ -1,9 +1,9 @@
 package no.nav.fo.apiapp.soap;
 
 import lombok.SneakyThrows;
+import no.nav.apiapp.feil.VersjonsKonflikt;
 import no.nav.apiapp.soap.SoapTjeneste;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
-import no.nav.sbl.dialogarena.types.feil.VersjonsKonflikt;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 
 @SoapTjeneste(SoapEksempel.TJENESTENAVN)
