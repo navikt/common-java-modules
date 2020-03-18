@@ -182,11 +182,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>aktor-klient</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
                 <artifactId>util</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -211,18 +206,6 @@
                 <groupId>no.nav.common</groupId>
                 <artifactId>jdbc</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
-                <artifactId>api-app</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
-                <artifactId>api-app</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
@@ -273,11 +256,6 @@
             <dependency>
                 <groupId>no.nav.common</groupId>
                 <artifactId>rest</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
-                <artifactId>cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
