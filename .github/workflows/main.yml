@@ -62,10 +62,12 @@ jobs:
           mvn -B -Prelease -DskipTests=true --settings ./settings.xml deploy
 
       - name: Create release
-        uses: actions/create-release@v1
+        # TODO: Bytt ut med upstream når/hvis https://github.com/actions/create-release/pull/32 merges
+        uses: fleskesvor/create-release@feature/support-target-commitish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: release/${{ env.VERSION }}
           release_name: Release ${{ env.VERSION }} to maven central
+          commitish: ${{ github.sha }}
           prerelease: false
