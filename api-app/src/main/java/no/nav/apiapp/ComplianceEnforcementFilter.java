@@ -68,7 +68,8 @@ public class ComplianceEnforcementFilter implements Filter {
     private boolean enforceCompliance(ServletRequest request) {
         return complianceEnforcementIsActive // never activate in production. allow for performance optimizations by using a final field
                 && isApplicationRequest(request) // target applications only, not frontend(applications), testers, developers
-                && !isInternalRequest(request); // k8s is allowed to access internal resources
+                && !isInternalRequest(request) // k8s is allowed to access internal resources
+                && !isPingRequest(request); // not required for ping
     }
 
     private boolean isApplicationRequest(ServletRequest servletRequest) {
@@ -80,6 +81,11 @@ public class ComplianceEnforcementFilter implements Filter {
     private boolean isInternalRequest(ServletRequest servletRequest) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         return httpServletRequest.getRequestURI().contains("/internal");
+    }
+
+    private boolean isPingRequest(ServletRequest servletRequest){
+        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        return httpServletRequest.getRequestURI().endsWith("/ping");
     }
 
     @Override
