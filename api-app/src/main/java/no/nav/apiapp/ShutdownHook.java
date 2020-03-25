@@ -21,10 +21,17 @@ public class ShutdownHook extends Thread {
 
         @Override
         public void run() {
+            try {
+                LOGGER.info("shutdown initialized, allowing incoming requests for 15 seconds before continuing");
+                // https://doc.nais.io/nais-application#handles-termination-gracefully
+                Thread.sleep(15000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             LOGGER.info("shutting down server");
             jetty.stop.run();
             LOGGER.info("shutdown ok");
         }
     }
-
 }
