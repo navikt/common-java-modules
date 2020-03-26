@@ -117,6 +117,7 @@ public class ApiApp {
             server.setHandler(handlerCollection);
         }
 
+        // Also handles graceful shutdown (waits until received requests are finished)
         Jetty.addStatisticsHandler(server);
         // When we embed jetty in this way, some classes might be loaded by the default WebAppClassLoader and some by the system class loader.
         // These classes will be incompatible with each other. Also, Jetty does not consult the classloader of the webapp when resolving resources
