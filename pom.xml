@@ -34,17 +34,13 @@
 
     <modules>
         <module>abac</module>
-        <module>aktor-klient</module>
         <module>aktorregister-klient</module>
-        <module>api-app</module>
         <module>auth</module>
         <module>jobutils</module>
         <module>bom</module>
-        <module>cache</module>
         <module>cxf</module>
         <module>feature-toggle</module>
         <module>feed</module>
-        <module>jdbc</module>
         <module>jetty</module>
         <module>json</module>
         <module>log</module>

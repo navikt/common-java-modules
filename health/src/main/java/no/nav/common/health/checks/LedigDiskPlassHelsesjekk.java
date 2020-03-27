@@ -1,10 +1,9 @@
-package no.nav.apiapp.selftest.impl;
+package no.nav.common.health.checks;
 
 import no.nav.common.health.Helsesjekk;
 import no.nav.common.health.HelsesjekkMetadata;
 
 import java.io.File;
-
 
 public class LedigDiskPlassHelsesjekk implements Helsesjekk {
 

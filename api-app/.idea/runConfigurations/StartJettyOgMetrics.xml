@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="StartJettyOgMetrics" type="Multirun" factoryName="Multirun" singleton="true" separateTabs="true" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="0">
-    <runConfiguration name="StartMetricsSocket" type="Application" />
-    <runConfiguration name="StartJetty" type="Application" />
-    <method />
-  </configuration>
-</component>
