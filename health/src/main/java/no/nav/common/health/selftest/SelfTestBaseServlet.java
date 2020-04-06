@@ -1,10 +1,6 @@
-package no.nav.common.health;
+package no.nav.common.health.selftest;
 
 
-import no.nav.common.health.domain.Pingable;
-import no.nav.common.health.domain.Selftest;
-import no.nav.common.health.generators.SelftestHtmlGenerator;
-import no.nav.common.health.generators.SelftestJsonGenerator;
 import no.nav.sbl.util.EnvironmentUtils;
 
 import javax.servlet.http.HttpServlet;

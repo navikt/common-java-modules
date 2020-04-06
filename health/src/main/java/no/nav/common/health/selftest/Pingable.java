@@ -1,4 +1,4 @@
-package no.nav.common.health.domain;
+package no.nav.common.health.selftest;
 
 import java.io.Serializable;
 import java.util.UUID;

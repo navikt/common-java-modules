@@ -1,4 +1,4 @@
-package no.nav.common.health;
+package no.nav.common.health.selftest;
 
 public class SelfTestServlet extends SelfTestBaseServlet {
 

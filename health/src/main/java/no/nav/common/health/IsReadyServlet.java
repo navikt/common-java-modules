@@ -1,5 +1,8 @@
 package no.nav.common.health;
 
+import no.nav.common.health.selftest.SelfTestService;
+import no.nav.common.health.selftest.SelfTestStatus;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -7,8 +10,8 @@ import java.io.IOException;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
-import static no.nav.common.health.SelfTestStatus.OK;
-import static no.nav.common.health.SelfTestStatus.WARNING;
+import static no.nav.common.health.selftest.SelfTestStatus.OK;
+import static no.nav.common.health.selftest.SelfTestStatus.WARNING;
 
 public class IsReadyServlet extends HttpServlet {
 

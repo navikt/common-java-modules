@@ -1,9 +1,6 @@
-package no.nav.common.health.generators;
+package no.nav.common.health.selftest;
 
 import lombok.Builder;
-import no.nav.common.health.SelfTestBaseServlet;
-import no.nav.common.health.domain.Selftest;
-import no.nav.common.health.domain.SelftestResult;
 
 import java.util.List;
 

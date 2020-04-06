@@ -1,6 +1,5 @@
-package no.nav.common.health.generators;
+package no.nav.common.health.selftest;
 
-import no.nav.common.health.domain.Selftest;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

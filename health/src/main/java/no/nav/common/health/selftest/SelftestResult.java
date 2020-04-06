@@ -1,8 +1,8 @@
-package no.nav.common.health.domain;
+package no.nav.common.health.selftest;
 
 import lombok.Builder;
 import lombok.Value;
-import no.nav.common.health.SelfTestStatus;
+import no.nav.common.health.selftest.SelfTestStatus;
 
 import static java.util.Optional.ofNullable;
 

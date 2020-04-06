@@ -1,13 +1,11 @@
-package no.nav.common.health.generators;
+package no.nav.common.health.selftest;
 
-import no.nav.common.health.domain.Selftest;
-import no.nav.common.health.domain.SelftestResult;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static java.util.Arrays.asList;
-import static no.nav.common.health.generators.SelftestHtmlGenerator.generate;
+import static no.nav.common.health.selftest.SelftestHtmlGenerator.generate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SelftestHtmlGeneratorTest {

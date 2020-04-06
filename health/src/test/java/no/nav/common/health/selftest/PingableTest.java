@@ -1,6 +1,7 @@
-package no.nav.common.health.domain;
+package no.nav.common.health.selftest;
 
-import no.nav.common.health.domain.Pingable.Ping.PingMetadata;
+import no.nav.common.health.selftest.Pingable;
+import no.nav.common.health.selftest.Pingable.Ping.PingMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static no.nav.common.health.domain.Pingable.*;
+import static no.nav.common.health.selftest.Pingable.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;

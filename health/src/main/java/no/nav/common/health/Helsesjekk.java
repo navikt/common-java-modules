@@ -1,7 +1,7 @@
 package no.nav.common.health;
 
 
-import no.nav.common.health.domain.Pingable;
+import no.nav.common.health.selftest.Pingable;
 
 public interface Helsesjekk extends Pingable {
     void helsesjekk() throws Throwable;

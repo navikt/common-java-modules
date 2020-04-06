@@ -1,6 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.common.health.domain.Pingable;
+import no.nav.common.health.selftest.Pingable;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
 package no.nav.fo.feed.consumer;
 
 import net.javacrumbs.shedlock.core.LockConfiguration;
-import no.nav.common.health.domain.Pingable;
+import no.nav.common.health.selftest.Pingable;
 import no.nav.fo.feed.common.*;
 import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;

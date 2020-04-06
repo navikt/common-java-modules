@@ -1,9 +1,6 @@
-package no.nav.common.health.generators;
+package no.nav.common.health.selftest;
 
 
-import no.nav.common.health.SelfTestStatus;
-import no.nav.common.health.domain.Selftest;
-import no.nav.common.health.domain.SelftestResult;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -17,8 +14,8 @@ import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static no.nav.common.health.SelfTestStatus.ERROR;
-import static no.nav.common.health.SelfTestStatus.OK;
+import static no.nav.common.health.selftest.SelfTestStatus.ERROR;
+import static no.nav.common.health.selftest.SelfTestStatus.OK;
 import static org.apache.commons.lang3.StringUtils.join;
 
 public class SelftestHtmlGenerator {

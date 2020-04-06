@@ -1,9 +1,6 @@
-package no.nav.common.health;
+package no.nav.common.health.selftest;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.health.domain.Selftest;
-import no.nav.common.health.domain.SelftestResult;
-import no.nav.common.health.domain.Pingable;
 import no.nav.sbl.util.EnvironmentUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 

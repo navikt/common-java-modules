@@ -1,15 +1,12 @@
-package no.nav.common.health;
+package no.nav.common.health.selftest;
 
-import no.nav.common.health.domain.Selftest;
-import no.nav.common.health.domain.SelftestResult;
-import no.nav.common.health.domain.Pingable;
 import org.junit.Test;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static no.nav.common.health.SelfTestStatus.ERROR;
-import static no.nav.common.health.SelfTestStatus.OK;
+import static no.nav.common.health.selftest.SelfTestStatus.ERROR;
+import static no.nav.common.health.selftest.SelfTestStatus.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
