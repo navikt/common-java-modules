@@ -37,13 +37,8 @@ public abstract class SelfTestBaseServlet extends HttpServlet {
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         Selftest selftest = selfTestService.selfTest();
 
-        if ("application/json".equalsIgnoreCase(req.getHeader("accept"))) {
-            resp.setContentType("application/json");
-            resp.getWriter().write(SelftestJsonGenerator.generate(selftest));
-        } else {
-            resp.setContentType("text/html");
-            resp.getWriter().write(SelftestHtmlGenerator.generate(selftest, getHost()));
-        }
+        resp.setContentType("text/html");
+        resp.getWriter().write(SelftestHtmlGenerator.generate(selftest, getHost()));
     }
 
     protected String getHost() {

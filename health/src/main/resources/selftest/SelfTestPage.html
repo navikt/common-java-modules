@@ -3,7 +3,7 @@
 <html>
 
 <head lang="no">
-    <title>Selftest ${app-navn}</title>
+    <title>Selftest for ${host}</title>
     <style type="text/css">
         table {
             background-color: #f0f8ff;
@@ -66,7 +66,6 @@
 
 <h1>Service status: ${aggregertStatus}</h1>
 
-<h3>${version}</h3>
 <h3>${host}</h3>
 
 <table>
@@ -75,8 +74,7 @@
         <th>Kritisk</th>
         <th>Responstid</th>
         <th>Beskrivelse</th>
-        <th>Endepunkt</th>
-        <th>Melding</th>
+        <th>Feilmelding</th>
     </tr>
     ${resultater}
 </table>
