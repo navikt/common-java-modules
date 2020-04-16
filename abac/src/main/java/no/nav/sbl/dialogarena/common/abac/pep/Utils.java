@@ -52,7 +52,7 @@ public class Utils {
     public static String getResourceAttribute(XacmlRequest request, String requestedAttribute) {
         return Optional.ofNullable(request)
                 .map(XacmlRequest::getRequest)
-                .map(Request::getResource)
+                .flatMap(Request::getFirstResource)
                 .map(BaseAttribute::getAttribute)
                 .map(findAttribute(requestedAttribute))
                 .orElse("EMPTY");

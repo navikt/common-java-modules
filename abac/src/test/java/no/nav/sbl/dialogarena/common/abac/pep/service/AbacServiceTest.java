@@ -1,9 +1,11 @@
 package no.nav.sbl.dialogarena.common.abac.pep.service;
 
 import no.nav.sbl.dialogarena.common.abac.pep.MockXacmlRequest;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.ClientErrorException;
@@ -13,6 +15,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response.Status.Family;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -53,6 +56,39 @@ public class AbacServiceTest {
         final XacmlResponse actualXacmlResponse = abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
 
         final XacmlResponse expectedXacmlResponse = getExpectedXacmlResponse();
+
+        assertThat(actualXacmlResponse, is(equalTo(expectedXacmlResponse)));
+    }
+
+    @Test
+    public void returnsResponseWithMultipleDecisions() throws IOException, AbacException, NoSuchFieldException {
+        gitt_response(200);
+        gitt_responseEntity(getContentFromJsonFile("xacmlresponse-multiple-decision-and-category.json"));
+
+        final XacmlResponse actualXacmlResponse = abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
+
+        final XacmlResponse expectedXacmlResponse = new XacmlResponse();
+        List<Response> responses = Arrays.asList(
+                new Response()
+                    .withDecision(Decision.Permit)
+                    .withCategory(
+                            new Category(
+                    "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+                                new Attribute("no.nav.abac.attributter.resource.felles.person.fnr", "11111111111")
+                            )
+                    ),
+
+                new Response()
+                        .withDecision(Decision.Deny)
+                        .withCategory(
+                                new Category(
+                                        "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+                                        new Attribute("no.nav.abac.attributter.resource.felles.person.fnr", "22222222222")
+                                )
+                        )
+        );
+
+        expectedXacmlResponse.setResponse(responses);
 
         assertThat(actualXacmlResponse, is(equalTo(expectedXacmlResponse)));
     }

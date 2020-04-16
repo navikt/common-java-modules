@@ -18,12 +18,10 @@ public class XacmlMapper {
     private static final Gson gsonSerialize;
 
     static {
-        Type responseType = new TypeToken<List<Response>>() {
-        }.getType();
-        Type associatedAdviceType = new TypeToken<List<Advice>>() {
-        }.getType();
-        Type attributeAssignmentType = new TypeToken<List<AttributeAssignment>>() {
-        }.getType();
+        Type responseType = new TypeToken<List<Response>>(){}.getType();
+        Type associatedAdviceType = new TypeToken<List<Advice>>(){}.getType();
+        Type attributeAssignmentType = new TypeToken<List<AttributeAssignment>>(){}.getType();
+        Type categoryType = new TypeToken<List<Category>>(){}.getType();
 
         gsonUnserialize = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
@@ -31,6 +29,7 @@ public class XacmlMapper {
                 .registerTypeAdapter(responseType, new ResponseTypeAdapter())
                 .registerTypeAdapter(associatedAdviceType, new AssociatedAdviceTypeAdapter())
                 .registerTypeAdapter(attributeAssignmentType, new AttributeAssignmentTypeAdapter())
+                .registerTypeAdapter(categoryType, new CategoryTypeAdapter())
                 .create();
 
         gsonSerialize = new GsonBuilder()
