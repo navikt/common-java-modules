@@ -1,0 +1,42 @@
+{
+  "Response": [
+    {
+      "Decision": "Permit",
+      "Status": {
+        "StatusCode": {
+          "Value": "urn:oasis:names:tc:xacml:1.0:status:ok",
+          "StatusCode": {
+            "Value": "urn:oasis:names:tc:xacml:1.0:status:ok"
+          }
+        }
+      },
+      "Category": {
+        "CategoryId": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+        "Attribute": {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.person.fnr",
+          "Value": "11111111111",
+          "DataType": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      }
+    },
+    {
+      "Decision": "Deny",
+      "Status": {
+        "StatusCode": {
+          "Value": "urn:oasis:names:tc:xacml:1.0:status:ok",
+          "StatusCode": {
+            "Value": "urn:oasis:names:tc:xacml:1.0:status:ok"
+          }
+        }
+      },
+      "Category": {
+        "CategoryId": "urn:oasis:names:tc:xacml:3.0:attribute-category:resource",
+        "Attribute": {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.person.fnr",
+          "Value": "22222222222",
+          "DataType": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      }
+    }
+  ]
+}

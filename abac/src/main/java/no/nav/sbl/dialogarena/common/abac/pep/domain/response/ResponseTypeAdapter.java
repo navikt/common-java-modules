@@ -12,6 +12,7 @@ public class ResponseTypeAdapter implements JsonDeserializer<List<Response>> {
         List<Response> responses = new ArrayList<>();
         if (json.isJsonArray()) {
             for (JsonElement element : json.getAsJsonArray()) {
+
                 responses.add(context.deserialize(element, Response.class));
             }
         } else if (json.isJsonObject()) {

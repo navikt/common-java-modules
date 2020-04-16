@@ -16,13 +16,13 @@
         }
       ]
     },
-    "Resource": {
+    "Resource": [{
       "Attribute": [
         {
           "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
           "Value": "veilarb"
         }
       ]
-    }
+    }]
   }
 }
