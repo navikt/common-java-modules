@@ -51,13 +51,13 @@ jobs:
 
       - name: Release Maven package
         env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USER }}
+          SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
           GPG_KEYS: ${{ secrets.GPG_KEYS }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          export GPG_TTY=$(tty) && echo $GPG_KEYS | base64 --decode | gpg --fast-import --batch
+          export GPG_TTY=$(tty) && echo "$GPG_KEYS" | gpg --fast-import --batch
           mvn versions:set versions:commit -DnewVersion="$VERSION"
           mvn -B -Prelease -DskipTests=true --settings ./settings.xml deploy
 
