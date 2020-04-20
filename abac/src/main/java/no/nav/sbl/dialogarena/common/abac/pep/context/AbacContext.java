@@ -20,7 +20,7 @@ import static net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU;
 @Configuration
 @Import({
         ServiceContext.class,
-        AbacHelsesjekker.Ping.class,
+        AbacHelsesjekker.class,
 })
 public class AbacContext {
 

@@ -1,4 +1,4 @@
-package no.nav.common.health.ny_selftest;
+package no.nav.common.health.selftest;
 
 import lombok.Value;
 import no.nav.common.health.HealthCheck;

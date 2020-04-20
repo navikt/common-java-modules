@@ -1,4 +1,4 @@
-package no.nav.common.health.ny_selftest;
+package no.nav.common.health.selftest;
 
 import no.nav.sbl.util.EnvironmentUtils;
 
@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static no.nav.common.health.ny_selftest.SelfTestUtils.aggregateStatus;
-import static no.nav.common.health.ny_selftest.SelfTestUtils.test;
+import static no.nav.common.health.selftest.SelfTestUtils.aggregateStatus;
+import static no.nav.common.health.selftest.SelfTestUtils.checkAll;
 
 public class SelftTestServlet extends HttpServlet {
 
@@ -25,7 +25,7 @@ public class SelftTestServlet extends HttpServlet {
         String host = EnvironmentUtils.resolveHostName();
         LocalDateTime now = LocalDateTime.now();
 
-        List<SelftTestCheckResult> checkResults = test(checks);
+        List<SelftTestCheckResult> checkResults = checkAll(checks);
         String html = SelftestHtmlGenerator.generate(checkResults, host, now);
         int status = aggregateStatus(checkResults) == SelfTestStatus.ERROR ? 500 : 200;
 

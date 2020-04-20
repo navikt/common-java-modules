@@ -1,4 +1,4 @@
-package no.nav.common.health.ny_selftest;
+package no.nav.common.health.selftest;
 
 import no.nav.common.health.HealthCheckResult;
 
@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class SelfTestUtils {
 
-    public static List<SelftTestCheckResult> test(List<SelfTestCheck> checks) {
+    public static List<SelftTestCheckResult> checkAll(List<SelfTestCheck> checks) {
         return checks.stream()
                 .map(SelfTestUtils::performSelftTestCheck)
                 .collect(Collectors.toList());

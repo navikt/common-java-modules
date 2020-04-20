@@ -1,5 +1,7 @@
 package no.nav.common.health;
 
+import java.util.Optional;
+
 public class HealthCheckResult {
 
     private final boolean isHealthy;
@@ -18,6 +20,14 @@ public class HealthCheckResult {
         return new HealthCheckResult(false, errorMessage, error);
     }
 
+    public static HealthCheckResult unhealthy(Throwable error) {
+        return new HealthCheckResult(false, null, error);
+    }
+
+    public static HealthCheckResult unhealthy(String errorMessage) {
+        return new HealthCheckResult(false, errorMessage, null);
+    }
+
     public static HealthCheckResult healthy() {
         return new HealthCheckResult(true,null, null);
     }
@@ -26,12 +36,18 @@ public class HealthCheckResult {
         return isHealthy;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public Optional<String> getErrorMessage() {
+        if (errorMessage != null) {
+            return Optional.of(errorMessage);
+        } else if (error != null) {
+            return Optional.of(error.getMessage());
+        }
+
+        return Optional.empty();
     }
 
-    public Throwable getError() {
-        return error;
+    public Optional<Throwable> getError() {
+        return Optional.ofNullable(error);
     }
 
 }

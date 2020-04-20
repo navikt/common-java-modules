@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public class HealthChecker {
 
-    public static void check(List<HealthCheck> healthChecks) {
+    public static void throwOnFirstFailing(List<HealthCheck> healthChecks) {
         findFirstFailingCheck(healthChecks).ifPresent((failedCheckResult) -> {
             throw new RuntimeException("Health check failed: " + failedCheckResult.getErrorMessage());
         });
