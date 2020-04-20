@@ -4,13 +4,22 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import no.nav.brukerdialog.security.domain.IdentType;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
-import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static no.nav.common.oidc.Constants.AAD_NAV_IDENT_CLAIM;
 
 public class TokenUtils {
+
+    public static Optional<String> getTokenFromHeader(HttpServletRequest request) {
+        String headerValue = request.getHeader("Authorization");
+        return headerValue != null && !headerValue.isEmpty() && headerValue.startsWith("Bearer ")
+                ? Optional.of(headerValue.substring("Bearer ".length()))
+                : Optional.empty();
+    }
 
     public static String getUid(JWT token, IdentType identType) throws ParseException {
         JWTClaimsSet claimsSet = token.getJWTClaimsSet();

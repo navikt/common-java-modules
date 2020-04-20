@@ -3,18 +3,18 @@ package no.nav.common.oidc.auth;
 import lombok.Value;
 import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.oidc.OidcTokenValidator;
-import no.nav.common.oidc.utils.TokenLocator;
+import no.nav.common.oidc.utils.TokenFinder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 @Value
 public class OidcAuthenticator {
 
     public OidcTokenValidator tokenValidator;
 
-    public TokenLocator tokenLocator;
-
-    public IdentType identType;
-
-    public String refreshUrl;
+    public OidcAuthenticatorConfig config;
 
     public static OidcAuthenticator fromConfig(OidcAuthenticatorConfig config) {
         if (!config.isValid()) {
@@ -22,8 +22,19 @@ public class OidcAuthenticator {
         }
 
         OidcTokenValidator validator = new OidcTokenValidator(config.discoveryUrl, config.clientId);
-        TokenLocator locator = new TokenLocator(config.idTokenCookieName, config.refreshTokenCookieName);
-        return new OidcAuthenticator(validator, locator, config.identType, config.refreshUrl);
+        return new OidcAuthenticator(validator, config);
+    }
+
+    public Optional<String> findIdToken(HttpServletRequest request) {
+        return config.idTokenFinder.findToken(request);
+    }
+
+    public Optional<String> findRefreshToken(HttpServletRequest request) {
+        if (config.refreshTokenFinder != null) {
+            return config.refreshTokenFinder.findToken(request);
+        }
+
+        return Optional.empty();
     }
 
 }
