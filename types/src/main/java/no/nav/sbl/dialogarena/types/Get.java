@@ -1,6 +1,5 @@
 package no.nav.sbl.dialogarena.types;
 
-import no.nav.sbl.dialogarena.types.Pingable.Ping;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 
@@ -23,18 +22,6 @@ public final class Get {
 
     public static <T> Predicate<WithId<T>> medId(final T id) {
         return object -> id.equals(object.getId());
-    }
-
-    public static Transformer<Pingable, Ping> pingResult() {
-        return Pingable::ping;
-    }
-
-    public static Predicate<Ping> vellykketPing() {
-        return ping -> ping.erVellykket();
-    }
-
-    public static Predicate<Ping> avskruddPing() {
-        return ping -> ping.erAvskrudd();
     }
 
     private Get() { }

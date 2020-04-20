@@ -1,8 +1,9 @@
 package no.nav.fo.feed.consumer;
 
 import net.javacrumbs.shedlock.core.LockConfiguration;
+import no.nav.common.health.HealthCheck;
+import no.nav.common.health.HealthCheckResult;
 import no.nav.fo.feed.common.*;
-import no.nav.sbl.dialogarena.types.Pingable;
 import no.nav.sbl.rest.RestUtils;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationListener;
@@ -24,11 +25,10 @@ import static no.nav.fo.feed.consumer.FeedPoller.createScheduledJob;
 import static no.nav.fo.feed.util.UrlUtils.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements Pingable, Authorization, ApplicationListener<ContextClosedEvent> {
+public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> implements HealthCheck, Authorization, ApplicationListener<ContextClosedEvent> {
     private static final Logger LOG = getLogger(FeedConsumer.class);
 
     private final FeedConsumerConfig<DOMAINOBJECT> config;
-    private final Ping.PingMetadata pingMetadata;
     private int lastResponseHash;
 
     private static final Client REST_CLIENT = RestUtils.createClient();
@@ -38,7 +38,6 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         String host = config.host;
 
         this.config = config;
-        this.pingMetadata = new Ping.PingMetadata(getTargetUrl(), String.format("feed-consumer av '%s'", feedName), false);
 
         createScheduledJob(feedName, host, config.pollingConfig, runWithLock(feedName, this::poll));
         createScheduledJob(feedName + "/webhook", host, config.webhookPollingConfig, this::registerWebhook);
@@ -131,20 +130,6 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
     }
 
     @Override
-    public Ping ping() {
-        try {
-            int status = fetchChanges().getStatus();
-            if (status == 200) {
-                return Ping.lyktes(pingMetadata);
-            } else {
-                return Ping.feilet(pingMetadata, "HTTP status " + status);
-            }
-        } catch (Throwable e) {
-            return Ping.feilet(pingMetadata, e);
-        }
-    }
-
-    @Override
     public FeedAuthorizationModule getAuthorizationModule() {
         return config.authorizationModule;
     }
@@ -159,5 +144,19 @@ public class FeedConsumer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 this.config.lockExecutor.executeWithLock(task, lockConfiguration);
             }
         };
+    }
+
+    @Override
+    public HealthCheckResult checkHealth() {
+        try {
+            int status = fetchChanges().getStatus();
+            if (status == 200) {
+                return HealthCheckResult.healthy();
+            } else {
+                return HealthCheckResult.unhealthy("Feed helsesjekk feilet med status " + status);
+            }
+        } catch (Throwable e) {
+            return HealthCheckResult.unhealthy(e);
+        }
     }
 }

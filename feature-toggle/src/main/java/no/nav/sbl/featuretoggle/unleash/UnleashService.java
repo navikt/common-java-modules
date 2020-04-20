@@ -14,8 +14,9 @@ import no.finn.unleash.util.UnleashConfig;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
+import no.nav.common.health.HealthCheck;
+import no.nav.common.health.HealthCheckResult;
 import no.nav.metrics.MetricsFactory;
-import no.nav.sbl.dialogarena.types.Pingable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,12 +28,11 @@ import static java.util.Optional.ofNullable;
 import static no.finn.unleash.repository.FeatureToggleResponse.Status.CHANGED;
 
 @Slf4j
-public class UnleashService implements Pingable, UnleashSubscriber {
+public class UnleashService implements HealthCheck, UnleashSubscriber {
 
     private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
 
     private final DefaultUnleash defaultUnleash;
-    private final Ping.PingMetadata helsesjekkMetadata;
 
     private FeatureToggleResponse.Status lastTogglesFetchedStatus;
 
@@ -54,7 +54,6 @@ public class UnleashService implements Pingable, UnleashSubscriber {
                 .synchronousFetchOnInitialisation(true)
                 .build();
 
-        this.helsesjekkMetadata = new Ping.PingMetadata("unleash", unleashAPI, "sjekker at feature-toggles kan hentes fra unleash server", false);
         this.defaultUnleash = new DefaultUnleash(unleashConfig, addDefaultStrategies(strategies));
     }
 
@@ -83,20 +82,6 @@ public class UnleashService implements Pingable, UnleashSubscriber {
                 .userId(subject.map(Subject::getUid).orElse(null))
                 .sessionId(subject.map(Subject::getSsoToken).map(SsoToken::getToken).orElse(null))
                 .build();
-    }
-
-    @Override
-    public Ping ping() {
-        try {
-            if (lastTogglesFetchedStatus == CHANGED || lastTogglesFetchedStatus == FeatureToggleResponse.Status.NOT_CHANGED) {
-                return Ping.lyktes(helsesjekkMetadata);
-            } else {
-                return Ping.feilet(helsesjekkMetadata, lastTogglesFetchedStatus.toString());
-            }
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-            return Ping.feilet(helsesjekkMetadata, e);
-        }
     }
 
     @Override
@@ -133,4 +118,17 @@ public class UnleashService implements Pingable, UnleashSubscriber {
         log.warn(unleashException.getMessage(), unleashException);
     }
 
+    @Override
+    public HealthCheckResult checkHealth() {
+        try {
+            if (lastTogglesFetchedStatus == CHANGED || lastTogglesFetchedStatus == FeatureToggleResponse.Status.NOT_CHANGED) {
+                return HealthCheckResult.healthy();
+            } else {
+                return HealthCheckResult.unhealthy(lastTogglesFetchedStatus.toString());
+            }
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+            return HealthCheckResult.unhealthy(e.getMessage(), e);
+        }
+    }
 }

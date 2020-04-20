@@ -61,7 +61,7 @@ public class UnleashServiceTest {
                         .withBody("{\"features\":[]}"))
         );
         UnleashService unleashService = createService();
-        assertThat(unleashService.ping().erVellykket()).isTrue();
+        assertThat(unleashService.checkHealth().isHealthy()).isTrue();
     }
 
     @Test
@@ -72,11 +72,11 @@ public class UnleashServiceTest {
             givenThat(get(urlEqualTo("/client/features"))
                     .willReturn(aResponse().withStatus(errorStatus))
             );
-            assertThat(unleashService.ping().erVellykket()).isFalse();
+            assertThat(unleashService.checkHealth().isHealthy()).isFalse();
         });
 
         wireMockRule.stop();
-        assertThat(unleashService.ping().erVellykket()).isFalse();
+        assertThat(unleashService.checkHealth().isHealthy()).isFalse();
     }
 
     private static class TestExecutor implements UnleashScheduledExecutor {

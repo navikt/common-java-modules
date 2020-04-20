@@ -1,31 +1,26 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
-import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
-import no.nav.sbl.dialogarena.types.Pingable;
+import no.nav.common.health.HealthCheck;
+import no.nav.common.health.HealthCheckResult;
 import org.springframework.stereotype.Component;
 
-public class AbacHelsesjekker {
+@Component
+public class AbacHelsesjekker implements HealthCheck {
 
-    @Component
-    public static class Ping implements Pingable {
+    private final PepImpl pepClient;
 
-        private final PepImpl pepClient;
-        private final String endpointUrl;
+    public AbacHelsesjekker(PepImpl pepClient) {
+        this.pepClient = pepClient;
+    }
 
-        public Ping(PepImpl pepClient, AbacServiceConfig abacServiceConfig) {
-            this.pepClient = pepClient;
-            this.endpointUrl = abacServiceConfig.getEndpointUrl();
-        }
-
-        @Override
-        public Ping ping() {
-            Ping.PingMetadata metadata = new Ping.PingMetadata("abac_ping", endpointUrl, "ABAC tilgangskontroll - ping", true);
-            try {
-                pepClient.ping();
-                return Ping.lyktes(metadata);
-            } catch (Throwable e) {
-                return Ping.feilet(metadata, e);
-            }
+    @Override
+    public HealthCheckResult checkHealth() {
+        try {
+            pepClient.ping();
+            return HealthCheckResult.healthy();
+        } catch (Throwable e) {
+            return HealthCheckResult.unhealthy(e);
         }
     }
+
 }
