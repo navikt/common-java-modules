@@ -18,14 +18,11 @@ import javax.servlet.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
-import static java.util.stream.Collectors.toList;
 import static no.nav.common.oidc.utils.TokenUtils.expiresWithin;
 import static no.nav.common.oidc.utils.TokenUtils.hasMatchingIssuer;
 
@@ -37,45 +34,20 @@ public class OidcAuthenticationFilter implements Filter {
 
     private final List<OidcAuthenticator> oidcAuthenticators;
 
-    private final List<String> publicPaths;
-
     private final TokenRefreshClient tokenRefreshClient;
 
-    private List<Pattern> publicPatterns;
-
-    public OidcAuthenticationFilter(List<OidcAuthenticator> oidcAuthenticators, List<String> publicPaths) {
+    public OidcAuthenticationFilter(List<OidcAuthenticator> oidcAuthenticators) {
         this.oidcAuthenticators = oidcAuthenticators;
-        this.publicPaths = publicPaths;
         tokenRefreshClient = new TokenRefreshClient();
     }
 
     @Override
-    public void init(FilterConfig filterConfig) {
-        String contextPath = contextPath(filterConfig);
-        this.publicPatterns = publicPaths.stream()
-                .map(path -> "^" + contextPath + path)
-                .map(Pattern::compile)
-                .collect(toList());
-        logger.info("initialized {} with public patterns: {}", OidcAuthenticationFilter.class.getName(), publicPatterns);
-    }
-
-    private String contextPath(FilterConfig filterConfig) {
-        String contextPath = filterConfig.getServletContext().getContextPath();
-        if (contextPath == null || contextPath.length() <= 1) {
-            contextPath = "";
-        }
-        return contextPath;
-    }
+    public void init(FilterConfig filterConfig) {}
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-
-        if (isPublic(httpServletRequest)) {
-            chain.doFilter(request, response);
-            return;
-        }
 
         for (OidcAuthenticator authenticator : oidcAuthenticators) {
 
@@ -143,10 +115,6 @@ public class OidcAuthenticationFilter implements Filter {
         }
 
         return Optional.empty();
-    }
-
-    public boolean isPublic(HttpServletRequest httpServletRequest) {
-        return publicPatterns.stream().anyMatch(p -> p.matcher(httpServletRequest.getRequestURI()).matches());
     }
 
     @Override

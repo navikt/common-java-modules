@@ -21,11 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 
 import static java.util.Collections.singletonList;
 import static no.nav.common.oidc.Constants.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class OidcAuthenticationFilterTest {
@@ -72,31 +70,9 @@ public class OidcAuthenticationFilterTest {
     }
 
     @Test
-    public void isPublic() {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                Collections.emptyList(),
-                singletonList("/public.*")
-        );
-
-        authenticationFilter.init(config("/abc"));
-        assertThat(authenticationFilter.isPublic(request("/public/selftest"))).isFalse();
-        assertThat(authenticationFilter.isPublic(request("/abc/api/def/public/selftest"))).isFalse();
-        assertThat(authenticationFilter.isPublic(request("/abc/public/selftest"))).isTrue();
-
-        authenticationFilter.init(config("/"));
-        assertThat(authenticationFilter.isPublic(request("/api/def/public/selftest"))).isFalse();
-        assertThat(authenticationFilter.isPublic(request("/public/selftest"))).isTrue();
-
-        authenticationFilter.init(config(null));
-        assertThat(authenticationFilter.isPublic(request("/api/def/public/selftest"))).isFalse();
-        assertThat(authenticationFilter.isPublic(request("/public/selftest"))).isTrue();
-    }
-
-    @Test
     public void returns401IfMissingToken() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
         );
 
         authenticationFilter.init(config("/abc"));
@@ -115,8 +91,7 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void returns401IfWrongToken() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
         );
 
         authenticationFilter.init(config("/abc"));
@@ -138,8 +113,7 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void authorizedRequestIsForwarded() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -157,7 +131,6 @@ public class OidcAuthenticationFilterTest {
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
-        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
     }
@@ -168,8 +141,7 @@ public class OidcAuthenticationFilterTest {
                 Arrays.asList(
                         OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig),
                         OidcAuthenticator.fromConfig(openAMAuthenticatorConfig)
-                ),
-                singletonList("/public.*")
+                )
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -187,7 +159,6 @@ public class OidcAuthenticationFilterTest {
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
-        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
     }
@@ -195,8 +166,7 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void shouldNotRefreshTokenWhenNotExpired() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -215,7 +185,6 @@ public class OidcAuthenticationFilterTest {
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse, never()).addCookie(any());
-        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
     }
@@ -223,8 +192,7 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void shouldRefreshTokenWhenSoonToBeExpired() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)),
-                singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -247,7 +215,6 @@ public class OidcAuthenticationFilterTest {
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse, atLeastOnce()).addCookie(any());
-        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
     }
@@ -255,8 +222,7 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void shouldNotRefreshTokenIfExpiredWhenMissingConfig() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(openAMAuthenticatorConfig)),
-                singletonList("/public.*")
+                singletonList(OidcAuthenticator.fromConfig(openAMAuthenticatorConfig))
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -279,7 +245,6 @@ public class OidcAuthenticationFilterTest {
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse, never()).addCookie(any());
-        verify(servletRequest, atLeastOnce()).getCookies(); // Make sure that we got past the public path check
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
     }
