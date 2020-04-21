@@ -8,8 +8,8 @@ import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
-import no.nav.common.oidc.utils.CookieUtils;
 import no.nav.common.oidc.TokenRefreshClient;
+import no.nav.common.oidc.utils.CookieUtils;
 import no.nav.common.oidc.utils.TokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,7 +89,7 @@ public class OidcAuthenticationFilter implements Filter {
                     if (refreshedIdToken.isPresent()) {
                         jwtToken = JWTParser.parse(refreshedIdToken.get());
 
-                        String idTokenCookieName = authenticator.config.refreshIdTokenCookieName;
+                        String idTokenCookieName = authenticator.config.idTokenCookieName;
                         addNewIdTokenCookie(idTokenCookieName, jwtToken, httpServletRequest, httpServletResponse);
                     }
 

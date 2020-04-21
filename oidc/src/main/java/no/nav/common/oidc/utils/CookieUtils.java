@@ -18,6 +18,11 @@ public class CookieUtils {
                 );
     }
 
+    public static Optional<String> getCookieValue(String cookieName, HttpServletRequest request) {
+        return getCookie(cookieName, request)
+                .map(Cookie::getValue);
+    }
+
     public static Cookie createCookie(String name, String value, String domain, int maxAge, boolean secure) {
         Cookie newCookie = new Cookie(name, value);
         newCookie.setDomain(domain);

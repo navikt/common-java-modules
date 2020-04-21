@@ -4,8 +4,6 @@ import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.oidc.auth.OidcAuthenticationFilter;
 import no.nav.common.oidc.auth.OidcAuthenticator;
 import no.nav.common.oidc.auth.OidcAuthenticatorConfig;
-import no.nav.common.oidc.utils.CookieTokenFinder;
-import no.nav.common.oidc.utils.IdTokenFinder;
 import no.nav.testconfig.security.JwtTestTokenIssuer;
 import no.nav.testconfig.security.JwtTestTokenIssuerConfig;
 import no.nav.testconfig.security.OidcProviderTestRule;
@@ -61,16 +59,15 @@ public class OidcAuthenticationFilterTest {
         azureAdAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(azureAdOidcProviderRule.getDiscoveryUri())
                 .withClientId(azureAdOidcProviderRule.getAudience())
-                .withIdTokenFinder(new IdTokenFinder(AZURE_AD_ID_TOKEN_COOKIE_NAME))
                 .withIdentType(IdentType.InternBruker)
                 .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
-                .withRefreshIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
-                .withRefreshTokenFinder(new CookieTokenFinder(REFRESH_TOKEN_COOKIE_NAME));
+                .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
+                .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME);
 
         openAMAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(openAMOidcProviderRule.getDiscoveryUri())
                 .withClientId(openAMOidcProviderRule.getAudience())
-                .withIdTokenFinder(new IdTokenFinder(OPEN_AM_ID_TOKEN_COOKIE_NAME))
+                .withIdTokenCookieName(OPEN_AM_ID_TOKEN_COOKIE_NAME)
                 .withIdentType(IdentType.InternBruker);
     }
 
@@ -127,7 +124,7 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.refreshIdTokenCookieName, openAMOidcProviderRule.getToken(claims))
+                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, openAMOidcProviderRule.getToken(claims))
         });
 
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
@@ -153,7 +150,7 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
 
         when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.refreshIdTokenCookieName, token)
+                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)
         });
 
         authenticationFilter.init(config("/abc"));
@@ -183,7 +180,7 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
 
         when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.refreshIdTokenCookieName, token)
+                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)
         });
 
         authenticationFilter.init(config("/abc"));
@@ -210,7 +207,7 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
 
         when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.refreshIdTokenCookieName, token)
+                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)
         });
 
         authenticationFilter.init(config("/abc"));
@@ -241,7 +238,7 @@ public class OidcAuthenticationFilterTest {
 
         when(servletRequest.getServerName()).thenReturn("test.local");
         when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.refreshIdTokenCookieName, token),
+                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token),
                 new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
         });
 
