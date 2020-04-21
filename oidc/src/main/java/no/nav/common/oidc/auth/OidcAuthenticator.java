@@ -1,12 +1,10 @@
 package no.nav.common.oidc.auth;
 
 import lombok.Value;
-import no.nav.brukerdialog.security.domain.IdentType;
 import no.nav.common.oidc.OidcTokenValidator;
-import no.nav.common.oidc.utils.TokenFinder;
+import no.nav.common.oidc.utils.CookieUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Optional;
 
 @Value
@@ -26,15 +24,19 @@ public class OidcAuthenticator {
     }
 
     public Optional<String> findIdToken(HttpServletRequest request) {
+        Optional<String> maybeIdTokenFromCookie = Optional.ofNullable(config.idTokenCookieName)
+                .flatMap(tokenName -> CookieUtils.getCookieValue(tokenName, request));
+
+        if (maybeIdTokenFromCookie.isPresent()) {
+            return maybeIdTokenFromCookie;
+        }
+
         return config.idTokenFinder.findToken(request);
     }
 
     public Optional<String> findRefreshToken(HttpServletRequest request) {
-        if (config.refreshTokenFinder != null) {
-            return config.refreshTokenFinder.findToken(request);
-        }
-
-        return Optional.empty();
+        return Optional.ofNullable(config.refreshTokenCookieName)
+                .flatMap(tokenName -> CookieUtils.getCookieValue(tokenName, request));
     }
 
 }
