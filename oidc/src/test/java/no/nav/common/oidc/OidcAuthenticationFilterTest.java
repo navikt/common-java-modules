@@ -1,12 +1,12 @@
 package no.nav.common.oidc;
 
-import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.IdentType;
 import no.nav.common.oidc.auth.OidcAuthenticationFilter;
 import no.nav.common.oidc.auth.OidcAuthenticator;
 import no.nav.common.oidc.auth.OidcAuthenticatorConfig;
-import no.nav.testconfig.security.JwtTestTokenIssuer;
-import no.nav.testconfig.security.JwtTestTokenIssuerConfig;
-import no.nav.testconfig.security.OidcProviderTestRule;
+import no.nav.common.testconfig.security.JwtTestTokenIssuer;
+import no.nav.common.testconfig.security.JwtTestTokenIssuerConfig;
+import no.nav.common.testconfig.security.OidcProviderTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

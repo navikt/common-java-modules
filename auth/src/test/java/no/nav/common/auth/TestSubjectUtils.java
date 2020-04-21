@@ -1,7 +1,5 @@
 package no.nav.common.auth;
 
-import no.nav.brukerdialog.security.domain.IdentType;
-
 import java.util.HashMap;
 import java.util.Map;
 

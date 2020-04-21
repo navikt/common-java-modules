@@ -22,7 +22,7 @@ provides this functionality.
 
 The correlation id needs to be passed on to downstream services. This
 currently implemented in the [common-java-modules/rest](../rest), 
-```no.nav.sbl.rest.RestUtils```.
+```no.nav.common.rest.RestUtils```.
 
 Log configuration inspection
 ----------------------------
@@ -37,7 +37,7 @@ GDPR compliance
 Constants
 ---------
 The log filters, both the servlet filter (```LogFilter```) and the 
-jersey filter (in ```no.nav.sbl.rest.RestUtils```) uses
+jersey filter (in ```no.nav.common.rest.RestUtils```) uses
 
 Utils
 -----

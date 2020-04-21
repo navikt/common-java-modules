@@ -1,6 +1,5 @@
 package no.nav.common.auth;
 
-import no.nav.brukerdialog.security.domain.IdentType;
 import org.junit.Test;
 
 import java.util.HashSet;

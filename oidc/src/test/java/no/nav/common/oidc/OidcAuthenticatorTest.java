@@ -1,6 +1,6 @@
 package no.nav.common.oidc;
 
-import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.IdentType;
 import no.nav.common.oidc.auth.OidcAuthenticator;
 import no.nav.common.oidc.auth.OidcAuthenticatorConfig;
 import org.junit.Test;

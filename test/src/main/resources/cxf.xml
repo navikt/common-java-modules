@@ -10,7 +10,7 @@
 
     <cxf:bus>
         <cxf:features>
-            <bean class="no.nav.sbl.dialogarena.test.ssl.CxfCertificateValidationDisabler"/>
+            <bean class="no.nav.common.test.ssl.CxfCertificateValidationDisabler"/>
         </cxf:features>
     </cxf:bus>
 
