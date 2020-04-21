@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
 import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.oidc.utils.AuthHeaderTokenFinder;
+import no.nav.common.oidc.utils.TokenFinder;
 
 @Wither
 @NoArgsConstructor
@@ -16,13 +18,18 @@ public class OidcAuthenticatorConfig {
     // Client ID / Audience
     public String clientId;
 
-    // Name of the cookie where the id token should be stored
-    public String idTokenCookieName;
-
     // What type of user is being authenticated
     public IdentType identType;
 
-    // Name of the cookie where the refresh token should be stored (optional)
+    // Name of the cookie where the users id token is stored (optional)
+    // If provided: will try to retrieve id token from cookie before using "idTokenFinder"
+    // If provided: will be used to set refreshed id tokens
+    public String idTokenCookieName;
+
+    // Retrieves the id token from incoming requests (optional)
+    public TokenFinder idTokenFinder = new AuthHeaderTokenFinder();
+
+    // Name of the cookie that the refresh token will be retrieved from (optional)
     public String refreshTokenCookieName;
 
     // Url to call when refreshing the id token (optional)
@@ -31,7 +38,7 @@ public class OidcAuthenticatorConfig {
     public boolean isValid() {
         return discoveryUrl != null
                 && clientId != null
-                && idTokenCookieName != null
-                && identType != null;
+                && identType != null
+                && idTokenFinder != null;
     }
 }

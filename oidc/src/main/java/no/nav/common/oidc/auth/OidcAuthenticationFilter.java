@@ -8,8 +8,8 @@ import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
-import no.nav.common.oidc.utils.CookieUtils;
 import no.nav.common.oidc.TokenRefreshClient;
+import no.nav.common.oidc.utils.CookieUtils;
 import no.nav.common.oidc.utils.TokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,18 +79,17 @@ public class OidcAuthenticationFilter implements Filter {
 
         for (OidcAuthenticator authenticator : oidcAuthenticators) {
 
-            Optional<String> token = authenticator.tokenLocator.getIdToken(httpServletRequest);
+            Optional<String> token = authenticator.findIdToken(httpServletRequest);
 
             if (token.isPresent()) {
                 try {
                     JWT jwtToken = JWTParser.parse(token.get());
-
                     Optional<String> refreshedIdToken = refreshIdTokenIfNecessary(jwtToken, authenticator, httpServletRequest);
 
                     if (refreshedIdToken.isPresent()) {
                         jwtToken = JWTParser.parse(refreshedIdToken.get());
 
-                        String idTokenCookieName = authenticator.tokenLocator.getIdTokenCookieName();
+                        String idTokenCookieName = authenticator.config.idTokenCookieName;
                         addNewIdTokenCookie(idTokenCookieName, jwtToken, httpServletRequest, httpServletResponse);
                     }
 
@@ -98,8 +97,8 @@ public class OidcAuthenticationFilter implements Filter {
 
                     SsoToken ssoToken = SsoToken.oidcToken(jwtToken.getParsedString(), jwtToken.getJWTClaimsSet().getClaims());
                     Subject subject = new Subject(
-                            TokenUtils.getUid(jwtToken, authenticator.identType),
-                            authenticator.identType, ssoToken
+                            TokenUtils.getUid(jwtToken, authenticator.config.identType),
+                            authenticator.config.identType, ssoToken
                     );
 
                     SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
@@ -131,11 +130,11 @@ public class OidcAuthenticationFilter implements Filter {
                 && expiresWithin(token, CHECK_EXPIRES_WITHIN);
 
         if (needsToBeRefreshed) {
-            Optional<Cookie> refreshCookie = authenticator.tokenLocator.getRefreshTokenCookie(request);
+            Optional<String> maybeRefreshToken = authenticator.findRefreshToken(request);
 
-            if (refreshCookie.isPresent() && authenticator.refreshUrl != null) {
+            if (maybeRefreshToken.isPresent() && authenticator.config.refreshUrl != null) {
                 try {
-                    return Optional.of(tokenRefreshClient.refreshIdToken(authenticator.refreshUrl, refreshCookie.get().getValue()));
+                    return Optional.of(tokenRefreshClient.refreshIdToken(authenticator.config.refreshUrl, maybeRefreshToken.get()));
                 } catch (Exception e) {
                     logger.error("Unable to refresh id token", e);
                     return Optional.empty();
@@ -151,7 +150,6 @@ public class OidcAuthenticationFilter implements Filter {
     }
 
     @Override
-    public void destroy() {
-    }
+    public void destroy() {}
 
 }

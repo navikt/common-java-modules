@@ -59,9 +59,9 @@ public class OidcAuthenticationFilterTest {
         azureAdAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(azureAdOidcProviderRule.getDiscoveryUri())
                 .withClientId(azureAdOidcProviderRule.getAudience())
-                .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
                 .withIdentType(IdentType.InternBruker)
                 .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
+                .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
                 .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME);
 
         openAMAuthenticatorConfig = new OidcAuthenticatorConfig()
@@ -270,7 +270,7 @@ public class OidcAuthenticationFilterTest {
 
         when(servletRequest.getServerName()).thenReturn("test.local");
         when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(openAMAuthenticatorConfig.idTokenCookieName, token),
+                new Cookie(OPEN_AM_ID_TOKEN_COOKIE_NAME, token),
                 new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
         });
 
