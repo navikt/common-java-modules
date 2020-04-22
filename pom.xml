@@ -50,7 +50,6 @@
         <module>rest</module>
         <module>health</module>
         <module>test</module>
-        <module>test-config</module>
         <module>types</module>
         <module>util</module>
         <module>web</module>

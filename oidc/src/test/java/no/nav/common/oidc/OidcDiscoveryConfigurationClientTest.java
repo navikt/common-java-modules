@@ -2,8 +2,8 @@ package no.nav.common.oidc;
 
 import no.nav.common.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.oidc.discovery.OidcDiscoveryConfigurationClient;
-import no.nav.common.testconfig.security.JwtTestTokenIssuerConfig;
-import no.nav.common.testconfig.security.OidcProviderTestRule;
+import no.nav.common.oidc.test_provider.JwtTestTokenIssuerConfig;
+import no.nav.common.oidc.test_provider.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.util.SocketUtils;

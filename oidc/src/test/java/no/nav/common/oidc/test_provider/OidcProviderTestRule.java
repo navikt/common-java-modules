@@ -1,4 +1,4 @@
-package no.nav.common.testconfig.security;
+package no.nav.common.oidc.test_provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
