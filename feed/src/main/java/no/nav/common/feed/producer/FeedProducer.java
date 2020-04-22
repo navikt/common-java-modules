@@ -3,7 +3,6 @@ package no.nav.common.feed.producer;
 import lombok.Builder;
 import no.nav.common.feed.common.*;
 import no.nav.common.feed.exception.InvalidUrlException;
-import no.nav.common.feed.util.MetricsUtils;
 import no.nav.common.rest.RestUtils;
 import org.slf4j.Logger;
 
@@ -43,7 +42,7 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
 
 
     public FeedResponse<DOMAINOBJECT> getFeedPage(String feedname, FeedRequest request) {
-        int pageSize = getPageSize(request.getPageSize(), maxPageSize);
+        int pageSize = Math.min(request.getPageSize(), maxPageSize);
         String id = request.getSinceId();
 
         List<FeedElement<DOMAINOBJECT>> pageElements = provider
@@ -53,7 +52,8 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 .collect(Collectors.toList());
 
         if (pageElements.size() > pageSize) {
-            MetricsUtils.metricEvent("fetchnotlimited", feedname);
+            // TODO: Vurder om vi trenger å ha en metrikk for dette
+            // MetricsUtils.metricEvent("fetchnotlimited", feedname);
             LOG.warn("Provider retrieved more than <pageSize> elements in response to {} for feed {}", request, feedname);
             LOG.info("This can lead to excessive resource consumption by the producer...");
         }
@@ -65,7 +65,8 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
                 .count();
 
         if (pageElements.size() != antallUnikeIder) {
-            MetricsUtils.metricEvent("duplicateid", feedname);
+            // TODO: Vurder om vi trenger å ha en metrikk for dette
+            // MetricsUtils.metricEvent("duplicateid", feedname);
             LOG.warn("Found duplicate IDs in response to {} for feed {}", request, feedname);
             LOG.info("This can lead to excessive network usage between the producer and its consumers...");
         }
@@ -119,7 +120,4 @@ public class FeedProducer<DOMAINOBJECT extends Comparable<DOMAINOBJECT>> impleme
         return callbackUrls.add(callbackUrl);
     }
 
-    private static int getPageSize(int pageSize, int maxPageSize) {
-        return pageSize > maxPageSize ? maxPageSize : pageSize;
-    }
 }

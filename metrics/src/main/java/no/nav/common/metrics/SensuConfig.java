@@ -11,7 +11,7 @@ import static no.nav.common.utils.EnvironmentUtils.requireNamespace;
 @Value
 @Wither
 @Builder
-public class MetricsConfig {
+public class SensuConfig {
 
     public static final String SENSU_CLIENT_HOST = "sensu_client_host";
     public static final String SENSU_CLIENT_PORT = "sensu_client_port";
@@ -33,12 +33,12 @@ public class MetricsConfig {
     private int batchesPerSecond;
     private int batchSize;
 
-    public static MetricsConfig resolveNaisConfig() {
+    public static SensuConfig resolveNaisConfig() {
         return defaultConfig("sensu.nais", 3030);
     }
 
-    private static MetricsConfig defaultConfig(String host, int port) {
-        return withSensuDefaults(MetricsConfig.builder()
+    private static SensuConfig defaultConfig(String host, int port) {
+        return withSensuDefaults(SensuConfig.builder()
                 .sensuHost(getOptionalProperty(SENSU_CLIENT_HOST).orElse(host))
                 .sensuPort(getOptionalProperty(SENSU_CLIENT_PORT).map(Integer::parseInt).orElse(port))
 
@@ -50,8 +50,8 @@ public class MetricsConfig {
         );
     }
 
-    public static MetricsConfig withSensuDefaults(MetricsConfig metricsConfig) {
-        return metricsConfig
+    public static SensuConfig withSensuDefaults(SensuConfig sensuConfig) {
+        return sensuConfig
                 .withRetryInterval(defaultIntSystemProperty(SENSU_RETRY_INTERVAL_PROPERTY_NAME, 1000))
                 .withQueueSize(defaultIntSystemProperty(SENSU_QUEUE_SIZE_PROPERTY_NAME, 20_000))
                 .withBatchesPerSecond(defaultIntSystemProperty(SENSU_BATCHES_PER_SECOND_PROPERTY_NAME, 50))
