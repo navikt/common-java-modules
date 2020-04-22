@@ -302,12 +302,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>test-config</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
                 <artifactId>nais</artifactId>
                 <version>${project.version}</version>
             </dependency>
