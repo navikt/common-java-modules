@@ -41,7 +41,6 @@
         <module>cxf</module>
         <module>feature-toggle</module>
         <module>feed</module>
-        <module>jetty</module>
         <module>json</module>
         <module>log</module>
         <module>leader-election</module>

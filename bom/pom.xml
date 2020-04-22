@@ -33,7 +33,6 @@
 
         <!-- COMMON -->
         <jetty.version>9.4.18.v20190429</jetty.version>
-        <jetty.orbit.javax.security.auth.message.version>1.0.0.v201108011116</jetty.orbit.javax.security.auth.message.version>
 
         <!--
         NB:
@@ -58,7 +57,6 @@
         <!-- REST -->
         <javax.ws.rs-api.version>2.1</javax.ws.rs-api.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-        <javax.security.auth.message-api.version>1.1</javax.security.auth.message-api.version>
         <javax.annotation.version>1.2</javax.annotation.version>
         <spring.version>5.1.3.RELEASE</spring.version>
         <grizzly.version>2.3.23</grizzly.version>
@@ -68,22 +66,14 @@
         <hk2.version>2.5.0-b42</hk2.version>
         <okhttp.version>3.14.7</okhttp.version>
 
-        <!-- WEBSOCKETS -->
-        <javax.websocket.version>1.1</javax.websocket.version>
-
         <!-- DIV -->
         <nimbus.version>6.23</nimbus.version>
         <prometheus.version>0.4.0</prometheus.version>
-        <swagger.version>1.5.13</swagger.version>
-        <swagger-ui.version>2.2.10</swagger-ui.version>
         <commons-lang.version>3.5</commons-lang.version>
         <commons-io.version>2.5</commons-io.version>
-        <commons-codec.version>1.6</commons-codec.version>
-        <collections-generic.version>4.01</collections-generic.version>
         <httpclient.version>4.5.6</httpclient.version>
         <httpcore.version>4.4</httpcore.version>
         <ehcache.version>2.10.3</ehcache.version>
-        <vavr.version>0.9.0</vavr.version>
         <shedlock.version>0.18.2</shedlock.version>
         <handlebars.version>4.1.2</handlebars.version>
         <!--
@@ -279,11 +269,6 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>jetty</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
                 <artifactId>test</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
@@ -306,24 +291,6 @@
                 <version>${project.version}</version>
             </dependency>
             <!-- SLUTT COMMON -->
-
-            <dependency>
-                <groupId>org.apache.geronimo.components</groupId>
-                <artifactId>geronimo-jaspi</artifactId>
-                <version>2.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-osgi-locator</artifactId>
-                <version>1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-jaspic_1.0_spec</artifactId>
-                <version>1.1</version>
-            </dependency>
-
-
 
             <!-- spring -->
             <dependency>
@@ -552,76 +519,12 @@
                 <scope>runtime</scope>
             </dependency>
 
-            <!-- Swagger -->
-
-            <dependency>
-                <groupId>org.webjars</groupId>
-                <artifactId>swagger-ui</artifactId>
-                <version>${swagger-ui.version}</version>
-                <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-jaxrs</artifactId>
-                <version>${swagger.version}</version>
-                <exclusions>
-                    <!-- swagger-jaxrs drar inn gammelt og konflikterende javax.rs-api -->
-                    <exclusion>
-                        <groupId>javax.ws.rs</groupId>
-                        <artifactId>jsr311-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-core</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-models</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-
-
             <!-- Prometheus -->
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient</artifactId>
-                <version>${prometheus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient_hotspot</artifactId>
-                <version>${prometheus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient_servlet</artifactId>
-                <version>${prometheus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient_common</artifactId>
-                <version>${prometheus.version}</version>
-            </dependency>
             <dependency>
                 <groupId>io.prometheus</groupId>
                 <artifactId>simpleclient_logback</artifactId>
                 <version>${prometheus.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>simpleclient_jetty</artifactId>
-                <version>${prometheus.version}</version>
-            </dependency>
-
-
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
@@ -634,11 +537,6 @@
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
                 <version>${nimbus.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.picketbox</groupId>
-                <artifactId>picketbox</artifactId>
-                <version>5.0.3.Final</version>
             </dependency>
             <dependency>
                 <groupId>no.finn.unleash</groupId>
@@ -675,16 +573,6 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sourceforge.collections</groupId>
-                <artifactId>collections-generic</artifactId>
-                <version>${collections-generic.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -743,22 +631,6 @@
                 <version>${javax.servlet-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.websocket</groupId>
-                <artifactId>javax.websocket-api</artifactId>
-                <version>${javax.websocket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.websocket</groupId>
-                <artifactId>javax.websocket-client-api</artifactId>
-                <version>${javax.websocket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.security.auth.message</groupId>
-                <artifactId>javax.security.auth.message-api</artifactId>
-                <version>${javax.security.auth.message-api.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>javax.annotation</groupId>
                 <artifactId>javax.annotation-api</artifactId>
                 <version>${javax.annotation.version}</version>
@@ -775,23 +647,8 @@
                 <version>${ehcache.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.vavr</groupId>
-                <artifactId>vavr</artifactId>
-                <version>${vavr.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>net.javacrumbs.shedlock</groupId>
                 <artifactId>shedlock-core</artifactId>
-                <version>${shedlock.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.javacrumbs.shedlock</groupId>
-                <artifactId>shedlock-provider-jdbc</artifactId>
-                <version>${shedlock.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.javacrumbs.shedlock</groupId>
-                <artifactId>shedlock-spring</artifactId>
                 <version>${shedlock.version}</version>
             </dependency>
 
@@ -816,99 +673,10 @@
                 <artifactId>jetty-servlets</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-jaas</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-jaspi</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-client</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-util</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-jndi</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-plus</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-io</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-xml</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-http</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-security</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-proxy</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-annotations</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-servlet</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-server</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-api</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>websocket-common</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>javax-websocket-client-impl</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.orbit</groupId>
-                <artifactId>javax.security.auth.message</artifactId>
-                <version>${jetty.orbit.javax.security.auth.message.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>javax-websocket-server-impl</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
 
@@ -1107,18 +875,6 @@
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-library</artifactId>
                 <version>${hamcrest.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-optional</artifactId>
-                <version>${hamcrest.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.npathai</groupId>
-                <artifactId>hamcrest-optional</artifactId>
-                <version>1.0</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

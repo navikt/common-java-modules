@@ -1,4 +1,4 @@
-package no.nav.common.jetty;
+package no.nav.common.cxf.jetty;
 
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Server;

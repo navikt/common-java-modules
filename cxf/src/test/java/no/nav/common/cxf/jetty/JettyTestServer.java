@@ -1,7 +1,7 @@
-package no.nav.common.cxf;
+package no.nav.common.cxf.jetty;
 
 import lombok.SneakyThrows;
-import no.nav.common.jetty.Jetty;
+import no.nav.common.cxf.CXFEndpoint;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
@@ -62,7 +62,7 @@ public abstract class JettyTestServer {
     }
 
     @SneakyThrows
-    protected static int findFreePort() {
+    public static int findFreePort() {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             return serverSocket.getLocalPort();
         }

@@ -1,32 +1,17 @@
-package no.nav.common.jetty;
+package no.nav.common.cxf.jetty;
 
-import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.jetty.JettyStatisticsCollector;
-import org.apache.commons.lang3.ArrayUtils;
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
-import org.eclipse.jetty.jaas.JAASLoginService;
-import org.eclipse.jetty.plus.webapp.EnvConfiguration;
-import org.eclipse.jetty.plus.webapp.PlusConfiguration;
-import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.util.component.AbstractLifeCycle;
-import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.*;
-import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
 import javax.sql.DataSource;
-import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +54,6 @@ public final class Jetty {
         private Optional<Integer> sslPort = empty();
         private WebAppContext context;
         private File overridewebXmlFile;
-        private JAASLoginService loginService;
         private boolean developmentMode;
         private List<Class<?>> websocketEndpoints = new ArrayList<>();
         private Map<String, DataSource> dataSources = new HashMap<>();
@@ -121,12 +105,6 @@ public final class Jetty {
 
         public final JettyBuilder websocketEndpoint(Class<?> endpointClass) {
             this.websocketEndpoints.add(endpointClass);
-            return this;
-        }
-
-        @Deprecated // Sett heller opp LoginFilter
-        public final JettyBuilder withLoginService(JAASLoginService service) {
-            this.loginService = service;
             return this;
         }
 
@@ -202,7 +180,6 @@ public final class Jetty {
     private final Optional<Integer> sslPort;
     private final File overrideWebXmlFile;
     private final String warPath;
-    private final JAASLoginService loginService;
     private final String contextPath;
     public final Server server;
     public final WebAppContext context;
@@ -233,8 +210,6 @@ public final class Jetty {
             MetaInfConfiguration.class.getName(),
             FragmentConfiguration.class.getName(),
             JettyWebXmlConfiguration.class.getName(),
-            EnvConfiguration.class.getName(),
-            PlusConfiguration.class.getName()
     };
 
     private Jetty(String warPath, JettyBuilder builder) {
@@ -245,7 +220,6 @@ public final class Jetty {
         this.port = builder.port;
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
-        this.loginService = builder.loginService;
         this.filters = builder.filters;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
@@ -268,18 +242,10 @@ public final class Jetty {
             webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
         }
 
-
-        if (loginService != null) {
-            SecurityHandler securityHandler = webAppContext.getSecurityHandler();
-            securityHandler.setLoginService(loginService);
-            securityHandler.setRealmName(loginService.getName());
-        }
-
         for (Filter filter : filters) {
             webAppContext.addFilter(new FilterHolder(filter), "/*", EnumSet.of(REQUEST));
         }
 
-        webAppContext.setConfigurationClasses(builder.disableAnnotationScanning ? CONFIGURATION_CLASSES : ArrayUtils.add(CONFIGURATION_CLASSES, AnnotationConfiguration.class.getName()));
         Map<String, String> initParams = webAppContext.getInitParams();
         if(developmentMode) {
             initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
@@ -287,38 +253,7 @@ public final class Jetty {
         initParams.put("org.eclipse.jetty.servlet.Default.etags", "true");
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, CLASSPATH_PATTERN);
-        addDatasource(webAppContext);
         return webAppContext;
-    }
-
-    private void addDatasource(WebAppContext webAppContext) {
-        if (!dataSources.isEmpty()) {
-            for (Map.Entry<String, DataSource> entrySet : dataSources.entrySet()) {
-                try {
-                    new org.eclipse.jetty.plus.jndi.Resource(webAppContext, entrySet.getKey(), entrySet.getValue());
-                } catch (NamingException e) {
-                    throw new RuntimeException("Kunne ikke legge til datasource " + e, e);
-                }
-            }
-        }
-    }
-
-    private void addWebsocketEndpoints(WebAppContext webAppContext) {
-        if (!websocketEndpoints.isEmpty()) {
-            try {
-                ServerContainer wscontainer = WebSocketServerContainerInitializer.configureContext(webAppContext);
-                websocketEndpoints.forEach(endpoint -> {
-                    try {
-                        wscontainer.addEndpoint(endpoint);
-                    } catch (DeploymentException e) {
-                        throw new RuntimeException("Kunne ikke adde websocket endpoint " + e, e);
-                    }
-                });
-
-            } catch (ServletException e) {
-                throw new RuntimeException("Kunne ikke adde websocket endpoint " + e, e);
-            }
-        }
     }
 
     private Server setupJetty(final Server jetty, JettyBuilder jettyBuilder) {
@@ -351,7 +286,6 @@ public final class Jetty {
         Connector[] connectors = liste.toArray(new Connector[liste.size()]);
         jetty.setConnectors(connectors);
         context.setServer(jetty);
-        addWebsocketEndpoints(context);
 
         jettyBuilder.customizers.forEach(customizer -> customizer.customize(context));
         jetty.setHandler(context);
@@ -369,20 +303,20 @@ public final class Jetty {
         statisticsHandler.setHandler(server.getHandler());
         server.setHandler(statisticsHandler);
 
-        CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
-        JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
-        server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
-
-            @Override
-            public void lifeCycleStarting(LifeCycle event) {
-                jettyStatisticsCollector.register(collectorRegistry);
-            }
-
-            @Override
-            public void lifeCycleStopped(LifeCycle event) {
-                collectorRegistry.unregister(jettyStatisticsCollector);
-            }
-        });
+//        CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
+//        JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
+//        server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
+//
+//            @Override
+//            public void lifeCycleStarting(LifeCycle event) {
+//                jettyStatisticsCollector.register(collectorRegistry);
+//            }
+//
+//            @Override
+//            public void lifeCycleStopped(LifeCycle event) {
+//                collectorRegistry.unregister(jettyStatisticsCollector);
+//            }
+//        });
     }
 
     public Jetty start() {
