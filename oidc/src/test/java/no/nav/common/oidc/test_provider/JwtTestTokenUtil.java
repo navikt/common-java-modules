@@ -1,4 +1,4 @@
-package no.nav.common.testconfig.security;
+package no.nav.common.oidc.test_provider;
 
 import org.jose4j.jwk.JsonWebKeySet;
 
