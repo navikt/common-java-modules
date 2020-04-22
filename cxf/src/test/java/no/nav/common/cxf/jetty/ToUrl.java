@@ -1,4 +1,4 @@
-package no.nav.common.jetty;
+package no.nav.common.cxf.jetty;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;

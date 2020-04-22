@@ -3,6 +3,7 @@ package no.nav.common.cxf;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import no.nav.common.cxf.jetty.JettyTestServer;
 import no.nav.common.rest.RestUtils;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.After;

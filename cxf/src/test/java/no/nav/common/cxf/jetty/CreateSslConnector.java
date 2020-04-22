@@ -1,4 +1,4 @@
-package no.nav.common.jetty;
+package no.nav.common.cxf.jetty;
 
 import no.nav.common.utils.EnvironmentUtils;
 import org.eclipse.jetty.http.HttpVersion;

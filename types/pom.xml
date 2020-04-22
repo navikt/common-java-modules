@@ -23,10 +23,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>net.sourceforge.collections</groupId>
-            <artifactId>collections-generic</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>

@@ -84,7 +84,6 @@
         <commons-lang.version>3.5</commons-lang.version>
         <commons-io.version>2.5</commons-io.version>
         <commons-codec.version>1.6</commons-codec.version>
-        <collections-generic.version>4.01</collections-generic.version>
         <httpclient.version>4.5.6</httpclient.version>
         <httpcore.version>4.4</httpcore.version>
         <ehcache.version>2.10.3</ehcache.version>
@@ -281,11 +280,6 @@
             <dependency>
                 <groupId>no.nav.common</groupId>
                 <artifactId>health</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.common</groupId>
-                <artifactId>jetty</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -698,11 +692,6 @@
                 <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
-                <groupId>net.sourceforge.collections</groupId>
-                <artifactId>collections-generic</artifactId>
-                <version>${collections-generic.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpclient.version}</version>
@@ -839,11 +828,6 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-jaas</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-jaspi</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
@@ -854,17 +838,7 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-util</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-jndi</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-plus</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -877,16 +851,7 @@
                 <artifactId>jetty-xml</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-http</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-security</artifactId>
-                <version>${jetty.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-proxy</artifactId>

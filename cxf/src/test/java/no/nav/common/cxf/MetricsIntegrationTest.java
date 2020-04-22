@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.IdentType;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectRule;
+import no.nav.common.cxf.jetty.JettyTestServer;
 import no.nav.common.metrics.prometheus.MetricsTestUtils;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.apache.servicemix.examples.cxf.HelloWorld;
