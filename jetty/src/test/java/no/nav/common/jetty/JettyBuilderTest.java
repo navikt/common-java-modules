@@ -7,6 +7,7 @@ import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.servlet.ServletContextListener;
@@ -62,6 +63,7 @@ public class JettyBuilderTest {
 
 
     @Test
+    @Ignore // Modulen skal snart fjernes
     public void startJettyWithCustomization() {
         ServletContextListener servletContextListener = mock(ServletContextListener.class);
         RequestLog requestLog = mock(RequestLog.class);

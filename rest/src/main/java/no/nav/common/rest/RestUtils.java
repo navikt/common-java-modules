@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.experimental.Wither;
 import no.nav.common.json.JsonProvider;
-import no.nav.common.rest.client.MetricsConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 
@@ -20,7 +19,6 @@ public class RestUtils {
     public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
 
     public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
-    public static final RestConfig LONG_READ_CONFIG = DEFAULT_CONFIG.withReadTimeout(DEFAULT_CONFIG.readTimeout * 4);
 
     @SuppressWarnings("unused")
     public static ClientConfig createClientConfig() {
@@ -32,20 +30,12 @@ public class RestUtils {
     }
 
     private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
-        ClientLogFilter clientLogFilter = new ClientLogFilter(ClientLogFilter.ClientLogFilterConfig.builder()
-                .disableMetrics(restConfig.disableMetrics)
-                .disableParameterLogging(restConfig.disableParameterLogging)
-                .metricName(metricName)
-                .build()
-        );
-
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.register(new JsonProvider());
-        clientConfig.register(clientLogFilter);
+        clientConfig.register(new RequestFilter());
         clientConfig.property(FOLLOW_REDIRECTS, false);
         clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
         clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
-        clientConfig.connectorProvider(new MetricsConnectorProvider(clientConfig.getConnectorProvider(), clientLogFilter));
         return clientConfig;
     }
 
