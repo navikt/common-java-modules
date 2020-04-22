@@ -49,11 +49,6 @@
         <jaxws-ri.version>2.3.2</jaxws-ri.version>
         <javax-activation.version>1.2.0</javax-activation.version>
 
-        <!-- JMS -->
-        <activemq.version>5.7.0</activemq.version>
-        <javax.jms-api.version>2.0.1</javax.jms-api.version>
-        <javax.jms.version>1.1</javax.jms.version>
-
         <!-- DB -->
         <ojdbc.version>11.2.0.3</ojdbc.version>
         <flyway.version>4.0.3</flyway.version>
@@ -393,17 +388,7 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
-                <artifactId>spring-jms</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aop</artifactId>
                 <version>${spring.version}</version>
             </dependency>
             <dependency>
@@ -1014,30 +999,6 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- JMS -->
-            <dependency>
-                <groupId>javax.jms</groupId>
-                <artifactId>javax.jms-api</artifactId>
-                <version>${javax.jms-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.jms</groupId>
-                <artifactId>jms</artifactId>
-                <version>${javax.jms.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activemq-core</artifactId>
-                <version>${activemq.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.geronimo.specs</groupId>
-                        <artifactId>geronimo-jms_1.1_spec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
             <!-- DB -->
             <dependency>
                 <groupId>com.oracle</groupId>
@@ -1050,7 +1011,6 @@
                 <artifactId>ojdbc8</artifactId>
                 <version>19.3.0.0</version>
             </dependency>
-
 
             <dependency>
                 <groupId>org.hsqldb</groupId>
