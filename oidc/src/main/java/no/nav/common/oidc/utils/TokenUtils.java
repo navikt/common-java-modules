@@ -2,13 +2,12 @@ package no.nav.common.oidc.utils;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
-import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.IdentType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static no.nav.common.oidc.Constants.AAD_NAV_IDENT_CLAIM;
 

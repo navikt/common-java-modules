@@ -3,13 +3,12 @@ package no.nav.common.metrics.prometheus;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import no.nav.metrics.MetricsFactory;
+import no.nav.common.metrics.MetricsFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

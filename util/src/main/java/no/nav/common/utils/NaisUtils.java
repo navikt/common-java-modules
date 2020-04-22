@@ -1,7 +1,6 @@
 package no.nav.common.utils;
 
 import lombok.SneakyThrows;
-import no.nav.sbl.util.EnvironmentUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

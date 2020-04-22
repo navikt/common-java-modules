@@ -1,0 +1,69 @@
+package no.nav.common.abac;
+
+import lombok.SneakyThrows;
+import no.nav.common.abac.domain.Attribute;
+import no.nav.common.abac.domain.BaseAttribute;
+import no.nav.common.abac.domain.request.Request;
+import no.nav.common.abac.domain.request.XacmlRequest;
+import no.nav.common.metrics.MetricsFactory;
+import no.nav.common.metrics.Timer;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+
+public class Utils {
+
+    @SneakyThrows
+    public static <T> T timed(String name, Callable<T> task, Consumer<Timer> additions) {
+        Timer timer = MetricsFactory.createTimer(name);
+        try {
+            timer.start();
+            return task.call();
+        } catch (Throwable e) {
+            timer.setFailed();
+            throw e;
+        } finally {
+            timer.stop();
+            if (additions != null) {
+                additions.accept(timer);
+            }
+            timer.report();
+        }
+    }
+
+    public static <T> T timed(String name, Callable<T> task) throws Exception {
+        return timed(name, task, null);
+    }
+
+    static boolean invalidClientValues(RequestData requestData) {
+        return requestData.getDomain() == null
+                || requestData.getCredentialResource() == null
+                || (requestData.getOidcToken() == null && requestData.getSamlToken() == null && requestData.getSubjectId() == null)
+                ;
+    }
+
+    public static String getResourceAttribute(XacmlRequest request, String requestedAttribute) {
+        return Optional.ofNullable(request)
+                .map(XacmlRequest::getRequest)
+                .map(Request::getResource)
+                .map(BaseAttribute::getAttribute)
+                .map(findAttribute(requestedAttribute))
+                .orElse("EMPTY");
+    }
+
+    private static Function<List<Attribute>, String> findAttribute(String requestedAttribute) {
+        return attributes -> findAttribute(attributes, requestedAttribute);
+    }
+
+    private static String findAttribute(List<Attribute> attributes, String requestedAttribute) {
+        return attributes.stream()
+                .filter(a -> requestedAttribute.equals(a.getAttributeId()))
+                .findFirst()
+                .orElse(new Attribute("EMPTY", "EMPTY"))
+                .getValue();
+    }
+}

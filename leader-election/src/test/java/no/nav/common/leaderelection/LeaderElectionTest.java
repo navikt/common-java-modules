@@ -2,7 +2,7 @@ package no.nav.common.leaderelection;
 
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import no.nav.sbl.dialogarena.test.junit.SystemPropertiesRule;
+import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

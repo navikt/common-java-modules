@@ -6,7 +6,7 @@
                 <appender-ref ref="secureLog"/>
                 <appender-ref ref="stdout_json"/>
             </logger>
-            <logger name="no.nav.sbl.dialogarena.common.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}">
+            <logger name="no.nav.common.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}">
                 <appender-ref ref="secureLog"/>
                 <appender-ref ref="stdout_json"/>
             </logger>

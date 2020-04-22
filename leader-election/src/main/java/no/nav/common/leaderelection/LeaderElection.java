@@ -2,9 +2,9 @@ package no.nav.common.leaderelection;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.json.JsonUtils;
-import no.nav.sbl.rest.RestUtils;
-import no.nav.sbl.util.EnvironmentUtils;
+import no.nav.common.json.JsonUtils;
+import no.nav.common.rest.RestUtils;
+import no.nav.common.utils.EnvironmentUtils;
 
 import java.net.InetAddress;
 

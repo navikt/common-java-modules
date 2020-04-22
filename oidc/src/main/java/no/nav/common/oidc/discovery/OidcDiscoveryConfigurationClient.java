@@ -1,6 +1,6 @@
 package no.nav.common.oidc.discovery;
 
-import no.nav.sbl.rest.RestUtils;
+import no.nav.common.rest.RestUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;

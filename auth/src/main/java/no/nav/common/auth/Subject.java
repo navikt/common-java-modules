@@ -2,15 +2,13 @@ package no.nav.common.auth;
 
 import lombok.Value;
 import lombok.experimental.Wither;
-import no.nav.brukerdialog.security.domain.IdentType;
-import no.nav.sbl.util.AssertUtils;
-import no.nav.sbl.util.StringUtils;
+import no.nav.common.utils.StringUtils;
 
 import java.util.Optional;
 
 import static java.util.Optional.empty;
-import static no.nav.sbl.util.AssertUtils.assertNotNull;
-import static no.nav.sbl.util.StringUtils.assertNotNullOrEmpty;
+import static no.nav.common.utils.AssertUtils.assertNotNull;
+import static no.nav.common.utils.StringUtils.assertNotNullOrEmpty;
 
 @Wither
 @Value

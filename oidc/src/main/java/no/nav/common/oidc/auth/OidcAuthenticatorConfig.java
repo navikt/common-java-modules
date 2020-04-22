@@ -3,7 +3,7 @@ package no.nav.common.oidc.auth;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
-import no.nav.brukerdialog.security.domain.IdentType;
+import no.nav.common.auth.IdentType;
 import no.nav.common.oidc.utils.AuthHeaderTokenFinder;
 import no.nav.common.oidc.utils.TokenFinder;
 

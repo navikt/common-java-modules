@@ -8,12 +8,11 @@ import lombok.SneakyThrows;
 import no.nav.common.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.oidc.discovery.OidcDiscoveryConfigurationClient;
 import no.nav.common.oidc.utils.TokenUtils;
-import no.nav.sbl.rest.RestUtils;
+import no.nav.common.rest.RestUtils;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.text.ParseException;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
