@@ -1,6 +1,5 @@
-package no.nav.common.metrics.handlers;
+package no.nav.common.metrics;
 
-import no.nav.common.metrics.MetricsConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,18 +32,18 @@ public class SensuHandler {
 
     private long queueSisteGangFullTimestamp = 0;
 
-    public SensuHandler(MetricsConfig metricsConfig) {
-        this.application = metricsConfig.getApplication();
-        this.sensuHost = metricsConfig.getSensuHost();
-        this.sensuPort = metricsConfig.getSensuPort();
-        this.reportQueue = new LinkedBlockingQueue<>(metricsConfig.getQueueSize());
-        this.batchDelay = 1000 / metricsConfig.getBatchesPerSecond();
-        this.batchSize = metricsConfig.getBatchSize();
-        this.retryInterval = metricsConfig.getRetryInterval();
+    public SensuHandler(SensuConfig sensuConfig) {
+        this.application = sensuConfig.getApplication();
+        this.sensuHost = sensuConfig.getSensuHost();
+        this.sensuPort = sensuConfig.getSensuPort();
+        this.reportQueue = new LinkedBlockingQueue<>(sensuConfig.getQueueSize());
+        this.batchDelay = 1000 / sensuConfig.getBatchesPerSecond();
+        this.batchSize = sensuConfig.getBatchSize();
+        this.retryInterval = sensuConfig.getRetryInterval();
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         this.scheduledExecutorService.execute(new SensuReporter());
 
-        logger.info("Metrics aktivert med parametre: {}", metricsConfig);
+        logger.info("Metrics aktivert med parametre: {}", sensuConfig);
     }
 
     public void shutdown() {
@@ -91,7 +90,6 @@ public class SensuHandler {
 
     void writeToSensu(JSONObject jsonObject, Socket socket) throws IOException {
         BufferedWriter writer = connectToSensu(socket);
-
         writer.write(jsonObject.toString());
         writer.newLine();
         writer.flush();

@@ -22,8 +22,8 @@ import java.net.InetAddress;
 
 import static ch.qos.logback.classic.Level.INFO;
 import static java.util.Optional.ofNullable;
-import static no.nav.common.metrics.MetricsConfig.SENSU_CLIENT_HOST;
-import static no.nav.common.metrics.MetricsConfig.SENSU_CLIENT_PORT;
+import static no.nav.common.metrics.SensuConfig.SENSU_CLIENT_HOST;
+import static no.nav.common.metrics.SensuConfig.SENSU_CLIENT_PORT;
 import static no.nav.common.utils.EnvironmentUtils.*;
 import static no.nav.common.utils.EnvironmentUtils.Type.PUBLIC;
 

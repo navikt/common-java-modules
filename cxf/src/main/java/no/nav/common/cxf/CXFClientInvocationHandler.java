@@ -1,10 +1,8 @@
 package no.nav.common.cxf;
 
-import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.common.auth.SsoToken;
 import no.nav.common.auth.Subject;
 import no.nav.common.auth.SubjectHandler;
-import no.nav.common.metrics.MetricsFactory;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -14,14 +12,12 @@ import javax.xml.ws.BindingProvider;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.getProperty;
 import static java.util.Optional.ofNullable;
 
 class CXFClientInvocationHandler<T> implements InvocationHandler {
 
-    private final MeterRegistry meterRegistry = MetricsFactory.getMeterRegistry();
     private final InvocationHandler invocationHandler;
     private final STSMode stsMode;
 
@@ -42,19 +38,20 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
             Object result = invocationHandler.invoke(o, method, objects);
             success = true;
             return result;
-
         } catch (InvocationTargetException ite) {
             throw unwrapToExpectedExceptionForTheConsumer(ite);
-
         } finally {
-            meterRegistry.timer("cxf_client",
-                    "method",
-                    method.getName(),
-                    "success",
-                    Boolean.toString(success),
-                    "sts",
-                    stsMode.name()
-            ).record(System.currentTimeMillis() - startTime, TimeUnit.MILLISECONDS);
+            // TODO: Hvis vi trenger prometheus metrikker for dette, så send inn PrometheusMeterRegistry
+            //  Hvis man ikke trenger metrikker, så kan man også vurdere å logge det til kibana
+
+            //            meterRegistry.timer("cxf_client",
+            //                    "method",
+            //                    method.getName(),
+            //                    "success",
+            //                    Boolean.toString(success),
+            //                    "sts",
+            //                    stsMode.name()
+            //            ).record(System.currentTimeMillis() - startTime, TimeUnit.MILLISECONDS);
         }
     }
 

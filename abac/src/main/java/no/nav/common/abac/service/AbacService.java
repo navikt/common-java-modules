@@ -1,7 +1,5 @@
 package no.nav.common.abac.service;
 
-import no.nav.common.abac.NavAttributter;
-import no.nav.common.abac.Utils;
 import no.nav.common.abac.XacmlMapper;
 import no.nav.common.abac.context.AbacContext;
 import no.nav.common.abac.domain.request.XacmlRequest;
@@ -21,8 +19,6 @@ import java.io.IOException;
 import static javax.ws.rs.client.Entity.entity;
 import static org.glassfish.jersey.client.authentication.HttpAuthenticationFeature.basic;
 import static org.slf4j.LoggerFactory.getLogger;
-
-// import static no.nav.abac.xacml.NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE;
 
 @Component
 public class AbacService  {
@@ -55,12 +51,7 @@ public class AbacService  {
 
     @Cacheable(value = AbacContext.ASK_FOR_PERMISSION, keyGenerator = "abacKeyGenerator")
     public XacmlResponse askForPermission(XacmlRequest request) throws AbacException, IOException, NoSuchFieldException {
-        String ressursId = Utils.getResourceAttribute(request, NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE);
-        Response response = Utils.timed(
-                "abac-pdp",
-                () -> request(request, client),
-                (timer) -> timer.addTagToReport("resource-attributeid", ressursId)
-        );
+        Response response = request(request, client);
 
         final int statusCode = response.getStatus();
         final String reasonPhrase = response.getStatusInfo().getReasonPhrase();

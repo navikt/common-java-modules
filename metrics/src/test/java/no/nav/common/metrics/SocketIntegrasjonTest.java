@@ -1,6 +1,5 @@
-package no.nav.common.metrics.integration;
+package no.nav.common.metrics;
 
-import no.nav.common.metrics.handlers.SensuHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
