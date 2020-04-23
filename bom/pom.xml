@@ -171,6 +171,11 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
+                <artifactId>aktorregister-klient</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
                 <artifactId>feature-toggle</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -640,6 +645,11 @@
                 <artifactId>grizzly-http-server</artifactId>
                 <version>${grizzly.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>2.8.1</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
