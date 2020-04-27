@@ -1,7 +1,5 @@
 package no.nav.common.abac;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.exception.PepException;
@@ -9,8 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import static no.nav.common.abac.TestUtils.assertJsonEquals;
 import static no.nav.common.abac.TestUtils.getContentFromJsonFile;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class AbacServiceTest {
@@ -148,13 +146,6 @@ public class AbacServiceTest {
     public void sjekkVeilederTilgangTilEgenAnsatt__skal_kaste_exception_hvis_ikke_tilgang() {
         AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
         abacService.sjekkVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT);
-    }
-
-
-    private void assertJsonEquals(String expectedJson, String actualJson) {
-        JsonElement expectedElement = JsonParser.parseString(expectedJson);
-        JsonElement actualElement = JsonParser.parseString(actualJson);
-        assertEquals(expectedElement, actualElement);
     }
 
 }

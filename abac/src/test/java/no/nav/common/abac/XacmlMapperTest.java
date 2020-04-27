@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static no.nav.common.abac.TestUtils.assertJson;
+import static no.nav.common.abac.TestUtils.assertJsonEquals;
 import static no.nav.common.abac.TestUtils.getContentFromJsonFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -23,7 +23,7 @@ public class XacmlMapperTest {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequest());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withtoken.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
@@ -31,7 +31,7 @@ public class XacmlMapperTest {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjectAttributes());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjectattributes.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class XacmlMapperTest {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjAttrWithoutEnvironment());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjattrwithoutenvironment.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class XacmlMapperTest {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode6Resource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-kode6.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
 
     }
 
@@ -56,7 +56,7 @@ public class XacmlMapperTest {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode7Resource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-kode7.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class XacmlMapperTest {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithVeilArbResource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-veilarb.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class XacmlMapperTest {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithEgenAnsattResource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-egenAnsatt.json");
-        assertJson(stringEntity,expectedContent);
+        assertJsonEquals(stringEntity,expectedContent);
     }
 
     @Test

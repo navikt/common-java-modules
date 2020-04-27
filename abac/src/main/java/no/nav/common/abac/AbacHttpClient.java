@@ -1,7 +1,6 @@
 package no.nav.common.abac;
 
 import no.nav.common.abac.exception.AbacException;
-import no.nav.common.utils.AuthUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,7 @@ public class AbacHttpClient implements AbacClient {
     public String sendRequest(String requestXacmlJson) {
         Request request = new Request.Builder()
                 .url(abacUrl)
-                .addHeader("Authorization", AuthUtils.basicCredentials(srvUsername, srvPassword))
+                .addHeader("Authorization", Credentials.basic(srvUsername, srvPassword))
                 .post(RequestBody.create(MediaType.get("application/xacml+json"), requestXacmlJson))
                 .build();
 

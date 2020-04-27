@@ -6,13 +6,13 @@ import no.nav.common.abac.domain.request.Request;
 import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.exception.PepException;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class AbacUtilsTest {
 
@@ -23,13 +23,13 @@ public class AbacUtilsTest {
     @Test
     public void girRiktigTokenBodyGittHeltToken() throws PepException {
         final String token = AbacUtils.extractOidcTokenBody(TOKEN);
-        Assertions.assertThat(token).isEqualTo(TOKEN_BODY);
+        assertEquals(TOKEN_BODY, token);
     }
 
     @Test
     public void girRiktigTokenBodyGittBody() throws PepException {
         final String token = AbacUtils.extractOidcTokenBody(TOKEN_BODY);
-        Assertions.assertThat(token).isEqualTo(TOKEN_BODY);
+        assertEquals(TOKEN_BODY, token);
     }
 
     @Test
