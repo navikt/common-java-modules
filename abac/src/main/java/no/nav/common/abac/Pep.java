@@ -2,7 +2,7 @@ package no.nav.common.abac;
 
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.ResourceType;
-import no.nav.common.abac.domain.request.Action;
+import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.Request;
 import no.nav.common.abac.domain.response.BiasedDecisionResponse;
 import no.nav.common.abac.exception.PepException;
@@ -46,7 +46,7 @@ public interface Pep {
 
     BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException;
 
-    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType) throws PepException;
+    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, ActionId action, ResourceType resourceType) throws PepException;
 
     void ping() throws PepException;
 }

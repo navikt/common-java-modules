@@ -45,7 +45,7 @@ public class PepImpl implements Pep {
     @Override
     public BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcTokenBody, String domain, AbacPersonId personId) throws PepException {
         validatePersonId(personId);
-        final String token = extractOidcTokenBody(oidcTokenBody);
+        final String token =  extractOidcTokenBody(oidcTokenBody);
         return isServiceCallAllowed(token, null, domain, personId, ResourceType.Person);
     }
 
@@ -80,7 +80,7 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType) throws PepException {
+    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, ActionId action, ResourceType resourceType) throws PepException {
         validatePersonId(personId);
         return harTilgang(nyRequest()
                 .withPersonId(personId)
@@ -92,7 +92,7 @@ public class PepImpl implements Pep {
 
     @Override
     public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException {
-        return harInnloggetBrukerTilgangTilPerson(AbacPersonId.fnr(fnr), domain, Action.ActionId.READ, ResourceType.Person);
+        return harInnloggetBrukerTilgangTilPerson(AbacPersonId.fnr(fnr), domain, ActionId.READ, ResourceType.Person);
     }
 
     @Override

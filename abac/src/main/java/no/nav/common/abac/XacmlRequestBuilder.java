@@ -28,7 +28,7 @@ public class XacmlRequestBuilder {
         return accessSubject;
     }
 
-    public static Action lagAction(Action.ActionId actionId) {
+    public static Action lagAction(ActionId actionId) {
         Action action = new Action();
         action.getAttribute().add(new Attribute(StandardAttributter.ACTION_ID, actionId.getId()));
         return action;
@@ -37,6 +37,12 @@ public class XacmlRequestBuilder {
     public static Environment lagEnvironment(String srvUsername) {
         Environment environment = new Environment();
         environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_PEP_ID, srvUsername));
+        return environment;
+    }
+
+    public static Environment lagEnvironmentMedOidcTokenBody(String srvUsername, String oidcTokenBody) {
+        Environment environment = lagEnvironment(srvUsername);
+        environment.getAttribute().add(new Attribute(NavAttributter.ENVIRONMENT_FELLES_OIDC_TOKEN_BODY, oidcTokenBody));
         return environment;
     }
 
@@ -56,32 +62,32 @@ public class XacmlRequestBuilder {
         return resource;
     }
 
-    public static Resource lagKode7Resource(RequestData requestData) {
+    public static Resource lagKode7Resource(String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_KODE_7));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
         return resource;
 
     }
 
-    public static Resource lagKode6Resource(RequestData requestData) {
+    public static Resource lagKode6Resource(String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_KODE_6));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
         return resource;
     }
 
-    public static Resource lagEgenAnsattResource(RequestData requestData) {
+    public static Resource lagEgenAnsattResource(String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
         return resource;
     }
 
-    public static Resource lagVeilArbResource(RequestData requestData) {
+    public static Resource lagVeilArbResource(String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
         return resource;
     }
 

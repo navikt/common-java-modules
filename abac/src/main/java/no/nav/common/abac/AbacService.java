@@ -1,11 +1,12 @@
 package no.nav.common.abac;
 
 import no.nav.common.abac.domain.AbacPersonId;
-import no.nav.common.abac.domain.request.Action;
+import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.Decision;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.PepException;
+import no.nav.common.abac.utils.SecurityUtils;
 
 import static no.nav.common.abac.XacmlRequestBuilder.*;
 
@@ -35,27 +36,84 @@ public class AbacService implements IAbacService {
     public void sjekkVeilederTilgangTilEnhet(String veilederIdent, String enhetId) {
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
-                lagAction(Action.ActionId.READ),
+                lagAction(ActionId.READ),
                 lagVeilederAccessSubject(veilederIdent),
                 lagEnhetResource(enhetId, VEILARB_DOMAIN)
         );
 
         if (!harTilgang(xacmlRequest)) {
-            throw new PepException(String.format("%s mangler tilgang til enhet %s", veilederIdent, enhetId));
+            throw new PepException("Veileder har ikke tilgang til enhet");
         }
     }
 
     @Override
-    public void sjekkVeilederTilgangTilBruker(String veilederIdent, AbacPersonId personId) {
+    public void sjekkVeilederTilgangTilBruker(String veilederIdent, ActionId actionId, AbacPersonId personId) {
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
-                lagAction(Action.ActionId.READ),
+                lagAction(actionId),
                 lagVeilederAccessSubject(veilederIdent),
                 lagPersonResource(personId, VEILARB_DOMAIN)
         );
 
         if (!harTilgang(xacmlRequest)) {
             throw new PepException("Veileder har ikke tilgang til bruker");
+        }
+    }
+
+    @Override
+    public void sjekkTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId) {
+        String oidcTokenBody = SecurityUtils.extractOidcTokenBody(innloggetBrukerIdToken);
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
+                lagAction(actionId),
+                null,
+                lagPersonResource(personId, VEILARB_DOMAIN)
+        );
+
+        if (!harTilgang(xacmlRequest)) {
+            throw new PepException("Innlogget bruker har ikke tilgang til person");
+        }
+    }
+
+    @Override
+    public void sjekkVeilederTilgangTilKode6(String veilederIdent) {
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironment(srvUsername),
+                null,
+                lagVeilederAccessSubject(veilederIdent),
+                lagKode6Resource(VEILARB_DOMAIN)
+        );
+
+        if (!harTilgang(xacmlRequest)) {
+            throw new PepException("Veileder har ikke tilgang til kode 6");
+        }
+    }
+
+    @Override
+    public void sjekkVeilederTilgangTilKode7(String veilederIdent) {
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironment(srvUsername),
+                null,
+                lagVeilederAccessSubject(veilederIdent),
+                lagKode7Resource(VEILARB_DOMAIN)
+        );
+
+        if (!harTilgang(xacmlRequest)) {
+            throw new PepException("Veileder har ikke tilgang til kode 7");
+        }
+    }
+
+    @Override
+    public void sjekkVeilederTilgangTilEgenAnsatt(String veilederIdent) {
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironment(srvUsername),
+                null,
+                lagVeilederAccessSubject(veilederIdent),
+                lagEgenAnsattResource(VEILARB_DOMAIN)
+        );
+
+        if (!harTilgang(xacmlRequest)) {
+            throw new PepException("Veileder har ikke tilgang til egen ansatt");
         }
     }
 

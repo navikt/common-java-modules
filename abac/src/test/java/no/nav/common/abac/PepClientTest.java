@@ -9,8 +9,8 @@ import no.nav.common.types.feil.IngenTilgang;
 import org.junit.Before;
 import org.junit.Test;
 
-import static no.nav.common.abac.domain.request.Action.ActionId.READ;
-import static no.nav.common.abac.domain.request.Action.ActionId.WRITE;
+import static no.nav.common.abac.domain.request.ActionId.READ;
+import static no.nav.common.abac.domain.request.ActionId.WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

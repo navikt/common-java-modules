@@ -2,15 +2,15 @@ package no.nav.common.abac;
 
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.ResourceType;
-import no.nav.common.abac.domain.request.Action;
+import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.response.BiasedDecisionResponse;
 import no.nav.common.abac.exception.PepException;
 import no.nav.common.types.feil.IngenTilgang;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
-import static no.nav.common.abac.domain.request.Action.ActionId.READ;
-import static no.nav.common.abac.domain.request.Action.ActionId.WRITE;
+import static no.nav.common.abac.domain.request.ActionId.READ;
+import static no.nav.common.abac.domain.request.ActionId.WRITE;
 import static no.nav.common.abac.domain.response.Decision.Permit;
 
 public class PepClient {
@@ -60,15 +60,15 @@ public class PepClient {
         return erPermit(r);
     }
 
-    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, Action.ActionId action) throws PepException {
+    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, ActionId action) throws PepException {
         return sjekkTilgangTilPerson(personId, action, resourceType);
     }
 
-    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, Action.ActionId action, ResourceType resourceType) {
+    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, ActionId action, ResourceType resourceType) {
         return sjekkTilgangTilPerson(personId, applicationDomain, action, resourceType);
     }
 
-    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, String applicationDomain, Action.ActionId action, ResourceType resourceType) {
+    public AbacPersonId sjekkTilgangTilPerson(AbacPersonId personId, String applicationDomain, ActionId action, ResourceType resourceType) {
         if (erPermit(pep.harInnloggetBrukerTilgangTilPerson(personId, applicationDomain, action, resourceType))) {
             return personId;
         } else {
