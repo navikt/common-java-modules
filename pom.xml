@@ -36,7 +36,6 @@
         <module>abac</module>
         <module>aktorregister-klient</module>
         <module>auth</module>
-        <module>jobutils</module>
         <module>bom</module>
         <module>cxf</module>
         <module>feature-toggle</module>
