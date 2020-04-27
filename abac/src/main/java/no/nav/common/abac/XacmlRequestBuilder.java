@@ -91,19 +91,19 @@ public class XacmlRequestBuilder {
         return resource;
     }
 
-    public static Resource lagVeilArbPersonResource(RequestData requestData) {
+    public static Resource lagVeilArbPersonResource(AbacPersonId personId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_PERSON));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
-        resource.getAttribute().add(personIdAttribute(requestData.getPersonId()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
+        resource.getAttribute().add(personIdAttribute(personId));
         return resource;
     }
 
-    public static Resource lagVeilArbUnderOppfolgingResource(RequestData requestData) {
+    public static Resource lagVeilArbUnderOppfolgingResource(AbacPersonId personId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, requestData.getDomain()));
-        resource.getAttribute().add(personIdAttribute(requestData.getPersonId()));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
+        resource.getAttribute().add(personIdAttribute(personId));
         return resource;
     }
 

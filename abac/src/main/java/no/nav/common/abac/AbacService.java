@@ -6,11 +6,10 @@ import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.Decision;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.PepException;
-import no.nav.common.abac.utils.SecurityUtils;
 
 import static no.nav.common.abac.XacmlRequestBuilder.*;
 
-public class AbacService implements IAbacService {
+public class AbacService implements Pep {
 
     public final static String VEILARB_DOMAIN = "veilarb";
 
@@ -62,7 +61,7 @@ public class AbacService implements IAbacService {
 
     @Override
     public void sjekkTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId) {
-        String oidcTokenBody = SecurityUtils.extractOidcTokenBody(innloggetBrukerIdToken);
+        String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
                 lagAction(actionId),

@@ -10,13 +10,11 @@ import java.util.Optional;
 import java.util.function.Function;
 
 
-public class Utils {
+public class AbacUtils {
 
-    static boolean invalidClientValues(RequestData requestData) {
-        return requestData.getDomain() == null
-                || requestData.getCredentialResource() == null
-                || (requestData.getOidcToken() == null && requestData.getSamlToken() == null && requestData.getSubjectId() == null)
-                ;
+    public static String extractOidcTokenBody(String oidcToken) {
+        final String[] tokenParts = oidcToken.split("\\.");
+        return tokenParts.length == 1 ? tokenParts[0] : tokenParts[1];
     }
 
     public static String getResourceAttribute(XacmlRequest request, String requestedAttribute) {

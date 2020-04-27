@@ -2,7 +2,6 @@ package no.nav.common.abac;
 
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
-import no.nav.common.abac.domain.Resources;
 import no.nav.common.abac.domain.request.*;
 
 public class MockXacmlRequest {
@@ -27,19 +26,19 @@ public class MockXacmlRequest {
     }
 
     public static XacmlRequest getXacmlRequestForSubjectWithKode7Resource() {
-        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeKode7Resource(new RequestData().withDomain("veilarb"))));
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(XacmlRequestBuilder.lagKode7Resource("veilarb")));
     }
 
     public static XacmlRequest getXacmlRequestForSubjectWithKode6Resource() {
-        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeKode6Resource(new RequestData().withDomain("veilarb"))));
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(XacmlRequestBuilder.lagKode6Resource("veilarb")));
     }
 
     public static XacmlRequest getXacmlRequestForSubjectWithEgenAnsattResource() {
-        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeEgenAnsattResource(new RequestData().withDomain("veilarb"))));
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(XacmlRequestBuilder.lagEgenAnsattResource("veilarb")));
     }
 
     public static XacmlRequest getXacmlRequestForSubjectWithVeilArbResource() {
-        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(Resources.makeVeilArbResource(new RequestData().withDomain("veilarb"))));
+        return new XacmlRequest().withRequest(getRequestWithoutResource().withResource(XacmlRequestBuilder.lagVeilArbResource("veilarb")));
     }
 
     private static Request getRequestWithActionAndResource() {
