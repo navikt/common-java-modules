@@ -22,7 +22,7 @@ public class AbacService implements IAbacService {
     public AbacService(String abacUrl, String srvUsername, String srvPassword) {
         this.srvUsername = srvUsername;
         this.auditLogger = new AuditLogger();
-        this.abacClient = new CachedAbacClient(new AbacHttpClient(abacUrl, srvUsername, srvPassword));
+        this.abacClient = new AbacCachedClient(new AbacHttpClient(abacUrl, srvUsername, srvPassword));
     }
 
     public AbacService(String srvUsername, AbacClient abacClient, AuditLogger auditLogger) {
