@@ -3,6 +3,7 @@ package no.nav.common.abac;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import no.nav.common.abac.context.AbacContext;
+import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.response.BiasedDecisionResponse;
 import no.nav.common.abac.domain.response.Decision;
 import no.nav.common.auth.SsoToken;

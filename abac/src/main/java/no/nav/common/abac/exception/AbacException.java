@@ -5,6 +5,10 @@ public class AbacException extends RuntimeException {
         super(message);
     }
 
+    public AbacException(Throwable throwable) {
+        super(throwable);
+    }
+
     public AbacException(String message, Throwable throwable) {
         super(message, throwable);
     }

@@ -1,4 +1,4 @@
-package no.nav.common.abac;
+package no.nav.common.abac.domain;
 
 import java.util.Objects;
 

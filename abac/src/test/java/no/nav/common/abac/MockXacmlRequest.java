@@ -1,5 +1,6 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.Resources;
 import no.nav.common.abac.domain.request.*;

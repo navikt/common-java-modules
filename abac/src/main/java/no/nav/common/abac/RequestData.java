@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.Wither;
+import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.ResourceType;
 import no.nav.common.abac.domain.request.Action;
 

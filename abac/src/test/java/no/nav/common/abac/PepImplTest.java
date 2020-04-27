@@ -1,5 +1,6 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.BiasedDecisionResponse;
 import no.nav.common.abac.domain.response.Decision;

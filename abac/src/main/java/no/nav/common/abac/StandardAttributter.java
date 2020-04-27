@@ -19,7 +19,4 @@ public final class StandardAttributter {
     public static final String CURRENT_TIME = "urn:oasis:names:tc:xacml:1.0:environment:current-time";
     public static final String CURRENT_DATE = "urn:oasis:names:tc:xacml:1.0:environment:current-date";
     public static final String CURRENT_DATETIME = "urn:oasis:names:tc:xacml:1.0:environment:current-dateTime";
-
-    public StandardAttributter() {
-    }
 }

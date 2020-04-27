@@ -1,6 +1,7 @@
 package no.nav.common.abac;
 
 import lombok.SneakyThrows;
+import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.ResourceType;
 import no.nav.common.abac.domain.request.*;

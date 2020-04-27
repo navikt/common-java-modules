@@ -9,9 +9,9 @@ import no.nav.common.utils.StringUtils;
 
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-class XacmlRequestGenerator {
+public class XacmlRequestGenerator {
 
-    Environment makeEnvironment(RequestData requestData) {
+    public Environment makeEnvironment(RequestData requestData) {
         Environment environment = new Environment();
         final String oidcToken = requestData.getOidcToken();
         if (isNotEmpty(oidcToken)) {
@@ -27,20 +27,20 @@ class XacmlRequestGenerator {
         return environment;
     }
 
-    AccessSubject makeAccessSubject(RequestData requestData) {
+    public AccessSubject makeAccessSubject(RequestData requestData) {
         AccessSubject accessSubject = new AccessSubject();
         accessSubject.getAttribute().add(new Attribute(StandardAttributter.SUBJECT_ID, requestData.getSubjectId()));
         accessSubject.getAttribute().add(new Attribute(NavAttributter.SUBJECT_FELLES_SUBJECTTYPE, "InternBruker"));
         return accessSubject;
     }
 
-    Action makeAction(RequestData requestData) {
+    public Action makeAction(RequestData requestData) {
         Action action = new Action();
         action.getAttribute().add(new Attribute(StandardAttributter.ACTION_ID, requestData.getAction().getId()));
         return action;
     }
 
-    Resource makeResource(RequestData requestData) {
+    public Resource makeResource(RequestData requestData) {
         switch (requestData.getResourceType()) {
             case EgenAnsatt:
                 return Resources.makeEgenAnsattResource(requestData);
