@@ -1,0 +1,36 @@
+{
+  "Request": {
+    "AccessSubject": {
+      "Attribute": [
+        {
+          "AttributeId": "urn:oasis:names:tc:xacml:1.0:subject:subject-id",
+          "Value": "Z1234"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.subject.felles.subjectType",
+          "Value": "InternBruker"
+        }
+      ]
+    },
+    "Environment": {
+      "Attribute": [
+        {
+          "AttributeId": "no.nav.abac.attributter.environment.felles.pep_id",
+          "Value": "test"
+        }
+      ]
+    },
+    "Resource": {
+      "Attribute": [
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
+          "Value": "no.nav.abac.attributter.subject.felles.har_tilgang_egen_ansatt"
+        },
+        {
+          "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
+          "Value": "veilarb"
+        }
+      ]
+    }
+  }
+}
