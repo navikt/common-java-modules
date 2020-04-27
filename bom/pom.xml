@@ -76,13 +76,6 @@
         <ehcache.version>2.10.3</ehcache.version>
         <shedlock.version>0.18.2</shedlock.version>
         <handlebars.version>4.1.2</handlebars.version>
-        <!--
-          obs:
-           aspectj settes i dependencyManagement i modig-security sin modig-main parent. (n� 1.7.4)
-           trenger � tvinge denne til en h�yere versjon
-          -->
-        <aspectj.version>1.8.8</aspectj.version>
-
 
         <!-- Test -->
         <assertj.version>3.9.1</assertj.version>
@@ -558,16 +551,6 @@
                 <artifactId>lombok</artifactId>
                 <version>1.18.8</version>
                 <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.aspectj</groupId>
-                <artifactId>aspectjrt</artifactId>
-                <version>${aspectj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.aspectj</groupId>
-                <artifactId>aspectjweaver</artifactId>
-                <version>${aspectj.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>

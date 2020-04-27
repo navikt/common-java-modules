@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import static java.net.InetAddress.getLocalHost;
-import static no.nav.common.leaderelection.LeaderElection.isNotLeader;
+import static no.nav.common.leaderelection.LeaderElectionHttpClient.isNotLeader;
 import static no.nav.common.utils.IdUtils.generateId;
 
 public class JobUtils {
