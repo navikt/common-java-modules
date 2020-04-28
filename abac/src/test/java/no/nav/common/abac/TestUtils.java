@@ -1,16 +1,15 @@
 package no.nav.common.abac;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import lombok.SneakyThrows;
-import no.nav.common.json.JsonUtils;
 
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertEquals;
 
 
 public class TestUtils {
@@ -26,10 +25,10 @@ public class TestUtils {
         return url.getPath().replaceFirst("^/(.:/)", "$1");
     }
 
-    public static void assertJson(String json, String expectedJson) {
-        ObjectNode objectNode = JsonUtils.fromJson(json, ObjectNode.class);
-        ObjectNode expectedObjectNode = JsonUtils.fromJson(expectedJson, ObjectNode.class);
-        assertThat(objectNode, equalTo(expectedObjectNode));
+    public static void assertJsonEquals(String expectedJson, String actualJson) {
+        JsonElement expectedElement = JsonParser.parseString(expectedJson);
+        JsonElement actualElement = JsonParser.parseString(actualJson);
+        assertEquals(expectedElement, actualElement);
     }
 
 }

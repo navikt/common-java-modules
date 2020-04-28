@@ -3,11 +3,10 @@ package no.nav.common.abac;
 import no.nav.common.abac.domain.response.*;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static no.nav.common.abac.TestUtils.assertJson;
+import static no.nav.common.abac.TestUtils.assertJsonEquals;
 import static no.nav.common.abac.TestUtils.getContentFromJsonFile;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,64 +19,64 @@ public class XacmlMapperTest {
     private static final String ID2 = "no.nav.abac.advices.deny.reason";
 
     @Test
-    public void convertsRequestToJson() throws IOException {
+    public void convertsRequestToJson() {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequest());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withtoken.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
-    public void convertRequestWithSubjectAttributesToJson() throws IOException {
+    public void convertRequestWithSubjectAttributesToJson() {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjectAttributes());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjectattributes.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
-    public void convertRequestWithSubjAttrWithoutEnvironmentToJson() throws IOException {
+    public void convertRequestWithSubjAttrWithoutEnvironmentToJson() {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestWithSubjAttrWithoutEnvironment());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-withsubjattrwithoutenvironment.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
-    public void convertRequestWithSubjectAndKode6() throws IOException {
+    public void convertRequestWithSubjectAndKode6() {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode6Resource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-kode6.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
 
     }
 
     @Test
-    public void convertRequestWithSubjectAndKode7() throws IOException {
+    public void convertRequestWithSubjectAndKode7() {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithKode7Resource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-kode7.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
-    public void convertRequestWithSubjectAndVeilarb() throws IOException {
+    public void convertRequestWithSubjectAndVeilarb() {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithVeilArbResource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-veilarb.json");
-        assertJson(stringEntity, expectedContent);
+        assertJsonEquals(stringEntity, expectedContent);
     }
 
     @Test
-    public void convertRequestWithSubjectAndEgenAnsatt() throws IOException {
+    public void convertRequestWithSubjectAndEgenAnsatt() {
         final String stringEntity = XacmlMapper.mapRequestToEntity(MockXacmlRequest.getXacmlRequestForSubjectWithEgenAnsattResource());
 
         String expectedContent = getContentFromJsonFile("xacmlrequest-egenAnsatt.json");
-        assertJson(stringEntity,expectedContent);
+        assertJsonEquals(stringEntity,expectedContent);
     }
 
     @Test
-    public void convertsSimpleJsonToResponse() throws IOException {
+    public void convertsSimpleJsonToResponse() {
         final XacmlResponse actualResponse = XacmlMapper
                 .mapRawResponse(getContentFromJsonFile("xacmlresponse-simple.json"));
 
@@ -87,7 +86,7 @@ public class XacmlMapperTest {
     }
 
     @Test
-    public void convertsSimpleJsonWithArrayToResponse() throws IOException {
+    public void convertsSimpleJsonWithArrayToResponse() {
         final XacmlResponse actualResponse = XacmlMapper
                 .mapRawResponse(getContentFromJsonFile("xacmlresponse-simple-with-array.json"));
         XacmlResponse expectedResponse = getXacmlResponse();
@@ -96,7 +95,7 @@ public class XacmlMapperTest {
     }
 
     @Test
-    public void convertsJsonWithAdvicesToResponse() throws IOException {
+    public void convertsJsonWithAdvicesToResponse() {
         final XacmlResponse actualResponse = XacmlMapper
                 .mapRawResponse(getContentFromJsonFile("xacmlresponse-multiple-advice.json"));
         XacmlResponse expectedResponse = getXacmlResponseWithAdvices();
@@ -105,7 +104,7 @@ public class XacmlMapperTest {
     }
 
     @Test
-    public void convertsJsonWithAdvices2ToResponse() throws IOException {
+    public void convertsJsonWithAdvices2ToResponse() {
         final XacmlResponse actualResponse = XacmlMapper
                 .mapRawResponse(getContentFromJsonFile("xacmlresponse-with-attributeassignmentlist.json"));
         XacmlResponse expectedResponse = getXacmlResponseWithAdvices2();
