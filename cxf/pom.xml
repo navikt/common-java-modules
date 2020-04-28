@@ -211,13 +211,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/common/cxf.git</developerConnection>
-        <url>http://stash.devillo.no/scm/common/cxf.git</url>
-        <tag>HEAD</tag>
-    </scm>
 </project>

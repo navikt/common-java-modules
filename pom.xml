@@ -39,7 +39,6 @@
         <module>bom</module>
         <module>cxf</module>
         <module>feature-toggle</module>
-        <module>feed</module>
         <module>json</module>
         <module>log</module>
         <module>leader-election</module>
