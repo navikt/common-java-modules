@@ -85,7 +85,4 @@ public final class NavAttributter {
     public static final String SUBJECT_FELLES_SUBJECTTYPE = "no.nav.abac.attributter.subject.felles.subjectType";
     public static final String SUBJECT_REGISTRE_TPS_ALDER = "no.nav.abac.attributter.subject.registre.tps_alder";
     public static final String SUBJECT_REGISTRE_TPS_ER_LEVENDE = "no.nav.abac.attributter.subject.registre.tps_er_levende";
-
-    public NavAttributter() {
-    }
 }

@@ -20,7 +20,7 @@ public class AuditLogger {
 
     void logResponseInfo(String biasedDecision, XacmlResponse xacmlResponse, Request request) {
         final Response response = xacmlResponse.getResponse().get(0);
-        log.info("Respone from Abac - NAV-ident: " + SubjectHandler.getIdent().orElse("-") +
+        log.info("Response from Abac - NAV-ident: " + SubjectHandler.getIdent().orElse("-") +
                 " | Resource: " + request.getResource() +
                 " | Decision value from ABAC: " + response.getDecision().name() +
                 " | Pep-decision: " + biasedDecision +

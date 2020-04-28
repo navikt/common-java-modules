@@ -1,51 +1,55 @@
 package no.nav.common.abac;
 
-import no.nav.common.abac.domain.ResourceType;
-import no.nav.common.abac.domain.request.Action;
-import no.nav.common.abac.domain.request.Request;
-import no.nav.common.abac.domain.response.BiasedDecisionResponse;
-import no.nav.common.abac.exception.PepException;
+import no.nav.common.abac.domain.AbacPersonId;
+import no.nav.common.abac.domain.request.ActionId;
 
 public interface Pep {
 
     /**
-     *
-     * @param oidcToken the body of an oidc token
-     * @param domain domain for applikasjon, f eks veilarb
-     * @param personId fnr or aktor id of the person
-     * @return decision from ABAC together with the full response from ABAC
-     * @throws PepException a general exception that indicated that something went wrong in the library
+     * Sjekker om veileder har tilgang til enhet
+     * @param veilederIdent identen til veileder (f.eks Z1234567)
+     * @param enhetId enheten som det sjekkes tilgang på
      */
-    BiasedDecisionResponse isServiceCallAllowedWithOidcToken(String oidcToken, String domain, AbacPersonId personId) throws PepException;
+    void sjekkVeilederTilgangTilEnhet(String veilederIdent, String enhetId);
 
     /**
      *
-     * @param subjectId ident og saksbehandler
-     * @param domain domain for applikasjon, f eks veilarb
-     * @param personId fnr or aktor id of the person
-     * @return decision from ABAC together with the full response from ABAC
-     * @throws PepException a general exception that indicated that something went wrong in the library
+     * @param veilederIdent identen til veileder (f.eks Z1234567)
+     * @param actionId hvilken tilgang spørres det etter
+     * @param personId identifikator for personen det sjekkes tilgang på (fnr/aktør id)
      */
-    BiasedDecisionResponse isServiceCallAllowedWithIdent(String subjectId, String domain, AbacPersonId personId) throws PepException;
+    void sjekkVeilederTilgangTilBruker(String veilederIdent, ActionId actionId, AbacPersonId personId);
 
-    BiasedDecisionResponse isSubjectAuthorizedToSeeKode7(String oidcToken, String domain) throws PepException;
+    /**
+     * Sjekk tilgang ved å bruke en innlogget brukers ID token
+     * @param innloggetBrukerIdToken OIDC ID token til innlogget bruker. Kan enten være tokenet til en veileder eller ekstern bruker.
+     * @param actionId hvilken tilgang spørres det etter
+     * @param personId identifikator for personen det sjekkes tilgang på (fnr/aktør id)
+     */
+    void sjekkTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId);
 
-    BiasedDecisionResponse isSubjectAuthorizedToSeeKode6(String oidcToken, String domain) throws PepException;
+    /**
+     * Sjekker om veileder har tilgang til kode 6 brukere
+     * @param veilederIdent identen til veileder (f.eks Z1234567)
+     */
+    void sjekkVeilederTilgangTilKode6(String veilederIdent);
 
-    BiasedDecisionResponse isSubjectAuthorizedToSeeEgenAnsatt(String oidcToken, String domain) throws PepException;
+    /**
+     * Sjekker om veileder har tilgang til kode 7 brukere
+     * @param veilederIdent identen til veileder (f.eks Z1234567)
+     */
+    void sjekkVeilederTilgangTilKode7(String veilederIdent);
 
-    BiasedDecisionResponse isSubjectMemberOfModiaOppfolging(String oidcToken, String domain) throws PepException;
+    /**
+     * Sjekker om veileder har tilgang til egen ansatt
+     * @param veilederIdent identen til veileder (f.eks Z1234567)
+     */
+    void sjekkVeilederTilgangTilEgenAnsatt(String veilederIdent);
 
-    RequestData nyRequest() throws PepException;
+    /**
+     * Klienten som blir brukt til å sende forespørsler til abac.
+     * @return abac klienten
+     */
+    AbacClient getAbacClient();
 
-    BiasedDecisionResponse harTilgang(RequestData requestData) throws PepException;
-    BiasedDecisionResponse harTilgang(Request request) throws PepException;
-
-    BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker, String domain) throws PepException;
-
-    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException;
-
-    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType) throws PepException;
-
-    void ping() throws PepException;
 }
