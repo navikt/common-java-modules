@@ -4,11 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.common.utils.IdUtils;
 import no.nav.common.utils.StringUtils;
 import org.slf4j.MDC;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,12 +16,11 @@ import java.util.function.Supplier;
 import static no.nav.common.log.LogUtils.buildMarker;
 import static no.nav.common.utils.IdUtils.generateId;
 import static no.nav.common.utils.StringUtils.nullOrEmpty;
-import static org.springframework.http.HttpHeaders.SERVER;
-
 
 @Slf4j
-public class LogFilter extends OncePerRequestFilter implements EnvironmentAware {
+public class LogFilter implements Filter {
 
+    private static final String LOG_FILTER_FILTERED = "LOG_FILTER_FILTERED";
 
     public static final String CONSUMER_ID_HEADER_NAME = "Nav-Consumer-Id";
 
@@ -59,38 +55,61 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         this.exposeErrorDetails = logFilterConfig.getExposeErrorDetails();
         this.serverName = logFilterConfig.getServerName();
     }
-
+    
     @Override
-    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        String userId = resolveUserId(httpServletRequest);
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+            throw new ServletException("LogFilter supports only HTTP requests");
+        }
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        boolean hasAlreadyFilteredAttribute = request.getAttribute(LOG_FILTER_FILTERED) != null;
+
+        // Make sure that the same request does not get filtered twice
+        if (hasAlreadyFilteredAttribute) {
+            filterChain.doFilter(request, response);
+        } else {
+            request.setAttribute(LOG_FILTER_FILTERED, Boolean.TRUE);
+            try {
+                filter(httpRequest, httpResponse, filterChain);
+            } finally {
+                request.removeAttribute(LOG_FILTER_FILTERED);
+            }
+        }
+    }
+
+    public void filter(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain) throws IOException, ServletException {
+        String userId = resolveUserId(httpRequest);
         if (nullOrEmpty(userId)) {
             // user-id tracking only works if the client is stateful and supports cookies.
             // if no user-id is found, generate one for any following requests but do not use it on the current request to avoid generating large numbers of useless user-ids.
-            generateUserIdCookie(httpServletResponse);
+            generateUserIdCookie(httpResponse);
         }
 
-        String consumerId = httpServletRequest.getHeader(CONSUMER_ID_HEADER_NAME);
-        String callId = resolveCallId(httpServletRequest);
+        String consumerId = httpRequest.getHeader(CONSUMER_ID_HEADER_NAME);
+        String callId = resolveCallId(httpRequest);
 
         MDC.put(MDCConstants.MDC_CALL_ID, callId);
         MDC.put(MDCConstants.MDC_USER_ID, userId);
         MDC.put(MDCConstants.MDC_CONSUMER_ID, consumerId);
         MDC.put(MDCConstants.MDC_REQUEST_ID, generateId());
 
-        httpServletResponse.setHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
+        httpResponse.setHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
 
         if (serverName != null) {
-            httpServletResponse.setHeader(SERVER, serverName);
+            httpResponse.setHeader("Server", serverName);
         }
 
         try {
-            filterWithErrorHandling(httpServletRequest, httpServletResponse, filterChain);
+            filterWithErrorHandling(httpRequest, httpResponse, filterChain);
 
             buildMarker()
-                    .field("status", httpServletResponse.getStatus())
-                    .field("method", httpServletRequest.getMethod())
-                    .field("host", httpServletRequest.getServerName())
-                    .field("path", httpServletRequest.getRequestURI())
+                    .field("status", httpResponse.getStatus())
+                    .field("method", httpRequest.getMethod())
+                    .field("host", httpRequest.getServerName())
+                    .field("path", httpRequest.getRequestURI())
                     .log(log::info);
 
         } finally {
@@ -101,42 +120,42 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         }
     }
 
-    public static String resolveCallId(HttpServletRequest httpServletRequest) {
-        return Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpServletRequest::getHeader)
+    public static String resolveCallId(HttpServletRequest httpRequest) {
+        return Arrays.stream(NAV_CALL_ID_HEADER_NAMES).map(httpRequest::getHeader)
                 .filter(StringUtils::notNullOrEmpty)
                 .findFirst()
                 .orElseGet(IdUtils::generateId);
     }
 
-    private void generateUserIdCookie(HttpServletResponse httpServletResponse) {
+    private void generateUserIdCookie(HttpServletResponse httpResponse) {
         String userId = generateId();
         Cookie cookie = new Cookie(RANDOM_USER_ID_COOKIE_NAME, userId);
         cookie.setPath("/");
         cookie.setMaxAge(ONE_MONTH_IN_SECONDS);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        httpServletResponse.addCookie(cookie);
+        httpResponse.addCookie(cookie);
     }
 
-    private void filterWithErrorHandling(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws IOException, ServletException {
+    private void filterWithErrorHandling(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain) throws IOException, ServletException {
         try {
-            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            filterChain.doFilter(httpRequest, httpResponse);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            if (httpServletResponse.isCommitted()) {
-                log.error("failed with status={}", httpServletResponse.getStatus());
+            if (httpResponse.isCommitted()) {
+                log.error("failed with status={}", httpResponse.getStatus());
                 throw e;
             } else {
-                httpServletResponse.setStatus(500);
+                httpResponse.setStatus(500);
                 if (exposeErrorDetails.get()) {
-                    e.printStackTrace(httpServletResponse.getWriter());
+                    e.printStackTrace(httpResponse.getWriter());
                 }
             }
         }
     }
 
-    public String resolveUserId(HttpServletRequest httpServletRequest) {
-        Cookie[] cookies = httpServletRequest.getCookies();
+    public String resolveUserId(HttpServletRequest httpRequest) {
+        Cookie[] cookies = httpRequest.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (RANDOM_USER_ID_COOKIE_NAME.equals(cookie.getName())) {
@@ -147,4 +166,9 @@ public class LogFilter extends OncePerRequestFilter implements EnvironmentAware 
         return null;
     }
 
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {}
+
+    @Override
+    public void destroy() {}
 }
