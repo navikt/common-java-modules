@@ -12,7 +12,7 @@ import static no.nav.common.abac.TestUtils.assertJsonEquals;
 import static no.nav.common.abac.TestUtils.getContentFromJsonFile;
 import static org.mockito.Mockito.*;
 
-public class AbacServiceTest {
+public class VeilarbPepTest {
 
     private final static AbacPersonId TEST_FNR = AbacPersonId.fnr("12345678900");
 
@@ -50,11 +50,11 @@ public class AbacServiceTest {
 
     @Test
     public void sjekkVeilederTilgangTilEnhet__skal_lage_riktig_request() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
         String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkVeilederTilgangTilEnhet.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        abacService.sjekkVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
+        veilarbPep.sjekkVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -62,18 +62,18 @@ public class AbacServiceTest {
 
     @Test(expected = PepException.class)
     public void sjekkVeilederTilgangTilEnhet__skal_kaste_exception_hvis_ikke_tilgang() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
-        abacService.sjekkVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
+        veilarbPep.sjekkVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
     }
 
 
     @Test
     public void sjekkVeilederTilgangTilBruker__skal_lage_riktig_request() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
         String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkVeilederTilgangTilBruker.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        abacService.sjekkVeilederTilgangTilBruker(TEST_VEILEDER_IDENT, ActionId.READ, TEST_FNR);
+        veilarbPep.sjekkVeilederTilgangTilBruker(TEST_VEILEDER_IDENT, ActionId.READ, TEST_FNR);
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -81,18 +81,18 @@ public class AbacServiceTest {
 
     @Test(expected = PepException.class)
     public void sjekkVeilederTilgangTilBruker__skal_kaste_exception_hvis_ikke_tilgang() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
-        abacService.sjekkVeilederTilgangTilBruker(TEST_VEILEDER_IDENT, ActionId.READ, TEST_FNR);
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
+        veilarbPep.sjekkVeilederTilgangTilBruker(TEST_VEILEDER_IDENT, ActionId.READ, TEST_FNR);
     }
 
 
     @Test
     public void sjekkTilgangTilPerson__skal_lage_riktig_request() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
         String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkTilgangTilPerson.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        abacService.sjekkTilgangTilPerson(TEST_OIDC_TOKEN_BODY, ActionId.READ, TEST_FNR);
+        veilarbPep.sjekkTilgangTilPerson(TEST_OIDC_TOKEN_BODY, ActionId.READ, TEST_FNR);
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -100,18 +100,18 @@ public class AbacServiceTest {
 
     @Test(expected = PepException.class)
     public void sjekkTilgangTilPerson__skal_kaste_exception_hvis_ikke_tilgang() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
-        abacService.sjekkTilgangTilPerson(TEST_OIDC_TOKEN_BODY, ActionId.READ, TEST_FNR);
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
+        veilarbPep.sjekkTilgangTilPerson(TEST_OIDC_TOKEN_BODY, ActionId.READ, TEST_FNR);
     }
 
 
     @Test
     public void sjekkVeilederTilgangTilKode6__skal_lage_riktig_request() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
         String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkVeilederTilgangTilKode6.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        abacService.sjekkVeilederTilgangTilKode6(TEST_VEILEDER_IDENT);
+        veilarbPep.sjekkVeilederTilgangTilKode6(TEST_VEILEDER_IDENT);
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -119,17 +119,17 @@ public class AbacServiceTest {
 
     @Test(expected = PepException.class)
     public void sjekkVeilederTilgangTilKode6__skal_kaste_exception_hvis_ikke_tilgang() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
-        abacService.sjekkVeilederTilgangTilKode6(TEST_VEILEDER_IDENT);
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
+        veilarbPep.sjekkVeilederTilgangTilKode6(TEST_VEILEDER_IDENT);
     }
 
     @Test
     public void sjekkVeilederTilgangTilKode7__skal_lage_riktig_request() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
         String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkVeilederTilgangTilKode7.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        abacService.sjekkVeilederTilgangTilKode7(TEST_VEILEDER_IDENT);
+        veilarbPep.sjekkVeilederTilgangTilKode7(TEST_VEILEDER_IDENT);
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -137,17 +137,17 @@ public class AbacServiceTest {
 
     @Test(expected = PepException.class)
     public void sjekkVeilederTilgangTilKode7__skal_kaste_exception_hvis_ikke_tilgang() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
-        abacService.sjekkVeilederTilgangTilKode7(TEST_VEILEDER_IDENT);
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
+        veilarbPep.sjekkVeilederTilgangTilKode7(TEST_VEILEDER_IDENT);
     }
 
     @Test
     public void sjekkVeilederTilgangTilEgenAnsatt__skal_lage_riktig_request() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, mock(AuditLogger.class));
         String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkVeilederTilgangTilEgenAnsatt.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        abacService.sjekkVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT);
+        veilarbPep.sjekkVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT);
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -155,8 +155,8 @@ public class AbacServiceTest {
 
     @Test(expected = PepException.class)
     public void sjekkVeilederTilgangTilEgenAnsatt__skal_kaste_exception_hvis_ikke_tilgang() {
-        AbacService abacService = new AbacService(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
-        abacService.sjekkVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT);
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, mock(AuditLogger.class));
+        veilarbPep.sjekkVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT);
     }
 
 }

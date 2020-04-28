@@ -9,7 +9,7 @@ import no.nav.common.abac.exception.PepException;
 
 import static no.nav.common.abac.XacmlRequestBuilder.*;
 
-public class AbacService implements Pep {
+public class VeilarbPep implements Pep {
 
     public final static String VEILARB_DOMAIN = "veilarb";
 
@@ -19,13 +19,13 @@ public class AbacService implements Pep {
 
     private final AuditLogger auditLogger;
 
-    public AbacService(String abacUrl, String srvUsername, String srvPassword) {
+    public VeilarbPep(String abacUrl, String srvUsername, String srvPassword) {
         this.srvUsername = srvUsername;
         this.auditLogger = new AuditLogger();
         this.abacClient = new AbacCachedClient(new AbacHttpClient(abacUrl, srvUsername, srvPassword));
     }
 
-    public AbacService(String srvUsername, AbacClient abacClient, AuditLogger auditLogger) {
+    public VeilarbPep(String srvUsername, AbacClient abacClient, AuditLogger auditLogger) {
         this.srvUsername = srvUsername;
         this.abacClient = abacClient;
         this.auditLogger = auditLogger;
