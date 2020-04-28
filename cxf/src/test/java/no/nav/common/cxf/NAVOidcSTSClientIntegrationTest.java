@@ -4,10 +4,7 @@ import no.nav.common.auth.SubjectRule;
 import no.nav.common.auth.TestSubjectUtils;
 import no.nav.common.cxf.jetty.Jetty;
 import org.apache.servicemix.examples.cxf.HelloWorld;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 
 import java.net.ConnectException;
@@ -56,6 +53,7 @@ public class NAVOidcSTSClientIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void cache_sts_token_for_hver_bruker_og_stsType() throws Exception {
         HelloWorld tjenesteA = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-a"))
