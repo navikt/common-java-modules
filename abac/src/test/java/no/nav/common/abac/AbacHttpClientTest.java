@@ -25,7 +25,7 @@ public class AbacHttpClientTest {
         XacmlRequest request = MockXacmlRequest.getXacmlRequest();
         String xacmlJson = XacmlMapper.mapRequestToEntity(request);
 
-        client.sendRequest(xacmlJson);
+        client.sendRawRequest(xacmlJson);
 
         verify(postRequestedFor(urlEqualTo("/"))
                 .withHeader("Content-Type", equalTo("application/xacml+json; charset=utf-8"))
@@ -47,7 +47,7 @@ public class AbacHttpClientTest {
         XacmlRequest request = MockXacmlRequest.getXacmlRequest();
         String xacmlJson = XacmlMapper.mapRequestToEntity(request);
 
-        assertEquals(responseJson, client.sendRequest(xacmlJson));
+        assertEquals(responseJson, client.sendRawRequest(xacmlJson));
     }
 
 }

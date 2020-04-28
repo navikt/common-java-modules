@@ -3,6 +3,8 @@ package no.nav.common.abac;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.SneakyThrows;
+import no.nav.common.abac.domain.request.XacmlRequest;
+import no.nav.common.abac.domain.response.XacmlResponse;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -30,7 +32,14 @@ public class AbacCachedClient implements AbacClient {
     }
 
     @Override
-    public String sendRequest(String xacmlRequestJson) {
+    public XacmlResponse sendRequest(XacmlRequest xacmlRequest) {
+        String xacmlRequestJson = XacmlMapper.mapRequestToEntity(xacmlRequest);
+        String xacmlResponseJson = sendRawRequest(xacmlRequestJson);
+        return XacmlMapper.mapRawResponse(xacmlResponseJson);
+    }
+
+    @Override
+    public String sendRawRequest(String xacmlRequestJson) {
         String cacheKey = createCacheKey(xacmlRequestJson);
         Optional<String> maybeCachedResponse = Optional.ofNullable(abacCache.getIfPresent(cacheKey));
 
@@ -38,7 +47,7 @@ public class AbacCachedClient implements AbacClient {
             return maybeCachedResponse.get();
         }
 
-        String xacmleResponse = abacClient.sendRequest(xacmlRequestJson);
+        String xacmleResponse = abacClient.sendRawRequest(xacmlRequestJson);
         abacCache.put(cacheKey, xacmleResponse);
 
         return xacmleResponse;

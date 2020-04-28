@@ -2,8 +2,9 @@ package no.nav.common.abac;
 
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.ActionId;
+import no.nav.common.abac.domain.request.XacmlRequest;
+import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.PepException;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -23,19 +24,29 @@ public class AbacServiceTest {
 
     private static final String TEST_OIDC_TOKEN_BODY = "eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9";
 
-    private AbacClient genericPermitClient = mock(AbacClient.class);
+    private AbacClient genericPermitClient = spy(new AbacClient() {
+        @Override
+        public String sendRawRequest(String xacmlRequestJson) {
+            return getContentFromJsonFile("xacmlresponse-generic-permit.json");
+        }
 
-    private AbacClient genericDenyClient = mock(AbacClient.class);
+        @Override
+        public XacmlResponse sendRequest(XacmlRequest xacmlRequest) {
+            return XacmlMapper.mapRawResponse(sendRawRequest(XacmlMapper.mapRequestToEntity(xacmlRequest)));
+        }
+    });
 
+    private AbacClient genericDenyClient = spy(new AbacClient() {
+        @Override
+        public String sendRawRequest(String xacmlRequestJson) {
+            return getContentFromJsonFile("xacmlresponse-generic-deny.json");
+        }
 
-    @Before
-    public void setup() {
-        String genericPermitJson = getContentFromJsonFile("xacmlresponse-generic-permit.json");
-        String genericDenyJson = getContentFromJsonFile("xacmlresponse-generic-deny.json");
-
-        when(genericPermitClient.sendRequest(any())).thenReturn(genericPermitJson);
-        when(genericDenyClient.sendRequest(any())).thenReturn(genericDenyJson);
-    }
+        @Override
+        public XacmlResponse sendRequest(XacmlRequest xacmlRequest) {
+            return XacmlMapper.mapRawResponse(sendRawRequest(XacmlMapper.mapRequestToEntity(xacmlRequest)));
+        }
+    });
 
     @Test
     public void sjekkVeilederTilgangTilEnhet__skal_lage_riktig_request() {
@@ -45,7 +56,7 @@ public class AbacServiceTest {
 
         abacService.sjekkVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
 
-        verify(genericPermitClient, times(1)).sendRequest(captor.capture());
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
     }
 
@@ -64,7 +75,7 @@ public class AbacServiceTest {
 
         abacService.sjekkVeilederTilgangTilBruker(TEST_VEILEDER_IDENT, ActionId.READ, TEST_FNR);
 
-        verify(genericPermitClient, times(1)).sendRequest(captor.capture());
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
     }
 
@@ -83,7 +94,7 @@ public class AbacServiceTest {
 
         abacService.sjekkTilgangTilPerson(TEST_OIDC_TOKEN_BODY, ActionId.READ, TEST_FNR);
 
-        verify(genericPermitClient, times(1)).sendRequest(captor.capture());
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
     }
 
@@ -102,7 +113,7 @@ public class AbacServiceTest {
 
         abacService.sjekkVeilederTilgangTilKode6(TEST_VEILEDER_IDENT);
 
-        verify(genericPermitClient, times(1)).sendRequest(captor.capture());
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
     }
 
@@ -120,7 +131,7 @@ public class AbacServiceTest {
 
         abacService.sjekkVeilederTilgangTilKode7(TEST_VEILEDER_IDENT);
 
-        verify(genericPermitClient, times(1)).sendRequest(captor.capture());
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
     }
 
@@ -138,7 +149,7 @@ public class AbacServiceTest {
 
         abacService.sjekkVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT);
 
-        verify(genericPermitClient, times(1)).sendRequest(captor.capture());
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
     }
 

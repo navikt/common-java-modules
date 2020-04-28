@@ -1,5 +1,7 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.domain.request.XacmlRequest;
+import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.AbacException;
 import okhttp3.*;
 import org.slf4j.Logger;
@@ -25,11 +27,18 @@ public class AbacHttpClient implements AbacClient {
     }
 
     @Override
-    public String sendRequest(String requestXacmlJson) {
+    public XacmlResponse sendRequest(XacmlRequest xacmlRequest) {
+        String xacmlRequestJson = XacmlMapper.mapRequestToEntity(xacmlRequest);
+        String xacmlResponseJson = sendRawRequest(xacmlRequestJson);
+        return XacmlMapper.mapRawResponse(xacmlResponseJson);
+    }
+
+    @Override
+    public String sendRawRequest(String xacmlRequestJson) {
         Request request = new Request.Builder()
                 .url(abacUrl)
                 .addHeader("Authorization", Credentials.basic(srvUsername, srvPassword))
-                .post(RequestBody.create(MediaType.get("application/xacml+json"), requestXacmlJson))
+                .post(RequestBody.create(MediaType.get("application/xacml+json"), xacmlRequestJson))
                 .build();
 
         try(Response response = client.newCall(request).execute()) {

@@ -124,10 +124,7 @@ public class AbacService implements Pep {
     private boolean harTilgang(XacmlRequest xacmlRequest) {
         auditLogger.logRequestInfo(xacmlRequest.getRequest());
 
-        String xacmlRequestJson = XacmlMapper.mapRequestToEntity(xacmlRequest);
-        String xacmlResponseJson = abacClient.sendRequest(xacmlRequestJson);
-        XacmlResponse xacmlResponse = XacmlMapper.mapRawResponse(xacmlResponseJson);
-
+        XacmlResponse xacmlResponse = abacClient.sendRequest(xacmlRequest);
         Decision decision = XacmlResponseParser.getSingleDecision(xacmlResponse);
 
         auditLogger.logResponseInfo(decision.name(), xacmlResponse, xacmlRequest.getRequest());
