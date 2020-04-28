@@ -12,15 +12,21 @@ import java.util.concurrent.TimeUnit;
 
 public class AbacCachedClient implements AbacClient {
 
-    private final Cache<String, String> abacCache = Caffeine.newBuilder()
-            .expireAfterWrite(12, TimeUnit.HOURS)
-            .maximumSize(20_000)
-            .build();
+    private final Cache<String, String> abacCache;
 
     private final AbacClient abacClient;
 
     public AbacCachedClient(AbacClient abacClient) {
         this.abacClient = abacClient;
+        this.abacCache = Caffeine.newBuilder()
+                .expireAfterWrite(12, TimeUnit.HOURS)
+                .maximumSize(20_000)
+                .build();
+    }
+
+    public AbacCachedClient(AbacClient abacClient, Cache<String, String> abacCache) {
+        this.abacClient = abacClient;
+        this.abacCache = abacCache;
     }
 
     @Override
