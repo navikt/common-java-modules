@@ -10,7 +10,6 @@ import no.nav.common.oidc.test_provider.OidcProviderTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.util.SocketUtils;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -41,10 +40,10 @@ public class OidcAuthenticationFilterTest {
             .build();
 
     @Rule
-    public OidcProviderTestRule azureAdOidcProviderRule = new OidcProviderTestRule(SocketUtils.findAvailableTcpPort(), azureAdIssuerConfig);
+    public OidcProviderTestRule azureAdOidcProviderRule = new OidcProviderTestRule(azureAdIssuerConfig);
 
     @Rule
-    public OidcProviderTestRule openAMOidcProviderRule = new OidcProviderTestRule(SocketUtils.findAvailableTcpPort(), openAMIssuerConfig);
+    public OidcProviderTestRule openAMOidcProviderRule = new OidcProviderTestRule(openAMIssuerConfig);
 
 
     private OidcAuthenticatorConfig azureAdAuthenticatorConfig;

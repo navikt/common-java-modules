@@ -1,6 +1,5 @@
 package no.nav.common.leaderelection;
 
-
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Before;
@@ -14,7 +13,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class LeaderElectionTest {
+public class LeaderElectionHttpClientTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
@@ -31,22 +30,24 @@ public class LeaderElectionTest {
     }
 
     @Test
-    public void isLeaderIsTrue() throws UnknownHostException {
-
+    public void isLeaderIsTrue() {
         isLeader(true);
 
-        assertTrue(LeaderElection.isLeader());
+        LeaderElectionHttpClient leaderElectionHttpClient = new LeaderElectionHttpClient();
+
+        assertTrue(leaderElectionHttpClient.isLeader());
     }
 
     @Test
-    public void isLeaderIsFalse() throws UnknownHostException {
-
+    public void isLeaderIsFalse() {
         isLeader(false);
 
-        assertFalse(LeaderElection.isLeader());
+        LeaderElectionHttpClient leaderElectionHttpClient = new LeaderElectionHttpClient();
+
+        assertFalse(leaderElectionHttpClient.isLeader());
     }
 
-    private void isLeader(boolean value) throws UnknownHostException {
+    private void isLeader(boolean value) {
         String name = value ? hostName : "not leader";
 
         givenThat(get(urlEqualTo("/"))

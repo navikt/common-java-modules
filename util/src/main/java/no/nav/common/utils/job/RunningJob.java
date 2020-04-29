@@ -1,4 +1,4 @@
-package no.nav.common.jobutils;
+package no.nav.common.utils.job;
 
 public class RunningJob {
     private String jobId;

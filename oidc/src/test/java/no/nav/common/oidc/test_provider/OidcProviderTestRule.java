@@ -38,8 +38,8 @@ public class OidcProviderTestRule extends ExternalResource {
 
     private final JwtTestTokenIssuer issuer;
 
-    public OidcProviderTestRule(int port, JwtTestTokenIssuerConfig issuerConfig) {
-        this.port = port;
+    public OidcProviderTestRule(JwtTestTokenIssuerConfig issuerConfig) {
+        this.port = PortUtils.findAvailablePort();
         this.issuerConfig = issuerConfig;
         this.issuer = JwtTestTokenUtil.testTokenIssuer(issuerConfig);
     }

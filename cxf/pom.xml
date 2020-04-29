@@ -213,10 +213,4 @@
             <artifactId>spring-test</artifactId>
         </dependency>
     </dependencies>
-
-    <scm>
-        <developerConnection>scm:git:http://stash.devillo.no/scm/common/cxf.git</developerConnection>
-        <url>http://stash.devillo.no/scm/common/cxf.git</url>
-        <tag>HEAD</tag>
-    </scm>
 </project>

@@ -6,7 +6,6 @@ import no.nav.common.oidc.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.oidc.test_provider.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.springframework.util.SocketUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,7 +18,7 @@ public class OidcDiscoveryConfigurationClientTest {
             .build();
 
     @Rule
-    public OidcProviderTestRule oidcProviderRule = new OidcProviderTestRule(SocketUtils.findAvailableTcpPort(), issuerConfig);
+    public OidcProviderTestRule oidcProviderRule = new OidcProviderTestRule(issuerConfig);
 
     @Test
     public void shouldRetrieveDiscoveryConfig() {
