@@ -1,9 +1,9 @@
 package no.nav.common.cxf.saml;
 
 import lombok.SneakyThrows;
-import no.nav.common.auth.IdentType;
-import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.Subject;
+import no.nav.common.auth.subject.IdentType;
+import no.nav.common.auth.subject.SsoToken;
+import no.nav.common.auth.subject.Subject;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;

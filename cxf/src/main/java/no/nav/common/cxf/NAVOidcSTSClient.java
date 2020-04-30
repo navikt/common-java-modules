@@ -1,7 +1,7 @@
 package no.nav.common.cxf;
 
-import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.SubjectHandler;
+import no.nav.common.auth.subject.SsoToken;
+import no.nav.common.auth.subject.SubjectHandler;
 import no.nav.common.cxf.saml.ClaimsCallbackHandler;
 import no.nav.common.utils.StringUtils;
 import org.apache.cxf.Bus;
@@ -13,7 +13,7 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static no.nav.common.auth.SubjectHandler.getSsoToken;
+import static no.nav.common.auth.subject.SubjectHandler.getSsoToken;
 
 public class NAVOidcSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);

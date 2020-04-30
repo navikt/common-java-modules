@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.auth.IdentType;
+import no.nav.common.auth.subject.IdentType;
 import org.apache.wss4j.common.saml.OpenSAMLBootstrap;
 import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.XMLObjectBuilderFactory;

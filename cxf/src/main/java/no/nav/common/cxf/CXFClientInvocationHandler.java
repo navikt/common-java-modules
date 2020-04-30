@@ -1,8 +1,8 @@
 package no.nav.common.cxf;
 
-import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.Subject;
-import no.nav.common.auth.SubjectHandler;
+import no.nav.common.auth.subject.SsoToken;
+import no.nav.common.auth.subject.Subject;
+import no.nav.common.auth.subject.SubjectHandler;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;

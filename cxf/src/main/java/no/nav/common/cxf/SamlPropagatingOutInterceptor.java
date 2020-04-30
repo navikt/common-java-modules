@@ -1,8 +1,8 @@
 package no.nav.common.cxf;
 
 import lombok.SneakyThrows;
-import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.SubjectHandler;
+import no.nav.common.auth.subject.SsoToken;
+import no.nav.common.auth.subject.SubjectHandler;
 import no.nav.common.cxf.saml.SamlUtils;
 import org.apache.cxf.binding.soap.SoapHeader;
 import org.apache.cxf.binding.soap.SoapMessage;

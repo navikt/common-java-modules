@@ -1,7 +1,7 @@
 package no.nav.common.cxf.saml;
 
-import no.nav.common.auth.Subject;
-import no.nav.common.auth.SubjectHandler;
+import no.nav.common.auth.subject.Subject;
+import no.nav.common.auth.subject.SubjectHandler;
 import org.apache.cxf.ws.security.trust.claims.ClaimsCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 
-import static no.nav.common.auth.SsoToken.Type.EKSTERN_OPENAM;
+import static no.nav.common.auth.subject.SsoToken.Type.EKSTERN_OPENAM;
 
 public class ClaimsCallbackHandler implements CallbackHandler {
 
