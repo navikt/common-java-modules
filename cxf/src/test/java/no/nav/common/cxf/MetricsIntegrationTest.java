@@ -1,9 +1,8 @@
 package no.nav.common.cxf;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.auth.IdentType;
-import no.nav.common.auth.Subject;
-import no.nav.common.auth.SubjectRule;
+import no.nav.common.auth.subject.IdentType;
+import no.nav.common.auth.subject.Subject;
 import no.nav.common.cxf.jetty.JettyTestServer;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.apache.servicemix.examples.cxf.HelloWorld;
@@ -12,7 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static java.util.Collections.emptyMap;
-import static no.nav.common.auth.SsoToken.oidcToken;
+import static no.nav.common.auth.subject.SsoToken.oidcToken;
 import static no.nav.common.cxf.StsSecurityConstants.*;
 import static no.nav.common.utils.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
 import static no.nav.common.utils.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;

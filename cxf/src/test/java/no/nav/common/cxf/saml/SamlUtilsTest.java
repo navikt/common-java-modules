@@ -1,14 +1,14 @@
 package no.nav.common.cxf.saml;
 
-import no.nav.common.auth.IdentType;
-import no.nav.common.auth.Subject;
+import no.nav.common.auth.subject.IdentType;
+import no.nav.common.auth.subject.Subject;
 import org.junit.Test;
 import org.opensaml.saml.saml2.core.Assertion;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import static no.nav.common.auth.SsoToken.Type.SAML;
+import static no.nav.common.auth.subject.SsoToken.Type.SAML;
 import static org.assertj.core.api.Assertions.assertThat;
 
 

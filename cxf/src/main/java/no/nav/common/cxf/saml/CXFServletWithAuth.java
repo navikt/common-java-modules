@@ -1,12 +1,12 @@
 package no.nav.common.cxf.saml;
 
-import no.nav.common.auth.Subject;
+import no.nav.common.auth.subject.Subject;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import static no.nav.common.auth.SubjectHandler.withSubjectProvider;
+import static no.nav.common.auth.subject.SubjectHandler.withSubjectProvider;
 
 public class CXFServletWithAuth extends CXFNonSpringServlet {
 

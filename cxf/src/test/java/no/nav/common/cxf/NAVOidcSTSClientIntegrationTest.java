@@ -1,7 +1,6 @@
 package no.nav.common.cxf;
 
-import no.nav.common.auth.SubjectRule;
-import no.nav.common.auth.TestSubjectUtils;
+import no.nav.common.auth.subject.TestSubjectUtils;
 import no.nav.common.cxf.jetty.Jetty;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.*;
@@ -9,8 +8,8 @@ import org.slf4j.Logger;
 
 import java.net.ConnectException;
 
-import static no.nav.common.auth.SsoToken.Type.EKSTERN_OPENAM;
-import static no.nav.common.auth.SsoToken.Type.OIDC;
+import static no.nav.common.auth.subject.SsoToken.Type.EKSTERN_OPENAM;
+import static no.nav.common.auth.subject.SsoToken.Type.OIDC;
 import static no.nav.common.cxf.StsSecurityConstants.*;
 import static no.nav.common.cxf.jetty.JettyTestServer.findFreePort;
 import static no.nav.common.test.ssl.SSLTestUtils.disableCertificateChecks;

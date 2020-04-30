@@ -43,7 +43,6 @@
         <module>log</module>
         <module>leader-election</module>
         <module>metrics</module>
-        <module>oidc</module>
         <module>rest</module>
         <module>health</module>
         <module>test</module>

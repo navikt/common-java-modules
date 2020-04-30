@@ -8,9 +8,9 @@ import no.finn.unleash.event.UnleashSubscriber;
 import no.finn.unleash.repository.FeatureToggleResponse;
 import no.finn.unleash.strategy.Strategy;
 import no.finn.unleash.util.UnleashConfig;
-import no.nav.common.auth.SsoToken;
-import no.nav.common.auth.Subject;
-import no.nav.common.auth.SubjectHandler;
+import no.nav.common.auth.subject.SsoToken;
+import no.nav.common.auth.subject.Subject;
+import no.nav.common.auth.subject.SubjectHandler;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
 
