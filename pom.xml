@@ -44,6 +44,7 @@
         <module>leader-election</module>
         <module>metrics</module>
         <module>rest</module>
+        <module>sts</module>
         <module>health</module>
         <module>test</module>
         <module>types</module>

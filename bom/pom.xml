@@ -122,6 +122,11 @@
             </dependency>
             <dependency>
                 <groupId>no.nav.common</groupId>
+                <artifactId>sts</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.common</groupId>
                 <artifactId>json</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -1,4 +1,4 @@
-package no.nav.common.auth;
+package no.nav.common.sts;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,7 +7,6 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
-import no.nav.common.auth.utils.TokenUtils;
 import no.nav.common.rest.RestUtils;
 
 import javax.ws.rs.client.Client;
@@ -17,11 +16,14 @@ import java.text.ParseException;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
 import static no.nav.common.utils.AuthUtils.basicCredentials;
 
-public class SystemUserTokenProvider {
-
-    private final static int MINIMUM_TIME_TO_EXPIRE_BEFORE_REFRESH = 60 * 1000; // 1 minute
+/**
+ * Retrieves system user tokens from the NAIS - Security Token Service
+ * https://github.com/navikt/security-token-service
+ */
+public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
 
     private final Client client;
 
@@ -33,7 +35,7 @@ public class SystemUserTokenProvider {
 
     private JWT accessToken;
 
-    public SystemUserTokenProvider(String discoveryUrl, String srvUsername, String srvPassword) {
+    public NaisSystemUserTokenProvider(String discoveryUrl, String srvUsername, String srvPassword) {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
         OidcDiscoveryConfiguration configuration = client.fetchDiscoveryConfiguration(discoveryUrl);
 
@@ -43,32 +45,24 @@ public class SystemUserTokenProvider {
         this.client = RestUtils.createClient();
     }
 
-    public SystemUserTokenProvider(String tokenEndpoint, String srvUsername, String srvPassword, Client client) {
+    public NaisSystemUserTokenProvider(String tokenEndpoint, String srvUsername, String srvPassword, Client client) {
         this.tokenEndpoint = tokenEndpoint;
         this.srvUsername = srvUsername;
         this.srvPassword = srvPassword;
         this.client = client;
     }
 
-    public String getSystemUserAccessToken() {
-        if(tokenIsSoonExpired()) {
-            refreshToken();
+    @Override
+    public String getSystemUserToken() {
+        if(tokenNeedsRefresh(accessToken)) {
+            accessToken = fetchSystemUserToken();
         }
 
         return accessToken.getParsedString();
     }
 
     @SneakyThrows(ParseException.class)
-    private void refreshToken() {
-        ClientCredentialsResponse clientCredentials = fetchSystemUserAccessToken();
-        this.accessToken = JWTParser.parse(clientCredentials.accessToken);
-    }
-
-    private boolean tokenIsSoonExpired() {
-        return accessToken == null || TokenUtils.expiresWithin(accessToken, MINIMUM_TIME_TO_EXPIRE_BEFORE_REFRESH);
-    }
-
-    private ClientCredentialsResponse fetchSystemUserAccessToken() {
+    private JWT fetchSystemUserToken() {
         String targetUrl = tokenEndpoint + "?grant_type=client_credentials&scope=openid";
         String basicAuth = basicCredentials(srvUsername, srvPassword);
 
@@ -84,7 +78,8 @@ public class SystemUserTokenProvider {
             throw new RuntimeException(String.format("Received unexpected status %d when requesting access token for system user. Response: %s", response.getStatus(), responseStr));
         }
 
-        return response.readEntity(ClientCredentialsResponse.class);
+        ClientCredentialsResponse credentialsResponse = response.readEntity(ClientCredentialsResponse.class);
+        return JWTParser.parse(credentialsResponse.accessToken);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
