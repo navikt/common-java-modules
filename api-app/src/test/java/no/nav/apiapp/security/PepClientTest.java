@@ -42,7 +42,7 @@ public class PepClientTest {
 
     @Test
     public void sjekkLeseTilgangTilFnr_har_tilgang() {
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, RESOURCE_TYPE, null)).thenReturn(PERMIT);
         assertThat(pepClient.sjekkLesetilgangTilFnr(FNR.getId())).isEqualTo(FNR.getId());
     }
 
@@ -53,27 +53,27 @@ public class PepClientTest {
 
     @Test
     public void sjekkSkriveTilgangTilFnr_har_tilgang() {
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, RESOURCE_TYPE)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, RESOURCE_TYPE, null)).thenReturn(PERMIT);
         assertThat(pepClient.sjekkSkrivetilgangTilFnr("fnr")).isEqualTo(FNR.getId());
     }
 
     @Test
     public void harTilgangTilEnhet_tilgang() {
-        when(pep.harTilgang(any(RequestData.class))).thenReturn(PERMIT);
+        when(pep.harTilgang(any(RequestData.class), any())).thenReturn(PERMIT);
         assertTrue(pepClient.harTilgangTilEnhet("enhet"));
     }
 
     @Test
     public void harTilgangTilEnhet_ingen_tilgang() {
-        when(pep.harTilgang(any(RequestData.class))).thenReturn(DENY);
+        when(pep.harTilgang(any(RequestData.class), any())).thenReturn(DENY);
         assertFalse(pepClient.harTilgangTilEnhet("enhet"));
     }
 
     @Test
     public void harTilgangTilEnhet_enhet_null_konverteres_til_tom_streng() {
-        when(pep.harTilgang(any(RequestData.class))).thenReturn(DENY);
+        when(pep.harTilgang(any(RequestData.class), any())).thenReturn(DENY);
         assertFalse(pepClient.harTilgangTilEnhet(null));
-        verify(pep).harTilgang((RequestData) argThat(x -> ((RequestData) x).getEnhet().equals("")));
+        verify(pep).harTilgang((RequestData) argThat(x -> ((RequestData) x).getEnhet().equals("")), any());
     }
 
 }

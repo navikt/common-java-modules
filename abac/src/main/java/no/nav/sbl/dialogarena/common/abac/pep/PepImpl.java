@@ -79,19 +79,20 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType) throws PepException {
+    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType, CEFEventContext cefEventContext) throws PepException {
         validatePersonId(personId);
         return harTilgang(nyRequest()
                 .withPersonId(personId)
                 .withAction(action)
                 .withDomain(domain)
-                .withResourceType(resourceType)
+                .withResourceType(resourceType),
+                cefEventContext
         );
     }
 
     @Override
     public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException {
-        return harInnloggetBrukerTilgangTilPerson(AbacPersonId.fnr(fnr), domain, Action.ActionId.READ, ResourceType.Person);
+        return harInnloggetBrukerTilgangTilPerson(AbacPersonId.fnr(fnr), domain, Action.ActionId.READ, ResourceType.Person, null);
     }
 
     @Override
@@ -112,7 +113,8 @@ public class PepImpl implements Pep {
                 .withSubjectId(subjectId)
                 .withDomain(domain)
                 .withPersonId(personId)
-                .withResourceType(resourceType)
+                .withResourceType(resourceType),
+                null
         );
     }
 
@@ -130,14 +132,16 @@ public class PepImpl implements Pep {
 
     @SneakyThrows
     @Override
-    public BiasedDecisionResponse harTilgang(RequestData requestData) {
-        return harTilgang(new XacmlRequestGenerator().makeRequest(requestData));
+    public BiasedDecisionResponse harTilgang(RequestData requestData, CEFEventContext cefEventContext) {
+        return harTilgang(new XacmlRequestGenerator().makeRequest(requestData), cefEventContext);
     }
 
     @SneakyThrows
     @Override
-    public BiasedDecisionResponse harTilgang(Request request) throws PepException {
-        auditLogger.logRequestInfo(request);
+    public BiasedDecisionResponse harTilgang(Request request, CEFEventContext cefEventContext) throws PepException {
+        if (cefEventContext == null) {
+            auditLogger.logRequestInfo(request);
+        }
 
         XacmlResponse response = askForPermission(new XacmlRequest().withRequest(request));
 
@@ -154,7 +158,11 @@ public class PepImpl implements Pep {
                     + "Fix policy and/or PEP to send proper attributes.");
         }
 
-        auditLogger.logResponseInfo(biasedDecision.name(), response, request);
+        if (cefEventContext == null) {
+            auditLogger.logResponseInfo(biasedDecision.name(), response, request);
+        } else {
+            auditLogger.logCEF(response, cefEventContext);
+        }
 
         return new BiasedDecisionResponse(biasedDecision, response);
     }
@@ -163,7 +171,7 @@ public class PepImpl implements Pep {
     public BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker, String domain) throws PepException {
         Request request = lagHarTilgangTilEnhetRequest(enhet, systembruker, domain);
 
-        return harTilgang(request);
+        return harTilgang(request, null);
     }
 
     private Request lagHarTilgangTilEnhetRequest(String enhet, String systembruker, String domain) {

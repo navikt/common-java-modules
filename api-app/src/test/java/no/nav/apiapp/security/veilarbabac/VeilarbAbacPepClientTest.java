@@ -69,37 +69,37 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testAbacMedLesetilgang() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(PERMIT);
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger().bygg();
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
     }
 
     @Test(expected = IngenTilgang.class)
     public void testAbacUtenLesetilgang() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(DENY);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(DENY);
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger().bygg();
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
     }
 
     @Test
     public void testAbacMedSkrivetilgang() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, VeilArbPerson)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, VeilArbPerson, null)).thenReturn(PERMIT);
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger().bygg();
 
         veilarbAbacPepClient.sjekkSkrivetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, VeilArbPerson);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, WRITE, VeilArbPerson, null);
 
     }
 
@@ -143,7 +143,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAbacOgVeilarbabacMedLesetilgangTilFnr() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(PERMIT);
 
         lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "permit");
 
@@ -153,7 +153,7 @@ public class VeilarbAbacPepClientTest {
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
 
@@ -162,7 +162,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAbacOgVeilarbabacMedLesetilgangTilFnrOgUlikRespons() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(PERMIT);
 
         lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "hallo");
 
@@ -172,7 +172,7 @@ public class VeilarbAbacPepClientTest {
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
     }
@@ -180,7 +180,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAbacOgVeilarbabacMedLesetilgangTilFnrOgAbacGirDeny() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(DENY);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(DENY);
 
         String urlRegex = URL_REGEX_FNR_READ;
 
@@ -195,7 +195,7 @@ public class VeilarbAbacPepClientTest {
             fail("Forventet IngenTilgang-exception");
         } catch(IngenTilgang e) { }
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(urlRegex)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
     }
@@ -203,7 +203,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAktoerIdOgFnrVeilarbabacMedLesetilgangFnrOk() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(DENY);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(DENY);
 
         lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "permit");
         lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 200, "deny");
@@ -215,7 +215,7 @@ public class VeilarbAbacPepClientTest {
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
@@ -224,7 +224,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAktoerIdOgFnrVeilarbabacMedLesetilgangBeggeFeiler_FallbackTilAbac() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(PERMIT);
 
         lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 400, "feil");
         lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 400, "feil");
@@ -236,7 +236,7 @@ public class VeilarbAbacPepClientTest {
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
@@ -245,7 +245,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAktoerIdOgFnrVeilarbabacMedLesetilgangFnrIkkeOk() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson)).thenReturn(DENY);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null)).thenReturn(DENY);
 
         lagVeilarbAbacResponse(URL_REGEX_FNR_READ, 200, "deny");
         lagVeilarbAbacResponse(URL_REGEX_AKTOER_ID_READ, 200, "permit");
@@ -260,7 +260,7 @@ public class VeilarbAbacPepClientTest {
             fail("Forventet IngenTilgang-exception");
         } catch(IngenTilgang e) { }
 
-        Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson);
+        Mockito.verify(pep,times(0)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, VeilArbPerson, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_FNR_READ)));
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_AKTOER_ID_READ)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",AKTOER_ID);
@@ -269,7 +269,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAbacOgVeilarbabacMedEnhet() throws PepException {
 
-        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(PERMIT);
+        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET, null)).thenReturn(PERMIT);
 
         lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, 200, "permit");
 
@@ -278,7 +278,7 @@ public class VeilarbAbacPepClientTest {
                 .bygg();
 
         assertTrue(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
-        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
+        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
         Mockito.verify(logger,times(0)).warn("Fikk avvik i tilgang for {}",ENHET_ID);
 
@@ -287,7 +287,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAbacOgVeilarbabacMedEnhetUlikResonse() throws PepException {
 
-        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(DENY);
+        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET, null)).thenReturn(DENY);
 
         lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, 200, "permit");
 
@@ -296,7 +296,7 @@ public class VeilarbAbacPepClientTest {
                 .bygg();
 
         assertFalse(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
-        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
+        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",ENHET_ID);
     }
@@ -304,7 +304,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testSammenliknAbacOgVeilarbabacMedEnhetUlikResonseOGVeilarbAbacForetrukket() throws PepException {
 
-        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET)).thenReturn(DENY);
+        when(pep.harTilgang(PEP_REQUEST_DATA_ENHET, null)).thenReturn(DENY);
 
         lagVeilarbAbacResponse(URL_REGEX_ENHET_READ, 200, "permit");
 
@@ -314,7 +314,7 @@ public class VeilarbAbacPepClientTest {
                 .bygg();
 
         assertTrue(veilarbAbacPepClient.harTilgangTilEnhet(ENHET_ID));
-        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET);
+        Mockito.verify(pep,times(1)).harTilgang(PEP_REQUEST_DATA_ENHET, null);
         WireMock.verify(1, newRequestPattern(GET,urlMatching(URL_REGEX_ENHET_READ)));
         Mockito.verify(logger,times(1)).warn("Fikk avvik i tilgang for {}",ENHET_ID);
     }
@@ -322,7 +322,7 @@ public class VeilarbAbacPepClientTest {
     @Test
     public void testAbacMedLesetilgangMedOverstyrtRessurs() throws PepException {
 
-        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, Person)).thenReturn(PERMIT);
+        when(pep.harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, Person, null)).thenReturn(PERMIT);
 
         VeilarbAbacPepClient veilarbAbacPepClient = lagBygger()
                 .medResourceTypePerson()
@@ -330,7 +330,7 @@ public class VeilarbAbacPepClientTest {
 
         veilarbAbacPepClient.sjekkLesetilgangTilBruker(BRUKER);
 
-        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, Person);
+        Mockito.verify(pep,times(1)).harInnloggetBrukerTilgangTilPerson(FNR, APPLICATION_DOMAIN, READ, Person, null);
     }
 
     @Test

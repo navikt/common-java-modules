@@ -38,14 +38,14 @@ public interface Pep {
 
     RequestData nyRequest() throws PepException;
 
-    BiasedDecisionResponse harTilgang(RequestData requestData) throws PepException;
-    BiasedDecisionResponse harTilgang(Request request) throws PepException;
+    BiasedDecisionResponse harTilgang(RequestData requestData, CEFEventContext cefEventContext) throws PepException;
+    BiasedDecisionResponse harTilgang(Request request, CEFEventContext cefEventContext) throws PepException;
 
     BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker, String domain) throws PepException;
 
     BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException;
 
-    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType) throws PepException;
+    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType, CEFEventContext cefEventContext) throws PepException;
 
     void ping() throws PepException;
 }

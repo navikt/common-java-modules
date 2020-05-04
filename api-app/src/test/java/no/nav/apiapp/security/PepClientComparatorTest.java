@@ -3,7 +3,6 @@ package no.nav.apiapp.security;
 import no.nav.apiapp.feil.IngenTilgang;
 import no.nav.apiapp.security.veilarbabac.Bruker;
 import no.nav.apiapp.security.veilarbabac.VeilarbAbacPepClient;
-import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.Pep;
 import no.nav.sbl.dialogarena.common.abac.pep.RequestData;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
@@ -335,21 +334,21 @@ public class PepClientComparatorTest {
 
 
     private void pepPermit(Pep pep) {
-        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
+        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
         when(pep.nyRequest()).thenReturn(new RequestData());
-        when(pep.harTilgang(any(RequestData.class))).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
+        when(pep.harTilgang(any(RequestData.class), any())).thenReturn(new BiasedDecisionResponse(Decision.Permit, null));
     }
 
     private void pepDeny(Pep pep) {
-        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
+        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any(), any())).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
         when(pep.nyRequest()).thenReturn(new RequestData());
-        when(pep.harTilgang(any(RequestData.class))).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
+        when(pep.harTilgang(any(RequestData.class), any())).thenReturn(new BiasedDecisionResponse(Decision.Deny, null));
     }
 
     private void pepFeil(Pep pep) {
-        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any())).thenThrow(new RuntimeException("feil"));
+        when(pep.harInnloggetBrukerTilgangTilPerson(any(), any(), any(), any(), any())).thenThrow(new RuntimeException("feil"));
         when(pep.nyRequest()).thenReturn(new RequestData());
-        when(pep.harTilgang(any(RequestData.class))).thenThrow(new RuntimeException("feil"));
+        when(pep.harTilgang(any(RequestData.class), any())).thenThrow(new RuntimeException("feil"));
     }
 
     private void forventIngenLogging() {
