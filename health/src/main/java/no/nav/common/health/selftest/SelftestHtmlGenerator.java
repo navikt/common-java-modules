@@ -3,10 +3,8 @@ package no.nav.common.health.selftest;
 import lombok.SneakyThrows;
 import no.nav.common.health.HealthCheckResult;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -20,7 +18,7 @@ import static java.util.stream.Collectors.joining;
 
 public class SelftestHtmlGenerator {
 
-    private static String htmlTemplate = readResourceFile("/selftest/SelfTestPage.html");
+    private final static String htmlTemplate = readResourceFile("/selftest/SelfTestPage.html");
 
     public static String generate(List<SelftTestCheckResult> checkResults, String host, LocalDateTime timestamp) {
         List<String> tabellrader = checkResults
@@ -54,16 +52,14 @@ public class SelftestHtmlGenerator {
     }
 
     private static String lagTabellrad(SelftTestCheckResult result) {
-
         String status = getStatusNavnElement(SelfTestUtils.toStatus(result), "div");
         String kritisk = result.selfTestCheck.isCritical() ? "Ja" : "Nei";
 
         return tableRow(
                 status,
                 kritisk,
-                result.timeUsed,
+                result.timeUsed + " ms",
                 result.selfTestCheck.getDescription(),
-                result.checkResult,
                 getFeilmelding(result.checkResult)
         );
     }
@@ -99,9 +95,8 @@ public class SelftestHtmlGenerator {
 
     @SneakyThrows
     private static String readResourceFile(String fileName) {
-        URL fileUrl = SelftestHtmlGenerator.class.getClassLoader().getResource(fileName);
-        Path resPath = Paths.get(fileUrl.toURI());
-        return Files.readString(resPath);
+        try (InputStream resourceStream = SelftestHtmlGenerator.class.getResourceAsStream(fileName)) {
+            return new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
-
 }
