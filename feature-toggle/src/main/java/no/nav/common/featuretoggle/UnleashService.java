@@ -1,4 +1,4 @@
-package no.nav.common.featuretoggle.unleash;
+package no.nav.common.featuretoggle;
 
 import lombok.extern.slf4j.Slf4j;
 import no.finn.unleash.DefaultUnleash;

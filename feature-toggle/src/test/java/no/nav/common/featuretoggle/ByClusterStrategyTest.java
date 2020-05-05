@@ -1,4 +1,4 @@
-package no.nav.common.featuretoggle.unleash;
+package no.nav.common.featuretoggle;
 
 import org.junit.Test;
 
@@ -9,7 +9,8 @@ import static no.nav.common.test.SystemProperties.setTemporaryProperty;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_CLUSTER_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ByClusterStrategyTest {
+public class
+ByClusterStrategyTest {
 
 	private ByClusterStrategy byClusterStrategy = new ByClusterStrategy();
 
