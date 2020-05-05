@@ -14,10 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.System.lineSeparator;
-import static java.lang.System.setProperty;
 import static java.util.Arrays.asList;
-import static no.nav.common.utils.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -25,11 +22,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class JsonUtilsTest {
     private static final String TEST_MAP_OF_MAP = "{\"app\": {\"key\": true}, \"app2\": {\"key2\": false}}";
     private static final String TEST_OBJECT_JSON = "{\"aString\":\"test\",\"enEnum\":\"ABC\",\"date\":\"2017-08-09T13:49:13.816+02:00\"}";
-    private static final String TEST_OBJECT_PRETTY_JSON = "{" + lineSeparator()
-            + "  \"aString\" : \"test\"," + lineSeparator()
-            + "  \"enEnum\" : \"ABC\"," + lineSeparator()
-            + "  \"date\" : \"2017-08-09T13:49:13.816+02:00\"" + lineSeparator()
-            + "}";
     private static final String EMPTY_ENUM_VALUE_JSON = "{\"aString\":\"test\",\"enEnum\":\"\"}";
 
     // eldgamle datoer med sekund-offset skaper problemer for bl.a. moment js.
@@ -39,8 +31,6 @@ public class JsonUtilsTest {
     private static final String SERIALISERT_ELDGAMMEL_DATE = "\"0201-09-08T23:22:33Z\"";
     // ELDGAMMEL_DATE_MED_SAER_OFFSET -> SERIALISERT_ELDGAMMEL_DATE: minutter/sekunder endrer seg fordi vi flytter datoen fra sært offset til zulu
     // ELDGAMMEL_DATE_MED_ZULU -> SERIALISERT_ELDGAMMEL_DATE: minutter/sekunder endrer seg ikke
-
-
 
     @Nested
     class toJson {
@@ -62,12 +52,6 @@ public class JsonUtilsTest {
         @Test
         public void object() {
             Assertions.assertThat(JsonUtils.toJson(new TestObject())).isEqualTo(TEST_OBJECT_JSON);
-        }
-
-        @Test
-        public void pretty_print_i_test() {
-            setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "t42");
-            Assertions.assertThat(JsonUtils.toJson(new TestObject(), JsonProvider.createObjectMapper())).isEqualTo(TEST_OBJECT_PRETTY_JSON);
         }
 
         @Test

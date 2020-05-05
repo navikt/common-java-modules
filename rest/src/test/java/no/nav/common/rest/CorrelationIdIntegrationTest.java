@@ -39,7 +39,7 @@ public class CorrelationIdIntegrationTest {
         String correlationId = CorrelationIdIntegrationTest.class.getName();
         String applicationName = CorrelationIdIntegrationTest.class.getSimpleName();
         MDC.put(MDC_CALL_ID, correlationId);
-        systemPropertiesRule.setProperty(EnvironmentUtils.APP_NAME_PROPERTY_NAME, applicationName);
+        systemPropertiesRule.setProperty(EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME, applicationName);
 
         getRequest();
 

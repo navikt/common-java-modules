@@ -54,8 +54,6 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
     private Strategy[] addDefaultStrategies(List<Strategy> strategies) {
         List<Strategy> list = new ArrayList<>(strategies);
         list.addAll(Arrays.asList(
-                new IsNotProdStrategy(),
-                new ByEnvironmentStrategy(),
                 new ByNamespaceStrategy(),
                 new ByClusterStrategy()
         ));

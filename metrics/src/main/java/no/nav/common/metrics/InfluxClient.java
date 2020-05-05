@@ -32,7 +32,8 @@ public class InfluxClient implements MetricsClient {
     public void report(String eventName, Map<String, Object> fields, Map<String, String> tags, long timestampInMilliseconds) {
         tags.putIfAbsent("application", sensuConfig.getApplication());
         tags.putIfAbsent("hostname", sensuConfig.getHostname());
-        tags.putIfAbsent("environment", sensuConfig.getEnvironment());
+        tags.putIfAbsent("cluster", sensuConfig.getCluster());
+        tags.putIfAbsent("namespace", sensuConfig.getNamespace());
 
         long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
         String output = InfluxUtils.createLineProtocolPayload(eventName, tags, fields, timestamp);

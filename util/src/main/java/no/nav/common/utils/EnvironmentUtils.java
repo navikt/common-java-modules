@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
-import static no.nav.common.utils.EnvironmentUtils.EnviromentClass.UNKNOWN;
 import static no.nav.common.utils.StringUtils.nullOrEmpty;
 import static no.nav.common.utils.StringUtils.of;
 
@@ -18,15 +17,9 @@ public class EnvironmentUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnvironmentUtils.class);
 
-    public static final String APP_NAME_PROPERTY_NAME = "NAIS_APP_NAME";
+    public static final String NAIS_APP_NAME_PROPERTY_NAME = "NAIS_APP_NAME";
     public static final String NAIS_NAMESPACE_PROPERTY_NAME = "NAIS_NAMESPACE";
     public static final String NAIS_CLUSTER_NAME_PROPERTY_NAME = "NAIS_CLUSTER_NAME";
-
-    public static final String FASIT_ENVIRONMENT_NAME_PROPERTY_NAME = "FASIT_ENVIRONMENT_NAME";
-    public static final String APP_ENVIRONMENT_NAME_PROPERTY_NAME = "APP_ENVIRONMENT_NAME";
-
-
-    public static final String APP_VERSION_PROPERTY_NAME = "APP_VERSION";
 
     public static void setProperty(String name, String value, Type type) {
         LOGGER.info("{}={}", name, type.format(value));
@@ -51,42 +44,16 @@ public class EnvironmentUtils {
         return of(propertyValue);
     }
 
-    public static boolean getPropertyAsBooleanOrElseFalse(String propertyName) {
-        return EnvironmentUtils
-                .getOptionalProperty(propertyName)
-                .map(Boolean::parseBoolean)
-                .orElse(false);
+    public static Optional<Boolean> isProduction() {
+        return isDevelopment().map(isDev -> !isDev);
     }
 
-    public static EnviromentClass getEnvironmentClass() {
-        return getEnvironmentName()
-                .map(e -> Character.toString(e.charAt(0)).toUpperCase())
-                .map(EnviromentClass::valueOf)
-                .orElse(UNKNOWN);
-    }
-
-    public static boolean isEnvironmentClass(EnviromentClass enviromentClass) {
-        return getEnvironmentClass().equals(enviromentClass);
+    public static Optional<Boolean> isDevelopment() {
+        return getClusterName().map(clusterName -> clusterName.equals("dev-fss") || clusterName.equals("dev-sbs"));
     }
 
     public static Optional<String> getApplicationName() {
-        return getOptionalProperty(APP_NAME_PROPERTY_NAME);
-    }
-
-    public static String requireApplicationName() {
-        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(APP_NAME_PROPERTY_NAME)));
-    }
-
-    public static Optional<String> getEnvironmentName() {
-        return getOptionalProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
-    }
-
-    public static String requireEnvironmentName() {
-        return getEnvironmentName().orElseThrow(() -> new IllegalStateException(createErrorMessage(APP_ENVIRONMENT_NAME_PROPERTY_NAME, FASIT_ENVIRONMENT_NAME_PROPERTY_NAME)));
-    }
-
-    public static Optional<String> getApplicationVersion() {
-        return getOptionalProperty(APP_VERSION_PROPERTY_NAME);
+        return getOptionalProperty(NAIS_APP_NAME_PROPERTY_NAME);
     }
 
     public static Optional<String> getNamespace() {
@@ -97,8 +64,17 @@ public class EnvironmentUtils {
         return getOptionalProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME);
     }
 
+
+    public static String requireApplicationName() {
+        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_NAMESPACE_PROPERTY_NAME)));
+    }
+
     public static String requireNamespace() {
         return getNamespace().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_NAMESPACE_PROPERTY_NAME)));
+    }
+
+    public static String requireClusterName() {
+        return getClusterName().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_CLUSTER_NAME_PROPERTY_NAME)));
     }
 
     @SneakyThrows
@@ -119,30 +95,6 @@ public class EnvironmentUtils {
         return System.getProperty(propertyName, System.getenv(propertyName));
     }
 
-    public static String resolveSrvUserPropertyName() {
-        return asNaisProperty("SRV" + resolveApplicationName() + "_USERNAME");
-    }
-
-    public static String resolverSrvPasswordPropertyName() {
-        return asNaisProperty("SRV" + resolveApplicationName() + "_PASSWORD");
-    }
-
-    private static String resolveApplicationName() {
-        return EnvironmentUtils.requireApplicationName().toUpperCase();
-    }
-
-    private static String asNaisProperty(String value) {
-        return value.replaceAll("\\W", "_");
-    }
-
-    public enum EnviromentClass {
-        UNKNOWN,
-        T,
-        Q,
-        P,
-        M // mock
-    }
-
     public enum Type {
         SECRET,
         PUBLIC;
@@ -154,6 +106,5 @@ public class EnvironmentUtils {
             return "*******";
         }
     }
-
 
 }

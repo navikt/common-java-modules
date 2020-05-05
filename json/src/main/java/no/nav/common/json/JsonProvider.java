@@ -13,10 +13,7 @@ import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT;
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
-import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static no.nav.common.utils.EnvironmentUtils.EnviromentClass.T;
-import static no.nav.common.utils.EnvironmentUtils.isEnvironmentClass;
 
 @Produces({"*/*", APPLICATION_JSON})
 @Consumes({"*/*", APPLICATION_JSON})
@@ -45,12 +42,7 @@ public class JsonProvider extends JacksonJaxbJsonProvider {
         objectMapper.registerModule(new Jdk8Module())
                 .registerModule(DateConfiguration.dateModule())
                 .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .configure(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
-                ;
-
-        if (isEnvironmentClass(T)) {
-            objectMapper.configure(INDENT_OUTPUT, true);
-        }
+                .configure(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
 
         objectMapper.setVisibilityChecker(objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
                 .withFieldVisibility(ANY)
