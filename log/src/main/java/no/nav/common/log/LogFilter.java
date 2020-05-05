@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 import static no.nav.common.log.LogUtils.buildMarker;
 import static no.nav.common.utils.IdUtils.generateId;
@@ -36,24 +35,17 @@ public class LogFilter implements Filter {
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
     private static final int ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30;
 
+    private final String applicationName;
+    private final boolean exposeErrorDetails;
 
-    /**
-     * Filter init param used to specify a {@link Supplier<Boolean>} that will return whether stacktraces should be exposed or not
-     * Defaults to always false
-     */
-    private final Supplier<Boolean> exposeErrorDetails;
-    private final String serverName;
-
-    public LogFilter() {
-        this(LogFilterConfig.builder()
-                .exposeErrorDetails(() -> false)
-                .build()
-        );
+    public LogFilter(String applicationName) {
+        this.applicationName = applicationName;
+        this.exposeErrorDetails = false;
     }
 
-    public LogFilter(LogFilterConfig logFilterConfig) {
-        this.exposeErrorDetails = logFilterConfig.getExposeErrorDetails();
-        this.serverName = logFilterConfig.getServerName();
+    public LogFilter(String applicationName, boolean exposeErrorDetails) {
+        this.applicationName = applicationName;
+        this.exposeErrorDetails = exposeErrorDetails;
     }
     
     @Override
@@ -98,8 +90,8 @@ public class LogFilter implements Filter {
 
         httpResponse.setHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, callId);
 
-        if (serverName != null) {
-            httpResponse.setHeader("Server", serverName);
+        if (applicationName != null) {
+            httpResponse.setHeader("Server", applicationName);
         }
 
         try {
@@ -147,7 +139,7 @@ public class LogFilter implements Filter {
                 throw e;
             } else {
                 httpResponse.setStatus(500);
-                if (exposeErrorDetails.get()) {
+                if (exposeErrorDetails) {
                     e.printStackTrace(httpResponse.getWriter());
                 }
             }
@@ -167,7 +159,7 @@ public class LogFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {}
+    public void init(FilterConfig filterConfig) {}
 
     @Override
     public void destroy() {}
