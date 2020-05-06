@@ -1,7 +1,6 @@
 package no.nav.common.cxf;
 
 import no.nav.common.utils.EnvironmentUtils;
-import no.nav.common.utils.PropertyUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -20,9 +19,9 @@ public class CXFClientInvocationHandlerTest {
 
     @Before
     public void setup() {
-        PropertyUtils.setProperty("no.nav.modig.security.sts.url", "https://dummy.sts.url", EnvironmentUtils.Type.PUBLIC);
-        PropertyUtils.setProperty("no.nav.modig.security.systemuser.username", "dummyUsername", EnvironmentUtils.Type.SECRET);
-        PropertyUtils.setProperty("no.nav.modig.security.systemuser.password", "dummyPassword", EnvironmentUtils.Type.SECRET);
+        EnvironmentUtils.setProperty("no.nav.modig.security.sts.url", "https://dummy.sts.url", EnvironmentUtils.Type.PUBLIC);
+        EnvironmentUtils.setProperty("no.nav.modig.security.systemuser.username", "dummyUsername", EnvironmentUtils.Type.SECRET);
+        EnvironmentUtils.setProperty("no.nav.modig.security.systemuser.password", "dummyPassword", EnvironmentUtils.Type.SECRET);
     }
 
     @Test

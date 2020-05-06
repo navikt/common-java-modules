@@ -3,8 +3,6 @@ package no.nav.common.featuretoggle;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.finn.unleash.util.UnleashConfig;
 import no.finn.unleash.util.UnleashScheduledExecutor;
-import no.nav.common.featuretoggle.unleash.UnleashService;
-import no.nav.common.featuretoggle.unleash.UnleashServiceConfig;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

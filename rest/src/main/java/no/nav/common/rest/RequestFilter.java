@@ -9,13 +9,13 @@ import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.Collections;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static javax.ws.rs.core.HttpHeaders.COOKIE;
 import static no.nav.common.log.LogFilter.NAV_CALL_ID_HEADER_NAMES;
 import static no.nav.common.utils.EnvironmentUtils.getApplicationName;
-import static no.nav.common.utils.ListUtils.mutableList;
 import static no.nav.common.utils.StringUtils.of;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -42,7 +42,7 @@ public class RequestFilter implements ClientRequestFilter {
         // Therefore we serialize cookies on the more modern and simpler rfc6265-format
         // https://www.ietf.org/rfc/rfc2109.txt
         // https://tools.ietf.org/html/rfc6265
-        requestHeaders.replace(COOKIE, mutableList(requestHeaders.get(COOKIE)
+        requestHeaders.replace(COOKIE, Collections.singletonList((requestHeaders.get(COOKIE))
                 .stream()
                 .map(this::toCookieString)
                 .collect(joining("; "))

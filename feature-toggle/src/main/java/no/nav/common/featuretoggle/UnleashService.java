@@ -1,4 +1,4 @@
-package no.nav.common.featuretoggle.unleash;
+package no.nav.common.featuretoggle;
 
 import lombok.extern.slf4j.Slf4j;
 import no.finn.unleash.DefaultUnleash;
@@ -54,8 +54,6 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
     private Strategy[] addDefaultStrategies(List<Strategy> strategies) {
         List<Strategy> list = new ArrayList<>(strategies);
         list.addAll(Arrays.asList(
-                new IsNotProdStrategy(),
-                new ByEnvironmentStrategy(),
                 new ByNamespaceStrategy(),
                 new ByClusterStrategy()
         ));

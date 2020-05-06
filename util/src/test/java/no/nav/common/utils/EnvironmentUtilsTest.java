@@ -6,11 +6,8 @@ import org.junit.Test;
 import static java.lang.System.setProperty;
 import static no.nav.common.test.SystemProperties.setTemporaryProperty;
 import static no.nav.common.utils.EnvironmentUtils.*;
-import static no.nav.common.utils.EnvironmentUtils.EnviromentClass.*;
 import static no.nav.common.utils.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.common.utils.EnvironmentUtils.Type.SECRET;
-import static no.nav.common.utils.PropertyUtils.getOptionalProperty;
-import static no.nav.common.utils.PropertyUtils.getRequiredProperty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -56,19 +53,6 @@ public class EnvironmentUtilsTest {
     }
 
     @Test
-    public void getEnvironmentClass__default_ukjent() {
-        System.clearProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
-        assertThat(getEnvironmentClass()).isEqualTo(UNKNOWN);
-    }
-
-    @Test
-    public void getEnvironmentClass__gjenkjenner_miljo() {
-        assertGetEnvironmentClass("t", T);
-        assertGetEnvironmentClass("q", Q);
-        assertGetEnvironmentClass("p", P);
-    }
-
-    @Test
     public void getOptionalProperty__() {
         String value = "verdi";
         setProperty(PROPERTY_NAME, value);
@@ -96,25 +80,6 @@ public class EnvironmentUtilsTest {
         assertThat(requiredProperty).isNotBlank();
     }
 
-
-    @Test
-    public void getApplicationVersion_from_environment() {
-        setTemporaryProperty(APP_VERSION_PROPERTY_NAME, "123", () -> {
-            assertThat(EnvironmentUtils.getApplicationVersion()).hasValue("123");
-        });
-    }
-
-    @Test
-    public void getApplicationName() {
-        assertThat(EnvironmentUtils.getApplicationName()).isEmpty();
-        assertThatThrownBy(EnvironmentUtils::requireApplicationName).hasMessageContaining(APP_NAME_PROPERTY_NAME);
-
-        setTemporaryProperty(APP_NAME_PROPERTY_NAME, "testapp", () -> {
-            assertThat(EnvironmentUtils.getApplicationName()).hasValue("testapp");
-            assertThat(EnvironmentUtils.requireApplicationName()).isEqualTo("testapp");
-        });
-    }
-
     @Test
     public void getNamespace() {
         assertThat(EnvironmentUtils.getNamespace()).isEmpty();
@@ -127,39 +92,9 @@ public class EnvironmentUtilsTest {
     }
 
     @Test
-    public void getEnvironmentName() {
-        assertThat(EnvironmentUtils.getEnvironmentName()).isEmpty();
-        assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(APP_ENVIRONMENT_NAME_PROPERTY_NAME);
-        assertThatThrownBy(EnvironmentUtils::requireEnvironmentName).hasMessageContaining(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME);
-
-        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "q42", () -> {
-            assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q42");
-            assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q42");
-            setTemporaryProperty(APP_ENVIRONMENT_NAME_PROPERTY_NAME, "q43", () -> {
-                assertThat(EnvironmentUtils.getEnvironmentName()).hasValue("q43");
-                assertThat(EnvironmentUtils.requireEnvironmentName()).isEqualTo("q43");
-            });
-        });
-    }
-
-    @Test
     public void resolveHostname() {
         assertThat(EnvironmentUtils.resolveHostName()).isNotEmpty();
     }
 
-    @Test
-    public void resolveSrvUserPropertyName() {
-        setTemporaryProperty(APP_NAME_PROPERTY_NAME, "testapp-med-rart-navn", () -> {
-            assertThat(EnvironmentUtils.resolveSrvUserPropertyName()).isEqualTo("SRVTESTAPP_MED_RART_NAVN_USERNAME");
-            assertThat(EnvironmentUtils.resolverSrvPasswordPropertyName()).isEqualTo("SRVTESTAPP_MED_RART_NAVN_PASSWORD");
-        });
-    }
-
-    private void assertGetEnvironmentClass(String verdi, EnvironmentUtils.EnviromentClass enviromentClass) {
-        setTemporaryProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, verdi, () -> {
-            assertThat(getEnvironmentClass()).isEqualTo(enviromentClass);
-            assertThat(isEnvironmentClass(enviromentClass)).isTrue();
-        });
-    }
 
 }

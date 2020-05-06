@@ -27,7 +27,7 @@ public class LogFilterTest {
     private MockHttpServletRequest httpServletRequest = new MockHttpServletRequest();
     private HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
-    private LogFilter logFilter = new LogFilter();
+    private LogFilter logFilter = new LogFilter("test");
 
     @Before
     public void setup() {

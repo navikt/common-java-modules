@@ -13,16 +13,14 @@ import org.junit.Test;
 import static java.util.Collections.emptyMap;
 import static no.nav.common.auth.subject.SsoToken.oidcToken;
 import static no.nav.common.cxf.StsSecurityConstants.*;
-import static no.nav.common.utils.EnvironmentUtils.APP_NAME_PROPERTY_NAME;
-import static no.nav.common.utils.EnvironmentUtils.FASIT_ENVIRONMENT_NAME_PROPERTY_NAME;
+import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
 @Slf4j
 public class MetricsIntegrationTest extends JettyTestServer {
 
     @Rule
     public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule()
-            .setProperty(APP_NAME_PROPERTY_NAME, "cxf")
-            .setProperty(FASIT_ENVIRONMENT_NAME_PROPERTY_NAME, "t")
+            .setProperty(NAIS_APP_NAME_PROPERTY_NAME, "cxf")
             .setProperty(STS_URL_KEY, "https://test-sts")
             .setProperty(SYSTEMUSER_USERNAME, "test-user")
             .setProperty(SYSTEMUSER_PASSWORD, "test-password");

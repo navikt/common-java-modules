@@ -1,4 +1,4 @@
-package no.nav.common.featuretoggle.unleash;
+package no.nav.common.featuretoggle;
 
 
 import no.finn.unleash.strategy.Strategy;

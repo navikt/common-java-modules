@@ -5,8 +5,7 @@ import lombok.Value;
 import lombok.experimental.Wither;
 import no.nav.common.utils.EnvironmentUtils;
 
-import static no.nav.common.utils.EnvironmentUtils.getOptionalProperty;
-import static no.nav.common.utils.EnvironmentUtils.requireNamespace;
+import static no.nav.common.utils.EnvironmentUtils.*;
 
 @Value
 @Wither
@@ -26,7 +25,8 @@ public class SensuConfig {
 
     private String application;
     private String hostname;
-    private String environment;
+    private String cluster;
+    private String namespace;
 
     private int retryInterval;
     private int queueSize;
@@ -41,11 +41,10 @@ public class SensuConfig {
         return withSensuDefaults(SensuConfig.builder()
                 .sensuHost(getOptionalProperty(SENSU_CLIENT_HOST).orElse(host))
                 .sensuPort(getOptionalProperty(SENSU_CLIENT_PORT).map(Integer::parseInt).orElse(port))
-
-                .application(EnvironmentUtils.requireApplicationName())
-                .environment(EnvironmentUtils.getEnvironmentName().orElse(requireNamespace()))
+                .application(requireApplicationName())
+                .cluster(requireClusterName())
+                .namespace(requireNamespace())
                 .hostname(EnvironmentUtils.resolveHostName())
-
                 .build()
         );
     }

@@ -17,6 +17,7 @@
         </appender>
     </appender>
 
+    <!-- Prometheus metrikker for antall ganger logget per nivå -->
     <appender name="metrics" class="io.prometheus.client.logback.InstrumentedAppender"/>
 
     <root level="${ROOT_LOG_LEVEL:-INFO}">
