@@ -1,14 +1,14 @@
 package no.nav.common.auth.oidc;
 
 import lombok.SneakyThrows;
-import no.nav.common.rest.RestClient;
+import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static no.nav.common.rest.RestUtils.*;
+import static no.nav.common.rest.client.RestUtils.*;
 
 public class TokenRefreshClient {
 

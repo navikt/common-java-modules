@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static javax.ws.rs.core.HttpHeaders.*;
-import static no.nav.common.rest.RestUtils.MEDIA_TYPE_JSON;
+import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 
 public class OpenAmUtils {
 

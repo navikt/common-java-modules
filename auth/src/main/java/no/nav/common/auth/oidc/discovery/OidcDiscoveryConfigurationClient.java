@@ -2,14 +2,14 @@ package no.nav.common.auth.oidc.discovery;
 
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
-import no.nav.common.rest.RestClient;
+import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static no.nav.common.rest.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
 
 public class OidcDiscoveryConfigurationClient {
 

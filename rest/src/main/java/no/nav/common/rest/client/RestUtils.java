@@ -1,4 +1,4 @@
-package no.nav.common.rest;
+package no.nav.common.rest.client;
 
 import com.google.gson.Gson;
 import okhttp3.MediaType;

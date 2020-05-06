@@ -1,4 +1,4 @@
-package no.nav.common.rest;
+package no.nav.common.rest.client;
 
 import no.nav.common.log.LogFilter;
 import no.nav.common.log.MDCConstants;

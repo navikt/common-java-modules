@@ -7,7 +7,7 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
-import no.nav.common.rest.RestClient;
+import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -18,8 +18,8 @@ import javax.ws.rs.core.MediaType;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static no.nav.common.rest.RestUtils.getBodyStr;
-import static no.nav.common.rest.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.rest.client.RestUtils.getBodyStr;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
 import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
 import static no.nav.common.utils.AuthUtils.basicCredentials;
 

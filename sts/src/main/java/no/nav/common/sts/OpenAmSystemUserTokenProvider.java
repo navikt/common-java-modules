@@ -5,7 +5,7 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
-import no.nav.common.rest.RestClient;
+import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 
 import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;

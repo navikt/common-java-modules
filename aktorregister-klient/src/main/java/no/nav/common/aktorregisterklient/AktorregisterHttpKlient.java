@@ -1,7 +1,7 @@
 package no.nav.common.aktorregisterklient;
 
 import com.google.gson.reflect.TypeToken;
-import no.nav.common.rest.RestClient;
+import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,8 +13,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
-import static no.nav.common.rest.RestUtils.getBodyStr;
-import static no.nav.common.rest.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.rest.client.RestUtils.getBodyStr;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
 
 public class AktorregisterHttpKlient implements AktorregisterKlient {
 

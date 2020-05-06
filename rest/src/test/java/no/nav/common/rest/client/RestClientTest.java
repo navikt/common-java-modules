@@ -2,7 +2,6 @@ package no.nav.common.rest.client;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.log.MDCConstants;
-import no.nav.common.rest.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
