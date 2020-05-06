@@ -1,99 +1,48 @@
 package no.nav.common.rest;
 
-import lombok.Builder;
-import lombok.SneakyThrows;
-import lombok.Value;
-import lombok.experimental.Wither;
-import no.nav.common.json.JsonProvider;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.JerseyClientBuilder;
+import com.google.gson.Gson;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.Client;
-import java.util.function.Function;
-
-import static org.glassfish.jersey.client.ClientProperties.*;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.Optional;
 
 public class RestUtils {
 
-    public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
+    private static final Gson gson = new Gson();
 
-    public static final RestConfig DEFAULT_CONFIG = RestConfig.builder().build();
+    public static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
-    @SuppressWarnings("unused")
-    public static ClientConfig createClientConfig() {
-        return createClientConfig(DEFAULT_CONFIG, getMetricName());
-    }
-
-    public static ClientConfig createClientConfig(RestConfig restConfig) {
-        return createClientConfig(restConfig, getMetricName());
-    }
-
-    private static ClientConfig createClientConfig(RestConfig restConfig, String metricName) {
-        ClientConfig clientConfig = new ClientConfig();
-        clientConfig.register(new JsonProvider());
-        clientConfig.register(new RequestFilter());
-        clientConfig.property(FOLLOW_REDIRECTS, false);
-        clientConfig.property(CONNECT_TIMEOUT, restConfig.connectTimeout);
-        clientConfig.property(READ_TIMEOUT, restConfig.readTimeout);
-        return clientConfig;
-    }
-
-    public static Client createClient() {
-        return createClient(DEFAULT_CONFIG, getMetricName());
-    }
-
-    public static Client createClient(RestConfig restConfig) {
-        return createClient(restConfig, getMetricName());
-    }
-
-    private static Client createClient(RestConfig restConfig, String metricName) {
-        return new JerseyClientBuilder()
-                .sslContext(riktigSSLContext())
-                .withConfig(createClientConfig(restConfig, metricName))
-                .build();
-    }
-
-    public static <T> T withClient(Function<Client, T> function) {
-        return withClient(DEFAULT_CONFIG, function, getMetricName());
-    }
-
-    public static <T> T withClient(RestConfig restConfig, Function<Client, T> function) {
-        return withClient(restConfig, function, getMetricName());
-    }
-
-    private static <T> T withClient(RestConfig restConfig, Function<Client, T> function, String metricName) {
-        Client client = createClient(restConfig, metricName);
-        try {
-            return function.apply(client);
-        } finally {
-            client.close();
+    public static Optional<String> getBodyStr(ResponseBody body) throws IOException {
+        if (body == null) {
+            return Optional.empty();
         }
+
+        return Optional.of(body.string());
     }
 
-    @SneakyThrows
-    private static SSLContext riktigSSLContext() {
-        return SSLContext.getDefault();
+    public static <T> Optional<T> parseJsonResponseBody(ResponseBody body, Class<T> classOfT) throws IOException {
+        return getBodyStr(body).map(bodyStr -> gson.fromJson(bodyStr, classOfT));
     }
 
-    @Value
-    @Wither
-    @Builder
-    public static class RestConfig {
-
-        @Builder.Default
-        public int connectTimeout = 5000;
-        @Builder.Default
-        public int readTimeout = 15000;
-
-        public boolean disableMetrics;
-        public boolean disableParameterLogging;
-
+    public static <T> Optional<T> parseJsonResponseBody(ResponseBody body, Type type) throws IOException {
+        return getBodyStr(body).map(bodyStr -> gson.fromJson(bodyStr, type));
     }
 
-    private static String getMetricName() {
-        StackTraceElement element = Thread.currentThread().getStackTrace()[3];
-        return String.format("rest.client.%s.%s", element.getClassName(), element.getMethodName());
+    public static <T> T parseJsonResponseBodyOrThrow(ResponseBody body, Class<T> classOfT) throws IOException {
+        return parseJsonResponseBody(body, classOfT)
+                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON from request body"));
+    }
+
+    public static <T> T parseJsonResponseBodyOrThrow(ResponseBody body, Type type) throws IOException {
+        return (T) parseJsonResponseBody(body, type)
+                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON from request body"));
+    }
+
+    public static RequestBody toJsonRequestBody(Object toJson) {
+        return RequestBody.create(MEDIA_TYPE_JSON, gson.toJson(toJson));
     }
 
 }

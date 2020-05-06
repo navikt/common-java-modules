@@ -1,18 +1,16 @@
 package no.nav.common.auth.oidc.discovery;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class OidcDiscoveryConfiguration {
 
-	@JsonProperty("jwks_uri")
+	@SerializedName("jwks_uri")
 	public String jwksUri;
 
-	@JsonProperty("token_endpoint")
+	@SerializedName("token_endpoint")
 	public String tokenEndpoint;
 
-	@JsonProperty("authorization_endpoint")
+	@SerializedName("authorization_endpoint")
 	public String authorizationEndpoint;
 
 	public String issuer;

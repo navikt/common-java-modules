@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-import static no.nav.common.rest.RestUtils.CSRF_COOKIE_NAVN;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -23,6 +22,9 @@ import static org.slf4j.LoggerFactory.getLogger;
  * Laget etter https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29_Prevention_Cheat_Sheet#Double_Submit_Cookie
  **/
 public class CsrfDoubleSubmitCookieFilter implements Filter {
+
+    public static final String CSRF_COOKIE_NAVN = "NAV_CSRF_PROTECTION";
+
     private static final Logger LOG = getLogger(CsrfDoubleSubmitCookieFilter.class);
 
     public static final String IGNORED_URLS_INIT_PARAMETER_NAME = "ignoredUrls";

@@ -4,12 +4,16 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import no.nav.common.cxf.jetty.JettyTestServer;
-import no.nav.common.rest.RestUtils;
+import no.nav.common.rest.RestClient;
+import okhttp3.*;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.List;
 
 import static java.lang.System.setProperty;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -61,11 +65,35 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
     }
 
     private void sendRequest(String url) {
-        RestUtils.withClient(client -> client.target(url)
-                .queryParam("wsdl")
-                .request()
-                .cookie("ID_token", "SUPERHEMMELIG")
+       OkHttpClient client = RestClient.baseClientBuilder().cookieJar(new CookieJar() {
+            @Override
+            public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+
+            }
+
+            @Override
+            public List<Cookie> loadForRequest(HttpUrl url) {
+                return Collections.singletonList(
+                    new Cookie.Builder()
+                            .domain("test.local")
+                            .name("ID_token")
+                            .value("SUPERHEMMELIG")
+                            .httpOnly()
+                            .secure()
+                            .build()
+                );
+            }
+        }).build();
+
+        Request request = new Request.Builder()
+                .url(url + "?wsdl")
                 .header("LoggeTest", "LOGGETESTER")
-                .get());
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
