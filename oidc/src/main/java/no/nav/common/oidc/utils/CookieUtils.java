@@ -23,31 +23,18 @@ public class CookieUtils {
                 .map(Cookie::getValue);
     }
 
-    public static Cookie createCookie(String name, String value, String domain, int maxAge, boolean secure) {
-        Cookie newCookie = new Cookie(name, value);
-        newCookie.setDomain(domain);
+    public static Cookie createUpdatedCookie(Cookie existingCookie, String value, Date expireAt) {
+        Cookie newCookie = new Cookie(existingCookie.getName(), value);
+        
+        if (existingCookie.getDomain() != null) {
+            newCookie.setDomain(existingCookie.getDomain());
+        }
+        newCookie.setPath(existingCookie.getPath());
         newCookie.setHttpOnly(true);
-        newCookie.setSecure(secure);
-        newCookie.setMaxAge(maxAge);
+        newCookie.setSecure(true);
+        newCookie.setMaxAge(dateToCookieMaxAge(expireAt));
+
         return newCookie;
-    }
-
-    public static Cookie createCookie(String name, String value, Date expireAt, HttpServletRequest request) {
-        return createCookie(name, value, cookieDomain(request), dateToCookieMaxAge(expireAt), request.isSecure());
-    }
-
-    public static String cookieDomain(HttpServletRequest request) {
-        String serverName = request.getServerName();
-        return extractCookieDomain(serverName);
-    }
-
-    public static String cookieDomain(UriInfo uri) {
-        String host = uri.getBaseUri().getHost();
-        return extractCookieDomain(host);
-    }
-
-    public static String extractCookieDomain(String host) {
-        return host.substring(host.indexOf('.') + 1);
     }
 
     public static int dateToCookieMaxAge(Date date) {
