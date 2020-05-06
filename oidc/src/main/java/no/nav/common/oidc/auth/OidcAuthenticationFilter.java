@@ -121,8 +121,12 @@ public class OidcAuthenticationFilter implements Filter {
             String idTokenCookieName, JWT jwtToken, HttpServletRequest request, HttpServletResponse response
     ) throws ParseException {
         Date cookieExpiration = jwtToken.getJWTClaimsSet().getExpirationTime();
-        Cookie newIdCookie = CookieUtils.createCookie(idTokenCookieName, jwtToken.getParsedString(), cookieExpiration, request);
-        response.addCookie(newIdCookie);
+
+        Cookie refreshedCookie = CookieUtils.getCookie(idTokenCookieName, request)
+                .map((existingCookie) -> CookieUtils.createUpdatedCookie(existingCookie, jwtToken.getParsedString(), cookieExpiration))
+                .orElseThrow(() -> new IllegalStateException("Existing cookie not found: " + idTokenCookieName));
+
+        response.addCookie(refreshedCookie);
     }
 
     private Optional<String> refreshIdTokenIfNecessary(JWT token, OidcAuthenticator authenticator, HttpServletRequest request) {
