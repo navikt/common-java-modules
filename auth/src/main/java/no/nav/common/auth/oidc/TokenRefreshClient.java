@@ -1,36 +1,51 @@
 package no.nav.common.auth.oidc;
 
-import no.nav.common.rest.RestUtils;
+import lombok.SneakyThrows;
+import no.nav.common.rest.client.RestClient;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
-
-import static javax.ws.rs.client.Entity.json;
+import static no.nav.common.rest.client.RestUtils.*;
 
 public class TokenRefreshClient {
 
-    private final Client client;
+    private final static Logger log = LoggerFactory.getLogger(TokenRefreshClient.class);
+
+    private final OkHttpClient client;
 
     public TokenRefreshClient() {
-        this(RestUtils.createClient());
+        this(RestClient.baseClient());
     }
 
-    public TokenRefreshClient(Client client) {
+    public TokenRefreshClient(OkHttpClient client) {
         this.client = client;
     }
 
+    @SneakyThrows
     public String refreshIdToken(String refreshUrl, String refreshToken) {
-        Response response = client
-                .target(refreshUrl)
-                .request()
-                .post(json(new RefreshIdTokenRequest(refreshToken)));
+        Request request = new Request.Builder()
+                .url(refreshUrl)
+                .post(toJsonRequestBody(new RefreshIdTokenRequest(refreshToken)))
+                .build();
 
-        if (response.getStatus() >= 300) {
-            String responseStr = response.readEntity(String.class);
-            throw new RuntimeException(String.format("Received unexpected status %d from %s when refreshing id token. Response: %s", response.getStatus(), refreshUrl, responseStr));
+        try (Response response = client.newCall(request).execute()) {
+
+            if (response.code() >= 300) {
+                String responseStr = getBodyStr(response.body()).orElse("");
+                throw new RuntimeException(
+                        String.format("Received unexpected status %d from %s when refreshing id token. Response: %s",
+                                response.code(), refreshUrl, responseStr)
+                );
+            }
+
+            return parseJsonResponseBodyOrThrow(response.body(), RefreshIdTokenResponse.class).idToken;
+        } catch (Exception e) {
+            log.error("Failed to refresh token with URL " + refreshUrl, e);
+            throw e;
         }
-
-        return response.readEntity(RefreshIdTokenResponse.class).idToken;
     }
 
     public static class RefreshIdTokenRequest {

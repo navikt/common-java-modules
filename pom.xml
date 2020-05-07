@@ -49,7 +49,6 @@
         <module>test</module>
         <module>types</module>
         <module>util</module>
-        <module>web</module>
         <module>yaml</module>
         <module>nais</module>
     </modules>

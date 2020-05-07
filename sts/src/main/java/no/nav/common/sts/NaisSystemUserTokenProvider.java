@@ -7,15 +7,19 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
-import no.nav.common.rest.RestUtils;
+import no.nav.common.rest.client.RestClient;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.text.ParseException;
 
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static no.nav.common.rest.client.RestUtils.getBodyStr;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
 import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
 import static no.nav.common.utils.AuthUtils.basicCredentials;
 
@@ -25,7 +29,9 @@ import static no.nav.common.utils.AuthUtils.basicCredentials;
  */
 public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
 
-    private final Client client;
+    private static final Logger log = LoggerFactory.getLogger(OidcDiscoveryConfigurationClient.class);
+
+    private final OkHttpClient client;
 
     private final String tokenEndpoint;
 
@@ -42,10 +48,10 @@ public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
         this.tokenEndpoint = configuration.tokenEndpoint;
         this.srvUsername = srvUsername;
         this.srvPassword = srvPassword;
-        this.client = RestUtils.createClient();
+        this.client = RestClient.baseClient();
     }
 
-    public NaisSystemUserTokenProvider(String tokenEndpoint, String srvUsername, String srvPassword, Client client) {
+    public NaisSystemUserTokenProvider(String tokenEndpoint, String srvUsername, String srvPassword, OkHttpClient client) {
         this.tokenEndpoint = tokenEndpoint;
         this.srvUsername = srvUsername;
         this.srvPassword = srvPassword;
@@ -61,25 +67,29 @@ public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
         return accessToken.getParsedString();
     }
 
-    @SneakyThrows(ParseException.class)
+    @SneakyThrows
     private JWT fetchSystemUserToken() {
         String targetUrl = tokenEndpoint + "?grant_type=client_credentials&scope=openid";
         String basicAuth = basicCredentials(srvUsername, srvPassword);
 
-        Response response = client
-                .target(targetUrl)
-                .request()
+        Request request = new Request.Builder()
+                .url(targetUrl)
                 .header(CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .header(AUTHORIZATION, basicAuth)
-                .get();
+                .build();
 
-        if (response.getStatus() >= 300) {
-            String responseStr = response.readEntity(String.class);
-            throw new RuntimeException(String.format("Received unexpected status %d when requesting access token for system user. Response: %s", response.getStatus(), responseStr));
+        try (Response response = client.newCall(request).execute()) {
+            if (response.code() >= 300) {
+                String responseStr = getBodyStr(response.body()).orElse("");
+                throw new RuntimeException(String.format("Received unexpected status %d when requesting access token for system user. Response: %s", response.code(), responseStr));
+            }
+
+            ClientCredentialsResponse credentialsResponse = parseJsonResponseBodyOrThrow(response.body(), ClientCredentialsResponse.class);
+            return JWTParser.parse(credentialsResponse.accessToken);
+        } catch (Exception e) {
+            log.error("Failed to fetch system user token from" + targetUrl, e);
+            throw e;
         }
-
-        ClientCredentialsResponse credentialsResponse = response.readEntity(ClientCredentialsResponse.class);
-        return JWTParser.parse(credentialsResponse.accessToken);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

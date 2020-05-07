@@ -5,10 +5,8 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
-import no.nav.common.rest.RestUtils;
-
-import javax.ws.rs.client.Client;
-import java.text.ParseException;
+import no.nav.common.rest.client.RestClient;
+import okhttp3.OkHttpClient;
 
 import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
 
@@ -18,7 +16,7 @@ import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
  */
 public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
 
-    private final Client client;
+    private final OkHttpClient client;
 
     private final String redirectUrl;
 
@@ -50,12 +48,12 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
 
         this.issoRpUserUsername = issoRpUserUsername;
         this.issoRpUserPassword = issoRpUserPassword;
-        this.client = RestUtils.createClient();
+        this.client = RestClient.baseClient();
     }
 
     public OpenAmSystemUserTokenProvider(
             String tokenUrl, String authorizationUrl, String redirectUrl,
-            String issoRpUserUsername, String issoRpUserPassword, Client client
+            String issoRpUserUsername, String issoRpUserPassword, OkHttpClient client
     ) {
         this.tokenUrl = tokenUrl;
         this.authorizationUrl = authorizationUrl;
@@ -74,7 +72,7 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
         return accessToken.getParsedString();
     }
 
-    @SneakyThrows(ParseException.class)
+    @SneakyThrows
     private JWT fetchSystemUserToken() {
         String openAmSessionToken = OpenAmUtils.getSessionToken(issoRpUserUsername, issoRpUserPassword, authorizationUrl, client);
         String authorizationCode = OpenAmUtils.getAuthorizationCode(authorizationUrl, openAmSessionToken, issoRpUserUsername, redirectUrl, client);
