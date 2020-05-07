@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -41,10 +40,7 @@ public class AktorregisterHttpKlientTest {
 
         AktorregisterHttpKlient klient = new AktorregisterHttpKlient(baseUrl, "test", emptyTokenSupplier);
 
-        Optional<String> kanskjeAktorId = klient.hentAktorId(FNR_1);
-
-        assertTrue(kanskjeAktorId.isPresent());
-        assertEquals(kanskjeAktorId.get(), AKTOR_ID_1);
+        assertEquals(klient.hentAktorId(FNR_1), AKTOR_ID_1);
     }
 
     @Test
@@ -80,10 +76,7 @@ public class AktorregisterHttpKlientTest {
 
         AktorregisterHttpKlient klient = new AktorregisterHttpKlient(baseUrl, "test", emptyTokenSupplier);
 
-        Optional<String> kanskjeFnr = klient.hentFnr(AKTOR_ID_1);
-
-        assertTrue(kanskjeFnr.isPresent());
-        assertEquals(kanskjeFnr.get(), FNR_1);
+        assertEquals(klient.hentFnr(AKTOR_ID_1), FNR_1);
     }
 
     @Test

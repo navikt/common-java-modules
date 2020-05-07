@@ -1,6 +1,7 @@
 package no.nav.common.aktorregisterklient;
 
 import com.google.gson.reflect.TypeToken;
+import lombok.SneakyThrows;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -8,6 +9,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -36,12 +38,12 @@ public class AktorregisterHttpKlient implements AktorregisterKlient {
     }
 
     @Override
-    public Optional<String> hentFnr(String aktorId) {
+    public String hentFnr(String aktorId) {
         return hentEnkeltIdent(aktorId, Identgruppe.NorskIdent);
     }
 
     @Override
-    public Optional<String> hentAktorId(String fnr) {
+    public String hentAktorId(String fnr) {
         return hentEnkeltIdent(fnr, Identgruppe.AktoerId);
     }
 
@@ -55,16 +57,19 @@ public class AktorregisterHttpKlient implements AktorregisterKlient {
         return hentFlereIdenter(fnrListe, Identgruppe.AktoerId);
     }
 
-    private Optional<String> hentEnkeltIdent(String aktorIdEllerFnr, Identgruppe identgruppe) {
+    @SneakyThrows
+    private String hentEnkeltIdent(String aktorIdEllerFnr, Identgruppe identgruppe) {
         return hentIdenter(Collections.singletonList(aktorIdEllerFnr), identgruppe)
                 .entrySet()
                 .stream()
                 .filter(this::filtrerIkkeGjeldendeIdent)
                 .findFirst()
                 .flatMap(e -> finnGjeldendeIdent(e.getValue().identer))
-                .map(i -> i.ident);
+                .map(i -> i.ident)
+                .orElseThrow(() -> new RuntimeException("Fant ikke gjeldende ident"));
     }
 
+    @SneakyThrows
     private List<IdentOppslag> hentFlereIdenter(List<String> aktorIdEllerFnrListe, Identgruppe identgruppe) {
         return hentIdenter(aktorIdEllerFnrListe, identgruppe)
                 .entrySet()
@@ -91,7 +96,7 @@ public class AktorregisterHttpKlient implements AktorregisterKlient {
         return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
-    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) {
+    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) throws IOException {
         String personidenter = String.join(",", fnrEllerAtkorIder);
         String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe);
 
@@ -116,7 +121,7 @@ public class AktorregisterHttpKlient implements AktorregisterKlient {
             return parseJsonResponseBodyOrThrow(response.body(), new TypeToken<Map<String, IdentData>>() {}.getType());
         } catch (Exception e) {
             log.error("Klarte ikke å gjore oppslag mot aktorregister", e);
-            return Collections.emptyMap();
+            throw e;
         }
     }
 

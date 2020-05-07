@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class CachedAktorregisterKlient implements AktorregisterKlient {
@@ -26,29 +25,29 @@ public class CachedAktorregisterKlient implements AktorregisterKlient {
     }
 
     @Override
-    public Optional<String> hentFnr(String aktorId) {
+    public String hentFnr(String aktorId) {
         String cachedFnr = hentFnrCache.getIfPresent(aktorId);
 
         if (cachedFnr == null) {
-            Optional<String> maybeFnr = aktorregisterKlient.hentFnr(aktorId);
-            maybeFnr.ifPresent(fnr -> hentFnrCache.put(aktorId, fnr));
-            return maybeFnr;
+            String fnr = aktorregisterKlient.hentFnr(aktorId);
+            hentFnrCache.put(aktorId, fnr);
+            return fnr;
         }
 
-        return Optional.of(cachedFnr);
+        return cachedFnr;
     }
 
     @Override
-    public Optional<String> hentAktorId(String fnr) {
+    public String hentAktorId(String fnr) {
         String cachedAktorId = hentAktorIdCache.getIfPresent(fnr);
 
         if (cachedAktorId == null) {
-            Optional<String> maybeAktorId = aktorregisterKlient.hentAktorId(fnr);
-            maybeAktorId.ifPresent(aktorId -> hentAktorIdCache.put(fnr, aktorId));
-            return maybeAktorId;
+            String aktorId = aktorregisterKlient.hentAktorId(fnr);
+            hentAktorIdCache.put(fnr, aktorId);
+            return aktorId;
         }
 
-        return Optional.of(cachedAktorId);
+        return cachedAktorId;
     }
 
     @Override
