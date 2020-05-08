@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
-    <include resource="logback-stdout-json.xml"/>
-    <include resource="logback-naudit.xml"/>
-    <include resource="logback-securelogs.xml"/>
-    <include resource="logback-cxf.xml"/>
+    <include resource="no/nav/common/log/logback-stdout-json.xml"/>
+    <include resource="no/nav/common/log/logback-naudit.xml"/>
+    <include resource="no/nav/common/log/logback-securelogs.xml"/>
+    <include resource="no/nav/common/log/logback-cxf.xml"/>
 </included>
