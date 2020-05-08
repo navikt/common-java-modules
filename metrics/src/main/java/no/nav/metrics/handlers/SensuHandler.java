@@ -30,6 +30,7 @@ public class SensuHandler {
     private final int batchSize;
     private final int retryInterval;
     private final int batchDelay;
+    private final int connectTimeout;
 
     private long queueSisteGangFullTimestamp = 0;
 
@@ -41,6 +42,7 @@ public class SensuHandler {
         this.batchDelay = 1000 / metricsConfig.getBatchesPerSecond();
         this.batchSize = metricsConfig.getBatchSize();
         this.retryInterval = metricsConfig.getRetryInterval();
+        this.connectTimeout = metricsConfig.getConnectTimeout();
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         this.scheduledExecutorService.execute(new SensuReporter());
 
@@ -99,7 +101,7 @@ public class SensuHandler {
 
     private BufferedWriter connectToSensu(Socket socket) throws IOException {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(sensuHost, sensuPort);
-        socket.connect(inetSocketAddress, 500);
+        socket.connect(inetSocketAddress, connectTimeout);
         return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
