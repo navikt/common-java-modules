@@ -20,21 +20,23 @@
         }
       ]
     },
-    "Resource": {
-      "Attribute": [
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
-          "Value": "no.nav.abac.attributter.resource.felles.person"
-        },
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
-          "Value": "veilarb"
-        },
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.felles.person.fnr",
-          "Value": "12345678900"
-        }
-      ]
-    }
+    "Resource": [
+      {
+        "Attribute": [
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
+            "Value": "no.nav.abac.attributter.resource.felles.person"
+          },
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
+            "Value": "veilarb"
+          },
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.felles.person.fnr",
+            "Value": "12345678900"
+          }
+        ]
+      }
+    ]
   }
 }

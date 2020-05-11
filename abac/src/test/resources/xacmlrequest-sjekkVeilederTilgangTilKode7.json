@@ -20,17 +20,19 @@
         }
       ]
     },
-    "Resource": {
-      "Attribute": [
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
-          "Value": "no.nav.abac.attributter.subject.felles.har_tilgang_kode_7"
-        },
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
-          "Value": "veilarb"
-        }
-      ]
-    }
+    "Resource": [
+      {
+        "Attribute": [
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
+            "Value": "no.nav.abac.attributter.subject.felles.har_tilgang_kode_7"
+          },
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
+            "Value": "veilarb"
+          }
+        ]
+      }
+    ]
   }
 }

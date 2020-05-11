@@ -28,21 +28,23 @@
         }
       ]
     },
-    "Resource": {
-      "Attribute": [
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
-          "Value": "no.nav.abac.attributter.resource.veilarb.enhet.eiendel"
-        },
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
-          "Value": "veilarb"
-        },
-        {
-          "AttributeId": "no.nav.abac.attributter.resource.veilarb.kontor_laas",
-          "Value": "1234"
-        }
-      ]
-    }
+    "Resource": [
+      {
+        "Attribute": [
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
+            "Value": "no.nav.abac.attributter.resource.veilarb.enhet.eiendel"
+          },
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
+            "Value": "veilarb"
+          },
+          {
+            "AttributeId": "no.nav.abac.attributter.resource.veilarb.kontor_laas",
+            "Value": "1234"
+          }
+        ]
+      }
+    ]
   }
 }
