@@ -97,12 +97,14 @@ public class LogFilter implements Filter {
         try {
             filterWithErrorHandling(httpRequest, httpResponse, filterChain);
 
-            buildMarker()
-                    .field("status", httpResponse.getStatus())
-                    .field("method", httpRequest.getMethod())
-                    .field("host", httpRequest.getServerName())
-                    .field("path", httpRequest.getRequestURI())
-                    .log(log::info);
+            if (!isInternalRequest(httpRequest)) {
+                buildMarker()
+                        .field("status", httpResponse.getStatus())
+                        .field("method", httpRequest.getMethod())
+                        .field("host", httpRequest.getServerName())
+                        .field("path", httpRequest.getRequestURI())
+                        .log(log::info);
+            }
 
         } finally {
             MDC.remove(MDCConstants.MDC_CALL_ID);
@@ -110,6 +112,10 @@ public class LogFilter implements Filter {
             MDC.remove(MDCConstants.MDC_CONSUMER_ID);
             MDC.remove(MDCConstants.MDC_REQUEST_ID);
         }
+    }
+
+    public static boolean isInternalRequest(HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getRequestURI().contains("/internal/");
     }
 
     public static String resolveCallId(HttpServletRequest httpRequest) {
