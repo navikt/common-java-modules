@@ -1,7 +1,6 @@
 package no.nav.common.sts;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
@@ -24,7 +23,7 @@ import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
 import static no.nav.common.utils.AuthUtils.basicCredentials;
 
 /**
- * Retrieves system user tokens from the NAIS - Security Token Service
+ * Retrieves system user tokens from NAIS Security Token Service
  * https://github.com/navikt/security-token-service
  */
 public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
@@ -87,16 +86,13 @@ public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
             ClientCredentialsResponse credentialsResponse = parseJsonResponseBodyOrThrow(response.body(), ClientCredentialsResponse.class);
             return JWTParser.parse(credentialsResponse.accessToken);
         } catch (Exception e) {
-            log.error("Failed to fetch system user token from" + targetUrl, e);
+            log.error("Failed to fetch system user token from " + targetUrl, e);
             throw e;
         }
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class ClientCredentialsResponse {
-
-        @JsonProperty("access_token")
+        @SerializedName("access_token")
         public String accessToken;
-
     }
 }
