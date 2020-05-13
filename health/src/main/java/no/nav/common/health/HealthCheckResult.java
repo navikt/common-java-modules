@@ -36,6 +36,10 @@ public class HealthCheckResult {
         return isHealthy;
     }
 
+    public boolean isUnhealthy() {
+        return !isHealthy;
+    }
+
     public Optional<String> getErrorMessage() {
         if (errorMessage != null) {
             return Optional.of(errorMessage);

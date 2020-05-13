@@ -13,7 +13,7 @@ public class UrlUtilsTest {
     public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
 
     @Test
-    public void clusterUrlForApplication_() {
+    public void test_clusterUrlForApplication() {
         assertThatThrownBy(() -> clusterUrlForApplication("app1")).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
 
         systemPropertiesRule.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "q0");
@@ -26,7 +26,7 @@ public class UrlUtilsTest {
     }
 
     @Test
-    public void sluttMedSlash_() {
+    public void test_sluttMedSlash() {
         assertThat(sluttMedSlash(null)).isEqualTo("/");
         assertThat(sluttMedSlash("")).isEqualTo("/");
         assertThat(sluttMedSlash("/")).isEqualTo("/");
@@ -34,7 +34,7 @@ public class UrlUtilsTest {
     }
 
     @Test
-    public void startMedSlash_() {
+    public void test_startMedSlash() {
         assertThat(startMedSlash(null)).isEqualTo("/");
         assertThat(startMedSlash("")).isEqualTo("/");
         assertThat(startMedSlash("abc")).isEqualTo("/abc");
@@ -43,7 +43,7 @@ public class UrlUtilsTest {
 
 
     @Test
-    public void joinPaths_() {
+    public void test_joinPaths() {
         assertThat(joinPaths(null)).isEqualTo("/");
         assertThat(joinPaths(null,null,null)).isEqualTo("/");
         assertThat(joinPaths("/","","/","/")).isEqualTo("/");

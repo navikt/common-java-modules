@@ -1,19 +1,30 @@
 package no.nav.common.rest.client;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Optional;
 
+@Slf4j
 public class RestUtils {
 
     private static final Gson gson = new Gson();
 
     public static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+
+    public static void throwIfNotSuccessful(Response response) {
+        if (!response.isSuccessful()) {
+            String message = String.format("Uventet status %d ved kall mot mot %s", response.code(), response.request().url().toString());
+            log.error(message);
+            throw new RuntimeException(message);
+        }
+    }
 
     public static Optional<String> getBodyStr(ResponseBody body) throws IOException {
         if (body == null) {

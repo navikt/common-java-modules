@@ -2,6 +2,7 @@ package no.nav.common.health.selftest;
 
 import lombok.SneakyThrows;
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.utils.EnvironmentUtils;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +20,10 @@ import static java.util.stream.Collectors.joining;
 public class SelftestHtmlGenerator {
 
     private final static String htmlTemplate = readResourceFile("/selftest/SelfTestPage.html");
+
+    public static String generate(List<SelftTestCheckResult> checkResults) {
+        return generate(checkResults, EnvironmentUtils.resolveHostName(), LocalDateTime.now());
+    }
 
     public static String generate(List<SelftTestCheckResult> checkResults, String host, LocalDateTime timestamp) {
         List<String> tabellrader = checkResults
