@@ -3,10 +3,16 @@ package no.nav.common.utils;
 public class UrlUtils {
 
     public static String clusterUrlForApplication(String applicationName) {
-        return String.format("http://%s.%s.svc.nais.local",
+        return clusterUrlForApplication(applicationName, false);
+    }
+
+    public static String clusterUrlForApplication(String applicationName, boolean withContextPath) {
+        String clusterUrl = String.format("http://%s.%s.svc.nais.local",
                 AssertUtils.assertNotNull(applicationName),
                 EnvironmentUtils.requireNamespace()
         );
+
+        return withContextPath ? clusterUrl + "/" + applicationName : clusterUrl;
     }
 
     public static String sluttMedSlash(String path) {
