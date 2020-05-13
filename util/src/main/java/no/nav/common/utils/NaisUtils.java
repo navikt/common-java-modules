@@ -1,8 +1,6 @@
-package no.nav.common.nais;
+package no.nav.common.utils;
 
 import lombok.SneakyThrows;
-import no.nav.common.utils.EnvironmentUtils;
-import no.nav.common.utils.Pair;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

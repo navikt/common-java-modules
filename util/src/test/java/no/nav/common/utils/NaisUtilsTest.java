@@ -1,4 +1,4 @@
-package no.nav.common.nais;
+package no.nav.common.utils;
 
 import lombok.SneakyThrows;
 import no.nav.common.test.junit.SystemPropertiesRule;
@@ -12,8 +12,8 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
-import static no.nav.common.nais.NaisUtils.CONFIG_MAPS_BASE_PATH_PROPERTY_NAME;
-import static no.nav.common.nais.NaisUtils.SECRETS_BASE_PATH_PROPERTY_NAME;
+import static no.nav.common.utils.NaisUtils.CONFIG_MAPS_BASE_PATH_PROPERTY_NAME;
+import static no.nav.common.utils.NaisUtils.SECRETS_BASE_PATH_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 

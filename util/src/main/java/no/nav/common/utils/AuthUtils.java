@@ -8,4 +8,8 @@ public class AuthUtils {
         return "Basic " + Base64.getEncoder().encodeToString(String.format("%s:%s", username, password).getBytes());
     }
 
+    public static String bearerToken(String token) {
+        return "Bearer " + token;
+    }
+
 }

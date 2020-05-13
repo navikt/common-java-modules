@@ -1,4 +1,4 @@
-package no.nav.common.nais;
+package no.nav.common.utils;
 
 public class Credentials {
     public final String username;

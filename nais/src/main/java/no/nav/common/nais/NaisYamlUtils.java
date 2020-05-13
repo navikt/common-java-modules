@@ -3,6 +3,7 @@ package no.nav.common.nais;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import lombok.SneakyThrows;
+import no.nav.common.utils.NaisUtils;
 import no.nav.common.yaml.YamlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
