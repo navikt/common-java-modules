@@ -20,6 +20,7 @@ public class MetricsConfig {
     public static final String SENSU_QUEUE_SIZE_PROPERTY_NAME = "metrics.sensu.report.queueSize";
     public static final String SENSU_BATCHES_PER_SECOND_PROPERTY_NAME = "metrics.sensu.report.batchesPerSecond";
     public static final String SENSU_BATCH_SIZE_PROPERTY_NAME = "metrics.sensu.report.batchSize";
+    public static final String SENSU_CONNECT_TIMEOUT_PROPERTY_NAME = "metrics.sensu.report.connectTimeout";
 
     private String sensuHost;
     private int sensuPort;
@@ -32,6 +33,7 @@ public class MetricsConfig {
     private int queueSize;
     private int batchesPerSecond;
     private int batchSize;
+    private int connectTimeout;
 
     public static MetricsConfig resolveNaisConfig() {
         return defaultConfig("sensu.nais", 3030);
@@ -41,11 +43,9 @@ public class MetricsConfig {
         return withSensuDefaults(MetricsConfig.builder()
                 .sensuHost(getOptionalProperty(SENSU_CLIENT_HOST).orElse(host))
                 .sensuPort(getOptionalProperty(SENSU_CLIENT_PORT).map(Integer::parseInt).orElse(port))
-
                 .application(EnvironmentUtils.requireApplicationName())
                 .environment(EnvironmentUtils.getEnvironmentName().orElse(requireNamespace()))
                 .hostname(EnvironmentUtils.resolveHostName())
-
                 .build()
         );
     }
@@ -54,8 +54,9 @@ public class MetricsConfig {
         return metricsConfig
                 .withRetryInterval(defaultIntSystemProperty(SENSU_RETRY_INTERVAL_PROPERTY_NAME, 1000))
                 .withQueueSize(defaultIntSystemProperty(SENSU_QUEUE_SIZE_PROPERTY_NAME, 20_000))
-                .withBatchesPerSecond(defaultIntSystemProperty(SENSU_BATCHES_PER_SECOND_PROPERTY_NAME, 50))
-                .withBatchSize(defaultIntSystemProperty(SENSU_BATCH_SIZE_PROPERTY_NAME, 100));
+                .withBatchesPerSecond(defaultIntSystemProperty(SENSU_BATCHES_PER_SECOND_PROPERTY_NAME, 20))
+                .withBatchSize(defaultIntSystemProperty(SENSU_BATCH_SIZE_PROPERTY_NAME, 100))
+                .withConnectTimeout(defaultIntSystemProperty(SENSU_CONNECT_TIMEOUT_PROPERTY_NAME, 1000));
     }
 
     private static int defaultIntSystemProperty(String propertyName, int defaultValue) {
