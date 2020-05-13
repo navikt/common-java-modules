@@ -45,7 +45,7 @@ public class NaisUtilsTest {
         createFolder("creds");
         writeFile("creds/username", "the username");
         writeFile("creds/password", "the password");
-        NaisUtils.Credentials credentials = NaisUtils.getCredentials("creds");
+        Credentials credentials = NaisUtils.getCredentials("creds");
         assertThat(credentials.username).isEqualTo("the username");
         assertThat(credentials.password).isEqualTo("the password");
     }
@@ -55,7 +55,7 @@ public class NaisUtilsTest {
         createFolder("creds");
         writeFile("creds/un", "the username");
         writeFile("creds/pw", "the password");
-        NaisUtils.Credentials credentials = NaisUtils.getCredentials("creds", "un", "pw");
+        Credentials credentials = NaisUtils.getCredentials("creds", "un", "pw");
         assertThat(credentials.username).isEqualTo("the username");
         assertThat(credentials.password).isEqualTo("the password");
     }

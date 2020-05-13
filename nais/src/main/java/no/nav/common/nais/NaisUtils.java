@@ -26,16 +26,6 @@ public class NaisUtils {
     public static String CONFIG_MAPS_BASE_PATH_PROPERTY_NAME = "CONFIG_BASE_MAPS_PATH";
     private static String DEFAULT_CONFIG_MAPS_PATH = "/var/run/configmaps";
 
-    public static class Credentials {
-        public final String username;
-        public final String password;
-
-        private Credentials(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
-    }
-
     public static Credentials getCredentials(String secretName,
                                              String usernameFileName,
                                              String passwordFileName) {
