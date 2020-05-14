@@ -23,9 +23,10 @@ public class CookieUtils {
                 .map(Cookie::getValue);
     }
 
-    public static Cookie createCookie(String name, String value, String domain, int maxAge, boolean secure) {
+    public static Cookie createCookie(String name, String value, String domain, String path, int maxAge, boolean secure) {
         Cookie newCookie = new Cookie(name, value);
         newCookie.setDomain(domain);
+        newCookie.setPath(path);
         newCookie.setHttpOnly(true);
         newCookie.setSecure(secure);
         newCookie.setMaxAge(maxAge);
@@ -33,7 +34,7 @@ public class CookieUtils {
     }
 
     public static Cookie createCookie(String name, String value, Date expireAt, HttpServletRequest request) {
-        return createCookie(name, value, cookieDomain(request), dateToCookieMaxAge(expireAt), request.isSecure());
+        return createCookie(name, value, cookieDomain(request), "/", dateToCookieMaxAge(expireAt), request.isSecure());
     }
 
     public static String cookieDomain(HttpServletRequest request) {
