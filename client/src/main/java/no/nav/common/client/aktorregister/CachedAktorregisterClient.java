@@ -2,21 +2,24 @@ package no.nav.common.client.aktorregister;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import no.nav.common.health.HealthCheckResult;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
 
 public class CachedAktorregisterClient implements AktorregisterClient {
 
     private final AktorregisterClient aktorregisterClient;
 
     private final Cache<String, String> hentFnrCache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.DAYS)
+            .expireAfterWrite(12, TimeUnit.HOURS)
             .maximumSize(10_000)
             .build();
 
     private final Cache<String, String> hentAktorIdCache = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.DAYS)
+            .expireAfterWrite(12, TimeUnit.HOURS)
             .maximumSize(10_000)
             .build();
 
@@ -26,28 +29,12 @@ public class CachedAktorregisterClient implements AktorregisterClient {
 
     @Override
     public String hentFnr(String aktorId) {
-        String cachedFnr = hentFnrCache.getIfPresent(aktorId);
-
-        if (cachedFnr == null) {
-            String fnr = aktorregisterClient.hentFnr(aktorId);
-            hentFnrCache.put(aktorId, fnr);
-            return fnr;
-        }
-
-        return cachedFnr;
+        return tryCacheFirst(hentFnrCache, aktorId, () -> aktorregisterClient.hentFnr(aktorId));
     }
 
     @Override
     public String hentAktorId(String fnr) {
-        String cachedAktorId = hentAktorIdCache.getIfPresent(fnr);
-
-        if (cachedAktorId == null) {
-            String aktorId = aktorregisterClient.hentAktorId(fnr);
-            hentAktorIdCache.put(fnr, aktorId);
-            return aktorId;
-        }
-
-        return cachedAktorId;
+        return tryCacheFirst(hentAktorIdCache, fnr, () -> aktorregisterClient.hentAktorId(fnr));
     }
 
     @Override
@@ -58,5 +45,10 @@ public class CachedAktorregisterClient implements AktorregisterClient {
     @Override
     public List<IdentOppslag> hentAktorId(List<String> fnrListe) {
         return aktorregisterClient.hentAktorId(fnrListe);
+    }
+
+    @Override
+    public HealthCheckResult checkHealth() {
+        return aktorregisterClient.checkHealth();
     }
 }

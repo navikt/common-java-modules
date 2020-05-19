@@ -2,6 +2,8 @@ package no.nav.common.client.aktorregister;
 
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
+import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.valueOf;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
 import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.utils.UrlUtils.joinPaths;
 
 public class AktorregisterHttpClient implements AktorregisterClient {
 
@@ -123,6 +126,11 @@ public class AktorregisterHttpClient implements AktorregisterClient {
             log.error("Klarte ikke å gjore oppslag mot aktorregister", e);
             throw e;
         }
+    }
+
+    @Override
+    public HealthCheckResult checkHealth() {
+        return HealthCheckUtils.pingUrl(joinPaths(aktorregisterUrl, "/internal/isAlive"), client);
     }
 
     enum Identgruppe {

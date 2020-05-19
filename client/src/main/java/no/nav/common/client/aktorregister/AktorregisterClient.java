@@ -1,8 +1,10 @@
 package no.nav.common.client.aktorregister;
 
+import no.nav.common.health.HealthCheck;
+
 import java.util.List;
 
-public interface AktorregisterClient {
+public interface AktorregisterClient extends HealthCheck {
 
     String hentFnr(String aktorId);
 

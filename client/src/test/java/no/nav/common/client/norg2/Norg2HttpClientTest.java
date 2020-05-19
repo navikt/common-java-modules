@@ -31,7 +31,7 @@ public class Norg2HttpClientTest {
                         .withBody(json))
         );
 
-        Norg2Client client = new NorgHttp2Client(baseUrl);
+        NorgHttp2Client client = new NorgHttp2Client(baseUrl);
 
         assertEquals(client.hentEnhet("1234"), jsonEnhet);
     }
@@ -48,7 +48,7 @@ public class Norg2HttpClientTest {
                         .withBody(json))
         );
 
-        Norg2Client client = new NorgHttp2Client(baseUrl);
+        NorgHttp2Client client = new NorgHttp2Client(baseUrl);
         List<Enhet> alleEnheter = client.alleAktiveEnheter();
 
         for (Enhet enhet : jsonEnheter) {
@@ -68,9 +68,20 @@ public class Norg2HttpClientTest {
                         .withBody(json))
         );
 
-        Norg2Client client = new NorgHttp2Client(baseUrl);
+        NorgHttp2Client client = new NorgHttp2Client(baseUrl);
 
         assertEquals(client.hentTilhorendeEnhet("030105"), jsonEnhet);
+    }
+
+    @Test
+    public void skal_pinge_riktig_url() {
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+
+        Norg2Client client = new NorgHttp2Client(baseUrl);
+
+        assertTrue(client.checkHealth().isHealthy());
+        verify(getRequestedFor(urlEqualTo("/internal/isAlive")));
     }
 
 }

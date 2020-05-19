@@ -168,4 +168,15 @@ public class AktorregisterHttpClientTest {
         );
     }
 
+    @Test
+    public void skal_pinge_riktig_url() {
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+
+        AktorregisterHttpClient client = new AktorregisterHttpClient(baseUrl, "", emptyTokenSupplier);
+
+        assertTrue(client.checkHealth().isHealthy());
+        verify(getRequestedFor(urlEqualTo("/internal/isAlive")));
+    }
+
 }
