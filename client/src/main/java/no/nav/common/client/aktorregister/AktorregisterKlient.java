@@ -1,4 +1,4 @@
-package no.nav.common.aktorregisterklient;
+package no.nav.common.client.aktorregister;
 
 import java.util.List;
 

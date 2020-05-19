@@ -1,4 +1,4 @@
-package no.nav.common.aktorregisterklient;
+package no.nav.common.client.aktorregister;
 
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;

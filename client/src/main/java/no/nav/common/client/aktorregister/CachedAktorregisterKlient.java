@@ -1,4 +1,4 @@
-package no.nav.common.aktorregisterklient;
+package no.nav.common.client.aktorregister;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

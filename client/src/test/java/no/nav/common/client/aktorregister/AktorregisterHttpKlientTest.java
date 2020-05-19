@@ -1,8 +1,9 @@
-package no.nav.common.aktorregisterklient;
+package no.nav.common.client.aktorregister;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.AnythingPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import no.nav.common.client.TestUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -27,9 +28,11 @@ public class AktorregisterHttpKlientTest {
     private static final String FNR_2 = "080xxx07100";
     private static final String AKTOR_ID_2 = "103xxx3839212";
 
+    private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/aktorregister/";
+
     @Test
     public void skalHenteAktorIdForFnr() {
-        String json = TestUtils.readTestResourceFile("aktorid-to-fnr-single.json");
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get(anyUrl())
@@ -45,7 +48,7 @@ public class AktorregisterHttpKlientTest {
 
     @Test
     public void skalHenteFlereAktorIdForFnr() {
-        String json = TestUtils.readTestResourceFile("aktorid-to-fnr-multiple.json");
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-multiple.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get(anyUrl())
@@ -65,7 +68,7 @@ public class AktorregisterHttpKlientTest {
 
     @Test
     public void skalHenteFnrForAktorId() {
-        String json = TestUtils.readTestResourceFile("fnr-to-aktorid-single.json");
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-single.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get(anyUrl())
@@ -81,7 +84,7 @@ public class AktorregisterHttpKlientTest {
 
     @Test
     public void skalHenteFlereFnrForAktorIder() {
-        String json = TestUtils.readTestResourceFile("fnr-to-aktorid-multiple.json");
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-multiple.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get(anyUrl())
@@ -100,7 +103,7 @@ public class AktorregisterHttpKlientTest {
 
     @Test
     public void skalLeggeTilHeaders() {
-        String json = TestUtils.readTestResourceFile("aktorid-to-fnr-single.json");
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String authToken = "489h03n7092njkdsdsad";
         String consumingApplication = "my-test-app";
@@ -125,7 +128,7 @@ public class AktorregisterHttpKlientTest {
 
     @Test
     public void skalBrukeKorrektUrlForAktorId() {
-        String json = TestUtils.readTestResourceFile("fnr-to-aktorid-single.json");
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-single.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get(anyUrl())
@@ -146,7 +149,7 @@ public class AktorregisterHttpKlientTest {
 
     @Test
     public void skalBrukeKorrektUrlForFnr() {
-        String json = TestUtils.readTestResourceFile("aktorid-to-fnr-single.json");
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get(anyUrl())
