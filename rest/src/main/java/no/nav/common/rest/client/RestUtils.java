@@ -34,6 +34,14 @@ public class RestUtils {
         return Optional.of(body.string());
     }
 
+    public static <T> T parseJson(String json, Class<T> classOfT) {
+        return gson.fromJson(json, classOfT);
+    }
+
+    public static <T> T parseJson(String json, Type type) {
+        return gson.fromJson(json, type);
+    }
+
     public static <T> Optional<T> parseJsonResponseBody(ResponseBody body, Class<T> classOfT) throws IOException {
         return getBodyStr(body).map(bodyStr -> gson.fromJson(bodyStr, classOfT));
     }
