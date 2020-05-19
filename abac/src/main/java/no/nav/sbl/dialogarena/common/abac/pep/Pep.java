@@ -1,5 +1,6 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
+import no.nav.sbl.dialogarena.common.abac.pep.cef.CefEventContext;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Request;
@@ -38,14 +39,14 @@ public interface Pep {
 
     RequestData nyRequest() throws PepException;
 
-    BiasedDecisionResponse harTilgang(RequestData requestData, CEFEventContext cefEventContext) throws PepException;
-    BiasedDecisionResponse harTilgang(Request request, CEFEventContext cefEventContext) throws PepException;
+    BiasedDecisionResponse harTilgang(RequestData requestData, CefEventContext cefEventContext) throws PepException;
+    BiasedDecisionResponse harTilgang(Request request, CefEventContext cefEventContext) throws PepException;
 
     BiasedDecisionResponse harTilgangTilEnhet(String enhet, String systembruker, String domain) throws PepException;
 
     BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(String fnr, String domain) throws PepException;
 
-    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType, CEFEventContext cefEventContext) throws PepException;
+    BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType, CefEventContext cefEventContext) throws PepException;
 
     void ping() throws PepException;
 }

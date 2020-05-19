@@ -1,6 +1,7 @@
 package no.nav.sbl.dialogarena.common.abac.pep;
 
 import lombok.SneakyThrows;
+import no.nav.sbl.dialogarena.common.abac.pep.cef.CefEventContext;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.*;
@@ -79,7 +80,7 @@ public class PepImpl implements Pep {
     }
 
     @Override
-    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType, CEFEventContext cefEventContext) throws PepException {
+    public BiasedDecisionResponse harInnloggetBrukerTilgangTilPerson(AbacPersonId personId, String domain, Action.ActionId action, ResourceType resourceType, CefEventContext cefEventContext) throws PepException {
         validatePersonId(personId);
         return harTilgang(nyRequest()
                 .withPersonId(personId)
@@ -132,13 +133,13 @@ public class PepImpl implements Pep {
 
     @SneakyThrows
     @Override
-    public BiasedDecisionResponse harTilgang(RequestData requestData, CEFEventContext cefEventContext) {
+    public BiasedDecisionResponse harTilgang(RequestData requestData, CefEventContext cefEventContext) {
         return harTilgang(new XacmlRequestGenerator().makeRequest(requestData), cefEventContext);
     }
 
     @SneakyThrows
     @Override
-    public BiasedDecisionResponse harTilgang(Request request, CEFEventContext cefEventContext) throws PepException {
+    public BiasedDecisionResponse harTilgang(Request request, CefEventContext cefEventContext) throws PepException {
         if (cefEventContext == null) {
             auditLogger.logRequestInfo(request);
         }

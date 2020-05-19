@@ -2,14 +2,14 @@ package no.nav.log.cef;
 
 import org.junit.Test;
 
-import static no.nav.log.cef.CEFEvent.Severity.INFO;
+import static no.nav.log.cef.CefEvent.Severity.INFO;
 import static org.junit.Assert.assertEquals;
 
-public class CEFEventTest {
+public class CefEventTest {
 
     @Test
     public void toStringWithEscaping() {
-        CEFEvent event = CEFEvent.builder()
+        CefEvent event = CefEvent.builder()
                 .cefVersion("123")
                 .applicationName("application|Name")
                 .logName("log\\Name")

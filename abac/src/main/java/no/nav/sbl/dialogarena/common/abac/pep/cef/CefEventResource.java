@@ -1,28 +1,33 @@
-package no.nav.sbl.dialogarena.common.abac.pep;
+package no.nav.sbl.dialogarena.common.abac.pep.cef;
 
+import lombok.EqualsAndHashCode;
 import lombok.Value;
+import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 
 import java.util.Map;
 import java.util.function.Function;
 
-public abstract class CEFEventResource {
+public abstract class CefEventResource {
 
-    private CEFEventResource() {}
+    private CefEventResource() {}
 
+    @EqualsAndHashCode(callSuper = true)
     @Value
-    public static class PersonIdResource extends CEFEventResource {
+    public static class PersonIdResource extends CefEventResource {
         AbacPersonId personId;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Value
-    public static class EnhetIdResource extends CEFEventResource {
+    public static class EnhetIdResource extends CefEventResource {
         String enhet;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Value
-    public static class ListResource extends CEFEventResource {
+    public static class ListResource extends CefEventResource {
         Function<XacmlResponse, Map<String, Decision>> resourceToDecision;
     }
 

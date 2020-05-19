@@ -8,23 +8,23 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class CEFEvent {
+public class CefEvent {
 
     public enum Severity {
         INFO,
         WARN
     }
 
-    private String cefVersion;
-    private String applicationName;
-    private String logName;
-    private String logFormatVersion;
-    private String eventType;
-    private String description;
-    private Severity severity;
-    private Map<String, String> attributes;
+    private final String cefVersion;
+    private final String applicationName;
+    private final String logName;
+    private final String logFormatVersion;
+    private final String eventType;
+    private final String description;
+    private final Severity severity;
+    private final Map<String, String> attributes;
 
-    private CEFEvent(@NonNull String cefVersion,
+    private CefEvent(@NonNull String cefVersion,
                      @NonNull String applicationName,
                      @NonNull String logName,
                      @NonNull String logFormatVersion,
@@ -99,8 +99,8 @@ public class CEFEvent {
             return this;
         }
 
-        public CEFEvent build() {
-            return new CEFEvent(
+        public CefEvent build() {
+            return new CefEvent(
                     cefVersion,
                     applicationName,
                     logName,
