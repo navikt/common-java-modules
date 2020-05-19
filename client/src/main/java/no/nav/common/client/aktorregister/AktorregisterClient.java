@@ -2,7 +2,7 @@ package no.nav.common.client.aktorregister;
 
 import java.util.List;
 
-public interface AktorregisterKlient {
+public interface AktorregisterClient {
 
     String hentFnr(String aktorId);
 

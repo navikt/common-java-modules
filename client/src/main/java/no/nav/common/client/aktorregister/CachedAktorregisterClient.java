@@ -6,9 +6,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class CachedAktorregisterKlient implements AktorregisterKlient {
+public class CachedAktorregisterClient implements AktorregisterClient {
 
-    private final AktorregisterKlient aktorregisterKlient;
+    private final AktorregisterClient aktorregisterClient;
 
     private final Cache<String, String> hentFnrCache = Caffeine.newBuilder()
             .expireAfterWrite(1, TimeUnit.DAYS)
@@ -20,8 +20,8 @@ public class CachedAktorregisterKlient implements AktorregisterKlient {
             .maximumSize(10_000)
             .build();
 
-    public CachedAktorregisterKlient(AktorregisterKlient aktorregisterKlient) {
-        this.aktorregisterKlient = aktorregisterKlient;
+    public CachedAktorregisterClient(AktorregisterClient aktorregisterClient) {
+        this.aktorregisterClient = aktorregisterClient;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class CachedAktorregisterKlient implements AktorregisterKlient {
         String cachedFnr = hentFnrCache.getIfPresent(aktorId);
 
         if (cachedFnr == null) {
-            String fnr = aktorregisterKlient.hentFnr(aktorId);
+            String fnr = aktorregisterClient.hentFnr(aktorId);
             hentFnrCache.put(aktorId, fnr);
             return fnr;
         }
@@ -42,7 +42,7 @@ public class CachedAktorregisterKlient implements AktorregisterKlient {
         String cachedAktorId = hentAktorIdCache.getIfPresent(fnr);
 
         if (cachedAktorId == null) {
-            String aktorId = aktorregisterKlient.hentAktorId(fnr);
+            String aktorId = aktorregisterClient.hentAktorId(fnr);
             hentAktorIdCache.put(fnr, aktorId);
             return aktorId;
         }
@@ -52,11 +52,11 @@ public class CachedAktorregisterKlient implements AktorregisterKlient {
 
     @Override
     public List<IdentOppslag> hentFnr(List<String> aktorIdListe) {
-        return aktorregisterKlient.hentFnr(aktorIdListe);
+        return aktorregisterClient.hentFnr(aktorIdListe);
     }
 
     @Override
     public List<IdentOppslag> hentAktorId(List<String> fnrListe) {
-        return aktorregisterKlient.hentAktorId(fnrListe);
+        return aktorregisterClient.hentAktorId(fnrListe);
     }
 }

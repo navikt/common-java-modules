@@ -18,9 +18,9 @@ import static java.lang.String.valueOf;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
 import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
 
-public class AktorregisterHttpKlient implements AktorregisterKlient {
+public class AktorregisterHttpClient implements AktorregisterClient {
 
-    private final static Logger log = LoggerFactory.getLogger(AktorregisterHttpKlient.class);
+    private final static Logger log = LoggerFactory.getLogger(AktorregisterHttpClient.class);
 
     private final String aktorregisterUrl;
 
@@ -30,7 +30,7 @@ public class AktorregisterHttpKlient implements AktorregisterKlient {
 
     private final OkHttpClient client;
 
-    public AktorregisterHttpKlient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
+    public AktorregisterHttpClient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
         this.aktorregisterUrl = aktorregisterUrl;
         this.consumingApplication = consumingApplication;
         this.tokenSupplier = tokenSupplier;
