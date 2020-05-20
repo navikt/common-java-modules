@@ -48,7 +48,7 @@
         <okhttp.version>3.14.7</okhttp.version>
 
         <!-- DIV -->
-        <nimbus.version>6.23</nimbus.version>
+        <nimbus.version>8.4</nimbus.version>
         <prometheus.version>0.4.0</prometheus.version>
         <commons-lang.version>3.5</commons-lang.version>
         <commons-io.version>2.5</commons-io.version>

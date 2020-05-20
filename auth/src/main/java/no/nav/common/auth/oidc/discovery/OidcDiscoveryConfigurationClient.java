@@ -1,6 +1,5 @@
 package no.nav.common.auth.oidc.discovery;
 
-import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
@@ -14,8 +13,6 @@ import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
 public class OidcDiscoveryConfigurationClient {
 
 	private static final Logger log = LoggerFactory.getLogger(OidcDiscoveryConfigurationClient.class);
-
-	private static final Gson gson = new Gson();
 
 	private final OkHttpClient client;
 
