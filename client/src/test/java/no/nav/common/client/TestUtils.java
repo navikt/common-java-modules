@@ -1,4 +1,4 @@
-package no.nav.common.aktorregisterklient;
+package no.nav.common.client;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

@@ -1,7 +1,9 @@
-package no.nav.common.aktorregisterklient;
+package no.nav.common.client.aktorregister;
 
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
+import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -17,10 +19,11 @@ import java.util.stream.Collectors;
 import static java.lang.String.valueOf;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
 import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.utils.UrlUtils.joinPaths;
 
-public class AktorregisterHttpKlient implements AktorregisterKlient {
+public class AktorregisterHttpClient implements AktorregisterClient {
 
-    private final static Logger log = LoggerFactory.getLogger(AktorregisterHttpKlient.class);
+    private final static Logger log = LoggerFactory.getLogger(AktorregisterHttpClient.class);
 
     private final String aktorregisterUrl;
 
@@ -30,7 +33,7 @@ public class AktorregisterHttpKlient implements AktorregisterKlient {
 
     private final OkHttpClient client;
 
-    public AktorregisterHttpKlient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
+    public AktorregisterHttpClient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
         this.aktorregisterUrl = aktorregisterUrl;
         this.consumingApplication = consumingApplication;
         this.tokenSupplier = tokenSupplier;
@@ -123,6 +126,11 @@ public class AktorregisterHttpKlient implements AktorregisterKlient {
             log.error("Klarte ikke å gjore oppslag mot aktorregister", e);
             throw e;
         }
+    }
+
+    @Override
+    public HealthCheckResult checkHealth() {
+        return HealthCheckUtils.pingUrl(joinPaths(aktorregisterUrl, "/internal/isAlive"), client);
     }
 
     enum Identgruppe {

@@ -1,0 +1,40 @@
+[
+  {
+    "enhetId": 1234567890,
+    "navn": "NAV Testheim",
+    "enhetNr": "1234",
+    "antallRessurser": 0,
+    "status": "Aktiv",
+    "orgNivaa": "EN",
+    "type": "LOKAL",
+    "organisasjonsnummer": "99999999",
+    "underEtableringDato": "1970-01-01",
+    "aktiveringsdato": "1970-01-01",
+    "underAvviklingDato": null,
+    "nedleggelsesdato": null,
+    "oppgavebehandler": true,
+    "versjon": 7,
+    "sosialeTjenester": "Til saksbehandler. Ingen vakttelefon\nDigital søknad finnes på nav.no/sosialhjelp. Søknadsskjema finnes på kommunens nettside og i V/P",
+    "kanalstrategi": null,
+    "orgNrTilKommunaltNavKontor": "98765432"
+  },
+  {
+    "enhetId": 1234567891,
+    "navn": "NAV Testheim2",
+    "enhetNr": "2234",
+    "antallRessurser": 0,
+    "status": "Aktiv",
+    "orgNivaa": "EN",
+    "type": "LOKAL",
+    "organisasjonsnummer": "111111111",
+    "underEtableringDato": "1970-01-01",
+    "aktiveringsdato": "1970-01-01",
+    "underAvviklingDato": null,
+    "nedleggelsesdato": null,
+    "oppgavebehandler": true,
+    "versjon": 7,
+    "sosialeTjenester": "Til saksbehandler. Ingen vakttelefon\nDigital søknad finnes på nav.no/sosialhjelp. Søknadsskjema finnes på kommunens nettside og i V/P",
+    "kanalstrategi": null,
+    "orgNrTilKommunaltNavKontor": "75093431"
+  }
+]

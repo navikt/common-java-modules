@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>aktorregister-klient</artifactId>
+    <artifactId>client</artifactId>
 
     <dependencyManagement>
         <dependencies>
@@ -35,6 +35,14 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>health</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
