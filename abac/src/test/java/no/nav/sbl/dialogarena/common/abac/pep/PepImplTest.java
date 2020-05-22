@@ -14,7 +14,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -30,7 +29,6 @@ import static org.mockito.Mockito.when;
 
 public class PepImplTest {
 
-    @InjectMocks
     PepImpl pep;
 
     @Mock
@@ -46,6 +44,7 @@ public class PepImplTest {
                 .username("username")
                 .build()
         );
+        pep = new PepImpl(abacService);
     }
 
     @Test
