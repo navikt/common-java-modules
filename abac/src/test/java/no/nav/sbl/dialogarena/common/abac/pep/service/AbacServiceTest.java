@@ -5,7 +5,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.Attribute;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.AbacException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.ClientErrorException;
@@ -51,7 +50,7 @@ public class AbacServiceTest {
     @Test
     public void returnsResponse() throws IOException, AbacException, NoSuchFieldException {
         gitt_response(200);
-        gitt_responseEntity(getContentFromJsonFile("xacmlresponse.json"));
+        gitt_responseEntity(getContentFromJsonFile("xacmlresponse-deny.json"));
 
         final XacmlResponse actualXacmlResponse = abacService.askForPermission(MockXacmlRequest.getXacmlRequest());
 

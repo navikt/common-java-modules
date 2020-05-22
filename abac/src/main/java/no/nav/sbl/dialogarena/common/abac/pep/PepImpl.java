@@ -38,8 +38,12 @@ public class PepImpl implements Pep {
     private final AuditLogger auditLogger;
 
     public PepImpl(AbacService abacService) {
+        this(abacService, new AuditLogger());
+    }
+
+    PepImpl(AbacService abacService, AuditLogger auditLogger) {
         this.abacService = abacService;
-        auditLogger = new AuditLogger();
+        this.auditLogger = auditLogger;
     }
 
     @Override

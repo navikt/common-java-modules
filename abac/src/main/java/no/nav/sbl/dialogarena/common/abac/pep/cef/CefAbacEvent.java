@@ -8,10 +8,13 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CefAbacEvent {
-    public static CefEvent createCefEvent(XacmlResponse xacmlResponse, CefEventContext context) {
+    public static CefEvent createCefEvent(XacmlResponse xacmlResponse,
+                                          CefEventContext context,
+                                          Supplier<Long> currentTimeInMillisSupplier) {
 
         CefEvent.Builder cefEventBuilder = CefEvent.builder()
                 .cefVersion("0")
@@ -20,7 +23,7 @@ public class CefAbacEvent {
                 .logFormatVersion("1.0")
                 .eventType("trace:access")
                 .description("ABAC Sporingslogg")
-                .addAttribute("end", Long.toString(System.currentTimeMillis()))
+                .addAttribute("end", currentTimeInMillisSupplier.get().toString())
                 .addAttribute("suid", context.subjectId)
                 .addAttribute("sproc", context.callId)
                 .addAttribute("requestMethod", context.requestMethod)
@@ -41,7 +44,7 @@ public class CefAbacEvent {
 
         } else if (context.resource instanceof CefEventResource.EnhetIdResource) {
             CefEventResource.EnhetIdResource resource = (CefEventResource.EnhetIdResource) context.resource;
-            cefEventBuilder.addAttribute("deviceCustomString2", resource.getEnhet());
+            cefEventBuilder.addAttribute("deviceCustomString1", resource.getEnhet());
 
             Response response = xacmlResponse.getResponse().get(0);
             Decision decision = response.getDecision();

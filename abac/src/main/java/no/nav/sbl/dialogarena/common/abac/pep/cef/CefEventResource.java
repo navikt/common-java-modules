@@ -9,6 +9,7 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import java.util.Map;
 import java.util.function.Function;
 
+@EqualsAndHashCode
 public abstract class CefEventResource {
 
     private CefEventResource() {}

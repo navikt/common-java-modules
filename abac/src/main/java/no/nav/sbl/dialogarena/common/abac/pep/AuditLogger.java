@@ -8,12 +8,24 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import org.slf4j.Logger;
 
+import java.util.function.Supplier;
+
 import static no.nav.sbl.dialogarena.common.abac.pep.cef.CefAbacEvent.createCefEvent;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class AuditLogger {
 
-    private static final Logger log = getLogger("AuditLogger");
+    private final Logger log;
+    private final Supplier<Long> currentTimeInMillisSupplier;
+
+    public AuditLogger() {
+        this(getLogger("AuditLogger"), System::currentTimeMillis);
+    }
+
+    AuditLogger(Logger log, Supplier<Long> currentTimeInMillisSupplier) {
+        this.log = log;
+        this.currentTimeInMillisSupplier = currentTimeInMillisSupplier;
+    }
 
     void logRequestInfo(Request request) {
         log.info("NAV-ident: " + SubjectHandler.getIdent().orElse("-") +
@@ -32,7 +44,7 @@ public class AuditLogger {
 
 
     void logCEF(XacmlResponse xacmlResponse, CefEventContext context) {
-        CefEvent cefEvent = createCefEvent(xacmlResponse, context);
+        CefEvent cefEvent = createCefEvent(xacmlResponse, context, currentTimeInMillisSupplier);
         log.info(cefEvent.toString());
     }
 

@@ -9,6 +9,8 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.BiasedDecisionResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.exception.PepException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -22,10 +24,13 @@ import static no.nav.log.LogFilter.resolveCallId;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.READ;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.WRITE;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision.Permit;
+import static no.nav.sbl.util.EnvironmentUtils.getApplicationName;
 import static no.nav.sbl.util.EnvironmentUtils.requireApplicationName;
 
 
 public class PepClient {
+
+    private static final Logger log = LoggerFactory.getLogger(PepClient.class);
 
     private final Pep pep;
     private final String applicationDomain;
@@ -117,15 +122,21 @@ public class PepClient {
                         .map(x -> (ServletRequestAttributes) x)
                         .map(ServletRequestAttributes::getRequest);
 
-        return httpServletRequest
-                .map(request -> CefEventContext.builder()
-                        .applicationName(requireApplicationName())
-                        .callId(resolveCallId(request))
-                        .requestMethod(request.getMethod())
-                        .requestPath(request.getRequestURI())
-                        .subjectId(SubjectHandler.getIdent().orElse(null))
-                        .resource(resource)
-                        .build());
-    }
 
+        try {
+            return httpServletRequest.flatMap(request ->
+                    getApplicationName().map(appName ->
+                            CefEventContext.builder()
+                                    .applicationName(requireApplicationName())
+                                    .callId(resolveCallId(request))
+                                    .requestMethod(request.getMethod())
+                                    .requestPath(request.getRequestURI())
+                                    .subjectId(SubjectHandler.getIdent().orElse(null))
+                                    .resource(resource)
+                                    .build()));
+        } catch (Exception e) {
+            log.warn("Kunne ikke lage CefEventContext:", e);
+            return Optional.empty();
+        }
+    }
 }

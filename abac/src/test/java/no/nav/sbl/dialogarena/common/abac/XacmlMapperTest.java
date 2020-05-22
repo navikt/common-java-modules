@@ -82,7 +82,7 @@ public class XacmlMapperTest {
     @Test
     public void convertsSimpleJsonToResponse() throws IOException {
         final XacmlResponse actualResponse = XacmlMapper
-                .mapRawResponse(getContentFromJsonFile("xacmlresponse-simple.json"));
+                .mapRawResponse(getContentFromJsonFile("xacmlresponse-permit-simple.json"));
 
         XacmlResponse expectedResponse = getXacmlResponse();
 
