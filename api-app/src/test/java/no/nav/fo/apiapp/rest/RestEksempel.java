@@ -1,7 +1,6 @@
 package no.nav.fo.apiapp.rest;
 
 import no.nav.apiapp.feil.Feil;
-import no.nav.apiapp.feil.VersjonsKonflikt;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -16,12 +15,6 @@ public class RestEksempel {
     @GET
     public String get() {
         return "eksempel";
-    }
-
-    @GET
-    @Path("/konflikt")
-    public String konflikt() {
-        throw new VersjonsKonflikt();
     }
 
     @GET

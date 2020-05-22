@@ -1,7 +1,6 @@
 package no.nav.fo.apiapp.soap;
 
 import no.nav.apiapp.feil.FeilType;
-import no.nav.apiapp.feil.VersjonsKonflikt;
 import no.nav.fo.apiapp.JettyTest;
 import no.nav.sbl.dialogarena.common.cxf.CXFClient;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -9,9 +8,6 @@ import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import javax.xml.soap.SOAPFault;
-import javax.xml.ws.soap.SOAPFaultException;
 
 import static no.nav.fo.apiapp.soap.SoapEksempel.*;
 import static org.hamcrest.Matchers.containsString;
@@ -48,11 +44,6 @@ public class SoapTest extends JettyTest {
     @Test
     public void tjenestePropagererUkjenteFeil()  {
         sjekkAtTjenesteFeilerMed(IDENT_FOR_UKJENT_FEIL, FeilType.UKJENT, Throwable.class);
-    }
-
-    @Test
-    public void tjenestePropagererKjenteFeil()  {
-        sjekkAtTjenesteFeilerMed(IDENT_FOR_VERSJONSKONFLIKT, FeilType.VERSJONSKONFLIKT, VersjonsKonflikt.class);
     }
 
     private String sayHi(String message)  {
