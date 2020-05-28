@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_BATCH_TIME;
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_QUEUE_SIZE;
@@ -76,7 +77,11 @@ public class SensuHandler {
 
     public void shutdown() {
         isShutDown = true;
-        scheduledExecutorService.shutdown();
+        try {
+            scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private class SensuReporter implements Runnable {
@@ -86,7 +91,7 @@ public class SensuHandler {
 
             List<String> reports = new ArrayList<>();
 
-            while (true) {
+            while (!isShutDown) {
                 try {
                     String report = reportQueue.take(); // denne venter til det er noe i køen
 
@@ -103,12 +108,15 @@ public class SensuHandler {
                     } catch (IOException e) {
                         reportQueue.addAll(reports); // Legger tilbake i køen
                         log.error("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}", e.getClass().getSimpleName(), e.getMessage());
-                        Thread.sleep(sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
+                        if (!isShutDown) {
+                            Thread.sleep(sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
+                        }
                     }
 
-                    long batchTime = calculateBatchTime(reportQueue.size(), sensuConfig.getQueueSize(), SENSU_MIN_BATCH_TIME, sensuConfig.getMaxBatchTime());
-                    Thread.sleep(batchTime);
-
+                    if (!isShutDown) {
+                        long batchTime = calculateBatchTime(reportQueue.size(), sensuConfig.getQueueSize(), SENSU_MIN_BATCH_TIME, sensuConfig.getMaxBatchTime());
+                        Thread.sleep(batchTime);
+                    }
                 } catch (InterruptedException e) {
                     log.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
                 }
