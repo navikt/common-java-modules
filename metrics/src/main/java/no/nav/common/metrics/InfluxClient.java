@@ -11,12 +11,17 @@ public class InfluxClient implements MetricsClient {
     private final SensuConfig sensuConfig;
 
     public InfluxClient() {
-        this(SensuConfig.resolveNaisConfig());
+        this(SensuConfig.defaultConfig());
     }
 
     public InfluxClient(SensuConfig sensuConfig) {
         this.sensuConfig = sensuConfig;
         this.sensuHandler = new SensuHandler(sensuConfig);
+    }
+
+    public InfluxClient(SensuConfig sensuConfig, SensuHandler sensuHandler) {
+        this.sensuConfig = sensuConfig;
+        this.sensuHandler = sensuHandler;
     }
 
     public void shutdown() {
