@@ -14,9 +14,12 @@ public class SensuConfig {
     public static final long DEFAULT_SENSU_RETRY_INTERVAL = 5000;
     public static final int DEFAULT_SENSU_CONNECT_TIMEOUT = 3000;
     public static final int DEFAULT_SENSU_QUEUE_SIZE = 20_000;
-    public static final long DEFAULT_SENSU_BATCH_TIME = 2000;
+    public static final long DEFAULT_SENSU_MAX_BATCH_TIME = 5000;
     public static final int DEFAULT_SENSU_BATCH_SIZE = 500;
     public static final boolean DEFAULT_SENSU_CLEANUP_ON_SHUTDOWN = true;
+
+    public static final long SENSU_MIN_BATCH_TIME = 200;
+    public static final long SENSU_MIN_QUEUE_SIZE = 100;
 
     private String sensuHost;
     private int sensuPort;
@@ -41,9 +44,9 @@ public class SensuConfig {
     private int queueSize;
 
     /**
-     * How long we will wait for a batch to build up before sending it to sensu (in milliseconds)
+     * Maximum time we will wait for a batch to build up before sending it to sensu (in milliseconds)
      */
-    private long batchTime;
+    private long maxBatchTime;
 
     /**
      * How many reports will be sent at once to sensu
@@ -66,7 +69,7 @@ public class SensuConfig {
                 .retryInterval(DEFAULT_SENSU_RETRY_INTERVAL)
                 .connectTimeout(DEFAULT_SENSU_CONNECT_TIMEOUT)
                 .queueSize(DEFAULT_SENSU_QUEUE_SIZE)
-                .batchTime(DEFAULT_SENSU_BATCH_TIME)
+                .maxBatchTime(DEFAULT_SENSU_MAX_BATCH_TIME)
                 .batchSize(DEFAULT_SENSU_BATCH_SIZE)
                 .cleanupOnShutdown(true)
                 .build();

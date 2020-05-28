@@ -7,9 +7,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SensuHandlerTest {
@@ -67,10 +67,11 @@ public class SensuHandlerTest {
 
     }
 
-    private String finnJsonString(List<String> writtenStrings) {
-        return writtenStrings.stream()
-                .filter(s -> s.startsWith("{"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(writtenStrings.toString()));
+    @Test
+    public void shouldCalculateCorrectBatchTime() {
+        assertEquals(955, SensuHandler.calculateBatchTime(500, 10000, 100, 1000));
+        assertEquals(100, SensuHandler.calculateBatchTime(10000, 10000, 100, 1000));
+        assertEquals(1000, SensuHandler.calculateBatchTime(0, 10000, 100, 1000));
     }
+
 }

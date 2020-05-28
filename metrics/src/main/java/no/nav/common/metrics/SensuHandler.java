@@ -16,6 +16,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static no.nav.common.metrics.SensuConfig.SENSU_MIN_BATCH_TIME;
+import static no.nav.common.metrics.SensuConfig.SENSU_MIN_QUEUE_SIZE;
+import static no.nav.common.metrics.Utils.linearInterpolation;
+
 @Slf4j
 public class SensuHandler {
 
@@ -25,11 +29,13 @@ public class SensuHandler {
 
     private final ScheduledExecutorService scheduledExecutorService;
 
-    private long queueSisteGangFullTimestamp = 0;
+    private volatile long queueSisteGangFullTimestamp;
 
     private volatile boolean isShutDown;
 
     public SensuHandler(SensuConfig sensuConfig) {
+        validateSensuConfig(sensuConfig);
+
         this.sensuConfig = sensuConfig;
         this.reportQueue = new LinkedBlockingQueue<>(sensuConfig.getQueueSize());
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -100,7 +106,8 @@ public class SensuHandler {
                         Thread.sleep(sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                     }
 
-                    Thread.sleep(sensuConfig.getBatchTime());
+                    long batchTime = calculateBatchTime(reportQueue.size(), sensuConfig.getQueueSize(), SENSU_MIN_BATCH_TIME, sensuConfig.getMaxBatchTime());
+                    Thread.sleep(batchTime);
 
                 } catch (InterruptedException e) {
                     log.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
@@ -122,6 +129,22 @@ public class SensuHandler {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(sensuConfig.getSensuHost(), sensuConfig.getSensuPort());
         socket.connect(inetSocketAddress, sensuConfig.getConnectTimeout());
         return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+    }
+
+    /**
+     * Calculates batch time based on how full the queue is. Fuller queue = less time between batches
+     */
+    static long calculateBatchTime(int currentQueueSize, int maxQueueSize, long minBatchTime, long maxBatchTime) {
+        float percentEmpty = 1 - (currentQueueSize / (float) maxQueueSize);
+        return linearInterpolation(minBatchTime, maxBatchTime, percentEmpty);
+    }
+
+    private void validateSensuConfig(SensuConfig sensuConfig) {
+        if (sensuConfig.getMaxBatchTime() < SENSU_MIN_BATCH_TIME) {
+            throw new IllegalArgumentException("Max batch time must be equal to or above " + SENSU_MIN_BATCH_TIME);
+        } else if (sensuConfig.getQueueSize() < SENSU_MIN_QUEUE_SIZE) {
+            throw new IllegalArgumentException("Queue size must be equal to or larger than " + SENSU_MIN_QUEUE_SIZE);
+        }
     }
 
     public void report(String output) {

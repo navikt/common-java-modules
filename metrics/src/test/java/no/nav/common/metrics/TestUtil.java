@@ -63,7 +63,7 @@ public class TestUtil {
                 .retryInterval(100)
                 .connectTimeout(DEFAULT_SENSU_CONNECT_TIMEOUT)
                 .queueSize(DEFAULT_SENSU_QUEUE_SIZE)
-                .batchTime(100)
+                .maxBatchTime(200)
                 .batchSize(DEFAULT_SENSU_BATCH_SIZE)
                 .cleanupOnShutdown(true)
                 .build();
