@@ -16,6 +16,7 @@ public class SensuConfig {
     private static final int DEFAULT_SENSU_QUEUE_SIZE = 20_000;
     private static final long DEFAULT_SENSU_BATCH_TIME = 2000;
     private static final int DEFAULT_SENSU_BATCH_SIZE = 500;
+    private static final boolean DEFAULT_SENSU_CLEANUP_ON_SHUTDOWN = true;
 
     private String sensuHost;
     private int sensuPort;
@@ -49,6 +50,11 @@ public class SensuConfig {
      */
     private int batchSize;
 
+    /**
+     * If set to 'true' then a hook will be set up to flush metrics on shutdown
+     */
+    private boolean cleanupOnShutdown;
+
     public static SensuConfig defaultConfig() {
         return SensuConfig.builder()
                 .sensuHost("sensu.nais")
@@ -62,6 +68,7 @@ public class SensuConfig {
                 .queueSize(DEFAULT_SENSU_QUEUE_SIZE)
                 .batchTime(DEFAULT_SENSU_BATCH_TIME)
                 .batchSize(DEFAULT_SENSU_BATCH_SIZE)
+                .cleanupOnShutdown(true)
                 .build();
     }
 

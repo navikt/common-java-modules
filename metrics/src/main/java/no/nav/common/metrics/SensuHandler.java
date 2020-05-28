@@ -27,15 +27,49 @@ public class SensuHandler {
 
     private long queueSisteGangFullTimestamp = 0;
 
+    private volatile boolean isShutDown;
+
     public SensuHandler(SensuConfig sensuConfig) {
         this.sensuConfig = sensuConfig;
         this.reportQueue = new LinkedBlockingQueue<>(sensuConfig.getQueueSize());
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         this.scheduledExecutorService.execute(new SensuReporter());
+
+        if (sensuConfig.isCleanupOnShutdown()) {
+            setupShutdownHook();
+        }
+
         log.info("Metrics aktivert med parametre: {}", sensuConfig);
     }
 
+    private void setupShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (isShutDown) {
+                log.info("Sensu is already shut down. Skipping shutdown hook.");
+                return;
+            }
+
+            shutdown();
+            log.info("Sensu shutdown hook triggered. Will try to flush leftover metrics.");
+
+            if (!reportQueue.isEmpty()) {
+                List<String> reports = new ArrayList<>();
+                reportQueue.drainTo(reports, Integer.MAX_VALUE);
+                String influxOutput = StringUtils.join(reports, "\n");
+                JSONObject jsonObject = createJSON(influxOutput);
+
+                try (Socket socket = new Socket()) {
+                    writeToSensu(jsonObject, socket);
+                    log.info("Successfully flushed metrics after shutdown. Metrics sent: " + reports.size());
+                } catch (Exception e) {
+                    log.error("Failed to flush metrics after shutdown. Metrics that were not sent: " + reports.size(), e);
+                }
+            }
+        }));
+    }
+
     public void shutdown() {
+        isShutDown = true;
         scheduledExecutorService.shutdown();
     }
 
@@ -69,7 +103,7 @@ public class SensuHandler {
                     Thread.sleep(sensuConfig.getBatchTime());
 
                 } catch (InterruptedException e) {
-                    log.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje.", e);
+                    log.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
                 }
 
             }
@@ -91,10 +125,15 @@ public class SensuHandler {
     }
 
     public void report(String output) {
+        if (isShutDown) {
+            log.error("Cannot send report to sensu after shutting down");
+            return;
+        }
+
         boolean result = reportQueue.offer(output); // Thread-safe måte å legge til i køen på, returnerer false i stedet for å blokkere om køen er full
 
         if (!result && (System.currentTimeMillis() - queueSisteGangFullTimestamp > 1000 * 60)) { // Unngår å spamme loggen om køen er full over lengre tid (f. eks. Sensu er nede)
-            log.error("Sensu-køen har vært full, ikke alle metrikker har blitt sendt til Sensu.");
+            log.error("Sensu-køen har vært full, ikke alle metrikker har blitt sendt til Sensu");
             queueSisteGangFullTimestamp = System.currentTimeMillis();
         }
     }
