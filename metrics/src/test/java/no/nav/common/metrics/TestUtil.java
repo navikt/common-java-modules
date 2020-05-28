@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static no.nav.common.metrics.SensuConfig.*;
+
 public class TestUtil {
 
     public static List<String> lesUtAlleMeldingerSendtPaSocket(ServerSocket serverSocket) throws IOException {
@@ -51,12 +53,20 @@ public class TestUtil {
     }
 
     public static SensuConfig testConfig(int port) {
-        return SensuConfig.withSensuDefaults(SensuConfig.builder()
-                .application("testApp")
+        return SensuConfig.builder()
                 .sensuHost("localhost")
                 .sensuPort(port)
-                .build()
-        );
+                .application("testApp")
+                .hostname("test-hostname")
+                .cluster("test-cluster")
+                .namespace("test-namespace")
+                .retryInterval(100)
+                .connectTimeout(DEFAULT_SENSU_CONNECT_TIMEOUT)
+                .queueSize(DEFAULT_SENSU_QUEUE_SIZE)
+                .batchTime(100)
+                .batchSize(DEFAULT_SENSU_BATCH_SIZE)
+                .cleanupOnShutdown(true)
+                .build();
     }
 
 }

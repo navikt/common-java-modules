@@ -11,12 +11,12 @@ import static no.nav.common.utils.EnvironmentUtils.*;
 @Wither
 public class SensuConfig {
 
-    private static final long DEFAULT_SENSU_RETRY_INTERVAL = 5000;
-    private static final int DEFAULT_SENSU_CONNECT_TIMEOUT = 3000;
-    private static final int DEFAULT_SENSU_QUEUE_SIZE = 20_000;
-    private static final long DEFAULT_SENSU_BATCH_TIME = 2000;
-    private static final int DEFAULT_SENSU_BATCH_SIZE = 500;
-    private static final boolean DEFAULT_SENSU_CLEANUP_ON_SHUTDOWN = true;
+    public static final long DEFAULT_SENSU_RETRY_INTERVAL = 5000;
+    public static final int DEFAULT_SENSU_CONNECT_TIMEOUT = 3000;
+    public static final int DEFAULT_SENSU_QUEUE_SIZE = 20_000;
+    public static final long DEFAULT_SENSU_BATCH_TIME = 2000;
+    public static final int DEFAULT_SENSU_BATCH_SIZE = 500;
+    public static final boolean DEFAULT_SENSU_CLEANUP_ON_SHUTDOWN = true;
 
     private String sensuHost;
     private int sensuPort;
