@@ -21,7 +21,7 @@ public class AbacCachedClient implements AbacClient {
     public AbacCachedClient(AbacClient abacClient) {
         this.abacClient = abacClient;
         this.abacCache = Caffeine.newBuilder()
-                .expireAfterWrite(12, TimeUnit.HOURS)
+                .expireAfterWrite(1, TimeUnit.HOURS)
                 .maximumSize(20_000)
                 .build();
     }
