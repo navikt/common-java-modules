@@ -97,6 +97,9 @@ public class UtilsTest {
         assertEquals(10, Utils.linearInterpolation(10, 20, 0F));
         assertEquals(20, Utils.linearInterpolation(10, 20, 1F));
         assertEquals(15, Utils.linearInterpolation(10, 20, 0.5F));
+
+        assertEquals(10, Utils.linearInterpolation(10, 20, -0.1F));
+        assertEquals(20, Utils.linearInterpolation(10, 20, 1.1F));
     }
 
     private enum TestEnum {
