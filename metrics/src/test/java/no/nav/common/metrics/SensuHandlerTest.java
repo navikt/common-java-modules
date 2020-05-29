@@ -63,8 +63,6 @@ public class SensuHandlerTest {
 
         final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
         assertTrue(jsonObjectAtomicReference.get().similar(forventet));
-
-
     }
 
     @Test

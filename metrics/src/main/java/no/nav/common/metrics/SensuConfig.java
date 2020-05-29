@@ -14,11 +14,11 @@ public class SensuConfig {
     public static final long DEFAULT_SENSU_RETRY_INTERVAL = 5000;
     public static final int DEFAULT_SENSU_CONNECT_TIMEOUT = 3000;
     public static final int DEFAULT_SENSU_QUEUE_SIZE = 20_000;
-    public static final long DEFAULT_SENSU_MAX_BATCH_TIME = 5000;
+    public static final long DEFAULT_SENSU_MAX_BATCH_TIME = 10000;
     public static final int DEFAULT_SENSU_BATCH_SIZE = 500;
     public static final boolean DEFAULT_SENSU_CLEANUP_ON_SHUTDOWN = true;
 
-    public static final long SENSU_MIN_BATCH_TIME = 200;
+    public static final long SENSU_MIN_BATCH_TIME = 100;
     public static final long SENSU_MIN_QUEUE_SIZE = 100;
 
     private String sensuHost;

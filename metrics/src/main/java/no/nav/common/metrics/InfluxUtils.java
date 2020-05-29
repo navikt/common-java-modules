@@ -4,7 +4,7 @@ import java.util.Map;
 
 import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
 
-public class Utils {
+public class InfluxUtils {
 
     public static String createInfluxLineProtocolPayload(String metricName, Map<String, String> tags, Map<String, Object> fields, long metricTimestamp) {
         String tagsString = convertTagsToCSVString(tags);
@@ -41,12 +41,6 @@ public class Utils {
 
     private static String createStringValue(Object value) {
         return "\"" + value + "\"";
-    }
-
-    // Precise linear interpolation method, which guarantees <returned value> = 'to' when t = 1.
-    public static long linearInterpolation(long from, long to, float t) {
-        t = (t > 1) ? 1 : Math.max(0, t);
-        return (long) ((1 - t) * from + t * to);
     }
 
 }

@@ -1,6 +1,7 @@
 package no.nav.common.metrics;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.utils.MathUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_BATCH_TIME;
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_QUEUE_SIZE;
-import static no.nav.common.metrics.Utils.linearInterpolation;
 
 @Slf4j
 public class SensuHandler {
@@ -144,7 +144,7 @@ public class SensuHandler {
      */
     static long calculateBatchTime(int currentQueueSize, int maxQueueSize, long minBatchTime, long maxBatchTime) {
         float percentEmpty = 1 - (currentQueueSize / (float) maxQueueSize);
-        return linearInterpolation(minBatchTime, maxBatchTime, percentEmpty);
+        return MathUtils.linearInterpolation(minBatchTime, maxBatchTime, percentEmpty);
     }
 
     private void validateSensuConfig(SensuConfig sensuConfig) {

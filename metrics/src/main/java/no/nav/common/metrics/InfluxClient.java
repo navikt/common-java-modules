@@ -41,7 +41,7 @@ public class InfluxClient implements MetricsClient {
         tags.putIfAbsent("namespace", sensuConfig.getNamespace());
 
         long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
-        String output = Utils.createInfluxLineProtocolPayload(eventName, tags, fields, timestamp);
+        String output = InfluxUtils.createInfluxLineProtocolPayload(eventName, tags, fields, timestamp);
         sensuHandler.report(output);
     }
 
