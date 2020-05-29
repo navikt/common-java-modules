@@ -29,7 +29,7 @@ public class InfluxUtilsTest {
         tags.put("tag", "something");
         values.put("value", 0);
 
-        String payload = InfluxUtils.createLineProtocolPayload(metricName, tags, values, timeStamp);
+        String payload = InfluxUtils.createInfluxLineProtocolPayload(metricName, tags, values, timeStamp);
 
         assertEquals("metric,tag=something value=0 1111", payload);
     }
@@ -41,7 +41,7 @@ public class InfluxUtilsTest {
         tags.put("tag3", "3");
         values.put("value", 0);
 
-        String payload = InfluxUtils.createLineProtocolPayload(metricName, tags, values, timeStamp);
+        String payload = InfluxUtils.createInfluxLineProtocolPayload(metricName, tags, values, timeStamp);
 
         assertEquals("metric,tag1=1,tag2=2,tag3=3 value=0 1111", payload);
     }
@@ -53,7 +53,7 @@ public class InfluxUtilsTest {
         values.put("value2", 2);
         values.put("value3", 3);
 
-        String payload = InfluxUtils.createLineProtocolPayload(metricName, tags, values, timeStamp);
+        String payload = InfluxUtils.createInfluxLineProtocolPayload(metricName, tags, values, timeStamp);
 
         assertEquals("metric,tag=something value1=1,value2=2,value3=3 1111", payload);
     }
@@ -65,7 +65,7 @@ public class InfluxUtilsTest {
         values.put("value1", TestEnum.ABC);
         values.put("value2", TestEnum.DEF);
 
-        String payload = InfluxUtils.createLineProtocolPayload(metricName, tags, values, timeStamp);
+        String payload = InfluxUtils.createInfluxLineProtocolPayload(metricName, tags, values, timeStamp);
 
         assertEquals("metric,tag=something value1=\"ABC\",value2=\"DEF\" 1111", payload);
     }
@@ -76,7 +76,7 @@ public class InfluxUtilsTest {
         values.put("value1", new TestObject());
         values.put("value2", new TestObject());
 
-        String payload = InfluxUtils.createLineProtocolPayload(metricName, tags, values, timeStamp);
+        String payload = InfluxUtils.createInfluxLineProtocolPayload(metricName, tags, values, timeStamp);
 
         assertEquals("metric,tag=something value1=\"test object formatted\",value2=\"test object formatted\" 1111", payload);
     }
@@ -87,7 +87,7 @@ public class InfluxUtilsTest {
         values.put("value1", "0");
         values.put("value2", 0);
 
-        String payload = InfluxUtils.createLineProtocolPayload(metricName, tags, values, timeStamp);
+        String payload = InfluxUtils.createInfluxLineProtocolPayload(metricName, tags, values, timeStamp);
 
         assertEquals("metric,tag=something value1=\"0\",value2=0 1111", payload);
     }

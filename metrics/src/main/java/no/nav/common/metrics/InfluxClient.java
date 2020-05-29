@@ -11,12 +11,17 @@ public class InfluxClient implements MetricsClient {
     private final SensuConfig sensuConfig;
 
     public InfluxClient() {
-        this(SensuConfig.resolveNaisConfig());
+        this(SensuConfig.defaultConfig());
     }
 
     public InfluxClient(SensuConfig sensuConfig) {
         this.sensuConfig = sensuConfig;
         this.sensuHandler = new SensuHandler(sensuConfig);
+    }
+
+    public InfluxClient(SensuConfig sensuConfig, SensuHandler sensuHandler) {
+        this.sensuConfig = sensuConfig;
+        this.sensuHandler = sensuHandler;
     }
 
     public void shutdown() {
@@ -36,7 +41,7 @@ public class InfluxClient implements MetricsClient {
         tags.putIfAbsent("namespace", sensuConfig.getNamespace());
 
         long timestamp = MILLISECONDS.toNanos(timestampInMilliseconds);
-        String output = InfluxUtils.createLineProtocolPayload(eventName, tags, fields, timestamp);
+        String output = InfluxUtils.createInfluxLineProtocolPayload(eventName, tags, fields, timestamp);
         sensuHandler.report(output);
     }
 

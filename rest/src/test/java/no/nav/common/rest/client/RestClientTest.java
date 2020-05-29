@@ -34,7 +34,7 @@ public class RestClientTest {
 
         givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
         
-        try (Response response = client.newCall(request).execute()) {
+        try (Response ignored = client.newCall(request).execute()) {
             verify(getRequestedFor(anyUrl())
                     .withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, equalTo("CALL_ID"))
                     .withHeader("Nav-CallId", equalTo("CALL_ID"))

@@ -3,62 +3,76 @@ package no.nav.common.metrics;
 import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.Wither;
-import no.nav.common.utils.EnvironmentUtils;
 
 import static no.nav.common.utils.EnvironmentUtils.*;
 
 @Value
-@Wither
 @Builder
+@Wither
 public class SensuConfig {
 
-    public static final String SENSU_CLIENT_HOST = "sensu_client_host";
-    public static final String SENSU_CLIENT_PORT = "sensu_client_port";
+    public static final long DEFAULT_SENSU_RETRY_INTERVAL = 5000;
+    public static final int DEFAULT_SENSU_CONNECT_TIMEOUT = 3000;
+    public static final int DEFAULT_SENSU_QUEUE_SIZE = 20_000;
+    public static final long DEFAULT_SENSU_MAX_BATCH_TIME = 10000;
+    public static final int DEFAULT_SENSU_BATCH_SIZE = 500;
+    public static final boolean DEFAULT_SENSU_CLEANUP_ON_SHUTDOWN = true;
 
-    public static final String SENSU_RETRY_INTERVAL_PROPERTY_NAME = "metrics.sensu.report.retryInterval";
-    public static final String SENSU_QUEUE_SIZE_PROPERTY_NAME = "metrics.sensu.report.queueSize";
-    public static final String SENSU_BATCHES_PER_SECOND_PROPERTY_NAME = "metrics.sensu.report.batchesPerSecond";
-    public static final String SENSU_BATCH_SIZE_PROPERTY_NAME = "metrics.sensu.report.batchSize";
+    public static final long SENSU_MIN_BATCH_TIME = 100;
+    public static final long SENSU_MIN_QUEUE_SIZE = 100;
 
     private String sensuHost;
     private int sensuPort;
-
     private String application;
     private String hostname;
     private String cluster;
     private String namespace;
 
-    private int retryInterval;
+    /**
+     *  How long we will wait before sending a new batch after a failure (in milliseconds)
+     */
+    private long retryInterval;
+
+    /**
+     * How long we will wait to connect to sensu before failing (in milliseconds)
+     */
+    private int connectTimeout;
+
+    /**
+     * How large the underlying queue where all reports are stored before being sent in batches to sensu
+     */
     private int queueSize;
-    private int batchesPerSecond;
+
+    /**
+     * Maximum time we will wait for a batch to build up before sending it to sensu (in milliseconds)
+     */
+    private long maxBatchTime;
+
+    /**
+     * How many reports will be sent at once to sensu
+     */
     private int batchSize;
 
-    public static SensuConfig resolveNaisConfig() {
-        return defaultConfig("sensu.nais", 3030);
-    }
+    /**
+     * If set to 'true' then a hook will be set up to flush metrics on shutdown
+     */
+    private boolean cleanupOnShutdown;
 
-    private static SensuConfig defaultConfig(String host, int port) {
-        return withSensuDefaults(SensuConfig.builder()
-                .sensuHost(getOptionalProperty(SENSU_CLIENT_HOST).orElse(host))
-                .sensuPort(getOptionalProperty(SENSU_CLIENT_PORT).map(Integer::parseInt).orElse(port))
+    public static SensuConfig defaultConfig() {
+        return SensuConfig.builder()
+                .sensuHost("sensu.nais")
+                .sensuPort(3030)
                 .application(requireApplicationName())
+                .hostname(resolveHostName())
                 .cluster(requireClusterName())
                 .namespace(requireNamespace())
-                .hostname(EnvironmentUtils.resolveHostName())
-                .build()
-        );
-    }
-
-    public static SensuConfig withSensuDefaults(SensuConfig sensuConfig) {
-        return sensuConfig
-                .withRetryInterval(defaultIntSystemProperty(SENSU_RETRY_INTERVAL_PROPERTY_NAME, 1000))
-                .withQueueSize(defaultIntSystemProperty(SENSU_QUEUE_SIZE_PROPERTY_NAME, 20_000))
-                .withBatchesPerSecond(defaultIntSystemProperty(SENSU_BATCHES_PER_SECOND_PROPERTY_NAME, 50))
-                .withBatchSize(defaultIntSystemProperty(SENSU_BATCH_SIZE_PROPERTY_NAME, 100));
-    }
-
-    private static int defaultIntSystemProperty(String propertyName, int defaultValue) {
-        return Integer.parseInt(System.getProperty(propertyName, Integer.toString(defaultValue)));
+                .retryInterval(DEFAULT_SENSU_RETRY_INTERVAL)
+                .connectTimeout(DEFAULT_SENSU_CONNECT_TIMEOUT)
+                .queueSize(DEFAULT_SENSU_QUEUE_SIZE)
+                .maxBatchTime(DEFAULT_SENSU_MAX_BATCH_TIME)
+                .batchSize(DEFAULT_SENSU_BATCH_SIZE)
+                .cleanupOnShutdown(true)
+                .build();
     }
 
 }
