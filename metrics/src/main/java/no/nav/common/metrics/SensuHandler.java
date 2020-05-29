@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_BATCH_TIME;
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_QUEUE_SIZE;
 
@@ -93,23 +94,24 @@ public class SensuHandler {
 
             while (!isShutDown) {
                 try {
-                    String report = reportQueue.take(); // denne venter til det er noe i køen
+                    if (!reportQueue.isEmpty()) {
+                        reports.clear();
 
-                    reports.clear();
-                    reports.add(report);
-                    reportQueue.drainTo(reports, sensuConfig.getBatchSize() - 1);
-                    log.debug("Sender {} metrikker", reports.size());
+                        reportQueue.drainTo(reports, sensuConfig.getBatchSize() - 1);
+                        float percentFull = (reportQueue.size() / (float) sensuConfig.getQueueSize()) * 100;
+                        log.info(format("Metrics still in queue: %d \tQueue full: %.2f%% \tMetrics sent: %d", reportQueue.size(), percentFull, reports.size()));
 
-                    String influxOutput = StringUtils.join(reports, "\n");
-                    JSONObject jsonObject = createJSON(influxOutput);
+                        String influxOutput = StringUtils.join(reports, "\n");
+                        JSONObject jsonObject = createJSON(influxOutput);
 
-                    try (Socket socket = new Socket()) {
-                        writeToSensu(jsonObject, socket);
-                    } catch (IOException e) {
-                        reportQueue.addAll(reports); // Legger tilbake i køen
-                        log.error("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}", e.getClass().getSimpleName(), e.getMessage());
-                        if (!isShutDown) {
-                            Thread.sleep(sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
+                        try (Socket socket = new Socket()) {
+                            writeToSensu(jsonObject, socket);
+                        } catch (IOException e) {
+                            reportQueue.addAll(reports); // Legger tilbake i køen
+                            log.error("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+                            if (!isShutDown) {
+                                Thread.sleep(sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
+                            }
                         }
                     }
 
