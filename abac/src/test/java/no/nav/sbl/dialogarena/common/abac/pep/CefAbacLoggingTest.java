@@ -7,8 +7,6 @@ import no.nav.sbl.dialogarena.common.abac.pep.cef.CefEventContext;
 import no.nav.sbl.dialogarena.common.abac.pep.cef.CefEventResource;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.ResourceType;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.request.XacmlRequest;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacService;
 import no.nav.sbl.dialogarena.common.abac.pep.service.AbacServiceConfig;
@@ -17,9 +15,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 
+import java.util.HashMap;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toList;
 import static no.nav.common.utils.IdUtils.generateId;
 import static no.nav.log.cef.CefEvent.Severity.INFO;
 import static no.nav.log.cef.CefEvent.Severity.WARN;
@@ -39,6 +39,7 @@ public class CefAbacLoggingTest {
 
     private static final String APPLICATION_NAME = "ApplicationName";
     private static final String CALL_ID = generateId();
+    private static final String CONSUMER_ID = "ConsumingApplication";
     private static final String REQUEST_METHOD = "GET";
     private static final String REQUEST_PATH = "/some/path";
     private static final String SUBJECT_ID = "ABC123";
@@ -74,7 +75,7 @@ public class CefAbacLoggingTest {
 
         pep.harTilgang(requestData, cefEventContext);
 
-        verify(log).info(eq(expectHeader(INFO) + expectAttributesPerson(Permit)));
+        verify(log).info(eq(expectHeader(INFO) + expectAttributesPersonPermit()));
     }
 
     @Test
@@ -86,7 +87,7 @@ public class CefAbacLoggingTest {
 
         pep.harTilgang(requestData, cefEventContext);
 
-        verify(log).info(eq(expectHeader(WARN) + expectAttributesPerson(Deny)));
+        verify(log).info(eq(expectHeader(WARN) + expectAttributesPersonDeny()));
     }
 
     @Test
@@ -98,7 +99,7 @@ public class CefAbacLoggingTest {
 
         pep.harTilgang(requestData, cefEventContext);
 
-        verify(log).info(eq(expectHeader(INFO) + expectAttributesEnhet(Permit)));
+        verify(log).info(eq(expectHeader(INFO) + expectAttributesEnhetPermit()));
     }
 
     @Test
@@ -110,7 +111,7 @@ public class CefAbacLoggingTest {
 
         pep.harTilgang(requestData, cefEventContext);
 
-        verify(log).info(eq(expectHeader(WARN) + expectAttributesEnhet(Deny)));
+        verify(log).info(eq(expectHeader(WARN) + expectAttributesEnhetDeny()));
     }
 
     @Test
@@ -119,16 +120,24 @@ public class CefAbacLoggingTest {
         responseWithJson("xacmlresponse-multiple-decision-and-category.json");
 
         RequestData requestData = requestData(ResourceType.VeilArbPerson).withPersonId(PERSON_ID);
-        CefEventContext cefEventContext = eventContext(CefEventResource.list(xacmlResponse ->
-                xacmlResponse.getResponse().stream()
-                        .collect(toMap(x -> x.getCategory().get(0).getAttribute().getValue(), Response::getDecision))));
+        CefEventContext cefEventContext = eventContext(CefEventResource.custom(
+                xacmlResponse ->
+                        xacmlResponse.getResponse().stream()
+                                .map(response -> {
+                                    HashMap<String, String> attributes = new HashMap<>();
+                                    attributes.put("duid", response.getCategory().get(0).getAttribute().getValue());
+                                    return new CefEventResource.CustomResource.Context(response, attributes);
+                                })
+                                .collect(toList())
+        ));
 
         XacmlResponse xacmlResponse = abacService
                 .askForPermission(new XacmlRequest().withRequest(new XacmlRequestGenerator().makeRequest(requestData)));
 
         auditLogger.logCEF(xacmlResponse, cefEventContext);
 
-        verify(log).info(eq(expectHeader(WARN) + expectAttributesFlere()));
+        verify(log).info(eq(expectHeader(INFO) + expectAttributesFlerePermit()));
+        verify(log).info(eq(expectHeader(WARN) + expectAttributesFlereDeny()));
     }
 
     private void responseWithJson(String jsonFile) {
@@ -138,22 +147,75 @@ public class CefAbacLoggingTest {
     }
 
     private String expectHeader(Severity severity) {
-
-        return format("CEF:0|%s|Sporingslogg|1.0|trace:access|ABAC Sporingslogg|%s|", APPLICATION_NAME, severity);
+        return format("CEF:0|%s|Sporingslogg|1.0|audit:access|ABAC Sporingslogg|%s|", APPLICATION_NAME, severity);
     }
 
-    private String expectAttributesPerson(Decision decision) {
-        return format("sproc=%s flexString1=%s request=%s duid=%s requestMethod=%s end=%s flexString1Label=Decision suid=%s",
-                CALL_ID, decision, REQUEST_PATH, PERSON_ID.getId(), REQUEST_METHOD, TIME, SUBJECT_ID);
-    }
-    private String expectAttributesEnhet(Decision decision) {
-        return format("sproc=%s flexString1=%s request=%s requestMethod=%s deviceCustomString1=%s end=%s flexString1Label=Decision suid=%s",
-                CALL_ID, decision, REQUEST_PATH, REQUEST_METHOD, ENHET, TIME, SUBJECT_ID);
+    private String expectAttributesPersonPermit() {
+        return format("sproc=%s flexString1=%s request=%s duid=%s requestMethod=%s end=%s flexString1Label=Decision suid=%s dproc=%s",
+                CALL_ID, Permit, REQUEST_PATH, PERSON_ID.getId(), REQUEST_METHOD, TIME, SUBJECT_ID, CONSUMER_ID);
     }
 
-    private String expectAttributesFlere() {
-        return format("sproc=%s request=%s cs5Label=Decisions cs3=11111111111 22222222222 cs5=Permit Deny cs3Label=Resources requestMethod=%s end=%s suid=%s",
-                CALL_ID, REQUEST_PATH, REQUEST_METHOD, TIME, SUBJECT_ID);
+    private String expectAttributesPersonDeny() {
+        return format("sproc=%s " +
+                        "flexString2Label=deny_policy " +
+                        "request=%s " +
+                        "cs5Label=deny_rule " +
+                        "cs3=cause duid=%s cs5=deny_rule " +
+                        "requestMethod=%s " +
+                        "suid=%s " +
+                        "dproc=%s " +
+                        "flexString1=%s " +
+                        "cs3Label=deny_cause " +
+                        "end=%s " +
+                        "flexString1Label=Decision " +
+                        "flexString2=deny_policy",
+                CALL_ID, REQUEST_PATH, PERSON_ID.getId(), REQUEST_METHOD, SUBJECT_ID, CONSUMER_ID, Deny, TIME);
+    }
+
+    private String expectAttributesEnhetPermit() {
+        return format("sproc=%s cs1=%s flexString1=%s request=%s requestMethod=%s end=%s flexString1Label=Decision suid=%s dproc=%s",
+                CALL_ID, ENHET, Permit, REQUEST_PATH, REQUEST_METHOD, TIME, SUBJECT_ID, CONSUMER_ID);
+    }
+    private String expectAttributesEnhetDeny() {
+        return format("sproc=%s " +
+                        "cs1=%s " +
+                        "flexString2Label=deny_policy " +
+                        "request=%s " +
+                        "cs5Label=deny_rule " +
+                        "cs3=cause " +
+                        "cs5=deny_rule " +
+                        "requestMethod=%s " +
+                        "suid=%s " +
+                        "dproc=%s " +
+                        "flexString1=%s " +
+                        "cs3Label=deny_cause " +
+                        "end=%s " +
+                        "flexString1Label=Decision " +
+                        "flexString2=deny_policy",
+        CALL_ID, ENHET, REQUEST_PATH, REQUEST_METHOD, SUBJECT_ID, CONSUMER_ID, Deny, TIME);
+    }
+
+    private String expectAttributesFlerePermit() {
+        return format("sproc=%s flexString1=%s request=%s duid=11111111111 requestMethod=%s end=%s flexString1Label=Decision suid=%s dproc=%s",
+                CALL_ID, Permit, REQUEST_PATH, REQUEST_METHOD, TIME, SUBJECT_ID, CONSUMER_ID);
+    }
+    private String expectAttributesFlereDeny() {
+        return format("sproc=%s " +
+                        "flexString2Label=deny_policy " +
+                        "request=%s " +
+                        "cs5Label=deny_rule " +
+                        "cs3=cause " +
+                        "duid=22222222222 " +
+                        "cs5=deny_rule " +
+                        "requestMethod=%s " +
+                        "suid=%s " +
+                        "dproc=%s " +
+                        "flexString1=%s " +
+                        "cs3Label=deny_cause " +
+                        "end=%s " +
+                        "flexString1Label=Decision " +
+                        "flexString2=deny_policy",
+                CALL_ID, REQUEST_PATH, REQUEST_METHOD, SUBJECT_ID, CONSUMER_ID, Deny, TIME);
     }
 
 
@@ -169,6 +231,7 @@ public class CefAbacLoggingTest {
         return CefEventContext.builder()
                 .applicationName(APPLICATION_NAME)
                 .callId(CALL_ID)
+                .consumerId(CONSUMER_ID)
                 .requestMethod(REQUEST_METHOD)
                 .requestPath(REQUEST_PATH)
                 .resource(resource)

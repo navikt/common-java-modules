@@ -95,7 +95,9 @@ public class CefEvent {
         }
 
         public Builder addAttribute(String key, String value) {
-            attributes.put(key, value);
+            if (value != null) {
+                attributes.put(key, value);
+            }
             return this;
         }
 

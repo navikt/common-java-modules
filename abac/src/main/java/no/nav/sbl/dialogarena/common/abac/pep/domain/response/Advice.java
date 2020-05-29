@@ -1,14 +1,13 @@
 package no.nav.sbl.dialogarena.common.abac.pep.domain.response;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.List;
 
 @EqualsAndHashCode
+@Getter
 public class Advice {
-    public String getId() {
-        return id;
-    }
 
     private final String id;
     private final List<AttributeAssignment> attributeAssignment;

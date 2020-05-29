@@ -1,78 +1,117 @@
 package no.nav.sbl.dialogarena.common.abac.pep.cef;
 
 import no.nav.log.cef.CefEvent;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
+import no.nav.sbl.dialogarena.common.abac.pep.NavAttributter;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+
 
 public class CefAbacEvent {
-    public static CefEvent createCefEvent(XacmlResponse xacmlResponse,
-                                          CefEventContext context,
-                                          Supplier<Long> currentTimeInMillisSupplier) {
 
-        CefEvent.Builder cefEventBuilder = CefEvent.builder()
-                .cefVersion("0")
-                .applicationName(context.applicationName)
-                .logName("Sporingslogg")
-                .logFormatVersion("1.0")
-                .eventType("trace:access")
-                .description("ABAC Sporingslogg")
-                .addAttribute("end", currentTimeInMillisSupplier.get().toString())
-                .addAttribute("suid", context.subjectId)
-                .addAttribute("sproc", context.callId)
-                .addAttribute("requestMethod", context.requestMethod)
-                .addAttribute("request", context.requestPath);
+    public static List<CefEvent> createCefEvents(XacmlResponse xacmlResponse,
+                                                 CefEventContext context,
+                                                 Supplier<Long> currentTimeInMillisSupplier) {
 
 
         if (context.resource instanceof CefEventResource.PersonIdResource) {
             CefEventResource.PersonIdResource resource = ((CefEventResource.PersonIdResource) context.resource);
-            cefEventBuilder.addAttribute("duid", resource.getPersonId().getId());
-
             Response response = xacmlResponse.getResponse().get(0);
-            Decision decision = response.getDecision();
+            CefEvent.Builder cefEventBuilder = CefEvent.builder();
 
-            cefEventBuilder
-                    .severity(Decision.Permit.equals(decision) ? CefEvent.Severity.INFO : CefEvent.Severity.WARN)
-                    .addAttribute("flexString1", response.getDecision().name())
-                    .addAttribute("flexString1Label", "Decision");
+            addFromContext(cefEventBuilder, context, currentTimeInMillisSupplier);
+            cefEventBuilder.addAttribute("duid", resource.getPersonId().getId());
+            addDecisionAttribute(response, cefEventBuilder);
+            addDenyAttributes(response, cefEventBuilder);
+
+            return singletonList(cefEventBuilder.build());
 
         } else if (context.resource instanceof CefEventResource.EnhetIdResource) {
             CefEventResource.EnhetIdResource resource = (CefEventResource.EnhetIdResource) context.resource;
-            cefEventBuilder.addAttribute("deviceCustomString1", resource.getEnhet());
-
             Response response = xacmlResponse.getResponse().get(0);
-            Decision decision = response.getDecision();
+            CefEvent.Builder cefEventBuilder = CefEvent.builder();
 
-            cefEventBuilder
-                    .severity(Decision.Permit.equals(decision) ? CefEvent.Severity.INFO : CefEvent.Severity.WARN)
-                    .addAttribute("flexString1", decision.name())
-                    .addAttribute("flexString1Label", "Decision");
+            addFromContext(cefEventBuilder, context, currentTimeInMillisSupplier);
+            cefEventBuilder.addAttribute("cs1", resource.getEnhet());
+            addDecisionAttribute(response, cefEventBuilder);
+            addDenyAttributes(response, cefEventBuilder);
 
-        } else if (context.resource instanceof CefEventResource.ListResource) {
+            return singletonList(cefEventBuilder.build());
 
-            CefEventResource.ListResource resource = (CefEventResource.ListResource) context.resource;
+        } else if (context.resource instanceof CefEventResource.CustomResource) {
+            CefEventResource.CustomResource resource = (CefEventResource.CustomResource) context.resource;
 
-            Map<String, Decision> decisionMap = resource.getResourceToDecision().apply(xacmlResponse);
+            return resource.getResourceToResponse().apply(xacmlResponse).stream().map(x -> {
+                CefEvent.Builder cefEventBuilder = CefEvent.builder();
 
-            List<String> resources = new ArrayList<>(decisionMap.keySet());
-            List<Decision> decisions = new ArrayList<>(decisionMap.values());
-            CefEvent.Severity severity = decisions.stream().anyMatch(decision ->
-                    !Decision.Permit.equals(decision)) ? CefEvent.Severity.WARN : CefEvent.Severity.INFO;
+                addFromContext(cefEventBuilder, context, currentTimeInMillisSupplier);
+                x.getAttributes().forEach(cefEventBuilder::addAttribute);
+                addDecisionAttribute(x.getResponse(), cefEventBuilder);
+                addDenyAttributes(x.getResponse(), cefEventBuilder);
 
-            cefEventBuilder
-                    .severity(severity)
-                    .addAttribute("cs3", String.join(" ", resources))
-                    .addAttribute("cs3Label", "Resources")
-                    .addAttribute("cs5", decisions.stream().map(Decision::name).collect(Collectors.joining(" ")))
-                    .addAttribute("cs5Label", "Decisions");
+                return cefEventBuilder.build();
+            }).collect(toList());
+        } else {
+            return emptyList();
         }
+    }
 
-        return cefEventBuilder.build();
+    private static void addFromContext(CefEvent.Builder cefEventBuilder,
+                                       CefEventContext context,
+                                       Supplier<Long> currentTimeInMillisSupplier) {
+        cefEventBuilder
+                .cefVersion("0")
+                .applicationName(context.applicationName)
+                .logName("Sporingslogg")
+                .logFormatVersion("1.0")
+                .eventType("audit:access")
+                .description("ABAC Sporingslogg")
+                .addAttribute("end", currentTimeInMillisSupplier.get().toString())
+                .addAttribute("suid", context.subjectId)
+                .addAttribute("sproc", context.callId)
+                .addAttribute("dproc", context.consumerId)
+                .addAttribute("requestMethod", context.requestMethod)
+                .addAttribute("request", context.requestPath);
+    }
+
+    private static void addDecisionAttribute(Response response, CefEvent.Builder cefEventBuilder) {
+        cefEventBuilder
+                .severity(Decision.Permit.equals(response.getDecision()) ? CefEvent.Severity.INFO : CefEvent.Severity.WARN)
+                .addAttribute("flexString1", response.getDecision().name())
+                .addAttribute("flexString1Label", "Decision");
+    }
+
+    private static void addDenyAttributes(Response response, CefEvent.Builder cefEventBuilder) {
+        if (!Decision.Permit.equals(response.getDecision())) {
+
+            Advice advice = response.getAssociatedAdvice().get(0);
+
+            getAttributeFromAdvice(NavAttributter.ADVICEOROBLIGATION_CAUSE, advice).ifPresent(cause -> {
+                cefEventBuilder.addAttribute("cs3", cause.getValue());
+                cefEventBuilder.addAttribute("cs3Label", "deny_cause");
+            });
+
+            getAttributeFromAdvice(NavAttributter.ADVICEOROBLIGATION_DENY_POLICY, advice).ifPresent(policy -> {
+                cefEventBuilder.addAttribute("flexString2", policy.getValue());
+                cefEventBuilder.addAttribute("flexString2Label", "deny_policy");
+            });
+
+            getAttributeFromAdvice(NavAttributter.ADVICEOROBLIGATION_DENY_RULE, advice).ifPresent(policy -> {
+                cefEventBuilder.addAttribute("cs5", policy.getValue());
+                cefEventBuilder.addAttribute("cs5Label", "deny_rule");
+            });
+        }
+    }
+
+    private static Optional<AttributeAssignment> getAttributeFromAdvice(String attribute, Advice advice) {
+        return advice.getAttributeAssignment().stream().filter(attributeAssignment ->
+                attribute.equals(attributeAssignment.getAttributeId()))
+                .findFirst();
     }
 }

@@ -10,6 +10,7 @@ import lombok.ToString;
 public class CefEventContext {
     String applicationName;
     String callId;
+    String consumerId;
     String requestMethod;
     String requestPath;
     String subjectId;

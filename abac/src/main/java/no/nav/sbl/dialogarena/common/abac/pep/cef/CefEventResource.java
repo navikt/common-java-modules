@@ -3,9 +3,10 @@ package no.nav.sbl.dialogarena.common.abac.pep.cef;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
-import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Decision;
+import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -28,8 +29,14 @@ public abstract class CefEventResource {
 
     @EqualsAndHashCode(callSuper = true)
     @Value
-    public static class ListResource extends CefEventResource {
-        Function<XacmlResponse, Map<String, Decision>> resourceToDecision;
+    public static class CustomResource extends CefEventResource {
+        Function<XacmlResponse, List<Context>> resourceToResponse;
+
+        @Value
+        public static class Context {
+            Response response;
+            Map<String, String> attributes;
+        }
     }
 
     public static PersonIdResource personId(AbacPersonId personId) {
@@ -40,7 +47,7 @@ public abstract class CefEventResource {
         return new EnhetIdResource(enhetId);
     }
 
-    public static ListResource list(Function<XacmlResponse, Map<String, Decision>> resourceToDecision) {
-        return new ListResource(resourceToDecision);
+    public static CustomResource custom(Function<XacmlResponse, List<CustomResource.Context>> resourceToResponse) {
+        return new CustomResource(resourceToResponse);
     }
 }

@@ -8,9 +8,10 @@ import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.function.Supplier;
 
-import static no.nav.sbl.dialogarena.common.abac.pep.cef.CefAbacEvent.createCefEvent;
+import static no.nav.sbl.dialogarena.common.abac.pep.cef.CefAbacEvent.createCefEvents;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class AuditLogger {
@@ -44,8 +45,8 @@ public class AuditLogger {
 
 
     void logCEF(XacmlResponse xacmlResponse, CefEventContext context) {
-        CefEvent cefEvent = createCefEvent(xacmlResponse, context, currentTimeInMillisSupplier);
-        log.info(cefEvent.toString());
+        List<CefEvent> cefEvents = createCefEvents(xacmlResponse, context, currentTimeInMillisSupplier);
+        cefEvents.forEach(event -> log.info(event.toString()));
     }
 
 }

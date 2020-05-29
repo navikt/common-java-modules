@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
+import static no.nav.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.log.LogFilter.resolveCallId;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.READ;
 import static no.nav.sbl.dialogarena.common.abac.pep.domain.request.Action.ActionId.WRITE;
@@ -129,6 +130,7 @@ public class PepClient {
                             CefEventContext.builder()
                                     .applicationName(requireApplicationName())
                                     .callId(resolveCallId(request))
+                                    .consumerId(request.getHeader(CONSUMER_ID_HEADER_NAME))
                                     .requestMethod(request.getMethod())
                                     .requestPath(request.getRequestURI())
                                     .subjectId(SubjectHandler.getIdent().orElse(null))
