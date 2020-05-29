@@ -25,7 +25,8 @@ public class SelftestResult {
     }
 
     public boolean harFeil() {
-        return this.getResult() != SelfTestStatus.OK;
+        SelfTestStatus result = getResult();
+        return result != SelfTestStatus.OK && result != SelfTestStatus.DISABLED;
     }
 
 }
