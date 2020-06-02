@@ -1,20 +1,18 @@
 package no.nav.common.abac.domain.response;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.List;
 
 @EqualsAndHashCode
+@Getter
 public class Advice {
-    public String getId() {
-        return id;
-    }
 
     private final String id;
     private final List<AttributeAssignment> attributeAssignment;
 
     public Advice(String id, List<AttributeAssignment> attributeAssignment) {
-
         this.id = id;
         this.attributeAssignment = attributeAssignment;
     }
