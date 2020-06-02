@@ -6,48 +6,44 @@ import no.nav.sbl.dialogarena.common.abac.pep.AbacPersonId;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.Response;
 import no.nav.sbl.dialogarena.common.abac.pep.domain.response.XacmlResponse;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 @EqualsAndHashCode
-public abstract class CefEventResource {
+@Value
+public class CefEventResource {
 
-    private CefEventResource() {}
+    Function<XacmlResponse, List<Context>> resourceToResponse;
 
-    @EqualsAndHashCode(callSuper = true)
+    public CefEventResource(Function<XacmlResponse, List<Context>> resourceToResponse) {
+        this.resourceToResponse = resourceToResponse;
+    }
+
     @Value
-    public static class PersonIdResource extends CefEventResource {
-        AbacPersonId personId;
+    public static class Context {
+        Response response;
+        Map<String, String> attributes;
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Value
-    public static class EnhetIdResource extends CefEventResource {
-        String enhet;
+
+    public static CefEventResource personId(AbacPersonId personId) {
+        return new CefEventResource(response -> {
+            HashMap<String, String> attributes = new HashMap<>();
+            attributes.put("duid", personId.getId());
+            Response resp = response.getResponse().get(0);
+            return Collections.singletonList(new Context(resp, attributes));
+        });
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Value
-    public static class CustomResource extends CefEventResource {
-        Function<XacmlResponse, List<Context>> resourceToResponse;
-
-        @Value
-        public static class Context {
-            Response response;
-            Map<String, String> attributes;
-        }
-    }
-
-    public static PersonIdResource personId(AbacPersonId personId) {
-        return new PersonIdResource(personId);
-    }
-
-    public static EnhetIdResource enhetId(String enhetId) {
-        return new EnhetIdResource(enhetId);
-    }
-
-    public static CustomResource custom(Function<XacmlResponse, List<CustomResource.Context>> resourceToResponse) {
-        return new CustomResource(resourceToResponse);
+    public static CefEventResource enhetId(String enhetId) {
+        return new CefEventResource(response -> {
+            HashMap<String, String> attributes = new HashMap<>();
+            attributes.put("cs1", enhetId);
+            Response resp = response.getResponse().get(0);
+            return Collections.singletonList(new Context(resp, attributes));
+        });
     }
 }

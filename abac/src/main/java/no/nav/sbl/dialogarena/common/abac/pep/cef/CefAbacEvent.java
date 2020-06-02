@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 
@@ -19,33 +17,7 @@ public class CefAbacEvent {
                                                  CefEventContext context,
                                                  Supplier<Long> currentTimeInMillisSupplier) {
 
-
-        if (context.resource instanceof CefEventResource.PersonIdResource) {
-            CefEventResource.PersonIdResource resource = ((CefEventResource.PersonIdResource) context.resource);
-            Response response = xacmlResponse.getResponse().get(0);
-            CefEvent.Builder cefEventBuilder = CefEvent.builder();
-
-            addFromContext(cefEventBuilder, context, currentTimeInMillisSupplier);
-            cefEventBuilder.addAttribute("duid", resource.getPersonId().getId());
-            addDecisionAttribute(response, cefEventBuilder);
-            addDenyAttributes(response, cefEventBuilder);
-
-            return singletonList(cefEventBuilder.build());
-
-        } else if (context.resource instanceof CefEventResource.EnhetIdResource) {
-            CefEventResource.EnhetIdResource resource = (CefEventResource.EnhetIdResource) context.resource;
-            Response response = xacmlResponse.getResponse().get(0);
-            CefEvent.Builder cefEventBuilder = CefEvent.builder();
-
-            addFromContext(cefEventBuilder, context, currentTimeInMillisSupplier);
-            cefEventBuilder.addAttribute("cs1", resource.getEnhet());
-            addDecisionAttribute(response, cefEventBuilder);
-            addDenyAttributes(response, cefEventBuilder);
-
-            return singletonList(cefEventBuilder.build());
-
-        } else if (context.resource instanceof CefEventResource.CustomResource) {
-            CefEventResource.CustomResource resource = (CefEventResource.CustomResource) context.resource;
+            CefEventResource resource = context.resource;
 
             return resource.getResourceToResponse().apply(xacmlResponse).stream().map(x -> {
                 CefEvent.Builder cefEventBuilder = CefEvent.builder();
@@ -57,9 +29,6 @@ public class CefAbacEvent {
 
                 return cefEventBuilder.build();
             }).collect(toList());
-        } else {
-            return emptyList();
-        }
     }
 
     private static void addFromContext(CefEvent.Builder cefEventBuilder,

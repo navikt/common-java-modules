@@ -120,13 +120,13 @@ public class CefAbacLoggingTest {
         responseWithJson("xacmlresponse-multiple-decision-and-category.json");
 
         RequestData requestData = requestData(ResourceType.VeilArbPerson).withPersonId(PERSON_ID);
-        CefEventContext cefEventContext = eventContext(CefEventResource.custom(
+        CefEventContext cefEventContext = eventContext(new CefEventResource(
                 xacmlResponse ->
                         xacmlResponse.getResponse().stream()
                                 .map(response -> {
                                     HashMap<String, String> attributes = new HashMap<>();
                                     attributes.put("duid", response.getCategory().get(0).getAttribute().getValue());
-                                    return new CefEventResource.CustomResource.Context(response, attributes);
+                                    return new CefEventResource.Context(response, attributes);
                                 })
                                 .collect(toList())
         ));
