@@ -173,12 +173,12 @@ public class CefAbacLoggingTest {
     }
 
     private String expectAttributesEnhetPermit() {
-        return format("sproc=%s cs1=%s flexString1=%s request=%s requestMethod=%s end=%s flexString1Label=Decision suid=%s dproc=%s",
+        return format("sproc=%s cs2=%s flexString1=%s request=%s requestMethod=%s end=%s flexString1Label=Decision suid=%s dproc=%s",
                 CALL_ID, ENHET, Permit, REQUEST_PATH, REQUEST_METHOD, TIME, SUBJECT_ID, CONSUMER_ID);
     }
     private String expectAttributesEnhetDeny() {
         return format("sproc=%s " +
-                        "cs1=%s " +
+                        "cs2=%s " +
                         "flexString2Label=deny_policy " +
                         "request=%s " +
                         "cs5Label=deny_rule " +

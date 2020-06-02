@@ -41,7 +41,7 @@ public class CefEventResource {
     public static CefEventResource enhetId(String enhetId) {
         return new CefEventResource(response -> {
             HashMap<String, String> attributes = new HashMap<>();
-            attributes.put("cs1", enhetId);
+            attributes.put("cs2", enhetId);
             Response resp = response.getResponse().get(0);
             return Collections.singletonList(new Context(resp, attributes));
         });
