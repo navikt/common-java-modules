@@ -19,13 +19,14 @@ public class CefAbacEvent {
                                                  Supplier<Long> currentTimeInMillisSupplier) {
 
         return context.mapper.getMapper().apply(new CefAbacResponseMapper.Parameters(xacmlRequest, xacmlResponse)).stream()
-                .map(x -> {
+                .map(mapperResult -> {
+                    Response response = mapperResult.getResponse();
                     CefEvent.Builder cefEventBuilder = CefEvent.builder();
 
+                    mapperResult.getCustomCefAttributes().forEach(cefEventBuilder::addAttribute);
                     addFromContext(cefEventBuilder, context, currentTimeInMillisSupplier);
-                    x.getCustomCefAttributes().forEach(cefEventBuilder::addAttribute);
-                    addDecisionAttribute(x.getResponse(), cefEventBuilder);
-                    addDenyAttributes(x.getResponse(), cefEventBuilder);
+                    addDecisionAttribute(response, cefEventBuilder);
+                    addDenyAttributes(response, cefEventBuilder);
 
                     return cefEventBuilder.build();
                 }).collect(toList());

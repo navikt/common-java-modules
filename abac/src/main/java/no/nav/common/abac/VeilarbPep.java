@@ -8,7 +8,6 @@ import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.PepException;
-import no.nav.common.auth.subject.SubjectHandler;
 
 import static no.nav.common.abac.XacmlRequestBuilder.*;
 import static no.nav.common.utils.EnvironmentUtils.requireApplicationName;
@@ -23,20 +22,24 @@ public class VeilarbPep implements Pep {
 
     private final AuditLogger auditLogger;
 
+    private final SubjectProvider subjectProvider;
+
     public VeilarbPep(String abacUrl, String srvUsername, String srvPassword) {
         this.srvUsername = srvUsername;
         this.auditLogger = new AuditLogger();
         this.abacClient = new AbacCachedClient(new AbacHttpClient(abacUrl, srvUsername, srvPassword));
+        this.subjectProvider = new NimbusSubjectProvider();
     }
 
-    public VeilarbPep(String srvUsername, AbacClient abacClient, AuditLogger auditLogger) {
+    public VeilarbPep(String srvUsername, AbacClient abacClient, AuditLogger auditLogger, SubjectProvider subjectProvider) {
         this.srvUsername = srvUsername;
         this.abacClient = abacClient;
         this.auditLogger = auditLogger;
+        this.subjectProvider = subjectProvider;
     }
 
     @Override
-    public void sjekkVeilederTilgangTilEnhet(String veilederIdent, String enhetId, RequestInfo requestInfo) {
+    public void sjekkVeiledertilgangTilEnhet(String veilederIdent, String enhetId, RequestInfo requestInfo) {
         ActionId actionId = ActionId.READ;
         Resource resource = lagEnhetResource(enhetId, VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
@@ -55,7 +58,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeilederTilgangTilBruker(String veilederIdent, ActionId actionId, AbacPersonId personId, RequestInfo requestInfo) {
+    public void sjekkVeiledertilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId, RequestInfo requestInfo) {
         Resource resource = lagPersonResource(personId, VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
@@ -82,7 +85,7 @@ public class VeilarbPep implements Pep {
                 resource
         );
         CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(personId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, requestInfo, SubjectHandler.getIdent().orElse(null));
+        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, requestInfo, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
 
         if (!harTilgang(xacmlRequest, cefEventContext)) {
             throw new PepException("Innlogget bruker har ikke tilgang til person");
@@ -90,7 +93,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeilederTilgangTilKode6(String veilederIdent, RequestInfo requestInfo) {
+    public void sjekkVeiledertilgangTilKode6(String veilederIdent, RequestInfo requestInfo) {
         Resource resource = lagKode6Resource(VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
@@ -107,7 +110,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeilederTilgangTilKode7(String veilederIdent, RequestInfo requestInfo) {
+    public void sjekkVeiledertilgangTilKode7(String veilederIdent, RequestInfo requestInfo) {
         Resource resource = lagKode7Resource(VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
@@ -125,7 +128,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeilederTilgangTilEgenAnsatt(String veilederIdent, RequestInfo requestInfo) {
+    public void sjekkVeiledertilgangTilEgenAnsatt(String veilederIdent, RequestInfo requestInfo) {
         Resource resource = lagEgenAnsattResource(VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
@@ -150,7 +153,7 @@ public class VeilarbPep implements Pep {
     private boolean harTilgang(XacmlRequest xacmlRequest, CefAbacEventContext cefEventContext) {
         XacmlResponse xacmlResponse = abacClient.sendRequest(xacmlRequest);
 
-        auditLogger.logCEF(xacmlRequest, xacmlResponse, cefEventContext);
+        auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext);
 
         return XacmlResponseParser.harTilgang(xacmlResponse);
     }

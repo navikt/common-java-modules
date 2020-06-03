@@ -26,7 +26,7 @@ public class AuditLogger {
         this.currentTimeInMillisSupplier = currentTimeInMillisSupplier;
     }
 
-    void logCEF(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse, CefAbacEventContext context) {
+    void logCef(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse, CefAbacEventContext context) {
         List<CefEvent> cefEvents = createCefEvents(xacmlRequest, xacmlResponse, context, currentTimeInMillisSupplier);
         cefEvents.forEach(event -> log.info(event.toString()));
     }

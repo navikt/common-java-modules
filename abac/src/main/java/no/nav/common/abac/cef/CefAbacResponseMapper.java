@@ -43,19 +43,19 @@ public class CefAbacResponseMapper {
 
 
     public static CefAbacResponseMapper personIdMapper(AbacPersonId personId, ActionId actionId, Resource resource) {
-        Map<String, String> attributes = defaultAttributes(actionId, resource);
+        Map<String, String> attributes = commonAttributes(actionId, resource);
         attributes.put("duid", personId.getId());
         return attributesMapper(attributes);
     }
 
     public static CefAbacResponseMapper enhetIdMapper(String enhetId, ActionId actionId, Resource resource) {
-        Map<String, String> attributes = defaultAttributes(actionId, resource);
+        Map<String, String> attributes = commonAttributes(actionId, resource);
         attributes.put("cs2", enhetId);
         return attributesMapper(attributes);
     }
 
     public static CefAbacResponseMapper resourceMapper(Resource resource) {
-        Map<String, String> attributes = defaultAttributes(null, resource);
+        Map<String, String> attributes = commonAttributes(null, resource);
         return attributesMapper(attributes);
     }
 
@@ -65,7 +65,7 @@ public class CefAbacResponseMapper {
                         .map(res -> new Result(res, attributes)).collect(toList()));
     }
 
-    private static Map<String, String> defaultAttributes(ActionId actionId, Resource resource) {
+    private static Map<String, String> commonAttributes(ActionId actionId, Resource resource) {
         HashMap<String, String> attributes = new HashMap<>();
         Optional.ofNullable(actionId).map(action -> attributes.put("act", action.getId()));
         getAttribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, resource)
