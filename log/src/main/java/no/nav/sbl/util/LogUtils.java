@@ -6,6 +6,7 @@ import ch.qos.logback.core.ContextBase;
 import no.nav.log.MarkerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import java.util.List;
 
@@ -19,6 +20,13 @@ public class LogUtils {
         LOGGER.info("global log level: {}", newLevel);
         LoggerContext loggerContext = getLoggerContext();
         loggerContext.getLoggerList().forEach(l -> l.setLevel(newLevel));
+    }
+
+    public static void setupJULBridge() {
+        if (!SLF4JBridgeHandler.isInstalled()) {
+            SLF4JBridgeHandler.removeHandlersForRootLogger();
+            SLF4JBridgeHandler.install();
+        }
     }
 
     public static void shutDownLogback() {

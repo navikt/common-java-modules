@@ -9,6 +9,7 @@ import no.nav.metrics.Event;
 import no.nav.metrics.MetricsFactory;
 import no.nav.sbl.dialogarena.common.jetty.Jetty;
 import no.nav.sbl.dialogarena.common.jetty.JettyCustomizer;
+import no.nav.sbl.util.LogUtils;
 import no.nav.sbl.util.StringUtils;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Request;
@@ -71,6 +72,7 @@ public class ApiApp {
     @SneakyThrows
     public static ApiApp startApiApp(Class<? extends ApiApplication> apiAppClass, String[] args) {
         long start = System.currentTimeMillis();
+        LogUtils.setupJULBridge();
         setupTrustStore();
         ApiApplication apiApplication = apiAppClass.newInstance();
         Jetty jetty = setupJetty(apiApplication, args);
