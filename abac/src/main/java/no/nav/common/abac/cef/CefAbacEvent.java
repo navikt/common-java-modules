@@ -13,6 +13,15 @@ import static java.util.stream.Collectors.toList;
 
 public class CefAbacEvent {
 
+    /**
+     * Lager CEF eventer for sporingslogg av tilgangssjekk mot ABAC
+     * @param xacmlRequest ABAC request
+     * @param xacmlResponse ABAC response
+     * @param context Kontekst av informasjon som skal logges for alle tilgangssjekker mot ABAC, i tillegg til
+     * {@link CefAbacResponseMapper} som også kan brukes for å legge til flere attributter i loggmelding.
+     * @param currentTimeInMillisSupplier
+     * @return Liste av eventer som skal logges
+     */
     public static List<CefEvent> createCefEvents(XacmlRequest xacmlRequest,
                                                  XacmlResponse xacmlResponse,
                                                  CefAbacEventContext context,

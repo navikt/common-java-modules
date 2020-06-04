@@ -39,7 +39,7 @@ public class AuditLoggerTest {
         XacmlResponse xacmlResponse = XacmlMapper.mapRawResponse(getContentFromJsonFile("xacmlresponse-multiple-decision-and-category.json"));
         CefAbacResponseMapper mapper = new CefAbacResponseMapper(
                 params ->
-                        xacmlResponse.getResponse().stream()
+                        params.getResponse().getResponse().stream()
                                 .map(response -> {
                                     HashMap<String, String> attributes = new HashMap<>();
                                     attributes.put("duid", response.getCategory().get(0).getAttribute().getValue());

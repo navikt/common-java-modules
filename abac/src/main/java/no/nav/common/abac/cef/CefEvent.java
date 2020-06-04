@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+/**
+ * Datastruktur for modellering av loggmeldinger i CEF-format
+ */
 public class CefEvent {
 
     public enum Severity {

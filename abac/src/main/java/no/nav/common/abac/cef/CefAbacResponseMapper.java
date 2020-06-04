@@ -19,6 +19,10 @@ import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Mapping av {@link XacmlRequest} og {@link XacmlResponse} til en liste som inneholder {@link Response} og et map for
+ * ekstra attributter som skal logges.
+ */
 @EqualsAndHashCode
 @Value
 public class CefAbacResponseMapper {
