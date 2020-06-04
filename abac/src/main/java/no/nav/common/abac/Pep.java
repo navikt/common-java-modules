@@ -10,7 +10,7 @@ public interface Pep {
      * @param veilederIdent identen til veileder (f.eks Z1234567)
      * @param enhetId enheten som det sjekkes tilgang på
      */
-    void sjekkVeiledertilgangTilEnhet(String veilederIdent, String enhetId, RequestInfo requestInfo);
+    void sjekkVeiledertilgangTilEnhet(String veilederIdent, String enhetId);
 
     /**
      *
@@ -18,7 +18,7 @@ public interface Pep {
      * @param actionId hvilken tilgang spørres det etter
      * @param personId identifikator for personen det sjekkes tilgang på (fnr/aktør id)
      */
-    void sjekkVeiledertilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId, RequestInfo requestInfo);
+    void sjekkVeiledertilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId);
 
     /**
      * Sjekk tilgang ved å bruke en innlogget brukers ID token
@@ -26,25 +26,25 @@ public interface Pep {
      * @param actionId hvilken tilgang spørres det etter
      * @param personId identifikator for personen det sjekkes tilgang på (fnr/aktør id)
      */
-    void sjekkTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId, RequestInfo requestInfo);
+    void sjekkTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId);
 
     /**
      * Sjekker om veileder har tilgang til kode 6 brukere
      * @param veilederIdent identen til veileder (f.eks Z1234567)
      */
-    void sjekkVeiledertilgangTilKode6(String veilederIdent, RequestInfo requestInfo);
+    void sjekkVeiledertilgangTilKode6(String veilederIdent);
 
     /**
      * Sjekker om veileder har tilgang til kode 7 brukere
      * @param veilederIdent identen til veileder (f.eks Z1234567)
      */
-    void sjekkVeiledertilgangTilKode7(String veilederIdent, RequestInfo requestInfo);
+    void sjekkVeiledertilgangTilKode7(String veilederIdent);
 
     /**
      * Sjekker om veileder har tilgang til egen ansatt
      * @param veilederIdent identen til veileder (f.eks Z1234567)
      */
-    void sjekkVeiledertilgangTilEgenAnsatt(String veilederIdent, RequestInfo requestInfo);
+    void sjekkVeiledertilgangTilEgenAnsatt(String veilederIdent);
 
     /**
      * Klienten som blir brukt til å sende forespørsler til abac.
