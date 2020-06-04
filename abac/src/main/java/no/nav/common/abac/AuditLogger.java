@@ -1,29 +1,33 @@
 package no.nav.common.abac;
 
-import no.nav.common.abac.domain.request.Request;
-import no.nav.common.abac.domain.response.Response;
+import no.nav.common.abac.cef.CefEvent;
+import no.nav.common.abac.cef.CefAbacEventContext;
+import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
-import no.nav.common.auth.subject.SubjectHandler;
 import org.slf4j.Logger;
 
+import java.util.List;
+import java.util.function.Supplier;
+
+import static no.nav.common.abac.cef.CefAbacEvent.createCefEvents;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class AuditLogger {
 
-    private static final Logger log = getLogger("AuditLogger");
+    private final Logger log;
+    private final Supplier<Long> currentTimeInMillisSupplier;
 
-    void logRequestInfo(Request request) {
-        log.info("NAV-ident: " + SubjectHandler.getIdent().orElse("-") +
-                " requests access to: " + request.getResource() +
-                " with action : " + request.getAction());
+    public AuditLogger() {
+        this(getLogger("AuditLogger"), System::currentTimeMillis);
     }
 
-    void logResponseInfo(String biasedDecision, XacmlResponse xacmlResponse, Request request) {
-        final Response response = xacmlResponse.getResponse().get(0);
-        log.info("Response from Abac - NAV-ident: " + SubjectHandler.getIdent().orElse("-") +
-                " | Resource: " + request.getResource() +
-                " | Decision value from ABAC: " + response.getDecision().name() +
-                " | Pep-decision: " + biasedDecision +
-                " | " + response.getAssociatedAdvice().toString());
+    AuditLogger(Logger log, Supplier<Long> currentTimeInMillisSupplier) {
+        this.log = log;
+        this.currentTimeInMillisSupplier = currentTimeInMillisSupplier;
+    }
+
+    void logCef(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse, CefAbacEventContext context) {
+        List<CefEvent> cefEvents = createCefEvents(xacmlRequest, xacmlResponse, context, currentTimeInMillisSupplier);
+        cefEvents.forEach(event -> log.info(event.toString()));
     }
 }

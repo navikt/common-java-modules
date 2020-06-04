@@ -53,6 +53,11 @@
             <groupId>no.nav.common</groupId>
             <artifactId>auth</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <optional>true</optional>
+        </dependency>
 
         <!-- test scope -->
         <dependency>
@@ -74,6 +79,11 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-standalone</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
