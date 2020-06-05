@@ -5,7 +5,10 @@ import no.nav.common.auth.oidc.OidcTokenValidator;
 import no.nav.common.auth.utils.CookieUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Value
 public class OidcAuthenticator {
@@ -21,6 +24,12 @@ public class OidcAuthenticator {
 
         OidcTokenValidator validator = new OidcTokenValidator(config.discoveryUrl, config.clientId);
         return new OidcAuthenticator(validator, config);
+    }
+
+    public static List<OidcAuthenticator> fromConfigs(OidcAuthenticatorConfig ...configs) {
+        return Arrays.stream(configs)
+                .map(OidcAuthenticator::fromConfig)
+                .collect(Collectors.toList());
     }
 
     public Optional<String> findIdToken(HttpServletRequest request) {
