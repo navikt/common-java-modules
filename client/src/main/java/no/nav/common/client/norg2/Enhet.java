@@ -1,8 +1,12 @@
 package no.nav.common.client.norg2;
 
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
-@Value
+@Data
+@NoArgsConstructor
+@Accessors(chain = true)
 public class Enhet {
     long enhetId;
     String navn;
