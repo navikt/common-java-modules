@@ -3,6 +3,8 @@ package no.nav.common.abac;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.AbacException;
+import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.HealthCheckUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,4 +56,8 @@ public class AbacHttpClient implements AbacClient {
         }
     }
 
+    @Override
+    public HealthCheckResult checkHealth() {
+        return HealthCheckUtils.pingUrl(abacUrl, client);
+    }
 }

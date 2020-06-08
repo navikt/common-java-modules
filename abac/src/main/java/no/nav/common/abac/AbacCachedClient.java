@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.SneakyThrows;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
+import no.nav.common.health.HealthCheckResult;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -70,4 +71,8 @@ public class AbacCachedClient implements AbacClient {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
+    @Override
+    public HealthCheckResult checkHealth() {
+        return abacClient.checkHealth();
+    }
 }

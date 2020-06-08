@@ -9,6 +9,7 @@ import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.PepException;
+import no.nav.common.health.HealthCheckResult;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -337,6 +338,10 @@ public class VeilarbPepTest {
 
     private AbacClient abacClientSpyWithResponseFromFile(String fileName) {
         return spy(new AbacClient() {
+            @Override
+            public HealthCheckResult checkHealth() {
+                return HealthCheckResult.healthy();
+            }
             @Override
             public String sendRawRequest(String xacmlRequestJson) {
                 return getContentFromJsonFile(fileName);
