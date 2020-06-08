@@ -54,7 +54,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilEnhet(String veilederIdent, String enhetId) {
+    public void sjekkTilgangTilEnhet(String veilederIdent, String enhetId) {
         ActionId actionId = ActionId.READ;
         Resource resource = lagEnhetResource(enhetId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
@@ -73,7 +73,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId) {
+    public void sjekkVeilederTilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId) {
         Resource resource = lagPersonResource(personId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
@@ -108,7 +108,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilOppfolging(String innloggetVeilederIdToken) {
+    public void sjekkTilgangTilOppfolging(String innloggetVeilederIdToken) {
         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetVeilederIdToken);
         Resource resource = lagOppfolgingDomeneResource();
         String veilederIdent = subjectProvider.getSubjectFromToken(innloggetVeilederIdToken);
@@ -129,7 +129,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilModia(String innloggetVeilederIdToken) {
+    public void sjekkTilgangTilModia(String innloggetVeilederIdToken) {
         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetVeilederIdToken);
         Resource resource = lagModiaDomeneResource();
         String veilederIdent = subjectProvider.getSubjectFromToken(innloggetVeilederIdToken);
@@ -150,7 +150,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilKode6(String veilederIdent) {
+    public void sjekkTilgangTilKode6(String veilederIdent) {
         Resource resource = lagKode6Resource(AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
@@ -167,7 +167,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilKode7(String veilederIdent) {
+    public void sjekkTilgangTilKode7(String veilederIdent) {
         Resource resource = lagKode7Resource(AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
@@ -185,7 +185,7 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilEgenAnsatt(String veilederIdent) {
+    public void sjekkTilgangTilEgenAnsatt(String veilederIdent) {
         Resource resource = lagEgenAnsattResource(AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
