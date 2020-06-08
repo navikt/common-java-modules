@@ -29,6 +29,18 @@ public interface Pep {
     void sjekkTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId);
 
     /**
+     * Sjekker om veileder har tilgang til domenet oppfølging ("veilarb")
+     * @param innloggetVeilederIdToken OIDC ID token til en innlogget veileder
+     */
+    void sjekkVeiledertilgangTilOppfolging(String innloggetVeilederIdToken);
+
+    /**
+     * Sjekker om veileder har tilgang til modia
+     * @param innloggetVeilederIdToken OIDC ID token til en innlogget veileder
+     */
+    void sjekkVeiledertilgangTilModia(String innloggetVeilederIdToken);
+
+    /**
      * Sjekker om veileder har tilgang til kode 6 brukere
      * @param veilederIdent identen til veileder (f.eks Z1234567)
      */

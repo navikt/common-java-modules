@@ -13,10 +13,11 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
 import static java.lang.String.format;
+import static no.nav.common.abac.AbacDomain.MODIA_DOMAIN;
+import static no.nav.common.abac.AbacDomain.VEILARB_DOMAIN;
 import static no.nav.common.abac.NavAttributter.*;
 import static no.nav.common.abac.TestUtils.assertJsonEquals;
 import static no.nav.common.abac.TestUtils.getContentFromJsonFile;
-import static no.nav.common.abac.VeilarbPep.VEILARB_DOMAIN;
 import static no.nav.common.abac.cef.CefEvent.Severity.INFO;
 import static no.nav.common.abac.cef.CefEvent.Severity.WARN;
 import static no.nav.common.abac.domain.request.ActionId.READ;
@@ -273,6 +274,63 @@ public class VeilarbPepTest {
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT)));
     }
 
+    @Test
+    public void sjekkVeiledertilgangTilOppfolging__skal_lage_riktig_request() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkVeiledertilgangTilOppfolging.json");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        veilarbPep.sjekkVeiledertilgangTilOppfolging(TEST_OIDC_TOKEN_BODY);
+
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
+        assertJsonEquals(expectedRequest, captor.getValue());
+    }
+
+
+    @Test
+    public void sjekkVeiledertilgangTilOppfolging__riktig_audit_log_for_permit() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        veilarbPep.sjekkVeiledertilgangTilOppfolging(TEST_OIDC_TOKEN_BODY);
+        verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesResourcePermit(RESOURCE_VEILARB)));
+    }
+
+    @Test
+    public void sjekkVeiledertilgangTilOppfolging__riktig_audit_log_for_deny() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        try {
+            veilarbPep.sjekkVeiledertilgangTilOppfolging(TEST_OIDC_TOKEN_BODY);
+        } catch (PepException ignored) {}
+        verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(RESOURCE_VEILARB)));
+    }
+
+    @Test
+    public void sjekkVeiledertilgangTilModia__skal_lage_riktig_request() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        String expectedRequest = getContentFromJsonFile("xacmlrequest-sjekkVeiledertilgangTilModia.json");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        veilarbPep.sjekkVeiledertilgangTilModia(TEST_OIDC_TOKEN_BODY);
+
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
+        assertJsonEquals(expectedRequest, captor.getValue());
+    }
+
+    @Test
+    public void sjekkVeiledertilgangTilModia__riktig_audit_log_for_permit() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        veilarbPep.sjekkVeiledertilgangTilModia(TEST_OIDC_TOKEN_BODY);
+        verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesModiaResourcePermit(RESOURCE_MODIA)));
+    }
+
+    @Test
+    public void sjekkVeiledertilgangTilModia__riktig_audit_log_for_deny() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        try {
+            veilarbPep.sjekkVeiledertilgangTilModia(TEST_OIDC_TOKEN_BODY);
+        } catch (PepException ignored) {}
+        verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesModiaResourceDeny(RESOURCE_MODIA)));
+    }
+
     private AbacClient abacClientSpyWithResponseFromFile(String fileName) {
         return spy(new AbacClient() {
             @Override
@@ -388,6 +446,38 @@ public class VeilarbPepTest {
                 " flexString1=" + Deny +
                 " requestContext=" + resource +
                 " sourceServiceName=" + VEILARB_DOMAIN +
+                " cs3Label=deny_cause" +
+                " end=" + TIME +
+                " flexString1Label=Decision" +
+                " flexString2=deny_policy";
+    }
+
+    private String expectCefLogAttributesModiaResourcePermit(String resource) {
+        return "sproc=" + CALL_ID +
+                " flexString1=" + Permit +
+                " request=" + REQUEST_PATH +
+                " requestContext=" + resource +
+                " sourceServiceName=" + MODIA_DOMAIN +
+                " requestMethod=" + REQUEST_METHOD +
+                " end=" + TIME +
+                " flexString1Label=Decision" +
+                " suid=" + TEST_VEILEDER_IDENT +
+                " dproc=" + CONSUMER_ID;
+    }
+
+    private String expectCefLogAttributesModiaResourceDeny(String resource) {
+        return "sproc=" + CALL_ID +
+                " flexString2Label=deny_policy" +
+                " request=" + REQUEST_PATH +
+                " cs5Label=deny_rule" +
+                " cs3=cause" +
+                " cs5=deny_rule" +
+                " requestMethod=" + REQUEST_METHOD +
+                " suid=" + TEST_VEILEDER_IDENT +
+                " dproc=" + CONSUMER_ID +
+                " flexString1=" + Deny +
+                " requestContext=" + resource +
+                " sourceServiceName=" + MODIA_DOMAIN +
                 " cs3Label=deny_cause" +
                 " end=" + TIME +
                 " flexString1Label=Decision" +
