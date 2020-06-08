@@ -1,6 +1,6 @@
 package no.nav.common.abac.cef;
 
-import no.nav.common.abac.NavAttributter;
+import no.nav.common.abac.constants.NavAttributter;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.*;
 

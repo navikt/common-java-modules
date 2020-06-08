@@ -2,14 +2,14 @@ package no.nav.common.abac.cef;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import no.nav.common.abac.NavAttributter;
+import no.nav.common.abac.constants.NavAttributter;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
-import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.domain.response.Response;
+import no.nav.common.abac.domain.response.XacmlResponse;
 
 import java.util.HashMap;
 import java.util.List;

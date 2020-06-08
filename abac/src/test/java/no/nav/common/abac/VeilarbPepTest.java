@@ -1,5 +1,9 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.audit.AuditLogger;
+import no.nav.common.abac.audit.AuditRequestInfo;
+import no.nav.common.abac.audit.AuditRequestInfoSupplier;
+import no.nav.common.abac.audit.SubjectProvider;
 import no.nav.common.abac.cef.CefEvent;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.XacmlRequest;
@@ -13,13 +17,13 @@ import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
 import static java.lang.String.format;
-import static no.nav.common.abac.AbacDomain.MODIA_DOMAIN;
-import static no.nav.common.abac.AbacDomain.VEILARB_DOMAIN;
-import static no.nav.common.abac.NavAttributter.*;
 import static no.nav.common.abac.TestUtils.assertJsonEquals;
 import static no.nav.common.abac.TestUtils.getContentFromJsonFile;
 import static no.nav.common.abac.cef.CefEvent.Severity.INFO;
 import static no.nav.common.abac.cef.CefEvent.Severity.WARN;
+import static no.nav.common.abac.constants.AbacDomain.MODIA_DOMAIN;
+import static no.nav.common.abac.constants.AbacDomain.VEILARB_DOMAIN;
+import static no.nav.common.abac.constants.NavAttributter.*;
 import static no.nav.common.abac.domain.request.ActionId.READ;
 import static no.nav.common.abac.domain.response.Decision.Deny;
 import static no.nav.common.abac.domain.response.Decision.Permit;

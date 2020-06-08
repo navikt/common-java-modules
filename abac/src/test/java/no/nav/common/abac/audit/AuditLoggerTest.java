@@ -1,5 +1,6 @@
-package no.nav.common.abac;
+package no.nav.common.abac.audit;
 
+import no.nav.common.abac.XacmlMapper;
 import no.nav.common.abac.cef.CefAbacEventContext;
 import no.nav.common.abac.cef.CefAbacResponseMapper;
 import no.nav.common.abac.cef.CefEvent.Severity;

@@ -1,4 +1,4 @@
-package no.nav.common.abac;
+package no.nav.common.abac.constants;
 
 // This class is copied from abac-attribute-constants
 public final class StandardAttributter {

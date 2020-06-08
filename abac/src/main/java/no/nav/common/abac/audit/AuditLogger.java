@@ -1,7 +1,7 @@
-package no.nav.common.abac;
+package no.nav.common.abac.audit;
 
-import no.nav.common.abac.cef.CefEvent;
 import no.nav.common.abac.cef.CefAbacEventContext;
+import no.nav.common.abac.cef.CefEvent;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import org.slf4j.Logger;
@@ -21,12 +21,12 @@ public class AuditLogger {
         this(getLogger("AuditLogger"), System::currentTimeMillis);
     }
 
-    AuditLogger(Logger log, Supplier<Long> currentTimeInMillisSupplier) {
+    public AuditLogger(Logger log, Supplier<Long> currentTimeInMillisSupplier) {
         this.log = log;
         this.currentTimeInMillisSupplier = currentTimeInMillisSupplier;
     }
 
-    void logCef(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse, CefAbacEventContext context) {
+    public void logCef(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse, CefAbacEventContext context) {
         List<CefEvent> cefEvents = createCefEvents(xacmlRequest, xacmlResponse, context, currentTimeInMillisSupplier);
         cefEvents.forEach(event -> log.info(event.toString()));
     }

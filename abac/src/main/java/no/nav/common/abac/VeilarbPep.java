@@ -1,7 +1,9 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.audit.*;
 import no.nav.common.abac.cef.CefAbacEventContext;
 import no.nav.common.abac.cef.CefAbacResponseMapper;
+import no.nav.common.abac.constants.AbacDomain;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.Resource;

@@ -1,11 +1,13 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.constants.NavAttributter;
+import no.nav.common.abac.constants.StandardAttributter;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.request.*;
 
-import static no.nav.common.abac.AbacDomain.MODIA_DOMAIN;
-import static no.nav.common.abac.AbacDomain.VEILARB_DOMAIN;
+import static no.nav.common.abac.constants.AbacDomain.MODIA_DOMAIN;
+import static no.nav.common.abac.constants.AbacDomain.VEILARB_DOMAIN;
 
 public class XacmlRequestBuilder {
 

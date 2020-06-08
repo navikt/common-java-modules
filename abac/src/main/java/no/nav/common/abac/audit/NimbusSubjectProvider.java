@@ -1,4 +1,4 @@
-package no.nav.common.abac;
+package no.nav.common.abac.audit;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;

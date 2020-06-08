@@ -1,4 +1,4 @@
-package no.nav.common.abac;
+package no.nav.common.abac.audit;
 
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
