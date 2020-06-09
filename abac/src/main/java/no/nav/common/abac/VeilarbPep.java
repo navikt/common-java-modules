@@ -1,7 +1,9 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.audit.*;
 import no.nav.common.abac.cef.CefAbacEventContext;
 import no.nav.common.abac.cef.CefAbacResponseMapper;
+import no.nav.common.abac.constants.AbacDomain;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.Resource;
@@ -15,8 +17,6 @@ import static no.nav.common.abac.XacmlRequestBuilder.*;
 import static no.nav.common.utils.EnvironmentUtils.requireApplicationName;
 
 public class VeilarbPep implements Pep {
-
-    public final static String VEILARB_DOMAIN = "veilarb";
 
     private final AbacClient abacClient;
 
@@ -56,9 +56,9 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilEnhet(String veilederIdent, String enhetId) {
+    public void sjekkTilgangTilEnhet(String veilederIdent, String enhetId) {
         ActionId actionId = ActionId.READ;
-        Resource resource = lagEnhetResource(enhetId, VEILARB_DOMAIN);
+        Resource resource = lagEnhetResource(enhetId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
                 lagAction(actionId),
@@ -75,8 +75,8 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId) {
-        Resource resource = lagPersonResource(personId, VEILARB_DOMAIN);
+    public void sjekkVeilederTilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId) {
+        Resource resource = lagPersonResource(personId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
                 lagAction(actionId),
@@ -94,7 +94,7 @@ public class VeilarbPep implements Pep {
     @Override
     public void sjekkTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId) {
         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
-        Resource resource = lagPersonResource(personId, VEILARB_DOMAIN);
+        Resource resource = lagPersonResource(personId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
                 lagAction(actionId),
@@ -110,8 +110,50 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilKode6(String veilederIdent) {
-        Resource resource = lagKode6Resource(VEILARB_DOMAIN);
+    public void sjekkTilgangTilOppfolging(String innloggetVeilederIdToken) {
+        String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetVeilederIdToken);
+        Resource resource = lagOppfolgingDomeneResource();
+        String veilederIdent = subjectProvider.getSubjectFromToken(innloggetVeilederIdToken);
+
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
+                null,
+                null,
+                resource
+        );
+
+        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent);
+
+        if (!harTilgang(xacmlRequest, cefEventContext)) {
+            throw new PepException("Veileder har ikke tilgang til oppfolging");
+        }
+    }
+
+    @Override
+    public void sjekkTilgangTilModia(String innloggetVeilederIdToken) {
+        String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetVeilederIdToken);
+        Resource resource = lagModiaDomeneResource();
+        String veilederIdent = subjectProvider.getSubjectFromToken(innloggetVeilederIdToken);
+
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
+                null,
+                null,
+                resource
+        );
+
+        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent);
+
+        if (!harTilgang(xacmlRequest, cefEventContext)) {
+            throw new PepException("Veileder har ikke tilgang til modia");
+        }
+    }
+
+    @Override
+    public void sjekkTilgangTilKode6(String veilederIdent) {
+        Resource resource = lagKode6Resource(AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
                 null,
@@ -127,8 +169,8 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilKode7(String veilederIdent) {
-        Resource resource = lagKode7Resource(VEILARB_DOMAIN);
+    public void sjekkTilgangTilKode7(String veilederIdent) {
+        Resource resource = lagKode7Resource(AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
                 null,
@@ -145,8 +187,8 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public void sjekkVeiledertilgangTilEgenAnsatt(String veilederIdent) {
-        Resource resource = lagEgenAnsattResource(VEILARB_DOMAIN);
+    public void sjekkTilgangTilEgenAnsatt(String veilederIdent) {
+        Resource resource = lagEgenAnsattResource(AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
                 null,

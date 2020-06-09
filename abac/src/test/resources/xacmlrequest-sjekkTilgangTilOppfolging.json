@@ -12,28 +12,16 @@
         }
       ]
     },
-    "Action": {
-      "Attribute": [
-        {
-          "AttributeId": "urn:oasis:names:tc:xacml:1.0:action:action-id",
-          "Value": "read"
-        }
-      ]
-    },
     "Resource": [
       {
         "Attribute": [
           {
             "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
-            "Value": "no.nav.abac.attributter.resource.felles.person"
+            "Value": "no.nav.abac.attributter.resource.veilarb"
           },
           {
             "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
             "Value": "veilarb"
-          },
-          {
-            "AttributeId": "no.nav.abac.attributter.resource.felles.person.fnr",
-            "Value": "12345678900"
           }
         ]
       }

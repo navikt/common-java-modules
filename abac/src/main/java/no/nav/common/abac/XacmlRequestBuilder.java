@@ -1,8 +1,13 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.constants.NavAttributter;
+import no.nav.common.abac.constants.StandardAttributter;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.request.*;
+
+import static no.nav.common.abac.constants.AbacDomain.MODIA_DOMAIN;
+import static no.nav.common.abac.constants.AbacDomain.VEILARB_DOMAIN;
 
 public class XacmlRequestBuilder {
 
@@ -104,6 +109,20 @@ public class XacmlRequestBuilder {
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
         resource.getAttribute().add(personIdAttribute(personId));
+        return resource;
+    }
+
+    public static Resource lagOppfolgingDomeneResource() {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, VEILARB_DOMAIN));
+        return resource;
+    }
+
+    public static Resource lagModiaDomeneResource() {
+        Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_MODIA));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, MODIA_DOMAIN));
         return resource;
     }
 

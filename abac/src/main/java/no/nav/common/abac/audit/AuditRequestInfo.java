@@ -1,5 +1,6 @@
-package no.nav.common.abac;
+package no.nav.common.abac.audit;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,6 +11,7 @@ import static no.nav.common.log.LogFilter.resolveCallId;
 
 @Builder
 @Getter
+@AllArgsConstructor
 public class AuditRequestInfo {
     private String callId;
     private String consumerId;

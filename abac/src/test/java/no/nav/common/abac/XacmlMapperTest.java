@@ -1,5 +1,6 @@
 package no.nav.common.abac;
 
+import no.nav.common.abac.constants.NavAttributter;
 import no.nav.common.abac.domain.response.*;
 import org.junit.Test;
 
