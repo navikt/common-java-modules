@@ -5,7 +5,6 @@ import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.request.Request;
 import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
-import no.nav.common.abac.exception.PepException;
 import org.junit.Test;
 
 import java.util.List;
@@ -21,13 +20,13 @@ public class AbacUtilsTest {
     private static final String TOKEN = "aa-aa_aa4aa." + TOKEN_BODY + ".ccccc-c_88c";
 
     @Test
-    public void girRiktigTokenBodyGittHeltToken() throws PepException {
+    public void girRiktigTokenBodyGittHeltToken() {
         final String token = AbacUtils.extractOidcTokenBody(TOKEN);
         assertEquals(TOKEN_BODY, token);
     }
 
     @Test
-    public void girRiktigTokenBodyGittBody() throws PepException {
+    public void girRiktigTokenBodyGittBody() {
         final String token = AbacUtils.extractOidcTokenBody(TOKEN_BODY);
         assertEquals(TOKEN_BODY, token);
     }
