@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("unused")
 public class TestUtils {
 
-    private static final ObjectMapper OBJECT_MAPPER = JsonProvider.createObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.defaultObjectMapper();
 
     @SneakyThrows
     public static void assertEqualJson(String forventetRespons, String response) {

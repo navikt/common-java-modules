@@ -1,6 +1,6 @@
 package no.nav.common.sts;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
-import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
 import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
 import static no.nav.common.utils.AuthUtils.basicCredentials;
 
@@ -79,11 +79,11 @@ public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
 
         try (Response response = client.newCall(request).execute()) {
             if (response.code() >= 300) {
-                String responseStr = getBodyStr(response.body()).orElse("");
+                String responseStr = getBodyStr(response).orElse("");
                 throw new RuntimeException(String.format("Received unexpected status %d when requesting access token for system user. Response: %s", response.code(), responseStr));
             }
 
-            ClientCredentialsResponse credentialsResponse = parseJsonResponseBodyOrThrow(response.body(), ClientCredentialsResponse.class);
+            ClientCredentialsResponse credentialsResponse = parseJsonResponseOrThrow(response, ClientCredentialsResponse.class);
             return JWTParser.parse(credentialsResponse.accessToken);
         } catch (Exception e) {
             log.error("Failed to fetch system user token from " + targetUrl, e);
@@ -92,7 +92,7 @@ public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
     }
 
     public static class ClientCredentialsResponse {
-        @SerializedName("access_token")
+        @JsonAlias("access_token")
         public String accessToken;
     }
 }

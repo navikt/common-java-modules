@@ -34,14 +34,14 @@ public class TokenRefreshClient {
         try (Response response = client.newCall(request).execute()) {
 
             if (response.code() >= 300) {
-                String responseStr = getBodyStr(response.body()).orElse("");
+                String responseStr = getBodyStr(response).orElse("");
                 throw new RuntimeException(
                         String.format("Received unexpected status %d from %s when refreshing id token. Response: %s",
                                 response.code(), refreshUrl, responseStr)
                 );
             }
 
-            return parseJsonResponseBodyOrThrow(response.body(), RefreshIdTokenResponse.class).idToken;
+            return parseJsonResponseOrThrow(response, RefreshIdTokenResponse.class).idToken;
         } catch (Exception e) {
             log.error("Failed to refresh token with URL " + refreshUrl, e);
             throw e;

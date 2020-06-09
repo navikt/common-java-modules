@@ -8,15 +8,10 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
-import javax.ws.rs.ext.ParamConverter;
-import javax.ws.rs.ext.ParamConverterProvider;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.time.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static java.time.LocalTime.NOON;
@@ -24,46 +19,30 @@ import static java.time.ZoneId.systemDefault;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static no.nav.common.utils.StringUtils.of;
 
-public class DateConfiguration {
+public class DateModule {
 
     private static final ZonedDateTime _1800 = ZonedDateTime.of(1800,1,1,0,0, 0, 0, systemDefault());
 
-    private static final Map<Class, BaseProvider<?>> converters = new HashMap<>();
     public static final ZoneId DEFAULT_ZONE = ZoneId.of("Europe/Paris");
+    private static final List<BaseProvider> providers = List.of(
+            new LocalDateProvider(),
+            new LocalDateTimeProvider(),
+            new ZonedDateTimeProvider(),
+            new DateProvider(),
+            new TimestampProvider(),
+            new SqlDateProvider()
+    );
 
-    static {
-        add(new LocalDateProvider());
-        add(new LocalDateTimeProvider());
-        add(new ZonedDateTimeProvider());
-        add(new DateProvider());
-        add(new TimestampProvider());
-        add(new SqlDateProvider());
-    }
-
-    private static <T> void add(BaseProvider<T> paramConverter) {
-        converters.put(paramConverter.targetClass, paramConverter);
-    }
-
-    public static Module dateModule() {
+    public static Module module() {
         SimpleModule module = new SimpleModule();
-        converters.values().forEach((v) -> {
+        providers.forEach((v) -> {
             module.addSerializer(v.serializer);
             module.addDeserializer(v.targetClass, v.deSerializer);
         });
         return module;
     }
 
-    public static ParamConverterProvider parameterConverterProvider() {
-        return new ParamConverterProvider() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations) {
-                return (ParamConverter<T>) converters.get(rawType);
-            }
-        };
-    }
-
-    private abstract static class BaseProvider<T> implements ParamConverter<T> {
+    private abstract static class BaseProvider<T> {
 
         private final Class targetClass;
         private final JsonSerializer<T> serializer;
@@ -75,14 +54,15 @@ public class DateConfiguration {
 
         public BaseProvider(Class<T> targetClass) {
             this.targetClass = targetClass;
+
             this.serializer = new StdScalarSerializer<T>(targetClass) {
                 @Override
                 public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
                     jgen.writeString(BaseProvider.this.toString(value));
                 }
             };
-            this.deSerializer = new StdScalarDeserializer<T>(targetClass) {
 
+            this.deSerializer = new StdScalarDeserializer<T>(targetClass) {
                 @Override
                 public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
                     return of(p.getText())
@@ -92,7 +72,6 @@ public class DateConfiguration {
             };
         }
 
-        @Override
         public T fromString(String value) {
             return of(value)
                     .map(ZonedDateTime::parse)
@@ -100,14 +79,12 @@ public class DateConfiguration {
                     .orElse(null);
         }
 
-        @Override
         public String toString(T value) {
             ZonedDateTime zonedDateTime = from(value);
             // eldgamle datoer med sekund-offset skaper problemer for bl.a. moment js.
             // velger derfor å formattere gamle datoer uten offset
             return zonedDateTime.isBefore(_1800) ? Instant.from(zonedDateTime).toString() : zonedDateTime.format(ISO_OFFSET_DATE_TIME);
         }
-
     }
 
 

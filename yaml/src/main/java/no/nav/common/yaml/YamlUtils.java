@@ -3,11 +3,11 @@ package no.nav.common.yaml;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.SneakyThrows;
-import no.nav.common.json.JsonProvider;
+import no.nav.common.json.JsonMapper;
 
 public class YamlUtils {
 
-    private static final ObjectMapper objectMapper = JsonProvider.applyDefaultConfiguration(new ObjectMapper(new YAMLFactory()));
+    private static final ObjectMapper objectMapper = JsonMapper.applyDefaultConfiguration(new ObjectMapper(new YAMLFactory()));
 
     @SneakyThrows
     public static <T> T fromYaml(String yaml, Class<T> targetClass) {

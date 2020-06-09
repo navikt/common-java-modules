@@ -28,10 +28,6 @@
             <artifactId>okhttp</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
@@ -42,6 +38,10 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>json</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>

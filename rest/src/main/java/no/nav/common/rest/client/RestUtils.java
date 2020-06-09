@@ -1,20 +1,18 @@
 package no.nav.common.rest.client;
 
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.json.JsonUtils;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 public class RestUtils {
-
-    private static final Gson gson = new Gson();
 
     public static MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
@@ -26,7 +24,9 @@ public class RestUtils {
         }
     }
 
-    public static Optional<String> getBodyStr(ResponseBody body) throws IOException {
+    public static Optional<String> getBodyStr(Response response) throws IOException {
+        ResponseBody body = response.body();
+
         if (body == null) {
             return Optional.empty();
         }
@@ -34,34 +34,26 @@ public class RestUtils {
         return Optional.of(body.string());
     }
 
-    public static <T> T parseJson(String json, Class<T> classOfT) {
-        return gson.fromJson(json, classOfT);
+    public static <T> Optional<T> parseJsonResponse(Response response, Class<T> classOfT) throws IOException {
+        return getBodyStr(response).map(bodyStr -> JsonUtils.fromJson(bodyStr, classOfT));
     }
 
-    public static <T> T parseJson(String json, Type type) {
-        return gson.fromJson(json, type);
+    public static <T> Optional<List<T>> parseJsonArrayResponse(Response response, Class<T> classOfT) throws IOException {
+        return getBodyStr(response).map(bodyStr -> JsonUtils.fromJsonArray(bodyStr, classOfT));
     }
 
-    public static <T> Optional<T> parseJsonResponseBody(ResponseBody body, Class<T> classOfT) throws IOException {
-        return getBodyStr(body).map(bodyStr -> gson.fromJson(bodyStr, classOfT));
+    public static <T> T parseJsonResponseOrThrow(Response response, Class<T> classOfT) throws IOException {
+        return parseJsonResponse(response, classOfT)
+                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON object from response body"));
     }
 
-    public static <T> Optional<T> parseJsonResponseBody(ResponseBody body, Type type) throws IOException {
-        return getBodyStr(body).map(bodyStr -> gson.fromJson(bodyStr, type));
+    public static <T> List<T> parseJsonResponseArrayOrThrow(Response response, Class<T> classOfT) throws IOException {
+        return parseJsonArrayResponse(response, classOfT)
+                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON array from response body"));
     }
 
-    public static <T> T parseJsonResponseBodyOrThrow(ResponseBody body, Class<T> classOfT) throws IOException {
-        return parseJsonResponseBody(body, classOfT)
-                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON from request body"));
-    }
-
-    public static <T> T parseJsonResponseBodyOrThrow(ResponseBody body, Type type) throws IOException {
-        return (T) parseJsonResponseBody(body, type)
-                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON from request body"));
-    }
-
-    public static RequestBody toJsonRequestBody(Object toJson) {
-        return RequestBody.create(MEDIA_TYPE_JSON, gson.toJson(toJson));
+    public static RequestBody toJsonRequestBody(Object obj) {
+        return RequestBody.create(MEDIA_TYPE_JSON, JsonUtils.toJson(obj));
     }
 
 }

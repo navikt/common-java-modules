@@ -8,19 +8,17 @@ import lombok.SneakyThrows;
 import java.io.InputStream;
 import java.util.List;
 
-import static com.fasterxml.jackson.databind.type.CollectionType.construct;
-
 public class JsonUtils {
 
-    private static final ObjectMapper objectMapper = JsonProvider.createObjectMapper();
+    private static final ObjectMapper objectMapper = JsonMapper.defaultObjectMapper();
 
-    public static String toJson(Object o) {
-        return toJson(o, objectMapper);
+    public static ObjectMapper getMapper() {
+        return objectMapper;
     }
 
     @SneakyThrows
-    static String toJson(Object o, ObjectMapper objectMapper) {
-        return o != null ? objectMapper.writeValueAsString(o) : null;
+    public static String toJson(Object obj) {
+        return obj != null ? objectMapper.writeValueAsString(obj) : null;
     }
 
     @SneakyThrows
@@ -47,13 +45,14 @@ public class JsonUtils {
     public static <T> List<T> fromJsonArray(String json, Class<T> valueClass) {
         return objectMapper.readValue(json, listType(valueClass));
     }
+
     @SneakyThrows
     public static <T> List<T> fromJsonArray(InputStream inputStream, Class<T> valueClass) {
         return objectMapper.readValue(inputStream, listType(valueClass));
     }
 
     private static <T> CollectionType listType(Class<T> valueClass) {
-        return construct(List.class, objectMapper.getTypeFactory().constructType(valueClass));
+        return objectMapper.getTypeFactory().constructCollectionType(List.class, valueClass);
     }
 
 }
