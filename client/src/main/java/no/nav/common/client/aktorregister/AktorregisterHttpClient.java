@@ -1,15 +1,15 @@
 package no.nav.common.client.aktorregister;
 
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.databind.type.MapType;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
+import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
-import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
 import static no.nav.common.utils.UrlUtils.joinPaths;
 
+@Slf4j
 public class AktorregisterHttpClient implements AktorregisterClient {
 
-    private final static Logger log = LoggerFactory.getLogger(AktorregisterHttpClient.class);
+    private final static  MapType mapType = JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
 
     private final String aktorregisterUrl;
 
@@ -114,14 +114,20 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         try (Response response = client.newCall(request).execute()) {
 
             if (response.code() >= 300) {
-                String responseStr = getBodyStr(response.body()).orElse("");
+                String responseStr = getBodyStr(response).orElse("");
                 throw new RuntimeException(
                         String.format("Fikk uventet status %d fra %s. Respons: %s",
                                 response.code(), request, responseStr)
                 );
             }
 
-            return parseJsonResponseBodyOrThrow(response.body(), new TypeToken<Map<String, IdentData>>() {}.getType());
+            Optional<String> jsonStr = getBodyStr(response);
+
+            if (!jsonStr.isPresent()) {
+                throw new IllegalStateException("Respons mangler body");
+            }
+
+            return JsonUtils.getMapper().readValue(jsonStr.get(), mapType);
         } catch (Exception e) {
             log.error("Klarte ikke å gjore oppslag mot aktorregister", e);
             throw e;

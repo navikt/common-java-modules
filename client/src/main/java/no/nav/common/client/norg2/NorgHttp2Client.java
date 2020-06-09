@@ -5,14 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.rest.client.RestClient;
-import no.nav.common.rest.client.RestUtils;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 import java.util.List;
 
-import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.rest.client.RestUtils.*;
 import static no.nav.common.utils.UrlUtils.joinPaths;
 
 @Slf4j
@@ -40,8 +39,8 @@ public class NorgHttp2Client implements Norg2Client {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            RestUtils.throwIfNotSuccessful(response);
-            return List.of(parseJsonResponseBodyOrThrow(response.body(), Enhet[].class));
+            throwIfNotSuccessful(response);
+            return parseJsonResponseArrayOrThrow(response, Enhet.class);
         }
     }
 
@@ -53,8 +52,8 @@ public class NorgHttp2Client implements Norg2Client {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            RestUtils.throwIfNotSuccessful(response);
-            return parseJsonResponseBodyOrThrow(response.body(), Enhet.class);
+            throwIfNotSuccessful(response);
+            return parseJsonResponseOrThrow(response, Enhet.class);
         }
     }
 
@@ -66,8 +65,8 @@ public class NorgHttp2Client implements Norg2Client {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            RestUtils.throwIfNotSuccessful(response);
-            return parseJsonResponseBodyOrThrow(response.body(), Enhet.class);
+            throwIfNotSuccessful(response);
+            return parseJsonResponseOrThrow(response, Enhet.class);
         }
     }
 

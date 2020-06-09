@@ -8,7 +8,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static no.nav.common.rest.client.RestUtils.parseJsonResponseBodyOrThrow;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
 
 public class OidcDiscoveryConfigurationClient {
 
@@ -32,7 +32,7 @@ public class OidcDiscoveryConfigurationClient {
 				.build();
 
 		try (Response response = client.newCall(request).execute()) {
-			return parseJsonResponseBodyOrThrow(response.body(), OidcDiscoveryConfiguration.class);
+			return parseJsonResponseOrThrow(response, OidcDiscoveryConfiguration.class);
 		} catch (Exception e) {
 			log.error("Failed to retrieve discovery configuration from " + discoveryUrl, e);
 			throw e;

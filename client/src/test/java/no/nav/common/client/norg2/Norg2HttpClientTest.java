@@ -2,7 +2,7 @@ package no.nav.common.client.norg2;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
-import no.nav.common.rest.client.RestUtils;
+import no.nav.common.json.JsonUtils;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ public class Norg2HttpClientTest {
     @Test
     public void hentEnhet__skal_hente_enhet() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "enhet.json");
-        Enhet jsonEnhet = RestUtils.parseJson(json, Enhet.class);
+        Enhet jsonEnhet = JsonUtils.fromJson(json, Enhet.class);
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/enhet/1234")
@@ -39,7 +39,7 @@ public class Norg2HttpClientTest {
     @Test
     public void alleAktiveEnheter__skal_hente_alle_enheter() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "enheter.json");
-        Enhet[] jsonEnheter = RestUtils.parseJson(json, Enhet[].class);
+        List<Enhet> jsonEnheter = JsonUtils.fromJsonArray(json, Enhet.class);
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/enhet?enhetStatusListe=AKTIV")
@@ -59,7 +59,7 @@ public class Norg2HttpClientTest {
     @Test
     public void hentTilhorendeEnhet__skal_hente_enhet() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "enhet.json");
-        Enhet jsonEnhet = RestUtils.parseJson(json, Enhet.class);
+        Enhet jsonEnhet = JsonUtils.fromJson(json, Enhet.class);
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/enhet/navkontor/030105")

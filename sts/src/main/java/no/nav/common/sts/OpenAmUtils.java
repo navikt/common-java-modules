@@ -1,7 +1,8 @@
 package no.nav.common.sts;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import no.nav.common.json.JsonUtils;
+import no.nav.common.rest.client.RestUtils;
 import no.nav.common.utils.AuthUtils;
 import okhttp3.*;
 
@@ -34,17 +35,23 @@ public class OpenAmUtils {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            JsonElement element = JsonParser.parseString(response.body().string());
-            return Optional.ofNullable(element.getAsJsonObject().get("tokenId"))
-                    .map(JsonElement::getAsString)
-                    .orElseThrow(() -> new IllegalStateException("Fant ikke id_token i responsen"));
+            Optional<String> jsonStr = RestUtils.getBodyStr(response);
+
+            if (!jsonStr.isPresent()) {
+                throw new IllegalStateException("Body is missing from response");
+            }
+
+            JsonNode node = JsonUtils.getMapper().readTree(jsonStr.get());
+
+            return Optional.ofNullable(node.get("tokenId").asText(null))
+                    .orElseThrow(() -> new IllegalStateException("Fant ikke 'tokenId' i responsen"));
         }
     }
 
     public static String getAuthorizationCode(String openAmAuthorizeUrl, String sessionToken, String clientId, String redirectUri, OkHttpClient client) throws IOException {
         String cookie = "nav-isso=" + sessionToken;
         String encodedRedirectUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
-        String fullUrl = openAmAuthorizeUrl + String.format("?response_type=code&scope=openid&client_id=%s&redirect_uri=%s", client, encodedRedirectUri);
+        String fullUrl = openAmAuthorizeUrl + String.format("?response_type=code&scope=openid&client_id=%s&redirect_uri=%s", clientId, encodedRedirectUri);
 
         Request request = new Request.Builder()
                 .url(fullUrl)
@@ -91,10 +98,16 @@ public class OpenAmUtils {
                 throw new RuntimeException("Feil ved utveksling av code mot token, fikk status: " + response.code() + " forventet 200");
             }
 
-            JsonElement element = JsonParser.parseString(response.body().string());
-            return Optional.ofNullable(element.getAsJsonObject().get("id_token"))
-                    .map(JsonElement::getAsString)
-                    .orElseThrow(() -> new IllegalStateException("Fant ikke id_token i responsen"));
+            Optional<String> jsonStr = RestUtils.getBodyStr(response);
+
+            if (!jsonStr.isPresent()) {
+                throw new IllegalStateException("Body is missing from response");
+            }
+
+            JsonNode node = JsonUtils.getMapper().readTree(jsonStr.get());
+
+            return Optional.ofNullable(node.get("id_token").asText(null))
+                    .orElseThrow(() -> new IllegalStateException("Fant ikke 'id_token' i responsen"));
         }
     }
 
