@@ -39,7 +39,7 @@ public class VeilarbPepTest {
     private final static String TEST_SRV_USERNAME = "test";
     private final static String TEST_VEILEDER_IDENT = "Z1234";
     private final static String TEST_ENHET_ID = "1234";
-    private static final String TEST_OIDC_TOKEN_BODY = "eyJpc3MiOiJuYXYubm8iLCJleHAiOjE0ODQ2NTI2NzIsImp0aSI6IkZHdXJVYWdleFRwTUVZTjdMRHlsQ1EiLCJpYXQiOjE0ODQ2NTIwNzIsIm5iZiI6MTQ4NDY1MTk1Miwic3ViIjoiYTExMTExMSJ9";
+    private static final String TEST_OIDC_TOKEN_BODY = "abc.abc.abc";
     private final static String APPLICATION_NAME = "testapp";
     private static final long TIME = System.currentTimeMillis();
     private static final String CALL_ID = generateId();
