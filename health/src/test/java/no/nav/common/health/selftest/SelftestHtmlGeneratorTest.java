@@ -22,9 +22,12 @@ public class SelftestHtmlGeneratorTest {
         List<SelftTestCheckResult> checkResults = checkAll(selftestChecks);
 
         String selftestHtml = SelftestHtmlGenerator.generate(checkResults, "test", LocalDateTime.MIN);
-        String expectedSelftestHtml = new String(this.getClass().getResourceAsStream("/expected-selftest.html").readAllBytes());
+        String cleanedSelfTestHtml = cleanHtml(selftestHtml).replaceAll("\\dms", "Xms");
 
-        assertEquals(cleanHtml(expectedSelftestHtml), cleanHtml(selftestHtml));
+        String expectedSelftestHtml = new String(this.getClass().getResourceAsStream("/expected-selftest.html").readAllBytes());
+        String cleanedExpectedSelftestHtml = cleanHtml(expectedSelftestHtml);
+
+        assertEquals(cleanedExpectedSelftestHtml, cleanedSelfTestHtml);
     }
 
     private static String cleanHtml(String html) {
