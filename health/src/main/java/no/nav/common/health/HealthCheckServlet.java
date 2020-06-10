@@ -16,7 +16,7 @@ public class HealthCheckServlet extends HttpServlet {
 
     @Override
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        Optional<HealthCheckResult> maybeFailedCheck = HealthChecker.findFirstFailingCheck(checks);
+        Optional<HealthCheckResult> maybeFailedCheck = HealthCheckUtils.findFirstFailingCheck(checks);
 
         if (maybeFailedCheck.isPresent()) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

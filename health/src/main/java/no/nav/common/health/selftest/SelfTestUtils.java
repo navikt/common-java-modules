@@ -1,6 +1,7 @@
 package no.nav.common.health.selftest;
 
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.HealthCheckUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,7 +64,7 @@ public class SelfTestUtils {
 
     public static SelftTestCheckResult performSelftTestCheck(SelfTestCheck check) {
         long beforeCheck = System.currentTimeMillis();
-        HealthCheckResult result = check.getCheck().checkHealth();
+        HealthCheckResult result = HealthCheckUtils.safeCheckHealth(check.getCheck());
         long timeUsed = System.currentTimeMillis() - beforeCheck;
 
         return new SelftTestCheckResult(check, result, timeUsed);
