@@ -23,8 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.common.auth.utils.TokenUtils.expiresWithin;
-import static no.nav.common.auth.utils.TokenUtils.hasMatchingIssuer;
+import static no.nav.common.auth.utils.TokenUtils.*;
 
 
 public class OidcAuthenticationFilter implements Filter {
@@ -57,6 +56,12 @@ public class OidcAuthenticationFilter implements Filter {
             if (token.isPresent()) {
                 try {
                     JWT jwtToken = JWTParser.parse(token.get());
+
+                    // Skip this authenticator if the audience is not matching
+                    if (!hasMatchingAudience(jwtToken, authenticator.config.clientId)) {
+                        continue;
+                    }
+
                     Optional<String> refreshedIdToken = refreshIdTokenIfNecessary(jwtToken, authenticator, httpServletRequest);
 
                     if (refreshedIdToken.isPresent()) {
@@ -84,7 +89,6 @@ public class OidcAuthenticationFilter implements Filter {
                     }
                 }
             }
-
         }
 
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
