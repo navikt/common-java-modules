@@ -34,6 +34,14 @@ public class TokenUtils {
         return subject;
     }
 
+    public static boolean hasMatchingAudience(JWT jwtToken, String audience) {
+        try {
+            return jwtToken.getJWTClaimsSet().getAudience().contains(audience);
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
     public static boolean hasMatchingIssuer(JWT jwt, String issuer) {
         try {
             return jwt.getJWTClaimsSet().getIssuer().equals(issuer);
