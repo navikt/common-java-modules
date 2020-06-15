@@ -26,8 +26,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toList;
-import static no.nav.common.oidc.utils.TokenUtils.expiresWithin;
-import static no.nav.common.oidc.utils.TokenUtils.hasMatchingIssuer;
+import static no.nav.common.oidc.utils.TokenUtils.*;
 
 public class OidcAuthenticationFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(OidcAuthenticationFilter.class);
@@ -84,6 +83,12 @@ public class OidcAuthenticationFilter implements Filter {
             if (token.isPresent()) {
                 try {
                     JWT jwtToken = JWTParser.parse(token.get());
+
+                    // Skip this authenticator if the audience is not matching
+                    if (!hasMatchingAudience(jwtToken, authenticator.config.clientId)) {
+                        continue;
+                    }
+
                     Optional<String> refreshedIdToken = refreshIdTokenIfNecessary(jwtToken, authenticator, httpServletRequest);
 
                     if (refreshedIdToken.isPresent()) {
