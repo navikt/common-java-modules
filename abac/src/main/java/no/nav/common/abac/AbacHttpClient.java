@@ -1,17 +1,15 @@
 package no.nav.common.abac;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.AbacException;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import okhttp3.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class AbacHttpClient implements AbacClient {
-
-    private final static Logger LOG = LoggerFactory.getLogger(AbacHttpClient.class);
 
     private final String abacUrl;
 
@@ -45,19 +43,24 @@ public class AbacHttpClient implements AbacClient {
 
         try(Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                LOG.error("ABAC returned: " +  response.code() + " " + response.message());
-                throw new AbacException("An error has occured calling ABAC: " +  response.code());
+                log.error("ABAC returned unexpected status: " +  response.code() + " " + response.message());
+                throw new AbacException("An error has occurred calling ABAC: " +  response.code());
             }
 
             return response.body().string();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Request to ABAC failed", e);
             throw new AbacException(e);
         }
     }
 
     @Override
     public HealthCheckResult checkHealth() {
-        return HealthCheckUtils.pingUrl(abacUrl, client);
+        Request request = new Request.Builder()
+                .url(abacUrl)
+                .addHeader("Authorization", Credentials.basic(srvUsername, srvPassword))
+                .build();
+
+        return HealthCheckUtils.pingUrl(request, client);
     }
 }
