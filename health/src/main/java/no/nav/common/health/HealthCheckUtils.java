@@ -16,14 +16,18 @@ public class HealthCheckUtils {
                 .url(url)
                 .build();
 
+        return pingUrl(request, client);
+    }
+
+    public static HealthCheckResult pingUrl(Request request, OkHttpClient client) {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                return HealthCheckResult.unhealthy(format("Helsesjekk feilet mot %s. Fikk uventet status %d", url, response.code()));
+                return HealthCheckResult.unhealthy(format("Helsesjekk feilet mot %s. Fikk uventet status %d", request.url(), response.code()));
             }
 
             return HealthCheckResult.healthy();
         } catch (Exception e) {
-            return HealthCheckResult.unhealthy("Helsesjekk feilet mot " + url, e);
+            return HealthCheckResult.unhealthy("Helsesjekk feilet mot " + request.url(), e);
         }
     }
 
