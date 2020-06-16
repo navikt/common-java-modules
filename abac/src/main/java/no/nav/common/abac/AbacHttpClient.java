@@ -46,7 +46,7 @@ public class AbacHttpClient implements AbacClient {
         try(Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 LOG.error("ABAC returned: " +  response.code() + " " + response.message());
-                throw new AbacException("An error has occured calling ABAC: " +  response.code());
+                throw new AbacException("An error has occurred calling ABAC: " +  response.code());
             }
 
             return response.body().string();
@@ -58,6 +58,11 @@ public class AbacHttpClient implements AbacClient {
 
     @Override
     public HealthCheckResult checkHealth() {
-        return HealthCheckUtils.pingUrl(abacUrl, client);
+        Request request = new Request.Builder()
+                .url(abacUrl)
+                .addHeader("Authorization", Credentials.basic(srvUsername, srvPassword))
+                .build();
+
+        return HealthCheckUtils.pingUrl(request, client);
     }
 }
