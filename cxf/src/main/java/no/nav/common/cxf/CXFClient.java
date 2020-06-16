@@ -21,6 +21,7 @@ public class CXFClient<T> {
     final List<Handler> handlerChain = new ArrayList<>();
 
     STSMode stsMode = STSMode.NO_STS;
+    StsConfig stsConfig;
     private int connectionTimeout = TimeoutFeature.DEFAULT_CONNECTION_TIMEOUT;
     private int receiveTimeout = TimeoutFeature.DEFAULT_RECEIVE_TIMEOUT;
 
@@ -42,38 +43,18 @@ public class CXFClient<T> {
         return this;
     }
 
-    @Deprecated // noop - all clients now comes with metrics out of the box
-    public CXFClient<T> withMetrics(){
-        return this;
-    }
-
-    public CXFClient<T> configureStsForSubject() {
+    public CXFClient<T> configureStsForSubject(StsConfig stsConfig) {
         this.stsMode = STSMode.SUBJECT;
+        this.stsConfig = stsConfig;
         return this;
     }
 
-    public CXFClient<T> configureStsForSystemUser() {
+    public CXFClient<T> configureStsForSystemUser(StsConfig stsConfig) {
         this.stsMode = STSMode.SYSTEM_USER;
+        this.stsConfig = stsConfig;
         return this;
     }
 
-    /** @deprecated use configureStsForSubject() */
-    @Deprecated // bruk configureStsForSubject();
-    public CXFClient<T> configureStsForExternalSSO() {
-        return configureStsForSubject();
-    }
-
-    /** @deprecated use configureStsForSubject() */
-    @Deprecated // bruk configureStsForSubject();
-    public CXFClient<T> configureStsForOnBehalfOfWithJWT() {
-        return configureStsForSubject();
-    }
-
-    /** @deprecated use configureStsForSystemUser() */
-    @Deprecated
-    public CXFClient<T> configureStsForSystemUserInFSS() {
-        return configureStsForSystemUser();
-    }
 
     public CXFClient<T> withProperty(String key, Object value) {
         factoryBean.getProperties().put(key, value);

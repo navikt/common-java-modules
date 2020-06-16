@@ -10,7 +10,6 @@ import java.net.ConnectException;
 
 import static no.nav.common.auth.subject.SsoToken.Type.EKSTERN_OPENAM;
 import static no.nav.common.auth.subject.SsoToken.Type.OIDC;
-import static no.nav.common.cxf.StsSecurityConstants.*;
 import static no.nav.common.cxf.jetty.JettyTestServer.findFreePort;
 import static no.nav.common.test.ssl.SSLTestUtils.disableCertificateChecks;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -22,6 +21,7 @@ public class NAVOidcSTSClientIntegrationTest {
 
     private Jetty stsMock;
     private MockHandler stsHandler = new MockHandler("sts");
+    private String stsUrl;
 
     @Rule
     public SubjectRule subjectRule = new SubjectRule();
@@ -39,11 +39,8 @@ public class NAVOidcSTSClientIntegrationTest {
         jetty.server.setHandler(stsHandler);
         jetty.start();
         stsMock = jetty;
-        String stsUrl = String.format("https://localhost:%s/sts/NAVOidcSTSClientIntegrationTest", port);
+        stsUrl = String.format("https://localhost:%s/sts/NAVOidcSTSClientIntegrationTest", port);
         LOG.info("sts-url: {}", stsUrl);
-        System.setProperty(STS_URL_KEY, stsUrl);
-        System.setProperty(SYSTEMUSER_USERNAME, "username");
-        System.setProperty(SYSTEMUSER_PASSWORD, "password");
     }
 
     @After
@@ -54,21 +51,23 @@ public class NAVOidcSTSClientIntegrationTest {
     @Test
     @Ignore
     public void cache_sts_token_for_hver_bruker_og_stsType() throws Exception {
+        StsConfig stsConfig = StsConfig.builder().url(stsUrl).username("username").password("password").build();
+
         HelloWorld tjenesteA = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-a"))
-                .configureStsForSystemUserInFSS()
+                .configureStsForSystemUser(stsConfig)
                 .build();
         HelloWorld tjenesteB = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-b"))
-                .configureStsForOnBehalfOfWithJWT()
+                .configureStsForSubject(stsConfig)
                 .build();
         HelloWorld tjenesteC = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-c"))
-                .configureStsForOnBehalfOfWithJWT()
+                .configureStsForSubject(stsConfig)
                 .build();
         HelloWorld tjenesteD = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-d"))
-                .configureStsForExternalSSO()
+                .configureStsForSubject(stsConfig)
                 .build();
 
         setOidcToken("jwt1");
