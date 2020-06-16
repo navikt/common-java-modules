@@ -25,11 +25,10 @@ import java.util.HashMap;
 
 public class OidcClientWrapper {
 
-    public static void configureStsForOnBehalfOfWithJWT(Client client) {
-        String location = requireProperty(StsSecurityConstants.STS_URL_KEY);
-        String username = requireProperty(StsSecurityConstants.SYSTEMUSER_USERNAME);
-        String password = requireProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD);
-
+    public static void configureStsForOnBehalfOfWithJWT(Client client, StsConfig stsConfig) {
+        String location = stsConfig.url;
+        String username = stsConfig.username;
+        String password = stsConfig.password;
 
         STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, StsType.ON_BEHALF_OF_WITH_JWT);
         client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);

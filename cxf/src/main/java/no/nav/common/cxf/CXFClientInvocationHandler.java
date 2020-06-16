@@ -19,10 +19,8 @@ import static java.util.Optional.ofNullable;
 class CXFClientInvocationHandler<T> implements InvocationHandler {
 
     private final InvocationHandler invocationHandler;
-    private final STSMode stsMode;
 
     CXFClientInvocationHandler(CXFClient<T> cxfClient) {
-        this.stsMode = cxfClient.stsMode;
         this.invocationHandler = handler(cxfClient);
     }
 
@@ -78,16 +76,16 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
 
     private InvocationHandler systemUserSts(CXFClient<T> cxfClient) {
         PortAndClient<T> port = newPort(cxfClient);
-        STSConfigurationUtil.configureStsForSystemUserInFSS(port.client);
+        STSConfigurationUtil.configureStsForSystemUserInFSS(port.client, cxfClient.stsConfig);
         return invocationHandler(port.port);
     }
 
     private InvocationHandler subjectSts(CXFClient<T> cxfClient) {
         PortAndClient<T> openAmClient = newPort(cxfClient);
-        STSConfigurationUtil.configureStsForExternalSSO(openAmClient.client);
+        STSConfigurationUtil.configureStsForExternalSSO(openAmClient.client, cxfClient.stsConfig);
 
         PortAndClient<T> oidcClient = newPort(cxfClient);
-        OidcClientWrapper.configureStsForOnBehalfOfWithJWT(oidcClient.client);
+        OidcClientWrapper.configureStsForOnBehalfOfWithJWT(oidcClient.client, cxfClient.stsConfig);
 
         SubjectClients<T> subjectClients = new SubjectClients<>(
                 openAmClient,

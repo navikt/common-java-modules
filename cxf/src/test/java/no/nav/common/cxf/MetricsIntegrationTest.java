@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import static java.util.Collections.emptyMap;
 import static no.nav.common.auth.subject.SsoToken.oidcToken;
-import static no.nav.common.cxf.StsSecurityConstants.*;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
 @Slf4j
@@ -20,10 +19,7 @@ public class MetricsIntegrationTest extends JettyTestServer {
 
     @Rule
     public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule()
-            .setProperty(NAIS_APP_NAME_PROPERTY_NAME, "cxf")
-            .setProperty(STS_URL_KEY, "https://test-sts")
-            .setProperty(SYSTEMUSER_USERNAME, "test-user")
-            .setProperty(SYSTEMUSER_PASSWORD, "test-password");
+            .setProperty(NAIS_APP_NAME_PROPERTY_NAME, "cxf");
 
     @Rule
     public SubjectRule subjectRule = new SubjectRule(new Subject("test-subject", IdentType.EksternBruker, oidcToken("test-token", emptyMap())));
@@ -31,6 +27,8 @@ public class MetricsIntegrationTest extends JettyTestServer {
     @Test
     @Ignore // TODO: Ignore this until we add prometheus metrics
     public void client_generates_micrometer_metrics() {
+        StsConfig stsConfig = StsConfig.builder().url("https://test-sts").username("test-user").password("test-password").build();
+
         String url = startCxfServer(HelloWorld.class);
 
         HelloWorld noStsClient = new CXFClient<>(HelloWorld.class)
@@ -39,13 +37,13 @@ public class MetricsIntegrationTest extends JettyTestServer {
 
 
         HelloWorld systemUserClient = new CXFClient<>(HelloWorld.class)
-                .configureStsForSystemUser()
+                .configureStsForSystemUser(stsConfig)
                 .address(url)
                 .build();
 
 
         HelloWorld subjectClient = new CXFClient<>(HelloWorld.class)
-                .configureStsForSubject()
+                .configureStsForSubject(stsConfig)
                 .address(url)
                 .build();
 

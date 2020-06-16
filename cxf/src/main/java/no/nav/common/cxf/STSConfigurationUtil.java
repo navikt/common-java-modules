@@ -22,22 +22,20 @@ import org.apache.neethi.Policy;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 
-import static no.nav.common.cxf.StsSecurityConstants.STS_URL_KEY;
-
 public class STSConfigurationUtil {
 
-    public static void configureStsForSystemUserInFSS(Client client) {
-        configureSts(client, StsType.SYSTEM_USER_IN_FSS);
+    public static void configureStsForSystemUserInFSS(Client client, StsConfig stsConfig) {
+        configureSts(client, StsType.SYSTEM_USER_IN_FSS, stsConfig);
     }
 
-    public static void configureStsForExternalSSO(Client client) {
-        configureSts(client, StsType.EXTERNAL_SSO);
+    public static void configureStsForExternalSSO(Client client, StsConfig stsConfig) {
+        configureSts(client, StsType.EXTERNAL_SSO, stsConfig);
     }
 
-    private static void configureSts(Client client, StsType stsType) {
-        String location = requireProperty(STS_URL_KEY);
-        String username = requireProperty(StsSecurityConstants.SYSTEMUSER_USERNAME);
-        String password = requireProperty(StsSecurityConstants.SYSTEMUSER_PASSWORD);
+    private static void configureSts(Client client, StsType stsType, StsConfig stsConfig) {
+        String location = stsConfig.url;
+        String username = stsConfig.username;
+        String password = stsConfig.password;
 
         new WSAddressingFeature().initialize(client, client.getBus());
 

@@ -1,7 +1,5 @@
 package no.nav.common.cxf;
 
-import no.nav.common.utils.EnvironmentUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -17,16 +15,11 @@ import static org.mockito.Mockito.when;
 
 public class CXFClientInvocationHandlerTest {
 
-    @Before
-    public void setup() {
-        EnvironmentUtils.setProperty("no.nav.modig.security.sts.url", "https://dummy.sts.url", EnvironmentUtils.Type.PUBLIC);
-        EnvironmentUtils.setProperty("no.nav.modig.security.systemuser.username", "dummyUsername", EnvironmentUtils.Type.SECRET);
-        EnvironmentUtils.setProperty("no.nav.modig.security.systemuser.password", "dummyPassword", EnvironmentUtils.Type.SECRET);
-    }
+    private StsConfig stsConfig = StsConfig.builder().url("https://dummy.sts.url").username("dummyUsername").password("dummyPassword").build();
 
     @Test
     public void shouldReturnTheExceptionTypeTheConsumerIsExpecting() throws Throwable {
-        CXFClient client = new CXFClient<>(DummyWebService.class).configureStsForSubject();
+        CXFClient client = new CXFClient<>(DummyWebService.class).configureStsForSubject(stsConfig);
         CXFClientInvocationHandler cxfClientInvocationHandler = new CXFClientInvocationHandler(client);
 
         DummyWebServiceException expectedException = new DummyWebServiceException("Expected exception");
@@ -53,7 +46,7 @@ public class CXFClientInvocationHandlerTest {
 
     @Test
     public void shouldNotAffectExceptionsNotWrappedInInvocationTargetException() throws Throwable {
-        CXFClient client = new CXFClient<>(DummyWebService.class).configureStsForSubject();
+        CXFClient client = new CXFClient<>(DummyWebService.class).configureStsForSubject(stsConfig);
         CXFClientInvocationHandler cxfClientInvocationHandler = new CXFClientInvocationHandler(client);
 
         RuntimeException expectedException = new RuntimeException("Expected exception");
