@@ -66,7 +66,7 @@ public class EnvironmentUtils {
 
 
     public static String requireApplicationName() {
-        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_NAMESPACE_PROPERTY_NAME)));
+        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_APP_NAME_PROPERTY_NAME)));
     }
 
     public static String requireNamespace() {
