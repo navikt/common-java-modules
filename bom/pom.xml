@@ -48,7 +48,6 @@
         <okhttp.version>3.14.7</okhttp.version>
 
         <!-- DIV -->
-        <nimbus.version>8.4</nimbus.version>
         <prometheus.version>0.4.0</prometheus.version>
         <commons-lang.version>3.5</commons-lang.version>
         <commons-io.version>2.5</commons-io.version>
@@ -339,7 +338,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>oauth2-oidc-sdk</artifactId>
-                <version>${nimbus.version}</version>
+                <version>8.4</version>
             </dependency>
             <dependency>
                 <groupId>no.finn.unleash</groupId>
