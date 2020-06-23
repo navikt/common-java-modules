@@ -29,7 +29,7 @@
         Vær obs på dette ved oppgradering av cxf
         Ref https://jira.adeo.no/browse/F17HL4-565
         -->
-        <cxf-core.version>3.2.6</cxf-core.version>
+        <cxf-core.version>3.3.6</cxf-core.version>
         <xml-apis.version>1.4.01</xml-apis.version>
         <jaxws-api.version>2.3.1</jaxws-api.version>
         <jaxws-ri.version>2.3.2</jaxws-ri.version>
