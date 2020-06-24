@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -74,5 +75,10 @@ public class AbacCachedClient implements AbacClient {
     @Override
     public HealthCheckResult checkHealth() {
         return abacClient.checkHealth();
+    }
+
+    @Override
+    public HealthCheckMetadata healthCheckMetadata() {
+        return abacClient.healthCheckMetadata();
     }
 }

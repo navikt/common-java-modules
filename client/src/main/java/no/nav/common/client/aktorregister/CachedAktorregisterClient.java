@@ -3,6 +3,7 @@ package no.nav.common.client.aktorregister;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -50,5 +51,10 @@ public class CachedAktorregisterClient implements AktorregisterClient {
     @Override
     public HealthCheckResult checkHealth() {
         return aktorregisterClient.checkHealth();
+    }
+
+    @Override
+    public HealthCheckMetadata healthCheckMetadata() {
+        return aktorregisterClient.healthCheckMetadata();
     }
 }

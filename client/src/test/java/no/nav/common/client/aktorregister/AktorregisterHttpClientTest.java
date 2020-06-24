@@ -41,7 +41,7 @@ public class AktorregisterHttpClientTest {
                         .withBody(json))
         );
 
-        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier);
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier, true);
 
         assertEquals(klient.hentAktorId(FNR_1), AKTOR_ID_1);
     }
@@ -57,7 +57,7 @@ public class AktorregisterHttpClientTest {
                         .withBody(json))
         );
 
-        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier);
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier, true);
 
         List<IdentOppslag> identOppslag = klient.hentAktorId(Arrays.asList(FNR_1, FNR_2));
 
@@ -77,7 +77,7 @@ public class AktorregisterHttpClientTest {
                         .withBody(json))
         );
 
-        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier);
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier, true);
 
         assertEquals(klient.hentFnr(AKTOR_ID_1), FNR_1);
     }
@@ -93,7 +93,7 @@ public class AktorregisterHttpClientTest {
                         .withBody(json))
         );
 
-        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier);
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier, true);
 
         List<IdentOppslag> identOppslag = klient.hentFnr(Arrays.asList(AKTOR_ID_1, AKTOR_ID_2));
 
@@ -114,7 +114,7 @@ public class AktorregisterHttpClientTest {
                         .withBody(json))
         );
 
-        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, consumingApplication, () -> authToken);
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, consumingApplication, () -> authToken, true);
 
         klient.hentFnr(AKTOR_ID_1);
 
@@ -137,7 +137,7 @@ public class AktorregisterHttpClientTest {
                         .withBody(json))
         );
 
-        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "", emptyTokenSupplier);
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "", emptyTokenSupplier, true);
 
         klient.hentAktorId(FNR_1);
 
@@ -158,7 +158,7 @@ public class AktorregisterHttpClientTest {
                         .withBody(json))
         );
 
-        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "", emptyTokenSupplier);
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "", emptyTokenSupplier, true);
 
         klient.hentFnr(AKTOR_ID_1);
 
@@ -173,7 +173,7 @@ public class AktorregisterHttpClientTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
-        AktorregisterHttpClient client = new AktorregisterHttpClient(baseUrl, "", emptyTokenSupplier);
+        AktorregisterHttpClient client = new AktorregisterHttpClient(baseUrl, "", emptyTokenSupplier, true);
 
         assertTrue(client.checkHealth().isHealthy());
         verify(getRequestedFor(urlEqualTo("/internal/isAlive")));

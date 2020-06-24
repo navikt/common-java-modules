@@ -13,6 +13,7 @@ import no.nav.common.auth.subject.Subject;
 import no.nav.common.auth.subject.SubjectHandler;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +28,7 @@ import static no.finn.unleash.repository.FeatureToggleResponse.Status.CHANGED;
 public class UnleashService implements HealthCheck, UnleashSubscriber {
 
     private final DefaultUnleash defaultUnleash;
+    private final UnleashServiceConfig unleashServiceConfig;
 
     private FeatureToggleResponse.Status lastTogglesFetchedStatus;
 
@@ -49,6 +51,7 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
                 .build();
 
         this.defaultUnleash = new DefaultUnleash(unleashConfig, addDefaultStrategies(strategies));
+        this.unleashServiceConfig = unleashServiceConfig;
     }
 
     private Strategy[] addDefaultStrategies(List<Strategy> strategies) {
@@ -98,5 +101,10 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
             log.warn(e.getMessage(), e);
             return HealthCheckResult.unhealthy(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public HealthCheckMetadata healthCheckMetadata() {
+        return new HealthCheckMetadata("Unleash", unleashServiceConfig.erKritisk, unleashServiceConfig.unleashApiUrl);
     }
 }

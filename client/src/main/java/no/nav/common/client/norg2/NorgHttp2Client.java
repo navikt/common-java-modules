@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,14 +22,18 @@ public class NorgHttp2Client implements Norg2Client {
 
     private final OkHttpClient client;
 
-    public NorgHttp2Client(String norg2Url) {
+    private final boolean erKritisk;
+
+    public NorgHttp2Client(String norg2Url, boolean erKritisk) {
         this.norg2Url = norg2Url;
         this.client = RestClient.baseClient();
+        this.erKritisk = erKritisk;
     }
 
-    public NorgHttp2Client(String norg2Url, OkHttpClient client) {
+    public NorgHttp2Client(String norg2Url, OkHttpClient client, boolean erKritisk) {
         this.norg2Url = norg2Url;
         this.client = client;
+        this.erKritisk = erKritisk;
     }
 
     @Override
@@ -75,4 +80,8 @@ public class NorgHttp2Client implements Norg2Client {
         return HealthCheckUtils.pingUrl(joinPaths(norg2Url, "/internal/isAlive"), client);
     }
 
+    @Override
+    public HealthCheckMetadata healthCheckMetadata() {
+        return new HealthCheckMetadata("Norg2", erKritisk, joinPaths(norg2Url, "/internal/isAlive"));
+    }
 }

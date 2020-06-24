@@ -31,7 +31,7 @@ public class Norg2HttpClientTest {
                         .withBody(json))
         );
 
-        NorgHttp2Client client = new NorgHttp2Client(baseUrl);
+        NorgHttp2Client client = new NorgHttp2Client(baseUrl, true);
 
         assertEquals(client.hentEnhet("1234"), jsonEnhet);
     }
@@ -48,7 +48,7 @@ public class Norg2HttpClientTest {
                         .withBody(json))
         );
 
-        NorgHttp2Client client = new NorgHttp2Client(baseUrl);
+        NorgHttp2Client client = new NorgHttp2Client(baseUrl, true);
         List<Enhet> alleEnheter = client.alleAktiveEnheter();
 
         for (Enhet enhet : jsonEnheter) {
@@ -68,7 +68,7 @@ public class Norg2HttpClientTest {
                         .withBody(json))
         );
 
-        NorgHttp2Client client = new NorgHttp2Client(baseUrl);
+        NorgHttp2Client client = new NorgHttp2Client(baseUrl, true);
 
         assertEquals(client.hentTilhorendeEnhet("030105"), jsonEnhet);
     }
@@ -78,7 +78,7 @@ public class Norg2HttpClientTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
-        Norg2Client client = new NorgHttp2Client(baseUrl);
+        Norg2Client client = new NorgHttp2Client(baseUrl, true);
 
         assertTrue(client.checkHealth().isHealthy());
         verify(getRequestedFor(urlEqualTo("/internal/isAlive")));

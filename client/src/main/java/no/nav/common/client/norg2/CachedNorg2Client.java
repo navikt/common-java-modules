@@ -3,6 +3,7 @@ package no.nav.common.client.norg2;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -51,5 +52,10 @@ public class CachedNorg2Client implements Norg2Client {
     @Override
     public HealthCheckResult checkHealth() {
         return norg2Client.checkHealth();
+    }
+
+    @Override
+    public HealthCheckMetadata healthCheckMetadata() {
+        return norg2Client.healthCheckMetadata();
     }
 }

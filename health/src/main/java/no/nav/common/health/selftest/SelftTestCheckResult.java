@@ -8,7 +8,7 @@ import no.nav.common.health.HealthCheckResult;
 @AllArgsConstructor
 public class SelftTestCheckResult {
 
-    SelfTestCheck selfTestCheck;
+    HealthCheckMetadata metadata;
 
     HealthCheckResult checkResult;
 

@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
@@ -33,11 +34,14 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     private final OkHttpClient client;
 
-    public AktorregisterHttpClient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
+    private final boolean erKritisk;
+
+    public AktorregisterHttpClient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier, boolean erKritisk) {
         this.aktorregisterUrl = aktorregisterUrl;
         this.consumingApplication = consumingApplication;
         this.tokenSupplier = tokenSupplier;
         this.client = RestClient.baseClient();
+        this.erKritisk = erKritisk;
     }
 
     @Override
@@ -137,6 +141,11 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     @Override
     public HealthCheckResult checkHealth() {
         return HealthCheckUtils.pingUrl(joinPaths(aktorregisterUrl, "/internal/isAlive"), client);
+    }
+
+    @Override
+    public HealthCheckMetadata healthCheckMetadata() {
+        return new HealthCheckMetadata("Aktorregister", erKritisk, joinPaths(aktorregisterUrl, "/internal/isAlive"));
     }
 
     enum Identgruppe {

@@ -9,6 +9,7 @@ import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Before;
 import org.junit.Rule;
@@ -338,6 +339,11 @@ public class VeilarbPepTest {
             @Override
             public HealthCheckResult checkHealth() {
                 return HealthCheckResult.healthy();
+            }
+
+            @Override
+            public HealthCheckMetadata healthCheckMetadata() {
+                return null;
             }
 
             @Override

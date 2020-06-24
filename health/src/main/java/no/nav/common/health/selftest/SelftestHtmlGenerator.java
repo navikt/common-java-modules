@@ -58,13 +58,14 @@ public class SelftestHtmlGenerator {
 
     private static String lagTabellrad(SelftTestCheckResult result) {
         String status = getStatusNavnElement(SelfTestUtils.toStatus(result), "div");
-        String kritisk = result.selfTestCheck.isCritical() ? "Ja" : "Nei";
+        String kritisk = result.metadata.isCritical() ? "Ja" : "Nei";
 
         return tableRow(
                 status,
                 kritisk,
                 result.timeUsed + " ms",
-                result.selfTestCheck.getDescription(),
+                result.metadata.getDescription(),
+                result.metadata.getEndpoint(),
                 getFeilmelding(result.checkResult)
         );
     }

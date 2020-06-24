@@ -1,5 +1,6 @@
 package no.nav.common.health.selftest;
 
+import no.nav.common.health.HealthCheck;
 import no.nav.common.utils.EnvironmentUtils;
 
 import javax.servlet.http.HttpServlet;
@@ -14,9 +15,9 @@ import static no.nav.common.health.selftest.SelfTestUtils.checkAll;
 
 public class SelftTestServlet extends HttpServlet {
 
-    private final List<SelfTestCheck> checks;
+    private final List<HealthCheck> checks;
 
-    public SelftTestServlet(List<SelfTestCheck> checks) {
+    public SelftTestServlet(List<HealthCheck> checks) {
         this.checks = checks;
     }
 

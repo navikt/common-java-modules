@@ -6,6 +6,7 @@ import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.AbacException;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
+import no.nav.common.health.selftest.HealthCheckMetadata;
 import okhttp3.*;
 
 @Slf4j
@@ -62,5 +63,10 @@ public class AbacHttpClient implements AbacClient {
                 .build();
 
         return HealthCheckUtils.pingUrl(request, client);
+    }
+
+    @Override
+    public HealthCheckMetadata healthCheckMetadata() {
+        return new HealthCheckMetadata("ABAC", true, abacUrl);
     }
 }

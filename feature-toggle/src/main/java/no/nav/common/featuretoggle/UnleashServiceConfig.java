@@ -17,12 +17,14 @@ public class UnleashServiceConfig {
 
     public String applicationName;
     public String unleashApiUrl;
+    public boolean erKritisk;
     public Supplier<UnleashConfig.Builder> unleashBuilderFactory;
 
     public static UnleashServiceConfig resolveFromEnvironment(){
         return UnleashServiceConfig.builder()
                 .applicationName(requireApplicationName())
                 .unleashApiUrl(getRequiredProperty(UNLEASH_API_URL_PROPERTY_NAME))
+                .erKritisk(false)
                 .build();
     }
 

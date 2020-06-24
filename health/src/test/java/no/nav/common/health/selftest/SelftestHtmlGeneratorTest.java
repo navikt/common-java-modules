@@ -1,5 +1,6 @@
 package no.nav.common.health.selftest;
 
+import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
 import org.junit.Test;
 
@@ -14,9 +15,9 @@ public class SelftestHtmlGeneratorTest {
 
     @Test
     public void should_generate_selftest_html() throws IOException {
-        List<SelfTestCheck> selftestChecks = List.of(
-                new SelfTestCheck("Check 1", false, HealthCheckResult::healthy),
-                new SelfTestCheck("Check 2", true, () -> HealthCheckResult.unhealthy("Something went wrong :("))
+        List<HealthCheck> selftestChecks = List.of(
+                healthCheck("Check 1", false, "http://localhost/check1", HealthCheckResult.healthy()),
+                healthCheck("Check 2", true, "http://localhost/check2", HealthCheckResult.unhealthy("Something went wrong :("))
         );
 
         List<SelftTestCheckResult> checkResults = checkAll(selftestChecks);
@@ -35,5 +36,20 @@ public class SelftestHtmlGeneratorTest {
                 .replace("\t", "")
                 .replace("\r", "");
     }
+
+    private HealthCheck healthCheck(String description, boolean isCritical, String endpoint, HealthCheckResult result) {
+        return new HealthCheck() {
+            @Override
+            public HealthCheckResult checkHealth() {
+                return result;
+            }
+
+            @Override
+            public HealthCheckMetadata healthCheckMetadata() {
+                return new HealthCheckMetadata(description, isCritical, endpoint);
+            }
+        };
+    }
+
 
 }

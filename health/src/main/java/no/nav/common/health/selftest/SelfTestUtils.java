@@ -1,5 +1,6 @@
 package no.nav.common.health.selftest;
 
+import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 
@@ -8,13 +9,13 @@ import java.util.stream.Collectors;
 
 public class SelfTestUtils {
 
-    public static List<SelftTestCheckResult> checkAll(List<SelfTestCheck> checks) {
+    public static List<SelftTestCheckResult> checkAll(List<HealthCheck> checks) {
         return checks.stream()
                 .map(SelfTestUtils::performSelftTestCheck)
                 .collect(Collectors.toList());
     }
 
-    public static List<SelftTestCheckResult> checkAllParallel(List<SelfTestCheck> checks) {
+    public static List<SelftTestCheckResult> checkAllParallel(List<HealthCheck> checks) {
         return checks.parallelStream()
                 .map(SelfTestUtils::performSelftTestCheck)
                 .collect(Collectors.toList());
@@ -22,7 +23,7 @@ public class SelfTestUtils {
 
     public static SelfTestStatus toStatus(SelftTestCheckResult result) {
         boolean isHealthy = result.checkResult.isHealthy();
-        boolean isCritical = result.selfTestCheck.isCritical();
+        boolean isCritical = result.metadata.isCritical();
 
         if (isHealthy) {
             return SelfTestStatus.OK;
@@ -62,12 +63,12 @@ public class SelfTestUtils {
         return SelfTestStatus.OK;
     }
 
-    public static SelftTestCheckResult performSelftTestCheck(SelfTestCheck check) {
+    public static SelftTestCheckResult performSelftTestCheck(HealthCheck check) {
         long beforeCheck = System.currentTimeMillis();
-        HealthCheckResult result = HealthCheckUtils.safeCheckHealth(check.getCheck());
+        HealthCheckResult result = HealthCheckUtils.safeCheckHealth(check);
         long timeUsed = System.currentTimeMillis() - beforeCheck;
 
-        return new SelftTestCheckResult(check, result, timeUsed);
+        return new SelftTestCheckResult(check.healthCheckMetadata(), result, timeUsed);
     }
 
 }
