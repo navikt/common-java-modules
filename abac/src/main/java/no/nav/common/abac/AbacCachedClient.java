@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.SneakyThrows;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
+import no.nav.common.health.HealthCheckMetadata;
 import no.nav.common.health.HealthCheckResult;
 
 import java.nio.charset.StandardCharsets;
@@ -74,5 +75,10 @@ public class AbacCachedClient implements AbacClient {
     @Override
     public HealthCheckResult checkHealth() {
         return abacClient.checkHealth();
+    }
+
+    @Override
+    public HealthCheckMetadata getMetadata() {
+        return abacClient.getMetadata();
     }
 }

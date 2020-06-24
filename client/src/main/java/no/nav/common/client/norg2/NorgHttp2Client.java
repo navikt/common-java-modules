@@ -2,6 +2,7 @@ package no.nav.common.client.norg2;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.health.HealthCheckMetadata;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.rest.client.RestClient;
@@ -11,6 +12,7 @@ import okhttp3.Response;
 
 import java.util.List;
 
+import static java.lang.String.format;
 import static no.nav.common.rest.client.RestUtils.*;
 import static no.nav.common.utils.UrlUtils.joinPaths;
 
@@ -73,6 +75,11 @@ public class NorgHttp2Client implements Norg2Client {
     @Override
     public HealthCheckResult checkHealth() {
         return HealthCheckUtils.pingUrl(joinPaths(norg2Url, "/internal/isAlive"), client);
+    }
+
+    @Override
+    public HealthCheckMetadata getMetadata() {
+        return new HealthCheckMetadata(format("NORG2 (%s)", norg2Url));
     }
 
 }

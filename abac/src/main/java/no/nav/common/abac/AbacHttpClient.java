@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.abac.exception.AbacException;
+import no.nav.common.health.HealthCheckMetadata;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import okhttp3.*;
+
+import static java.lang.String.format;
 
 @Slf4j
 public class AbacHttpClient implements AbacClient {
@@ -62,5 +65,10 @@ public class AbacHttpClient implements AbacClient {
                 .build();
 
         return HealthCheckUtils.pingUrl(request, client);
+    }
+
+    @Override
+    public HealthCheckMetadata getMetadata() {
+        return new HealthCheckMetadata(format("ABAC (%s)", abacUrl));
     }
 }

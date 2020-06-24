@@ -3,6 +3,7 @@ package no.nav.common.client.aktorregister;
 import com.fasterxml.jackson.databind.type.MapType;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.health.HealthCheckMetadata;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.json.JsonUtils;
@@ -16,6 +17,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
 import static no.nav.common.utils.UrlUtils.joinPaths;
@@ -82,7 +84,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     private String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe) {
-        return String.format("%s/identer?gjeldende=true&identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
+        return format("%s/identer?gjeldende=true&identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
     }
 
     private boolean filtrerIkkeGjeldendeIdent(Map.Entry<String, IdentData> identEntry) {
@@ -116,7 +118,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
             if (response.code() >= 300) {
                 String responseStr = getBodyStr(response).orElse("");
                 throw new RuntimeException(
-                        String.format("Fikk uventet status %d fra %s. Respons: %s",
+                        format("Fikk uventet status %d fra %s. Respons: %s",
                                 response.code(), request, responseStr)
                 );
             }
@@ -137,6 +139,11 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     @Override
     public HealthCheckResult checkHealth() {
         return HealthCheckUtils.pingUrl(joinPaths(aktorregisterUrl, "/internal/isAlive"), client);
+    }
+
+    @Override
+    public HealthCheckMetadata getMetadata() {
+        return new HealthCheckMetadata(format("Aktørregister (%s)", aktorregisterUrl));
     }
 
     enum Identgruppe {

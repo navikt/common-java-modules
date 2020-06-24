@@ -64,7 +64,7 @@ public class SelftestHtmlGenerator {
                 status,
                 kritisk,
                 result.timeUsed + " ms",
-                result.selfTestCheck.getDescription(),
+                result.selfTestCheck.getCheck().getMetadata().getDescription(),
                 getFeilmelding(result.checkResult)
         );
     }

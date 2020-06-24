@@ -15,8 +15,8 @@ public class SelftestHtmlGeneratorTest {
     @Test
     public void should_generate_selftest_html() throws IOException {
         List<SelfTestCheck> selftestChecks = List.of(
-                new SelfTestCheck("Check 1", false, HealthCheckResult::healthy),
-                new SelfTestCheck("Check 2", true, () -> HealthCheckResult.unhealthy("Something went wrong :("))
+                new SelfTestCheck(false, HealthCheckResult::healthy),
+                new SelfTestCheck(true, () -> HealthCheckResult.unhealthy("Something went wrong :("))
         );
 
         List<SelftTestCheckResult> checkResults = checkAll(selftestChecks);
