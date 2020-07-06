@@ -26,6 +26,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     private final static  MapType mapType = JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
 
     private final String aktorregisterUrl;
+    private final String aktorregisterIsAliveUrl;
 
     private final String consumingApplication;
 
@@ -35,6 +36,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     public AktorregisterHttpClient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
         this.aktorregisterUrl = aktorregisterUrl;
+        this.aktorregisterIsAliveUrl = resolveIsAliveUrl(aktorregisterUrl);
         this.consumingApplication = consumingApplication;
         this.tokenSupplier = tokenSupplier;
         this.client = RestClient.baseClient();
@@ -136,7 +138,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     @Override
     public HealthCheckResult checkHealth() {
-        return HealthCheckUtils.pingUrl(joinPaths(aktorregisterUrl, "/internal/isAlive"), client);
+        return HealthCheckUtils.pingUrl(aktorregisterIsAliveUrl, client);
     }
 
     enum Identgruppe {
@@ -161,4 +163,11 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     }
 
+    private String resolveIsAliveUrl(String apiUrl) {
+        String baseUrl = apiUrl;
+        if (apiUrl.endsWith("api/v1")) {
+            baseUrl = apiUrl.replace("api/v1", "");
+        }
+        return joinPaths(baseUrl, "/internal/isAlive");
+    }
 }
