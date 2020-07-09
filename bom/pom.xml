@@ -504,15 +504,6 @@
             </dependency>
             <dependency>
                 <!-- NB:
-                transitive dependency through wss4j and opensaml, manually upgraded to prevent vulnerabilities in 1.54
-                https://snyk.io/vuln/maven:org.bouncycastle%3Abcprov-jdk15on
-                -->
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.60</version>
-            </dependency>
-            <dependency>
-                <!-- NB:
                 transitive dependency through opensaml, manually upgraded to prevent https://snyk.io/vuln/SNYK-JAVA-COMGOOGLEGUAVA-32236
                 -->
                 <groupId>com.google.guava</groupId>
