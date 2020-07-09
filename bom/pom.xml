@@ -29,7 +29,7 @@
         Vær obs på dette ved oppgradering av cxf
         Ref https://jira.adeo.no/browse/F17HL4-565
         -->
-        <cxf-core.version>3.2.6</cxf-core.version>
+        <cxf-core.version>3.3.6</cxf-core.version>
         <xml-apis.version>1.4.01</xml-apis.version>
         <jaxws-api.version>2.3.1</jaxws-api.version>
         <jaxws-ri.version>2.3.2</jaxws-ri.version>
@@ -507,15 +507,6 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-features-logging</artifactId>
                 <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <!-- NB:
-                transitive dependency through wss4j and opensaml, manually upgraded to prevent vulnerabilities in 1.54
-                https://snyk.io/vuln/maven:org.bouncycastle%3Abcprov-jdk15on
-                -->
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.60</version>
             </dependency>
             <dependency>
                 <!-- NB:

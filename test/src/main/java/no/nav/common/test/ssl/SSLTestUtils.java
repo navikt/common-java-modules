@@ -1,14 +1,12 @@
 package no.nav.common.test.ssl;
 
 import lombok.SneakyThrows;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -19,28 +17,7 @@ public class SSLTestUtils {
 
     public static final SSLContext sslContext = trustAllSSLContext();
     public static final SSLSocketFactory TRUST_ALL_SSL_SOCKET_FACTORY = sslContext.getSocketFactory();
-    public static final X509HostnameVerifier ALLOW_ALL_X509_HOSTNAME_VERIFIER = new X509HostnameVerifier() {
-        @Override
-        public void verify(String host, SSLSocket ssl) throws IOException {
-
-        }
-
-        @Override
-        public void verify(String host, X509Certificate cert) throws SSLException {
-
-        }
-
-        @Override
-        public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {
-
-        }
-
-        @Override
-        public boolean verify(String s, SSLSession sslSession) {
-            return true;
-        }
-    };
-    public static final HostnameVerifier ALLOW_ALL_HOSTNAME_VERIFIER = ALLOW_ALL_X509_HOSTNAME_VERIFIER;
+    public static final HostnameVerifier ALLOW_ALL_HOSTNAME_VERIFIER = (s, sslSession) -> true;
 
     @SneakyThrows
     private static SSLContext trustAllSSLContext() {
@@ -80,7 +57,6 @@ public class SSLTestUtils {
         SSLContext.setDefault(sslContext);
         systemPropertyObject(SSLContext.class, sslContext);
         systemPropertyObject(HostnameVerifier.class, ALLOW_ALL_HOSTNAME_VERIFIER);
-        systemPropertyObject(X509HostnameVerifier.class, ALLOW_ALL_X509_HOSTNAME_VERIFIER);
     }
 
     @SneakyThrows
