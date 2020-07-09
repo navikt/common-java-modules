@@ -48,6 +48,7 @@
         <okhttp.version>3.14.7</okhttp.version>
 
         <!-- DIV -->
+        <micrometer.version>1.1.0</micrometer.version>
         <prometheus.version>0.4.0</prometheus.version>
         <commons-lang.version>3.5</commons-lang.version>
         <commons-io.version>2.5</commons-io.version>
@@ -330,7 +331,12 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
-                <version>1.1.0</version>
+                <version>${micrometer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>${micrometer.version}</version>
             </dependency>
 
 
