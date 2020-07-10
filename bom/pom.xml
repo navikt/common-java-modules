@@ -509,6 +509,11 @@
                 <version>${cxf-core.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.sun.xml.messaging.saaj</groupId>
+                <artifactId>saaj-impl</artifactId>
+                <version>1.5.2</version>
+            </dependency>
+            <dependency>
                 <!-- NB:
                 transitive dependency through opensaml, manually upgraded to prevent https://snyk.io/vuln/SNYK-JAVA-COMGOOGLEGUAVA-32236
                 -->
