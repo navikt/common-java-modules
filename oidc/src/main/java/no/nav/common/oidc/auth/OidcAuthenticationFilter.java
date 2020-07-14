@@ -76,6 +76,7 @@ public class OidcAuthenticationFilter implements Filter {
             return;
         }
 
+        StringBuilder errors = new StringBuilder();
         for (OidcAuthenticator authenticator : oidcAuthenticators) {
 
             Optional<String> token = authenticator.findIdToken(httpServletRequest);
@@ -86,6 +87,12 @@ public class OidcAuthenticationFilter implements Filter {
 
                     // Skip this authenticator if the audience is not matching
                     if (!hasMatchingAudience(jwtToken, authenticator.config.clientId)) {
+                        errors
+                                .append("Token validation failed, audience mismatch. JwtAudience: ")
+                                .append(jwtToken.getJWTClaimsSet().getAudience())
+                                .append(" AuthenticatorAudience: ")
+                                .append(authenticator.config.clientId)
+                                .append("\n");
                         continue;
                     }
 
@@ -116,9 +123,8 @@ public class OidcAuthenticationFilter implements Filter {
                     }
                 }
             }
-
         }
-
+        logger.warn(errors.toString());
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
