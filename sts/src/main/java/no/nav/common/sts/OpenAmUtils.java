@@ -59,13 +59,12 @@ public class OpenAmUtils {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-
             if(response.code() != 302) {
                 throw new RuntimeException("Feil ved henting av authorization code, fikk status: " + response.code() + " forventet 302");
             }
 
             String redirectLocation = response.header("Location");
-            String queryParams = redirectLocation.substring(redirectLocation.indexOf("?"));
+            String queryParams = redirectLocation.substring(redirectLocation.indexOf("?") + 1);
 
             return Arrays.stream(queryParams.split("&"))
                     .filter( s -> s.contains("code="))
