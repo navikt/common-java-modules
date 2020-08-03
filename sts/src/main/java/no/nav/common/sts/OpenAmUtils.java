@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestUtils;
 import no.nav.common.utils.AuthUtils;
+import no.nav.common.utils.Credentials;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -24,13 +25,13 @@ public class OpenAmUtils {
         return authorizationUrl.replace("oauth2/authorize", authenticateUri);
     }
 
-    public static String getSessionToken(String username, String password, String authorizationUrl, OkHttpClient client) throws IOException {
+    public static String getSessionToken(Credentials systemUserCredentials, String authorizationUrl, OkHttpClient client) throws IOException {
         String sessionTokenUrl = lagHentSessionTokenUrl(authorizationUrl);
 
         Request request = new Request.Builder()
                 .url(sessionTokenUrl)
-                .header("X-OpenAM-Username", username)
-                .header("X-OpenAM-Password", password)
+                .header("X-OpenAM-Username", systemUserCredentials.username)
+                .header("X-OpenAM-Password", systemUserCredentials.password)
                 .post(RequestBody.create(MEDIA_TYPE_JSON, "{}"))
                 .build();
 
@@ -77,7 +78,7 @@ public class OpenAmUtils {
 
     public static String exchangeCodeForToken(
             String authorizationCode, String tokenUrl, String redirectUri,
-            String issoRpUserUsername, String issoRpUserPassword, OkHttpClient client
+            Credentials issoRpCredentials, OkHttpClient client
     ) throws IOException {
         String urlEncodedRedirectUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
         String data = "grant_type=authorization_code"
@@ -87,7 +88,7 @@ public class OpenAmUtils {
 
         Request request = new Request.Builder()
                 .url(tokenUrl)
-                .header(AUTHORIZATION, AuthUtils.basicCredentials(issoRpUserUsername, issoRpUserPassword))
+                .header(AUTHORIZATION, AuthUtils.basicCredentials(issoRpCredentials.username, issoRpCredentials.password))
                 .header(CACHE_CONTROL, "no-cache")
                 .post(RequestBody.create(MediaType.get("application/x-www-form-urlencoded"), data))
                 .build();

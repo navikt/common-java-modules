@@ -6,6 +6,7 @@ import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
 import no.nav.common.rest.client.RestClient;
+import no.nav.common.utils.Credentials;
 import okhttp3.OkHttpClient;
 
 import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
@@ -24,9 +25,9 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
 
     private final String tokenUrl;
 
-    private final String issoRpUserUsername;
+    private final Credentials issoRpCredentials;
 
-    private final String issoRpUserPassword;
+    private final Credentials systemUserCredentials;
 
     private JWT accessToken;
 
@@ -34,10 +35,16 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
         Example values:
         discoveryUrl = https://isso-q.adeo.no/isso/oauth2/.well-known/openid-configuration
         redirectUrl = https://app-q0.adeo.no/veilarblogin/api/login
-        issoRpUserUsername = veilarblogin-q0
-        issoRpUserPassword = <secret>
+        issoRpCredentials = {
+            username: veilarblogin-q0
+            password: <secret>
+        }
+         systemUserCredentials = {
+            username: srvveilarbdemo
+            password: <secret>
+        }
     */
-    public OpenAmSystemUserTokenProvider(String discoveryUrl, String redirectUrl, String issoRpUserUsername, String issoRpUserPassword) {
+    public OpenAmSystemUserTokenProvider(String discoveryUrl, String redirectUrl, Credentials issoRpCredentials, Credentials systemUserCredentials) {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
         OidcDiscoveryConfiguration configuration = client.fetchDiscoveryConfiguration(discoveryUrl);
 
@@ -46,20 +53,20 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
         this.authorizationUrl = configuration.authorizationEndpoint;
         this.tokenUrl = configuration.tokenEndpoint;
 
-        this.issoRpUserUsername = issoRpUserUsername;
-        this.issoRpUserPassword = issoRpUserPassword;
+        this.issoRpCredentials = issoRpCredentials;
+        this.systemUserCredentials = systemUserCredentials;
         this.client = RestClient.baseClient();
     }
 
     public OpenAmSystemUserTokenProvider(
             String tokenUrl, String authorizationUrl, String redirectUrl,
-            String issoRpUserUsername, String issoRpUserPassword, OkHttpClient client
+            Credentials issoRpCredentials, Credentials systemUserCredentials, OkHttpClient client
     ) {
         this.tokenUrl = tokenUrl;
         this.authorizationUrl = authorizationUrl;
         this.redirectUrl = redirectUrl;
-        this.issoRpUserUsername = issoRpUserUsername;
-        this.issoRpUserPassword = issoRpUserPassword;
+        this.issoRpCredentials = issoRpCredentials;
+        this.systemUserCredentials = systemUserCredentials;
         this.client = client;
     }
 
@@ -74,9 +81,9 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
 
     @SneakyThrows
     private JWT fetchSystemUserToken() {
-        String openAmSessionToken = OpenAmUtils.getSessionToken(issoRpUserUsername, issoRpUserPassword, authorizationUrl, client);
-        String authorizationCode = OpenAmUtils.getAuthorizationCode(authorizationUrl, openAmSessionToken, issoRpUserUsername, redirectUrl, client);
-        String token = OpenAmUtils.exchangeCodeForToken(authorizationCode, tokenUrl, redirectUrl, issoRpUserUsername, issoRpUserPassword, client);
+        String openAmSessionToken = OpenAmUtils.getSessionToken(systemUserCredentials, authorizationUrl, client);
+        String authorizationCode = OpenAmUtils.getAuthorizationCode(authorizationUrl, openAmSessionToken, issoRpCredentials.username, redirectUrl, client);
+        String token = OpenAmUtils.exchangeCodeForToken(authorizationCode, tokenUrl, redirectUrl, issoRpCredentials, client);
 
         return JWTParser.parse(token);
     }
