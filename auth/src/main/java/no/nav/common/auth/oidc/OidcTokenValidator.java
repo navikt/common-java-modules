@@ -4,6 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -15,29 +16,49 @@ import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
 
 public class OidcTokenValidator {
 
     private final static JWSAlgorithm JWS_ALGORITHM = JWSAlgorithm.RS256;
 
-    private final IDTokenValidator validator;
+    // Mapping between clientId and validator
+    private final HashMap<String, IDTokenValidator> validators;
 
     private final String issuer;
 
-    public OidcTokenValidator(String oidcDiscoveryUrl, String clientId) {
+    public OidcTokenValidator(String oidcDiscoveryUrl, List<String> clientIds) {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
         OidcDiscoveryConfiguration config = client.fetchDiscoveryConfiguration(oidcDiscoveryUrl);
 
         issuer = config.issuer;
-        validator = createValidator(config.issuer, config.jwksUri, JWS_ALGORITHM, clientId);
+        validators = new HashMap<>();
+
+        clientIds.forEach((id) -> validators.put(id, createValidator(config.issuer, config.jwksUri, JWS_ALGORITHM, id)));
     }
 
-    public OidcTokenValidator(String issuerUrl, String jwksUrl, JWSAlgorithm algorithm, String clientId) {
-        issuer = issuerUrl;
-        validator = createValidator(issuerUrl, jwksUrl, algorithm, clientId);
-    }
+    public IDTokenClaimsSet validate(JWT idToken) throws BadJOSEException, JOSEException, ParseException {
+        String clientId;
+        JWTClaimsSet claims = idToken.getJWTClaimsSet();
+        List<String> tokenAudiences = claims.getAudience();
 
-    public IDTokenClaimsSet validate(JWT idToken) throws BadJOSEException, JOSEException {
+        /*
+         Tokens that have more than 1 audience should also have the AZP claim.
+         Nimbus will check that tokens with multiple audiences will have an AZP claim that matches one of the audiences.
+         */
+        if (tokenAudiences.size() > 1) {
+            clientId = claims.getStringClaim("azp");
+        } else {
+            clientId = tokenAudiences.get(0);
+        }
+
+        IDTokenValidator validator = validators.get(clientId);
+
+        if (validator == null) {
+            throw new RuntimeException("Could not find validator for audience " + clientId);
+        }
+
         return validator.validate(idToken, null);
     }
 

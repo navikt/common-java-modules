@@ -7,6 +7,7 @@ import no.nav.common.auth.subject.IdentType;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
@@ -34,9 +35,11 @@ public class TokenUtils {
         return subject;
     }
 
-    public static boolean hasMatchingAudience(JWT jwtToken, String audience) {
+    public static boolean hasMatchingAudience(JWT jwtToken, List<String> audiences) {
         try {
-            return jwtToken.getJWTClaimsSet().getAudience().contains(audience);
+            // Checks if any of the audiences in the token matches any of the given audiences
+            List<String> tokenAudiences = jwtToken.getJWTClaimsSet().getAudience();
+            return tokenAudiences.stream().anyMatch(audiences::contains);
         } catch (ParseException e) {
             return false;
         }
