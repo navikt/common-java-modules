@@ -22,7 +22,7 @@ public class OidcAuthenticator {
             throw new IllegalStateException("OidcAuthenticatorConfig is missing one or more values");
         }
 
-        OidcTokenValidator validator = new OidcTokenValidator(config.discoveryUrl, config.clientId);
+        OidcTokenValidator validator = new OidcTokenValidator(config.discoveryUrl, config.clientIds);
         return new OidcAuthenticator(validator, config);
     }
 

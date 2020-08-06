@@ -7,6 +7,9 @@ import no.nav.common.auth.subject.IdentType;
 import no.nav.common.auth.utils.AuthHeaderTokenFinder;
 import no.nav.common.auth.utils.TokenFinder;
 
+import java.util.Collections;
+import java.util.List;
+
 @Wither
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,8 +18,8 @@ public class OidcAuthenticatorConfig {
     // OIDC discovery URL
     public String discoveryUrl;
 
-    // Client ID / Audience
-    public String clientId;
+    // Is used to validate the audience claim (if the token has multiple audiences and the AZP claim is set, then AZP will also be validated against this list of IDs)
+    public List<String> clientIds;
 
     // What type of user is being authenticated
     public IdentType identType;
@@ -37,8 +40,14 @@ public class OidcAuthenticatorConfig {
 
     public boolean isValid() {
         return discoveryUrl != null
-                && clientId != null
+                && clientIds != null
                 && identType != null
                 && idTokenFinder != null;
     }
+
+    public OidcAuthenticatorConfig withClientId(String clientId) {
+        this.clientIds = Collections.singletonList(clientId);
+        return this;
+    }
+
 }

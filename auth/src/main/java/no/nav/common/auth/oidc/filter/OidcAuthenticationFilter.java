@@ -58,7 +58,7 @@ public class OidcAuthenticationFilter implements Filter {
                     JWT jwtToken = JWTParser.parse(token.get());
 
                     // Skip this authenticator if the audience is not matching
-                    if (!hasMatchingAudience(jwtToken, authenticator.config.clientId)) {
+                    if (!hasMatchingAudience(jwtToken, authenticator.config.clientIds)) {
                         continue;
                     }
 
