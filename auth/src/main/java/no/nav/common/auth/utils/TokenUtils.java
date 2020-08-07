@@ -2,6 +2,8 @@ package no.nav.common.auth.utils;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.subject.IdentType;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +14,7 @@ import java.util.Optional;
 
 import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
 
+@Slf4j
 public class TokenUtils {
 
     public static Optional<String> getTokenFromHeader(HttpServletRequest request) {
@@ -50,6 +53,17 @@ public class TokenUtils {
             return jwt.getJWTClaimsSet().getIssuer().equals(issuer);
         } catch (ParseException e) {
             return false;
+        }
+    }
+
+    public static boolean isServiceUserToken(String oidcToken) {
+        try {
+            JWT jwt = JWTParser.parse(oidcToken);
+            String subject = jwt.getJWTClaimsSet().getSubject();
+            return subject.startsWith("srv");
+        } catch (ParseException e) {
+            log.error("Failed to parse token", e);
+            throw new RuntimeException("Unable to verify service user. Failed to parse token");
         }
     }
 
