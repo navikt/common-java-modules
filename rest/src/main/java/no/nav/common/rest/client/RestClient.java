@@ -24,4 +24,11 @@ public class RestClient {
                 .followRedirects(false);
     }
 
+    public static void setBaseClient(OkHttpClient baseClient) {
+        if (client != null) {
+            throw new IllegalStateException("Base client is already initialized");
+        }
+
+        client = baseClient;
+    }
 }
