@@ -22,23 +22,7 @@ public class SSLTestUtils {
     @SneakyThrows
     private static SSLContext trustAllSSLContext() {
         SSLContext sslContext = SSLContext.getInstance("SSL");
-        sslContext.init(null, new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-
-                    }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
-                    }
-
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-                }
-        }, new SecureRandom());
+        sslContext.init(null, new TrustManager[]{ new TrustAllX509TrustManager() }, new SecureRandom());
         return sslContext;
     }
 
