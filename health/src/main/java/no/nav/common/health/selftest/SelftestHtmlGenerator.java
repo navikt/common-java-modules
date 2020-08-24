@@ -31,11 +31,20 @@ public class SelftestHtmlGenerator {
                 .map(SelftestHtmlGenerator::lagTabellrad)
                 .collect(Collectors.toList());
 
+        List<String> feilendeKomponenter = checkResults
+                .stream()
+                .filter(cr -> cr.checkResult.isUnhealthy() && cr.selfTestCheck.isCritical())
+                .map(cr -> cr.selfTestCheck.getDescription().replaceAll(",", "."))
+                .collect(Collectors.toList());
+
         String html = htmlTemplate;
         html = html.replace("${aggregertStatus}", getStatusNavnElement(SelfTestUtils.aggregateStatus(checkResults), "span"));
         html = html.replace("${resultater}", String.join("\n", tabellrader));
         html = html.replace("${host}", "Host: " + host);
         html = html.replace("${generert-tidspunkt}", timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+        // SiteScope forventer å finne en tag med id="driftsMelding" som inneholder feilede komponenter
+        html = html.replace("${feilende-komponenter}", String.join(", ", feilendeKomponenter));
 
         return html;
     }
