@@ -71,6 +71,25 @@ public class VeilarbPep implements Pep {
         return harTilgang(xacmlRequest, cefEventContext);
     }
 
+     @Override
+     public boolean harTilgangTilEnhet(String innloggetBrukerIdToken, String enhetId) {
+         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
+         Resource resource = lagEnhetResource(enhetId, AbacDomain.VEILARB_DOMAIN);
+         ActionId actionId = ActionId.READ;
+
+         XacmlRequest xacmlRequest = buildRequest(
+                 lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
+                 lagAction(actionId),
+                 null,
+                 resource
+         );
+
+         CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+         CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+
+         return harTilgang(xacmlRequest, cefEventContext);
+     }
+
     @Override
     public boolean harVeilederTilgangTilPerson(String veilederIdent, ActionId actionId, AbacPersonId personId) {
         Resource resource = lagPersonResource(personId, AbacDomain.VEILARB_DOMAIN);

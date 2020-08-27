@@ -40,7 +40,7 @@ public class VeilarbPepTest {
     private final static String TEST_SRV_USERNAME = "test";
     private final static String TEST_VEILEDER_IDENT = "Z1234";
     private final static String TEST_ENHET_ID = "1234";
-    private static final String TEST_OIDC_TOKEN_BODY = "abc.abc.abc";
+    private static final String TEST_OIDC_TOKEN = "abc.abc.abc";
     private final static String APPLICATION_NAME = "testapp";
     private static final long TIME = System.currentTimeMillis();
     private static final String CALL_ID = generateId();
@@ -61,14 +61,14 @@ public class VeilarbPepTest {
     @Before
     public void setup() {
         systemPropertiesRule.setProperty(NAIS_APP_NAME_PROPERTY_NAME, APPLICATION_NAME);
-        when(subjectProvider.getSubjectFromToken(TEST_OIDC_TOKEN_BODY)).thenReturn(TEST_VEILEDER_IDENT);
+        when(subjectProvider.getSubjectFromToken(TEST_OIDC_TOKEN)).thenReturn(TEST_VEILEDER_IDENT);
     }
 
     private final AbacClient genericPermitClient = abacClientSpyWithResponseFromFile("xacmlresponse-generic-permit.json");
     private final AbacClient genericDenyClient = abacClientSpyWithResponseFromFile("xacmlresponse-generic-deny.json");
 
     @Test
-    public void sjekkVeiledertilgangTilEnhet__skal_lage_riktig_request() {
+    public void harVeilederTilgangTilEnhet__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilEnhet.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -81,16 +81,36 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilEnhet__returnere_false_hvis_ikke_tilgang() {
+    public void harVeilederTilgangTilEnhet__skal_returnere_false_hvis_ikke_tilgang() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         boolean tilgang = veilarbPep.harVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
 
         assertFalse(tilgang);
     }
 
+    @Test
+    public void harTilgangTilEnhet__skal_lage_riktig_request() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        String expectedRequest = getContentFromJsonFile("xacmlrequest-harTilgangTilEnhet.json");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        boolean tilgang = veilarbPep.harTilgangTilEnhet(TEST_OIDC_TOKEN, TEST_ENHET_ID);
+
+        assertTrue(tilgang);
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
+        assertJsonEquals(expectedRequest, captor.getValue());
+    }
 
     @Test
-    public void sjekkVeiledertilgangTilPerson__skal_lage_riktig_request() {
+    public void harTilgangTilEnhet__skal_returnere_false_hvis_ikke_tilgang() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        boolean tilgang = veilarbPep.harTilgangTilEnhet(TEST_OIDC_TOKEN, TEST_ENHET_ID);
+
+        assertFalse(tilgang);
+    }
+
+    @Test
+    public void harVeilederTilgangTilPerson__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilPerson.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -103,7 +123,7 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilPerson__returnere_false_hvis_ikke_tilgang() {
+    public void harVeilederTilgangTilPerson__skal_returnere_false_hvis_ikke_tilgang() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         boolean tilgang = veilarbPep.harVeilederTilgangTilPerson(TEST_VEILEDER_IDENT, READ, TEST_FNR);
 
@@ -112,12 +132,12 @@ public class VeilarbPepTest {
 
 
     @Test
-    public void sjekkTilgangTilPerson__skal_lage_riktig_request() {
+    public void harTilgangTilPerson__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harTilgangTilPerson.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        boolean tilgang = veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN_BODY, READ, TEST_FNR);
+        boolean tilgang = veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR);
         assertTrue(tilgang);
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
@@ -125,16 +145,16 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkTilgangTilPerson__returnere_false_hvis_ikke_tilgang() {
+    public void harTilgangTilPerson__skal_returnere_false_hvis_ikke_tilgang() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        boolean tilgang = veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN_BODY, READ, TEST_FNR);
+        boolean tilgang = veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR);
 
         assertFalse(tilgang);
     }
 
 
     @Test
-    public void sjekkVeiledertilgangTilKode6__skal_lage_riktig_request() {
+    public void harVeilederTilgangTilKode6__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilKode6.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -147,7 +167,7 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilKode6__skal_kaste_exception_hvis_ikke_tilgang() {
+    public void harVeilederTilgangTilKode6__skal_kaste_exception_hvis_ikke_tilgang() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         boolean tilgang = veilarbPep.harVeilederTilgangTilKode6(TEST_VEILEDER_IDENT);
 
@@ -155,7 +175,7 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilKode7__skal_lage_riktig_request() {
+    public void sjekkVeilederTilgangTilKode7__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilKode7.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -168,7 +188,7 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilKode7__returnere_false_hvis_ikke_tilgang() {
+    public void sjekkVeilederTilgangTilKode7__returnere_false_hvis_ikke_tilgang() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         boolean tilgang = veilarbPep.harVeilederTilgangTilKode7(TEST_VEILEDER_IDENT);
 
@@ -176,7 +196,7 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilEgenAnsatt__skal_lage_riktig_request() {
+    public void sjekkVeilederTilgangTilEgenAnsatt__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilEgenAnsatt.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -189,7 +209,7 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilEgenAnsatt__returnere_false_hvis_ikke_tilgang() {
+    public void sjekkVeilederTilgangTilEgenAnsatt__returnere_false_hvis_ikke_tilgang() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         boolean tilgang = veilarbPep.harVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT);
 
@@ -197,96 +217,96 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void sjekkVeiledertilgangTilEnhet__riktig_audit_log_for_permit() {
+    public void harVeilederTilgangTilEnhet__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertTrue(veilarbPep.harVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, ENHET));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesEnhetPermit()));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilEnhet__riktig_audit_log_for_deny() {
+    public void harVeilederTilgangTilEnhet__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertFalse(veilarbPep.harVeilederTilgangTilEnhet(TEST_VEILEDER_IDENT, ENHET));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesEnhetDeny()));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilPerson__riktig_audit_log_for_permit() {
+    public void harVeilederTilgangTilPerson__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertTrue(veilarbPep.harVeilederTilgangTilPerson(TEST_VEILEDER_IDENT, READ, TEST_FNR));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesPersonPermit()));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilPerson__riktig_audit_log_for_deny() {
+    public void harVeilederTilgangTilPerson__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertFalse(veilarbPep.harVeilederTilgangTilPerson(TEST_VEILEDER_IDENT, READ, TEST_FNR));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesPersonDeny()));
     }
 
     @Test
-    public void sjekkTilgangTilPerson__riktig_audit_log_for_permit() {
+    public void harTilgangTilPerson__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertTrue(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN_BODY, READ, TEST_FNR));
+        assertTrue(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesPersonPermit()));
     }
 
     @Test
-    public void sjekkTilgangTilPerson__riktig_audit_log_for_deny() {
+    public void harTilgangTilPerson__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertFalse(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN_BODY, READ, TEST_FNR));
+        assertFalse(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesPersonDeny()));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilKode6__riktig_audit_log_for_permit() {
+    public void harVeilederTilgangTilKode6__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertTrue(veilarbPep.harVeilederTilgangTilKode6(TEST_VEILEDER_IDENT));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesResourcePermit(SUBJECT_FELLES_HAR_TILGANG_KODE_6)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilKode6__riktig_audit_log_for_deny() {
+    public void harVeilederTilgangTilKode6__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertFalse(veilarbPep.harVeilederTilgangTilKode6(TEST_VEILEDER_IDENT));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(SUBJECT_FELLES_HAR_TILGANG_KODE_6)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilKode7__riktig_audit_log_for_permit() {
+    public void harVeilederTilgangTilKode7__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertTrue(veilarbPep.harVeilederTilgangTilKode7(TEST_VEILEDER_IDENT));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesResourcePermit(SUBJECT_FELLES_HAR_TILGANG_KODE_7)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilKode7__riktig_audit_log_for_deny() {
+    public void harVeilederTilgangTilKode7__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertFalse(veilarbPep.harVeilederTilgangTilKode7(TEST_VEILEDER_IDENT));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(SUBJECT_FELLES_HAR_TILGANG_KODE_7)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilEgenAnsatt__riktig_audit_log_for_permit() {
+    public void harVeilederTilgangTilEgenAnsatt__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertTrue(veilarbPep.harVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesResourcePermit(SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilEgenAnsatt__riktig_audit_log_for_deny() {
+    public void harVeilederTilgangTilEgenAnsatt__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertFalse(veilarbPep.harVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilOppfolging__skal_lage_riktig_request() {
+    public void harVeilederTilgangTilOppfolging__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilOppfolging.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        assertTrue(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN_BODY));
+        assertTrue(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN));
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -294,42 +314,42 @@ public class VeilarbPepTest {
 
 
     @Test
-    public void sjekkVeiledertilgangTilOppfolging__riktig_audit_log_for_permit() {
+    public void harVeilederTilgangTilOppfolging__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertTrue(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN_BODY));
+        assertTrue(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesResourcePermit(RESOURCE_VEILARB)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilOppfolging__riktig_audit_log_for_deny() {
+    public void harVeilederTilgangTilOppfolging__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertFalse(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN_BODY));
+        assertFalse(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(RESOURCE_VEILARB)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilModia__skal_lage_riktig_request() {
+    public void harVeilederTilgangTilModia__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilModia.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        assertTrue(veilarbPep.harVeilederTilgangTilModia(TEST_OIDC_TOKEN_BODY));
+        assertTrue(veilarbPep.harVeilederTilgangTilModia(TEST_OIDC_TOKEN));
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
     }
 
     @Test
-    public void sjekkVeiledertilgangTilModia__riktig_audit_log_for_permit() {
+    public void harVeilederTilgangTilModia__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertTrue(veilarbPep.harVeilederTilgangTilModia(TEST_OIDC_TOKEN_BODY));
+        assertTrue(veilarbPep.harVeilederTilgangTilModia(TEST_OIDC_TOKEN));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesModiaResourcePermit(RESOURCE_MODIA)));
     }
 
     @Test
-    public void sjekkVeiledertilgangTilModia__riktig_audit_log_for_deny() {
+    public void harVeilederTilgangTilModia__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertFalse(veilarbPep.harVeilederTilgangTilModia(TEST_OIDC_TOKEN_BODY));
+        assertFalse(veilarbPep.harVeilederTilgangTilModia(TEST_OIDC_TOKEN));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesModiaResourceDeny(RESOURCE_MODIA)));
     }
 
