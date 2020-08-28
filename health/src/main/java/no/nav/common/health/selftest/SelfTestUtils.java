@@ -14,6 +14,11 @@ public class SelfTestUtils {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Utfører helsesjekker i parallell. Vær obs på at dette kan gi uventet resultat i forket tråd når sjekker bruker
+     * class loading, f.eks. CXFClient.
+     */
     public static List<SelftTestCheckResult> checkAllParallel(List<SelfTestCheck> checks) {
         return checks.parallelStream()
                 .map(SelfTestUtils::performSelftTestCheck)
