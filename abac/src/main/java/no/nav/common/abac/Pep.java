@@ -15,6 +15,15 @@ public interface Pep {
     boolean harVeilederTilgangTilEnhet(String veilederIdent, String enhetId);
 
     /**
+     * Sjekk tilgang til enhet ved å bruke en innlogget brukers ID token
+     *
+     * @param innloggetBrukerIdToken OIDC ID token til innlogget bruker. Kan enten være tokenet til en veileder eller ekstern bruker.
+     * @param enhetId       enheten som det sjekkes tilgang på
+     * @return true hvis tilgang, false hvis ikke tilgang
+     */
+    boolean harTilgangTilEnhet(String innloggetBrukerIdToken, String enhetId);
+
+    /**
      * @param veilederIdent identen til veileder (f.eks Z1234567)
      * @param actionId      hvilken tilgang spørres det etter
      * @param personId      identifikator for personen det sjekkes tilgang på (fnr/aktør id)
