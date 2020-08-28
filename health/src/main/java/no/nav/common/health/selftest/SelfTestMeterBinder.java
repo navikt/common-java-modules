@@ -10,9 +10,16 @@ import java.util.List;
 public class SelfTestMeterBinder implements MeterBinder {
 
     private final SelfTestChecks selfTestChecks;
+    private final boolean runChecksInParallel;
 
     public SelfTestMeterBinder(SelfTestChecks selfTestChecks) {
         this.selfTestChecks = selfTestChecks;
+        this.runChecksInParallel = false;
+    }
+
+    public SelfTestMeterBinder(SelfTestChecks selfTestChecks, boolean runChecksInParallel) {
+        this.selfTestChecks = selfTestChecks;
+        this.runChecksInParallel = runChecksInParallel;
     }
 
     @Override
@@ -23,7 +30,10 @@ public class SelfTestMeterBinder implements MeterBinder {
     }
 
     private int getAggregateResult() {
-        List<SelftTestCheckResult> selftTestCheckResults = SelfTestUtils.checkAllParallel(selfTestChecks.getSelfTestChecks());
+        List<SelftTestCheckResult> selftTestCheckResults =
+                runChecksInParallel ?
+                        SelfTestUtils.checkAllParallel(selfTestChecks.getSelfTestChecks()) :
+                        SelfTestUtils.checkAll(selfTestChecks.getSelfTestChecks());
         SelfTestStatus selfTestStatus = SelfTestUtils.aggregateStatus(selftTestCheckResults);
         return selfTestStatus.statusKode;
     }
