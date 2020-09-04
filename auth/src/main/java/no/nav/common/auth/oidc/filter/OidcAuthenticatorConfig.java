@@ -3,7 +3,7 @@ package no.nav.common.auth.oidc.filter;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
-import no.nav.common.auth.subject.IdentType;
+import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.utils.AuthHeaderTokenFinder;
 import no.nav.common.auth.utils.TokenFinder;
 
@@ -22,7 +22,7 @@ public class OidcAuthenticatorConfig {
     public List<String> clientIds;
 
     // What type of user is being authenticated
-    public IdentType identType;
+    public UserRole userRole;
 
     // Name of the cookie where the users id token is stored (optional)
     // If provided: will try to retrieve id token from cookie before using "idTokenFinder"
@@ -41,7 +41,7 @@ public class OidcAuthenticatorConfig {
     public boolean isValid() {
         return discoveryUrl != null
                 && clientIds != null
-                && identType != null
+                && userRole != null
                 && idTokenFinder != null;
     }
 

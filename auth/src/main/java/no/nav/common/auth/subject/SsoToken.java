@@ -12,6 +12,7 @@ import static no.nav.common.utils.StringUtils.assertNotNullOrEmpty;
 
 @Getter
 @EqualsAndHashCode
+@Deprecated
 public class SsoToken {
     private final Type type;
     private final String token;

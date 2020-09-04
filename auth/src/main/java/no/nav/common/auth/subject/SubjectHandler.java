@@ -6,6 +6,10 @@ import no.nav.common.utils.fn.UnsafeSupplier;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * See {@link no.nav.common.auth.context.AuthContextHolder AuthContextHolder.class}
+ */
+@Deprecated
 public class SubjectHandler {
 
     private static final SubjectStorage subjectStorage = new ThreadLocalSubjectStorage();

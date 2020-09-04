@@ -8,16 +8,13 @@ import no.finn.unleash.event.UnleashSubscriber;
 import no.finn.unleash.repository.FeatureToggleResponse;
 import no.finn.unleash.strategy.Strategy;
 import no.finn.unleash.util.UnleashConfig;
-import no.nav.common.auth.subject.SsoToken;
-import no.nav.common.auth.subject.Subject;
-import no.nav.common.auth.subject.SubjectHandler;
+import no.nav.common.auth.context.AuthContextHolder;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import static java.util.Optional.ofNullable;
@@ -69,10 +66,12 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
     }
 
     public static UnleashContext resolveUnleashContextFromSubject() {
-        Optional<Subject> subject = SubjectHandler.getSubject();
+        String subject = AuthContextHolder.getSubject().orElse(null);
+        String token = AuthContextHolder.getIdTokenString().orElse(null);
+
         return UnleashContext.builder()
-                .userId(subject.map(Subject::getUid).orElse(null))
-                .sessionId(subject.map(Subject::getSsoToken).map(SsoToken::getToken).orElse(null))
+                .userId(subject)
+                .sessionId(token)
                 .build();
     }
 

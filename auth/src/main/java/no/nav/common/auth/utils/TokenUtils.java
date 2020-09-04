@@ -4,6 +4,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.subject.IdentType;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,19 @@ import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
 @Slf4j
 public class TokenUtils {
 
+    public static IdentType mapUserRoleToIdentType(UserRole userRole) {
+        switch (userRole) {
+            case INTERN:
+                return IdentType.InternBruker;
+            case EKSTERN:
+                return IdentType.EksternBruker;
+            case SYSTEM:
+                return IdentType.Systemressurs;
+            default:
+                throw new IllegalStateException("Unknown user role: " + userRole);
+        }
+    }
+
     public static Optional<String> getTokenFromHeader(HttpServletRequest request) {
         String headerValue = request.getHeader("Authorization");
         return headerValue != null && !headerValue.isEmpty() && headerValue.startsWith("Bearer ")
@@ -24,11 +38,11 @@ public class TokenUtils {
                 : Optional.empty();
     }
 
-    public static String getUid(JWT token, IdentType identType) throws ParseException {
+    public static String getUid(JWT token, UserRole userRole) throws ParseException {
         JWTClaimsSet claimsSet = token.getJWTClaimsSet();
         String subject = claimsSet.getSubject();
 
-        if (identType == IdentType.InternBruker) {
+        if (userRole == UserRole.INTERN) {
             String navIdent = claimsSet.getStringClaim(AAD_NAV_IDENT_CLAIM);
             return navIdent != null
                     ? navIdent

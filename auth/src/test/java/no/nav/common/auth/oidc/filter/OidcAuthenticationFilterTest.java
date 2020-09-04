@@ -1,6 +1,6 @@
 package no.nav.common.auth.oidc.filter;
 
-import no.nav.common.auth.subject.IdentType;
+import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
@@ -68,12 +68,12 @@ public class OidcAuthenticationFilterTest {
         naisStsAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(naisStsOidcProviderRule.getDiscoveryUri())
                 .withClientIds(List.of("srvveilarbtest", "srvveilarbdemo"))
-                .withIdentType(IdentType.Systemressurs);
+                .withUserRole(UserRole.SYSTEM);
 
         azureAdAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(azureAdOidcProviderRule.getDiscoveryUri())
                 .withClientId(azureAdOidcProviderRule.getAudience())
-                .withIdentType(IdentType.InternBruker)
+                .withUserRole(UserRole.INTERN)
                 .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
                 .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
                 .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME);
@@ -82,7 +82,7 @@ public class OidcAuthenticationFilterTest {
                 .withDiscoveryUrl(openAMOidcProviderRule.getDiscoveryUri())
                 .withClientId(openAMOidcProviderRule.getAudience())
                 .withIdTokenCookieName(OPEN_AM_ID_TOKEN_COOKIE_NAME)
-                .withIdentType(IdentType.InternBruker);
+                .withUserRole(UserRole.INTERN);
     }
 
     @Test

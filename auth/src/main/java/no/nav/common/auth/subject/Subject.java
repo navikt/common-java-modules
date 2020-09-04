@@ -12,6 +12,7 @@ import static no.nav.common.utils.StringUtils.assertNotNullOrEmpty;
 
 @Wither
 @Value
+@Deprecated
 public class Subject {
 
     private final String uid;

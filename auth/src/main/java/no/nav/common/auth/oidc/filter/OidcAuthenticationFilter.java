@@ -5,6 +5,8 @@ import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
+import no.nav.common.auth.context.AuthContext;
+import no.nav.common.auth.context.AuthContextHolder;
 import no.nav.common.auth.oidc.TokenRefreshClient;
 import no.nav.common.auth.subject.SsoToken;
 import no.nav.common.auth.subject.Subject;
@@ -75,11 +77,16 @@ public class OidcAuthenticationFilter implements Filter {
 
                     SsoToken ssoToken = SsoToken.oidcToken(jwtToken.getParsedString(), jwtToken.getJWTClaimsSet().getClaims());
                     Subject subject = new Subject(
-                            TokenUtils.getUid(jwtToken, authenticator.config.identType),
-                            authenticator.config.identType, ssoToken
+                            TokenUtils.getUid(jwtToken, authenticator.config.userRole),
+                            TokenUtils.mapUserRoleToIdentType(authenticator.config.userRole),
+                            ssoToken
                     );
 
-                    SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
+                    AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken);
+
+                    AuthContextHolder.withContext(authContext, () -> {
+                        SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
+                    });
                     return;
                 } catch (ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {
