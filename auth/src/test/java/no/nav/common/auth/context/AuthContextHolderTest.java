@@ -13,7 +13,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class AuthContextHolderTest {
 
@@ -29,7 +29,7 @@ public class AuthContextHolderTest {
         assertNoContext();
 
         AuthContextHolder.withContext(authContext, () -> {
-            assertEquals(authContext, AuthContextHolder.getContext());
+            assertEquals(authContext, AuthContextHolder.requireContext());
 
             // fork-join thread pool
             Set<Thread> usedThreads = new HashSet<>();
@@ -46,7 +46,7 @@ public class AuthContextHolderTest {
                         Thread thread = Thread.currentThread();
                         usedThreads.add(thread);
                         if (thread == baseThread) {
-                            assertEquals(authContext, AuthContextHolder.getContext());
+                            assertEquals(authContext, AuthContextHolder.requireContext());
                         } else {
                             assertNoContext();
                         }
@@ -55,11 +55,7 @@ public class AuthContextHolderTest {
 
             // child thread
             AtomicReference<AuthContext> contextWrapper = new AtomicReference<>();
-            Thread thread = new Thread(() -> {
-                if (AuthContextHolder.getContext() != null) {
-                    contextWrapper.set(AuthContextHolder.getContext());
-                }
-            });
+            Thread thread = new Thread(() -> AuthContextHolder.getContext().ifPresent(contextWrapper::set));
             thread.start();
             try {
                 thread.join();
@@ -74,7 +70,7 @@ public class AuthContextHolderTest {
             // populated child context
             AuthContext otherContext = newAuthContext("other");
             AuthContextHolder.withContext(otherContext, () -> {
-                assertEquals(otherContext, AuthContextHolder.getContext());
+                assertEquals(otherContext, AuthContextHolder.requireContext());
             });
 
             // failing child context
@@ -84,7 +80,7 @@ public class AuthContextHolderTest {
                 });
             }).isInstanceOf(Error.class);
 
-            assertEquals(authContext, AuthContextHolder.getContext());
+            assertEquals(authContext, AuthContextHolder.requireContext());
         });
 
         assertNoContext();
@@ -101,7 +97,7 @@ public class AuthContextHolderTest {
     }
 
     private void assertNoContext() {
-        assertNull(AuthContextHolder.getContext());
+        assertTrue(AuthContextHolder.getContext().isEmpty());
     }
 
 }
