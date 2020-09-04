@@ -125,7 +125,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
             Optional<String> jsonStr = getBodyStr(response);
 
-            if (!jsonStr.isPresent()) {
+            if (jsonStr.isEmpty()) {
                 throw new IllegalStateException("Respons mangler body");
             }
 
