@@ -4,9 +4,10 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
+import no.nav.common.utils.fn.UnsafeRunnable;
+import no.nav.common.utils.fn.UnsafeSupplier;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static java.util.Optional.ofNullable;
 
@@ -17,7 +18,7 @@ public class AuthContextHolder {
 
     private static final ThreadLocal<AuthContext> AUTH_CONTEXT = new ThreadLocal<>();
 
-    public static void withContext(AuthContext authContext, Runnable runnable) {
+    public static void withContext(AuthContext authContext, UnsafeRunnable runnable) {
         AuthContext previousContext = AUTH_CONTEXT.get();
         try {
             AUTH_CONTEXT.set(authContext);
@@ -27,7 +28,7 @@ public class AuthContextHolder {
         }
     }
 
-    public static <T> T withContext(AuthContext authContext, Supplier<T> supplier) {
+    public static <T> T withContext(AuthContext authContext, UnsafeSupplier<T> supplier) {
         AuthContext previousContext = AUTH_CONTEXT.get();
         try {
             AUTH_CONTEXT.set(authContext);

@@ -23,6 +23,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>auth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>oauth2-oidc-sdk</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
         </dependency>
