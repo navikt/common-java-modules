@@ -11,7 +11,13 @@ public class CacheUtils {
 
         if (value == null) {
             V newValue = valueSupplier.get();
+
+            if (newValue == null) {
+                return null;
+            }
+
             cache.put(key, newValue);
+
             return newValue;
         }
 

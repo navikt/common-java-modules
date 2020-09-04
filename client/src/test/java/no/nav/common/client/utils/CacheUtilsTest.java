@@ -50,4 +50,24 @@ public class CacheUtilsTest {
         verify(supplier, times(2)).get();
     }
 
+    @Test
+    public void skal_ikke_cache_null() {
+        Cache<String, String> cache = Caffeine.newBuilder()
+                .maximumSize(5)
+                .build();
+
+        // Cannot spy on lambdas
+        Supplier<String> supplier = spy(new Supplier<String>() {
+            @Override
+            public String get() {
+                return null;
+            }
+        });
+
+        CacheUtils.tryCacheFirst(cache, "key1", supplier);
+        CacheUtils.tryCacheFirst(cache, "key1", supplier);
+
+        verify(supplier, times(2)).get();
+    }
+
 }
