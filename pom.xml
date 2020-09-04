@@ -418,15 +418,6 @@
                         <include>*</include>
                     </includes>
 
-                    <!--
-                     NB:
-                     @Category (junit4) fungerer ikke i kombinasjon med junit-platform-surefire-provider
-                     Løsningen er å skrive smoketester i junit5 med @Tag
-                     -->
-                    <properties>
-                        <excludeTags>smoketest</excludeTags>
-                    </properties>
-
                     <!--suppress MavenModelInspection -->
                     <argLine>${jacoco.agent.argLine} -Xmx2g</argLine>
 

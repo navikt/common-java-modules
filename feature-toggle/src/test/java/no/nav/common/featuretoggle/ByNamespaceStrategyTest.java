@@ -5,7 +5,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static no.nav.common.test.SystemProperties.setTemporaryProperty;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,24 +28,28 @@ public class ByNamespaceStrategyTest {
 		assertEnabled("q6,q1,p", "q1");
 	}
 
-	private void assertDisabled(String toggleParameter, String environment) {
-		assertStatus(toggleParameter, environment, false);
+	private void assertDisabled(String toggleParameter, String namespace) {
+		assertStatus(toggleParameter, namespace, false);
 	}
 
-	private void assertEnabled(String toggleParameter, String environment) {
-		assertStatus(toggleParameter, environment, true);
+	private void assertEnabled(String toggleParameter, String namespace) {
+		assertStatus(toggleParameter, namespace, true);
 	}
 
-	private void assertStatus(String toggleParameter, String environment, boolean expectedState) {
-		Map<String, String> parameters = new HashMap<String, String>() {{
+	private void assertStatus(String toggleParameter, String namespace, boolean expectedState) {
+		Map<String, String> parameters = new HashMap<>() {{
 			put("namespace", toggleParameter);
 		}};
-		setTemporaryProperty(NAIS_NAMESPACE_PROPERTY_NAME, environment, () -> {
-					assertThat(byNamespaceStrategy.isEnabled(parameters))
-							.describedAs("environment=" + environment)
-							.isEqualTo(expectedState);
-				}
-		);
+
+		if (namespace == null) {
+			System.clearProperty(NAIS_NAMESPACE_PROPERTY_NAME);
+		} else  {
+			System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, namespace);
+		}
+
+		assertThat(byNamespaceStrategy.isEnabled(parameters))
+				.describedAs("environment=" + namespace)
+				.isEqualTo(expectedState);
 	}
 
 }
