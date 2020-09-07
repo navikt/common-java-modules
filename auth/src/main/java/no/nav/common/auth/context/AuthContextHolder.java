@@ -48,6 +48,7 @@ public class AuthContextHolder {
         return getIdTokenString().orElseThrow(() -> new IllegalStateException("ID token is missing from AuthContext"));
     }
 
+    @SuppressWarnings("unused")
     public static JWTClaimsSet requireIdTokenClaims() {
         return getIdTokenClaims().orElseThrow(() -> new IllegalStateException("ID token is missing from AuthContext"));
     }
@@ -56,6 +57,7 @@ public class AuthContextHolder {
         return getAccessToken().orElseThrow(() -> new IllegalStateException("Access token is missing from AuthContext"));
     }
 
+    @SuppressWarnings("unused")
     public static JWT requireParsedAccessToken() {
         return getParsedAccessToken().orElseThrow(() -> new IllegalStateException("Access token is missing from AuthContext"));
     }
@@ -105,6 +107,27 @@ public class AuthContextHolder {
 
     public static void setContext(AuthContext authContext) {
         CONTEXT_HOLDER.set(authContext);
+    }
+
+    @SuppressWarnings("unused")
+    public static boolean erInternBruker() {
+        return harBrukerRolle(UserRole.INTERN);
+    }
+
+    @SuppressWarnings("unused")
+    public static boolean erSystemBruker() {
+        return harBrukerRolle(UserRole.SYSTEM);
+    }
+
+    @SuppressWarnings("unused")
+    public static boolean erEksternBruker() {
+        return harBrukerRolle(UserRole.EKSTERN);
+    }
+
+    public static boolean harBrukerRolle(UserRole userRole) {
+        return getRole()
+                .map(role -> role == userRole)
+                .orElse(false);
     }
 
     @SneakyThrows
