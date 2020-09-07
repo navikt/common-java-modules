@@ -1,15 +1,14 @@
 package no.nav.common.cxf;
 
-import no.nav.common.auth.subject.TestSubjectUtils;
+import no.nav.common.auth.context.UserRole;
 import no.nav.common.cxf.jetty.Jetty;
+import no.nav.common.test.auth.AuthTestUtils;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.*;
 import org.slf4j.Logger;
 
 import java.net.ConnectException;
 
-import static no.nav.common.auth.subject.SsoToken.Type.EKSTERN_OPENAM;
-import static no.nav.common.auth.subject.SsoToken.Type.OIDC;
 import static no.nav.common.cxf.jetty.JettyTestServer.findFreePort;
 import static no.nav.common.test.ssl.SSLTestUtils.disableCertificateChecks;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -24,7 +23,7 @@ public class NAVOidcSTSClientIntegrationTest {
     private String stsUrl;
 
     @Rule
-    public SubjectRule subjectRule = new SubjectRule();
+    public AuthContextRule authContextRule = new AuthContextRule();
 
     @Before
     public void setup() {
@@ -81,7 +80,7 @@ public class NAVOidcSTSClientIntegrationTest {
         ping(tjenesteC);
         ping(tjenesteC);
 
-        setEksternOpenAmToken("openam1");
+//        setEksternOpenAmToken("openam1");
 
         ping(tjenesteD);
         ping(tjenesteD);
@@ -97,7 +96,7 @@ public class NAVOidcSTSClientIntegrationTest {
         ping(tjenesteC);
         ping(tjenesteC);
 
-        setEksternOpenAmToken("openam2");
+//        setEksternOpenAmToken("openam2");
 
         ping(tjenesteD);
         ping(tjenesteD);
@@ -109,20 +108,8 @@ public class NAVOidcSTSClientIntegrationTest {
         );
     }
 
-    private void setOidcToken(String jwt) {
-        subjectRule.setSubject(TestSubjectUtils.builder()
-                .tokenType(OIDC)
-                .token(jwt)
-                .build()
-        );
-    }
-
-    private void setEksternOpenAmToken(String openAmToken) {
-        subjectRule.setSubject(TestSubjectUtils.builder()
-                .tokenType(EKSTERN_OPENAM)
-                .token(openAmToken)
-                .build()
-        );
+    private void setOidcToken(String subject) {
+        authContextRule.setAuthContext(AuthTestUtils.createAuthContext(UserRole.EKSTERN, subject));
     }
 
     private void ping(HelloWorld aktoer_v2PortType) {

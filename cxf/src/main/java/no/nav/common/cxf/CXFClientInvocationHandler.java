@@ -1,8 +1,5 @@
 package no.nav.common.cxf;
 
-import no.nav.common.auth.subject.SsoToken;
-import no.nav.common.auth.subject.Subject;
-import no.nav.common.auth.subject.SubjectHandler;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
@@ -30,26 +27,10 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
             return method.invoke(this, objects);
         }
 
-        boolean success = false;
-        long startTime = System.currentTimeMillis();
         try {
-            Object result = invocationHandler.invoke(o, method, objects);
-            success = true;
-            return result;
+            return invocationHandler.invoke(o, method, objects);
         } catch (InvocationTargetException ite) {
             throw unwrapToExpectedExceptionForTheConsumer(ite);
-        } finally {
-            // TODO: Hvis vi trenger prometheus metrikker for dette, så send inn PrometheusMeterRegistry
-            //  Hvis man ikke trenger metrikker, så kan man også vurdere å logge det til kibana
-
-            //            meterRegistry.timer("cxf_client",
-            //                    "method",
-            //                    method.getName(),
-            //                    "success",
-            //                    Boolean.toString(success),
-            //                    "sts",
-            //                    stsMode.name()
-            //            ).record(System.currentTimeMillis() - startTime, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -81,32 +62,17 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
     }
 
     private InvocationHandler subjectSts(CXFClient<T> cxfClient) {
-        PortAndClient<T> openAmClient = newPort(cxfClient);
-        STSConfigurationUtil.configureStsForExternalSSO(openAmClient.client, cxfClient.stsConfig);
-
         PortAndClient<T> oidcClient = newPort(cxfClient);
         OidcClientWrapper.configureStsForOnBehalfOfWithJWT(oidcClient.client, cxfClient.stsConfig);
 
-        SubjectClients<T> subjectClients = new SubjectClients<>(
-                openAmClient,
-                oidcClient
-        );
+        SubjectClients<T> subjectClients = new SubjectClients<>(oidcClient);
+
         return (proxyInstance, method, args) -> method.invoke(resolveSubjectPort(subjectClients), args);
     }
 
     private T resolveSubjectPort(SubjectClients<T> subjectClients) {
-        Subject subject = SubjectHandler.getSubject().orElseThrow(() -> new IllegalStateException("no subject available"));
-        SsoToken.Type tokenType = subject.getSsoToken().getType();
-        switch (tokenType) {
-            case OIDC:
-                return subjectClients.oidcClient.port;
-            case EKSTERN_OPENAM:
-                return subjectClients.openAmClient.port;
-            default:
-                throw new IllegalStateException("illegal port type");
-        }
+        return subjectClients.oidcClient.port;
     }
-
 
     private InvocationHandler invocationHandler(T port) {
         return (proxyInstance, method, args) -> {
@@ -146,11 +112,9 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
     }
 
     private static class SubjectClients<T> {
-        private final PortAndClient<T> openAmClient;
         private final PortAndClient<T> oidcClient;
 
-        private SubjectClients(PortAndClient<T> openAmClient, PortAndClient<T> oidcClient) {
-            this.openAmClient = openAmClient;
+        private SubjectClients(PortAndClient<T> oidcClient) {
             this.oidcClient = oidcClient;
         }
     }

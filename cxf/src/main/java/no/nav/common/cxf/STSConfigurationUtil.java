@@ -28,10 +28,6 @@ public class STSConfigurationUtil {
         configureSts(client, StsType.SYSTEM_USER_IN_FSS, stsConfig);
     }
 
-    public static void configureStsForExternalSSO(Client client, StsConfig stsConfig) {
-        configureSts(client, StsType.EXTERNAL_SSO, stsConfig);
-    }
-
     private static void configureSts(Client client, StsType stsType, StsConfig stsConfig) {
         String location = stsConfig.url;
         String username = stsConfig.username;

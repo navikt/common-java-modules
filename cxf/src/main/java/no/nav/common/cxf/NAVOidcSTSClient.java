@@ -1,8 +1,6 @@
 package no.nav.common.cxf;
 
-import no.nav.common.auth.subject.SsoToken;
-import no.nav.common.auth.subject.SubjectHandler;
-import no.nav.common.cxf.saml.ClaimsCallbackHandler;
+import no.nav.common.auth.context.AuthContextHolder;
 import no.nav.common.utils.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
@@ -13,7 +11,6 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static no.nav.common.auth.subject.SubjectHandler.getSsoToken;
 
 public class NAVOidcSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
@@ -27,9 +24,8 @@ public class NAVOidcSTSClient extends STSClient {
             case ON_BEHALF_OF_WITH_JWT:
                 setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
                 break;
-            case EXTERNAL_SSO:
-                setClaimsCallbackHandler(new ClaimsCallbackHandler());
-                break;
+            default:
+                throw new IllegalStateException(stsType.name() + " is not supported");
         }
     }
 
@@ -64,8 +60,8 @@ public class NAVOidcSTSClient extends STSClient {
         if (stsType == StsType.SYSTEM_USER_IN_FSS) {
             return "systemSAML";
         } else {
-            return getSsoToken()
-                    .map(SsoToken::getToken)
+            return AuthContextHolder
+                    .getIdTokenString()
                     .orElseThrow(() -> new IllegalStateException("Finner ingen sso token som kan bli cache-nøkkel for brukerens SAML-token"));
         }
     }
@@ -73,7 +69,7 @@ public class NAVOidcSTSClient extends STSClient {
     private String getUserId() {
         return stsType == StsType.SYSTEM_USER_IN_FSS
                 ? StringUtils.toString(getProperty(SecurityConstants.USERNAME))
-                : SubjectHandler.getSubject().orElseThrow(() -> new RuntimeException("Klarte ikke å hente uid fra subject")).getUid();
+                : AuthContextHolder.requireSubject();
     }
 
     private void ensureTokenStoreExists() {

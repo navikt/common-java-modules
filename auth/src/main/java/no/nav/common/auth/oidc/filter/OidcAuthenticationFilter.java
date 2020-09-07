@@ -8,11 +8,7 @@ import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolder;
 import no.nav.common.auth.oidc.TokenRefreshClient;
-import no.nav.common.auth.subject.SsoToken;
-import no.nav.common.auth.subject.Subject;
-import no.nav.common.auth.subject.SubjectHandler;
 import no.nav.common.auth.utils.CookieUtils;
-import no.nav.common.auth.utils.TokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,20 +72,10 @@ public class OidcAuthenticationFilter implements Filter {
 
                     authenticator.tokenValidator.validate(jwtToken);
 
-                    SsoToken ssoToken = SsoToken.oidcToken(jwtToken.getParsedString(), jwtToken.getJWTClaimsSet().getClaims());
-                    Subject subject = new Subject(
-                            TokenUtils.getUid(jwtToken, authenticator.config.userRole),
-                            TokenUtils.mapUserRoleToIdentType(authenticator.config.userRole),
-                            ssoToken
-                    );
-
                     String accessToken = CookieUtils.getCookieValue(AZURE_AD_ACCESS_TOKEN_COOKIE_NAME, request).orElse(null);
-
                     AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken, accessToken);
 
-                    AuthContextHolder.withContext(authContext, () -> {
-                        SubjectHandler.withSubject(subject, () -> chain.doFilter(servletRequest, servletResponse));
-                    });
+                    AuthContextHolder.withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
                 } catch (ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {

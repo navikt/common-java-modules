@@ -1,17 +1,15 @@
 package no.nav.common.cxf;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.auth.subject.IdentType;
-import no.nav.common.auth.subject.Subject;
+import no.nav.common.auth.context.UserRole;
 import no.nav.common.cxf.jetty.JettyTestServer;
+import no.nav.common.test.auth.AuthTestUtils;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static java.util.Collections.emptyMap;
-import static no.nav.common.auth.subject.SsoToken.oidcToken;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
 @Slf4j
@@ -22,7 +20,7 @@ public class MetricsIntegrationTest extends JettyTestServer {
             .setProperty(NAIS_APP_NAME_PROPERTY_NAME, "cxf");
 
     @Rule
-    public SubjectRule subjectRule = new SubjectRule(new Subject("test-subject", IdentType.EksternBruker, oidcToken("test-token", emptyMap())));
+    public AuthContextRule authContextRule = new AuthContextRule(AuthTestUtils.createAuthContext(UserRole.EKSTERN, "test-subject"));
 
     @Test
     @Ignore // TODO: Ignore this until we add prometheus metrics

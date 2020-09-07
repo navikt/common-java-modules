@@ -13,8 +13,7 @@ public class LoggingFeatureUtenTokenLogging extends AbstractFeature{
         OUT.addAfter(AttachmentOutInterceptor.class.getName());
     }
 
-    public LoggingFeatureUtenTokenLogging() {
-    }
+    public LoggingFeatureUtenTokenLogging() {}
 
     public void setMaskerTokenIHeader(boolean maskerTokenIHeader) {
         IN.setMaskerTokenLogging(maskerTokenIHeader);
