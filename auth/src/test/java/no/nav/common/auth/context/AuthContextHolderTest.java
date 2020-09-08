@@ -2,9 +2,11 @@ package no.nav.common.auth.context;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.PlainJWT;
 import org.junit.Test;
 
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,6 +18,34 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AuthContextHolderTest {
+
+    @Test
+    public void should_return_parsed_token_string_when_built_from_scratch() {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("subject")
+                .audience("audience")
+                .issuer("issuer")
+                .build();
+
+        AuthContextHolder.withContext(new AuthContext(UserRole.EKSTERN, new PlainJWT(claimsSet)), () -> {
+            assertTrue(AuthContextHolder.getIdTokenString().isPresent());
+        });
+    }
+
+    @Test
+    public void should_return_parsed_token_string_when_parsed_from_string() throws ParseException {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("subject")
+                .audience("audience")
+                .issuer("issuer")
+                .build();
+
+        JWT jwt = JWTParser.parse(new PlainJWT(claimsSet).serialize());
+
+        AuthContextHolder.withContext(new AuthContext(UserRole.EKSTERN, jwt), () -> {
+            assertTrue(AuthContextHolder.getIdTokenString().isPresent());
+        });
+    }
 
     @Test
     public void withSubjectProvider() {

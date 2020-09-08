@@ -78,7 +78,7 @@ public class AuthContextHolder {
     public static Optional<String> getIdTokenString() {
         return getContext()
                 .map(AuthContext::getIdToken)
-                .map(JWT::getParsedString);
+                .map(token -> ofNullable(token.getParsedString()).orElse(token.serialize()));
     }
 
     public static Optional<JWTClaimsSet> getIdTokenClaims() {
