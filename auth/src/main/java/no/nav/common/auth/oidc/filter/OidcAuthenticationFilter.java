@@ -5,12 +5,10 @@ import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
+import no.nav.common.auth.context.AuthContext;
+import no.nav.common.auth.context.AuthContextHolder;
 import no.nav.common.auth.oidc.TokenRefreshClient;
-import no.nav.common.auth.subject.SsoToken;
-import no.nav.common.auth.subject.Subject;
-import no.nav.common.auth.subject.SubjectHandler;
 import no.nav.common.auth.utils.CookieUtils;
-import no.nav.common.auth.utils.TokenUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.common.auth.Constants.AZURE_AD_ACCESS_TOKEN_COOKIE_NAME;
 import static no.nav.common.auth.utils.TokenUtils.*;
 
 
@@ -45,13 +44,13 @@ public class OidcAuthenticationFilter implements Filter {
     public void init(FilterConfig filterConfig) {}
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         for (OidcAuthenticator authenticator : oidcAuthenticators) {
 
-            Optional<String> token = authenticator.findIdToken(httpServletRequest);
+            Optional<String> token = authenticator.findIdToken(request);
 
             if (token.isPresent()) {
                 try {
@@ -62,24 +61,21 @@ public class OidcAuthenticationFilter implements Filter {
                         continue;
                     }
 
-                    Optional<String> refreshedIdToken = refreshIdTokenIfNecessary(jwtToken, authenticator, httpServletRequest);
+                    Optional<String> refreshedIdToken = refreshIdTokenIfNecessary(jwtToken, authenticator, request);
 
                     if (refreshedIdToken.isPresent()) {
                         jwtToken = JWTParser.parse(refreshedIdToken.get());
 
                         String idTokenCookieName = authenticator.config.idTokenCookieName;
-                        addNewIdTokenCookie(idTokenCookieName, jwtToken, httpServletRequest, httpServletResponse);
+                        addNewIdTokenCookie(idTokenCookieName, jwtToken, request, response);
                     }
 
                     authenticator.tokenValidator.validate(jwtToken);
 
-                    SsoToken ssoToken = SsoToken.oidcToken(jwtToken.getParsedString(), jwtToken.getJWTClaimsSet().getClaims());
-                    Subject subject = new Subject(
-                            TokenUtils.getUid(jwtToken, authenticator.config.identType),
-                            authenticator.config.identType, ssoToken
-                    );
+                    String accessToken = CookieUtils.getCookieValue(AZURE_AD_ACCESS_TOKEN_COOKIE_NAME, request).orElse(null);
+                    AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken, accessToken);
 
-                    SubjectHandler.withSubject(subject, () -> chain.doFilter(request, response));
+                    AuthContextHolder.withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
                 } catch (ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {
@@ -91,7 +87,7 @@ public class OidcAuthenticationFilter implements Filter {
             }
         }
 
-        httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
     private void addNewIdTokenCookie(

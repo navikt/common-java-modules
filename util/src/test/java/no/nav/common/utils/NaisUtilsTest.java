@@ -1,7 +1,6 @@
 package no.nav.common.utils;
 
 import lombok.SneakyThrows;
-import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,13 +21,9 @@ public class NaisUtilsTest {
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
 
-    @Rule
-    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
-
     @Before
     public void setup() {
-        systemPropertiesRule.setProperty(SECRETS_BASE_PATH_PROPERTY_NAME, tmp.getRoot().getAbsolutePath());
-
+        System.setProperty(SECRETS_BASE_PATH_PROPERTY_NAME, tmp.getRoot().getAbsolutePath());
     }
 
     @Test
@@ -63,7 +58,7 @@ public class NaisUtilsTest {
     @Test
     public void readConfigMap() {
         createFolder("configMaps", "configMap");
-        systemPropertiesRule.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
+        System.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
         writeFile("configMaps/configMap/KEY_1", "VALUE 1");
         writeFile("configMaps/configMap/KEY_2", "VALUE 2");
@@ -81,7 +76,7 @@ public class NaisUtilsTest {
     @Test
     public void cherryPickFromConfigMap() {
         createFolder("configMaps", "configMap");
-        systemPropertiesRule.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
+        System.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
         writeFile("configMaps/configMap/KEY_1", "VALUE 1");
         writeFile("configMaps/configMap/KEY_2", "VALUE 2");
@@ -97,7 +92,7 @@ public class NaisUtilsTest {
     @Test
     public void cherryPickFromConfigMapFailsWhenKeyIsNotFound() {
         createFolder("configMaps", "configMap");
-        systemPropertiesRule.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
+        System.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
         writeFile("configMaps/configMap/KEY_1", "VALUE 1");
         writeFile("configMaps/configMap/KEY_2", "VALUE 2");

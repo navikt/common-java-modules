@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.lang.System.setProperty;
-import static no.nav.common.test.SystemProperties.setTemporaryProperty;
 import static no.nav.common.utils.EnvironmentUtils.*;
 import static no.nav.common.utils.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.common.utils.EnvironmentUtils.Type.SECRET;
@@ -42,14 +41,11 @@ public class EnvironmentUtilsTest {
 
     @Test
     public void getRequiredProperty__sjekk_alle_properties_i_rekkefolge() {
-        setTemporaryProperty("b", "", () -> {
-            setTemporaryProperty("c", "c", () -> { // dette er den vi vil ha!
-                setTemporaryProperty("d", "d", () -> {
-                    assertThat(getRequiredProperty("a", "b", "c", "d", "e"))
-                            .isEqualTo("c");
-                });
-            });
-        });
+        System.setProperty("b", "");
+        System.setProperty("c", "c");
+        System.setProperty("d", "d");
+
+        assertThat(getRequiredProperty("a", "b", "c", "d", "e")).isEqualTo("c");
     }
 
     @Test
@@ -82,18 +78,16 @@ public class EnvironmentUtilsTest {
 
     @Test
     public void requireNamespace_skal_kaste_exception_hvis_ikke_satt() {
-        setTemporaryProperty(NAIS_NAMESPACE_PROPERTY_NAME, null, () -> {
-            assertThat(EnvironmentUtils.getNamespace()).isEmpty();
-            assertThatThrownBy(EnvironmentUtils::requireNamespace).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
-        });
+        System.clearProperty(NAIS_NAMESPACE_PROPERTY_NAME);
+        assertThat(EnvironmentUtils.getNamespace()).isEmpty();
+        assertThatThrownBy(EnvironmentUtils::requireNamespace).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
     }
 
     @Test
     public void getNamespace() {
-        setTemporaryProperty(NAIS_NAMESPACE_PROPERTY_NAME, "testnamespace", () -> {
-            assertThat(EnvironmentUtils.getNamespace()).hasValue("testnamespace");
-            assertThat(EnvironmentUtils.requireNamespace()).isEqualTo("testnamespace");
-        });
+        System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "testnamespace");
+        assertThat(EnvironmentUtils.getNamespace()).hasValue("testnamespace");
+        assertThat(EnvironmentUtils.requireNamespace()).isEqualTo("testnamespace");
     }
 
     @Test

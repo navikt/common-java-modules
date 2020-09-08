@@ -1,18 +1,14 @@
 package no.nav.common.auth.utils;
 
 import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.auth.subject.IdentType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
 
 @Slf4j
 public class TokenUtils {
@@ -22,20 +18,6 @@ public class TokenUtils {
         return headerValue != null && !headerValue.isEmpty() && headerValue.startsWith("Bearer ")
                 ? Optional.of(headerValue.substring("Bearer ".length()))
                 : Optional.empty();
-    }
-
-    public static String getUid(JWT token, IdentType identType) throws ParseException {
-        JWTClaimsSet claimsSet = token.getJWTClaimsSet();
-        String subject = claimsSet.getSubject();
-
-        if (identType == IdentType.InternBruker) {
-            String navIdent = claimsSet.getStringClaim(AAD_NAV_IDENT_CLAIM);
-            return navIdent != null
-                    ? navIdent
-                    : subject;
-        }
-
-        return subject;
     }
 
     public static boolean hasMatchingAudience(JWT jwtToken, List<String> audiences) {

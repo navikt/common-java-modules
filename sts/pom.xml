@@ -36,14 +36,9 @@
             <artifactId>okhttp</artifactId>
         </dependency>
 
-        <!--
-            Setter versjon her eksplisitt siden en rar bug gjør at en gammel versjon av nimbus blir brukt istedenfor
-            versjonen som er satt i BOMen
-         -->
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>8.4</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

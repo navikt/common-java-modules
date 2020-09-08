@@ -1,8 +1,7 @@
 package no.nav.common.cxf;
 
 
-import no.nav.common.auth.subject.Subject;
-import no.nav.common.auth.subject.SubjectHandler;
+import no.nav.common.auth.context.AuthContextHolder;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +18,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Base64;
-
-import static no.nav.common.auth.subject.SsoToken.Type.OIDC;
 
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
@@ -62,15 +58,13 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
 
     private static String getOnBehalfOfString() {
-        Subject subject = SubjectHandler.getSubject().orElseThrow(() -> new IllegalStateException("no subject available"));
-        String oidcToken = subject.getSsoToken(OIDC).orElseThrow(() -> new IllegalStateException("no oidc token in subject " + subject));
-        String base64encodedJTW = Base64.getEncoder().encodeToString(oidcToken.getBytes());
+        String idToken = AuthContextHolder.requireIdTokenString();
         return "<wsse:BinarySecurityToken" +
                 " EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\"" +
                 " ValueType=\"urn:ietf:params:oauth:token-type:jwt\"" +
                 " xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"" +
                 ">"
-                + base64encodedJTW
+                + idToken
                 + "</wsse:BinarySecurityToken>";
     }
 

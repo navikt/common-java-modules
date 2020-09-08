@@ -1,6 +1,6 @@
 package no.nav.common.auth.oidc.filter;
 
-import no.nav.common.auth.subject.IdentType;
+import no.nav.common.auth.context.UserRole;
 import org.junit.Test;
 
 import javax.servlet.http.Cookie;
@@ -18,7 +18,7 @@ public class OidcAuthenticatorTest {
     @Test
     public void findIdToken__skal_hente_fra_cookie() {
         OidcAuthenticatorConfig config = new OidcAuthenticatorConfig()
-                .withIdentType(IdentType.InternBruker)
+                .withUserRole(UserRole.INTERN)
                 .withIdTokenCookieName("id_token")
                 .withDiscoveryUrl("")
                 .withClientId("");
@@ -37,7 +37,7 @@ public class OidcAuthenticatorTest {
     @Test
     public void findIdToken__skal_hente_fra_idTokenFinder_hvis_cookie_mangler() {
         OidcAuthenticatorConfig config = new OidcAuthenticatorConfig()
-                .withIdentType(IdentType.InternBruker)
+                .withUserRole(UserRole.INTERN)
                 .withIdTokenCookieName("id_token")
                 .withDiscoveryUrl("")
                 .withClientId("");

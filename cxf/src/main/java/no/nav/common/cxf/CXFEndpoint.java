@@ -1,6 +1,5 @@
 package no.nav.common.cxf;
 
-import no.nav.common.cxf.saml.SAMLInInterceptor;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
 import org.apache.cxf.ws.security.wss4j.KerberosTokenInterceptor;
@@ -22,7 +21,6 @@ public class CXFEndpoint {
 		Map<String, Object> properties = new HashMap<>();
 		properties.put("schema-validation-enabled", true);
 		factoryBean.setProperties(properties);
-		factoryBean.getInInterceptors().add(new SAMLInInterceptor());
 		LoggingFeatureUtenTokenLogging loggingFeatureUtenTokenLogging = new LoggingFeatureUtenTokenLogging();
 		loggingFeatureUtenTokenLogging.setMaskerTokenIHeader(maskerTokenIHeader);
 		factoryBean.setFeatures(asList(loggingFeatureUtenTokenLogging, new WSAddressingFeature()));

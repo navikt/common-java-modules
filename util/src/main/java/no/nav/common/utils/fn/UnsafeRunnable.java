@@ -3,7 +3,7 @@ package no.nav.common.utils.fn;
 import lombok.SneakyThrows;
 
 @FunctionalInterface
-public interface UnsafeRunnable extends Runnable{
+public interface UnsafeRunnable extends Runnable {
 
     void runUnsafe() throws Throwable;
 
@@ -12,4 +12,5 @@ public interface UnsafeRunnable extends Runnable{
     default void run() {
         runUnsafe();
     }
+
 }

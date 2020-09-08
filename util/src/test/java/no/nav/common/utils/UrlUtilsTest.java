@@ -1,6 +1,5 @@
 package no.nav.common.utils;
 
-import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Test;
 
 import static no.nav.common.utils.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
@@ -10,17 +9,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class UrlUtilsTest {
 
-    public SystemPropertiesRule systemPropertiesRule = new SystemPropertiesRule();
-
     @Test
     public void test_clusterUrlForApplication() {
+        System.clearProperty(NAIS_NAMESPACE_PROPERTY_NAME);
         assertThatThrownBy(() -> clusterUrlForApplication("app1")).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
 
-        systemPropertiesRule.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "q0");
+        System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "q0");
         assertThat(clusterUrlForApplication("app1")).isEqualTo("http://app1.q0.svc.nais.local");
         assertThat(clusterUrlForApplication("app2")).isEqualTo("http://app2.q0.svc.nais.local");
 
-        systemPropertiesRule.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "default");
+        System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "default");
         assertThat(clusterUrlForApplication("app1")).isEqualTo("http://app1.default.svc.nais.local");
         assertThat(clusterUrlForApplication("app2")).isEqualTo("http://app2.default.svc.nais.local");
     }
