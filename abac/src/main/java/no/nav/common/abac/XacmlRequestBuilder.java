@@ -5,6 +5,8 @@ import no.nav.common.abac.constants.StandardAttributter;
 import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.request.*;
+import no.nav.common.types.identer.EnhetId;
+import no.nav.common.types.identer.NavIdent;
 
 import static no.nav.common.abac.constants.AbacDomain.MODIA_DOMAIN;
 import static no.nav.common.abac.constants.AbacDomain.VEILARB_DOMAIN;
@@ -22,14 +24,10 @@ public class XacmlRequestBuilder {
                 );
     }
 
-    public static AccessSubject lagVeilederAccessSubject(String veilederIdent) {
-        return lagAccessSubject(veilederIdent, "InternBruker");
-    }
-
-    public static AccessSubject lagAccessSubject(String subjectId, String subjectType) {
+    public static AccessSubject lagVeilederAccessSubject(NavIdent veilederIdent) {
         AccessSubject accessSubject = new AccessSubject();
-        accessSubject.getAttribute().add(new Attribute(StandardAttributter.SUBJECT_ID, subjectId));
-        accessSubject.getAttribute().add(new Attribute(NavAttributter.SUBJECT_FELLES_SUBJECTTYPE, subjectType));
+        accessSubject.getAttribute().add(new Attribute(StandardAttributter.SUBJECT_ID, veilederIdent.get()));
+        accessSubject.getAttribute().add(new Attribute(NavAttributter.SUBJECT_FELLES_SUBJECTTYPE, "InternBruker"));
         return accessSubject;
     }
 
@@ -51,11 +49,11 @@ public class XacmlRequestBuilder {
         return environment;
     }
 
-    public static Resource lagEnhetResource(String enhetId, String domain) {
+    public static Resource lagEnhetResource(EnhetId enhetId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_ENHET_EIENDEL));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
-        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_VEILARB_KONTOR_LAAS, enhetId));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_VEILARB_KONTOR_LAAS, enhetId.get()));
         return resource;
     }
 
@@ -96,6 +94,7 @@ public class XacmlRequestBuilder {
         return resource;
     }
 
+    @SuppressWarnings("unused")
     public static Resource lagVeilArbPersonResource(AbacPersonId personId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_PERSON));
@@ -104,6 +103,7 @@ public class XacmlRequestBuilder {
         return resource;
     }
 
+    @SuppressWarnings("unused")
     public static Resource lagVeilArbUnderOppfolgingResource(AbacPersonId personId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING));

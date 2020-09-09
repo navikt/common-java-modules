@@ -1,5 +1,8 @@
 package no.nav.common.abac.domain;
 
+import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.Fnr;
+
 import java.util.Objects;
 
 public class AbacPersonId {
@@ -23,6 +26,14 @@ public class AbacPersonId {
 
     public static AbacPersonId aktorId(String aktorId) {
         return new AbacPersonId(aktorId, Type.AKTOR_ID);
+    }
+
+    public static AbacPersonId of(Fnr fnr) {
+        return new AbacPersonId(fnr.get(), Type.FNR);
+    }
+
+    public static AbacPersonId of(AktorId aktorId) {
+        return new AbacPersonId(aktorId.get(), Type.AKTOR_ID);
     }
 
     public String getId() {

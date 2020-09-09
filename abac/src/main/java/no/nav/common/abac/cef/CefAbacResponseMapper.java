@@ -10,6 +10,7 @@ import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.Response;
 import no.nav.common.abac.domain.response.XacmlResponse;
+import no.nav.common.types.identer.EnhetId;
 
 import java.util.HashMap;
 import java.util.List;
@@ -52,9 +53,9 @@ public class CefAbacResponseMapper {
         return attributesMapper(attributes);
     }
 
-    public static CefAbacResponseMapper enhetIdMapper(String enhetId, ActionId actionId, Resource resource) {
+    public static CefAbacResponseMapper enhetIdMapper(EnhetId enhetId, ActionId actionId, Resource resource) {
         Map<String, String> attributes = commonAttributes(actionId, resource);
-        attributes.put("cs2", enhetId);
+        attributes.put("cs2", enhetId.get());
         return attributesMapper(attributes);
     }
 
