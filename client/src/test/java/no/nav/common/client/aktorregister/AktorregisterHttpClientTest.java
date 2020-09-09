@@ -4,6 +4,8 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.AnythingPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import no.nav.common.client.TestUtils;
+import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.Fnr;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -22,11 +24,11 @@ public class AktorregisterHttpClientTest {
 
     private static final Supplier<String> emptyTokenSupplier = () -> "";
 
-    private static final String FNR_1 = "260xxx55159";
-    private static final String AKTOR_ID_1 = "103xxx1557327";
+    private static final Fnr FNR_1 = Fnr.of("260xxx55159");
+    private static final AktorId AKTOR_ID_1 = AktorId.of("103xxx1557327");
 
-    private static final String FNR_2 = "080xxx07100";
-    private static final String AKTOR_ID_2 = "103xxx3839212";
+    private static final Fnr FNR_2 = Fnr.of("080xxx07100");
+    private static final AktorId AKTOR_ID_2 = AktorId.of("103xxx3839212");
 
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/aktorregister/";
 
@@ -122,7 +124,7 @@ public class AktorregisterHttpClientTest {
                 .withHeader("Authorization", new EqualToPattern("Bearer " + authToken))
                 .withHeader("Nav-Call-Id", new AnythingPattern())
                 .withHeader("Nav-Consumer-Id", new EqualToPattern(consumingApplication))
-                .withHeader("Nav-Personidenter", new EqualToPattern(AKTOR_ID_1))
+                .withHeader("Nav-Personidenter", new EqualToPattern(AKTOR_ID_1.get()))
         );
     }
 

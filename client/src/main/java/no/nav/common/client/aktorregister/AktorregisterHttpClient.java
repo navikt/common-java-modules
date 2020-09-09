@@ -7,6 +7,8 @@ import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestClient;
+import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.Fnr;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -43,23 +45,23 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     @Override
-    public String hentFnr(String aktorId) {
-        return hentEnkeltIdent(aktorId, Identgruppe.NorskIdent);
+    public Fnr hentFnr(AktorId aktorId) {
+        return Fnr.of(hentEnkeltIdent(aktorId.get(), Identgruppe.NorskIdent));
     }
 
     @Override
-    public String hentAktorId(String fnr) {
-        return hentEnkeltIdent(fnr, Identgruppe.AktoerId);
+    public AktorId hentAktorId(Fnr fnr) {
+        return AktorId.of(hentEnkeltIdent(fnr.get(), Identgruppe.AktoerId));
     }
 
     @Override
-    public List<IdentOppslag> hentFnr(List<String> aktorIdListe) {
-       return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
+    public List<IdentOppslag> hentFnr(List<AktorId> aktorIdListe) {
+       return hentFlereIdenter(aktorIdListe.stream().map(AktorId::get).collect(Collectors.toList()), Identgruppe.NorskIdent);
     }
 
     @Override
-    public List<IdentOppslag> hentAktorId(List<String> fnrListe) {
-        return hentFlereIdenter(fnrListe, Identgruppe.AktoerId);
+    public List<IdentOppslag> hentAktorId(List<Fnr> fnrListe) {
+        return hentFlereIdenter(fnrListe.stream().map(Fnr::get).collect(Collectors.toList()), Identgruppe.AktoerId);
     }
 
     @SneakyThrows
