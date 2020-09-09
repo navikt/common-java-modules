@@ -32,4 +32,22 @@ public class PersonId {
         return personId;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof PersonId)) {
+            return false;
+        }
+
+        return personId.equals(((PersonId) obj).personId);
+    }
+
+    @Override
+    public int hashCode() {
+        return personId.hashCode();
+    }
+
 }

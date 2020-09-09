@@ -32,4 +32,22 @@ public class Fnr {
         return fnr;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof Fnr)) {
+            return false;
+        }
+
+        return fnr.equals(((Fnr) obj).fnr);
+    }
+
+    @Override
+    public int hashCode() {
+        return fnr.hashCode();
+    }
+
 }

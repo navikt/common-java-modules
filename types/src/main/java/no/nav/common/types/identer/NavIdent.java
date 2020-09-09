@@ -32,4 +32,22 @@ public class NavIdent {
         return navIdent;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof NavIdent)) {
+            return false;
+        }
+
+        return navIdent.equals(((NavIdent) obj).navIdent);
+    }
+
+    @Override
+    public int hashCode() {
+        return navIdent.hashCode();
+    }
+
 }

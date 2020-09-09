@@ -32,4 +32,22 @@ public class AktorId {
         return aktorId;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof AktorId)) {
+            return false;
+        }
+
+        return aktorId.equals(((AktorId) obj).aktorId);
+    }
+
+    @Override
+    public int hashCode() {
+        return aktorId.hashCode();
+    }
+
 }
