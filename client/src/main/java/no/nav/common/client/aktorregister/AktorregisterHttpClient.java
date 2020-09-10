@@ -54,12 +54,23 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     @Override
     public List<IdentOppslag> hentFnr(List<String> aktorIdListe) {
-       return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
+        return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
     }
 
     @Override
     public List<IdentOppslag> hentAktorId(List<String> fnrListe) {
         return hentFlereIdenter(fnrListe, Identgruppe.AktoerId);
+    }
+
+    @SneakyThrows
+    public List<String> hentAktorIder(String fnr) {
+        return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId)
+                .entrySet()
+                .stream()
+                .flatMap(e -> e.getValue().identer.stream()
+                        .filter(i -> i.identgruppe == Identgruppe.AktoerId)
+                        .map(i -> i.ident))
+                .collect(Collectors.toList());
     }
 
     @SneakyThrows
@@ -101,7 +112,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
-    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) throws IOException {
+    public Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) throws IOException {
         String personidenter = String.join(",", fnrEllerAtkorIder);
         String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe);
 
