@@ -23,7 +23,7 @@ import static no.nav.common.utils.UrlUtils.joinPaths;
 @Slf4j
 public class AktorregisterHttpClient implements AktorregisterClient {
 
-    private final static  MapType mapType = JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
+    private final static MapType mapType = JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
 
     private final String aktorregisterUrl;
     private final String aktorregisterIsAliveUrl;
@@ -68,7 +68,9 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId)
                 .entrySet()
                 .stream()
-                .flatMap(e -> e.getValue().identer.stream()
+                .flatMap(e -> Optional.ofNullable(e.getValue().identer)
+                        .orElseThrow(() -> new RuntimeException("Aktør registeret feilet og fant ikke identer på bruker"))
+                        .stream()
                         .filter(i -> i.identgruppe == Identgruppe.AktoerId)
                         .map(i -> i.ident))
                 .collect(Collectors.toList());
