@@ -63,6 +63,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     @SneakyThrows
+    @Override
     public List<String> hentAktorIder(String fnr) {
         return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId)
                 .entrySet()
@@ -112,7 +113,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
-    public Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) throws IOException {
+    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) throws IOException {
         String personidenter = String.join(",", fnrEllerAtkorIder);
         String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe);
 
