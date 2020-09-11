@@ -48,6 +48,11 @@ public class CachedAktorregisterClient implements AktorregisterClient {
     }
 
     @Override
+    public List<String> hentAktorIder(String fnr) {
+        return aktorregisterClient.hentAktorIder(fnr);
+    }
+
+    @Override
     public HealthCheckResult checkHealth() {
         return aktorregisterClient.checkHealth();
     }
