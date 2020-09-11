@@ -1,0 +1,17 @@
+{
+  "260xxx55159": {
+    "identer": [
+      {
+        "ident": "103xxx1557327",
+        "identgruppe": "AktoerId",
+        "gjeldende": false
+      },
+      {
+        "ident": "103xxx3839212",
+        "identgruppe": "AktoerId",
+        "gjeldende": true
+      }
+    ],
+    "feilmelding": null
+  }
+}
