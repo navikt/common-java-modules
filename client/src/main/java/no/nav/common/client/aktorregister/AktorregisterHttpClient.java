@@ -8,7 +8,9 @@ import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestClient;
 import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
+import no.nav.common.types.identer.Id;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -25,7 +27,7 @@ import static no.nav.common.utils.UrlUtils.joinPaths;
 @Slf4j
 public class AktorregisterHttpClient implements AktorregisterClient {
 
-    private final static  MapType mapType = JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
+    private final static MapType mapType = JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
 
     private final String aktorregisterUrl;
     private final String aktorregisterIsAliveUrl;
@@ -46,27 +48,41 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     @Override
     public Fnr hentFnr(AktorId aktorId) {
-        return Fnr.of(hentEnkeltIdent(aktorId.get(), Identgruppe.NorskIdent));
+        return Fnr.of(hentEnkeltIdent(aktorId, Identgruppe.NorskIdent));
     }
 
     @Override
     public AktorId hentAktorId(Fnr fnr) {
-        return AktorId.of(hentEnkeltIdent(fnr.get(), Identgruppe.AktoerId));
+        return AktorId.of(hentEnkeltIdent(fnr, Identgruppe.AktoerId));
     }
 
     @Override
     public List<IdentOppslag> hentFnr(List<AktorId> aktorIdListe) {
-       return hentFlereIdenter(aktorIdListe.stream().map(AktorId::get).collect(Collectors.toList()), Identgruppe.NorskIdent);
+       return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
     }
 
     @Override
     public List<IdentOppslag> hentAktorId(List<Fnr> fnrListe) {
-        return hentFlereIdenter(fnrListe.stream().map(Fnr::get).collect(Collectors.toList()), Identgruppe.AktoerId);
+        return hentFlereIdenter(fnrListe, Identgruppe.AktoerId);
     }
 
     @SneakyThrows
-    private String hentEnkeltIdent(String aktorIdEllerFnr, Identgruppe identgruppe) {
-        return hentIdenter(Collections.singletonList(aktorIdEllerFnr), identgruppe)
+    @Override
+    public List<AktorId> hentAktorIder(Fnr fnr) {
+        return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId)
+                .entrySet()
+                .stream()
+                .flatMap(e -> Optional.ofNullable(e.getValue().identer)
+                        .orElseThrow(() -> new RuntimeException("Aktør registeret feilet og fant ikke identer på bruker"))
+                        .stream()
+                        .filter(i -> i.identgruppe == Identgruppe.AktoerId && i.ident != null)
+                        .map(i -> AktorId.of(i.ident)))
+                .collect(Collectors.toList());
+    }
+
+    @SneakyThrows
+    private String hentEnkeltIdent(EksternBrukerId eksternBrukerId, Identgruppe identgruppe) {
+        return hentIdenter(Collections.singletonList(eksternBrukerId), identgruppe)
                 .entrySet()
                 .stream()
                 .filter(this::filtrerIkkeGjeldendeIdent)
@@ -77,8 +93,8 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     @SneakyThrows
-    private List<IdentOppslag> hentFlereIdenter(List<String> aktorIdEllerFnrListe, Identgruppe identgruppe) {
-        return hentIdenter(aktorIdEllerFnrListe, identgruppe)
+    private <T extends EksternBrukerId> List<IdentOppslag> hentFlereIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe) {
+        return hentIdenter(eksternBrukerIdList, identgruppe)
                 .entrySet()
                 .stream()
                 .map(this::tilIdentOppslag)
@@ -103,8 +119,8 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
-    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) throws IOException {
-        String personidenter = String.join(",", fnrEllerAtkorIder);
+    private <T extends EksternBrukerId> Map<String, IdentData> hentIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe) throws IOException {
+        String personidenter = eksternBrukerIdList.stream().map(Id::get).collect(Collectors.joining(","));
         String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe);
 
         Request request = new Request.Builder()

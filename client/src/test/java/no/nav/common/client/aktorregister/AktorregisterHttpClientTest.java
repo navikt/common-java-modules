@@ -85,6 +85,26 @@ public class AktorregisterHttpClientTest {
     }
 
     @Test
+    public void skalHenteFlereFnrForAktorId() {
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-multiple-aktorid.json");
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+
+        givenThat(get(anyUrl())
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json))
+        );
+
+        AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier);
+
+        List<AktorId> identOppslag = klient.hentAktorIder(FNR_1);
+
+        assertEquals(identOppslag.size(), 2);
+        assertEquals(identOppslag.get(0), AKTOR_ID_1);
+        assertEquals(identOppslag.get(1), AKTOR_ID_2);
+    }
+
+    @Test
     public void skalHenteFlereFnrForAktorIder() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-multiple.json");
         String baseUrl = "http://localhost:" + wireMockRule.port();

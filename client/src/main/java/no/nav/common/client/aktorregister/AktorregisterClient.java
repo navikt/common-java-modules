@@ -16,4 +16,5 @@ public interface AktorregisterClient extends HealthCheck {
 
     List<IdentOppslag> hentAktorId(List<Fnr> fnrListe);
 
+    List<AktorId> hentAktorIder(Fnr fnr);
 }

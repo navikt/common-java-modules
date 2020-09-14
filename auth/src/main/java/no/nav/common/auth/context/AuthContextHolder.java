@@ -88,7 +88,7 @@ public class AuthContextHolder {
     }
 
     public static Optional<String> getAccessToken() {
-        return ofNullable(CONTEXT_HOLDER.get().getAccessToken());
+        return getContext().map(AuthContext::getAccessToken);
     }
 
     public static Optional<JWT> getParsedAccessToken() {
