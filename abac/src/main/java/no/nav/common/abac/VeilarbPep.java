@@ -4,14 +4,12 @@ import no.nav.common.abac.audit.*;
 import no.nav.common.abac.cef.CefAbacEventContext;
 import no.nav.common.abac.cef.CefAbacResponseMapper;
 import no.nav.common.abac.constants.AbacDomain;
-import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
-import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.EnhetId;
-import no.nav.common.types.identer.Fnr;
 import no.nav.common.types.identer.NavIdent;
 
 import java.util.Optional;
@@ -92,52 +90,34 @@ public class VeilarbPep implements Pep {
          CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
 
          return harTilgang(xacmlRequest, cefEventContext);
-     }
-
-    @Override
-    public boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, Fnr fnr) {
-        return harVeilederTilgangTilPerson(veilederIdent, actionId, AbacPersonId.of(fnr));
     }
 
     @Override
-    public boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, AktorId aktorId) {
-        return harVeilederTilgangTilPerson(veilederIdent, actionId, AbacPersonId.of(aktorId));
-    }
-
-    private boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, AbacPersonId personId) {
-        Resource resource = lagPersonResource(personId, AbacDomain.VEILARB_DOMAIN);
+    public boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, EksternBrukerId eksternBrukerId) {
+        Resource resource = lagPersonResource(eksternBrukerId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironment(srvUsername),
                 lagAction(actionId),
                 lagVeilederAccessSubject(veilederIdent),
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(personId, actionId, resource);
+        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
         CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
 
     @Override
-    public boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, Fnr fnr) {
-        return harTilgangTilPerson(innloggetBrukerIdToken, actionId, AbacPersonId.of(fnr));
-    }
-
-    @Override
-    public boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AktorId aktorId) {
-        return harTilgangTilPerson(innloggetBrukerIdToken, actionId, AbacPersonId.of(aktorId));
-    }
-
-    private boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AbacPersonId personId) {
+    public boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, EksternBrukerId eksternBrukerId) {
         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
-        Resource resource = lagPersonResource(personId, AbacDomain.VEILARB_DOMAIN);
+        Resource resource = lagPersonResource(eksternBrukerId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
                 lagAction(actionId),
                 null,
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(personId, actionId, resource);
+        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
         CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
 
         return harTilgang(xacmlRequest, cefEventContext);

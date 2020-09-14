@@ -2,9 +2,9 @@ package no.nav.common.abac;
 
 import no.nav.common.abac.constants.NavAttributter;
 import no.nav.common.abac.constants.StandardAttributter;
-import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.request.*;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.EnhetId;
 import no.nav.common.types.identer.NavIdent;
 
@@ -57,11 +57,11 @@ public class XacmlRequestBuilder {
         return resource;
     }
 
-    public static Resource lagPersonResource(AbacPersonId personId, String domain) {
+    public static Resource lagPersonResource(EksternBrukerId eksternBrukerId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_PERSON));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
-        resource.getAttribute().add(personIdAttribute(personId));
+        resource.getAttribute().add(personIdAttribute(eksternBrukerId));
         return resource;
     }
 
@@ -95,20 +95,20 @@ public class XacmlRequestBuilder {
     }
 
     @SuppressWarnings("unused")
-    public static Resource lagVeilArbPersonResource(AbacPersonId personId, String domain) {
+    public static Resource lagVeilArbPersonResource(EksternBrukerId eksternBrukerId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_PERSON));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
-        resource.getAttribute().add(personIdAttribute(personId));
+        resource.getAttribute().add(personIdAttribute(eksternBrukerId));
         return resource;
     }
 
     @SuppressWarnings("unused")
-    public static Resource lagVeilArbUnderOppfolgingResource(AbacPersonId personId, String domain) {
+    public static Resource lagVeilArbUnderOppfolgingResource(EksternBrukerId eksternBrukerId, String domain) {
         Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_UNDER_OPPFOLGING));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
-        resource.getAttribute().add(personIdAttribute(personId));
+        resource.getAttribute().add(personIdAttribute(eksternBrukerId));
         return resource;
     }
 
@@ -126,14 +126,14 @@ public class XacmlRequestBuilder {
         return resource;
     }
 
-    public static Attribute personIdAttribute(AbacPersonId personId) {
-        switch (personId.getType()) {
+    public static Attribute personIdAttribute(EksternBrukerId eksternBrukerId) {
+        switch (eksternBrukerId.type()) {
             case FNR:
-                return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, personId.getId());
+                return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, eksternBrukerId.get());
             case AKTOR_ID:
-                return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, personId.getId());
+                return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_AKTOERID_RESOURCE, eksternBrukerId.get());
             default:
-                throw new IllegalStateException("Ukjent verdi for person id type: " + personId.getType());
+                throw new IllegalStateException("Ukjent verdi for ekstern person id type: " + eksternBrukerId.type());
         }
     }
 

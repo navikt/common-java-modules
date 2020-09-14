@@ -1,9 +1,8 @@
 package no.nav.common.abac;
 
 import no.nav.common.abac.domain.request.ActionId;
-import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.EnhetId;
-import no.nav.common.types.identer.Fnr;
 import no.nav.common.types.identer.NavIdent;
 
 public interface Pep {
@@ -27,40 +26,22 @@ public interface Pep {
     boolean harTilgangTilEnhet(String innloggetBrukerIdToken, EnhetId enhetId);
 
     /**
-     * @param veilederIdent identen til veileder (f.eks Z1234567)
-     * @param actionId      hvilken tilgang spørres det etter
-     * @param fnr           fødselsnummer for personen det sjekkes tilgang på
+     * @param veilederIdent     identen til veileder (f.eks Z1234567)
+     * @param actionId          hvilken tilgang spørres det etter
+     * @param eksternBrukerId   fødselsnummer eller aktørId for personen det sjekkes tilgang på
      * @return true hvis tilgang, false hvis ikke tilgang
      */
-    boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, Fnr fnr);
-
-    /**
-     * @param veilederIdent identen til veileder (f.eks Z1234567)
-     * @param actionId      hvilken tilgang spørres det etter
-     * @param aktorId       aktør id for personen det sjekkes tilgang på
-     * @return true hvis tilgang, false hvis ikke tilgang
-     */
-    boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, AktorId aktorId);
+    boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, EksternBrukerId eksternBrukerId);
 
     /**
      * Sjekk tilgang ved å bruke en innlogget brukers ID token
      *
-     * @param innloggetBrukerIdToken OIDC ID token til innlogget bruker. Kan enten være tokenet til en veileder eller ekstern bruker.
-     * @param actionId               hvilken tilgang spørres det etter
-     * @param fnr                    fødselsnummer for personen det sjekkes tilgang på
+     * @param innloggetBrukerIdToken    OIDC ID token til innlogget bruker. Kan enten være tokenet til en veileder eller ekstern bruker.
+     * @param actionId                  hvilken tilgang spørres det etter
+     * @param eksternBrukerId           fødselsnummer eller aktørId for personen det sjekkes tilgang på
      * @return true hvis tilgang, false hvis ikke tilgang
      */
-    boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, Fnr fnr);
-
-    /**
-     * Sjekk tilgang ved å bruke en innlogget brukers ID token
-     *
-     * @param innloggetBrukerIdToken OIDC ID token til innlogget bruker. Kan enten være tokenet til en veileder eller ekstern bruker.
-     * @param actionId               hvilken tilgang spørres det etter
-     * @param aktorId                aktør ID for personen det sjekkes tilgang på
-     * @return true hvis tilgang, false hvis ikke tilgang
-     */
-    boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, AktorId aktorId);
+    boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, EksternBrukerId eksternBrukerId);
 
     /**
      * Sjekker om veileder har tilgang til domenet oppfølging ("veilarb")

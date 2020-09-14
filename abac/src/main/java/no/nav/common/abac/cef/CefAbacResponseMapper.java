@@ -3,13 +3,13 @@ package no.nav.common.abac.cef;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import no.nav.common.abac.constants.NavAttributter;
-import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.Attribute;
 import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.Response;
 import no.nav.common.abac.domain.response.XacmlResponse;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.EnhetId;
 
 import java.util.HashMap;
@@ -47,9 +47,9 @@ public class CefAbacResponseMapper {
     }
 
 
-    public static CefAbacResponseMapper personIdMapper(AbacPersonId personId, ActionId actionId, Resource resource) {
+    public static CefAbacResponseMapper personIdMapper(EksternBrukerId eksternBrukerId, ActionId actionId, Resource resource) {
         Map<String, String> attributes = commonAttributes(actionId, resource);
-        attributes.put("duid", personId.getId());
+        attributes.put("duid", eksternBrukerId.get());
         return attributesMapper(attributes);
     }
 
