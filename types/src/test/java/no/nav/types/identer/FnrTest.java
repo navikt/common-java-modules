@@ -20,41 +20,41 @@ public class FnrTest {
 
     @Test
     public void should_deserialize_json_to_fnr_field() throws JsonProcessingException {
-        String fnrWrapperJson = "{\"fnr\":\"123534252\"}";
+        String FnrWrapperJson = "{\"fnr\":\"123534252\"}";
 
-        FnrWrapper wrapper = mapper.readValue(fnrWrapperJson, FnrWrapper.class);
+        FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
 
-        assertEquals(wrapper.fnr.get(), "123534252");
+        assertEquals(wrapper.getFnr().get(), "123534252");
     }
 
     @Test
     public void should_deserialize_no_fnr() throws JsonProcessingException {
-        String fnrWrapperJson = "{}";
+        String FnrWrapperJson = "{}";
 
-        FnrWrapper wrapper = mapper.readValue(fnrWrapperJson, FnrWrapper.class);
+        FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
 
         assertNull(wrapper.getFnr());
     }
 
     @Test
     public void should_deserialize_fnr_wrapper_null() throws JsonProcessingException {
-        String fnrWrapperJson = "{\"fnr\":null}";
+        String FnrWrapperJson = "{\"fnr\":null}";
 
-        FnrWrapper wrapper = mapper.readValue(fnrWrapperJson, FnrWrapper.class);
+        FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
 
         assertNull(wrapper.getFnr());
     }
 
     @Test
     public void should_deserialize_fnr_field_null() throws JsonProcessingException {
-        String fnrJson = "null";
+        String nullJson = "null";
 
-        Fnr fnr = mapper.readValue(fnrJson, Fnr.class);
+        Fnr fnr = mapper.readValue(nullJson, Fnr.class);
 
         assertNull(fnr);
     }
 
-    public static class FnrWrapper {
+    private static class FnrWrapper {
         public Fnr fnr;
 
         public FnrWrapper() {

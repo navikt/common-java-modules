@@ -24,7 +24,7 @@ public class EnhetIdTest {
 
         EnhetIdWrapper wrapper = mapper.readValue(wrapperJson, EnhetIdWrapper.class);
 
-        assertEquals(wrapper.enhetId.get(), "1234");
+        assertEquals(wrapper.getEnhetId().get(), "1234");
     }
 
     @Test
@@ -47,14 +47,14 @@ public class EnhetIdTest {
 
     @Test
     public void should_deserialize_enhetId_field_null() throws JsonProcessingException {
-        String enhetIdJson = "null";
+        String nullJson = "null";
 
-        EnhetId enhetId = mapper.readValue(enhetIdJson, EnhetId.class);
+        EnhetId enhetId = mapper.readValue(nullJson, EnhetId.class);
 
         assertNull(enhetId);
     }
 
-    public static class EnhetIdWrapper {
+    private static class EnhetIdWrapper {
         public EnhetId enhetId;
 
         public EnhetIdWrapper() {

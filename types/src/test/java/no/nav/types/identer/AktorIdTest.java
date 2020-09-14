@@ -24,7 +24,7 @@ public class AktorIdTest {
 
         AktorIdWrapper wrapper = mapper.readValue(wrapperJson, AktorIdWrapper.class);
 
-        assertEquals(wrapper.aktorId.get(), "123534252");
+        assertEquals(wrapper.getAktorId().get(), "123534252");
     }
 
     @Test
@@ -47,14 +47,14 @@ public class AktorIdTest {
 
     @Test
     public void should_deserialize_aktorId_field_null() throws JsonProcessingException {
-        String aktorIdJson = "null";
+        String nullJson = "null";
 
-        AktorId aktorId = mapper.readValue(aktorIdJson, AktorId.class);
+        AktorId aktorId = mapper.readValue(nullJson, AktorId.class);
 
         assertNull(aktorId);
     }
 
-    public static class AktorIdWrapper {
+    private static class AktorIdWrapper {
         public AktorId aktorId;
 
         public AktorIdWrapper() {

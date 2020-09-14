@@ -23,7 +23,7 @@ public class NavIdentTest {
         String wrapperJson = "{\"navIdent\":\"Z123456\"}";
         NavIdentWrapper wrapper = mapper.readValue(wrapperJson, NavIdentWrapper.class);
 
-        assertEquals(wrapper.navIdent.get(), "Z123456");
+        assertEquals(wrapper.getNavIdent().get(), "Z123456");
     }
 
     @Test
@@ -53,7 +53,7 @@ public class NavIdentTest {
         assertNull(navIdent);
     }
 
-    public static class NavIdentWrapper {
+    private static class NavIdentWrapper {
         public NavIdent navIdent;
 
         public NavIdentWrapper() {
