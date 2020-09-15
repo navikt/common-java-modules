@@ -20,7 +20,6 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 import static no.nav.common.auth.Constants.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class OidcAuthenticationFilterTest {
@@ -107,54 +106,18 @@ public class OidcAuthenticationFilterTest {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response) {
                 assertEquals(srvveilarbtestToken, AuthContextHolder.requireIdTokenString());
-                assertEquals("access_token", AuthContextHolder.requireAccessToken());
                 assertEquals(UserRole.SYSTEM, AuthContextHolder.requireRole());
             }
         });
 
         when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + srvveilarbtestToken);
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(AZURE_AD_ACCESS_TOKEN_COOKIE_NAME, "access_token")
-        });
+        when(servletRequest.getCookies()).thenReturn(new Cookie[]{});
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
     }
-
-    @Test
-    public void accessTokenIsNullWhenNotAvailable() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig))
-        );
-
-        authenticationFilter.init(config("/abc"));
-
-        HttpServletRequest servletRequest = request("/hello");
-        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
-        FilterChain filterChain = spy(new FilterChain() {
-            @Override
-            public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-                assertTrue(AuthContextHolder.getAccessToken().isEmpty());
-            }
-        });
-
-        String srvveilarbtestToken = naisStsOidcProviderRule.getToken(
-                new JwtTestTokenIssuer.Claims("srvveilarbtest")
-                        .setClaim("aud", List.of(NAIS_STS_ID, "srvveilarbtest"))
-                        .setClaim("azp", "srvveilarbtest")
-        );
-
-        when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + srvveilarbtestToken);
-        when(servletRequest.getCookies()).thenReturn(null);
-
-        authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
-
-        verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
-    }
-
 
     @Test
     public void srvveilarbtestIsAuthorized() throws IOException, ServletException {
