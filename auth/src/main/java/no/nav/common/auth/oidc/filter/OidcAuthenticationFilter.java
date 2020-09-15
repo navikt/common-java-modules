@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.common.auth.Constants.AZURE_AD_ACCESS_TOKEN_COOKIE_NAME;
 import static no.nav.common.auth.utils.TokenUtils.*;
 
 
@@ -72,8 +71,7 @@ public class OidcAuthenticationFilter implements Filter {
 
                     authenticator.tokenValidator.validate(jwtToken);
 
-                    String accessToken = CookieUtils.getCookieValue(AZURE_AD_ACCESS_TOKEN_COOKIE_NAME, request).orElse(null);
-                    AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken, accessToken);
+                    AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken);
 
                     AuthContextHolder.withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;

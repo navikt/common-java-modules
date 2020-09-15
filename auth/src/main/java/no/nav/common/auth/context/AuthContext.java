@@ -18,12 +18,4 @@ public class AuthContext {
     @NonNull
     JWT idToken;
 
-    String accessToken;
-
-    public AuthContext(UserRole role, JWT idToken) {
-        this.role = role;
-        this.idToken = idToken;
-        this.accessToken = null;
-    }
-
 }
