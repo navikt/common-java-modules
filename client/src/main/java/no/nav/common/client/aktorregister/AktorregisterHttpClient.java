@@ -7,6 +7,10 @@ import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestClient;
+import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
+import no.nav.common.types.identer.Fnr;
+import no.nav.common.types.identer.Id;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -43,42 +47,42 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     @Override
-    public String hentFnr(String aktorId) {
-        return hentEnkeltIdent(aktorId, Identgruppe.NorskIdent);
+    public Fnr hentFnr(AktorId aktorId) {
+        return Fnr.of(hentEnkeltIdent(aktorId, Identgruppe.NorskIdent));
     }
 
     @Override
-    public String hentAktorId(String fnr) {
-        return hentEnkeltIdent(fnr, Identgruppe.AktoerId);
+    public AktorId hentAktorId(Fnr fnr) {
+        return AktorId.of(hentEnkeltIdent(fnr, Identgruppe.AktoerId));
     }
 
     @Override
-    public List<IdentOppslag> hentFnr(List<String> aktorIdListe) {
-        return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
+    public List<IdentOppslag> hentFnr(List<AktorId> aktorIdListe) {
+       return hentFlereIdenter(aktorIdListe, Identgruppe.NorskIdent);
     }
 
     @Override
-    public List<IdentOppslag> hentAktorId(List<String> fnrListe) {
+    public List<IdentOppslag> hentAktorId(List<Fnr> fnrListe) {
         return hentFlereIdenter(fnrListe, Identgruppe.AktoerId);
     }
 
     @SneakyThrows
     @Override
-    public List<String> hentAktorIder(String fnr) {
+    public List<AktorId> hentAktorIder(Fnr fnr) {
         return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId)
                 .entrySet()
                 .stream()
                 .flatMap(e -> Optional.ofNullable(e.getValue().identer)
                         .orElseThrow(() -> new RuntimeException("Aktør registeret feilet og fant ikke identer på bruker"))
                         .stream()
-                        .filter(i -> i.identgruppe == Identgruppe.AktoerId)
-                        .map(i -> i.ident))
+                        .filter(i -> i.identgruppe == Identgruppe.AktoerId && i.ident != null)
+                        .map(i -> AktorId.of(i.ident)))
                 .collect(Collectors.toList());
     }
 
     @SneakyThrows
-    private String hentEnkeltIdent(String aktorIdEllerFnr, Identgruppe identgruppe) {
-        return hentIdenter(Collections.singletonList(aktorIdEllerFnr), identgruppe)
+    private String hentEnkeltIdent(EksternBrukerId eksternBrukerId, Identgruppe identgruppe) {
+        return hentIdenter(Collections.singletonList(eksternBrukerId), identgruppe)
                 .entrySet()
                 .stream()
                 .filter(this::filtrerIkkeGjeldendeIdent)
@@ -89,8 +93,8 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     @SneakyThrows
-    private List<IdentOppslag> hentFlereIdenter(List<String> aktorIdEllerFnrListe, Identgruppe identgruppe) {
-        return hentIdenter(aktorIdEllerFnrListe, identgruppe)
+    private <T extends EksternBrukerId> List<IdentOppslag> hentFlereIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe) {
+        return hentIdenter(eksternBrukerIdList, identgruppe)
                 .entrySet()
                 .stream()
                 .map(this::tilIdentOppslag)
@@ -115,8 +119,8 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
-    private Map<String, IdentData> hentIdenter(List<String> fnrEllerAtkorIder, Identgruppe identgruppe) throws IOException {
-        String personidenter = String.join(",", fnrEllerAtkorIder);
+    private <T extends EksternBrukerId> Map<String, IdentData> hentIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe) throws IOException {
+        String personidenter = eksternBrukerIdList.stream().map(Id::get).collect(Collectors.joining(","));
         String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe);
 
         Request request = new Request.Builder()

@@ -5,11 +5,13 @@ import no.nav.common.abac.audit.AuditRequestInfo;
 import no.nav.common.abac.audit.AuditRequestInfoSupplier;
 import no.nav.common.abac.audit.SubjectProvider;
 import no.nav.common.abac.cef.CefEvent;
-import no.nav.common.abac.domain.AbacPersonId;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.test.junit.SystemPropertiesRule;
+import no.nav.common.types.identer.EnhetId;
+import no.nav.common.types.identer.Fnr;
+import no.nav.common.types.identer.NavIdent;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,11 +37,11 @@ import static org.mockito.Mockito.*;
 
 public class VeilarbPepTest {
 
-    private final static AbacPersonId TEST_FNR = AbacPersonId.fnr("12345678900");
+    private final static Fnr TEST_FNR = Fnr.of("12345678900");
 
     private final static String TEST_SRV_USERNAME = "test";
-    private final static String TEST_VEILEDER_IDENT = "Z1234";
-    private final static String TEST_ENHET_ID = "1234";
+    private final static NavIdent TEST_VEILEDER_IDENT = NavIdent.of("Z1234");
+    private final static EnhetId TEST_ENHET_ID = EnhetId.of("1234");
     private static final String TEST_OIDC_TOKEN = "abc.abc.abc";
     private final static String APPLICATION_NAME = "testapp";
     private static final long TIME = System.currentTimeMillis();
@@ -47,7 +49,7 @@ public class VeilarbPepTest {
     private static final String CONSUMER_ID = "ConsumingApplication";
     private static final String REQUEST_METHOD = "GET";
     private static final String REQUEST_PATH = "/some/path";
-    private static final String ENHET = "enhet321";
+    private static final EnhetId ENHET = EnhetId.of("5678");
     private final static AuditRequestInfo AUDIT_REQUEST_INFO = new AuditRequestInfo(CALL_ID, CONSUMER_ID, REQUEST_METHOD, REQUEST_PATH);
 
     private final Logger log = mock(Logger.class);
@@ -61,7 +63,7 @@ public class VeilarbPepTest {
     @Before
     public void setup() {
         systemPropertiesRule.setProperty(NAIS_APP_NAME_PROPERTY_NAME, APPLICATION_NAME);
-        when(subjectProvider.getSubjectFromToken(TEST_OIDC_TOKEN)).thenReturn(TEST_VEILEDER_IDENT);
+        when(subjectProvider.getSubjectFromToken(TEST_OIDC_TOKEN)).thenReturn(TEST_VEILEDER_IDENT.get());
     }
 
     private final AbacClient genericPermitClient = abacClientSpyWithResponseFromFile("xacmlresponse-generic-permit.json");
@@ -417,7 +419,7 @@ public class VeilarbPepTest {
                 " flexString1=" + Permit +
                 " request=" + REQUEST_PATH +
                 " act=" + READ.getId() +
-                " duid=" + TEST_FNR.getId() +
+                " duid=" + TEST_FNR.get() +
                 " requestContext=" + RESOURCE_FELLES_PERSON +
                 " sourceServiceName=" + VEILARB_DOMAIN +
                 " requestMethod=" + REQUEST_METHOD +
@@ -433,7 +435,7 @@ public class VeilarbPepTest {
                 " request=" + REQUEST_PATH +
                 " cs5Label=deny_rule" +
                 " cs3=cause" +
-                " duid=" + TEST_FNR.getId() +
+                " duid=" + TEST_FNR.get() +
                 " cs5=deny_rule" +
                 " requestMethod=" + REQUEST_METHOD +
                 " suid=" + TEST_VEILEDER_IDENT +

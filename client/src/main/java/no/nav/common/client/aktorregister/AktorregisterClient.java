@@ -1,18 +1,20 @@
 package no.nav.common.client.aktorregister;
 
 import no.nav.common.health.HealthCheck;
+import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.Fnr;
 
 import java.util.List;
 
 public interface AktorregisterClient extends HealthCheck {
 
-    String hentFnr(String aktorId);
+    Fnr hentFnr(AktorId aktorId);
 
-    String hentAktorId(String fnr);
+    AktorId hentAktorId(Fnr fnr);
 
-    List<IdentOppslag> hentFnr(List<String> aktorIdListe);
+    List<IdentOppslag> hentFnr(List<AktorId> aktorIdListe);
 
-    List<IdentOppslag> hentAktorId(List<String> fnrListe);
+    List<IdentOppslag> hentAktorId(List<Fnr> fnrListe);
 
-    List<String> hentAktorIder(String fnr);
+    List<AktorId> hentAktorIder(Fnr fnr);
 }
