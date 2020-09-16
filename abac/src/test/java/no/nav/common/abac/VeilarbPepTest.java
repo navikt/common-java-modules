@@ -303,12 +303,12 @@ public class VeilarbPepTest {
     }
 
     @Test
-    public void harVeilederTilgangTilOppfolging__skal_lage_riktig_request() {
+    public void harTilgangTilOppfolging__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilOppfolging.json");
+        String expectedRequest = getContentFromJsonFile("xacmlrequest-harTilgangTilOppfolging.json");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
-        assertTrue(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN));
+        assertTrue(veilarbPep.harTilgangTilOppfolging(TEST_OIDC_TOKEN));
 
         verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
         assertJsonEquals(expectedRequest, captor.getValue());
@@ -316,16 +316,16 @@ public class VeilarbPepTest {
 
 
     @Test
-    public void harVeilederTilgangTilOppfolging__riktig_audit_log_for_permit() {
+    public void harTilgangTilOppfolging__riktig_audit_log_for_permit() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertTrue(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN));
+        assertTrue(veilarbPep.harTilgangTilOppfolging(TEST_OIDC_TOKEN));
         verify(log).info(eq(expectCefLogHeader(INFO) + expectCefLogAttributesResourcePermit(RESOURCE_VEILARB)));
     }
 
     @Test
-    public void harVeilederTilgangTilOppfolging__riktig_audit_log_for_deny() {
+    public void harTilgangTilOppfolging__riktig_audit_log_for_deny() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
-        assertFalse(veilarbPep.harVeilederTilgangTilOppfolging(TEST_OIDC_TOKEN));
+        assertFalse(veilarbPep.harTilgangTilOppfolging(TEST_OIDC_TOKEN));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(RESOURCE_VEILARB)));
     }
 

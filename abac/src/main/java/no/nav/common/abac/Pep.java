@@ -44,12 +44,12 @@ public interface Pep {
     boolean harTilgangTilPerson(String innloggetBrukerIdToken, ActionId actionId, EksternBrukerId eksternBrukerId);
 
     /**
-     * Sjekker om veileder har tilgang til domenet oppfølging ("veilarb")
+     * Sjekker om bruker har tilgang til domenet oppfølging ("veilarb")
      *
-     * @param innloggetVeilederIdToken OIDC ID token til en innlogget veileder
+     * @param innloggetBrukerIdToken OIDC ID token til en innlogget bruker (systembruker eller saksbehandler)
      * @return true hvis tilgang, false hvis ikke tilgang
      */
-    boolean harVeilederTilgangTilOppfolging(String innloggetVeilederIdToken);
+    boolean harTilgangTilOppfolging(String innloggetBrukerIdToken);
 
     /**
      * Sjekker om veileder har tilgang til modia
