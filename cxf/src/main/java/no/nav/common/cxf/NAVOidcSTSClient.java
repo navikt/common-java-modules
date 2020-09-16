@@ -1,5 +1,6 @@
 package no.nav.common.cxf;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.context.AuthContextHolder;
 import no.nav.common.utils.StringUtils;
 import org.apache.cxf.Bus;
@@ -11,7 +12,7 @@ import org.apache.cxf.ws.security.trust.STSClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Slf4j
 public class NAVOidcSTSClient extends STSClient {
     private static final Logger logger = LoggerFactory.getLogger(NAVOidcSTSClient.class);
     private static TokenStore tokenStore;
@@ -20,12 +21,9 @@ public class NAVOidcSTSClient extends STSClient {
     public NAVOidcSTSClient(Bus bus, StsType stsType) {
         super(bus);
         this.stsType = stsType;
-        switch (stsType){
-            case ON_BEHALF_OF_WITH_JWT:
-                setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
-                break;
-            default:
-                throw new IllegalStateException(stsType.name() + " is not supported");
+
+        if (stsType == StsType.ON_BEHALF_OF_WITH_JWT) {
+            setOnBehalfOf(new OnBehalfOfWithOidcCallbackHandler());
         }
     }
 

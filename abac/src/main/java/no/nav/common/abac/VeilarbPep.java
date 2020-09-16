@@ -124,10 +124,10 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
-    public boolean harVeilederTilgangTilOppfolging(String innloggetVeilederIdToken) {
-        String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetVeilederIdToken);
+    public boolean harTilgangTilOppfolging(String innloggetBrukerIdToken) {
+        String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
         Resource resource = lagOppfolgingDomeneResource();
-        String veilederIdent = subjectProvider.getSubjectFromToken(innloggetVeilederIdToken);
+        String tokenSubject = subjectProvider.getSubjectFromToken(innloggetBrukerIdToken);
 
         XacmlRequest xacmlRequest = buildRequest(
                 lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
@@ -137,7 +137,7 @@ public class VeilarbPep implements Pep {
         );
 
         CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent);
+        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, tokenSubject);
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
