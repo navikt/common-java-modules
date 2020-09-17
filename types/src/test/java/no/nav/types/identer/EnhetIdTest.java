@@ -2,6 +2,7 @@ package no.nav.types.identer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.EnhetId;
 import org.junit.Test;
 
@@ -19,10 +20,25 @@ public class EnhetIdTest {
     }
 
     @Test
+    public void should_serialize_enhetId_to_json_field_with_json_utils() {
+        EnhetIdWrapper wrapper = new EnhetIdWrapper(EnhetId.of("1234"));
+        assertEquals("{\"enhetId\":\"1234\"}", JsonUtils.toJson(wrapper));
+    }
+
+    @Test
     public void should_deserialize_json_to_enhetId_field() throws JsonProcessingException {
         String wrapperJson = "{\"enhetId\":\"1234\"}";
 
         EnhetIdWrapper wrapper = mapper.readValue(wrapperJson, EnhetIdWrapper.class);
+
+        assertEquals(wrapper.getEnhetId().get(), "1234");
+    }
+
+    @Test
+    public void should_deserialize_json_to_enhetId_field_with_json_utils() {
+        String wrapperJson = "{\"enhetId\":\"1234\"}";
+
+        EnhetIdWrapper wrapper = JsonUtils.fromJson(wrapperJson, EnhetIdWrapper.class);
 
         assertEquals(wrapper.getEnhetId().get(), "1234");
     }

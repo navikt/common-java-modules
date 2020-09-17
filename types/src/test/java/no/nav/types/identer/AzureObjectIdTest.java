@@ -2,6 +2,7 @@ package no.nav.types.identer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AzureObjectId;
 import org.junit.Test;
 
@@ -19,10 +20,25 @@ public class AzureObjectIdTest {
     }
 
     @Test
+    public void should_serialize_azureObjectId_to_json_field_with_json_utils() {
+        AzureObjectIdWrapper wrapper = new AzureObjectIdWrapper(AzureObjectId.of("123534252"));
+        assertEquals("{\"azureObjectId\":\"123534252\"}", JsonUtils.toJson(wrapper));
+    }
+
+    @Test
     public void should_deserialize_json_to_azureObjectId_field() throws JsonProcessingException {
         String wrapperJson = "{\"azureObjectId\":\"123534252\"}";
 
         AzureObjectIdWrapper wrapper = mapper.readValue(wrapperJson, AzureObjectIdWrapper.class);
+
+        assertEquals(wrapper.getAzureObjectId().get(), "123534252");
+    }
+
+    @Test
+    public void should_deserialize_json_to_azureObjectId_field_with_json_utils() {
+        String wrapperJson = "{\"azureObjectId\":\"123534252\"}";
+
+        AzureObjectIdWrapper wrapper = JsonUtils.fromJson(wrapperJson, AzureObjectIdWrapper.class);
 
         assertEquals(wrapper.getAzureObjectId().get(), "123534252");
     }

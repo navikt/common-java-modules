@@ -1,12 +1,15 @@
 package no.nav.common.types.identer;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Representerer fødselsnummeret til en bruker.
  * Eksempel: 12345678901
  */
 public class Fnr extends EksternBrukerId {
 
-    private Fnr(String id) {
+    @JsonCreator
+    public Fnr(String id) {
         super(id);
     }
 
