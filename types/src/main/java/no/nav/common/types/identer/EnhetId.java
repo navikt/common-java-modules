@@ -1,12 +1,15 @@
 package no.nav.common.types.identer;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * Representerer IDen til en NAV enhet.
  * Eksempel: 0123
  */
 public class EnhetId extends Id {
 
-    private EnhetId(String id) {
+    @JsonCreator
+    public EnhetId(String id) {
         super(id);
     }
 

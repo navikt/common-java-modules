@@ -2,6 +2,7 @@ package no.nav.types.identer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.NavIdent;
 import org.junit.Test;
 
@@ -19,9 +20,25 @@ public class NavIdentTest {
     }
 
     @Test
+    public void should_serialize_navIdent_to_json_field_with_json_utils() {
+        NavIdentWrapper wrapper = new NavIdentWrapper(NavIdent.of("Z123456"));
+        assertEquals("{\"navIdent\":\"Z123456\"}", JsonUtils.toJson(wrapper));
+    }
+
+    @Test
     public void should_deserialize_json_to_navIdent_field() throws JsonProcessingException {
         String wrapperJson = "{\"navIdent\":\"Z123456\"}";
+
         NavIdentWrapper wrapper = mapper.readValue(wrapperJson, NavIdentWrapper.class);
+
+        assertEquals(wrapper.getNavIdent().get(), "Z123456");
+    }
+
+    @Test
+    public void should_deserialize_json_to_navIdent_field_with_json_utils() {
+        String wrapperJson = "{\"navIdent\":\"Z123456\"}";
+
+        NavIdentWrapper wrapper = JsonUtils.fromJson(wrapperJson, NavIdentWrapper.class);
 
         assertEquals(wrapper.getNavIdent().get(), "Z123456");
     }

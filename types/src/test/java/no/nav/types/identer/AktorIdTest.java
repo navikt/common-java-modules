@@ -2,6 +2,7 @@ package no.nav.types.identer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AktorId;
 import org.junit.Test;
 
@@ -19,10 +20,25 @@ public class AktorIdTest {
     }
 
     @Test
+    public void should_serialize_aktorId_to_json_field_with_json_utils() {
+        AktorIdWrapper wrapper = new AktorIdWrapper(AktorId.of("123534252"));
+        assertEquals("{\"aktorId\":\"123534252\"}", JsonUtils.toJson(wrapper));
+    }
+
+    @Test
     public void should_deserialize_json_to_aktorId_field() throws JsonProcessingException {
         String wrapperJson = "{\"aktorId\":\"123534252\"}";
 
         AktorIdWrapper wrapper = mapper.readValue(wrapperJson, AktorIdWrapper.class);
+
+        assertEquals(wrapper.getAktorId().get(), "123534252");
+    }
+
+    @Test
+    public void should_deserialize_json_to_aktorId_field_with_json_utils() {
+        String wrapperJson = "{\"aktorId\":\"123534252\"}";
+
+        AktorIdWrapper wrapper = JsonUtils.fromJson(wrapperJson, AktorIdWrapper.class);
 
         assertEquals(wrapper.getAktorId().get(), "123534252");
     }

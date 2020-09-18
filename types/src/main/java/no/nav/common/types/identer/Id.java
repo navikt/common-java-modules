@@ -1,11 +1,13 @@
 package no.nav.common.types.identer;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public class Id {
 
     private final String id;
 
+    @JsonCreator
     public Id(String id) {
         if (id == null) {
             throw new IllegalArgumentException("Id cannot be null");
