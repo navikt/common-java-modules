@@ -18,6 +18,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Base64;
 
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
@@ -59,12 +60,13 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
     private static String getOnBehalfOfString() {
         String idToken = AuthContextHolder.requireIdTokenString();
+        String base64Token = Base64.getEncoder().encodeToString(idToken.getBytes());
         return "<wsse:BinarySecurityToken" +
                 " EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\"" +
                 " ValueType=\"urn:ietf:params:oauth:token-type:jwt\"" +
                 " xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"" +
                 ">"
-                + idToken
+                + base64Token
                 + "</wsse:BinarySecurityToken>";
     }
 
