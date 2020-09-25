@@ -51,6 +51,14 @@ public class XacmlRequestBuilder {
 
     public static Resource lagEnhetResource(EnhetId enhetId, String domain) {
         Resource resource = new Resource();
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_FELLES_ENHET));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
+        resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_ENHET, enhetId.get()));
+        return resource;
+    }
+
+    public static Resource lagEnhetMedSperreResource(EnhetId enhetId, String domain) {
+        Resource resource = new Resource();
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_RESOURCE_TYPE, NavAttributter.RESOURCE_VEILARB_ENHET_EIENDEL));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_FELLES_DOMENE, domain));
         resource.getAttribute().add(new Attribute(NavAttributter.RESOURCE_VEILARB_KONTOR_LAAS, enhetId.get()));

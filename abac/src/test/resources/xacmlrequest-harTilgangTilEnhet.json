@@ -25,14 +25,14 @@
         "Attribute": [
           {
             "AttributeId": "no.nav.abac.attributter.resource.felles.resource_type",
-            "Value": "no.nav.abac.attributter.resource.veilarb.enhet.eiendel"
+            "Value": "no.nav.abac.attributter.resource.felles.enhet"
           },
           {
             "AttributeId": "no.nav.abac.attributter.resource.felles.domene",
             "Value": "veilarb"
           },
           {
-            "AttributeId": "no.nav.abac.attributter.resource.veilarb.kontor_laas",
+            "AttributeId": "no.nav.abac.attributter.resource.felles.enhet",
             "Value": "1234"
           }
         ]

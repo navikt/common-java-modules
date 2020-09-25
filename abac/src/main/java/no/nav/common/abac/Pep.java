@@ -26,6 +26,17 @@ public interface Pep {
     boolean harTilgangTilEnhet(String innloggetBrukerIdToken, EnhetId enhetId);
 
     /**
+     * Sjekk tilgang til enhet med sperre ved å bruke en innlogget brukers ID token.
+     * Brukes for å sjekke tilgang til KVP. Eksterne brukere vil alltid få permit for alle kontorer.
+     *
+     * @param innloggetBrukerIdToken OIDC ID token til innlogget bruker. Kan enten være tokenet til en veileder eller ekstern bruker.
+     * @param enhetId       enheten som det sjekkes tilgang på
+     * @return true hvis tilgang, false hvis ikke tilgang
+     */
+    boolean harTilgangTilEnhetMedSperre(String innloggetBrukerIdToken, EnhetId enhetId);
+
+
+    /**
      * @param veilederIdent     identen til veileder (f.eks Z1234567)
      * @param actionId          hvilken tilgang spørres det etter
      * @param eksternBrukerId   fødselsnummer eller aktørId for personen det sjekkes tilgang på

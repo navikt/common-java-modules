@@ -74,22 +74,41 @@ public class VeilarbPep implements Pep {
     }
 
      @Override
-     public boolean harTilgangTilEnhet(String innloggetBrukerIdToken, EnhetId enhetId) {
-         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
-         Resource resource = lagEnhetResource(enhetId, AbacDomain.VEILARB_DOMAIN);
-         ActionId actionId = ActionId.READ;
+    public boolean harTilgangTilEnhet(String innloggetBrukerIdToken, EnhetId enhetId) {
+        String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
+        Resource resource = lagEnhetResource(enhetId, AbacDomain.VEILARB_DOMAIN);
+        ActionId actionId = ActionId.READ;
 
-         XacmlRequest xacmlRequest = buildRequest(
-                 lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
-                 lagAction(actionId),
-                 null,
-                 resource
-         );
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
+                lagAction(actionId),
+                null,
+                resource
+        );
 
-         CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
-         CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
 
-         return harTilgang(xacmlRequest, cefEventContext);
+        return harTilgang(xacmlRequest, cefEventContext);
+    }
+
+    @Override
+    public boolean harTilgangTilEnhetMedSperre(String innloggetBrukerIdToken, EnhetId enhetId) {
+        String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
+        Resource resource = lagEnhetMedSperreResource(enhetId, AbacDomain.VEILARB_DOMAIN);
+        ActionId actionId = ActionId.READ;
+
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironmentMedOidcTokenBody(srvUsername, oidcTokenBody),
+                lagAction(actionId),
+                null,
+                resource
+        );
+
+        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+
+        return harTilgang(xacmlRequest, cefEventContext);
     }
 
     @Override

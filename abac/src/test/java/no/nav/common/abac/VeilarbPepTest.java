@@ -112,6 +112,27 @@ public class VeilarbPepTest {
     }
 
     @Test
+    public void harTilgangTilEnhetMedSperre__skal_lage_riktig_request() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        String expectedRequest = getContentFromJsonFile("xacmlrequest-harTilgangTilEnhetMedSperre.json");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        boolean tilgang = veilarbPep.harTilgangTilEnhetMedSperre(TEST_OIDC_TOKEN, TEST_ENHET_ID);
+
+        assertTrue(tilgang);
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
+        assertJsonEquals(expectedRequest, captor.getValue());
+    }
+
+    @Test
+    public void harTilgangTilEnhetMedSperre__skal_returnere_false_hvis_ikke_tilgang() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
+        boolean tilgang = veilarbPep.harTilgangTilEnhetMedSperre(TEST_OIDC_TOKEN, TEST_ENHET_ID);
+
+        assertFalse(tilgang);
+    }
+
+    @Test
     public void harVeilederTilgangTilPerson__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilPerson.json");
@@ -384,7 +405,7 @@ public class VeilarbPepTest {
                 " request=" + REQUEST_PATH +
                 " act=" + READ.getId() +
                 " cs2=" + ENHET +
-                " requestContext=" + RESOURCE_VEILARB_ENHET_EIENDEL +
+                " requestContext=" + RESOURCE_FELLES_ENHET +
                 " sourceServiceName=" + VEILARB_DOMAIN +
                 " requestMethod=" + REQUEST_METHOD +
                 " end=" + TIME +
@@ -406,7 +427,7 @@ public class VeilarbPepTest {
                 " dproc=" + CONSUMER_ID +
                 " flexString1=" + Deny +
                 " act=" + READ.getId() +
-                " requestContext=" + RESOURCE_VEILARB_ENHET_EIENDEL +
+                " requestContext=" + RESOURCE_FELLES_ENHET +
                 " sourceServiceName=" + VEILARB_DOMAIN +
                 " cs3Label=deny_cause" +
                 " end=" + TIME +
