@@ -9,6 +9,8 @@ import static no.nav.common.utils.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.common.utils.EnvironmentUtils.Type.SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 
 public class EnvironmentUtilsTest {
@@ -18,6 +20,54 @@ public class EnvironmentUtilsTest {
     @Before
     public void setup() {
         System.clearProperty(PROPERTY_NAME);
+    }
+
+    @Test
+    public void isDevelopment_should_return_true_for_dev_env() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-fss");
+        assertTrue(EnvironmentUtils.isDevelopment().get());
+
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-sbs");
+        assertTrue(EnvironmentUtils.isDevelopment().get());
+
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-gcp");
+        assertTrue(EnvironmentUtils.isDevelopment().get());
+    }
+
+    @Test
+    public void isDevelopment_should_return_false_for_not_dev_env() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-fss");
+        assertFalse(EnvironmentUtils.isDevelopment().get());
+    }
+
+    @Test
+    public void isDevelopment_should_return_empty_if_missing() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "");
+        assertTrue(EnvironmentUtils.isDevelopment().isEmpty());
+    }
+
+    @Test
+    public void isProduction_should_check_correct_envs() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-fss");
+        assertTrue(EnvironmentUtils.isProduction().get());
+
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-sbs");
+        assertTrue(EnvironmentUtils.isProduction().get());
+
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-gcp");
+        assertTrue(EnvironmentUtils.isProduction().get());
+    }
+
+    @Test
+    public void isProduction_should_return_false_for_not_prod_env() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-fss");
+        assertFalse(EnvironmentUtils.isProduction().get());
+    }
+
+    @Test
+    public void isProduction_should_return_empty_if_missing() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "");
+        assertTrue(EnvironmentUtils.isProduction().isEmpty());
     }
 
     @Test

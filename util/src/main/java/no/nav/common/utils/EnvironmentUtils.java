@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -20,6 +21,9 @@ public class EnvironmentUtils {
     public static final String NAIS_APP_NAME_PROPERTY_NAME = "NAIS_APP_NAME";
     public static final String NAIS_NAMESPACE_PROPERTY_NAME = "NAIS_NAMESPACE";
     public static final String NAIS_CLUSTER_NAME_PROPERTY_NAME = "NAIS_CLUSTER_NAME";
+
+    public static final List<String> DEV_CLUSTERS = List.of("dev-fss", "dev-sbs", "dev-gcp");
+    public static final List<String> PROD_CLUSTERS = List.of("prod-fss", "prod-sbs", "prod-gcp");
 
     public static void setProperty(String name, String value, Type type) {
         LOGGER.info("{}={}", name, type.format(value));
@@ -45,11 +49,11 @@ public class EnvironmentUtils {
     }
 
     public static Optional<Boolean> isProduction() {
-        return isDevelopment().map(isDev -> !isDev);
+        return getClusterName().map(PROD_CLUSTERS::contains);
     }
 
     public static Optional<Boolean> isDevelopment() {
-        return getClusterName().map(clusterName -> clusterName.equals("dev-fss") || clusterName.equals("dev-sbs"));
+        return getClusterName().map(DEV_CLUSTERS::contains);
     }
 
     public static Optional<String> getApplicationName() {
