@@ -25,6 +25,9 @@
         <appender-ref ref="metrics"/>
     </root>
 
+    <!-- Logger cookies dersom den ikke parses riktig, noe vi ikke ønsker -->
+    <logger name="org.apache.tomcat.util.http.parser.Cookie" level="OFF" />
+
     <logger name="org.apache" level="INFO"/>
     <logger name="org.apache.cxf" level="ERROR"/>
     <logger name="no.nav.common.cxf" level="ERROR"/>
