@@ -1,18 +1,39 @@
 package no.nav.common.utils;
 
+import lombok.NonNull;
+
 public class UrlUtils {
 
-    public static String clusterUrlForApplication(String applicationName) {
-        return clusterUrlForApplication(applicationName, false);
+    public static String clusterUrlForApplication(@NonNull String appName) {
+        return clusterUrlForApplication(appName, false);
     }
 
-    public static String clusterUrlForApplication(String applicationName, boolean withContextPath) {
-        String clusterUrl = String.format("http://%s.%s.svc.nais.local",
-                AssertUtils.assertNotNull(applicationName),
-                EnvironmentUtils.requireNamespace()
-        );
+    public static String clusterUrlForApplication(@NonNull String appName, boolean withAppContextPath) {
+        String contextPath = withAppContextPath ? "/" + appName : "";
+        return String.format("http://%s.%s.svc.nais.local%s", appName, EnvironmentUtils.requireNamespace(), contextPath);
+    }
 
-        return withContextPath ? clusterUrl + "/" + applicationName : clusterUrl;
+    public static String createAppAdeoPreprodIngressUrl(@NonNull String appName, @NonNull String environment) {
+        return String.format("https://app-%s.adeo.no/%s", environment, appName);
+    }
+
+    public static String createAppAdeoProdIngressUrl(@NonNull String appName) {
+        return String.format("https://app.adeo.no/%s", appName);
+    }
+
+    public static String createNaisAdeoIngressUrl(@NonNull String appName, boolean withAppContextPath) {
+        String contextPath = withAppContextPath ? "/" + appName : "";
+        return String.format("https://%s.nais.adeo.no%s", appName, contextPath);
+    }
+
+    public static String createDevAdeoIngressUrl(@NonNull String appName, boolean withAppContextPath) {
+        String contextPath = withAppContextPath ? "/" + appName : "";
+        return String.format("https://%s.dev.adeo.no%s", appName, contextPath);
+    }
+
+    public static String createNaisPreprodIngressUrl(@NonNull String appName, @NonNull String environment, boolean withAppContextPath) {
+        String contextPath = withAppContextPath ? "/" + appName : "";
+        return String.format("https://%s-%s.nais.preprod.local%s", appName, environment, contextPath);
     }
 
     public static String sluttMedSlash(String path) {
