@@ -11,17 +11,17 @@ import static org.junit.Assert.assertEquals;
 public class UrlUtilsTest {
 
     @Test
-    public void test_clusterUrlForApplication() {
+    public void createServiceUrl__should_create_correct_urls() {
         System.clearProperty(NAIS_NAMESPACE_PROPERTY_NAME);
-        assertThatThrownBy(() -> clusterUrlForApplication("app1")).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
+        assertThatThrownBy(() -> createServiceUrl("app1")).hasMessageContaining(NAIS_NAMESPACE_PROPERTY_NAME);
 
         System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "q0");
-        assertThat(clusterUrlForApplication("app1")).isEqualTo("http://app1.q0.svc.nais.local");
-        assertThat(clusterUrlForApplication("app2")).isEqualTo("http://app2.q0.svc.nais.local");
+        assertThat(createServiceUrl("app1")).isEqualTo("http://app1.q0.svc.nais.local");
+        assertThat(createServiceUrl("app2")).isEqualTo("http://app2.q0.svc.nais.local");
 
         System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "default");
-        assertThat(clusterUrlForApplication("app1")).isEqualTo("http://app1.default.svc.nais.local");
-        assertThat(clusterUrlForApplication("app2")).isEqualTo("http://app2.default.svc.nais.local");
+        assertThat(createServiceUrl("app1")).isEqualTo("http://app1.default.svc.nais.local");
+        assertThat(createServiceUrl("app2")).isEqualTo("http://app2.default.svc.nais.local");
     }
 
     @Test

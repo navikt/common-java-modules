@@ -4,13 +4,17 @@ import lombok.NonNull;
 
 public class UrlUtils {
 
-    public static String clusterUrlForApplication(@NonNull String appName) {
-        return clusterUrlForApplication(appName, false);
+    public static String createServiceUrl(@NonNull String appName) {
+        return createServiceUrl(appName, false);
     }
 
-    public static String clusterUrlForApplication(@NonNull String appName, boolean withAppContextPath) {
+    public static String createServiceUrl(@NonNull String appName, boolean withAppContextPath) {
+        return createServiceUrl(appName, EnvironmentUtils.requireNamespace(), withAppContextPath);
+    }
+
+    public static String createServiceUrl(@NonNull String appName, @NonNull String namespace, boolean withAppContextPath) {
         String contextPath = withAppContextPath ? "/" + appName : "";
-        return String.format("http://%s.%s.svc.nais.local%s", appName, EnvironmentUtils.requireNamespace(), contextPath);
+        return String.format("http://%s.%s.svc.nais.local%s", appName, namespace, contextPath);
     }
 
     public static String createAppAdeoPreprodIngressUrl(@NonNull String appName, @NonNull String environment) {
