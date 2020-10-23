@@ -23,12 +23,12 @@ public class PdlClientImplTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
 
-    private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/pdl/";
+    private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/pdl/client/";
 
     @Test
     public void rawRequest__skal_lage_riktig_request_og_forwarde_respons() {
-        String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "pdl-client-graphql-request.json");
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "pdl-client-graphql-response.json");
+        String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-request.json");
+        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response.json");
 
         String apiUrl = "http://localhost:" + wireMockRule.port();
         String userToken = "USER_TOKEN";
@@ -54,13 +54,10 @@ public class PdlClientImplTest {
 
     @Test
     public void request__skal_lage_request_og_parse_response() {
-        String uncleanedGraphqlQuery = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "pdl-client-graphql-request.graphql");
-        String graphqlQuery = TestUtils.removeWhitespace(uncleanedGraphqlQuery);
+        String graphqlQuery = TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-identer-query.graphql");
+        String graphqlJsonRequest = TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "graphql-request.json");
 
-        String uncleanedGraphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "pdl-client-graphql-request.json");
-        String graphqlJsonRequest = TestUtils.removeWhitespace(uncleanedGraphqlJsonRequest);
-
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "pdl-client-graphql-response.json");
+        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response.json");
 
         String apiUrl = "http://localhost:" + wireMockRule.port();
         String userToken = "USER_TOKEN";
@@ -90,7 +87,7 @@ public class PdlClientImplTest {
 
     @Test
     public void request__skal_parse_error_response() {
-        String graphqlErrorJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "pdl-client-graphql-response-error.json");
+        String graphqlErrorJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response-error.json");
 
         String apiUrl = "http://localhost:" + wireMockRule.port();
         String userToken = "USER_TOKEN";

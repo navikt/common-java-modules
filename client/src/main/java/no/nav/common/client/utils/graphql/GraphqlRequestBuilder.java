@@ -7,7 +7,9 @@ public class GraphqlRequestBuilder<V> {
     private final String graphqlRequestStr;
 
     public GraphqlRequestBuilder(String graphqlResourceFilePath) {
-        this.graphqlRequestStr = FileUtils.getResourceFileAsString(graphqlResourceFilePath);
+        this.graphqlRequestStr = FileUtils.getResourceFileAsString(graphqlResourceFilePath)
+                .replaceAll("\n", "")
+                .replaceAll("\r", "");
     }
 
     public GraphqlRequest<V> buildRequest(V variables) {
