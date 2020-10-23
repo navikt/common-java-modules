@@ -29,8 +29,7 @@ public class PdlAktorOppslagClientImpl extends PdlClientImpl implements PdlAktor
 
     @Override
     public Fnr hentFnr(AktorId aktorId) {
-        GraphqlResponse<HentIdenterResponseData> response =
-                request(hentFnrRequestBuilder.buildRequest(new HentIdentVariables(aktorId.get())), HentIdenterResponseData.class);
+        HentIdenterResponse response = request(hentFnrRequestBuilder.buildRequest(new HentIdentVariables(aktorId.get())), HentIdenterResponse.class);
 
         if (response.getErrors() != null) {
             log.error("Henting av fnr fra PDL feilet: " + JsonUtils.toJson(response.getErrors()));
@@ -39,9 +38,6 @@ public class PdlAktorOppslagClientImpl extends PdlClientImpl implements PdlAktor
 
         return ofNullable(response.getData())
                 .map(data -> data.hentIdenter
-                        .stream()
-                        .findFirst()
-                        .orElseThrow()
                         .identer
                         .stream()
                         .findFirst()
@@ -52,8 +48,7 @@ public class PdlAktorOppslagClientImpl extends PdlClientImpl implements PdlAktor
 
     @Override
     public AktorId hentAktorId(Fnr fnr) {
-        GraphqlResponse<HentIdenterResponseData> response =
-                request(hentAktorIdRequestBuilder.buildRequest(new HentIdentVariables(fnr.get())), HentIdenterResponseData.class);
+        HentIdenterResponse response = request(hentAktorIdRequestBuilder.buildRequest(new HentIdentVariables(fnr.get())), HentIdenterResponse.class);
 
         if (response.getErrors() != null) {
             log.error("Henting av aktør id fra PDL feilet: " + JsonUtils.toJson(response.getErrors()));
@@ -62,9 +57,6 @@ public class PdlAktorOppslagClientImpl extends PdlClientImpl implements PdlAktor
 
         return ofNullable(response.getData())
                 .map(data -> data.hentIdenter
-                        .stream()
-                        .findFirst()
-                        .orElseThrow()
                         .identer
                         .stream()
                         .findFirst()
@@ -78,16 +70,20 @@ public class PdlAktorOppslagClientImpl extends PdlClientImpl implements PdlAktor
         String ident;
     }
 
-    private static class HentIdenterResponseData {
-        List<IdenterResponseData> hentIdenter;
+    private static class HentIdenterResponse extends GraphqlResponse<HentIdenterResponse.HentIdenterResponseData> {
 
-        private static class IdenterResponseData {
-            List<IdentData> identer;
+        private static class HentIdenterResponseData {
+            IdenterResponseData hentIdenter;
 
-            private static class IdentData {
-                String ident;
+            private static class IdenterResponseData {
+                List<IdentData> identer;
+
+                private static class IdentData {
+                    String ident;
+                }
             }
         }
+
     }
 
 }

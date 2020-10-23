@@ -15,7 +15,8 @@ import okhttp3.Response;
 
 import java.util.function.Supplier;
 
-import static javax.ws.rs.core.HttpHeaders.*;
+import static javax.ws.rs.core.HttpHeaders.ACCEPT;
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 import static no.nav.common.rest.client.RestUtils.createBearerToken;
 import static no.nav.common.utils.UrlUtils.joinPaths;
@@ -59,7 +60,6 @@ public class PdlClientImpl implements PdlClient {
         Request request = new Request.Builder()
                 .url(joinPaths(pdlUrl, "/graphql"))
                 .header(ACCEPT, MEDIA_TYPE_JSON.toString())
-                .header(CONTENT_TYPE, MEDIA_TYPE_JSON.toString())
                 .header(AUTHORIZATION, createBearerToken(userTokenSupplier.get()))
                 .header("Nav-Consumer-Token", createBearerToken(consumerTokenSupplier.get()))
                 .header("Tema", pdlTema.name())
@@ -74,11 +74,9 @@ public class PdlClientImpl implements PdlClient {
     }
 
     @Override
-    public <D> GraphqlResponse<D> request(GraphqlRequest<?> graphqlRequest, Class<D> dataClass) {
+    public <D extends GraphqlResponse> D request(GraphqlRequest<?> graphqlRequest, Class<D> graphqlResponseClass) {
         String graphqlJsonResponse = rawRequest(JsonUtils.toJson(graphqlRequest));
-
-
-        return null;
+        return JsonUtils.fromJson(graphqlJsonResponse, graphqlResponseClass);
     }
 
     @Override

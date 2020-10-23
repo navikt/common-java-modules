@@ -17,6 +17,6 @@ public interface PdlClient extends HealthCheck {
      */
     String rawRequest(String gqlRequestJson);
 
-    <D> GraphqlResponse<D> request(GraphqlRequest<?> graphqlRequest, Class<D> dataClass);
+    <D extends GraphqlResponse> D request(GraphqlRequest<?> graphqlRequest, Class<D> graphqlResponseClass);
 
 }

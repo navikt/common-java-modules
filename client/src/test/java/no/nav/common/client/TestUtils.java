@@ -21,4 +21,11 @@ public class TestUtils {
         }
     }
 
+    public static String removeWhitespace(String str) {
+        return str
+                .replaceAll(" ", "")
+                .replaceAll("\t", "")
+                .replaceAll("\n", "")
+                .replaceAll("\r", "");
+    }
 }
