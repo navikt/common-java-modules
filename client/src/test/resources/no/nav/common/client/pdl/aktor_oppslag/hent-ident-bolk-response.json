@@ -1,0 +1,33 @@
+{
+  "data": {
+    "hentIdenterBolk": [
+      {
+        "identer": [
+          {
+            "ident": "1234567890",
+            "gruppe": "FOLKEREGISTERIDENT"
+          },
+          {
+            "ident": "1122334455",
+            "gruppe": "AKTORID"
+          }
+        ]
+      },
+      {
+        "identer": null
+      },
+      {
+        "identer": [
+          {
+            "ident": "0987654321",
+            "gruppe": "FOLKEREGISTERIDENT"
+          },
+          {
+            "ident": "22224444",
+            "gruppe": "AKTORID"
+          }
+        ]
+      }
+    ]
+  }
+}

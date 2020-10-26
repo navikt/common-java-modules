@@ -11,7 +11,6 @@ import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -33,7 +32,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
             new GraphqlRequestBuilder<>("pdl/hent-gjeldende-fnr.graphql");
 
 
-    private final GraphqlRequestBuilder<HentIdentBolkVariables> hentIdentBolkRequestBuilder =
+    private final GraphqlRequestBuilder<HentIdentBolkVariables<?>> hentIdentBolkRequestBuilder =
             new GraphqlRequestBuilder<>("pdl/hent-gjeldende-ident-bolk.graphql");
 
     private final PdlClient pdlClient;
@@ -85,7 +84,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
     @Override
     public Map<AktorId, Fnr> hentFnrBolk(List<AktorId> aktorIdListe) {
         HentIdenterBolkResponse response = pdlClient.request(
-                hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables(Collections.emptyList())),
+                hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables<>(aktorIdListe)),
                 HentIdenterBolkResponse.class
         );
 
@@ -98,7 +97,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
     @Override
     public Map<Fnr, AktorId> hentAktorIdBolk(List<Fnr> fnrListe) {
         HentIdenterBolkResponse response = pdlClient.request(
-                hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables(Collections.emptyList())),
+                hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables<>(fnrListe)),
                 HentIdenterBolkResponse.class
         );
 
@@ -126,7 +125,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
                             identPair.setFnr(Fnr.of(ident.ident));
                             break;
                         case IDENT_GRUPPE_AKTORID:
-                            identPair.setAktorId(AktorId.of(IDENT_GRUPPE_AKTORID));
+                            identPair.setAktorId(AktorId.of(ident.ident));
                             break;
                     }
                 });
@@ -151,8 +150,8 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
     }
 
     @Value
-    private static class HentIdentBolkVariables {
-        List<EksternBrukerId> identer;
+    private static class HentIdentBolkVariables<T extends EksternBrukerId> {
+        List<T> identer;
     }
 
     static class HentIdenterResponse extends GraphqlResponse<HentIdenterResponse.HentIdenterResponseData> {
