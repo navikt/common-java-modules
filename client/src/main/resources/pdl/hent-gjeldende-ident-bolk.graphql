@@ -1,0 +1,8 @@
+query($identer: [ID!]!) {
+    hentIdenterBolk(identer: $identer, grupper: [FOLKEREGISTERIDENT, AKTORID], historikk: false){
+        identer {
+            ident
+            gruppe
+        }
+    }
+}

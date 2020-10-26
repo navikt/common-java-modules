@@ -1,0 +1,6 @@
+{
+  "query": "query($ident: ID!) {hentIdenter(ident: $ident,grupper: [FOLKEREGISTERIDENT],historikk: false) {identer {ident}}}",
+  "variables": {
+    "ident": "111222333"
+  }
+}
