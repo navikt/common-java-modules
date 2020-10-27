@@ -29,12 +29,12 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
 
         hentFnrCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
-                .maximumSize(10_000)
+                .maximumSize(25_000)
                 .build();
 
         hentAktorIdCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
-                .maximumSize(10_000)
+                .maximumSize(25_000)
                 .build();
     }
 
