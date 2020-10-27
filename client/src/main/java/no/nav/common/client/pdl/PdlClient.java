@@ -11,12 +11,19 @@ import no.nav.common.health.HealthCheck;
 public interface PdlClient extends HealthCheck {
 
     /**
-     * Performs a raw Graphql request to PDL.
+     * Performs a raw graphql request to PDL.
      * @param gqlRequestJson the json will be forwarded to PDL unchanged as the body of the request
      * @return the raw json from the body of the PDL response
      */
     String rawRequest(String gqlRequestJson);
 
+    /**
+     * Performs a graphql request to PDL
+     * @param graphqlRequest request to be sent to PDL, will be serialized directly to JSON
+     * @param graphqlResponseClass response from PDL, will de deserialized directly from JSON
+     * @param <D> data type which is used to specify the "data" field inside the graphql response
+     * @return parsed graphql response with the data type specified
+     */
     <D extends GraphqlResponse> D request(GraphqlRequest<?> graphqlRequest, Class<D> graphqlResponseClass);
 
 }
