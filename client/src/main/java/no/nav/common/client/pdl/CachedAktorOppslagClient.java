@@ -2,7 +2,6 @@ package no.nav.common.client.pdl;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import lombok.RequiredArgsConstructor;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.Fnr;
@@ -15,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
 
-@RequiredArgsConstructor
 public class CachedAktorOppslagClient implements AktorOppslagClient {
 
     private final AktorOppslagClient aktorOppslagClient;
@@ -24,17 +22,23 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
 
     private final Cache<Fnr, AktorId> hentAktorIdCache;
 
+    public CachedAktorOppslagClient(AktorOppslagClient aktorOppslagClient, Cache<AktorId, Fnr> hentFnrCache, Cache<Fnr, AktorId> hentAktorIdCache) {
+        this.aktorOppslagClient = aktorOppslagClient;
+        this.hentFnrCache = hentFnrCache;
+        this.hentAktorIdCache = hentAktorIdCache;
+    }
+
     public CachedAktorOppslagClient(AktorOppslagClient aktorOppslagClient) {
         this.aktorOppslagClient = aktorOppslagClient;
 
         hentFnrCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
-                .maximumSize(25_000)
+                .maximumSize(10_000)
                 .build();
 
         hentAktorIdCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
-                .maximumSize(25_000)
+                .maximumSize(10_000)
                 .build();
     }
 
