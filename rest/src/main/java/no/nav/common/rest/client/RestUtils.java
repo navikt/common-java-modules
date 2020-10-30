@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+
 @Slf4j
 public class RestUtils {
 
@@ -32,10 +35,12 @@ public class RestUtils {
         ResponseBody body = response.body();
 
         if (body == null) {
-            return Optional.empty();
+            return empty();
         }
 
-        return Optional.of(body.string());
+        String bodyStr = body.string();
+
+        return bodyStr.isBlank() ? empty() : of(bodyStr);
     }
 
     public static <T> Optional<T> parseJsonResponse(Response response, Class<T> classOfT) throws IOException {
