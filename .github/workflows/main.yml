@@ -47,7 +47,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
 
       - name: Create Version
-        run: echo ::set-env name=VERSION::"2.$(TZ="Europe/Oslo" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)"
+        run: echo "VERSION=2.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)" >> $GITHUB_ENV
 
       - name: Release Maven package
         env:
