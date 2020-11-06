@@ -1,6 +1,7 @@
 package no.nav.common.auth;
 
-import static java.util.Optional.ofNullable;
+import java.util.Optional;
+
 import static no.nav.common.auth.SecurityLevel.Ukjent;
 import static no.nav.common.auth.SecurityLevel.Level1;
 import static no.nav.common.auth.SecurityLevel.Level2;
@@ -12,7 +13,7 @@ public class JWTSecurityLevel {
     private static final String SECURITY_LEVEL_ATTRIBUTE = "acr";
     private final SecurityLevel securityLevel;
 
-    public JWTSecurityLevel(SsoToken ssoToken) {
+    public JWTSecurityLevel(Optional<SsoToken> ssoToken) {
         securityLevel = getOidcSecurityLevel(ssoToken);
     }
 
@@ -20,8 +21,10 @@ public class JWTSecurityLevel {
         return securityLevel;
     }
 
-    private SecurityLevel getOidcSecurityLevel(SsoToken ssoToken) {
-        return ssoToken.getType() != SsoToken.Type.OIDC ? Ukjent : ofNullable(ssoToken.getAttributes())
+    private SecurityLevel getOidcSecurityLevel(Optional<SsoToken> ssoToken) {
+        return ssoToken
+                .filter(token -> token.getType() == SsoToken.Type.OIDC)
+                .map(SsoToken::getAttributes)
                 .map(a -> a.get(SECURITY_LEVEL_ATTRIBUTE))
                 .map(o -> o instanceof String ? (String) o : null)
                 .map(JWTSecurityLevel::levelFromAcr)
@@ -29,10 +32,6 @@ public class JWTSecurityLevel {
     }
 
     private static SecurityLevel levelFromAcr(String acr) {
-        if (acr == null) {
-            return Ukjent;
-        }
-
         switch (acr) {
             case "Level1":
                 return Level1;
