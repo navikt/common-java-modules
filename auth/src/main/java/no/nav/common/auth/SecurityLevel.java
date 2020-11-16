@@ -22,7 +22,7 @@ public enum SecurityLevel {
     }
 
     public static SecurityLevel getOidcSecurityLevel(SsoToken ssoToken) {
-        return of(ssoToken)
+        return ofNullable(ssoToken)
                 .filter(token -> token.getType() == SsoToken.Type.OIDC)
                 .map(SsoToken::getAttributes)
                 .map(a -> a.get(SECURITY_LEVEL_ATTRIBUTE))
