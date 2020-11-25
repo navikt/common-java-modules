@@ -69,7 +69,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     @SneakyThrows
     @Override
     public List<AktorId> hentAktorIder(Fnr fnr) {
-        return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId)
+        return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId, false)
                 .entrySet()
                 .stream()
                 .flatMap(e -> Optional.ofNullable(e.getValue().identer)
@@ -82,7 +82,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     @SneakyThrows
     private String hentEnkeltIdent(EksternBrukerId eksternBrukerId, Identgruppe identgruppe) {
-        return hentIdenter(Collections.singletonList(eksternBrukerId), identgruppe)
+        return hentIdenter(Collections.singletonList(eksternBrukerId), identgruppe, true)
                 .entrySet()
                 .stream()
                 .filter(this::filtrerIkkeGjeldendeIdent)
@@ -94,15 +94,18 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     @SneakyThrows
     private <T extends EksternBrukerId> List<IdentOppslag> hentFlereIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe) {
-        return hentIdenter(eksternBrukerIdList, identgruppe)
+        return hentIdenter(eksternBrukerIdList, identgruppe, true)
                 .entrySet()
                 .stream()
                 .map(this::tilIdentOppslag)
                 .collect(Collectors.toList());
     }
 
-    private String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe) {
-        return String.format("%s/identer?gjeldende=true&identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
+    private String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe, boolean gjeldende) {
+        if (gjeldende) {
+            return String.format("%s/identer?gjeldende=true&identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
+        }
+        return String.format("%s/identer?identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
     }
 
     private boolean filtrerIkkeGjeldendeIdent(Map.Entry<String, IdentData> identEntry) {
@@ -119,9 +122,10 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
-    private <T extends EksternBrukerId> Map<String, IdentData> hentIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe) throws IOException {
+
+    private <T extends EksternBrukerId> Map<String, IdentData> hentIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe, boolean gjeldende) throws IOException {
         String personidenter = eksternBrukerIdList.stream().map(Id::get).collect(Collectors.joining(","));
-        String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe);
+        String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe, gjeldende);
 
         Request request = new Request.Builder()
                 .url(requestUrl)

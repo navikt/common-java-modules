@@ -16,5 +16,11 @@ public interface AktorregisterClient extends HealthCheck {
 
     List<IdentOppslag> hentAktorId(List<Fnr> fnrListe);
 
+    /**
+     * Henter alle aktørider på bruker med fnr.
+     *
+     * @param fnr fødselsnummer på brukeren
+     * @return liste med alle aktørider som bruker har hatt
+     */
     List<AktorId> hentAktorIder(Fnr fnr);
 }
