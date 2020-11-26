@@ -62,7 +62,7 @@
         <!-- unntak fra bom-versjonering siden vi gjør oppsett i denne pommen -->
         <junit.jupiter.version>5.1.1</junit.jupiter.version>
         <junit.platform.version>1.1.1</junit.platform.version>
-        <junit.vintage.version>5.1.1</junit.vintage.version>
+        <junit.vintage.version>5.7.0</junit.vintage.version>
 
 
         <java.version>11</java.version>
