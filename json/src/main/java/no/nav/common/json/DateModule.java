@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -29,10 +28,7 @@ public class DateModule {
     private static final List<BaseProvider> providers = List.of(
             new LocalDateProvider(),
             new LocalDateTimeProvider(),
-            new ZonedDateTimeProvider(),
-            new DateProvider(),
-            new TimestampProvider(),
-            new SqlDateProvider()
+            new ZonedDateTimeProvider()
     );
 
     public static Module module() {
@@ -172,60 +168,4 @@ public class DateModule {
         }
 
     }
-
-    private static class DateProvider extends BaseProvider<Date> {
-
-        private DateProvider() {
-            super(Date.class);
-        }
-
-        @Override
-        protected Date toValue(ZonedDateTime zonedDateTime) {
-            return Date.from(zonedDateTime.toInstant());
-        }
-
-        @Override
-        protected ZonedDateTime from(Date value) {
-            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(value.getTime()), DEFAULT_ZONE);
-        }
-
-    }
-
-    private static class SqlDateProvider extends BaseProvider<java.sql.Date> {
-        private DateProvider dateProvider = new DateProvider();
-
-        public SqlDateProvider() {
-            super(java.sql.Date.class);
-        }
-
-        @Override
-        protected java.sql.Date toValue(ZonedDateTime zonedDateTime) {
-            return java.sql.Date.valueOf(zonedDateTime.toLocalDate());
-        }
-
-        @Override
-        protected ZonedDateTime from(java.sql.Date value) {
-            return dateProvider.from(value);
-        }
-    }
-
-
-    private static class TimestampProvider extends BaseProvider<java.sql.Timestamp> {
-        private DateProvider dateProvider = new DateProvider();
-
-        public TimestampProvider() {
-            super(java.sql.Timestamp.class);
-        }
-
-        @Override
-        protected java.sql.Timestamp toValue(ZonedDateTime zonedDateTime) {
-            return java.sql.Timestamp.from(zonedDateTime.toInstant());
-        }
-
-        @Override
-        protected ZonedDateTime from(java.sql.Timestamp value) {
-            return dateProvider.from(value);
-        }
-    }
-
 }
