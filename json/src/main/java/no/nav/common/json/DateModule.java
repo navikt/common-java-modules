@@ -16,13 +16,10 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static java.time.LocalTime.NOON;
-import static java.time.ZoneId.systemDefault;
 import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static no.nav.common.utils.StringUtils.of;
 
 public class DateModule {
-
-    private static final ZonedDateTime _1800 = ZonedDateTime.of(1800,1,1,0,0, 0, 0, systemDefault());
 
     public static final ZoneId DEFAULT_ZONE = ZoneId.of("Europe/Paris");
     private static final List<BaseProvider> providers = List.of(
@@ -78,13 +75,9 @@ public class DateModule {
         }
 
         public String toString(T value) {
-            ZonedDateTime zonedDateTime = from(value);
-            // eldgamle datoer med sekund-offset skaper problemer for bl.a. moment js.
-            // velger derfor å formattere gamle datoer uten offset
-            return zonedDateTime.isBefore(_1800) ? Instant.from(zonedDateTime).toString() : zonedDateTime.format(ISO_OFFSET_DATE_TIME);
+            return from(value).format(ISO_OFFSET_DATE_TIME);
         }
     }
-
 
     private static class LocalDateProvider extends BaseProvider<LocalDate> {
         private static final Pattern YYYY_MM_DD_PATTERN = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}$");
@@ -146,9 +139,7 @@ public class DateModule {
             } catch (DateTimeParseException parseException) {
                 return Optional.empty();
             }
-
         }
-
     }
 
     private static class ZonedDateTimeProvider extends BaseProvider<ZonedDateTime> {
@@ -166,6 +157,5 @@ public class DateModule {
         protected ZonedDateTime from(ZonedDateTime value) {
             return value;
         }
-
     }
 }
