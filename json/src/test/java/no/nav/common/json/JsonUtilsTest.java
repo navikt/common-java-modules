@@ -10,10 +10,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -115,6 +117,23 @@ public class JsonUtilsTest {
             assertThat(testDato.dato).isNull();
         }
 
+        @Test
+        public void localDateTime_uten_offset() {
+            TestLocalDateTime testDato = JsonUtils.fromJson("{\"dato\":\"2021-01-18T09:48:58.762\"}", TestLocalDateTime.class);
+            assertThat(testDato.dato).isEqualTo(LocalDateTime.of(2021, 1, 18, 9, 48, 58).plus(762, MILLIS));
+        }
+
+        @Test
+        public void localDateTime_med_offset() {
+            TestLocalDateTime testDato = JsonUtils.fromJson("{\"dato\":\"2021-01-26T09:50:07.838+01:00\"}", TestLocalDateTime.class);
+            assertThat(testDato.dato).isEqualTo(LocalDateTime.of(2021, 1, 26, 9, 50, 7).plus(838, MILLIS));
+        }
+
+        @Test
+        public void localDateTimeIsNull() {
+            TestLocalDateTime testDato = JsonUtils.fromJson("{\"dato\":null}", TestLocalDateTime.class);
+            assertThat(testDato.dato).isNull();
+        }
     }
 
     @Nested
@@ -165,6 +184,11 @@ public class JsonUtilsTest {
     private static class TestDato {
         private LocalDate dato;
         public TestDato() { }
+    }
+
+    private static class TestLocalDateTime {
+        private LocalDateTime dato;
+        public TestLocalDateTime() { }
     }
 
 }

@@ -10,8 +10,10 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 import java.io.IOException;
 import java.time.*;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static java.time.LocalTime.NOON;
@@ -133,6 +135,22 @@ public class DateModule {
         @Override
         protected ZonedDateTime from(LocalDateTime value) {
             return value.atZone(DEFAULT_ZONE);
+        }
+
+        @Override
+        public LocalDateTime fromString(String value) {
+            return of(value)
+                    .flatMap(this::tryParseLocalDateTime)
+                    .orElseGet(() -> super.fromString(value));
+        }
+
+        private Optional<LocalDateTime> tryParseLocalDateTime(String dateString) {
+            try {
+                return Optional.of(LocalDateTime.parse(dateString));
+            } catch (DateTimeParseException parseException) {
+                return Optional.empty();
+            }
+
         }
 
     }
