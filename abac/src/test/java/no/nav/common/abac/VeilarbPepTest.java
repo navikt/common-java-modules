@@ -2,6 +2,9 @@ package no.nav.common.abac;
 
 import no.nav.common.abac.audit.*;
 import no.nav.common.abac.cef.CefEvent;
+import no.nav.common.abac.constants.NavAttributter;
+import no.nav.common.abac.domain.Attribute;
+import no.nav.common.abac.domain.BaseAttribute;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.health.HealthCheckResult;
@@ -15,6 +18,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
@@ -352,13 +356,21 @@ public class VeilarbPepTest {
             return new AuditRequestInfo(CALL_ID, CONSUMER_ID, REQUEST_METHOD, path);
         };
 
-        AuditLogFilter auditLogFilter = info -> !info.getRequestPath().equals("/ikke/logg/denne");
+        AuditLogFilter auditLogFilter = (info, req, res) -> req.getRequest().getResource().stream()
+                .map(BaseAttribute::getAttribute)
+                .flatMap(List::stream)
+                .map(Attribute::getValue)
+                .filter(NavAttributter.RESOURCE_VEILARB_ENHET_EIENDEL::equals)
+                .findFirst()
+                .isEmpty() &&
+                !info.getRequestPath().equals("/ikke/logg/denne");
 
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, auditRequestInfo, auditLogFilter);
 
-        assertTrue(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR));
+        veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR);
+        veilarbPep.harTilgangTilEnhetMedSperre(TEST_OIDC_TOKEN, TEST_ENHET_ID);
         x.getAndIncrement();
-        assertTrue(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR));
+        veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR);
 
         verify(log, times(1)).info(any());
         verify(log, never()).info(contains("/ikke/logg/denne"));

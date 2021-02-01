@@ -269,19 +269,19 @@ public class VeilarbPep implements Pep {
                                Supplier<CefAbacEventContext> cefEventContext) {
         XacmlResponse xacmlResponse = abacClient.sendRequest(xacmlRequest);
 
-        if (cefEventContext != null && skalLogges()) {
+        if (cefEventContext != null && skalLogges(xacmlRequest, xacmlResponse)) {
             auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext.get());
         }
 
         return XacmlResponseParser.harTilgang(xacmlResponse);
     }
 
-    private boolean skalLogges() {
+    private boolean skalLogges(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse) {
         return Optional
                 .ofNullable(auditRequestInfoSupplier)
                 .map(AuditRequestInfoSupplier::get)
                 .map(auditRequestInfo -> Optional.ofNullable(this.auditLogFilter)
-                        .map(filter -> filter.get(auditRequestInfo)).orElse(true))
+                        .map(filter -> filter.get(auditRequestInfo, xacmlRequest, xacmlResponse)).orElse(true))
                 .orElse(false);
     }
 
