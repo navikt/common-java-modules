@@ -24,9 +24,9 @@ public class VeilarbPep implements Pep {
 
     private final String srvUsername;
 
-    private final AuditLogger auditLogger;
-
     private final SubjectProvider subjectProvider;
+
+    private final AuditLogger auditLogger;
 
     private final AuditRequestInfoSupplier auditRequestInfoSupplier;
 
@@ -281,7 +281,7 @@ public class VeilarbPep implements Pep {
                 .ofNullable(auditRequestInfoSupplier)
                 .map(AuditRequestInfoSupplier::get)
                 .map(auditRequestInfo -> Optional.ofNullable(this.auditLogFilter)
-                        .map(filter -> filter.get(auditRequestInfo, xacmlRequest, xacmlResponse)).orElse(true))
+                        .map(filter -> filter.isEnabled(auditRequestInfo, xacmlRequest, xacmlResponse)).orElse(true))
                 .orElse(false);
     }
 

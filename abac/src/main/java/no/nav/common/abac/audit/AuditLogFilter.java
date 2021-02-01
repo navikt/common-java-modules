@@ -5,5 +5,5 @@ import no.nav.common.abac.domain.response.XacmlResponse;
 
 @FunctionalInterface
 public interface AuditLogFilter {
-    boolean get(AuditRequestInfo auditRequestInfo, XacmlRequest xacmlRequest, XacmlResponse xacmlResponse);
+    boolean isEnabled(AuditRequestInfo auditRequestInfo, XacmlRequest xacmlRequest, XacmlResponse xacmlResponse);
 }
