@@ -13,7 +13,6 @@ import no.nav.common.types.identer.EnhetId;
 import no.nav.common.types.identer.NavIdent;
 
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static no.nav.common.abac.XacmlRequestBuilder.*;
@@ -31,31 +30,41 @@ public class VeilarbPep implements Pep {
 
     private final AuditRequestInfoSupplier auditRequestInfoSupplier;
 
+    private final AuditLogFilter auditLogFilter;
+
     public VeilarbPep(String abacUrl, String srvUsername, String srvPassword) {
-        this(abacUrl, srvUsername, srvPassword, null);
+        this(abacUrl, srvUsername, srvPassword, null, null);
+    }
+
+    public VeilarbPep(String abacUrl, String srvUsername, String srvPassword, AuditRequestInfoSupplier auditRequestInfoSupplier) {
+        this(abacUrl, srvUsername, srvPassword, auditRequestInfoSupplier, null);
     }
 
     public VeilarbPep(String abacUrl,
                       String srvUsername,
                       String srvPassword,
-                      AuditRequestInfoSupplier auditRequestInfoSupplier) {
+                      AuditRequestInfoSupplier auditRequestInfoSupplier,
+                      AuditLogFilter auditLogFilter) {
         this.srvUsername = srvUsername;
         this.auditLogger = new AuditLogger();
         this.abacClient = new AbacCachedClient(new AbacHttpClient(abacUrl, srvUsername, srvPassword));
         this.subjectProvider = new NimbusSubjectProvider();
         this.auditRequestInfoSupplier = auditRequestInfoSupplier;
+        this.auditLogFilter = auditLogFilter;
     }
 
     public VeilarbPep(String srvUsername,
                       AbacClient abacClient,
                       AuditLogger auditLogger,
                       SubjectProvider subjectProvider,
-                      AuditRequestInfoSupplier auditRequestInfoSupplier) {
+                      AuditRequestInfoSupplier auditRequestInfoSupplier,
+                      AuditLogFilter auditLogFilter) {
         this.srvUsername = srvUsername;
         this.abacClient = abacClient;
         this.auditLogger = auditLogger;
         this.subjectProvider = subjectProvider;
         this.auditRequestInfoSupplier = auditRequestInfoSupplier;
+        this.auditLogFilter = auditLogFilter;
     }
 
     @Override
@@ -271,8 +280,8 @@ public class VeilarbPep implements Pep {
         return Optional
                 .ofNullable(auditRequestInfoSupplier)
                 .map(AuditRequestInfoSupplier::get)
-                .map(AuditRequestInfo::getFilter)
-                .map(BooleanSupplier::getAsBoolean)
+                .map(auditRequestInfo -> Optional.ofNullable(this.auditLogFilter)
+                        .map(filter -> filter.get(auditRequestInfo)).orElse(true))
                 .orElse(false);
     }
 
