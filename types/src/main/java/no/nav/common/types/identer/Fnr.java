@@ -11,12 +11,16 @@ public class Fnr extends EksternBrukerId {
     @JsonCreator
     public Fnr(String id) {
         super(id);
-        if (!id.matches("\\d{11}")) {
-            throw new IllegalArgumentException("Fødselsnummeret er ugyldig");
-        }
     }
 
     public static Fnr of(String fnrStr) {
+        return new Fnr(fnrStr);
+    }
+
+    public static Fnr validFnrOf(String fnrStr) {
+        if (!fnrStr.matches("\\d{11}")) {
+            throw new IllegalArgumentException("Fødselsnummeret er ugyldig");
+        }
         return new Fnr(fnrStr);
     }
 

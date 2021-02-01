@@ -15,32 +15,32 @@ public class FnrTest {
 
     @Test
     public void should_serialize_fnr_to_json_field() {
-        FnrWrapper wrapper = new FnrWrapper(Fnr.of("12345678901"));
-        assertEquals("{\"fnr\":\"12345678901\"}", mapper.valueToTree(wrapper).toString());
+        FnrWrapper wrapper = new FnrWrapper(Fnr.of("123534252"));
+        assertEquals("{\"fnr\":\"123534252\"}", mapper.valueToTree(wrapper).toString());
     }
 
     @Test
     public void should_serialize_fnr_to_json_field_with_json_utils() {
-        FnrWrapper wrapper = new FnrWrapper(Fnr.of("12345678901"));
-        assertEquals("{\"fnr\":\"12345678901\"}", JsonUtils.toJson(wrapper));
+        FnrWrapper wrapper = new FnrWrapper(Fnr.of("123534252"));
+        assertEquals("{\"fnr\":\"123534252\"}", JsonUtils.toJson(wrapper));
     }
 
     @Test
     public void should_deserialize_json_to_fnr_field() throws JsonProcessingException {
-        String FnrWrapperJson = "{\"fnr\":\"12345678901\"}";
+        String FnrWrapperJson = "{\"fnr\":\"123534252\"}";
 
         FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
 
-        assertEquals(wrapper.getFnr().get(), "12345678901");
+        assertEquals(wrapper.getFnr().get(), "123534252");
     }
 
     @Test
     public void should_deserialize_json_to_fnr_field_with_json_utils() {
-        String FnrWrapperJson = "{\"fnr\":\"12345678901\"}";
+        String FnrWrapperJson = "{\"fnr\":\"123534252\"}";
 
         FnrWrapper wrapper = JsonUtils.fromJson(FnrWrapperJson, FnrWrapper.class);
 
-        assertEquals(wrapper.getFnr().get(), "12345678901");
+        assertEquals(wrapper.getFnr().get(), "123534252");
     }
 
     @Test
@@ -68,6 +68,17 @@ public class FnrTest {
         Fnr fnr = mapper.readValue(nullJson, Fnr.class);
 
         assertNull(fnr);
+    }
+
+    @Test
+    public void should_serialize_valid_fnr_to_json_field() {
+        FnrWrapper wrapper = new FnrWrapper(Fnr.validFnrOf("12345678901"));
+        assertEquals("{\"fnr\":\"12345678901\"}", mapper.valueToTree(wrapper).toString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void should_not_serialize_invalid_fnr() {
+        new FnrWrapper(Fnr.validFnrOf("aaaaaaaaaa"));
     }
 
     private static class FnrWrapper {
