@@ -50,7 +50,7 @@ public class VeilarbPepTest {
     private static final String REQUEST_METHOD = "GET";
     private static final String REQUEST_PATH = "/some/path";
     private static final EnhetId ENHET = EnhetId.of("5678");
-    private final static AuditRequestInfo AUDIT_REQUEST_INFO = new AuditRequestInfo(CALL_ID, CONSUMER_ID, REQUEST_METHOD, REQUEST_PATH);
+    private final static AuditRequestInfo AUDIT_REQUEST_INFO = new AuditRequestInfo(CALL_ID, CONSUMER_ID, REQUEST_METHOD, REQUEST_PATH, () -> true);
 
     private final Logger log = mock(Logger.class);
     private final SubjectProvider subjectProvider = mock(SubjectProvider.class);
@@ -321,6 +321,28 @@ public class VeilarbPepTest {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, auditLogger, subjectProvider, auditRequestInfoSupplier);
         assertFalse(veilarbPep.harVeilederTilgangTilEgenAnsatt(TEST_VEILEDER_IDENT));
         verify(log).info(eq(expectCefLogHeader(WARN) + expectCefLogAttributesResourceDeny(SUBJECT_FELLES_HAR_TILGANG_EGEN_ANSATT)));
+    }
+
+    @Test
+    public void ingen_audit_log_dersom_request_info_er_null() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, () -> null);
+        assertTrue(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR));
+        verify(log, never()).info(any());
+    }
+
+    @Test
+    public void ingen_audit_log_dersom_request_info_supplier_er_null() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, null);
+        assertTrue(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR));
+        verify(log, never()).info(any());
+    }
+
+    @Test
+    public void ingen_audit_log_dersom_det_filtreres_bort() {
+        AuditRequestInfo auditRequestInfo = new AuditRequestInfo(CALL_ID, CONSUMER_ID, REQUEST_METHOD, REQUEST_PATH, () -> false);
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, auditLogger, subjectProvider, () -> auditRequestInfo);
+        assertTrue(veilarbPep.harTilgangTilPerson(TEST_OIDC_TOKEN, READ, TEST_FNR));
+        verify(log, never()).info(any());
     }
 
     @Test

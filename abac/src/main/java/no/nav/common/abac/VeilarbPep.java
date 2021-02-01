@@ -13,6 +13,8 @@ import no.nav.common.types.identer.EnhetId;
 import no.nav.common.types.identer.NavIdent;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import static no.nav.common.abac.XacmlRequestBuilder.*;
 import static no.nav.common.utils.EnvironmentUtils.requireApplicationName;
@@ -67,13 +69,15 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
 
-     @Override
+    @Override
     public boolean harTilgangTilEnhet(String innloggetBrukerIdToken, EnhetId enhetId) {
         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
         Resource resource = lagEnhetResource(enhetId, AbacDomain.VEILARB_DOMAIN);
@@ -85,9 +89,10 @@ public class VeilarbPep implements Pep {
                 null,
                 resource
         );
-
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+            return lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -105,8 +110,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+            return lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -120,8 +127,11 @@ public class VeilarbPep implements Pep {
                 lagVeilederAccessSubject(veilederIdent),
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -136,8 +146,11 @@ public class VeilarbPep implements Pep {
                 null,
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
+            return lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -155,8 +168,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, tokenSubject);
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, tokenSubject);
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -174,8 +189,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent);
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent);
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -189,8 +206,11 @@ public class VeilarbPep implements Pep {
                 lagVeilederAccessSubject(veilederIdent),
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -205,8 +225,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -221,8 +243,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -232,12 +256,24 @@ public class VeilarbPep implements Pep {
         return abacClient;
     }
 
-    private boolean harTilgang(XacmlRequest xacmlRequest, CefAbacEventContext cefEventContext) {
+    private boolean harTilgang(XacmlRequest xacmlRequest,
+                               Supplier<CefAbacEventContext> cefEventContext) {
         XacmlResponse xacmlResponse = abacClient.sendRequest(xacmlRequest);
 
-        auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext);
+        if (cefEventContext != null && skalLogges()) {
+            auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext.get());
+        }
 
         return XacmlResponseParser.harTilgang(xacmlResponse);
+    }
+
+    private boolean skalLogges() {
+        return Optional
+                .ofNullable(auditRequestInfoSupplier)
+                .map(AuditRequestInfoSupplier::get)
+                .map(AuditRequestInfo::getFilter)
+                .map(BooleanSupplier::getAsBoolean)
+                .orElse(false);
     }
 
     private CefAbacEventContext lagCefEventContext(CefAbacResponseMapper mapper, String subjectId) {
