@@ -13,6 +13,7 @@ import no.nav.common.types.identer.EnhetId;
 import no.nav.common.types.identer.NavIdent;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static no.nav.common.abac.XacmlRequestBuilder.*;
 import static no.nav.common.utils.EnvironmentUtils.requireApplicationName;
@@ -23,37 +24,18 @@ public class VeilarbPep implements Pep {
 
     private final String srvUsername;
 
-    private final AuditLogger auditLogger;
-
     private final SubjectProvider subjectProvider;
 
-    private final AuditRequestInfoSupplier auditRequestInfoSupplier;
-
-    public VeilarbPep(String abacUrl, String srvUsername, String srvPassword) {
-        this(abacUrl, srvUsername, srvPassword, null);
-    }
-
-    public VeilarbPep(String abacUrl,
-                      String srvUsername,
-                      String srvPassword,
-                      AuditRequestInfoSupplier auditRequestInfoSupplier) {
-        this.srvUsername = srvUsername;
-        this.auditLogger = new AuditLogger();
-        this.abacClient = new AbacCachedClient(new AbacHttpClient(abacUrl, srvUsername, srvPassword));
-        this.subjectProvider = new NimbusSubjectProvider();
-        this.auditRequestInfoSupplier = auditRequestInfoSupplier;
-    }
+    private final AuditConfig auditConfig;
 
     public VeilarbPep(String srvUsername,
                       AbacClient abacClient,
-                      AuditLogger auditLogger,
                       SubjectProvider subjectProvider,
-                      AuditRequestInfoSupplier auditRequestInfoSupplier) {
+                      AuditConfig auditConfig) {
         this.srvUsername = srvUsername;
         this.abacClient = abacClient;
-        this.auditLogger = auditLogger;
         this.subjectProvider = subjectProvider;
-        this.auditRequestInfoSupplier = auditRequestInfoSupplier;
+        this.auditConfig = auditConfig;
     }
 
     @Override
@@ -67,13 +49,15 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
 
-     @Override
+    @Override
     public boolean harTilgangTilEnhet(String innloggetBrukerIdToken, EnhetId enhetId) {
         String oidcTokenBody = AbacUtils.extractOidcTokenBody(innloggetBrukerIdToken);
         Resource resource = lagEnhetResource(enhetId, AbacDomain.VEILARB_DOMAIN);
@@ -85,9 +69,10 @@ public class VeilarbPep implements Pep {
                 null,
                 resource
         );
-
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+            return lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -105,8 +90,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, actionId, resource);
+            return lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -120,8 +107,11 @@ public class VeilarbPep implements Pep {
                 lagVeilederAccessSubject(veilederIdent),
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -136,8 +126,11 @@ public class VeilarbPep implements Pep {
                 null,
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.personIdMapper(eksternBrukerId, actionId, resource);
+            return lagCefEventContext(mapper, subjectProvider.getSubjectFromToken(innloggetBrukerIdToken));
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -155,8 +148,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, tokenSubject);
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, tokenSubject);
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -174,8 +169,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent);
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent);
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -189,8 +186,11 @@ public class VeilarbPep implements Pep {
                 lagVeilederAccessSubject(veilederIdent),
                 resource
         );
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -205,8 +205,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -221,8 +223,10 @@ public class VeilarbPep implements Pep {
                 resource
         );
 
-        CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
-        CefAbacEventContext cefEventContext = lagCefEventContext(mapper, veilederIdent.get());
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.resourceMapper(resource);
+            return lagCefEventContext(mapper, veilederIdent.get());
+        };
 
         return harTilgang(xacmlRequest, cefEventContext);
     }
@@ -232,17 +236,42 @@ public class VeilarbPep implements Pep {
         return abacClient;
     }
 
-    private boolean harTilgang(XacmlRequest xacmlRequest, CefAbacEventContext cefEventContext) {
+    private boolean harTilgang(XacmlRequest xacmlRequest,
+                               Supplier<CefAbacEventContext> cefEventContext) {
         XacmlResponse xacmlResponse = abacClient.sendRequest(xacmlRequest);
 
-        auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext);
+        if (cefEventContext != null && skalLogges(xacmlRequest, xacmlResponse)) {
+            getAuditLogger().ifPresent(auditLogger ->
+                    auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext.get()));
+        }
 
         return XacmlResponseParser.harTilgang(xacmlResponse);
     }
 
+    private boolean skalLogges(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse) {
+        return getAuditRequestInfoSupplier()
+                .map(AuditRequestInfoSupplier::get)
+                .map(auditRequestInfo -> getAuditLogFilter()
+                        .map(filter -> filter.isEnabled(auditRequestInfo, xacmlRequest, xacmlResponse))
+                        .orElse(true))
+                .orElse(false);
+    }
+
+    private Optional<AuditLogger> getAuditLogger() {
+        return auditConfig != null ? Optional.ofNullable(auditConfig.getAuditLogger()) : Optional.empty();
+    }
+
+    private Optional<AuditRequestInfoSupplier> getAuditRequestInfoSupplier() {
+        return auditConfig != null ? Optional.ofNullable(auditConfig.getAuditRequestInfoSupplier()) : Optional.empty();
+    }
+
+    private Optional<AuditLogFilter> getAuditLogFilter() {
+        return auditConfig != null ? Optional.ofNullable(auditConfig.getAuditLogFilter()) : Optional.empty();
+    }
+
     private CefAbacEventContext lagCefEventContext(CefAbacResponseMapper mapper, String subjectId) {
         Optional<AuditRequestInfo> requestInfo =
-                Optional.ofNullable(auditRequestInfoSupplier).map(AuditRequestInfoSupplier::get);
+                getAuditRequestInfoSupplier().map(AuditRequestInfoSupplier::get);
 
         return CefAbacEventContext.builder()
                 .applicationName(requireApplicationName())
