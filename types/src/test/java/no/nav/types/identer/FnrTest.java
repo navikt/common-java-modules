@@ -71,13 +71,13 @@ public class FnrTest {
 
     @Test
     public void should_not_throw_on_valid_fnr() {
-        Fnr fnr = Fnr.validFnrOf("12345678901");
+        Fnr fnr = Fnr.ofValidFnr("12345678901");
         assertNotNull(fnr);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void should_throw_on_invalid_fnr() {
-        Fnr.validFnrOf("aaaaaaaaaa");
+        Fnr.ofValidFnr("aaaaaaaaaa");
     }
 
     private static class FnrWrapper {

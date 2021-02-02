@@ -17,7 +17,7 @@ public class Fnr extends EksternBrukerId {
         return new Fnr(fnrStr);
     }
 
-    public static Fnr validFnrOf(String fnrStr) {
+    public static Fnr ofValidFnr(String fnrStr) {
         if (!isValid(fnrStr)) {
             throw new IllegalArgumentException("Fødselsnummeret er ugyldig");
         }
