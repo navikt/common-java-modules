@@ -18,10 +18,14 @@ public class Fnr extends EksternBrukerId {
     }
 
     public static Fnr validFnrOf(String fnrStr) {
-        if (!fnrStr.matches("\\d{11}")) {
+        if (!isValid(fnrStr)) {
             throw new IllegalArgumentException("Fødselsnummeret er ugyldig");
         }
         return new Fnr(fnrStr);
+    }
+
+    public static boolean isValid(String fnrStr){
+        return fnrStr.matches("\\d{11}");
     }
 
 }

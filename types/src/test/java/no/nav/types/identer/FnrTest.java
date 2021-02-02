@@ -6,8 +6,7 @@ import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.Fnr;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class FnrTest {
 
@@ -71,14 +70,14 @@ public class FnrTest {
     }
 
     @Test
-    public void should_serialize_valid_fnr_to_json_field() {
-        FnrWrapper wrapper = new FnrWrapper(Fnr.validFnrOf("12345678901"));
-        assertEquals("{\"fnr\":\"12345678901\"}", mapper.valueToTree(wrapper).toString());
+    public void should_not_throw_on_valid_fnr() {
+        Fnr fnr = Fnr.validFnrOf("12345678901");
+        assertNotNull(fnr);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void should_not_serialize_invalid_fnr() {
-        new FnrWrapper(Fnr.validFnrOf("aaaaaaaaaa"));
+    public void should_throw_on_invalid_fnr() {
+        Fnr.validFnrOf("aaaaaaaaaa");
     }
 
     private static class FnrWrapper {
