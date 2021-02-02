@@ -26,45 +26,16 @@ public class VeilarbPep implements Pep {
 
     private final SubjectProvider subjectProvider;
 
-    private final AuditLogger auditLogger;
-
-    private final AuditRequestInfoSupplier auditRequestInfoSupplier;
-
-    private final AuditLogFilter auditLogFilter;
-
-    public VeilarbPep(String abacUrl, String srvUsername, String srvPassword) {
-        this(abacUrl, srvUsername, srvPassword, null, null);
-    }
-
-    public VeilarbPep(String abacUrl, String srvUsername, String srvPassword, AuditRequestInfoSupplier auditRequestInfoSupplier) {
-        this(abacUrl, srvUsername, srvPassword, auditRequestInfoSupplier, null);
-    }
-
-    public VeilarbPep(String abacUrl,
-                      String srvUsername,
-                      String srvPassword,
-                      AuditRequestInfoSupplier auditRequestInfoSupplier,
-                      AuditLogFilter auditLogFilter) {
-        this.srvUsername = srvUsername;
-        this.auditLogger = new AuditLogger();
-        this.abacClient = new AbacCachedClient(new AbacHttpClient(abacUrl, srvUsername, srvPassword));
-        this.subjectProvider = new NimbusSubjectProvider();
-        this.auditRequestInfoSupplier = auditRequestInfoSupplier;
-        this.auditLogFilter = auditLogFilter;
-    }
+    private final AuditConfig auditConfig;
 
     public VeilarbPep(String srvUsername,
                       AbacClient abacClient,
-                      AuditLogger auditLogger,
                       SubjectProvider subjectProvider,
-                      AuditRequestInfoSupplier auditRequestInfoSupplier,
-                      AuditLogFilter auditLogFilter) {
+                      AuditConfig auditConfig) {
         this.srvUsername = srvUsername;
         this.abacClient = abacClient;
-        this.auditLogger = auditLogger;
         this.subjectProvider = subjectProvider;
-        this.auditRequestInfoSupplier = auditRequestInfoSupplier;
-        this.auditLogFilter = auditLogFilter;
+        this.auditConfig = auditConfig;
     }
 
     @Override
@@ -269,8 +240,8 @@ public class VeilarbPep implements Pep {
                                Supplier<CefAbacEventContext> cefEventContext) {
         XacmlResponse xacmlResponse = abacClient.sendRequest(xacmlRequest);
 
-        if (cefEventContext != null && skalLogges(xacmlRequest, xacmlResponse)) {
-            auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext.get());
+        if (getAuditLogger() != null && cefEventContext != null && skalLogges(xacmlRequest, xacmlResponse)) {
+            getAuditLogger().logCef(xacmlRequest, xacmlResponse, cefEventContext.get());
         }
 
         return XacmlResponseParser.harTilgang(xacmlResponse);
@@ -278,16 +249,28 @@ public class VeilarbPep implements Pep {
 
     private boolean skalLogges(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse) {
         return Optional
-                .ofNullable(auditRequestInfoSupplier)
+                .ofNullable(getAuditRequestInfoSupplier())
                 .map(AuditRequestInfoSupplier::get)
-                .map(auditRequestInfo -> Optional.ofNullable(this.auditLogFilter)
+                .map(auditRequestInfo -> Optional.ofNullable(getAuditLogFilter())
                         .map(filter -> filter.isEnabled(auditRequestInfo, xacmlRequest, xacmlResponse)).orElse(true))
                 .orElse(false);
     }
 
+    private AuditLogger getAuditLogger() {
+        return auditConfig != null ? auditConfig.getAuditLogger() : null;
+    }
+
+    private AuditRequestInfoSupplier getAuditRequestInfoSupplier() {
+        return auditConfig != null ? auditConfig.getAuditRequestInfoSupplier() : null;
+    }
+
+    private AuditLogFilter getAuditLogFilter() {
+        return auditConfig != null ? auditConfig.getAuditLogFilter() : null;
+    }
+
     private CefAbacEventContext lagCefEventContext(CefAbacResponseMapper mapper, String subjectId) {
         Optional<AuditRequestInfo> requestInfo =
-                Optional.ofNullable(auditRequestInfoSupplier).map(AuditRequestInfoSupplier::get);
+                Optional.ofNullable(getAuditRequestInfoSupplier()).map(AuditRequestInfoSupplier::get);
 
         return CefAbacEventContext.builder()
                 .applicationName(requireApplicationName())
