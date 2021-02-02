@@ -6,8 +6,7 @@ import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.Fnr;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class FnrTest {
 
@@ -68,6 +67,17 @@ public class FnrTest {
         Fnr fnr = mapper.readValue(nullJson, Fnr.class);
 
         assertNull(fnr);
+    }
+
+    @Test
+    public void should_not_throw_on_valid_fnr() {
+        Fnr fnr = Fnr.ofValidFnr("12345678901");
+        assertNotNull(fnr);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void should_throw_on_invalid_fnr() {
+        Fnr.ofValidFnr("aaaaaaaaaa");
     }
 
     private static class FnrWrapper {
