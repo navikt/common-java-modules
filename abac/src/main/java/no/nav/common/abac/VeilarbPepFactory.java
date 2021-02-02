@@ -24,7 +24,16 @@ public class VeilarbPepFactory {
 
     public static VeilarbPep get(String abacUrl,
                                  String srvUsername,
+                                 String srvPassword,
+                                 AuditRequestInfoSupplier auditRequestInfoSupplier) {
+        AuditConfig auditConfig = new AuditConfig(new AuditLogger(), auditRequestInfoSupplier, null);
+
+        return get(abacUrl, srvUsername, srvPassword, auditConfig);
+    }
+
+    public static VeilarbPep get(String abacUrl,
+                                 String srvUsername,
                                  String srvPassword) {
-        return get(abacUrl, srvUsername, srvPassword, null);
+        return get(abacUrl, srvUsername, srvPassword, new AuditConfig(null, null, null));
     }
 }
