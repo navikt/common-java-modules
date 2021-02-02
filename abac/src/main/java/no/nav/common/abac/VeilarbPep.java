@@ -240,37 +240,38 @@ public class VeilarbPep implements Pep {
                                Supplier<CefAbacEventContext> cefEventContext) {
         XacmlResponse xacmlResponse = abacClient.sendRequest(xacmlRequest);
 
-        if (getAuditLogger() != null && cefEventContext != null && skalLogges(xacmlRequest, xacmlResponse)) {
-            getAuditLogger().logCef(xacmlRequest, xacmlResponse, cefEventContext.get());
+        if (cefEventContext != null && skalLogges(xacmlRequest, xacmlResponse)) {
+            getAuditLogger().ifPresent(auditLogger ->
+                    auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext.get()));
         }
 
         return XacmlResponseParser.harTilgang(xacmlResponse);
     }
 
     private boolean skalLogges(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse) {
-        return Optional
-                .ofNullable(getAuditRequestInfoSupplier())
+        return getAuditRequestInfoSupplier()
                 .map(AuditRequestInfoSupplier::get)
-                .map(auditRequestInfo -> Optional.ofNullable(getAuditLogFilter())
-                        .map(filter -> filter.isEnabled(auditRequestInfo, xacmlRequest, xacmlResponse)).orElse(true))
+                .map(auditRequestInfo -> getAuditLogFilter()
+                        .map(filter -> filter.isEnabled(auditRequestInfo, xacmlRequest, xacmlResponse))
+                        .orElse(true))
                 .orElse(false);
     }
 
-    private AuditLogger getAuditLogger() {
-        return auditConfig != null ? auditConfig.getAuditLogger() : null;
+    private Optional<AuditLogger> getAuditLogger() {
+        return auditConfig != null ? Optional.ofNullable(auditConfig.getAuditLogger()) : Optional.empty();
     }
 
-    private AuditRequestInfoSupplier getAuditRequestInfoSupplier() {
-        return auditConfig != null ? auditConfig.getAuditRequestInfoSupplier() : null;
+    private Optional<AuditRequestInfoSupplier> getAuditRequestInfoSupplier() {
+        return auditConfig != null ? Optional.ofNullable(auditConfig.getAuditRequestInfoSupplier()) : Optional.empty();
     }
 
-    private AuditLogFilter getAuditLogFilter() {
-        return auditConfig != null ? auditConfig.getAuditLogFilter() : null;
+    private Optional<AuditLogFilter> getAuditLogFilter() {
+        return auditConfig != null ? Optional.ofNullable(auditConfig.getAuditLogFilter()) : Optional.empty();
     }
 
     private CefAbacEventContext lagCefEventContext(CefAbacResponseMapper mapper, String subjectId) {
         Optional<AuditRequestInfo> requestInfo =
-                Optional.ofNullable(getAuditRequestInfoSupplier()).map(AuditRequestInfoSupplier::get);
+                getAuditRequestInfoSupplier().map(AuditRequestInfoSupplier::get);
 
         return CefAbacEventContext.builder()
                 .applicationName(requireApplicationName())
