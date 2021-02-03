@@ -2,7 +2,6 @@ package no.nav.common.abac.audit;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -10,7 +9,6 @@ import static no.nav.common.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.common.log.LogFilter.resolveCallId;
 
 @Builder
-@Getter
 @AllArgsConstructor
 public class AuditRequestInfo {
     private String callId;
@@ -25,5 +23,21 @@ public class AuditRequestInfo {
                 .requestMethod(request.getMethod())
                 .requestPath(request.getRequestURI())
                 .build();
+    }
+
+    public String getCallId() {
+        return this.callId;
+    }
+
+    public String getConsumerId() {
+        return this.consumerId;
+    }
+
+    public String getRequestMethod() {
+        return this.requestMethod;
+    }
+
+    public String getRequestPath() {
+        return this.requestPath;
     }
 }
