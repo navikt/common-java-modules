@@ -35,8 +35,9 @@ public class JobRunner {
         try {
             MDC.put(MDCConstants.MDC_JOB_ID, jobId);
             MDC.put(MDCConstants.MDC_JOB_NAME, jobName);
-            log.info("Starting job. jobName={} jobId={}", jobName, jobId);
+            log.info("Job started. jobName={} jobId={}", jobName, jobId);
             runnable.run();
+            log.info("Job finished. jobName={} jobId={}", jobName, jobId);
         } catch (Exception e) {
             log.error(format("Job failed. jobName=%s jobId=%s", jobName, jobId), e);
             throw e;
