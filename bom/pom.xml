@@ -21,15 +21,7 @@
         <!-- COMMON -->
         <jetty.version>9.4.18.v20190429</jetty.version>
 
-        <!--
-        NB:
-        3.1.x versjoner av cxf medførte ssl handshake_failure / SSLHandshakeException
-        Det kunne virke som dette hadde sammenheng med: https://support.f5.com/csp/article/K10433354
-        Men vi kom aldri helt til bunns i nøyaktig hva som trigget feilen.
-        Vær obs på dette ved oppgradering av cxf
-        Ref https://jira.adeo.no/browse/F17HL4-565
-        -->
-        <cxf-core.version>3.3.6</cxf-core.version>
+        <cxf-core.version>3.4.2</cxf-core.version>
         <xml-apis.version>1.4.01</xml-apis.version>
 
         <!-- REST -->
