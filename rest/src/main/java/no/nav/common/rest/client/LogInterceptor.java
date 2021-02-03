@@ -25,6 +25,7 @@ public class LogInterceptor implements Interceptor {
         Request.Builder requestBuilder = original.newBuilder();
 
         of(MDC.get(MDCConstants.MDC_CALL_ID))
+                .or(() -> of(MDC.get(MDCConstants.MDC_JOB_ID)))
                 .ifPresent(callId -> stream(NAV_CALL_ID_HEADER_NAMES)
                 .forEach(headerName-> requestBuilder.header(headerName, callId)));
 

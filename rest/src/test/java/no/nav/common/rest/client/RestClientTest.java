@@ -41,6 +41,29 @@ public class RestClientTest {
                     .withHeader("X-Correlation-Id", equalTo("CALL_ID"))
                     .withHeader(CONSUMER_ID_HEADER_NAME, equalTo("test")));
         }
+
+        MDC.remove(MDCConstants.MDC_CALL_ID);
+    }
+
+    @Test
+    public void client_skal_legge_pa_call_id_header_med_job_id() throws IOException {
+        OkHttpClient client = RestClient.baseClient();
+
+        MDC.put(MDCConstants.MDC_JOB_ID, "JOB_ID");
+        System.setProperty(NAIS_APP_NAME_PROPERTY_NAME, "test");
+
+        Request request = new Request.Builder()
+                .url("http://localhost:" + wireMockRule.port())
+                .build();
+
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+
+        try (Response ignored = client.newCall(request).execute()) {
+            verify(getRequestedFor(anyUrl())
+                    .withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, equalTo("JOB_ID")));
+        }
+
+        MDC.remove(MDCConstants.MDC_JOB_ID);
     }
 
 }
