@@ -41,7 +41,7 @@
         <module>feature-toggle</module>
         <module>json</module>
         <module>log</module>
-        <module>leader-election</module>
+        <module>job</module>
         <module>metrics</module>
         <module>rest</module>
         <module>sts</module>

@@ -62,7 +62,7 @@
             <!-- START COMMON -->
             <dependency>
                 <groupId>no.nav.common</groupId>
-                <artifactId>leader-election</artifactId>
+                <artifactId>job</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

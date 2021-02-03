@@ -1,4 +1,4 @@
-package no.nav.common.leaderelection;
+package no.nav.common.job.leader_election;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.test.junit.SystemPropertiesRule;

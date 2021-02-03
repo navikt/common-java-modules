@@ -10,7 +10,7 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>leader-election</artifactId>
+    <artifactId>job</artifactId>
 
     <dependencyManagement>
         <dependencies>
@@ -26,12 +26,20 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
+            <groupId>no.nav.common</groupId>
+            <artifactId>json</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.common</groupId>
-            <artifactId>json</artifactId>
+            <artifactId>log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -1,4 +1,4 @@
-package no.nav.common.leaderelection;
+package no.nav.common.job.leader_election;
 
 public interface LeaderElectionClient {
 
