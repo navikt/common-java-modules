@@ -31,8 +31,8 @@ public class JobRunnerTest {
     public void should_log_job_start_and_end() {
         JobRunner.run("test", "id", () -> {});
         assertEquals(2, jobAppender.list.size());
-        assertEquals("Job started. jobName=test jobId=id", jobAppender.list.get(0).getMessage());
-        assertEquals("Job finished. jobName=test jobId=id", jobAppender.list.get(1).getMessage());
+        assertEquals("Job started. jobName=test jobId=id", jobAppender.list.get(0).getFormattedMessage());
+        assertEquals("Job finished. jobName=test jobId=id", jobAppender.list.get(1).getFormattedMessage());
     }
 
     @Test
