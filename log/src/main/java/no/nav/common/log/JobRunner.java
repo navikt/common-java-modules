@@ -47,17 +47,27 @@ public class JobRunner {
         }
     }
 
+    public static String runAsync(UnsafeRunnable runnable) {
+        final String jobId = IdUtils.generateId();
+        runAsync(jobId, jobId, runnable);
+        return jobId;
+    }
+
+    public static String runAsync(String jobName, UnsafeRunnable runnable) {
+        final String jobId = IdUtils.generateId();
+        runAsync(jobName, jobId, runnable);
+        return jobId;
+    }
+
     /**
      * Runs a job asynchronously on another thread. Adds log tags for job id and name to all logging performed in the runnable.
      * Exceptions thrown from the runnable WILL be caught.
      * @param jobName name of this job
+     * @param jobId unique id for this job
      * @param runnable the job that will be ran
-     * @return an unique id for this job
      */
-    public static String runAsync(String jobName, UnsafeRunnable runnable) {
-        final String jobId = IdUtils.generateId();
+    public static void runAsync(String jobName, String jobId, UnsafeRunnable runnable) {
         CompletableFuture.runAsync(() -> run(jobName, jobId, runnable));
-        return jobId;
     }
 
 }
