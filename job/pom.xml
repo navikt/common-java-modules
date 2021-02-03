@@ -10,7 +10,7 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>leader-election</artifactId>
+    <artifactId>job</artifactId>
 
     <dependencyManagement>
         <dependencies>
