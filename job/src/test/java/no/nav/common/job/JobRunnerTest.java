@@ -1,4 +1,4 @@
-package no.nav.common.log;
+package no.nav.common.job;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;

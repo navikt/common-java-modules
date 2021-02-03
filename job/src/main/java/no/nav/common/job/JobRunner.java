@@ -1,6 +1,7 @@
-package no.nav.common.log;
+package no.nav.common.job;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.log.MDCConstants;
 import no.nav.common.utils.IdUtils;
 import no.nav.common.utils.fn.UnsafeRunnable;
 import org.slf4j.MDC;
