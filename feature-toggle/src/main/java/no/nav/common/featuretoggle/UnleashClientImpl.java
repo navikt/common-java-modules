@@ -2,77 +2,65 @@ package no.nav.common.featuretoggle;
 
 import lombok.extern.slf4j.Slf4j;
 import no.finn.unleash.DefaultUnleash;
+import no.finn.unleash.Unleash;
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.UnleashException;
 import no.finn.unleash.event.UnleashSubscriber;
 import no.finn.unleash.repository.FeatureToggleResponse;
 import no.finn.unleash.strategy.Strategy;
 import no.finn.unleash.util.UnleashConfig;
-import no.nav.common.auth.context.AuthContextHolder;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
-import static java.util.Optional.ofNullable;
 import static no.finn.unleash.repository.FeatureToggleResponse.Status.CHANGED;
+import static no.nav.common.featuretoggle.UnleashUtils.resolveUnleashContextFromSubject;
+import static no.nav.common.featuretoggle.UnleashUtils.withDefaultStrategies;
 
 @Slf4j
-public class UnleashService implements HealthCheck, UnleashSubscriber {
+public class UnleashClientImpl implements HealthCheck, UnleashSubscriber, UnleashClient {
 
-    private final DefaultUnleash defaultUnleash;
+    private final Unleash defaultUnleash;
 
     private FeatureToggleResponse.Status lastTogglesFetchedStatus;
 
-    public UnleashService(UnleashServiceConfig unleashServiceConfig, Strategy... strategies) {
-        this(unleashServiceConfig, Arrays.asList(strategies));
+    public UnleashClientImpl(Unleash defaultUnleash) {
+        this.defaultUnleash = defaultUnleash;
     }
 
-    public UnleashService(UnleashServiceConfig unleashServiceConfig, List<Strategy> strategies) {
-        String unleashAPI = unleashServiceConfig.unleashApiUrl;
+    public UnleashClientImpl(String unleashUrl, String applicationName) {
+        this(unleashUrl, applicationName, Collections.emptyList());
+    }
 
-        UnleashConfig.Builder builder = ofNullable(unleashServiceConfig.unleashBuilderFactory)
-                .map(Supplier::get)
-                .orElseGet(UnleashConfig::builder);
-
-        UnleashConfig unleashConfig = builder
-                .appName(unleashServiceConfig.applicationName)
-                .unleashAPI(unleashAPI)
+    public UnleashClientImpl(String unleashUrl, String applicationName, List<Strategy> additionalStrategies) {
+        UnleashConfig unleashConfig = UnleashConfig.builder()
+                .appName(applicationName)
+                .unleashAPI(unleashUrl)
                 .subscriber(this)
                 .synchronousFetchOnInitialisation(true)
                 .build();
 
-        this.defaultUnleash = new DefaultUnleash(unleashConfig, addDefaultStrategies(strategies));
+        this.defaultUnleash = new DefaultUnleash(unleashConfig, withDefaultStrategies(additionalStrategies));
     }
 
-    private Strategy[] addDefaultStrategies(List<Strategy> strategies) {
-        List<Strategy> list = new ArrayList<>(strategies);
-        list.addAll(Arrays.asList(
-                new ByNamespaceStrategy(),
-                new ByClusterStrategy()
-        ));
-        return list.toArray(new Strategy[0]);
+    UnleashClientImpl(UnleashConfig.Builder builder, List<Strategy> additionalStrategies) {
+        UnleashConfig config = builder
+                .subscriber(this)
+                .build();
+
+        this.defaultUnleash = new DefaultUnleash(config, withDefaultStrategies(additionalStrategies));
     }
 
+    @Override
     public boolean isEnabled(String toggleName) {
         return isEnabled(toggleName, resolveUnleashContextFromSubject());
     }
 
+    @Override
     public boolean isEnabled(String toggleName, UnleashContext unleashContext) {
         return defaultUnleash.isEnabled(toggleName, unleashContext);
-    }
-
-    public static UnleashContext resolveUnleashContextFromSubject() {
-        String subject = AuthContextHolder.getSubject().orElse(null);
-        String token = AuthContextHolder.getIdTokenString().orElse(null);
-
-        return UnleashContext.builder()
-                .userId(subject)
-                .sessionId(token)
-                .build();
     }
 
     @Override

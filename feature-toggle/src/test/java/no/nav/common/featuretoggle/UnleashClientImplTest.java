@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 
@@ -18,7 +19,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class UnleashServiceTest {
+public class UnleashClientImplTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort(),false);
@@ -36,13 +37,14 @@ public class UnleashServiceTest {
         createService();
     }
 
-    private UnleashService createService() {
-        return new UnleashService(UnleashServiceConfig.builder()
-                .applicationName("test")
-                .unleashApiUrl("http://localhost:" + wireMockRule.port())
-                .unleashBuilderFactory(() -> UnleashConfig.builder().scheduledExecutor(new TestExecutor()))
-                .build()
-        );
+    private UnleashClientImpl createService() {
+        UnleashConfig.Builder configBuilder = UnleashConfig.builder()
+                .appName("test")
+                .unleashAPI("http://localhost:" + wireMockRule.port())
+                .synchronousFetchOnInitialisation(true)
+                .scheduledExecutor(new TestExecutor());
+
+        return new UnleashClientImpl(configBuilder, Collections.emptyList());
     }
 
     @Test
@@ -58,23 +60,23 @@ public class UnleashServiceTest {
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
                         .withBody("{\"features\":[]}"))
         );
-        UnleashService unleashService = createService();
-        assertThat(unleashService.checkHealth().isHealthy()).isTrue();
+        UnleashClientImpl unleashClientImpl = createService();
+        assertThat(unleashClientImpl.checkHealth().isHealthy()).isTrue();
     }
 
     @Test
     public void ping_error() {
-        UnleashService unleashService = createService();
+        UnleashClientImpl unleashClientImpl = createService();
 
         asList(404, 500).forEach(errorStatus -> {
             givenThat(get(urlEqualTo("/client/features"))
                     .willReturn(aResponse().withStatus(errorStatus))
             );
-            assertThat(unleashService.checkHealth().isHealthy()).isFalse();
+            assertThat(unleashClientImpl.checkHealth().isHealthy()).isFalse();
         });
 
         wireMockRule.stop();
-        assertThat(unleashService.checkHealth().isHealthy()).isFalse();
+        assertThat(unleashClientImpl.checkHealth().isHealthy()).isFalse();
     }
 
     private static class TestExecutor implements UnleashScheduledExecutor {
