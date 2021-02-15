@@ -1,6 +1,7 @@
-package no.nav.common.client.pdl;
+package no.nav.common.client.aktoroppslag;
 
 import no.nav.common.client.TestUtils;
+import no.nav.common.client.pdl.PdlClient;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AktorId;

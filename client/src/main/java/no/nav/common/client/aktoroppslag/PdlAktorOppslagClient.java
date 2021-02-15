@@ -1,8 +1,11 @@
-package no.nav.common.client.pdl;
+package no.nav.common.client.aktoroppslag;
 
 import lombok.Data;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.client.pdl.PdlClient;
+import no.nav.common.client.pdl.PdlClientImpl;
+import no.nav.common.client.pdl.Tema;
 import no.nav.common.client.utils.graphql.GraphqlRequestBuilder;
 import no.nav.common.client.utils.graphql.GraphqlResponse;
 import no.nav.common.client.utils.graphql.GraphqlUtils;

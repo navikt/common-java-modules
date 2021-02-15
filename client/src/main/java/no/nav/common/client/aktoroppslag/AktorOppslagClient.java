@@ -1,4 +1,4 @@
-package no.nav.common.client.pdl;
+package no.nav.common.client.aktoroppslag;
 
 import no.nav.common.health.HealthCheck;
 import no.nav.common.types.identer.AktorId;
