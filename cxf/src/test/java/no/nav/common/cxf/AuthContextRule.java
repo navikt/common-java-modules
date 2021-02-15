@@ -30,7 +30,7 @@ public class AuthContextRule implements MethodRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                AuthContextHolder.withContext(authContext, statement::evaluate);
+                AuthContextHolder.instance().withContext(authContext, statement::evaluate);
             }
         };
     }

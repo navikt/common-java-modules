@@ -73,7 +73,7 @@ public class OidcAuthenticationFilter implements Filter {
 
                     AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken);
 
-                    AuthContextHolder.withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
+                    AuthContextHolder.instance().withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
                 } catch (ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {

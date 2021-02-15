@@ -29,8 +29,8 @@ public class UnleashUtils {
     }
 
     public static UnleashContext resolveUnleashContextFromSubject() {
-        String subject = AuthContextHolder.getSubject().orElse(null);
-        String token = AuthContextHolder.getIdTokenString().orElse(null);
+        String subject = AuthContextHolder.instance().getSubject().orElse(null);
+        String token = AuthContextHolder.instance().getIdTokenString().orElse(null);
 
         return UnleashContext.builder()
                 .userId(subject)

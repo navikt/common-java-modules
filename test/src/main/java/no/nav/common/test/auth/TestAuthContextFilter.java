@@ -23,7 +23,7 @@ public class TestAuthContextFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
-        AuthContextHolder.withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
+        AuthContextHolder.instance().withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
     }
 
     @Override

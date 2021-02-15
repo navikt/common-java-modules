@@ -58,7 +58,7 @@ public class NAVOidcSTSClient extends STSClient {
         if (stsType == StsType.SYSTEM_USER_IN_FSS) {
             return "systemSAML";
         } else {
-            return AuthContextHolder
+            return AuthContextHolder.instance()
                     .getIdTokenString()
                     .orElseThrow(() -> new IllegalStateException("Finner ingen sso token som kan bli cache-nøkkel for brukerens SAML-token"));
         }
@@ -67,7 +67,7 @@ public class NAVOidcSTSClient extends STSClient {
     private String getUserId() {
         return stsType == StsType.SYSTEM_USER_IN_FSS
                 ? StringUtils.toString(getProperty(SecurityConstants.USERNAME))
-                : AuthContextHolder.requireSubject();
+                : AuthContextHolder.instance().requireSubject();
     }
 
     private void ensureTokenStoreExists() {

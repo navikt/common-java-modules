@@ -105,8 +105,8 @@ public class OidcAuthenticationFilterTest {
         FilterChain filterChain = spy(new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response) {
-                assertEquals(srvveilarbtestToken, AuthContextHolder.requireIdTokenString());
-                assertEquals(UserRole.SYSTEM, AuthContextHolder.requireRole());
+                assertEquals(srvveilarbtestToken, AuthContextHolder.instance().requireIdTokenString());
+                assertEquals(UserRole.SYSTEM, AuthContextHolder.instance().requireRole());
             }
         });
 
