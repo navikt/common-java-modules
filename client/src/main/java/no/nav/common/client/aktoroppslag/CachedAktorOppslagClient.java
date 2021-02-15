@@ -1,4 +1,4 @@
-package no.nav.common.client.pdl;
+package no.nav.common.client.aktoroppslag;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

@@ -11,11 +11,11 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AktorregisterHttpClientTest {
 
@@ -29,6 +29,9 @@ public class AktorregisterHttpClientTest {
 
     private static final Fnr FNR_2 = Fnr.of("080xxx07100");
     private static final AktorId AKTOR_ID_2 = AktorId.of("103xxx3839212");
+
+    private static final Fnr FNR_3 = Fnr.of("672xxx879432");
+    private static final AktorId AKTOR_ID_3 = AktorId.of("893xxx4490350");
 
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/aktorregister/";
 
@@ -61,10 +64,12 @@ public class AktorregisterHttpClientTest {
 
         AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier);
 
-        List<IdentOppslag> identOppslag = klient.hentAktorId(Arrays.asList(FNR_1, FNR_2));
+        Map<Fnr, AktorId> identOppslag = klient.hentAktorIdBolk(Arrays.asList(FNR_1, FNR_2, FNR_3));
 
         assertEquals(identOppslag.size(), 2);
-        identOppslag.forEach(oppslag -> assertTrue(oppslag.getIdentFraRegister().isPresent()));
+        assertEquals(AKTOR_ID_1, identOppslag.get(FNR_1));
+        assertEquals(AKTOR_ID_2, identOppslag.get(FNR_2));
+        assertNull(identOppslag.get(FNR_3));
     }
 
 
@@ -117,10 +122,12 @@ public class AktorregisterHttpClientTest {
 
         AktorregisterHttpClient klient = new AktorregisterHttpClient(baseUrl, "test", emptyTokenSupplier);
 
-        List<IdentOppslag> identOppslag = klient.hentFnr(Arrays.asList(AKTOR_ID_1, AKTOR_ID_2));
+        Map<AktorId, Fnr> identOppslag = klient.hentFnrBolk(Arrays.asList(AKTOR_ID_1, AKTOR_ID_2, AKTOR_ID_3));
 
         assertEquals(identOppslag.size(), 2);
-        identOppslag.forEach(oppslag -> assertTrue(oppslag.getIdentFraRegister().isPresent()));
+        assertEquals(FNR_1, identOppslag.get(AKTOR_ID_1));
+        assertEquals(FNR_2, identOppslag.get(AKTOR_ID_2));
+        assertNull(identOppslag.get(AKTOR_ID_3));
     }
 
     @Test
