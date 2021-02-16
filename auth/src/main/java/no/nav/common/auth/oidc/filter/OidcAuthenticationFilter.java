@@ -6,7 +6,7 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import no.nav.common.auth.context.AuthContext;
-import no.nav.common.auth.context.AuthContextHolder;
+import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.oidc.TokenRefreshClient;
 import no.nav.common.auth.utils.CookieUtils;
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ public class OidcAuthenticationFilter implements Filter {
 
                     AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken);
 
-                    AuthContextHolder.withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
+                    AuthContextHolderThreadLocal.instance().withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
                 } catch (ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {

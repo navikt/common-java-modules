@@ -1,7 +1,7 @@
 package no.nav.common.cxf;
 
 
-import no.nav.common.auth.context.AuthContextHolder;
+import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
 
     private static String getOnBehalfOfString() {
-        String idToken = AuthContextHolder.requireIdTokenString();
+        String idToken = AuthContextHolderThreadLocal.instance().requireIdTokenString();
         String base64Token = Base64.getEncoder().encodeToString(idToken.getBytes());
         return "<wsse:BinarySecurityToken" +
                 " EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\"" +

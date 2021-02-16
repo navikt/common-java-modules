@@ -1,6 +1,6 @@
 package no.nav.common.auth.oidc.filter;
 
-import no.nav.common.auth.context.AuthContextHolder;
+import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
@@ -105,8 +105,8 @@ public class OidcAuthenticationFilterTest {
         FilterChain filterChain = spy(new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response) {
-                assertEquals(srvveilarbtestToken, AuthContextHolder.requireIdTokenString());
-                assertEquals(UserRole.SYSTEM, AuthContextHolder.requireRole());
+                assertEquals(srvveilarbtestToken, AuthContextHolderThreadLocal.instance().requireIdTokenString());
+                assertEquals(UserRole.SYSTEM, AuthContextHolderThreadLocal.instance().requireRole());
             }
         });
 

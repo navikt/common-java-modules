@@ -1,7 +1,7 @@
 package no.nav.common.test.auth;
 
 import no.nav.common.auth.context.AuthContext;
-import no.nav.common.auth.context.AuthContextHolder;
+import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
 
 import javax.servlet.*;
@@ -23,7 +23,7 @@ public class TestAuthContextFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
-        AuthContextHolder.withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
+        AuthContextHolderThreadLocal.instance().withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
     }
 
     @Override
