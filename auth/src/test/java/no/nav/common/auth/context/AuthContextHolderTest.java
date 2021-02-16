@@ -27,8 +27,8 @@ public class AuthContextHolderTest {
                 .issuer("issuer")
                 .build();
 
-        AuthContextHolder.instance().withContext(new AuthContext(UserRole.EKSTERN, new PlainJWT(claimsSet)), () -> {
-            assertTrue(AuthContextHolder.instance().getIdTokenString().isPresent());
+        AuthContextHolderThreadLocal.instance().withContext(new AuthContext(UserRole.EKSTERN, new PlainJWT(claimsSet)), () -> {
+            assertTrue(AuthContextHolderThreadLocal.instance().getIdTokenString().isPresent());
         });
     }
 
@@ -42,14 +42,14 @@ public class AuthContextHolderTest {
 
         JWT jwt = JWTParser.parse(new PlainJWT(claimsSet).serialize());
 
-        AuthContextHolder.instance().withContext(new AuthContext(UserRole.EKSTERN, jwt), () -> {
-            assertTrue(AuthContextHolder.instance().getIdTokenString().isPresent());
+        AuthContextHolderThreadLocal.instance().withContext(new AuthContext(UserRole.EKSTERN, jwt), () -> {
+            assertTrue(AuthContextHolderThreadLocal.instance().getIdTokenString().isPresent());
         });
     }
 
     @Test
     public void withSubjectProvider() {
-        AuthContextHolder.instance().withContext(null, this::assertNoContext);
+        AuthContextHolderThreadLocal.instance().withContext(null, this::assertNoContext);
     }
 
     @Test
@@ -58,8 +58,8 @@ public class AuthContextHolderTest {
 
         assertNoContext();
 
-        AuthContextHolder.instance().withContext(authContext, () -> {
-            assertEquals(authContext, AuthContextHolder.instance().requireContext());
+        AuthContextHolderThreadLocal.instance().withContext(authContext, () -> {
+            assertEquals(authContext, AuthContextHolderThreadLocal.instance().requireContext());
 
             // fork-join thread pool
             Set<Thread> usedThreads = new HashSet<>();
@@ -76,7 +76,7 @@ public class AuthContextHolderTest {
                         Thread thread = Thread.currentThread();
                         usedThreads.add(thread);
                         if (thread == baseThread) {
-                            assertEquals(authContext, AuthContextHolder.instance().requireContext());
+                            assertEquals(authContext, AuthContextHolderThreadLocal.instance().requireContext());
                         } else {
                             assertNoContext();
                         }
@@ -85,7 +85,7 @@ public class AuthContextHolderTest {
 
             // child thread
             AtomicReference<AuthContext> contextWrapper = new AtomicReference<>();
-            Thread thread = new Thread(() -> AuthContextHolder.instance().getContext().ifPresent(contextWrapper::set));
+            Thread thread = new Thread(() -> AuthContextHolderThreadLocal.instance().getContext().ifPresent(contextWrapper::set));
             thread.start();
             try {
                 thread.join();
@@ -95,22 +95,22 @@ public class AuthContextHolderTest {
             assertThat(contextWrapper.get()).isNull();
 
             // empty child context
-            AuthContextHolder.instance().withContext(null, this::assertNoContext);
+            AuthContextHolderThreadLocal.instance().withContext(null, this::assertNoContext);
 
             // populated child context
             AuthContext otherContext = newAuthContext("other");
-            AuthContextHolder.instance().withContext(otherContext, () -> {
-                assertEquals(otherContext, AuthContextHolder.instance().requireContext());
+            AuthContextHolderThreadLocal.instance().withContext(otherContext, () -> {
+                assertEquals(otherContext, AuthContextHolderThreadLocal.instance().requireContext());
             });
 
             // failing child context
             assertThatThrownBy(() -> {
-                AuthContextHolder.instance().withContext(otherContext, () -> {
+                AuthContextHolderThreadLocal.instance().withContext(otherContext, () -> {
                     throw new Error();
                 });
             }).isInstanceOf(Error.class);
 
-            assertEquals(authContext, AuthContextHolder.instance().requireContext());
+            assertEquals(authContext, AuthContextHolderThreadLocal.instance().requireContext());
         });
 
         assertNoContext();
@@ -127,7 +127,7 @@ public class AuthContextHolderTest {
     }
 
     private void assertNoContext() {
-        assertTrue(AuthContextHolder.instance().getContext().isEmpty());
+        assertTrue(AuthContextHolderThreadLocal.instance().getContext().isEmpty());
     }
 
 }

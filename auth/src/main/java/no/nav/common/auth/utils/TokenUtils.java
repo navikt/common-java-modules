@@ -1,7 +1,9 @@
 package no.nav.common.auth.utils;
 
 import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +66,11 @@ public class TokenUtils {
         } catch (ParseException e) {
             return true;
         }
+    }
+
+    @SneakyThrows
+    public static JWTClaimsSet getClaimsSet(JWT jwt) {
+        return jwt.getJWTClaimsSet();
     }
 
 }

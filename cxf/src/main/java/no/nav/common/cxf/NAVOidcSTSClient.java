@@ -1,7 +1,7 @@
 package no.nav.common.cxf;
 
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.auth.context.AuthContextHolder;
+import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.utils.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.ws.security.SecurityConstants;
@@ -58,7 +58,7 @@ public class NAVOidcSTSClient extends STSClient {
         if (stsType == StsType.SYSTEM_USER_IN_FSS) {
             return "systemSAML";
         } else {
-            return AuthContextHolder.instance()
+            return AuthContextHolderThreadLocal.instance()
                     .getIdTokenString()
                     .orElseThrow(() -> new IllegalStateException("Finner ingen sso token som kan bli cache-nøkkel for brukerens SAML-token"));
         }
@@ -67,7 +67,7 @@ public class NAVOidcSTSClient extends STSClient {
     private String getUserId() {
         return stsType == StsType.SYSTEM_USER_IN_FSS
                 ? StringUtils.toString(getProperty(SecurityConstants.USERNAME))
-                : AuthContextHolder.instance().requireSubject();
+                : AuthContextHolderThreadLocal.instance().requireSubject();
     }
 
     private void ensureTokenStoreExists() {

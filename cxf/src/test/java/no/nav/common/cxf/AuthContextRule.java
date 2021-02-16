@@ -2,7 +2,7 @@ package no.nav.common.cxf;
 
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.context.AuthContext;
-import no.nav.common.auth.context.AuthContextHolder;
+import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
@@ -30,7 +30,7 @@ public class AuthContextRule implements MethodRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                AuthContextHolder.instance().withContext(authContext, statement::evaluate);
+                AuthContextHolderThreadLocal.instance().withContext(authContext, statement::evaluate);
             }
         };
     }

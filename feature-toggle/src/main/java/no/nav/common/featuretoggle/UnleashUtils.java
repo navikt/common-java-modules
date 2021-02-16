@@ -2,7 +2,7 @@ package no.nav.common.featuretoggle;
 
 import no.finn.unleash.UnleashContext;
 import no.finn.unleash.strategy.Strategy;
-import no.nav.common.auth.context.AuthContextHolder;
+import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.utils.EnvironmentUtils;
 
 import java.util.ArrayList;
@@ -29,8 +29,8 @@ public class UnleashUtils {
     }
 
     public static UnleashContext resolveUnleashContextFromSubject() {
-        String subject = AuthContextHolder.instance().getSubject().orElse(null);
-        String token = AuthContextHolder.instance().getIdTokenString().orElse(null);
+        String subject = AuthContextHolderThreadLocal.instance().getSubject().orElse(null);
+        String token = AuthContextHolderThreadLocal.instance().getIdTokenString().orElse(null);
 
         return UnleashContext.builder()
                 .userId(subject)
