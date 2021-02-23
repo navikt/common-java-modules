@@ -58,13 +58,6 @@
     </prerequisites>
 
     <properties>
-
-        <!-- unntak fra bom-versjonering siden vi gjør oppsett i denne pommen -->
-        <junit.jupiter.version>5.1.1</junit.jupiter.version>
-        <junit.platform.version>1.1.1</junit.platform.version>
-        <junit.vintage.version>5.7.0</junit.vintage.version>
-
-
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.config.location>codestyle/nav-mod/checkstyle.xml</checkstyle.config.location>
@@ -74,26 +67,6 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.jacoco.reportPaths>${user.dir}/target/jacoco.exec</sonar.jacoco.reportPaths>
     </properties>
-
-    <dependencies>
-        <!-- tilgjengeliggjør riktig versjon i test-scope slik at junit5-tester kjører i intellij -->
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-            <version>${junit.platform.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!--
-        slik at vi unngår "groups/excludedGroups require TestNG or JUnit48+ on project test classpath" for prosjekter
-        som kun bruker junit5
-         -->
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junit.vintage.version}</version>
-        </dependency>
-    </dependencies>
 
     <build>
         <pluginManagement>
