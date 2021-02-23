@@ -1,8 +1,9 @@
 package no.nav.common.featuretoggle;
 
 import no.finn.unleash.UnleashContext;
+import no.nav.common.health.HealthCheck;
 
-public interface UnleashClient {
+public interface UnleashClient extends HealthCheck {
 
     boolean isEnabled(String toggleName);
 
