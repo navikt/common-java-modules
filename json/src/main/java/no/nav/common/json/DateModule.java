@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -25,7 +26,8 @@ public class DateModule {
     private static final List<BaseProvider> providers = List.of(
             new LocalDateProvider(),
             new LocalDateTimeProvider(),
-            new ZonedDateTimeProvider()
+            new ZonedDateTimeProvider(),
+            new DateProvider()
     );
 
     public static Module module() {
@@ -157,5 +159,23 @@ public class DateModule {
         protected ZonedDateTime from(ZonedDateTime value) {
             return value;
         }
+    }
+
+    private static class DateProvider extends BaseProvider<Date> {
+
+        private DateProvider() {
+            super(Date.class);
+        }
+
+        @Override
+        protected Date toValue(ZonedDateTime zonedDateTime) {
+            return Date.from(zonedDateTime.toInstant());
+        }
+
+        @Override
+        protected ZonedDateTime from(Date value) {
+            return ZonedDateTime.ofInstant(Instant.ofEpochMilli(value.getTime()), DEFAULT_ZONE);
+        }
+
     }
 }

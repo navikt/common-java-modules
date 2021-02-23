@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -87,13 +88,13 @@ public class JsonUtilsTest {
 
         @Test
         public void localDatePaaFormat_yyyy_MM_dd() {
-            TestDato testDato = JsonUtils.fromJson("{\"dato\":\"2018-05-09\"}", TestDato.class);
+            TestLocalDate testDato = JsonUtils.fromJson("{\"dato\":\"2018-05-09\"}", TestLocalDate.class);
             assertThat(testDato.dato).isEqualTo(LocalDate.of(2018, 5, 9));
         }
 
         @Test
         public void localDateIsNull() {
-            TestDato testDato = JsonUtils.fromJson("{\"dato\":null}", TestDato.class);
+            TestLocalDate testDato = JsonUtils.fromJson("{\"dato\":null}", TestLocalDate.class);
             assertThat(testDato.dato).isNull();
         }
 
@@ -131,6 +132,17 @@ public class JsonUtilsTest {
         public void localDateTimeIsNull() {
             TestLocalDateTime testDato = JsonUtils.fromJson("{\"dato\":null}", TestLocalDateTime.class);
             assertThat(testDato.dato).isNull();
+        }
+
+        @Test
+        public void date() {
+            String json = "{\"dato\":\"2021-01-26T09:50:07.838+01:00\"}";
+            TestDate testDate = JsonUtils.fromJson(json, TestDate.class);
+            Date expectedDate = Date.from(
+                    ZonedDateTime.of(2021, 1, 26, 9, 50, 7, 0, DEFAULT_ZONE)
+                            .plus(838, MILLIS).toInstant());
+            assertThat(testDate.dato).isEqualTo(expectedDate);
+            Assertions.assertThat(JsonUtils.toJson(testDate)).isEqualTo(json);
         }
     }
 
@@ -179,9 +191,15 @@ public class JsonUtilsTest {
         private CircularObject object = this;
     }
 
-    private static class TestDato {
+
+    private static class TestDate {
+        private Date dato;
+        public TestDate() { }
+    }
+
+    private static class TestLocalDate {
         private LocalDate dato;
-        public TestDato() { }
+        public TestLocalDate() { }
     }
 
     private static class TestLocalDateTime {
