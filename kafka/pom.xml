@@ -28,6 +28,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.junit.vintage</groupId>
