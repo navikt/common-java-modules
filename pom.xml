@@ -40,6 +40,7 @@
         <module>cxf</module>
         <module>feature-toggle</module>
         <module>json</module>
+        <module>kafka</module>
         <module>log</module>
         <module>job</module>
         <module>metrics</module>
