@@ -23,4 +23,9 @@ public class KafkaProducerUtils {
         return new ProducerRecord<>(topic, key, JsonUtils.toJson(value));
     }
 
+    public static ProducerRecord<String, String> toRecord(String topic, String key, String value) {
+        return new ProducerRecord<>(topic, key, value);
+    }
+
+
 }

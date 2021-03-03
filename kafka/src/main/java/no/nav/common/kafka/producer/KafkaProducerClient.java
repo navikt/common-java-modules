@@ -1,5 +1,6 @@
 package no.nav.common.kafka.producer;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -15,19 +16,12 @@ public class KafkaProducerClient {
     // TODO: Mulig at vi må ha støtte for at man skal kunne spesifisere annet enn <String, String>
     private final Producer<String, String> producer;
 
-    // TODO: Kunne vurdert å ha en liste med listeners slik at man kan gjøre flere ting, som f.eks metrikker + feilhandtering
-    private final Map<String, KafkaProducerListener> topicListeners;
-
-    private final ThreadPoolExecutor threadPoolExecutor;
-
     private final AtomicBoolean isShutDown;
 
     public KafkaProducerClient(KafkaProducerClientConfig config) {
         producer = new KafkaProducer<>(config.properties);
-        topicListeners = config.topicListeners;
 
         isShutDown = new AtomicBoolean();
-        threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(topicListeners.size());
 
         registerShutdownHook();
     }
@@ -43,14 +37,10 @@ public class KafkaProducerClient {
         }
     }
 
-    public void sendAsync(final ProducerRecord<String, String> record) {
+    public void sendAsync(final ProducerRecord<String, String> record, Callback callback) {
         checkIfShutDown();
 
-        threadPoolExecutor.submit(() -> {
-
-        });
-
-        // producer.send(record)
+        producer.send(record, callback);
     }
 
     public Producer<String, String> getProducer() {

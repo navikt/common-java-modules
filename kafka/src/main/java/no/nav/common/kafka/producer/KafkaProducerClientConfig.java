@@ -9,6 +9,4 @@ public class KafkaProducerClientConfig {
 
     Properties properties;
 
-    Map<String, KafkaProducerListener> topicListeners;
-
 }
