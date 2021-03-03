@@ -4,10 +4,10 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
+import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 // TODO: Should implement interface for easier mocking
 public class KafkaProducerClient {
@@ -18,14 +18,22 @@ public class KafkaProducerClient {
     // TODO: Kunne vurdert å ha en liste med listeners slik at man kan gjøre flere ting, som f.eks metrikker + feilhandtering
     private final Map<String, KafkaProducerListener> topicListeners;
 
+    private final ThreadPoolExecutor threadPoolExecutor;
+
+    private final AtomicBoolean isShutDown;
+
     public KafkaProducerClient(KafkaProducerClientConfig config) {
         producer = new KafkaProducer<>(config.properties);
         topicListeners = config.topicListeners;
-        // TODO: Create executor and run consume()
+
+        isShutDown = new AtomicBoolean();
+        threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(topicListeners.size());
+
+        registerShutdownHook();
     }
 
-    public void send(ProducerRecord<String, String> record) throws ExecutionException, InterruptedException, TimeoutException {
-        // ProducerRecord<String, String> record = new ProducerRecord<>("java_topic", null, recordValue);
+    public void sendSync(final ProducerRecord<String, String> record) throws ExecutionException, InterruptedException, TimeoutException {
+        checkIfShutDown();
 
         try {
             producer.send(record).get(1000L, TimeUnit.MILLISECONDS); // Blocks for max 1 second or fails
@@ -33,11 +41,33 @@ public class KafkaProducerClient {
         } catch (Exception e) {
             // TODO: Invoke listener onError
         }
-
     }
 
-    public void close() {
-        producer.close();
+    public void sendAsync(final ProducerRecord<String, String> record) {
+        checkIfShutDown();
+
+        threadPoolExecutor.submit(() -> {
+
+        });
+
+        // producer.send(record)
+    }
+
+    public Producer<String, String> getProducer() {
+        return producer;
+    }
+
+    private void checkIfShutDown() {
+        if (isShutDown.get()) {
+            throw new IllegalStateException("Cannot send messages to kafka after shutdown");
+        }
+    }
+
+    private void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            isShutDown.set(true);
+            producer.close(Duration.ofSeconds(10));
+        }));
     }
 
 }

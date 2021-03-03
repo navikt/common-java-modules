@@ -34,12 +34,12 @@ public class KafkaConsumerClient {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
 
             for (ConsumerRecord<String, String> record : records) {
+
                 System.out.println("Message received: " + record.value());
             }
 
             consumer.commitSync();
         }
-
     }
 
     public void close() {
