@@ -9,10 +9,9 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class KafkaConsumerClient {
+public class KafkaConsumerClient<K, V> {
 
-    // TODO: Mulig at vi må ha støtte for at man skal kunne spesifisere annet enn <String, String>
-    private final Consumer<String, String> consumer;
+    private final Consumer<K, V> consumer;
 
     // TODO: Kunne vurdert å ha en liste med listeners slik at man kan gjøre flere ting, som f.eks metrikker + feilhandtering
     private final Map<String, KafkaConsumerListener> topicListeners;
@@ -31,10 +30,11 @@ public class KafkaConsumerClient {
     private void consume() {
         while (true) {
             // Returns empty if duration is exceeded
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+            ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(100));
 
-            for (ConsumerRecord<String, String> record : records) {
-
+            for (ConsumerRecord<K, V> record : records) {
+                // Create thread
+                //
                 System.out.println("Message received: " + record.value());
             }
 

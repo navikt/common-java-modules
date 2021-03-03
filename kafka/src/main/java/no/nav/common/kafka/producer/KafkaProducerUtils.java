@@ -7,13 +7,7 @@ import java.util.Properties;
 
 public class KafkaProducerUtils {
 
-    public static Properties kafkaProducerDefaultProperties() {
-        return null;
-    }
-
-    public static KafkaProducerClientConfig config() {
-        return new KafkaProducerClientConfig();
-    }
+    private KafkaProducerUtils() {}
 
     public static ProducerRecord<String, String> toJsonRecord(String topic, Object value) {
         return new ProducerRecord<>(topic, JsonUtils.toJson(value));
