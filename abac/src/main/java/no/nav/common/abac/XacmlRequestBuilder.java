@@ -136,6 +136,7 @@ public class XacmlRequestBuilder {
 
     public static Attribute personIdAttribute(EksternBrukerId eksternBrukerId) {
         switch (eksternBrukerId.type()) {
+            case NORSK_IDENT:
             case FNR:
                 return new Attribute(NavAttributter.RESOURCE_FELLES_PERSON_FNR, eksternBrukerId.get());
             case AKTOR_ID:
