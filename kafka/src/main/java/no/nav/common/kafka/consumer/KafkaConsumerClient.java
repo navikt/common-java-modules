@@ -2,6 +2,8 @@ package no.nav.common.kafka.consumer;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
@@ -12,15 +14,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static java.lang.String.format;
+
 public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     public final static long DEFAULT_POLL_DURATION_MS = 1000;
+
+    private final static long POLL_ERROR_TIMEOUT_MS = 5000;
 
     private enum ClientStatus {
         NOT_STARTED, RUNNING, STOPPED
     }
 
-    private final KafkaConsumerClientConfig<K, V> config;
+    private final Logger log = LoggerFactory.getLogger(KafkaConsumerClient.class);
 
     private final ExecutorService pollExecutor = Executors.newSingleThreadExecutor();
 
@@ -31,6 +37,8 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     private final ReentrantLock consumptionLock = new ReentrantLock();
 
     private final AtomicInteger processedRecordCounter = new AtomicInteger();
+
+    private final KafkaConsumerClientConfig<K, V> config;
 
     private KafkaConsumer<K, V> consumer;
 
@@ -51,9 +59,9 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
         clientStatus = ClientStatus.RUNNING;
 
-        pollExecutor.submit(this::consumeTopics);
+        log.info("Starting kafka consumer client...");
 
-        // TODO: Log
+        pollExecutor.submit(this::consumeTopics);
     }
 
     public void stop() {
@@ -63,27 +71,27 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
         clientStatus = ClientStatus.STOPPED;
 
-        // TODO: Log
+        log.info("Stopping kafka consumer client...");
 
         try {
             pollExecutor.awaitTermination(30, TimeUnit.SECONDS);
-            // TODO: Log that everything was finished
+            log.info("Client was gracefully shutdown");
         } catch (InterruptedException e) {
+            log.error("Failed to stop gracefully,");
             commitCurrentOffsets();
-            // TODO: Log
         }
     }
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+        log.info("Partitions has been revoked from consumer: " + Arrays.toString(partitions.toArray()));
         revokedOrFailedPartitions.addAll(partitions);
         commitCurrentOffsets();
-        // TODO: Log info
     }
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-        // TODO: Log info
+        log.info("New partitions has been assigned to the consumer: " + Arrays.toString(partitions.toArray()));
     }
 
     private void consumeTopics() {
@@ -102,8 +110,8 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                try {
                    records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
                } catch (Exception e) {
-                   // TODO: Log
-                   Thread.sleep(5000);
+                   log.error("Exception occurred during polling of records. Waiting before trying again.", e);
+                   Thread.sleep(POLL_ERROR_TIMEOUT_MS);
                    continue;
                }
 
@@ -161,12 +169,10 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                     consumptionLock.lock();
                 }
 
-                // TODO: Maybe log something here?
-
                 commitCurrentOffsets();
             }
         } catch (Exception e) {
-            // TODO: Log
+            log.error("Unexpected exception caught from main loop. Shutting down...", e);
         } finally {
             commitCurrentOffsets();
             consumer.close();
@@ -176,7 +182,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     private void commitCurrentOffsets() {
         if (currentOffsets.size() > 0) {
             consumer.commitSync(currentOffsets);
-            // TODO: Maybe log something here?
+            log.info("Offsets commited: " + currentOffsets.toString());
             currentOffsets.clear();
         }
     }
@@ -192,7 +198,14 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         try {
             return topicConsumer.consume(consumerRecord);
         } catch (Exception e) {
-            // TODO: Log something here
+            String msg = format(
+                    "Consumer failed to process record from topic=%s partition=%d offset=%d",
+                    consumerRecord.topic(),
+                    consumerRecord.partition(),
+                    consumerRecord.offset()
+            );
+
+            log.error(msg, e);
             return ConsumeStatus.FAILED;
         }
     }
