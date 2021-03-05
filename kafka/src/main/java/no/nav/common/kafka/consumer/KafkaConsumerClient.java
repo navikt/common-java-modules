@@ -5,12 +5,8 @@ import org.apache.kafka.common.TopicPartition;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
@@ -25,25 +21,23 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     private final Map<String, TopicConsumer<K, V>> topicConsumers;
 
-    private final Map<String, ExecutorService> topicConsumptionExecutors;
-
     private final ExecutorService pollExecutor = Executors.newSingleThreadExecutor();
 
     private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new ConcurrentHashMap<>();
 
     private final Set<TopicPartition> revokedOrFailedPartitions = ConcurrentHashMap.newKeySet();
 
-    private final Lock consumptionLock = new ReentrantLock();
+    private final ReentrantLock consumptionLock = new ReentrantLock();
 
     private final AtomicInteger processedRecordCounter = new AtomicInteger();
+
+    private Map<String, ThreadPoolExecutor> topicConsumptionExecutors;
 
     private volatile ClientStatus clientStatus = ClientStatus.NOT_STARTED;
 
     public KafkaConsumerClient(KafkaConsumerClientConfig<K, V> config) {
         consumer = new KafkaConsumer<>(config.properties);
-
         topicConsumers = config.topicListeners;
-        topicConsumptionExecutors = createTopicExecutors(config.topicListeners.keySet());
 
         Runtime.getRuntime().addShutdownHook(shutdownThread);
     }
@@ -53,11 +47,13 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
             return;
         }
 
+        topicConsumptionExecutors = createTopicExecutors(topicConsumers.keySet());
+
         clientStatus = ClientStatus.RUNNING;
 
-        // TODO: Log
-
         pollExecutor.submit(this::consumeTopics);
+
+        // TODO: Log
     }
 
     public void stop() {
@@ -68,9 +64,14 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         clientStatus = ClientStatus.STOPPED;
 
         // TODO: Log
+
         try {
+            topicConsumptionExecutors.values().forEach(this::drainWaitingTasks);
             pollExecutor.awaitTermination(30, TimeUnit.SECONDS);
+            // TODO: Log that everything was finished
         } catch (InterruptedException e) {
+            topicConsumptionExecutors.values().forEach(ThreadPoolExecutor::shutdownNow);
+            consumer.commitSync(currentOffsets);
             // TODO: Log
         }
     }
@@ -152,16 +153,26 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         }
     }
 
+    private void drainWaitingTasks(ThreadPoolExecutor executor) {
+        executor.shutdown();
+
+        final BlockingQueue<Runnable> blockingQueue = executor.getQueue();
+
+        processedRecordCounter.addAndGet(blockingQueue.size());
+
+        blockingQueue.clear();
+    }
+
     private void incrementProcessedRecords(int totalRecords) {
         int processedRecords = processedRecordCounter.incrementAndGet();
-        if (processedRecords >= totalRecords) {
+        if (processedRecords >= totalRecords && consumptionLock.isLocked()) {
             consumptionLock.unlock();
         }
     }
 
-    private static Map<String, ExecutorService> createTopicExecutors(Iterable<String> topics) {
-        Map<String, ExecutorService> executorsMap = new HashMap<>();
-        topics.forEach(topic -> executorsMap.put(topic, Executors.newSingleThreadExecutor()));
+    private static Map<String, ThreadPoolExecutor> createTopicExecutors(Iterable<String> topics) {
+        Map<String, ThreadPoolExecutor> executorsMap = new HashMap<>();
+        topics.forEach(topic -> executorsMap.put(topic, new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue())));
         return executorsMap;
     }
 
