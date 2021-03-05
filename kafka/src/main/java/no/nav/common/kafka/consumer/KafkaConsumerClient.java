@@ -20,11 +20,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         NOT_STARTED, RUNNING, STOPPED
     }
 
-    private final long pollDurationMs;
-
-    private final KafkaConsumer<K, V> consumer;
-
-    private final Map<String, TopicConsumer<K, V>> topics;
+    private final KafkaConsumerClientConfig<K, V> config;
 
     private final ExecutorService pollExecutor = Executors.newSingleThreadExecutor();
 
@@ -36,16 +32,14 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     private final AtomicInteger processedRecordCounter = new AtomicInteger();
 
-    private Map<String, ExecutorService> topicConsumptionExecutors;
+    private KafkaConsumer<K, V> consumer;
 
     private volatile ClientStatus clientStatus = ClientStatus.NOT_STARTED;
 
     public KafkaConsumerClient(KafkaConsumerClientConfig<K, V> config) {
         validateConfig(config);
 
-        pollDurationMs = config.pollDurationMs;
-        consumer = new KafkaConsumer<>(config.properties);
-        topics = config.topics;
+        this.config = config;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
@@ -54,8 +48,6 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         if (clientStatus == ClientStatus.RUNNING) {
             return;
         }
-
-        topicConsumptionExecutors = createTopicExecutors(topics.keySet());
 
         clientStatus = ClientStatus.RUNNING;
 
@@ -96,26 +88,38 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     private void consumeTopics() {
         try {
+            final List<String> topicNames = new ArrayList<>(config.topics.keySet());
+            final Map<String, ExecutorService> topicConsumptionExecutors = createTopicExecutors(topicNames);
+
+            consumer = new KafkaConsumer<>(config.properties);
+            consumer.subscribe(topicNames, this);
+
             consumptionLock.unlock();
-            consumer.subscribe(new ArrayList<>(topics.keySet()), this);
 
             while (clientStatus == ClientStatus.RUNNING) {
-                revokedOrFailedPartitions.clear();
-                currentOffsets.clear();
-                processedRecordCounter.set(0);
+                ConsumerRecords<K, V> records;
 
-                // TODO: Wrap this with try-catch so that the main loop does not stop?
-                ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(pollDurationMs));
+               try {
+                   records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
+               } catch (Exception e) {
+                   // TODO: Log
+                   Thread.sleep(5000);
+                   continue;
+               }
 
                 if (records.isEmpty()) {
                     continue;
                 }
 
+                revokedOrFailedPartitions.clear();
+                currentOffsets.clear();
+                processedRecordCounter.set(0);
+
                 int totalRecords = records.count();
 
                 for (ConsumerRecord<K, V> record : records) {
                     String topic = record.topic();
-                    TopicConsumer<K, V> topicConsumer = topics.get(topic);
+                    TopicConsumer<K, V> topicConsumer = config.topics.get(topic);
                     ExecutorService executor = topicConsumptionExecutors.get(topic);
                     TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
 
@@ -164,6 +168,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         } catch (Exception e) {
             // TODO: Log
         } finally {
+            commitCurrentOffsets();
             consumer.close();
         }
     }
@@ -171,6 +176,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     private void commitCurrentOffsets() {
         if (currentOffsets.size() > 0) {
             consumer.commitSync(currentOffsets);
+            // TODO: Maybe log something here?
             currentOffsets.clear();
         }
     }
@@ -182,9 +188,9 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         }
     }
 
-    private ConsumeStatus consumeRecord(TopicConsumer<K, V> consumer, ConsumerRecord<K, V> record) {
+    private ConsumeStatus consumeRecord(TopicConsumer<K, V> topicConsumer, ConsumerRecord<K, V> consumerRecord) {
         try {
-            return consumer.consume(record);
+            return topicConsumer.consume(consumerRecord);
         } catch (Exception e) {
             // TODO: Log something here
             return ConsumeStatus.FAILED;
