@@ -1,7 +1,10 @@
-package no.nav.common.kafka.producer;
+package no.nav.common.kafka.feilhandtering;
 
-import no.nav.common.kafka.db.KafkaRepository;
 import no.nav.common.kafka.domain.KafkaMessage;
+import no.nav.common.kafka.feilhandtering.db.KafkaRepository;
+import no.nav.common.kafka.producer.KafkaProducerClient;
+import no.nav.common.kafka.producer.KafkaProducerClientImpl;
+import no.nav.common.kafka.util.KafkaProducerUtils;
 
 import java.time.Instant;
 import java.util.List;

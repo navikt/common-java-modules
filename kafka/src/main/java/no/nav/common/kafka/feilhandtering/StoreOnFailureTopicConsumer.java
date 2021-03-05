@@ -1,5 +1,7 @@
-package no.nav.common.kafka.consumer;
+package no.nav.common.kafka.feilhandtering;
 
+import no.nav.common.kafka.consumer.ConsumeStatus;
+import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 public class StoreOnFailureTopicConsumer implements TopicConsumer<String, String> {

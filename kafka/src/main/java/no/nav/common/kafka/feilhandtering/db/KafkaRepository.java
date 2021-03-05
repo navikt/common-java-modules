@@ -1,4 +1,4 @@
-package no.nav.common.kafka.db;
+package no.nav.common.kafka.feilhandtering.db;
 
 import no.nav.common.kafka.domain.KafkaMessage;
 
