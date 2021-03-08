@@ -6,13 +6,17 @@ import java.time.Instant;
 import java.util.List;
 
 public interface KafkaRepository {
-    long toBeSent(String topic, String record, String key);
+    long storeProducerMessage(String topic, String record, String key);
 
-    void sentOk(long id);
+    long storeConsumerMessage(String topic, String record, String key, long offset, int parition);
+
+    void deleteProducerMessage(long id);
+
+    void deleteConsumerMessage(long id);
 
     void failed(long id);
 
-    List<KafkaMessage> getUnsentOltherThan(Instant minusSeconds);
+    List<KafkaMessage> getUnsentOlderThan(Instant minusSeconds);
 
     // TODO: Add some default functions here for storing messages
 

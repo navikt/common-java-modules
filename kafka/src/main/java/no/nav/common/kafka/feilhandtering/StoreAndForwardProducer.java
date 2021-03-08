@@ -25,21 +25,19 @@ public class StoreAndForwardProducer {
     }
 
     public void send(String key, String record, String topic) {
-        long id = repository.toBeSent(topic, record, key);
-
+        long id = repository.storeProducerMessage(topic, record, key);
         send(id, topic, key, record);
     }
 
     public void resendFailedMessages() {
-        List<KafkaMessage> messages = repository.getUnsentOltherThan(Instant.now().minusSeconds(10));
+        List<KafkaMessage> messages = repository.getUnsentOlderThan(Instant.now().minusSeconds(10));
         messages.forEach(m -> send(m.id, m.topic, m.key, m.value));
     }
-
 
     private void send(long id, String topic, String key, String record) {
         client.send(KafkaProducerUtils.toRecord(topic, key, record), (metadata, exception) -> {
             if (exception == null) {
-                repository.sentOk(id);
+                repository.deleteProducerMessage(id);
             } else {
                 repository.failed(id);
             }
