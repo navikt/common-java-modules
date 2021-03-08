@@ -154,6 +154,12 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                             } else {
                                 revokedOrFailedPartitions.add(topicPartition);
                             }
+                        } catch(Exception e) {
+                            String msg = format(
+                                    "Unexpected error occurred wile processing record. topic=%s partition=%d offset=%d",
+                                    topic, record.partition(), record.offset()
+                            );
+                            log.error(msg, e);
                         } finally {
                             incrementProcessedRecords(totalRecords);
                         }
