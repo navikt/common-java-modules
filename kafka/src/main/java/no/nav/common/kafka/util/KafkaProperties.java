@@ -38,6 +38,14 @@ public class KafkaProperties {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
 
         /*
+            How many records can max be returned for each poll().
+            KafkaConsumerClient processes records asynchronously and loads all records into memory,
+            so it is important that the application can handle the maximum specified.
+            If faster processing is needed, the poll timeout can also be adjusted.
+         */
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5000);
+
+        /*
             Deserialize the key and value from each message as a string.
          */
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);

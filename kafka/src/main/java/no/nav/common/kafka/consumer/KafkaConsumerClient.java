@@ -22,8 +22,8 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     private final static long POLL_ERROR_TIMEOUT_MS = 5000;
 
-    private enum ClientStatus {
-        NOT_STARTED, RUNNING, STOPPED
+    private enum ClientState {
+       RUNNING, NOT_RUNNING
     }
 
     private final Logger log = LoggerFactory.getLogger(KafkaConsumerClient.class);
@@ -42,7 +42,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     private KafkaConsumer<K, V> consumer;
 
-    private volatile ClientStatus clientStatus = ClientStatus.NOT_STARTED;
+    private volatile ClientState clientState = ClientState.NOT_RUNNING;
 
     public KafkaConsumerClient(KafkaConsumerClientConfig<K, V> config) {
         validateConfig(config);
@@ -53,11 +53,11 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     }
 
     public void start() {
-        if (clientStatus == ClientStatus.RUNNING) {
+        if (clientState == ClientState.RUNNING) {
             return;
         }
 
-        clientStatus = ClientStatus.RUNNING;
+        clientState = ClientState.RUNNING;
 
         log.info("Starting kafka consumer client...");
 
@@ -65,11 +65,11 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     }
 
     public void stop() {
-        if (clientStatus == ClientStatus.NOT_STARTED || clientStatus == ClientStatus.STOPPED) {
+        if (clientState != ClientState.RUNNING) {
             return;
         }
 
-        clientStatus = ClientStatus.STOPPED;
+        clientState = ClientState.NOT_RUNNING;
 
         log.info("Stopping kafka consumer client...");
 
@@ -77,7 +77,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
             pollExecutor.awaitTermination(30, TimeUnit.SECONDS);
             log.info("Client was gracefully shutdown");
         } catch (InterruptedException e) {
-            log.error("Failed to stop gracefully,");
+            log.error("Failed to stop gracefully", e);
             commitCurrentOffsets();
         }
     }
@@ -104,24 +104,24 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
             consumptionLock.unlock();
 
-            while (clientStatus == ClientStatus.RUNNING) {
+            while (clientState == ClientState.RUNNING) {
                 ConsumerRecords<K, V> records;
-
-               try {
-                   records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
-               } catch (Exception e) {
-                   log.error("Exception occurred during polling of records. Waiting before trying again.", e);
-                   Thread.sleep(POLL_ERROR_TIMEOUT_MS);
-                   continue;
-               }
-
-                if (records.isEmpty()) {
-                    continue;
-                }
 
                 revokedOrFailedPartitions.clear();
                 currentOffsets.clear();
                 processedRecordCounter.set(0);
+
+                try {
+                    records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
+                } catch (Exception e) {
+                    log.error("Exception occurred during polling of records. Waiting before trying again.", e);
+                    Thread.sleep(POLL_ERROR_TIMEOUT_MS);
+                    continue;
+                }
+
+                if (records.isEmpty()) {
+                    continue;
+                }
 
                 int totalRecords = records.count();
 
@@ -142,7 +142,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
                                  The finally-clause will make sure that the processed records counter is incremented.
                             */
-                            if (clientStatus == ClientStatus.STOPPED || revokedOrFailedPartitions.contains(topicPartition)) {
+                            if (clientState == ClientState.NOT_RUNNING || revokedOrFailedPartitions.contains(topicPartition)) {
                                 return;
                             }
 
@@ -154,7 +154,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                             } else {
                                 revokedOrFailedPartitions.add(topicPartition);
                             }
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                             String msg = format(
                                     "Unexpected error occurred wile processing record. topic=%s partition=%d offset=%d",
                                     topic, record.partition(), record.offset()
@@ -180,13 +180,17 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         } catch (Exception e) {
             log.error("Unexpected exception caught from main loop. Shutting down...", e);
         } finally {
-            commitCurrentOffsets();
+            try {
+                commitCurrentOffsets();
+            } catch (Exception e) {
+                log.error("Failed to commit offsets during shutdown", e);
+            }
             consumer.close();
         }
     }
 
     private void commitCurrentOffsets() {
-        if (currentOffsets.size() > 0) {
+        if (!currentOffsets.isEmpty()) {
             consumer.commitSync(currentOffsets);
             log.info("Offsets commited: " + currentOffsets.toString());
             currentOffsets.clear();
