@@ -82,6 +82,10 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         }
     }
 
+    public boolean isRunning() {
+        return clientState == ClientState.RUNNING;
+    }
+
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
         log.info("Partitions has been revoked from consumer: " + Arrays.toString(partitions.toArray()));

@@ -8,5 +8,10 @@ import java.util.concurrent.Future;
 
 public interface KafkaProducerClient<K, V> {
 
+    void close();
+
+    Future<RecordMetadata> send(ProducerRecord<K, V> record);
+
     Future<RecordMetadata> send(ProducerRecord<K, V> record, Callback callback);
+
 }

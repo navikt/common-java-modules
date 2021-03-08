@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.List;
 
 public interface KafkaRepository {
-    long storeProducerMessage(String topic, String record, String key);
+    long storeProducerMessage(String topic, String key, String value);
 
     long storeConsumerMessage(String topic, String record, String key, long offset, int parition);
 
