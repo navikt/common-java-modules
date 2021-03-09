@@ -7,12 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.*;
 
 import static java.lang.String.format;
 
@@ -34,15 +29,15 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     private final Set<TopicPartition> revokedOrFailedPartitions = ConcurrentHashMap.newKeySet();
 
-    private final ReentrantLock consumptionLock = new ReentrantLock();
-
-    private final AtomicInteger processedRecordCounter = new AtomicInteger();
-
     private final KafkaConsumerClientConfig<K, V> config;
 
-    private KafkaConsumer<K, V> consumer;
-
     private volatile ClientState clientState = ClientState.NOT_RUNNING;
+
+    private volatile CountDownLatch processedRecordsLatch;
+
+    private volatile CountDownLatch shutdownLatch;
+
+    private KafkaConsumer<K, V> consumer;
 
     public KafkaConsumerClient(KafkaConsumerClientConfig<K, V> config) {
         validateConfig(config);
@@ -74,11 +69,10 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         log.info("Stopping kafka consumer client...");
 
         try {
-            pollExecutor.awaitTermination(30, TimeUnit.SECONDS);
+            shutdownLatch.await(15, TimeUnit.SECONDS);
             log.info("Client was gracefully shutdown");
         } catch (InterruptedException e) {
             log.error("Failed to stop gracefully", e);
-            commitCurrentOffsets();
         }
     }
 
@@ -90,7 +84,11 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
         log.info("Partitions has been revoked from consumer: " + Arrays.toString(partitions.toArray()));
         revokedOrFailedPartitions.addAll(partitions);
-        commitCurrentOffsets();
+        try {
+            commitCurrentOffsets();
+        } catch (Exception e) {
+            log.error("Failed to commit offsets when partitions were revoked: " + currentOffsets.toString(), e);
+        }
     }
 
     @Override
@@ -103,17 +101,15 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
             final List<String> topicNames = new ArrayList<>(config.topics.keySet());
             final Map<String, ExecutorService> topicConsumptionExecutors = createTopicExecutors(topicNames);
 
+            shutdownLatch = new CountDownLatch(1);
             consumer = new KafkaConsumer<>(config.properties);
             consumer.subscribe(topicNames, this);
-
-            consumptionLock.unlock();
 
             while (clientState == ClientState.RUNNING) {
                 ConsumerRecords<K, V> records;
 
                 revokedOrFailedPartitions.clear();
                 currentOffsets.clear();
-                processedRecordCounter.set(0);
 
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
@@ -128,6 +124,8 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                 }
 
                 int totalRecords = records.count();
+
+                processedRecordsLatch = new CountDownLatch(totalRecords);
 
                 for (ConsumerRecord<K, V> record : records) {
                     String topic = record.topic();
@@ -165,46 +163,44 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                             );
                             log.error(msg, e);
                         } finally {
-                            incrementProcessedRecords(totalRecords);
+                            processedRecordsLatch.countDown();
                         }
                     });
                 }
 
-                /*
-                    If there are unprocessed records then we wait until all are processed.
-                    Since the records are consumed async this should always happen,
-                     but we still check so we dont get stuck in a deadlock.
-                */
-                if (processedRecordCounter.get() < totalRecords) {
-                    consumptionLock.lock();
-                }
+                processedRecordsLatch.await();
 
-                commitCurrentOffsets();
+                try {
+                    commitCurrentOffsets();
+                } catch (Exception e) {
+                    // If we fail to commit offsets then continue polling records
+                    log.error("Failed to commit offsets: " + currentOffsets.toString(), e);
+                }
             }
         } catch (Exception e) {
             log.error("Unexpected exception caught from main loop. Shutting down...", e);
         } finally {
             try {
                 commitCurrentOffsets();
+                consumer.close(Duration.ofSeconds(3));
             } catch (Exception e) {
-                log.error("Failed to commit offsets during shutdown", e);
+                log.error("Failed to shutdown properly", e);
+            } finally {
+                shutdownLatch.countDown();
+
+                if (clientState == ClientState.RUNNING) {
+                    log.warn("Unexpected failure while client was running. Restarting...");
+                    pollExecutor.submit(this::consumeTopics);
+                }
             }
-            consumer.close();
         }
     }
 
     private void commitCurrentOffsets() {
         if (!currentOffsets.isEmpty()) {
-            consumer.commitSync(currentOffsets);
+            consumer.commitSync(currentOffsets, Duration.ofSeconds(3));
             log.info("Offsets commited: " + currentOffsets.toString());
             currentOffsets.clear();
-        }
-    }
-
-    private void incrementProcessedRecords(int totalRecords) {
-        int processedRecords = processedRecordCounter.incrementAndGet();
-        if (processedRecords >= totalRecords && consumptionLock.isLocked()) {
-            consumptionLock.unlock();
         }
     }
 

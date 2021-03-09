@@ -12,6 +12,8 @@ import java.util.Properties;
 
 public class KafkaProperties {
 
+    private final static int MAX_POLL_RECORDS = 1000;
+
     public static Properties defaultConsumerProperties(String consumerGroupId, String kafkaBrokersUrl, Credentials credentials) {
         Properties props = new Properties();
 
@@ -28,9 +30,9 @@ public class KafkaProperties {
 
         /*
             If a batch takes longer than the time specified then the consumer will be assumed dead and another consumer will be assigned.
-            30 minutes
+            1s pr record
          */
-        props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 30 * 60 * 1000);
+        props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 1000 * MAX_POLL_RECORDS);
 
         /*
             KafkaConsumerClient commits manually, so this must be turned off.
@@ -43,7 +45,7 @@ public class KafkaProperties {
             so it is important that the application can handle the maximum specified.
             If faster processing is needed, the poll timeout can also be adjusted.
          */
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5000);
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, MAX_POLL_RECORDS);
 
         /*
             Deserialize the key and value from each message as a string.

@@ -37,7 +37,7 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
         try {
             producer.close(Duration.ofSeconds(5));
-            log.info("Kafke producer was closed successfully");
+            log.info("Kafka producer was closed successfully");
         } catch (Exception e) {
             log.error("Failed to close kafka producer gracefully", e);
         }
