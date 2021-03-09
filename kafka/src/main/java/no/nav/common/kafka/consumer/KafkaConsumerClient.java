@@ -70,7 +70,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
         try {
             shutdownLatch.await(15, TimeUnit.SECONDS);
-            log.info("Client was gracefully shutdown");
+            log.info("Kafka client stopped");
         } catch (InterruptedException e) {
             log.error("Failed to stop gracefully", e);
         }
