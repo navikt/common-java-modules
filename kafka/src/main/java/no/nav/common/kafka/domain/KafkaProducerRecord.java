@@ -1,12 +1,12 @@
 package no.nav.common.kafka.domain;
 
-public class KafkaMessage {
+public class KafkaProducerRecord<K, V> {
     public final long id;
     public final String topic;
-    public final String key;
-    public final String value;
+    public final K key;
+    public final V value;
 
-    public KafkaMessage(long id, String topic, String key, String value) {
+    public KafkaProducerRecord(long id, String topic, K key, V value) {
         this.id = id;
         this.topic = topic;
         this.key = key;

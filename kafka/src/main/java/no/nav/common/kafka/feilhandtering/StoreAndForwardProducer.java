@@ -1,6 +1,6 @@
 package no.nav.common.kafka.feilhandtering;
 
-import no.nav.common.kafka.feilhandtering.db.KafkaRepository;
+import no.nav.common.kafka.feilhandtering.db.KafkaProducerRepository;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 import org.apache.kafka.clients.producer.Callback;
@@ -12,44 +12,43 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
-public class StoreAndForwardProducer implements KafkaProducerClient<String, String> {
+public class StoreAndForwardProducer<K, V> implements KafkaProducerClient<K, V> {
 
     private final Logger log = LoggerFactory.getLogger(StoreAndForwardProducer.class);
 
-    private final KafkaRepository repository;
+    private final KafkaProducerRepository<K, V> producerRepository;
 
-    private final KafkaProducerClient<String, String> client;
+    private final KafkaProducerClient<K, V> producerClient;
 
-    public StoreAndForwardProducer(KafkaRepository repository, KafkaProducerClient<String, String> client) {
-        this.repository = repository;
-        this.client = client;
+    public StoreAndForwardProducer(KafkaProducerRepository<K, V> producerRepository, KafkaProducerClient<K, V> producerClient) {
+        this.producerRepository = producerRepository;
+        this.producerClient = producerClient;
     }
 
-    public StoreAndForwardProducer(KafkaRepository repository, Properties properties) {
-        this.repository = repository;
-        this.client = new KafkaProducerClientImpl<>(properties);
+    public StoreAndForwardProducer(KafkaProducerRepository<K, V> producerRepository, Properties properties) {
+        this.producerRepository = producerRepository;
+        this.producerClient = new KafkaProducerClientImpl<>(properties);
     }
 
     @Override
     public void close() {
-        client.close();
+        producerClient.close();
     }
 
     @Override
-    public Future<RecordMetadata> send(ProducerRecord<String, String> record) {
+    public Future<RecordMetadata> send(ProducerRecord<K, V> record) {
         return send(record, null);
     }
 
     @Override
-    public Future<RecordMetadata> send(ProducerRecord<String, String> record, Callback callback) {
-        long id = repository.storeProducerMessage(record.topic(), record.key(), record.value());
+    public Future<RecordMetadata> send(ProducerRecord<K, V> record, Callback callback) {
+        long id = producerRepository.storeRecord(record);
 
-        return client.send(record, (metadata, exception) -> {
+        return producerClient.send(record, (metadata, exception) -> {
             if (exception == null) {
-                repository.deleteProducerMessage(id);
+                producerRepository.deleteRecord(id);
             } else {
                 log.warn("Failed to send message. Message has been stored for retry", exception);
-                repository.failed(id);
             }
 
             if (callback != null) {

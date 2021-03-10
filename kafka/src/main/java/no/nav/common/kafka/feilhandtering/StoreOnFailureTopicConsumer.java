@@ -2,43 +2,39 @@ package no.nav.common.kafka.feilhandtering;
 
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
-import no.nav.common.kafka.feilhandtering.db.KafkaRepository;
+import no.nav.common.kafka.feilhandtering.db.KafkaConsumerRepository;
+import no.nav.common.kafka.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class StoreOnFailureTopicConsumer implements TopicConsumer<String, String> {
+public class StoreOnFailureTopicConsumer<K, V> implements TopicConsumer<K, V> {
 
-    private final KafkaRepository kafkaRepository;
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final TopicConsumer<String, String> mainConsumer;
+    private final KafkaConsumerRepository<K, V> consumerRepository;
 
-    public StoreOnFailureTopicConsumer(KafkaRepository kafkaRepository, TopicConsumer<String, String> mainConsumer) {
-        this.kafkaRepository = kafkaRepository;
-        this.mainConsumer = mainConsumer;
+    private final TopicConsumer<K, V> consumer;
+
+    public StoreOnFailureTopicConsumer(KafkaConsumerRepository<K, V> consumerRepository, TopicConsumer<K, V> consumer) {
+        this.consumerRepository = consumerRepository;
+        this.consumer = consumer;
     }
 
     @Override
-    public ConsumeStatus consume(ConsumerRecord<String, String> record) {
-        ConsumeStatus status;
-
-        try {
-            status = mainConsumer.consume(record);
-        } catch (Exception e) {
-            // TODO: log warn
-            status = ConsumeStatus.FAILED;
-        }
+    public ConsumeStatus consume(ConsumerRecord<K, V> record) {
+        ConsumeStatus status = ConsumerUtils.safeConsume(consumer, record);
 
         if (status == ConsumeStatus.OK) {
             return ConsumeStatus.OK;
         }
 
         try {
-            // TODO: Should check that the record is not already stored before saving
-            //  Check on topic + partition + offset
-
-            // TODO: Store in database
+            // TODO: Try to add constraint on topic/partition/offset
+            consumerRepository.storeRecord(record);
             return ConsumeStatus.OK;
         } catch (Exception e) {
-            // TODO: log error
+            log.error("Unable to store failed message in database", e);
             return ConsumeStatus.FAILED;
         }
     }

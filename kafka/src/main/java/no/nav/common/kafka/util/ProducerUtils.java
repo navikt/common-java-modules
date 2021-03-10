@@ -1,11 +1,12 @@
 package no.nav.common.kafka.util;
 
 import no.nav.common.json.JsonUtils;
+import no.nav.common.kafka.domain.KafkaProducerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-public class KafkaProducerUtils {
+public class ProducerUtils {
 
-    private KafkaProducerUtils() {}
+    private ProducerUtils() {}
 
     public static ProducerRecord<String, String> toJsonRecord(String topic, Object value) {
         return new ProducerRecord<>(topic, JsonUtils.toJson(value));
@@ -19,5 +20,8 @@ public class KafkaProducerUtils {
         return new ProducerRecord<>(topic, key, value);
     }
 
+    public static <K, V> ProducerRecord<K, V> mapRecord(KafkaProducerRecord<K, V> record) {
+        return new ProducerRecord<>(record.topic, record.key, record.value);
+    }
 
 }
