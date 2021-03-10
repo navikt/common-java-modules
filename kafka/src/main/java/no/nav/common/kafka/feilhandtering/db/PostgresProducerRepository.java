@@ -51,7 +51,7 @@ public class PostgresProducerRepository<K, V> implements KafkaProducerRepository
 
         long id = incrementAndGetPostgresSequence(dataSource, PRODUCER_RECORD_ID_SEQ);
 
-        try(PreparedStatement statement = createStatement(dataSource, sql)) {
+        try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
             statement.setString(2, record.topic());
             statement.setBytes(3, keySerializer.serialize(record.topic(), record.key()));
@@ -66,7 +66,7 @@ public class PostgresProducerRepository<K, V> implements KafkaProducerRepository
     @Override
     public void deleteRecord(long id) {
         String sql = format("DELETE FROM %s WHERE %s = ?", PRODUCER_RECORD_TABLE, ID);
-        try(PreparedStatement statement = createStatement(dataSource, sql)) {
+        try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
             statement.executeUpdate();
         }
@@ -76,11 +76,11 @@ public class PostgresProducerRepository<K, V> implements KafkaProducerRepository
     @Override
     public List<KafkaProducerRecord<K, V>> getRecords(List<String> topics, Instant olderThan, int maxMessages) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s IN (?) AND %s >= ? LIMIT %d",
+                "SELECT * FROM %s WHERE %s = ANY(?) AND %s >= ? LIMIT %d",
                 PRODUCER_RECORD_TABLE, TOPIC, CREATED_AT, maxMessages
         );
 
-        try(PreparedStatement statement = createStatement(dataSource, sql)) {
+        try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             Array array = dataSource.getConnection().createArrayOf("VARCHAR", topics.toArray());
             statement.setArray(1, array);
             statement.setTimestamp(2, new Timestamp(olderThan.toEpochMilli()));

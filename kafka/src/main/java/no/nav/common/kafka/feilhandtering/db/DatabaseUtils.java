@@ -8,6 +8,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import static no.nav.common.kafka.feilhandtering.db.Constants.*;
 public class DatabaseUtils {
 
     @SneakyThrows
-    public static PreparedStatement createStatement(DataSource dataSource, String sql) {
+    public static PreparedStatement createPreparedStatement(DataSource dataSource, String sql) {
         return dataSource.getConnection().prepareStatement(sql);
     }
 
@@ -68,10 +69,10 @@ public class DatabaseUtils {
 
     @SneakyThrows
     public static long incrementAndGetPostgresSequence(DataSource dataSource, String sequenceName) {
-        String sql = format("nextval('%s')", sequenceName);
+        String sql = format("SELECT nextval('%s')", sequenceName);
 
-        try(PreparedStatement statement = createStatement(dataSource, sql)) {
-            return fetchSequence(statement.executeQuery());
+        try(Statement statement = dataSource.getConnection().createStatement()) {
+            return fetchSequence(statement.executeQuery(sql));
         }
     }
 
