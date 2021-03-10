@@ -1,9 +1,7 @@
 package no.nav.common.featuretoggle;
 
 import lombok.extern.slf4j.Slf4j;
-import no.finn.unleash.DefaultUnleash;
-import no.finn.unleash.UnleashContext;
-import no.finn.unleash.UnleashException;
+import no.finn.unleash.*;
 import no.finn.unleash.event.UnleashSubscriber;
 import no.finn.unleash.repository.FeatureToggleResponse;
 import no.finn.unleash.strategy.Strategy;
@@ -15,6 +13,7 @@ import no.nav.common.health.HealthCheckResult;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static java.util.Optional.ofNullable;
@@ -23,9 +22,26 @@ import static no.finn.unleash.repository.FeatureToggleResponse.Status.CHANGED;
 @Slf4j
 public class UnleashService implements HealthCheck, UnleashSubscriber {
 
-    private final DefaultUnleash defaultUnleash;
+    private final Unleash unleash;
 
     private FeatureToggleResponse.Status lastTogglesFetchedStatus;
+
+    /**
+     * Will use the underlying {@code FakeUnleash} implementation, for setting up feature toggle tests etc.
+     * @see FakeUnleash
+     * @see #checkHealth()
+     */
+    public UnleashService() {
+        unleash = new FakeUnleash();
+    }
+
+    /**
+     * Get the underlying {@code Unleash} implementation.
+     * @return {@code Optional.empty()} unless the implementation is {@code FakeUnleash}, for sanity.
+     */
+    public Optional<Unleash> getUnleash() {
+        return unleash instanceof FakeUnleash ? Optional.of(unleash) : Optional.empty();
+    }
 
     public UnleashService(UnleashServiceConfig unleashServiceConfig, Strategy... strategies) {
         this(unleashServiceConfig, Arrays.asList(strategies));
@@ -45,7 +61,7 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
                 .synchronousFetchOnInitialisation(true)
                 .build();
 
-        this.defaultUnleash = new DefaultUnleash(unleashConfig, addDefaultStrategies(strategies));
+        this.unleash = new DefaultUnleash(unleashConfig, addDefaultStrategies(strategies));
     }
 
     private Strategy[] addDefaultStrategies(List<Strategy> strategies) {
@@ -62,7 +78,7 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
     }
 
     public boolean isEnabled(String toggleName, UnleashContext unleashContext) {
-        return defaultUnleash.isEnabled(toggleName, unleashContext);
+        return unleash.isEnabled(toggleName, unleashContext);
     }
 
     public static UnleashContext resolveUnleashContextFromSubject() {
@@ -87,6 +103,9 @@ public class UnleashService implements HealthCheck, UnleashSubscriber {
 
     @Override
     public HealthCheckResult checkHealth() {
+        if (unleash instanceof FakeUnleash) {
+            return HealthCheckResult.healthy();
+        }
         try {
             if (lastTogglesFetchedStatus == CHANGED || lastTogglesFetchedStatus == FeatureToggleResponse.Status.NOT_CHANGED) {
                 return HealthCheckResult.healthy();
