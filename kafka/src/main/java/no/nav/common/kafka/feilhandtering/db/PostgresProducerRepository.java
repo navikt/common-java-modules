@@ -1,13 +1,21 @@
 package no.nav.common.kafka.feilhandtering.db;
 
+import lombok.SneakyThrows;
 import no.nav.common.kafka.domain.KafkaProducerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
 import javax.sql.DataSource;
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+
+import static java.lang.String.format;
+import static no.nav.common.kafka.feilhandtering.db.Constants.*;
+import static no.nav.common.kafka.feilhandtering.db.DatabaseUtils.*;
 
 public class PostgresProducerRepository<K, V> implements KafkaProducerRepository<K, V> {
 
@@ -33,19 +41,51 @@ public class PostgresProducerRepository<K, V> implements KafkaProducerRepository
         this.valueDeserializer = valueDeserializer;
     }
 
+    @SneakyThrows
     @Override
     public long storeRecord(ProducerRecord<K, V> record) {
-        return 0;
+        String sql = format(
+                "INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?)",
+                PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE
+        );
+
+        long id = incrementAndGetPostgresSequence(dataSource, PRODUCER_RECORD_ID_SEQ);
+
+        try(PreparedStatement statement = createStatement(dataSource, sql)) {
+            statement.setLong(1, id);
+            statement.setString(2, record.topic());
+            statement.setBytes(3, keySerializer.serialize(record.topic(), record.key()));
+            statement.setBytes(4, valueSerializer.serialize(record.topic(), record.value()));
+            statement.executeUpdate();
+        }
+
+        return id;
     }
 
+    @SneakyThrows
     @Override
     public void deleteRecord(long id) {
-
+        String sql = format("DELETE FROM %s WHERE %s = ?", PRODUCER_RECORD_TABLE, ID);
+        try(PreparedStatement statement = createStatement(dataSource, sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        }
     }
 
+    @SneakyThrows
     @Override
     public List<KafkaProducerRecord<K, V>> getRecords(List<String> topics, Instant olderThan, int maxMessages) {
-        return null;
+        String sql = format(
+                "SELECT * FROM %s WHERE %s IN (?) AND %s >= ? LIMIT %d",
+                PRODUCER_RECORD_TABLE, TOPIC, CREATED_AT, maxMessages
+        );
+
+        try(PreparedStatement statement = createStatement(dataSource, sql)) {
+            Array array = dataSource.getConnection().createArrayOf("VARCHAR", topics.toArray());
+            statement.setArray(1, array);
+            statement.setTimestamp(2, new Timestamp(olderThan.toEpochMilli()));
+            return fetchProducerRecords(statement.executeQuery(), keyDeserializer, valueDeserializer);
+        }
     }
 
 }

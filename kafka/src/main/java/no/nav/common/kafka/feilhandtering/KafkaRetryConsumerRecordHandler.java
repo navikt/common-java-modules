@@ -8,7 +8,6 @@ import no.nav.common.kafka.util.ConsumerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class KafkaRetryConsumerRecordHandler<K, V> {
 
     public void consumeFailedMessages() {
         List<String> topicNames = new ArrayList<>(topics.keySet());
-        List<KafkaConsumerRecord<K, V>> records = kafkaConsumerRepository.getRecords(topicNames, Instant.now().minusSeconds(30), 100);
+        List<KafkaConsumerRecord<K, V>> records = kafkaConsumerRepository.getRecords(topicNames, 100);
 
         records.forEach(record -> {
             TopicConsumer<K, V> consumer = topics.get(record.topic);

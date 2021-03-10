@@ -1,17 +1,21 @@
-CREATE TABLE KAFKA_PRODUCER_MESSAGE (
-    ID                      BIGSERIAL PRIMARY KEY NOT NULL,
+CREATE SEQUENCE KAFKA_PRODUCER_RECORD_ID_SEQ;
+
+CREATE TABLE KAFKA_PRODUCER_RECORD (
+    ID                      BIGINT NOT NULL PRIMARY KEY,
     TOPIC                   VARCHAR(100) NOT NULL,
-    KEY                     VARCHAR(40) NOT NULL, -- can also be binary
-    VALUE                   TEXT NOT NULL,  -- can also be binary
+    KEY                     BYTEA NOT NULL,
+    VALUE                   BYTEA NOT NULL,
     CREATED_AT              TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TABLE KAFKA_CONSUMER_MESSAGE (
-    ID                      BIGSERIAL PRIMARY KEY NOT NULL,
+CREATE SEQUENCE KAFKA_CONSUMER_RECORD_ID_SEQ;
+
+CREATE TABLE KAFKA_CONSUMER_RECORD (
+    ID                      BIGINT NOT NULL PRIMARY KEY,
     TOPIC                   VARCHAR(100) NOT NULL,
-    KEY                     VARCHAR(40) NOT NULL, -- can also be binary
-    VALUE                   TEXT NOT NULL,  -- can also be binary
-    OFFSET                  BIGINT NOT NULL,
+    KEY                     BYTEA NOT NULL,
+    VALUE                   BYTEA NOT NULL,
+    RECORD_OFFSET           BIGINT NOT NULL,
     PARTITION               INTEGER NOT NULL,
     CREATED_AT              TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
