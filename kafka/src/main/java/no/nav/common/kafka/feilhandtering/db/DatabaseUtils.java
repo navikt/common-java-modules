@@ -77,6 +77,15 @@ public class DatabaseUtils {
     }
 
     @SneakyThrows
+    public static long incrementAndGetOracleSequence(DataSource dataSource, String sequenceName) {
+        String sql = format("SELECT %s.NEXTVAL FROM dual", sequenceName);
+
+        try(Statement statement = dataSource.getConnection().createStatement()) {
+            return fetchSequence(statement.executeQuery(sql));
+        }
+    }
+
+    @SneakyThrows
     public static long fetchSequence(ResultSet resultSet) {
         if (!resultSet.next()) {
             throw new IllegalStateException("Result set does not contain sequence");

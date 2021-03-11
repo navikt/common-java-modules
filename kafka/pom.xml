@@ -11,10 +11,6 @@
 
     <artifactId>kafka</artifactId>
 
-    <properties>
-        <testcontainers.version>1.15.2</testcontainers.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -53,22 +49,17 @@
             <artifactId>log</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.19</version>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainers.version}</version>
+            <version>1.15.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
