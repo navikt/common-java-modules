@@ -10,6 +10,8 @@ public interface KafkaProducerClient<K, V> {
 
     void close();
 
+    void sendSync(ProducerRecord<K, V> record);
+
     Future<RecordMetadata> send(ProducerRecord<K, V> record);
 
     Future<RecordMetadata> send(ProducerRecord<K, V> record, Callback callback);

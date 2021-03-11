@@ -1,5 +1,6 @@
 package no.nav.common.kafka.producer;
 
+import lombok.SneakyThrows;
 import org.apache.kafka.clients.producer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,13 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
         } catch (Exception e) {
             log.error("Failed to close kafka producer gracefully", e);
         }
+    }
+
+    @SneakyThrows
+    @Override
+    public void sendSync(ProducerRecord<K, V> record) {
+       send(record, null);
+       producer.flush(); // This will block until all buffered records are sent
     }
 
     @Override

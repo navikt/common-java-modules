@@ -11,13 +11,25 @@ import static org.junit.Assert.assertThrows;
 public class KafkaProducerClientImplTest {
 
     @Test
-    public void should_send_message_with_producer() {
+    public void should_send_message_with_producer_async() {
         MockProducer<String, String> mockProducer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
 
         client.send(record);
+
+        assertEquals(record, mockProducer.history().get(0));
+    }
+
+    @Test
+    public void should_send_message_with_producer_sync() {
+        MockProducer<String, String> mockProducer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
+        KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
+
+        ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
+
+        client.sendSync(record);
 
         assertEquals(record, mockProducer.history().get(0));
     }

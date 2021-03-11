@@ -4,15 +4,11 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -23,10 +19,10 @@ import org.testcontainers.utility.DockerImageName;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static no.nav.common.kafka.utils.TestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -41,7 +37,7 @@ public class KafkaConsumerClientTest {
     private KafkaConsumer<String, String> commitChecker;
 
     @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.4.3"));
+    public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
 
     @Before
     public void setup() {
@@ -71,9 +67,10 @@ public class KafkaConsumerClientTest {
     public void should_consume_and_commit_offsets() throws InterruptedException {
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>();
-        config.topics = Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 0));
-        config.properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
+        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 0))
+        );
 
         KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
         consumerClient.start();
@@ -98,9 +95,10 @@ public class KafkaConsumerClientTest {
     public void should_commit_consumed_tasks_when_closed_gracefully() throws InterruptedException {
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>();
-        config.topics = Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 100));
-        config.properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
+        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 100))
+        );
 
         KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
         consumerClient.start();
@@ -131,9 +129,10 @@ public class KafkaConsumerClientTest {
 
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>();
-        config.topics = Map.of(multiPartitionTopic, consumerWithCounter(counter, 0));
-        config.properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
+        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(multiPartitionTopic, consumerWithCounter(counter, 0))
+        );
 
         producer.send(new ProducerRecord<>(multiPartitionTopic, 0, "key1", "value1"));
         producer.send(new ProducerRecord<>(multiPartitionTopic, 0, "key1", "value2"));
@@ -167,12 +166,13 @@ public class KafkaConsumerClientTest {
         AtomicInteger counter1 = new AtomicInteger();
         AtomicInteger counter2 = new AtomicInteger();
 
-        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>();
-        config.topics = Map.of(
-                TEST_TOPIC_1, consumerWithCounter(counter1, 0),
-                TEST_TOPIC_2, failOnCountConsumer(counter2, 3)
+        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(
+                        TEST_TOPIC_1, consumerWithCounter(counter1, 0),
+                        TEST_TOPIC_2, failOnCountConsumer(counter2, 3)
+                )
         );
-        config.properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
 
         KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
         consumerClient.start();
@@ -207,13 +207,15 @@ public class KafkaConsumerClientTest {
         AtomicInteger counter1 = new AtomicInteger();
         AtomicInteger counter2 = new AtomicInteger();
 
-        KafkaConsumerClientConfig<String, String> config1 = new KafkaConsumerClientConfig<>();
-        config1.topics = Map.of(TEST_TOPIC_1, consumerWithCounter(counter1, 100));
-        config1.properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
+        KafkaConsumerClientConfig<String, String> config1 = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(TEST_TOPIC_1, consumerWithCounter(counter1, 100))
+        );
 
-        KafkaConsumerClientConfig<String, String> config2 = new KafkaConsumerClientConfig<>();
-        config2.topics = Map.of(TEST_TOPIC_1, consumerWithCounter(counter2, 100));
-        config2.properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
+        KafkaConsumerClientConfig<String, String> config2 = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(TEST_TOPIC_1, consumerWithCounter(counter2, 100))
+        );
 
         KafkaConsumerClient<String, String> consumerClient1 = new KafkaConsumerClient<>(config1);
         KafkaConsumerClient<String, String> consumerClient2 = new KafkaConsumerClient<>(config2);
@@ -270,29 +272,6 @@ public class KafkaConsumerClientTest {
                     ? ConsumeStatus.FAILED
                     : ConsumeStatus.OK;
         };
-    }
-
-    private Properties kafkaTestProducerProperties(String brokerUrl) {
-        Properties props = new Properties();
-        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
-        props.put(ProducerConfig.ACKS_CONFIG, "1");
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, "test-producer");
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000); // Prøv opptil 3 sekunder på å sende en melding
-        return props;
-    }
-
-    private Properties kafkaTestConsumerProperties(String brokerUrl) {
-        Properties props = new Properties();
-        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer");
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5 * 60 * 1000);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        return props;
     }
 
 }
