@@ -1,9 +1,7 @@
-package no.nav.common.kafka.feilhandtering;
+package no.nav.common.kafka.producer.feilhandtering;
 
-import no.nav.common.kafka.domain.KafkaProducerRecord;
-import no.nav.common.kafka.feilhandtering.db.KafkaProducerRepository;
 import no.nav.common.kafka.producer.KafkaProducerClient;
-import no.nav.common.kafka.util.ProducerUtils;
+import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,6 @@ public class KafkaRetryProducerRecordHandler<K, V> {
     }
 
     public void sendFailedMessages() {
-        // TODO: Only for specified topics
         List<KafkaProducerRecord<K, V>> records = kafkaRepository.getRecords(topics, Instant.now().minusSeconds(30), 100);
 
         records.forEach(record -> {

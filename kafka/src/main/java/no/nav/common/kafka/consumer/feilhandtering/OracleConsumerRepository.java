@@ -1,7 +1,6 @@
-package no.nav.common.kafka.feilhandtering.db;
+package no.nav.common.kafka.consumer.feilhandtering;
 
 import lombok.SneakyThrows;
-import no.nav.common.kafka.domain.KafkaConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
@@ -13,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
-import static no.nav.common.kafka.feilhandtering.db.Constants.*;
-import static no.nav.common.kafka.feilhandtering.db.DatabaseUtils.*;
+import static no.nav.common.kafka.util.DatabaseConstants.*;
+import static no.nav.common.kafka.util.DatabaseUtils.*;
 
-public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository<K, V> {
+public class OracleConsumerRepository<K, V> implements KafkaConsumerRepository<K, V> {
 
     private final DataSource dataSource;
 
@@ -26,7 +25,7 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
     private final Serializer<V> valueSerializer;
     private final Deserializer<V> valueDeserializer;
 
-    public PostgresConsumerRepository(
+    public OracleConsumerRepository(
             DataSource dataSource,
             Serializer<K> keySerializer,
             Deserializer<K> keyDeserializer,
@@ -54,7 +53,7 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
                 CONSUMER_RECORD_TABLE, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE
         );
 
-        long id = incrementAndGetPostgresSequence(dataSource, CONSUMER_RECORD_ID_SEQ);
+        long id = incrementAndGetOracleSequence(dataSource, CONSUMER_RECORD_ID_SEQ);
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
@@ -83,7 +82,7 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
     @Override
     public List<KafkaConsumerRecord<K, V>> getRecords(List<String> topics, int maxMessages) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s = ANY(?) LIMIT %d",
+                "SELECT * FROM %s WHERE %s = ANY(?) FETCH NEXT %d ROWS ONLY",
                 CONSUMER_RECORD_TABLE, TOPIC, maxMessages
         );
 
@@ -97,7 +96,7 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
     @SneakyThrows
     private Optional<KafkaConsumerRecord<K, V>> getRecord(String topic, int partition, long offset) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? LIMIT 1",
+                "SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? FETCH NEXT 1 ROWS ONLY",
                 CONSUMER_RECORD_TABLE, TOPIC, PARTITION, RECORD_OFFSET
         );
 

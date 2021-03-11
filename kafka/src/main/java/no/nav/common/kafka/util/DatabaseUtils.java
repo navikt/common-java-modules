@@ -1,8 +1,8 @@
-package no.nav.common.kafka.feilhandtering.db;
+package no.nav.common.kafka.util;
 
 import lombok.SneakyThrows;
-import no.nav.common.kafka.domain.KafkaConsumerRecord;
-import no.nav.common.kafka.domain.KafkaProducerRecord;
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecord;
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import javax.sql.DataSource;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
-import static no.nav.common.kafka.feilhandtering.db.Constants.*;
+import static no.nav.common.kafka.util.DatabaseConstants.*;
 
 public class DatabaseUtils {
 

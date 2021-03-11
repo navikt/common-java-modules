@@ -1,6 +1,5 @@
-package no.nav.common.kafka.feilhandtering.db;
+package no.nav.common.kafka.consumer.feilhandtering;
 
-import no.nav.common.kafka.domain.KafkaConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.List;

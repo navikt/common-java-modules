@@ -1,6 +1,6 @@
-package no.nav.common.kafka.feilhandtering.db;
+package no.nav.common.kafka.util;
 
-public class Constants {
+public class DatabaseConstants {
 
     public static final String PRODUCER_RECORD_TABLE = "KAFKA_PRODUCER_RECORD";
     public static final String CONSUMER_RECORD_TABLE = "KAFKA_CONSUMER_RECORD";

@@ -1,4 +1,4 @@
-package no.nav.common.kafka.util;
+package no.nav.common.kafka.consumer.util;
 
 import no.nav.common.json.JsonUtils;
 import no.nav.common.kafka.consumer.ConsumeStatus;

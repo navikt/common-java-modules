@@ -1,4 +1,4 @@
-package no.nav.common.kafka.domain;
+package no.nav.common.kafka.consumer.feilhandtering;
 
 public class KafkaConsumerRecord<K, V> {
     public final long id;

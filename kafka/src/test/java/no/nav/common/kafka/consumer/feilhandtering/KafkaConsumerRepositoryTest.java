@@ -1,6 +1,5 @@
-package no.nav.common.kafka.feilhandtering.db;
+package no.nav.common.kafka.consumer.feilhandtering;
 
-import no.nav.common.kafka.domain.KafkaConsumerRecord;
 import no.nav.common.kafka.utils.LocalH2Database;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;

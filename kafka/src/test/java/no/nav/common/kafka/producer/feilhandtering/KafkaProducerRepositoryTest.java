@@ -1,6 +1,5 @@
-package no.nav.common.kafka.feilhandtering.db;
+package no.nav.common.kafka.producer.feilhandtering;
 
-import no.nav.common.kafka.domain.KafkaProducerRecord;
 import no.nav.common.kafka.utils.LocalH2Database;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;

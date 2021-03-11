@@ -1,8 +1,8 @@
-package no.nav.common.kafka.util;
+package no.nav.common.kafka.consumer.util;
 
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
-import no.nav.common.kafka.domain.KafkaConsumerRecord;
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
-package no.nav.common.kafka.util;
+package no.nav.common.kafka.producer.util;
 
 import no.nav.common.json.JsonUtils;
-import no.nav.common.kafka.domain.KafkaProducerRecord;
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class ProducerUtils {

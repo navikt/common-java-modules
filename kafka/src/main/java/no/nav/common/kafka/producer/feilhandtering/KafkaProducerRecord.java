@@ -1,4 +1,4 @@
-package no.nav.common.kafka.domain;
+package no.nav.common.kafka.producer.feilhandtering;
 
 public class KafkaProducerRecord<K, V> {
     public final long id;

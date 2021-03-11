@@ -1,6 +1,5 @@
-package no.nav.common.kafka.feilhandtering;
+package no.nav.common.kafka.producer.feilhandtering;
 
-import no.nav.common.kafka.feilhandtering.db.KafkaProducerRepository;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 import org.apache.kafka.clients.producer.ProducerRecord;
