@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.feilhandtering.db.Constants.*;
@@ -42,6 +43,12 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
     @SneakyThrows
     @Override
     public long storeRecord(ConsumerRecord<K, V> record) {
+        Optional<KafkaConsumerRecord<K, V>> maybeRecord = getRecord(record.topic(), record.partition(), record.offset());
+
+        if (maybeRecord.isPresent()) {
+            return maybeRecord.get().id;
+        }
+
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?)",
                 CONSUMER_RECORD_TABLE, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE
@@ -84,6 +91,23 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
             Array array = dataSource.getConnection().createArrayOf("VARCHAR", topics.toArray());
             statement.setArray(1, array);
             return fetchConsumerRecords(statement.executeQuery(), keyDeserializer, valueDeserializer);
+        }
+    }
+
+    @SneakyThrows
+    private Optional<KafkaConsumerRecord<K, V>> getRecord(String topic, int partition, long offset) {
+        String sql = format(
+                "SELECT * FROM %s WHERE %s = ? AND %s = ? AND %s = ? LIMIT 1",
+                CONSUMER_RECORD_TABLE, TOPIC, PARTITION, RECORD_OFFSET
+        );
+
+        try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
+            statement.setString(1, topic);
+            statement.setInt(2, partition);
+            statement.setLong(3, offset);
+
+            List<KafkaConsumerRecord<K, V>> records = fetchConsumerRecords(statement.executeQuery(), keyDeserializer, valueDeserializer);
+            return records.isEmpty() ? Optional.empty() : Optional.of(records.get(0));
         }
     }
 

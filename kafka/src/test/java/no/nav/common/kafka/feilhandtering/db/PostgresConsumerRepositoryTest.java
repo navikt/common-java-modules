@@ -49,10 +49,20 @@ public class PostgresConsumerRepositoryTest {
     }
 
     @Test
-    public void should_insert_producer_record() {
+    public void should_insert_consumer_record() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key","value");
         long id = postgresConsumerRepository.storeRecord(record);
         assertEquals(1, id);
+    }
+
+    @Test
+    public void should_not_insert_more_than_1_record_with_same_topic_partition_offset() {
+        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key","value");
+        long id1 = postgresConsumerRepository.storeRecord(record);
+        long id2 = postgresConsumerRepository.storeRecord(record);
+
+        assertEquals(1, id1);
+        assertEquals(1, id2);
     }
 
     @Test

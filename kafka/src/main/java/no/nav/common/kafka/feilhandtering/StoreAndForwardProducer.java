@@ -3,7 +3,6 @@ package no.nav.common.kafka.feilhandtering;
 import no.nav.common.kafka.feilhandtering.db.KafkaProducerRepository;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
-import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
-public class StoreAndForwardProducer<K, V> implements KafkaProducerClient<K, V> {
+public class StoreAndForwardProducer<K, V> {
 
     private final Logger log = LoggerFactory.getLogger(StoreAndForwardProducer.class);
 
@@ -30,18 +29,7 @@ public class StoreAndForwardProducer<K, V> implements KafkaProducerClient<K, V> 
         this.producerClient = new KafkaProducerClientImpl<>(properties);
     }
 
-    @Override
-    public void close() {
-        producerClient.close();
-    }
-
-    @Override
     public Future<RecordMetadata> send(ProducerRecord<K, V> record) {
-        return send(record, null);
-    }
-
-    @Override
-    public Future<RecordMetadata> send(ProducerRecord<K, V> record, Callback callback) {
         long id = producerRepository.storeRecord(record);
 
         return producerClient.send(record, (metadata, exception) -> {
@@ -49,10 +37,6 @@ public class StoreAndForwardProducer<K, V> implements KafkaProducerClient<K, V> 
                 producerRepository.deleteRecord(id);
             } else {
                 log.warn("Failed to send message. Message has been stored for retry", exception);
-            }
-
-            if (callback != null) {
-                callback.onCompletion(metadata, exception);
             }
         });
     }
