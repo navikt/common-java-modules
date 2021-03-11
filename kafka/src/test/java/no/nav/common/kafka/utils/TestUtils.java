@@ -31,7 +31,7 @@ public class TestUtils {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "test-producer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 3000); // Prøv opptil 3 sekunder på å sende en melding
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 2000); // Prøv opptil 2 sekunder på å sende en melding
         props.put(ProducerConfig.LINGER_MS_CONFIG, 100);
         return props;
     }

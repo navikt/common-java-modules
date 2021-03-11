@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> {
@@ -47,8 +48,9 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
     @SneakyThrows
     @Override
     public void sendSync(ProducerRecord<K, V> record) {
-       send(record, null);
-       producer.flush(); // This will block until all buffered records are sent
+        Future<RecordMetadata> future = send(record, null);
+        producer.flush(); // This will block until all buffered records are sent
+        future.get();
     }
 
     @Override
@@ -62,7 +64,14 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
             throw new IllegalStateException("Cannot send messages to kafka after shutdown");
         }
 
-        return producer.send(record, callback);
+        try {
+            return producer.send(record, callback);
+        } catch (Exception e) {
+            if (callback != null) {
+                callback.onCompletion(null, e);
+            }
+            return CompletableFuture.failedFuture(e);
+        }
     }
 
 }
