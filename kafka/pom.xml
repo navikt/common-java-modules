@@ -40,6 +40,12 @@
         </dependency>
 
         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
         </dependency>
@@ -49,7 +55,6 @@
             <artifactId>log</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
