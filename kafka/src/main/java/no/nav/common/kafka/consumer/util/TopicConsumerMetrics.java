@@ -33,7 +33,7 @@ public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
                 Counter.builder(COUNTER_NAME)
                     .tag("topic", record.topic())
                     .tag("partition", String.valueOf(record.partition()))
-                    .tag("status", status.name())
+                    .tag("status", status.name().toLowerCase())
                     .register(meterRegistry))
                 .increment();
     }
