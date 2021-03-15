@@ -11,7 +11,7 @@ import java.util.function.Function;
 /**
  * Topic consumer which deserializes JSON messages from topics.
  * @param <K> topic key
- * @param <V> topic value
+ * @param <V> topic value (NB: This must always be a String! A generic type is used to make JsonTopicConsumer compatible with the other generic kafka components)
  * @param <T> deserialized JSON
  */
 public class JsonTopicConsumer<K, V, T> implements TopicConsumer<K, V> {

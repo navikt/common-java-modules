@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
 
-    private final static String COUNTER_NAME = "kafka.consumer.status";
+    public final static String KAFKA_CONSUMER_STATUS_COUNTER = "kafka.consumer.status";
 
     private final MeterRegistry meterRegistry;
 
@@ -30,7 +30,7 @@ public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
         String key = String.format("%s-%d-%s", record.topic(), record.partition(), status);
 
         counterMap.computeIfAbsent(key, (k) ->
-                Counter.builder(COUNTER_NAME)
+                Counter.builder(KAFKA_CONSUMER_STATUS_COUNTER)
                     .tag("topic", record.topic())
                     .tag("partition", String.valueOf(record.partition()))
                     .tag("status", status.name().toLowerCase())

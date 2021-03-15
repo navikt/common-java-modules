@@ -15,7 +15,7 @@ import java.util.concurrent.Future;
 
 public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient<K, V> {
 
-    private final static String COUNTER_NAME = "kafka.producer.status";
+    private final static String KAFKA_PRODUCER_STATUS_COUNTER = "kafka.producer.status";
 
     private final KafkaProducerClient<K, V> client;
 
@@ -72,7 +72,7 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
     private void incrementRecordCount(ProducerRecord<K, V> record, boolean failed) {
         String key = record.topic() + "-" + failed;
         counterMap.computeIfAbsent(key, (k) ->
-                Counter.builder(COUNTER_NAME)
+                Counter.builder(KAFKA_PRODUCER_STATUS_COUNTER)
                     .tag("topic", record.topic())
                     .tag("status", failed ? "failed" : "ok")
                     .register(meterRegistry))
