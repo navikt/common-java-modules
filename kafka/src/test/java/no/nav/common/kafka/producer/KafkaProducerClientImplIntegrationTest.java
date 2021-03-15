@@ -8,6 +8,7 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TimeoutException;
 import org.junit.After;
@@ -147,6 +148,31 @@ public class KafkaProducerClientImplIntegrationTest {
         Thread.sleep(2500);
 
         assertEquals(TimeoutException.class, exceptionRef.get().getClass());
+    }
+
+    @Test
+    public void should_execute_callback_with_exception_when_sending_after_closed() {
+        AtomicInteger counter = new AtomicInteger();
+
+        Callback callback = (metadata, exception) -> {
+            if (exception != null) {
+                counter.incrementAndGet();
+            }
+        };
+
+        producerClient.close();
+
+        producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"), callback);
+        producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"), callback);
+
+        assertEquals(2, counter.get());
+    }
+
+    @Test
+    public void should_throw_exception_when_sending_after_closed() {
+        producerClient.close();
+
+        assertThrows(ExecutionException.class, () -> producerClient.sendSync(new ProducerRecord<>(TEST_TOPIC, "key", "value")));
     }
 
 }

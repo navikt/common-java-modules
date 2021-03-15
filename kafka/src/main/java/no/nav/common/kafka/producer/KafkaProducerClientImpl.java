@@ -14,8 +14,6 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
     private final Logger log = LoggerFactory.getLogger(KafkaProducerClientImpl.class);
 
-    private volatile boolean isClosed = false;
-
     private final Producer<K, V> producer;
 
     public KafkaProducerClientImpl(Producer<K, V> producer) {
@@ -29,12 +27,6 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
     @Override
     public void close() {
-        if (isClosed) {
-            return;
-        }
-
-        isClosed = true;
-
         log.info("Closing kafka producer...");
 
         try {
@@ -60,10 +52,6 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
     @Override
     public Future<RecordMetadata> send(final ProducerRecord<K, V> record, Callback callback) {
-        if (isClosed) {
-            throw new IllegalStateException("Cannot send messages to kafka after shutdown");
-        }
-
         try {
             return producer.send(record, callback);
         } catch (Exception e) {
