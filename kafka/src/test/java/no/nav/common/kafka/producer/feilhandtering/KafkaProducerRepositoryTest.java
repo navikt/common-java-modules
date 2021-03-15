@@ -25,7 +25,7 @@ public class KafkaProducerRepositoryTest {
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         DataSource postgres = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.POSTGRES);
-        LocalH2Database.init(postgres, "kafka-record-postgres.sql");
+        LocalH2Database.init(postgres, "kafka-producer-record-postgres.sql");
         PostgresProducerRepository<String, String> postgresProducerRepository = new PostgresProducerRepository<>(
                 postgres,
                 new StringSerializer(),
@@ -35,7 +35,7 @@ public class KafkaProducerRepositoryTest {
         );
 
         DataSource oracle = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.ORACLE);
-        LocalH2Database.init(oracle, "kafka-record-oracle.sql");
+        LocalH2Database.init(oracle, "kafka-producer-record-oracle.sql");
         OracleProducerRepository<String, String> oracleProducerRepository = new OracleProducerRepository<>(
                 oracle,
                 new StringSerializer(),
@@ -62,7 +62,7 @@ public class KafkaProducerRepositoryTest {
 
     @After
     public void cleanup() {
-        LocalH2Database.cleanup(dataSource);
+        LocalH2Database.cleanupProducer(dataSource);
     }
 
     @Test

@@ -5,8 +5,9 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 public class KafkaProducerClientImplTest {
 
@@ -35,7 +36,7 @@ public class KafkaProducerClientImplTest {
     }
 
     @Test
-    public void should_throw_exception_if_producer_is_closed() {
+    public void should_trigger_callback_with_exception_if_producer_is_closed() {
         MockProducer<String, String> mockProducer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
@@ -43,7 +44,11 @@ public class KafkaProducerClientImplTest {
 
         client.close();
 
-        assertThrows(IllegalStateException.class, () -> client.send(record));
+        AtomicReference<Exception> exceptionRef = new AtomicReference<>();
+
+        client.send(record, (metadata, exception) -> exceptionRef.set(exception));
+
+        assertEquals(IllegalStateException.class, exceptionRef.get().getClass());
     }
 
 }

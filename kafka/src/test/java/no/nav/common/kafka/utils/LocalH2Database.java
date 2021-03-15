@@ -29,19 +29,24 @@ public class LocalH2Database {
     @SneakyThrows
     public static void init(DataSource dataSource, String resourceFile) {
         try(Statement statement = dataSource.getConnection().createStatement()) {
-            String postgresSql = TestUtils.readTestResourceFile(resourceFile);
-            statement.execute(postgresSql);
+            String sql = TestUtils.readTestResourceFile(resourceFile);
+            statement.execute(sql);
         }
     }
 
     @SneakyThrows
-    public static void cleanup(DataSource dataSource) {
+    public static void cleanupConsumer(DataSource dataSource) {
+        try(Statement statement = dataSource.getConnection().createStatement()) {
+            statement.execute("ALTER SEQUENCE KAFKA_CONSUMER_RECORD_ID_SEQ RESTART WITH 1");
+            statement.execute("DELETE FROM KAFKA_CONSUMER_RECORD");
+        }
+    }
+
+    @SneakyThrows
+    public static void cleanupProducer(DataSource dataSource) {
         try(Statement statement = dataSource.getConnection().createStatement()) {
             statement.execute("ALTER SEQUENCE KAFKA_PRODUCER_RECORD_ID_SEQ RESTART WITH 1");
             statement.execute("DELETE FROM KAFKA_PRODUCER_RECORD");
-
-            statement.execute("ALTER SEQUENCE KAFKA_CONSUMER_RECORD_ID_SEQ RESTART WITH 1");
-            statement.execute("DELETE FROM KAFKA_CONSUMER_RECORD");
         }
     }
 
