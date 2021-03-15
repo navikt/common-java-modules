@@ -1,8 +1,7 @@
-package no.nav.common.kafka.producer.util;
+package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.kafka.producer.KafkaProducerClient;
-import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
-import no.nav.common.kafka.producer.feilhandtering.StoreAndForwardProducer;
+import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
@@ -17,7 +16,7 @@ public class StoreAndForwardProducerTest {
     public void should_store_message() {
         KafkaProducerRepository<String, String> repository = mock(KafkaProducerRepository.class);
         KafkaProducerClient<String, String> client = mock(KafkaProducerClient.class);
-        StoreAndForwardProducer<String, String> producer = new StoreAndForwardProducer<>(repository, client);
+        StoreAndForwardProducer<String, String> producer = new StoreAndForwardProducer<>(client, repository);
 
         when(repository.storeRecord(any())).thenReturn(1L);
 
@@ -32,7 +31,7 @@ public class StoreAndForwardProducerTest {
     public void should_delete_message_after_sending_succeeded() {
         KafkaProducerRepository<String, String> repository = mock(KafkaProducerRepository.class);
         KafkaProducerClient<String, String> client = mock(KafkaProducerClient.class);
-        StoreAndForwardProducer<String, String> producer = new StoreAndForwardProducer<>(repository, client);
+        StoreAndForwardProducer<String, String> producer = new StoreAndForwardProducer<>(client, repository);
 
         ArgumentCaptor<Callback> captor = ArgumentCaptor.forClass(Callback.class);
 
@@ -51,7 +50,7 @@ public class StoreAndForwardProducerTest {
     public void should_not_delete_message_after_sending_failed() {
         KafkaProducerRepository<String, String> repository = mock(KafkaProducerRepository.class);
         KafkaProducerClient<String, String> client = mock(KafkaProducerClient.class);
-        StoreAndForwardProducer<String, String> producer = new StoreAndForwardProducer<>(repository, client);
+        StoreAndForwardProducer<String, String> producer = new StoreAndForwardProducer<>(client, repository);
 
         ArgumentCaptor<Callback> captor = ArgumentCaptor.forClass(Callback.class);
 

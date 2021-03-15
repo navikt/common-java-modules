@@ -39,10 +39,10 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
     @SneakyThrows
     @Override
-    public void sendSync(ProducerRecord<K, V> record) {
+    public RecordMetadata sendSync(ProducerRecord<K, V> record) {
         Future<RecordMetadata> future = send(record, null);
         producer.flush(); // This will block until all buffered records are sent
-        future.get();
+        return future.get();
     }
 
     @Override
