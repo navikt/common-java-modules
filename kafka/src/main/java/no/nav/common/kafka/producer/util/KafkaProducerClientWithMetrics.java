@@ -1,6 +1,7 @@
 package no.nav.common.kafka.producer.util;
 
 import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
@@ -15,16 +16,22 @@ import java.util.concurrent.Future;
 
 public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient<K, V> {
 
-    private final static String KAFKA_PRODUCER_STATUS_COUNTER = "kafka.producer.status";
+    public final static String KAFKA_PRODUCER_STATUS_COUNTER = "kafka.producer.status";
+
+    public final static String KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE = "kafka.producer.current-offset";
 
     private final KafkaProducerClient<K, V> client;
 
     private final MeterRegistry meterRegistry;
 
-    private final Map<String, Counter> counterMap = new HashMap<>();
+    private final Map<String, Counter> statusCounterMap = new HashMap<>();
+
+    private final Map<String, Gauge> currentOffsetGaugeMap = new HashMap<>();
+
+    private final Map<String, Long> currentOffsetMap = new HashMap<>();
 
     public KafkaProducerClientWithMetrics(Properties properties, MeterRegistry meterRegistry) {
-        this.client = new KafkaProducerClientImpl<K, V>(properties);
+        this.client = new KafkaProducerClientImpl<>(properties);
         this.meterRegistry = meterRegistry;
     }
 
@@ -39,10 +46,12 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
     }
 
     @Override
-    public void sendSync(ProducerRecord<K, V> record) {
+    public RecordMetadata sendSync(ProducerRecord<K, V> record) {
         try {
-            client.sendSync(record);
+            RecordMetadata recordMetadata = client.sendSync(record);
+            updateLatestOffset(recordMetadata);
             incrementRecordCount(record, false);
+            return recordMetadata;
         } catch (Exception e) {
             incrementRecordCount(record, true);
             throw e;
@@ -61,6 +70,10 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
 
             incrementRecordCount(record, failed);
 
+            if (metadata != null) {
+                updateLatestOffset(metadata);
+            }
+
             if (callback != null) {
                 callback.onCompletion(metadata, exception);
             }
@@ -69,13 +82,32 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
         return client.send(record, metricCallback);
     }
 
+    private void updateLatestOffset(RecordMetadata metadata) {
+        String key = metadata.topic() + "-" + metadata.partition();
+
+        long currentOffset = metadata.hasOffset()
+                ? metadata.offset()
+                : 0;
+
+        currentOffsetMap.put(key, currentOffset);
+
+        currentOffsetGaugeMap.computeIfAbsent(key, (k) ->
+                Gauge.builder(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE, () -> {
+                    Long offset = currentOffsetMap.get(key);
+                    return offset != null ? offset : 0;
+                })
+                .tag("topic", metadata.topic())
+                .tag("partition", String.valueOf(metadata.partition()))
+                .register(meterRegistry));
+    }
+
     private void incrementRecordCount(ProducerRecord<K, V> record, boolean failed) {
         String key = record.topic() + "-" + failed;
-        counterMap.computeIfAbsent(key, (k) ->
+        statusCounterMap.computeIfAbsent(key, (k) ->
                 Counter.builder(KAFKA_PRODUCER_STATUS_COUNTER)
-                    .tag("topic", record.topic())
-                    .tag("status", failed ? "failed" : "ok")
-                    .register(meterRegistry))
+                        .tag("topic", record.topic())
+                        .tag("status", failed ? "failed" : "ok")
+                        .register(meterRegistry))
                 .increment();
     }
 
