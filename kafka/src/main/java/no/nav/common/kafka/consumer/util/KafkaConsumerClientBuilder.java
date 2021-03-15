@@ -32,6 +32,11 @@ public class KafkaConsumerClientBuilder<K, V> {
         return this;
     }
 
+    public KafkaConsumerClientBuilder<K, V> withTopics(Map<String, TopicConsumer<K, V>> topics) {
+        consumerMap.putAll(topics);
+        return this;
+    }
+
     public KafkaConsumerClientBuilder<K, V> withPollDuration(long pollDurationMs) {
         this.pollDurationMs = pollDurationMs;
         return this;
