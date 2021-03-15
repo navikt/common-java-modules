@@ -45,7 +45,7 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
         Optional<KafkaConsumerRecord<K, V>> maybeRecord = getRecord(record.topic(), record.partition(), record.offset());
 
         if (maybeRecord.isPresent()) {
-            return maybeRecord.get().id;
+            return maybeRecord.get().getId();
         }
 
         String sql = format(
@@ -82,8 +82,8 @@ public class PostgresConsumerRepository<K, V> implements KafkaConsumerRepository
     @Override
     public List<KafkaConsumerRecord<K, V>> getRecords(List<String> topics, int maxMessages) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s = ANY(?) LIMIT %d",
-                CONSUMER_RECORD_TABLE, TOPIC, maxMessages
+                "SELECT * FROM %s WHERE %s = ANY(?) ORDER BY %s LIMIT %d",
+                CONSUMER_RECORD_TABLE, TOPIC, ID, maxMessages
         );
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {

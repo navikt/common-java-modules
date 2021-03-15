@@ -21,7 +21,7 @@ public class ProducerUtils {
     }
 
     public static <K, V> ProducerRecord<K, V> mapRecord(KafkaProducerRecord<K, V> record) {
-        return new ProducerRecord<>(record.topic, record.key, record.value);
+        return new ProducerRecord<>(record.getTopic(), record.getKey(), record.getValue());
     }
 
 }

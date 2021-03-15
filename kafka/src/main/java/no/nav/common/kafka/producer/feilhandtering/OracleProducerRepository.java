@@ -75,8 +75,8 @@ public class OracleProducerRepository<K, V> implements KafkaProducerRepository<K
     @Override
     public List<KafkaProducerRecord<K, V>> getRecords(List<String> topics, Instant olderThan, int maxMessages) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s = ANY(?) AND %s >= ? FETCH NEXT %d ROWS ONLY",
-                PRODUCER_RECORD_TABLE, TOPIC, CREATED_AT, maxMessages
+                "SELECT * FROM %s WHERE %s = ANY(?) AND %s >= ? ORDER BY %s FETCH NEXT %d ROWS ONLY",
+                PRODUCER_RECORD_TABLE, TOPIC, CREATED_AT, ID, maxMessages
         );
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {

@@ -36,9 +36,9 @@ public class KafkaRetryProducerRecordHandler<K, V> {
         records.forEach(record -> {
             producerClient.send(ProducerUtils.mapRecord(record), (metadata, exception) -> {
                 if (exception != null) {
-                    log.warn(format("Failed to resend failed message to topic %s", record.topic), exception);
+                    log.warn(format("Failed to resend failed message to topic %s", record.getTopic()), exception);
                 } else {
-                    kafkaRepository.deleteRecord(record.id);
+                    kafkaRepository.deleteRecord(record.getId());
                 }
             });
         });

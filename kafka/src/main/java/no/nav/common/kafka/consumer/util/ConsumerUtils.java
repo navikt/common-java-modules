@@ -48,7 +48,7 @@ public class ConsumerUtils {
     }
 
     public static <K, V> ConsumerRecord<K, V> mapRecord(KafkaConsumerRecord<K, V> record) {
-        return new ConsumerRecord<>(record.topic, record.partition, record.offset, record.key, record.value);
+        return new ConsumerRecord<>(record.getTopic(), record.getPartition(), record.getOffset(), record.getKey(), record.getValue());
     }
 
 }

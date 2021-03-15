@@ -28,21 +28,21 @@ public class KafkaRetryConsumerRecordHandler<K, V> {
         List<KafkaConsumerRecord<K, V>> records = kafkaConsumerRepository.getRecords(topicNames, 100);
 
         records.forEach(record -> {
-            TopicConsumer<K, V> consumer = topics.get(record.topic);
+            TopicConsumer<K, V> consumer = topics.get(record.getTopic());
 
             if (consumer == null) {
-                log.warn("Could not find consumer for topic " + record.topic);
+                log.warn("Could not find consumer for topic " + record.getTopic());
                 return;
             }
 
             ConsumeStatus status = ConsumerUtils.safeConsume(consumer, ConsumerUtils.mapRecord(record));
 
             if (status == ConsumeStatus.FAILED) {
-                log.warn("Failed to consume previously failed message. topic={} partition={} offset={}", record.topic, record.partition, record.offset);
+                log.warn("Failed to consume previously failed message. topic={} partition={} offset={}", record.getTopic(), record.getPartition(), record.getOffset());
                 return;
             }
 
-            kafkaConsumerRepository.deleteRecord(record.id);
+            kafkaConsumerRepository.deleteRecord(record.getId());
         });
     }
 

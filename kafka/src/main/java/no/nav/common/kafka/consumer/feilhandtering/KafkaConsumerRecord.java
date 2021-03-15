@@ -1,12 +1,15 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import lombok.Data;
+
+@Data
 public class KafkaConsumerRecord<K, V> {
-    public final long id;
-    public final String topic;
-    public final int partition;
-    public final long offset;
-    public final K key;
-    public final V value;
+    private final long id;
+    private final String topic;
+    private final int partition;
+    private final long offset;
+    private final K key;
+    private final V value;
 
     public KafkaConsumerRecord(long id, String topic, int partition, long offset, K key, V value) {
         this.id = id;

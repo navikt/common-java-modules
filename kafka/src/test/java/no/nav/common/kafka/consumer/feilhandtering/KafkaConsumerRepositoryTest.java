@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -89,12 +90,12 @@ public class KafkaConsumerRepositoryTest {
                 10
         ).get(0);
 
-        assertEquals(1, record.id);
-        assertEquals("topic1", record.topic);
-        assertEquals(1, record.partition);
-        assertEquals(2, record.offset);
-        assertEquals("key", record.key);
-        assertEquals("value", record.value);
+        assertEquals(1, record.getId());
+        assertEquals("topic1", record.getTopic());
+        assertEquals(1, record.getPartition());
+        assertEquals(2, record.getOffset());
+        assertEquals("key", record.getKey());
+        assertEquals("value", record.getValue());
     }
 
     @Test
@@ -117,8 +118,30 @@ public class KafkaConsumerRepositoryTest {
 
         assertEquals(4, records.size());
         records.forEach(record -> {
-            assertTrue(topics.contains(record.topic));
+            assertTrue(topics.contains(record.getTopic()));
         });
+    }
+
+    @Test
+    public void should_retrieve_records_in_order() {
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value"));
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value"));
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 3, "key", "value"));
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value"));
+
+        List<KafkaConsumerRecord<String, String>> records = kafkaConsumerRepository.getRecords(
+                List.of("topic1"),
+                10
+        );
+
+        List<KafkaConsumerRecord<String, String>> sortedRecords = records
+                .stream()
+                .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < records.size(); i++) {
+            assertEquals(records.get(i), sortedRecords.get(i));
+        }
     }
 
     @Test

@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -81,10 +82,33 @@ public class KafkaProducerRepositoryTest {
                 10
         ).get(0);
 
-        assertEquals(1, record.id);
-        assertEquals("topic1", record.topic);
-        assertEquals("key", record.key);
-        assertEquals("value", record.value);
+        assertEquals(1, record.getId());
+        assertEquals("topic1", record.getTopic());
+        assertEquals("key", record.getKey());
+        assertEquals("value", record.getValue());
+    }
+
+    @Test
+    public void should_retrieve_records_in_order() {
+        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
+        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
+        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
+        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
+
+        List<KafkaProducerRecord<String, String>> records = kafkaProducerRepository.getRecords(
+                List.of("topic1"),
+                Instant.now().minusSeconds(10),
+                10
+        );
+
+        List<KafkaProducerRecord<String, String>> sortedRecords = records
+                .stream()
+                .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < records.size(); i++) {
+            assertEquals(records.get(i), sortedRecords.get(i));
+        }
     }
 
     @Test
@@ -108,7 +132,7 @@ public class KafkaProducerRepositoryTest {
 
         assertEquals(4, records.size());
         records.forEach(record -> {
-            assertTrue(topics.contains(record.topic));
+            assertTrue(topics.contains(record.getTopic()));
         });
     }
 
