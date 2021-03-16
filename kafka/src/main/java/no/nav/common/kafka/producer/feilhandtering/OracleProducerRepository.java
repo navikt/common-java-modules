@@ -6,7 +6,6 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
 import javax.sql.DataSource;
-import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -73,16 +72,14 @@ public class OracleProducerRepository<K, V> implements KafkaProducerRepository<K
 
     @SneakyThrows
     @Override
-    public List<KafkaProducerRecord<K, V>> getRecords(List<String> topics, Instant olderThan, int maxMessages) {
+    public List<KafkaProducerRecord<K, V>> getRecords(Instant olderThan, int maxMessages) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s = ANY(?) AND %s >= ? ORDER BY %s FETCH NEXT %d ROWS ONLY",
-                PRODUCER_RECORD_TABLE, TOPIC, CREATED_AT, ID, maxMessages
+                "SELECT * FROM %s WHERE %s >= ? ORDER BY %s FETCH NEXT %d ROWS ONLY",
+                PRODUCER_RECORD_TABLE, CREATED_AT, ID, maxMessages
         );
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
-            Array array = dataSource.getConnection().createArrayOf("VARCHAR", topics.toArray());
-            statement.setArray(1, array);
-            statement.setTimestamp(2, new Timestamp(olderThan.toEpochMilli()));
+            statement.setTimestamp(1, new Timestamp(olderThan.toEpochMilli()));
             return fetchProducerRecords(statement.executeQuery(), keyDeserializer, valueDeserializer);
         }
     }

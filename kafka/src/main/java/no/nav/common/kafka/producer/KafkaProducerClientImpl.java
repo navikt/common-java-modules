@@ -1,11 +1,13 @@
 package no.nav.common.kafka.producer;
 
 import lombok.SneakyThrows;
-import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -18,23 +20,16 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
     public KafkaProducerClientImpl(Producer<K, V> producer) {
         this.producer = producer;
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
     public KafkaProducerClientImpl(Properties properties) {
-        this(new KafkaProducer<>(properties));
+        this(new GracefulKafkaProducer<>(properties));
     }
 
     @Override
     public void close() {
         log.info("Closing kafka producer...");
-
-        try {
-            producer.close(Duration.ofSeconds(5));
-            log.info("Kafka producer was closed successfully");
-        } catch (Exception e) {
-            log.error("Failed to close kafka producer gracefully", e);
-        }
+        producer.close();
     }
 
     @SneakyThrows

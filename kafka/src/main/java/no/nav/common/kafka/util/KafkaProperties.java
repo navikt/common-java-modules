@@ -66,6 +66,7 @@ public class KafkaProperties {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, producerGroupId);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 500);
 
         return props;
     }

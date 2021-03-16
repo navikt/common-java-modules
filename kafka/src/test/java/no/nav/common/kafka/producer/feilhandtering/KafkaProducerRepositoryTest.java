@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class KafkaProducerRepositoryTest {
@@ -77,7 +76,6 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
 
         KafkaProducerRecord<String, String> record = kafkaProducerRepository.getRecords(
-                List.of("topic1"),
                 Instant.now().minusSeconds(10),
                 10
         ).get(0);
@@ -96,7 +94,6 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
 
         List<KafkaProducerRecord<String, String>> records = kafkaProducerRepository.getRecords(
-                List.of("topic1"),
                 Instant.now().minusSeconds(10),
                 10
         );
@@ -112,31 +109,6 @@ public class KafkaProducerRepositoryTest {
     }
 
     @Test
-    public void should_retrieve_records_from_topic() {
-        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
-        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
-
-        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic2", "key","value"));
-        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic2", "key","value"));
-
-        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic3", "key","value"));
-        kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic3", "key","value"));
-
-        List<String> topics = List.of("topic1", "topic3");
-
-        List<KafkaProducerRecord<String, String>> records = kafkaProducerRepository.getRecords(
-                topics,
-                Instant.now().minusSeconds(10),
-                10
-        );
-
-        assertEquals(4, records.size());
-        records.forEach(record -> {
-            assertTrue(topics.contains(record.getTopic()));
-        });
-    }
-
-    @Test
     public void should_retrieve_records_older_than() throws InterruptedException {
         kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
         kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
@@ -147,7 +119,6 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
 
         List<KafkaProducerRecord<String, String>> records = kafkaProducerRepository.getRecords(
-                List.of("topic1"),
                 Instant.now().minusMillis(3000),
                 10
         );
@@ -164,7 +135,6 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(new ProducerRecord<>("topic1", "key","value"));
 
         List<KafkaProducerRecord<String, String>> records = kafkaProducerRepository.getRecords(
-                List.of("topic1"),
                 Instant.now().minusSeconds(10),
                 3
         );
@@ -180,7 +150,6 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.deleteRecord(id);
 
         List<KafkaProducerRecord<String, String>> records = kafkaProducerRepository.getRecords(
-                List.of("topic1"),
                 Instant.now().minusSeconds(10),
                 10
         );

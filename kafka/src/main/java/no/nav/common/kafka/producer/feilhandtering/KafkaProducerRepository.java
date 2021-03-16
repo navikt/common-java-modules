@@ -11,6 +11,6 @@ public interface KafkaProducerRepository<K, V> {
 
     void deleteRecord(long id);
 
-    List<KafkaProducerRecord<K, V>> getRecords(List<String> topics, Instant olderThan, int maxMessages);
+    List<KafkaProducerRecord<K, V>> getRecords(Instant olderThan, int maxMessages);
 
 }
