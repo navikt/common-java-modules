@@ -1,5 +1,6 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.apache.kafka.clients.producer.Producer;
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ public class KafkaProducerRecordForwarder {
 
     private final static long POLL_TIMEOUT_MS = 3000;
 
+    private final static long WAITING_FOR_LEADER_TIMEOUT_MS = 10_000;
+
     private final static long RECORDS_OLDER_THAN_MS = 0;
 
     private final static int RECORDS_BATCH_SIZE = 100;
@@ -31,16 +34,20 @@ public class KafkaProducerRecordForwarder {
 
     private final Producer<byte[], byte[]> producer;
 
+    private final LeaderElectionClient leaderElectionClient;
+
     private volatile boolean isRunning;
 
     private volatile boolean isClosed;
 
     public KafkaProducerRecordForwarder(
             KafkaProducerRepository<byte[], byte[]> kafkaRepository,
-            Producer<byte[], byte[]> producerClient
+            Producer<byte[], byte[]> producerClient,
+            LeaderElectionClient leaderElectionClient
     ) {
         this.kafkaRepository = kafkaRepository;
         this.producer = producerClient;
+        this.leaderElectionClient = leaderElectionClient;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
@@ -66,6 +73,11 @@ public class KafkaProducerRecordForwarder {
         try {
            while (isRunning) {
                try {
+                   if (!leaderElectionClient.isLeader()) {
+                       Thread.sleep(WAITING_FOR_LEADER_TIMEOUT_MS);
+                       continue;
+                   }
+
                    Instant recordsOlderThan = Instant.now().minusMillis(RECORDS_OLDER_THAN_MS);
                    List<KafkaProducerRecord<byte[], byte[]>> records = kafkaRepository.getRecords(recordsOlderThan, RECORDS_BATCH_SIZE);
 
