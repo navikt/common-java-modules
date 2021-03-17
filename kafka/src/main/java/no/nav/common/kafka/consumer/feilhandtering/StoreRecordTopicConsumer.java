@@ -2,6 +2,7 @@ package no.nav.common.kafka.consumer.feilhandtering;
 
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
+import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,16 +13,16 @@ public class StoreRecordTopicConsumer implements TopicConsumer<byte[], byte[]> {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private final KafkaConsumerRepository<byte[], byte[]> consumerRepository;
+    private final KafkaConsumerRepository consumerRepository;
 
-    public StoreRecordTopicConsumer(KafkaConsumerRepository<byte[], byte[]> consumerRepository) {
+    public StoreRecordTopicConsumer(KafkaConsumerRepository consumerRepository) {
         this.consumerRepository = consumerRepository;
     }
 
     @Override
     public ConsumeStatus consume(ConsumerRecord<byte[], byte[]> record) {
         try {
-            consumerRepository.storeRecord(record);
+            consumerRepository.storeRecord(ConsumerUtils.mapRecord(record));
             log.info("Stored consumer record topic={} partition={} offset={}", record.topic(), record.partition(), record.offset());
             return ConsumeStatus.OK;
         } catch (Exception e) {

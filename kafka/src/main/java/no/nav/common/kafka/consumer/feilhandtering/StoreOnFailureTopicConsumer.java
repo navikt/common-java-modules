@@ -8,14 +8,22 @@ import org.apache.kafka.common.serialization.Serializer;
 
 public class StoreOnFailureTopicConsumer<K, V> implements TopicConsumer<K, V> {
 
-    private final Serializer<K> keySerializer;
-
     private final TopicConsumer<K, V> consumer;
 
-    private final KafkaConsumerRepository<K, V> consumerRepository;
+    private final KafkaConsumerRepository consumerRepository;
 
-    public StoreOnFailureTopicConsumer(Serializer<K> keySerializer, TopicConsumer<K, V> consumer, KafkaConsumerRepository<K, V> consumerRepository) {
+    private final Serializer<K> keySerializer;
+
+    private final Serializer<V> valueSerializer;
+
+    public StoreOnFailureTopicConsumer(
+            TopicConsumer<K, V> consumer,
+            KafkaConsumerRepository consumerRepository,
+            Serializer<K> keySerializer,
+            Serializer<V> valueSerializer
+    ) {
         this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
         this.consumer = consumer;
         this.consumerRepository = consumerRepository;
     }
@@ -37,7 +45,7 @@ public class StoreOnFailureTopicConsumer<K, V> implements TopicConsumer<K, V> {
             }
         }
 
-        consumerRepository.storeRecord(record);
+        consumerRepository.storeRecord(ConsumerUtils.mapRecord(record, keySerializer, valueSerializer));
         return ConsumeStatus.OK;
     }
 

@@ -1,16 +1,14 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
-import org.apache.kafka.clients.producer.ProducerRecord;
-
 import java.time.Instant;
 import java.util.List;
 
-public interface KafkaProducerRepository<K, V> {
+public interface KafkaProducerRepository {
 
-    long storeRecord(ProducerRecord<K, V> record);
+    long storeRecord(KafkaProducerRecord record);
 
     void deleteRecord(long id);
 
-    List<KafkaProducerRecord<K, V>> getRecords(Instant olderThan, int maxMessages);
+    List<KafkaProducerRecord> getRecords(Instant olderThan, int maxMessages);
 
 }

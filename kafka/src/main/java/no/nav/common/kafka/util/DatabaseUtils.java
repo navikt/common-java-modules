@@ -25,34 +25,24 @@ public class DatabaseUtils {
     }
 
     @SneakyThrows
-    public static <K, V> List<KafkaProducerRecord<K, V>> fetchProducerRecords(
-            ResultSet resultSet,
-            Deserializer<K> keyDeserializer,
-            Deserializer<V> valueDeserializer
-    ) {
-
-        List<KafkaProducerRecord<K, V>> records = new ArrayList<>();
+    public static List<KafkaProducerRecord> fetchProducerRecords(ResultSet resultSet) {
+        List<KafkaProducerRecord> records = new ArrayList<>();
 
         while (resultSet.next()) {
             long id = resultSet.getInt(ID);
             String topic = resultSet.getString(TOPIC);
-            K key = keyDeserializer.deserialize(topic, resultSet.getBytes(KEY));
-            V value = valueDeserializer.deserialize(topic, resultSet.getBytes(VALUE));
+            byte[] key = resultSet.getBytes(KEY);
+            byte[] value = resultSet.getBytes(VALUE);
 
-            records.add(new KafkaProducerRecord<>(id, topic, key, value));
+            records.add(new KafkaProducerRecord(id, topic, key, value));
         }
 
         return records;
     }
 
     @SneakyThrows
-    public static <K, V> List<KafkaConsumerRecord<K, V>> fetchConsumerRecords(
-            ResultSet resultSet,
-            Deserializer<K> keyDeserializer,
-            Deserializer<V> valueDeserializer
-    ) {
-
-        List<KafkaConsumerRecord<K, V>> records = new ArrayList<>();
+    public static List<KafkaConsumerRecord> fetchConsumerRecords(ResultSet resultSet) {
+        List<KafkaConsumerRecord> records = new ArrayList<>();
 
         while (resultSet.next()) {
             long id = resultSet.getInt(ID);
@@ -61,11 +51,10 @@ public class DatabaseUtils {
             long offset = resultSet.getLong(RECORD_OFFSET);
             int retries = resultSet.getInt(RETRIES);
             Timestamp lastRetry = resultSet.getTimestamp(LAST_RETRY);
+            byte[] key = resultSet.getBytes(KEY);
+            byte[] value = resultSet.getBytes(VALUE);
 
-            K key = keyDeserializer.deserialize(topic, resultSet.getBytes(KEY));
-            V value = valueDeserializer.deserialize(topic, resultSet.getBytes(VALUE));
-
-            records.add(new KafkaConsumerRecord<>(id, topic, partition, offset, key, value, retries, lastRetry));
+            records.add(new KafkaConsumerRecord(id, topic, partition, offset, key, value, retries, lastRetry));
         }
 
         return records;

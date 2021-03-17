@@ -30,7 +30,7 @@ public class KafkaProducerRecordForwarder {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final KafkaProducerRepository<byte[], byte[]> kafkaRepository;
+    private final KafkaProducerRepository producerRepository;
 
     private final Producer<byte[], byte[]> producer;
 
@@ -41,11 +41,11 @@ public class KafkaProducerRecordForwarder {
     private volatile boolean isClosed;
 
     public KafkaProducerRecordForwarder(
-            KafkaProducerRepository<byte[], byte[]> kafkaRepository,
+            KafkaProducerRepository producerRepository,
             Producer<byte[], byte[]> producerClient,
             LeaderElectionClient leaderElectionClient
     ) {
-        this.kafkaRepository = kafkaRepository;
+        this.producerRepository = producerRepository;
         this.producer = producerClient;
         this.leaderElectionClient = leaderElectionClient;
 
@@ -79,7 +79,7 @@ public class KafkaProducerRecordForwarder {
                    }
 
                    Instant recordsOlderThan = Instant.now().minusMillis(RECORDS_OLDER_THAN_MS);
-                   List<KafkaProducerRecord<byte[], byte[]>> records = kafkaRepository.getRecords(recordsOlderThan, RECORDS_BATCH_SIZE);
+                   List<KafkaProducerRecord> records = producerRepository.getRecords(recordsOlderThan, RECORDS_BATCH_SIZE);
 
                    if (!records.isEmpty()) {
                        publishStoredRecordsBatch(records);
@@ -103,7 +103,7 @@ public class KafkaProducerRecordForwarder {
        }
     }
 
-    private void publishStoredRecordsBatch(List<KafkaProducerRecord<byte[], byte[]>> records) throws InterruptedException {
+    private void publishStoredRecordsBatch(List<KafkaProducerRecord> records) throws InterruptedException {
         // TODO: could be done inside a kafka transaction
 
         CountDownLatch latch = new CountDownLatch(records.size());
@@ -114,7 +114,7 @@ public class KafkaProducerRecordForwarder {
                     if (exception != null) {
                         log.warn(format("Failed to resend failed message to topic %s", record.getTopic()), exception);
                     } else {
-                        kafkaRepository.deleteRecord(record.getId());
+                        producerRepository.deleteRecord(record.getId());
                     }
                 } catch (Exception e) {
                     log.error("Failed to send message to kafka", e);

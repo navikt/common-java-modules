@@ -6,6 +6,7 @@ import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecord;
 import no.nav.common.utils.Credentials;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Properties;
 
@@ -30,7 +31,14 @@ public class ProducerUtils {
         return new ProducerRecord<>(topic, key, value);
     }
 
-    public static <K, V> ProducerRecord<K, V> mapRecord(KafkaProducerRecord<K, V> record) {
+    public static <K, V> KafkaProducerRecord mapRecord(ProducerRecord<K, V> record, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
+        byte[] key = keySerializer.serialize(record.topic(), record.key());
+        byte[] value = valueSerializer.serialize(record.topic(), record.value());
+
+        return new KafkaProducerRecord(record.topic(), key, value);
+    }
+
+    public static ProducerRecord<byte[], byte[]> mapRecord(KafkaProducerRecord record) {
         return new ProducerRecord<>(record.getTopic(), record.getKey(), record.getValue());
     }
 

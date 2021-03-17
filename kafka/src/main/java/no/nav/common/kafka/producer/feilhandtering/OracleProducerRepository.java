@@ -1,9 +1,6 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import lombok.SneakyThrows;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.Serializer;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -15,33 +12,17 @@ import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
 import static no.nav.common.kafka.util.DatabaseUtils.*;
 
-public class OracleProducerRepository<K, V> implements KafkaProducerRepository<K, V> {
+public class OracleProducerRepository implements KafkaProducerRepository {
 
     private final DataSource dataSource;
 
-    private final Serializer<K> keySerializer;
-    private final Deserializer<K> keyDeserializer;
-
-    private final Serializer<V> valueSerializer;
-    private final Deserializer<V> valueDeserializer;
-
-    public OracleProducerRepository(
-            DataSource dataSource,
-            Serializer<K> keySerializer,
-            Deserializer<K> keyDeserializer,
-            Serializer<V> valueSerializer,
-            Deserializer<V> valueDeserializer
-    ) {
+    public OracleProducerRepository(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.keySerializer = keySerializer;
-        this.keyDeserializer = keyDeserializer;
-        this.valueSerializer = valueSerializer;
-        this.valueDeserializer = valueDeserializer;
     }
 
     @SneakyThrows
     @Override
-    public long storeRecord(ProducerRecord<K, V> record) {
+    public long storeRecord(KafkaProducerRecord record) {
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?)",
                 PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE
@@ -51,9 +32,9 @@ public class OracleProducerRepository<K, V> implements KafkaProducerRepository<K
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
-            statement.setString(2, record.topic());
-            statement.setBytes(3, keySerializer.serialize(record.topic(), record.key()));
-            statement.setBytes(4, valueSerializer.serialize(record.topic(), record.value()));
+            statement.setString(2, record.getTopic());
+            statement.setBytes(3, record.getKey());
+            statement.setBytes(4, record.getValue());
             statement.executeUpdate();
         }
 
@@ -72,7 +53,7 @@ public class OracleProducerRepository<K, V> implements KafkaProducerRepository<K
 
     @SneakyThrows
     @Override
-    public List<KafkaProducerRecord<K, V>> getRecords(Instant olderThan, int maxMessages) {
+    public List<KafkaProducerRecord> getRecords(Instant olderThan, int maxMessages) {
         String sql = format(
                 "SELECT * FROM %s WHERE %s >= ? ORDER BY %s FETCH NEXT %d ROWS ONLY",
                 PRODUCER_RECORD_TABLE, CREATED_AT, ID, maxMessages
@@ -80,7 +61,7 @@ public class OracleProducerRepository<K, V> implements KafkaProducerRepository<K
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setTimestamp(1, new Timestamp(olderThan.toEpochMilli()));
-            return fetchProducerRecords(statement.executeQuery(), keyDeserializer, valueDeserializer);
+            return fetchProducerRecords(statement.executeQuery());
         }
     }
 

@@ -28,7 +28,7 @@ public class KafkaConsumerRecordProcessor {
 
     private final LockProvider lockProvider;
 
-    private final KafkaConsumerRepository<byte[], byte[]> kafkaConsumerRepository;
+    private final KafkaConsumerRepository kafkaConsumerRepository;
 
     private final Map<String, StoredRecordConsumer> recordConsumers;
 
@@ -38,7 +38,7 @@ public class KafkaConsumerRecordProcessor {
 
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
-            KafkaConsumerRepository<byte[], byte[]> kafkaRepository,
+            KafkaConsumerRepository kafkaRepository,
             Map<String, StoredRecordConsumer> recordConsumers
     ) {
         this.lockProvider = lockProvider;
@@ -105,7 +105,7 @@ public class KafkaConsumerRecordProcessor {
                     return;
                 }
 
-                List<KafkaConsumerRecord<byte[], byte[]>> records = kafkaConsumerRepository
+                List<KafkaConsumerRecord> records = kafkaConsumerRepository
                         .getRecords(topicPartition.topic(), topicPartition.partition(), RECORDS_BATCH_SIZE);
 
                 StoredRecordConsumer recordConsumer = recordConsumers.get(topicPartition.topic());

@@ -1,6 +1,8 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,15 +10,25 @@ public class KafkaProducerRecordStorage<K, V> {
 
     private final Logger log = LoggerFactory.getLogger(KafkaProducerRecordStorage.class);
 
-    private final KafkaProducerRepository<K, V> producerRepository;
+    private final KafkaProducerRepository producerRepository;
 
-    public KafkaProducerRecordStorage(KafkaProducerRepository<K, V> producerRepository) {
+    private final Serializer<K> keySerializer;
+
+    private final Serializer<V> valueSerializer;
+
+    public KafkaProducerRecordStorage(
+            KafkaProducerRepository producerRepository,
+            Serializer<K> keySerializer,
+            Serializer<V> valueSerializer
+    ) {
         this.producerRepository = producerRepository;
+        this.keySerializer = keySerializer;
+        this.valueSerializer = valueSerializer;
     }
 
     public void store(ProducerRecord<K, V> record) {
         try {
-            producerRepository.storeRecord(record);
+            producerRepository.storeRecord(ProducerUtils.mapRecord(record, keySerializer, valueSerializer));
             log.info("Stored record for topic " + record.topic());
         } catch (Exception e) {
             log.error("Failed to store record for topic " + record.topic(), e);
