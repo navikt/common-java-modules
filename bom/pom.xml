@@ -43,8 +43,9 @@
         <commons-io.version>2.5</commons-io.version>
         <httpclient.version>4.5.6</httpclient.version>
         <httpcore.version>4.4</httpcore.version>
-        <shedlock.version>0.18.2</shedlock.version>
+        <shedlock.version>4.21.0</shedlock.version>
         <handlebars.version>4.1.2</handlebars.version>
+        <kafka.version>2.4.1</kafka.version>
 
         <!-- Test -->
         <assertj.version>3.9.1</assertj.version>
@@ -451,6 +452,11 @@
                 <groupId>net.javacrumbs.shedlock</groupId>
                 <artifactId>shedlock-core</artifactId>
                 <version>${shedlock.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
             </dependency>
 
             <!-- jetty -->
