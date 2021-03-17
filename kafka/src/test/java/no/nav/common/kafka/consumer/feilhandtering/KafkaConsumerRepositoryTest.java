@@ -2,6 +2,7 @@ package no.nav.common.kafka.consumer.feilhandtering;
 
 import no.nav.common.kafka.utils.LocalH2Database;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
@@ -15,8 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class KafkaConsumerRepositoryTest {
@@ -78,7 +78,7 @@ public class KafkaConsumerRepositoryTest {
         long id2 = kafkaConsumerRepository.storeRecord(record);
 
         assertEquals(1, id1);
-        assertEquals(1, id2);
+        assertEquals(-1, id2);
     }
 
     @Test
@@ -86,8 +86,9 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value"));
 
         KafkaConsumerRecord<String, String> record = kafkaConsumerRepository.getRecords(
-                List.of("topic1"),
-                10
+                "topic1",
+                1,
+                5
         ).get(0);
 
         assertEquals(1, record.getId());
@@ -99,30 +100,6 @@ public class KafkaConsumerRepositoryTest {
     }
 
     @Test
-    public void should_retrieve_records_from_topic() {
-        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value"));
-        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value"));
-
-        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic2", 1, 1, "key", "value"));
-        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic2", 1, 2, "key", "value"));
-
-        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic3", 1, 1, "key", "value"));
-        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic3", 1, 2, "key", "value"));
-
-        List<String> topics = List.of("topic1", "topic3");
-
-        List<KafkaConsumerRecord<String, String>> records = kafkaConsumerRepository.getRecords(
-                topics,
-                10
-        );
-
-        assertEquals(4, records.size());
-        records.forEach(record -> {
-            assertTrue(topics.contains(record.getTopic()));
-        });
-    }
-
-    @Test
     public void should_retrieve_records_in_order() {
         kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value"));
         kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value"));
@@ -130,8 +107,9 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value"));
 
         List<KafkaConsumerRecord<String, String>> records = kafkaConsumerRepository.getRecords(
-                List.of("topic1"),
-                10
+                "topic1",
+                1,
+                5
         );
 
         List<KafkaConsumerRecord<String, String>> sortedRecords = records
@@ -152,7 +130,8 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value"));
 
         List<KafkaConsumerRecord<String, String>> records = kafkaConsumerRepository.getRecords(
-                List.of("topic1"),
+                "topic1",
+                1,
                 3
         );
 
@@ -160,18 +139,70 @@ public class KafkaConsumerRepositoryTest {
     }
 
     @Test
-    public void should_delete_record() {
-        long id = kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value"));
-        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value"));
+    public void should_find_record_with_key() {
+        String key2 = "key2";
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, key2, "value"));
+        assertTrue(kafkaConsumerRepository.hasRecordWithKey("topic1", 1, key2.getBytes()));
+    }
 
-        kafkaConsumerRepository.deleteRecord(id);
+    @Test
+    public void should_not_find_record_with_different_key() {
+        String key2 = "key2";
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key1", "value"));
+        assertFalse(kafkaConsumerRepository.hasRecordWithKey("topic1", 1, key2.getBytes()));
+    }
+
+    @Test
+    public void should_increment_retries() {
+        long id = kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key1", "value"));
+
+        kafkaConsumerRepository.incrementRetries(id);
+        kafkaConsumerRepository.incrementRetries(id);
 
         List<KafkaConsumerRecord<String, String>> records = kafkaConsumerRepository.getRecords(
-                List.of("topic1"),
-                10
+                "topic1",
+                1,
+                3
+        );
+
+        assertEquals(2, records.get(0).getRetries());
+        assertNotNull(records.get(0).getLastRetry());
+    }
+
+    @Test
+    public void should_get_topic_partitions() {
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 1, "key1", "value"));
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 2, 1, "key1", "value"));
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 2, 2, "key1", "value"));
+
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic2", 1, 1, "key1", "value"));
+
+        kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic3", 1, 1, "key1", "value"));
+
+        List<TopicPartition> partitions = kafkaConsumerRepository.getTopicPartitions(List.of("topic1", "topic3"));
+
+        assertEquals(3, partitions.size());
+        assertEquals(new TopicPartition("topic1", 1), partitions.get(0));
+        assertEquals(new TopicPartition("topic1", 2), partitions.get(1));
+        assertEquals(new TopicPartition("topic3", 1), partitions.get(2));
+    }
+
+    @Test
+    public void should_delete_records() {
+        long id1 = kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value"));
+        long id2 = kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value"));
+        long id3 = kafkaConsumerRepository.storeRecord(new ConsumerRecord<>("topic1", 1, 3, "key", "value"));
+
+        kafkaConsumerRepository.deleteRecords(List.of(id1, id3));
+
+        List<KafkaConsumerRecord<String, String>> records = kafkaConsumerRepository.getRecords(
+                "topic1",
+                1,
+                5
         );
 
         assertEquals(1, records.size());
+        assertEquals(id2, records.get(0).getId());
     }
 
 

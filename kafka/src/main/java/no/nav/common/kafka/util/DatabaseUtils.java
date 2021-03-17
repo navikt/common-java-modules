@@ -3,12 +3,14 @@ package no.nav.common.kafka.util;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecord;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecord;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,14 +59,30 @@ public class DatabaseUtils {
             String topic = resultSet.getString(TOPIC);
             int partition = resultSet.getInt(PARTITION);
             long offset = resultSet.getLong(RECORD_OFFSET);
+            int retries = resultSet.getInt(RETRIES);
+            Timestamp lastRetry = resultSet.getTimestamp(LAST_RETRY);
 
             K key = keyDeserializer.deserialize(topic, resultSet.getBytes(KEY));
             V value = valueDeserializer.deserialize(topic, resultSet.getBytes(VALUE));
 
-            records.add(new KafkaConsumerRecord<>(id, topic, partition, offset, key, value));
+            records.add(new KafkaConsumerRecord<>(id, topic, partition, offset, key, value, retries, lastRetry));
         }
 
         return records;
+    }
+
+    @SneakyThrows
+    public static List<TopicPartition> fetchTopicPartitions(ResultSet resultSet) {
+        List<TopicPartition> topicPartitions = new ArrayList<>();
+
+        while (resultSet.next()) {
+            String topic = resultSet.getString(TOPIC);
+            int partition = resultSet.getInt(PARTITION);
+
+            topicPartitions.add(new TopicPartition(topic, partition));
+        }
+
+        return topicPartitions;
     }
 
     @SneakyThrows

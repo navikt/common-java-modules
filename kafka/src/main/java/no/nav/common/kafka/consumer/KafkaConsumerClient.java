@@ -1,5 +1,6 @@
 package no.nav.common.kafka.consumer;
 
+import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
@@ -148,7 +149,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                                 return;
                             }
 
-                            ConsumeStatus status = consumeRecord(topicConsumer, record);
+                            ConsumeStatus status = ConsumerUtils.safeConsume(topicConsumer, record);
 
                             if (status == ConsumeStatus.OK) {
                                 OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset());
@@ -201,22 +202,6 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
             consumer.commitSync(currentOffsets, Duration.ofSeconds(3));
             log.info("Offsets commited: " + currentOffsets.toString());
             currentOffsets.clear();
-        }
-    }
-
-    private ConsumeStatus consumeRecord(TopicConsumer<K, V> topicConsumer, ConsumerRecord<K, V> consumerRecord) {
-        try {
-            return topicConsumer.consume(consumerRecord);
-        } catch (Exception e) {
-            String msg = format(
-                    "Consumer failed to process record from topic=%s partition=%d offset=%d",
-                    consumerRecord.topic(),
-                    consumerRecord.partition(),
-                    consumerRecord.offset()
-            );
-
-            log.error(msg, e);
-            return ConsumeStatus.FAILED;
         }
     }
 

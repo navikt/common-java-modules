@@ -2,6 +2,8 @@ package no.nav.common.kafka.consumer.feilhandtering;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 @Data
 public class KafkaConsumerRecord<K, V> {
     private final long id;
@@ -10,14 +12,6 @@ public class KafkaConsumerRecord<K, V> {
     private final long offset;
     private final K key;
     private final V value;
-
-    public KafkaConsumerRecord(long id, String topic, int partition, long offset, K key, V value) {
-        this.id = id;
-        this.topic = topic;
-        this.partition = partition;
-        this.offset = offset;
-        this.key = key;
-        this.value = value;
-    }
-
+    private final int retries;
+    private final Timestamp lastRetry;
 }

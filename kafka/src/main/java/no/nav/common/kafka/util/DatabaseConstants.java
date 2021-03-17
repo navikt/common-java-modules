@@ -14,6 +14,8 @@ public class DatabaseConstants {
     public static final String VALUE = "VALUE";
     public static final String CREATED_AT = "CREATED_AT";
     public static final String RECORD_OFFSET = "RECORD_OFFSET";
+    public static final String RETRIES = "RETRIES";
+    public static final String LAST_RETRY = "LAST_RETRY";
     public static final String PARTITION = "PARTITION";
 
 }

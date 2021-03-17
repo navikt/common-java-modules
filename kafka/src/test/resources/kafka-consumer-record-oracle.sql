@@ -5,6 +5,8 @@ CREATE TABLE KAFKA_CONSUMER_RECORD (
     TOPIC                   VARCHAR(100) NOT NULL,
     PARTITION               NUMBER(9) NOT NULL,
     RECORD_OFFSET           NUMBER(18) NOT NULL,
+    RETRIES                 NUMBER(9) NOT NULL DEFAULT 0,
+    LAST_RETRY              TIMESTAMP,
     KEY                     BLOB NOT NULL,
     VALUE                   BLOB NOT NULL,
     CREATED_AT              TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,

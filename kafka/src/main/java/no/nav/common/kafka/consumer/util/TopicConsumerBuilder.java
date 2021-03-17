@@ -3,8 +3,6 @@ package no.nav.common.kafka.consumer.util;
 import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
-import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
-import no.nav.common.kafka.consumer.feilhandtering.StoreOnFailureTopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +26,6 @@ public class TopicConsumerBuilder<K, V> {
 
     private TopicConsumer<K, V> consumer;
 
-    private KafkaConsumerRepository<K, V> kafkaConsumerRepository;
-
     private TopicConsumerBuilder() {}
 
     public static <K, V> TopicConsumerBuilder<K, V> builder() {
@@ -38,11 +34,6 @@ public class TopicConsumerBuilder<K, V> {
 
     public TopicConsumerBuilder<K, V> withConsumer(TopicConsumer<K, V> consumer) {
         this.consumer = consumer;
-        return this;
-    }
-
-    public TopicConsumerBuilder<K, V> withStoreOnFailure(KafkaConsumerRepository<K, V> kafkaConsumerRepository) {
-        this.kafkaConsumerRepository = kafkaConsumerRepository;
         return this;
     }
 
@@ -87,10 +78,6 @@ public class TopicConsumerBuilder<K, V> {
             });
             return status;
         };
-
-        if (kafkaConsumerRepository != null) {
-            topicConsumer = new StoreOnFailureTopicConsumer<>(kafkaConsumerRepository, topicConsumer);
-        }
 
         return topicConsumer;
     }
