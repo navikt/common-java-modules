@@ -1,8 +1,8 @@
 package no.nav.common.kafka.util;
 
 import lombok.SneakyThrows;
-import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecord;
-import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecord;
+import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 
 import javax.sql.DataSource;
@@ -24,8 +24,8 @@ public class DatabaseUtils {
     }
 
     @SneakyThrows
-    public static List<KafkaProducerRecord> fetchProducerRecords(ResultSet resultSet) {
-        List<KafkaProducerRecord> records = new ArrayList<>();
+    public static List<StoredProducerRecord> fetchProducerRecords(ResultSet resultSet) {
+        List<StoredProducerRecord> records = new ArrayList<>();
 
         while (resultSet.next()) {
             long id = resultSet.getInt(ID);
@@ -34,15 +34,15 @@ public class DatabaseUtils {
             byte[] key = resultSet.getBytes(KEY);
             byte[] value = resultSet.getBytes(VALUE);
 
-            records.add(new KafkaProducerRecord(id, topic, key, value, headersJson));
+            records.add(new StoredProducerRecord(id, topic, key, value, headersJson));
         }
 
         return records;
     }
 
     @SneakyThrows
-    public static List<KafkaConsumerRecord> fetchConsumerRecords(ResultSet resultSet) {
-        List<KafkaConsumerRecord> records = new ArrayList<>();
+    public static List<StoredConsumerRecord> fetchConsumerRecords(ResultSet resultSet) {
+        List<StoredConsumerRecord> records = new ArrayList<>();
 
         while (resultSet.next()) {
             long id = resultSet.getInt(ID);
@@ -54,8 +54,9 @@ public class DatabaseUtils {
             String headersJson = resultSet.getString(HEADERS_JSON);
             int retries = resultSet.getInt(RETRIES);
             Timestamp lastRetry = resultSet.getTimestamp(LAST_RETRY);
+            long timestamp = resultSet.getLong(RECORD_TIMESTAMP);
 
-            records.add(new KafkaConsumerRecord(id, topic, partition, offset, key, value, headersJson, retries, lastRetry));
+            records.add(new StoredConsumerRecord(id, topic, partition, offset, key, value, headersJson, retries, lastRetry, timestamp));
         }
 
         return records;

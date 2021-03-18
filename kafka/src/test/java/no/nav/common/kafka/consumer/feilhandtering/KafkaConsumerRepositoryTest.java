@@ -5,6 +5,7 @@ import no.nav.common.kafka.utils.LocalH2Database;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
 import org.junit.Test;
@@ -72,12 +73,24 @@ public class KafkaConsumerRepositoryTest {
 
     @Test
     public void should_retrieve_record() {
-        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("topic1", 1, 2, "key", "value");
+        long now = System.currentTimeMillis();
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>(
+                "topic1",
+                1,
+                2,
+                now,
+                TimestampType.CREATE_TIME,
+                ConsumerRecord.NULL_CHECKSUM,
+                ConsumerRecord.NULL_SIZE,
+                ConsumerRecord.NULL_SIZE,
+                "key",
+                "value"
+        );
         consumerRecord.headers().add(new RecordHeader("header1", "test".getBytes()));
 
         kafkaConsumerRepository.storeRecord(mapRecord(consumerRecord));
 
-        KafkaConsumerRecord record = kafkaConsumerRepository.getRecords(
+        StoredConsumerRecord record = kafkaConsumerRepository.getRecords(
                 "topic1",
                 1,
                 5
@@ -89,6 +102,7 @@ public class KafkaConsumerRepositoryTest {
         assertEquals(2, record.getOffset());
         assertArrayEquals("key".getBytes(), record.getKey());
         assertArrayEquals("value".getBytes(), record.getValue());
+        assertEquals(now, record.getTimestamp());
         assertEquals("[{\"key\":\"header1\",\"value\":\"dGVzdA==\"}]", record.getHeadersJson());
     }
 
@@ -99,13 +113,13 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 3, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value")));
 
-        List<KafkaConsumerRecord> records = kafkaConsumerRepository.getRecords(
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
                 "topic1",
                 1,
                 5
         );
 
-        List<KafkaConsumerRecord> sortedRecords = records
+        List<StoredConsumerRecord> sortedRecords = records
                 .stream()
                 .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
                 .collect(Collectors.toList());
@@ -122,7 +136,7 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 3, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value")));
 
-        List<KafkaConsumerRecord> records = kafkaConsumerRepository.getRecords(
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
                 "topic1",
                 1,
                 3
@@ -152,7 +166,7 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.incrementRetries(id);
         kafkaConsumerRepository.incrementRetries(id);
 
-        List<KafkaConsumerRecord> records = kafkaConsumerRepository.getRecords(
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
                 "topic1",
                 1,
                 3
@@ -188,7 +202,7 @@ public class KafkaConsumerRepositoryTest {
 
         kafkaConsumerRepository.deleteRecords(List.of(id1, id3));
 
-        List<KafkaConsumerRecord> records = kafkaConsumerRepository.getRecords(
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
                 "topic1",
                 1,
                 5
@@ -198,7 +212,7 @@ public class KafkaConsumerRepositoryTest {
         assertEquals(id2, records.get(0).getId());
     }
 
-    private KafkaConsumerRecord mapRecord(ConsumerRecord<String, String> record) {
+    private StoredConsumerRecord mapRecord(ConsumerRecord<String, String> record) {
         return ConsumerUtils.mapToStoredRecord(record, new StringSerializer(), new StringSerializer());
     }
 

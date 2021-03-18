@@ -1,7 +1,7 @@
 package no.nav.common.kafka.producer.util;
 
 import no.nav.common.json.JsonUtils;
-import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecord;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import no.nav.common.kafka.util.KafkaUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Headers;
@@ -23,18 +23,26 @@ public class ProducerUtils {
         return new ProducerRecord<>(topic, key, value);
     }
 
-    public static <K, V> KafkaProducerRecord mapToStoredRecord(ProducerRecord<K, V> record, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
+    public static <K, V> StoredProducerRecord mapToStoredRecord(ProducerRecord<K, V> record, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
         byte[] key = keySerializer.serialize(record.topic(), record.key());
         byte[] value = valueSerializer.serialize(record.topic(), record.value());
         String headersJson = KafkaUtils.headersToJson(record.headers());
 
-        return new KafkaProducerRecord(record.topic(), key, value, headersJson);
+        return new StoredProducerRecord(record.topic(), key, value, headersJson);
     }
 
-    public static ProducerRecord<byte[], byte[]> mapFromStoredRecord(KafkaProducerRecord record) {
-        ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(record.getTopic(), record.getKey(), record.getValue());
-
+    public static ProducerRecord<byte[], byte[]> mapFromStoredRecord(StoredProducerRecord record) {
         Headers headers = KafkaUtils.jsonToHeaders(record.getHeadersJson());
+
+        ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(
+                record.getTopic(),
+                null,
+                null,
+                record.getKey(),
+                record.getValue(),
+                headers
+        );
+
         headers.forEach(header -> producerRecord.headers().add(header));
 
         return producerRecord;

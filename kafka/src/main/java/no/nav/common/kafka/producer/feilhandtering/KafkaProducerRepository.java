@@ -5,10 +5,10 @@ import java.util.List;
 
 public interface KafkaProducerRepository {
 
-    long storeRecord(KafkaProducerRecord record);
+    long storeRecord(StoredProducerRecord record);
 
     void deleteRecord(long id);
 
-    List<KafkaProducerRecord> getRecords(Instant olderThan, int maxMessages);
+    List<StoredProducerRecord> getRecords(Instant olderThan, int maxMessages);
 
 }

@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 @AllArgsConstructor
 @Data
-public class KafkaConsumerRecord {
+public class StoredConsumerRecord {
     private final long id;
     private final String topic;
     private final int partition;
@@ -17,8 +17,9 @@ public class KafkaConsumerRecord {
     private final String headersJson;
     private final int retries;
     private final Timestamp lastRetry;
+    private final long timestamp;
 
-    public KafkaConsumerRecord(String topic, int partition, long offset, byte[] key, byte[] value, String headersJson) {
+    public StoredConsumerRecord(String topic, int partition, long offset, byte[] key, byte[] value, String headersJson, long timestamp) {
         this.id = -1;
         this.topic = topic;
         this.partition = partition;
@@ -26,6 +27,7 @@ public class KafkaConsumerRecord {
         this.key = key;
         this.value = value;
         this.headersJson = headersJson;
+        this.timestamp = timestamp;
         this.retries = 0;
         this.lastRetry = null;
     }

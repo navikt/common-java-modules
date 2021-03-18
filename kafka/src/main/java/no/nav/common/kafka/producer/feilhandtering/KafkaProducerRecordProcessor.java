@@ -79,7 +79,7 @@ public class KafkaProducerRecordProcessor {
                    }
 
                    Instant recordsOlderThan = Instant.now().minusMillis(RECORDS_OLDER_THAN_MS);
-                   List<KafkaProducerRecord> records = producerRepository.getRecords(recordsOlderThan, RECORDS_BATCH_SIZE);
+                   List<StoredProducerRecord> records = producerRepository.getRecords(recordsOlderThan, RECORDS_BATCH_SIZE);
 
                    if (!records.isEmpty()) {
                        publishStoredRecordsBatch(records);
@@ -103,7 +103,7 @@ public class KafkaProducerRecordProcessor {
        }
     }
 
-    private void publishStoredRecordsBatch(List<KafkaProducerRecord> records) throws InterruptedException {
+    private void publishStoredRecordsBatch(List<StoredProducerRecord> records) throws InterruptedException {
         // TODO: could be done inside a kafka transaction
 
         CountDownLatch latch = new CountDownLatch(records.size());

@@ -23,10 +23,10 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
 
     @SneakyThrows
     @Override
-    public long storeRecord(KafkaConsumerRecord record) {
+    public long storeRecord(StoredConsumerRecord record) {
         String sql = format(
-                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                CONSUMER_RECORD_TABLE, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                CONSUMER_RECORD_TABLE, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP
         );
 
         long id = incrementAndGetPostgresSequence(dataSource, CONSUMER_RECORD_ID_SEQ);
@@ -39,6 +39,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
             statement.setBytes(5, record.getKey());
             statement.setBytes(6, record.getValue());
             statement.setString(7, record.getHeadersJson());
+            statement.setLong(8, record.getTimestamp());
             statement.executeUpdate();
 
             return id;
@@ -77,7 +78,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
 
     @SneakyThrows
     @Override
-    public List<KafkaConsumerRecord> getRecords(String topic, int partition, int maxRecords) {
+    public List<StoredConsumerRecord> getRecords(String topic, int partition, int maxRecords) {
         String sql = format(
                 "SELECT * FROM %s WHERE %s = ? AND %s = ? ORDER BY %s LIMIT %d",
                 CONSUMER_RECORD_TABLE, TOPIC, PARTITION, ID, maxRecords

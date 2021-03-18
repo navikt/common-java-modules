@@ -106,7 +106,7 @@ public class KafkaConsumerRecordProcessor {
                     return;
                 }
 
-                List<KafkaConsumerRecord> records = kafkaConsumerRepository
+                List<StoredConsumerRecord> records = kafkaConsumerRepository
                         .getRecords(topicPartition.topic(), topicPartition.partition(), RECORDS_BATCH_SIZE);
 
                 StoredRecordConsumer recordConsumer = recordConsumers.get(topicPartition.topic());

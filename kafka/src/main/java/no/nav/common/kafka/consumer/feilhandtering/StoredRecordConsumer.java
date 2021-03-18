@@ -4,6 +4,6 @@ import no.nav.common.kafka.consumer.ConsumeStatus;
 
 public interface StoredRecordConsumer {
 
-    ConsumeStatus consume(KafkaConsumerRecord consumerRecord);
+    ConsumeStatus consume(StoredConsumerRecord consumerRecord);
 
 }

@@ -68,7 +68,7 @@ public class KafkaProducerRepositoryTest {
 
         kafkaProducerRepository.storeRecord(mapRecord(producerRecord));
 
-        KafkaProducerRecord record = kafkaProducerRepository.getRecords(
+        StoredProducerRecord record = kafkaProducerRepository.getRecords(
                 Instant.now().minusSeconds(10),
                 10
         ).get(0);
@@ -87,12 +87,12 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
-        List<KafkaProducerRecord> records = kafkaProducerRepository.getRecords(
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
                 Instant.now().minusSeconds(10),
                 10
         );
 
-        List<KafkaProducerRecord> sortedRecords = records
+        List<StoredProducerRecord> sortedRecords = records
                 .stream()
                 .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
                 .collect(Collectors.toList());
@@ -112,7 +112,7 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
-        List<KafkaProducerRecord> records = kafkaProducerRepository.getRecords(
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
                 Instant.now().minusMillis(3000),
                 10
         );
@@ -128,7 +128,7 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
-        List<KafkaProducerRecord> records = kafkaProducerRepository.getRecords(
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
                 Instant.now().minusSeconds(10),
                 3
         );
@@ -143,7 +143,7 @@ public class KafkaProducerRepositoryTest {
 
         kafkaProducerRepository.deleteRecord(id);
 
-        List<KafkaProducerRecord> records = kafkaProducerRepository.getRecords(
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
                 Instant.now().minusSeconds(10),
                 10
         );
@@ -151,7 +151,7 @@ public class KafkaProducerRepositoryTest {
         assertEquals(1, records.size());
     }
 
-    private static KafkaProducerRecord mapRecord(ProducerRecord<String, String> record) {
+    private static StoredProducerRecord mapRecord(ProducerRecord<String, String> record) {
         return ProducerUtils.mapToStoredRecord(record, new StringSerializer(), new StringSerializer());
     }
 

@@ -22,7 +22,7 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
 
     @SneakyThrows
     @Override
-    public long storeRecord(KafkaProducerRecord record) {
+    public long storeRecord(StoredProducerRecord record) {
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?)",
                 PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE, HEADERS_JSON
@@ -54,7 +54,7 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
 
     @SneakyThrows
     @Override
-    public List<KafkaProducerRecord> getRecords(Instant olderThan, int maxMessages) {
+    public List<StoredProducerRecord> getRecords(Instant olderThan, int maxMessages) {
         String sql = format(
                 "SELECT * FROM %s WHERE %s >= ? ORDER BY %s LIMIT %d",
                 PRODUCER_RECORD_TABLE, CREATED_AT, ID, maxMessages
