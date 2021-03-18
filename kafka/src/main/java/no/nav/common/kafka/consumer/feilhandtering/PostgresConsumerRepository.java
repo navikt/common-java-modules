@@ -81,7 +81,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     public List<StoredConsumerRecord> getRecords(String topic, int partition, int maxRecords) {
         String sql = format(
                 "SELECT * FROM %s WHERE %s = ? AND %s = ? ORDER BY %s LIMIT %d",
-                CONSUMER_RECORD_TABLE, TOPIC, PARTITION, ID, maxRecords
+                CONSUMER_RECORD_TABLE, TOPIC, PARTITION, RECORD_OFFSET, maxRecords
         );
 
         try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {

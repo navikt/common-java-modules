@@ -108,10 +108,10 @@ public class KafkaConsumerRepositoryTest {
 
     @Test
     public void should_retrieve_records_in_order() {
-        kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 3, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value")));
+        kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value")));
 
         List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
                 "topic1",
@@ -121,7 +121,7 @@ public class KafkaConsumerRepositoryTest {
 
         List<StoredConsumerRecord> sortedRecords = records
                 .stream()
-                .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
+                .sorted((r1, r2) -> (int) (r1.getOffset() - r2.getOffset())) // Sort offset ascending
                 .collect(Collectors.toList());
 
         for (int i = 0; i < records.size(); i++) {
