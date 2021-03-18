@@ -5,5 +5,6 @@ CREATE TABLE KAFKA_PRODUCER_RECORD (
     TOPIC                   VARCHAR(100) NOT NULL,
     KEY                     BLOB NOT NULL,
     VALUE                   BLOB NOT NULL,
+    HEADERS_JSON            CLOB,
     CREATED_AT              TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );

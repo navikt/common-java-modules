@@ -1,9 +1,6 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import lombok.SneakyThrows;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.Deserializer;
-import org.apache.kafka.common.serialization.Serializer;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -27,8 +24,8 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
     @Override
     public long storeRecord(KafkaProducerRecord record) {
         String sql = format(
-                "INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?)",
-                PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE
+                "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?)",
+                PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE, HEADERS_JSON
         );
 
         long id = incrementAndGetPostgresSequence(dataSource, PRODUCER_RECORD_ID_SEQ);
@@ -38,6 +35,7 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
             statement.setString(2, record.getTopic());
             statement.setBytes(3, record.getKey());
             statement.setBytes(4, record.getValue());
+            statement.setString(5, record.getHeadersJson());
             statement.executeUpdate();
         }
 

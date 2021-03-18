@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecord;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.Deserializer;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -31,10 +30,11 @@ public class DatabaseUtils {
         while (resultSet.next()) {
             long id = resultSet.getInt(ID);
             String topic = resultSet.getString(TOPIC);
+            String headersJson = resultSet.getString(HEADERS_JSON);
             byte[] key = resultSet.getBytes(KEY);
             byte[] value = resultSet.getBytes(VALUE);
 
-            records.add(new KafkaProducerRecord(id, topic, key, value));
+            records.add(new KafkaProducerRecord(id, topic, key, value, headersJson));
         }
 
         return records;

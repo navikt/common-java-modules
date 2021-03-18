@@ -2,9 +2,8 @@ package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import no.nav.common.kafka.utils.LocalH2Database;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
 import org.junit.Test;
@@ -64,7 +63,10 @@ public class KafkaProducerRepositoryTest {
 
     @Test
     public void should_retrieve_record() {
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic1", 1, "key","value");
+        producerRecord.headers().add(new RecordHeader("header1", "test".getBytes()));
+
+        kafkaProducerRepository.storeRecord(mapRecord(producerRecord));
 
         KafkaProducerRecord record = kafkaProducerRepository.getRecords(
                 Instant.now().minusSeconds(10),
@@ -75,6 +77,7 @@ public class KafkaProducerRepositoryTest {
         assertEquals("topic1", record.getTopic());
         assertArrayEquals("key".getBytes(), record.getKey());
         assertArrayEquals("value".getBytes(), record.getValue());
+        assertEquals("[{\"key\":\"header1\",\"value\":\"dGVzdA==\"}]", record.getHeadersJson());
     }
 
     @Test

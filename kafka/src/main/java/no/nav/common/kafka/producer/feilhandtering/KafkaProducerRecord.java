@@ -10,11 +10,13 @@ public class KafkaProducerRecord {
     private final String topic;
     private final byte[] key;
     private final byte[] value;
+    private final String headersJson;
 
-    public KafkaProducerRecord(String topic, byte[] key, byte[] value) {
+    public KafkaProducerRecord(String topic, byte[] key, byte[] value, String headersJson) {
         this.id = -1;
         this.topic = topic;
         this.key = key;
         this.value = value;
+        this.headersJson = headersJson;
     }
 }

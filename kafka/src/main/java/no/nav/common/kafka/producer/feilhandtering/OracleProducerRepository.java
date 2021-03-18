@@ -24,8 +24,8 @@ public class OracleProducerRepository implements KafkaProducerRepository {
     @Override
     public long storeRecord(KafkaProducerRecord record) {
         String sql = format(
-                "INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?)",
-                PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE
+                "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?)",
+                PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE, HEADERS_JSON
         );
 
         long id = incrementAndGetOracleSequence(dataSource, PRODUCER_RECORD_ID_SEQ);
@@ -35,6 +35,7 @@ public class OracleProducerRepository implements KafkaProducerRepository {
             statement.setString(2, record.getTopic());
             statement.setBytes(3, record.getKey());
             statement.setBytes(4, record.getValue());
+            statement.setString(5, record.getHeadersJson());
             statement.executeUpdate();
         }
 
