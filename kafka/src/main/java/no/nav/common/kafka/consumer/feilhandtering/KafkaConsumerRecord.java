@@ -14,16 +14,18 @@ public class KafkaConsumerRecord {
     private final long offset;
     private final byte[] key;
     private final byte[] value;
+    private final String headersJson;
     private final int retries;
     private final Timestamp lastRetry;
 
-    public KafkaConsumerRecord(String topic, int partition, long offset, byte[] key, byte[] value) {
+    public KafkaConsumerRecord(String topic, int partition, long offset, byte[] key, byte[] value, String headersJson) {
         this.id = -1;
         this.topic = topic;
         this.partition = partition;
         this.offset = offset;
         this.key = key;
         this.value = value;
+        this.headersJson = headersJson;
         this.retries = 0;
         this.lastRetry = null;
     }

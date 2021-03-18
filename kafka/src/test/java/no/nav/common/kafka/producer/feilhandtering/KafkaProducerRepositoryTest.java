@@ -152,7 +152,7 @@ public class KafkaProducerRepositoryTest {
     }
 
     private static KafkaProducerRecord mapRecord(ProducerRecord<String, String> record) {
-        return ProducerUtils.mapRecord(record, new StringSerializer(), new StringSerializer());
+        return ProducerUtils.mapToStoredRecord(record, new StringSerializer(), new StringSerializer());
     }
 
 }

@@ -22,7 +22,7 @@ public class StoreRecordTopicConsumer implements TopicConsumer<byte[], byte[]> {
     @Override
     public ConsumeStatus consume(ConsumerRecord<byte[], byte[]> record) {
         try {
-            consumerRepository.storeRecord(ConsumerUtils.mapRecord(record));
+            consumerRepository.storeRecord(ConsumerUtils.mapToStoredRecord(record));
             log.info("Stored consumer record topic={} partition={} offset={}", record.topic(), record.partition(), record.offset());
             return ConsumeStatus.OK;
         } catch (Exception e) {

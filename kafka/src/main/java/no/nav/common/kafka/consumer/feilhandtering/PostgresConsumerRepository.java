@@ -25,8 +25,8 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     @Override
     public long storeRecord(KafkaConsumerRecord record) {
         String sql = format(
-                "INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?)",
-                CONSUMER_RECORD_TABLE, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE
+                "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                CONSUMER_RECORD_TABLE, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON
         );
 
         long id = incrementAndGetPostgresSequence(dataSource, CONSUMER_RECORD_ID_SEQ);
@@ -38,6 +38,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
             statement.setLong(4, record.getOffset());
             statement.setBytes(5, record.getKey());
             statement.setBytes(6, record.getValue());
+            statement.setString(7, record.getHeadersJson());
             statement.executeUpdate();
 
             return id;

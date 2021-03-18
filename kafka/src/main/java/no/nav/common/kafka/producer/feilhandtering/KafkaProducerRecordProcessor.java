@@ -109,7 +109,7 @@ public class KafkaProducerRecordProcessor {
         CountDownLatch latch = new CountDownLatch(records.size());
 
         records.forEach(record -> {
-            producer.send(ProducerUtils.mapRecord(record), (metadata, exception) -> {
+            producer.send(ProducerUtils.mapFromStoredRecord(record), (metadata, exception) -> {
                 try {
                     if (exception != null) {
                         log.warn(format("Failed to resend failed message to topic %s", record.getTopic()), exception);

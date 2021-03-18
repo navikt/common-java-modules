@@ -45,7 +45,7 @@ public class StoreOnFailureTopicConsumer<K, V> implements TopicConsumer<K, V> {
             }
         }
 
-        consumerRepository.storeRecord(ConsumerUtils.mapRecord(record, keySerializer, valueSerializer));
+        consumerRepository.storeRecord(ConsumerUtils.mapToStoredRecord(record, keySerializer, valueSerializer));
         return ConsumeStatus.OK;
     }
 

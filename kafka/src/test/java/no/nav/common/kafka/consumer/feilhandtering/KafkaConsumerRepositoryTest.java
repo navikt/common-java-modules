@@ -4,6 +4,7 @@ import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import no.nav.common.kafka.utils.LocalH2Database;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
 import org.junit.Test;
@@ -71,7 +72,10 @@ public class KafkaConsumerRepositoryTest {
 
     @Test
     public void should_retrieve_record() {
-        kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value")));
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("topic1", 1, 2, "key", "value");
+        consumerRecord.headers().add(new RecordHeader("header1", "test".getBytes()));
+
+        kafkaConsumerRepository.storeRecord(mapRecord(consumerRecord));
 
         KafkaConsumerRecord record = kafkaConsumerRepository.getRecords(
                 "topic1",
@@ -85,6 +89,7 @@ public class KafkaConsumerRepositoryTest {
         assertEquals(2, record.getOffset());
         assertArrayEquals("key".getBytes(), record.getKey());
         assertArrayEquals("value".getBytes(), record.getValue());
+        assertEquals("[{\"key\":\"header1\",\"value\":\"dGVzdA==\"}]", record.getHeadersJson());
     }
 
     @Test
@@ -194,7 +199,7 @@ public class KafkaConsumerRepositoryTest {
     }
 
     private KafkaConsumerRecord mapRecord(ConsumerRecord<String, String> record) {
-        return ConsumerUtils.mapRecord(record, new StringSerializer(), new StringSerializer());
+        return ConsumerUtils.mapToStoredRecord(record, new StringSerializer(), new StringSerializer());
     }
 
 }

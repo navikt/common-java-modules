@@ -4,7 +4,9 @@ import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecord;
 import no.nav.common.kafka.consumer.feilhandtering.StoredRecordConsumer;
+import no.nav.common.kafka.util.KafkaUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.slf4j.Logger;
@@ -20,30 +22,37 @@ public class ConsumerUtils {
 
     private final static Logger log = LoggerFactory.getLogger(ConsumerUtils.class);
 
-    public static <K, V> KafkaConsumerRecord mapRecord(
+    public static <K, V> KafkaConsumerRecord mapToStoredRecord(
             ConsumerRecord<K, V> record,
             Serializer<K> keySerializer,
             Serializer<V> valueSerializer
     ) {
         byte[] key = keySerializer.serialize(record.topic(), record.key());
         byte[] value = valueSerializer.serialize(record.topic(), record.value());
+        String headersJson = KafkaUtils.headersToJson(record.headers());
 
-        return new KafkaConsumerRecord(record.topic(), record.partition(), record.offset(), key, value);
+        return new KafkaConsumerRecord(record.topic(), record.partition(), record.offset(), key, value, headersJson);
     }
 
-    public static KafkaConsumerRecord mapRecord(ConsumerRecord<byte[], byte[]> record) {
-        return new KafkaConsumerRecord(record.topic(), record.partition(), record.offset(), record.key(), record.value());
+    public static KafkaConsumerRecord mapToStoredRecord(ConsumerRecord<byte[], byte[]> record) {
+        String headersJson = KafkaUtils.headersToJson(record.headers());
+        return new KafkaConsumerRecord(record.topic(), record.partition(), record.offset(), record.key(), record.value(), headersJson);
     }
 
-    public static <K, V> ConsumerRecord<K, V> mapRecord(
+    public static <K, V> ConsumerRecord<K, V> mapFromStoredRecord(
             KafkaConsumerRecord record,
             Deserializer<K> keyDeserializer,
             Deserializer<V> valueDeserializer
     ) {
         K key = keyDeserializer.deserialize(record.getTopic(), record.getKey());
         V value = valueDeserializer.deserialize(record.getTopic(), record.getValue());
+        Headers headers = KafkaUtils.jsonToHeaders(record.getHeadersJson());
 
-        return new ConsumerRecord<>(record.getTopic(), record.getPartition(), record.getOffset(), key, value);
+        ConsumerRecord<K, V> consumerRecord = new ConsumerRecord<>(record.getTopic(), record.getPartition(), record.getOffset(), key, value);
+
+        headers.forEach(header -> consumerRecord.headers().add(header));
+
+        return consumerRecord;
     }
 
     public static <K, V> Map<String, StoredRecordConsumer> toStoredRecordConsumerMap(
@@ -65,7 +74,7 @@ public class ConsumerUtils {
             Deserializer<K> keyDeserializer,
             Deserializer<V> valueDeserializer
     ) {
-        return storedRecord -> topicConsumer.consume(mapRecord(storedRecord, keyDeserializer, valueDeserializer));
+        return storedRecord -> topicConsumer.consume(mapFromStoredRecord(storedRecord, keyDeserializer, valueDeserializer));
     }
 
     public static <K, V> TopicConsumer<K, V> aggregateConsumer(final List<TopicConsumer<K, V>> consumers) {

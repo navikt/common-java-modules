@@ -49,12 +49,13 @@ public class DatabaseUtils {
             String topic = resultSet.getString(TOPIC);
             int partition = resultSet.getInt(PARTITION);
             long offset = resultSet.getLong(RECORD_OFFSET);
-            int retries = resultSet.getInt(RETRIES);
-            Timestamp lastRetry = resultSet.getTimestamp(LAST_RETRY);
             byte[] key = resultSet.getBytes(KEY);
             byte[] value = resultSet.getBytes(VALUE);
+            String headersJson = resultSet.getString(HEADERS_JSON);
+            int retries = resultSet.getInt(RETRIES);
+            Timestamp lastRetry = resultSet.getTimestamp(LAST_RETRY);
 
-            records.add(new KafkaConsumerRecord(id, topic, partition, offset, key, value, retries, lastRetry));
+            records.add(new KafkaConsumerRecord(id, topic, partition, offset, key, value, headersJson, retries, lastRetry));
         }
 
         return records;
