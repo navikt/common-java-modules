@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.sql.DataSource;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -68,10 +67,7 @@ public class KafkaProducerRepositoryTest {
 
         kafkaProducerRepository.storeRecord(mapRecord(producerRecord));
 
-        StoredProducerRecord record = kafkaProducerRepository.getRecords(
-                Instant.now().minusSeconds(10),
-                10
-        ).get(0);
+        StoredProducerRecord record = kafkaProducerRepository.getRecords(10).get(0);
 
         assertEquals(1, record.getId());
         assertEquals("topic1", record.getTopic());
@@ -87,10 +83,7 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
-        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
-                Instant.now().minusSeconds(10),
-                10
-        );
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(10);
 
         List<StoredProducerRecord> sortedRecords = records
                 .stream()
@@ -103,24 +96,6 @@ public class KafkaProducerRepositoryTest {
     }
 
     @Test
-    public void should_retrieve_records_older_than() throws InterruptedException {
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-
-        Thread.sleep(3000);
-
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-
-        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
-                Instant.now().minusMillis(3000),
-                10
-        );
-
-        assertEquals(2, records.size());
-    }
-
-    @Test
     public void should_retrieve_records_with_limit() {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
@@ -128,10 +103,7 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
-        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
-                Instant.now().minusSeconds(10),
-                3
-        );
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(3);
 
         assertEquals(3, records.size());
     }
@@ -143,10 +115,7 @@ public class KafkaProducerRepositoryTest {
 
         kafkaProducerRepository.deleteRecord(id);
 
-        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(
-                Instant.now().minusSeconds(10),
-                10
-        );
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(10);
 
         assertEquals(1, records.size());
     }

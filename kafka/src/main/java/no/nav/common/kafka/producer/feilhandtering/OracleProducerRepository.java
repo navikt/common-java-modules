@@ -4,8 +4,6 @@ import lombok.SneakyThrows;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -54,14 +52,13 @@ public class OracleProducerRepository implements KafkaProducerRepository {
 
     @SneakyThrows
     @Override
-    public List<StoredProducerRecord> getRecords(Instant olderThan, int maxMessages) {
+    public List<StoredProducerRecord> getRecords(int maxMessages) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s >= ? ORDER BY %s FETCH NEXT %d ROWS ONLY",
-                PRODUCER_RECORD_TABLE, CREATED_AT, ID, maxMessages
+                "SELECT * FROM %s ORDER BY %s FETCH NEXT %d ROWS ONLY",
+                PRODUCER_RECORD_TABLE, ID, maxMessages
         );
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
-            statement.setTimestamp(1, new Timestamp(olderThan.toEpochMilli()));
             return fetchProducerRecords(statement.executeQuery());
         }
     }

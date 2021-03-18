@@ -1,6 +1,5 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
-import java.time.Instant;
 import java.util.List;
 
 public interface KafkaProducerRepository {
@@ -9,6 +8,6 @@ public interface KafkaProducerRepository {
 
     void deleteRecord(long id);
 
-    List<StoredProducerRecord> getRecords(Instant olderThan, int maxMessages);
+    List<StoredProducerRecord> getRecords(int maxMessages);
 
 }

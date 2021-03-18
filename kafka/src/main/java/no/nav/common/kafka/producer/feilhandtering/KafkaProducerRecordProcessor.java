@@ -6,7 +6,6 @@ import org.apache.kafka.clients.producer.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -21,8 +20,6 @@ public class KafkaProducerRecordProcessor {
     private final static long POLL_TIMEOUT_MS = 3000;
 
     private final static long WAITING_FOR_LEADER_TIMEOUT_MS = 10_000;
-
-    private final static long RECORDS_OLDER_THAN_MS = 0;
 
     private final static int RECORDS_BATCH_SIZE = 100;
 
@@ -78,8 +75,7 @@ public class KafkaProducerRecordProcessor {
                        continue;
                    }
 
-                   Instant recordsOlderThan = Instant.now().minusMillis(RECORDS_OLDER_THAN_MS);
-                   List<StoredProducerRecord> records = producerRepository.getRecords(recordsOlderThan, RECORDS_BATCH_SIZE);
+                   List<StoredProducerRecord> records = producerRepository.getRecords(RECORDS_BATCH_SIZE);
 
                    if (!records.isEmpty()) {
                        publishStoredRecordsBatch(records);
