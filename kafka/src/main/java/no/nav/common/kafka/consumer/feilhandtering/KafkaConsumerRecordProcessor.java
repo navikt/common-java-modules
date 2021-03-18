@@ -5,6 +5,7 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.utils.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,12 +112,13 @@ public class KafkaConsumerRecordProcessor {
                 StoredRecordConsumer recordConsumer = recordConsumers.get(topicPartition.topic());
 
                 List<Long> recordsToDelete = new ArrayList<>();
-                Map<TopicPartition, Set<byte[]>> failedKeys = new HashMap<>();
+                Map<TopicPartition, Set<Bytes>> failedKeys = new HashMap<>();
 
                 records.forEach(r -> {
-                    Set<byte[]> keySet = failedKeys.get(topicPartition);
+                    Set<Bytes> keySet = failedKeys.get(topicPartition);
 
-                    if (keySet != null && keySet.contains(r.getKey())) {
+                    // We cannot process records where a previous record with the same key (and topic+partition) has failed to be consumed
+                    if (keySet != null && keySet.contains(Bytes.wrap(r.getKey()))) {
                         return;
                     }
 
@@ -133,9 +135,12 @@ public class KafkaConsumerRecordProcessor {
                     if (status == ConsumeStatus.OK) {
                         recordsToDelete.add(r.getId());
                     } else {
-                        log.error("");
+                        log.error(
+                                "Failed to process consumer record topic={} partition={} offset={} dbId={}",
+                                r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                        );
                         kafkaConsumerRepository.incrementRetries(r.getId());
-                        failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(r.getKey());
+                        failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(Bytes.wrap(r.getKey()));
                     }
                 });
 
@@ -153,7 +158,7 @@ public class KafkaConsumerRecordProcessor {
     }
 
     private Optional<SimpleLock> acquireLock(TopicPartition topicPartition) {
-        String name = "processor-" + topicPartition.topic() + "-" + topicPartition.partition();
+        String name = "kcrp-" + topicPartition.topic() + "-" + topicPartition.partition();
         LockConfiguration configuration = new LockConfiguration(Instant.now(), name, Duration.ofMinutes(5), Duration.ofSeconds(5));
         return lockProvider.lock(configuration);
     }

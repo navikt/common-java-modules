@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 
 import static java.lang.String.format;
 
-public class KafkaProducerRecordForwarder {
+public class KafkaProducerRecordProcessor {
 
     private final static long ERROR_TIMEOUT_MS = 5000;
 
@@ -40,7 +40,7 @@ public class KafkaProducerRecordForwarder {
 
     private volatile boolean isClosed;
 
-    public KafkaProducerRecordForwarder(
+    public KafkaProducerRecordProcessor(
             KafkaProducerRepository producerRepository,
             Producer<byte[], byte[]> producerClient,
             LeaderElectionClient leaderElectionClient
@@ -54,7 +54,7 @@ public class KafkaProducerRecordForwarder {
 
     public void start() {
         if (isClosed) {
-            throw new IllegalStateException("Cannot start closed producer record forwarder");
+            throw new IllegalStateException("Cannot start closed producer record processor");
         }
 
         if (!isRunning) {
@@ -91,14 +91,14 @@ public class KafkaProducerRecordForwarder {
                        Thread.sleep(POLL_TIMEOUT_MS);
                    }
                } catch (Exception e) {
-                   log.error("Failed to forward kafka records", e);
+                   log.error("Failed to process kafka producer records", e);
                    Thread.sleep(ERROR_TIMEOUT_MS);
                }
            }
        } catch (Exception e) {
            log.error("Unexpected exception caught in record handler loop", e);
        } finally {
-           log.info("Closing kafka producer record forwarder...");
+           log.info("Closing kafka producer record processor...");
            producer.close();
        }
     }
