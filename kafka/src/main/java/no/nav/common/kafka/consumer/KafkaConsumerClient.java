@@ -213,6 +213,10 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         if (config.pollDurationMs <= 0) {
             throw new IllegalArgumentException("\"pollDurationMs\" must be larger than 0");
         }
+
+        if (!Boolean.FALSE.equals(config.properties.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG))) {
+            throw new IllegalArgumentException(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG + " must be false!");
+        }
     }
 
     private static Map<String, ExecutorService> createTopicExecutors(Iterable<String> topics) {
