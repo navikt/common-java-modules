@@ -34,7 +34,7 @@ public class ProducerUtils {
     public static ProducerRecord<byte[], byte[]> mapFromStoredRecord(StoredProducerRecord record) {
         Headers headers = KafkaUtils.jsonToHeaders(record.getHeadersJson());
 
-        ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(
+        return new ProducerRecord<>(
                 record.getTopic(),
                 null,
                 null,
@@ -42,10 +42,6 @@ public class ProducerUtils {
                 record.getValue(),
                 headers
         );
-
-        headers.forEach(header -> producerRecord.headers().add(header));
-
-        return producerRecord;
     }
 
 }
