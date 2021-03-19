@@ -6,6 +6,13 @@ import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Serializer;
 
+/**
+ * Wraps a TopicConsumer and stores the record into a database if the underlying consumer fails to process the record.
+ * To ensure that records are processed in the proper order, if there is a record with the same topic+partition+key already stored,
+ * then the underlying consumer will be skipped and the record will be stored.
+ * @param <K> topic key
+ * @param <V> topic value
+ */
 public class StoreOnFailureTopicConsumer<K, V> implements TopicConsumer<K, V> {
 
     private final TopicConsumer<K, V> consumer;

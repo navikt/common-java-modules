@@ -112,7 +112,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         assertTrue(producerRepository.getRecords(10).isEmpty());
     }
 
-    private StoredProducerRecord storedRecord(String topic, String value, String key) {
+    private StoredProducerRecord storedRecord(String topic, String key, String value) {
         return new StoredProducerRecord(
                 topic,
                 key.getBytes(),

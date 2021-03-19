@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
+/**
+ * Stores all consumer records into a database without further processing.
+ */
 public class StoreRecordTopicConsumer implements TopicConsumer<byte[], byte[]> {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
