@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
@@ -31,6 +32,19 @@ public class TestUtils {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "test-producer");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 2000); // Prøv opptil 2 sekunder på å sende en melding
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 100);
+        return props;
+    }
+
+
+    public static Properties kafkaTestByteProducerProperties(String brokerUrl) {
+        Properties props = new Properties();
+        props.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
+        props.put(ProducerConfig.ACKS_CONFIG, "1");
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, "test-producer");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
         props.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 2000); // Prøv opptil 2 sekunder på å sende en melding
         props.put(ProducerConfig.LINGER_MS_CONFIG, 100);
         return props;
