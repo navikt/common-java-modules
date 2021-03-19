@@ -14,8 +14,15 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
 
     private final DataSource dataSource;
 
-    public PostgresProducerRepository(DataSource dataSource) {
+    private final String producerRecordTable;
+
+    public PostgresProducerRepository(DataSource dataSource, String producerRecordTableName) {
         this.dataSource = dataSource;
+        this.producerRecordTable = producerRecordTableName;
+    }
+
+    public PostgresProducerRepository(DataSource dataSource) {
+        this(dataSource, PRODUCER_RECORD_TABLE);
     }
 
     @SneakyThrows
@@ -23,7 +30,7 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
     public long storeRecord(StoredProducerRecord record) {
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?)",
-                PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE, HEADERS_JSON
+                producerRecordTable, ID, TOPIC, KEY, VALUE, HEADERS_JSON
         );
 
         long id = incrementAndGetPostgresSequence(dataSource, PRODUCER_RECORD_ID_SEQ);
@@ -43,7 +50,7 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
     @SneakyThrows
     @Override
     public void deleteRecord(long id) {
-        String sql = format("DELETE FROM %s WHERE %s = ?", PRODUCER_RECORD_TABLE, ID);
+        String sql = format("DELETE FROM %s WHERE %s = ?", producerRecordTable, ID);
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
             statement.executeUpdate();
@@ -55,7 +62,7 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
     public List<StoredProducerRecord> getRecords(int maxMessages) {
         String sql = format(
                 "SELECT * FROM %s ORDER BY %s LIMIT %d",
-                PRODUCER_RECORD_TABLE, ID, maxMessages
+                producerRecordTable, ID, maxMessages
         );
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {

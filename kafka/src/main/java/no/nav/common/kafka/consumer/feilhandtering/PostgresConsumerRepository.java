@@ -17,8 +17,15 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
 
     private final DataSource dataSource;
 
-    public PostgresConsumerRepository(DataSource dataSource) {
+    private final String consumerRecordTable;
+
+    public PostgresConsumerRepository(DataSource dataSource, String consumerRecordTable) {
         this.dataSource = dataSource;
+        this.consumerRecordTable = consumerRecordTable;
+    }
+
+    public PostgresConsumerRepository(DataSource dataSource) {
+        this(dataSource, CONSUMER_RECORD_TABLE);
     }
 
     @SneakyThrows
@@ -26,7 +33,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     public long storeRecord(StoredConsumerRecord record) {
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                CONSUMER_RECORD_TABLE, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP
+                consumerRecordTable, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP
         );
 
         long id = incrementAndGetPostgresSequence(dataSource, CONSUMER_RECORD_ID_SEQ);
@@ -51,7 +58,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     @SneakyThrows
     @Override
     public void deleteRecords(List<Long> ids) {
-        String sql = format("DELETE FROM %s WHERE %s = ANY(?)", CONSUMER_RECORD_TABLE, ID);
+        String sql = format("DELETE FROM %s WHERE %s = ANY(?)", consumerRecordTable, ID);
         try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             Array array = dataSource.getConnection().createArrayOf("INTEGER", ids.toArray());
             statement.setArray(1, array);
@@ -64,7 +71,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     public boolean hasRecordWithKey(String topic, int partition, byte[] key) {
         String sql = format(
                 "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? LIMIT 1",
-                ID, CONSUMER_RECORD_TABLE, TOPIC, PARTITION, KEY
+                ID, consumerRecordTable, TOPIC, PARTITION, KEY
         );
 
         try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
@@ -81,7 +88,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     public List<StoredConsumerRecord> getRecords(String topic, int partition, int maxRecords) {
         String sql = format(
                 "SELECT * FROM %s WHERE %s = ? AND %s = ? ORDER BY %s LIMIT %d",
-                CONSUMER_RECORD_TABLE, TOPIC, PARTITION, RECORD_OFFSET, maxRecords
+                consumerRecordTable, TOPIC, PARTITION, RECORD_OFFSET, maxRecords
         );
 
         try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
@@ -96,7 +103,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     public void incrementRetries(long id) {
         String sql = format(
                 "UPDATE %s SET %s = %s + 1, %s = CURRENT_TIMESTAMP WHERE %s = ?",
-                CONSUMER_RECORD_TABLE, RETRIES, RETRIES, LAST_RETRY, ID
+                consumerRecordTable, RETRIES, RETRIES, LAST_RETRY, ID
         );
 
         try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
@@ -110,7 +117,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     public List<TopicPartition> getTopicPartitions(List<String> topics) {
         String sql = format(
                 "SELECT DISTINCT %s, %s FROM %s WHERE %s = ANY(?)",
-                TOPIC, PARTITION, CONSUMER_RECORD_TABLE, TOPIC
+                TOPIC, PARTITION, consumerRecordTable, TOPIC
         );
 
         try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {

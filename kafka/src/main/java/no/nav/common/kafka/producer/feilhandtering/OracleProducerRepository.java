@@ -14,8 +14,15 @@ public class OracleProducerRepository implements KafkaProducerRepository {
 
     private final DataSource dataSource;
 
-    public OracleProducerRepository(DataSource dataSource) {
+    private final String producerRecordTable;
+
+    public OracleProducerRepository(DataSource dataSource, String producerRecordTableName) {
         this.dataSource = dataSource;
+        this.producerRecordTable = producerRecordTableName;
+    }
+
+    public OracleProducerRepository(DataSource dataSource) {
+        this(dataSource, PRODUCER_RECORD_TABLE);
     }
 
     @SneakyThrows
@@ -23,7 +30,7 @@ public class OracleProducerRepository implements KafkaProducerRepository {
     public long storeRecord(StoredProducerRecord record) {
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?)",
-                PRODUCER_RECORD_TABLE, ID, TOPIC, KEY, VALUE, HEADERS_JSON
+                producerRecordTable, ID, TOPIC, KEY, VALUE, HEADERS_JSON
         );
 
         long id = incrementAndGetOracleSequence(dataSource, PRODUCER_RECORD_ID_SEQ);
@@ -43,7 +50,7 @@ public class OracleProducerRepository implements KafkaProducerRepository {
     @SneakyThrows
     @Override
     public void deleteRecord(long id) {
-        String sql = format("DELETE FROM %s WHERE %s = ?", PRODUCER_RECORD_TABLE, ID);
+        String sql = format("DELETE FROM %s WHERE %s = ?", producerRecordTable, ID);
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
             statement.executeUpdate();
@@ -55,7 +62,7 @@ public class OracleProducerRepository implements KafkaProducerRepository {
     public List<StoredProducerRecord> getRecords(int maxMessages) {
         String sql = format(
                 "SELECT * FROM %s ORDER BY %s FETCH NEXT %d ROWS ONLY",
-                PRODUCER_RECORD_TABLE, ID, maxMessages
+                producerRecordTable, ID, maxMessages
         );
 
         try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
