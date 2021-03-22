@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static java.lang.String.format;
 
@@ -119,6 +120,19 @@ public class ConsumerUtils {
 
             return aggregatedStatus;
         };
+    }
+
+    /**
+     * Used to wrap consumers that dont return a ConsumeStatus
+     * @param consumer the consumer which will consume the record
+     * @param record the kafka record to consume
+     * @param <K> topic key
+     * @param <V> topic value
+     * @return ConsumeStatus.OK
+     */
+    public static <K, V> ConsumeStatus consume(Consumer<ConsumerRecord<K, V>> consumer, ConsumerRecord<K, V> record) {
+        consumer.accept(record);
+        return ConsumeStatus.OK;
     }
 
     public static <K, V> ConsumeStatus safeConsume(TopicConsumer<K, V> topicConsumer, ConsumerRecord<K, V> consumerRecord) {

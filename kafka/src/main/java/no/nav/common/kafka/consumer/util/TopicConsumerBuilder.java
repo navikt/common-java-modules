@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -38,7 +39,12 @@ public class TopicConsumerBuilder<K, V> {
     }
 
     public <T> TopicConsumerBuilder<K, V> withJsonConsumer(Class<T> jsonType, Function<T, ConsumeStatus> consumer) {
-        this.consumer = new JsonTopicConsumer<>(jsonType, consumer);
+        this.consumer = JsonTopicConsumer.jsonConsumer(jsonType, consumer);
+        return this;
+    }
+
+    public <T> TopicConsumerBuilder<K, V> withJsonConsumer(Class<T> jsonType, Consumer<T> consumer) {
+        this.consumer = JsonTopicConsumer.jsonConsumer(jsonType, consumer);
         return this;
     }
 
