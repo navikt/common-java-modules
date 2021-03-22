@@ -3,6 +3,7 @@ package no.nav.common.kafka.producer.feilhandtering;
 import lombok.SneakyThrows;
 
 import javax.sql.DataSource;
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.util.List;
 
@@ -49,10 +50,11 @@ public class OracleProducerRepository implements KafkaProducerRepository {
 
     @SneakyThrows
     @Override
-    public void deleteRecord(long id) {
-        String sql = format("DELETE FROM %s WHERE %s = ?", producerRecordTable, ID);
-        try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
-            statement.setLong(1, id);
+    public void deleteRecords(List<Long> ids) {
+        String sql = format("DELETE FROM %s WHERE %s = ANY(?)", producerRecordTable, ID);
+        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
+            Array array = dataSource.getConnection().createArrayOf("INTEGER", ids.toArray());
+            statement.setArray(1, array);
             statement.executeUpdate();
         }
     }

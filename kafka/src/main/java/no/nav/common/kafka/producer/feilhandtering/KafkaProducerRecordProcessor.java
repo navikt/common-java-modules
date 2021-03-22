@@ -6,7 +6,9 @@ import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,24 +102,24 @@ public class KafkaProducerRecordProcessor {
     }
 
     private void publishStoredRecordsBatch(List<StoredProducerRecord> records) throws InterruptedException {
-        // TODO: could be done inside a kafka transaction
+        /* TODO
+            Sending batches could also be done in a transaction.
+            This would make the batches idempotent, and only produce 1 message once.
+            It would also ensure that all messages are sent atomically and that all messages are either sent or not sent.
+        */
 
-        // TODO: Batch delete
+        ConcurrentLinkedQueue<Long> idsToDelete = new ConcurrentLinkedQueue<>();
 
         CountDownLatch latch = new CountDownLatch(records.size());
 
         records.forEach(record -> {
             producerClient.send(ProducerUtils.mapFromStoredRecord(record), (metadata, exception) -> {
-                try {
-                    if (exception != null) {
-                        log.warn(format("Failed to resend failed message to topic %s", record.getTopic()), exception);
-                    } else {
-                        producerRepository.deleteRecord(record.getId());
-                    }
-                } catch (Exception e) {
-                    log.error("Failed to send message to kafka", e);
-                } finally {
-                    latch.countDown();
+                latch.countDown();
+
+                if (exception != null) {
+                    log.warn(format("Failed to resend failed message to topic %s", record.getTopic()), exception);
+                } else {
+                    idsToDelete.add(record.getId());
                 }
             });
         });
@@ -125,6 +127,9 @@ public class KafkaProducerRecordProcessor {
         producerClient.getProducer().flush();
 
         latch.await();
+
+        producerRepository.deleteRecords(new ArrayList<>(idsToDelete));
+
     }
 
 }

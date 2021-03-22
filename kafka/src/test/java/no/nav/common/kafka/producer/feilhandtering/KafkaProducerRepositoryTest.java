@@ -109,15 +109,17 @@ public class KafkaProducerRepositoryTest {
     }
 
     @Test
-    public void should_delete_record() {
-        long id = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+    public void should_delete_records() {
+        long id1 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key1","value1")));
+        long id2 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key2","value2")));
+        long id3 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key3","value3")));
 
-        kafkaProducerRepository.deleteRecord(id);
+        kafkaProducerRepository.deleteRecords(List.of(id1, id3));
 
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(10);
 
         assertEquals(1, records.size());
+        assertEquals(id2, records.get(0).getId());
     }
 
     private static StoredProducerRecord mapRecord(ProducerRecord<String, String> record) {

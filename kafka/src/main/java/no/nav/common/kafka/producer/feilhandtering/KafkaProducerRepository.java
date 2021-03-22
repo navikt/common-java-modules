@@ -6,7 +6,7 @@ public interface KafkaProducerRepository {
 
     long storeRecord(StoredProducerRecord record);
 
-    void deleteRecord(long id);
+    void deleteRecords(List<Long> ids);
 
     List<StoredProducerRecord> getRecords(int maxMessages);
 
