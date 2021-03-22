@@ -1,8 +1,8 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
+import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.util.ProducerUtils;
-import org.apache.kafka.clients.producer.Producer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ public class KafkaProducerRecordProcessor {
 
     private final KafkaProducerRepository producerRepository;
 
-    private final Producer<byte[], byte[]> producer;
+    private final KafkaProducerClient<byte[], byte[]> producerClient;
 
     private final LeaderElectionClient leaderElectionClient;
 
@@ -39,11 +39,11 @@ public class KafkaProducerRecordProcessor {
 
     public KafkaProducerRecordProcessor(
             KafkaProducerRepository producerRepository,
-            Producer<byte[], byte[]> producerClient,
+            KafkaProducerClient<byte[], byte[]> producerClient,
             LeaderElectionClient leaderElectionClient
     ) {
         this.producerRepository = producerRepository;
-        this.producer = producerClient;
+        this.producerClient = producerClient;
         this.leaderElectionClient = leaderElectionClient;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
@@ -95,17 +95,19 @@ public class KafkaProducerRecordProcessor {
            log.error("Unexpected exception caught in record handler loop", e);
        } finally {
            log.info("Closing kafka producer record processor...");
-           producer.close();
+           producerClient.close();
        }
     }
 
     private void publishStoredRecordsBatch(List<StoredProducerRecord> records) throws InterruptedException {
         // TODO: could be done inside a kafka transaction
 
+        // TODO: Batch delete
+
         CountDownLatch latch = new CountDownLatch(records.size());
 
         records.forEach(record -> {
-            producer.send(ProducerUtils.mapFromStoredRecord(record), (metadata, exception) -> {
+            producerClient.send(ProducerUtils.mapFromStoredRecord(record), (metadata, exception) -> {
                 try {
                     if (exception != null) {
                         log.warn(format("Failed to resend failed message to topic %s", record.getTopic()), exception);
@@ -120,7 +122,7 @@ public class KafkaProducerRecordProcessor {
             });
         });
 
-        producer.flush();
+        producerClient.getProducer().flush();
 
         latch.await();
     }

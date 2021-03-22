@@ -6,6 +6,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 import org.apache.kafka.clients.producer.Callback;
+import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
@@ -80,6 +81,11 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
         };
 
         return client.send(record, metricCallback);
+    }
+
+    @Override
+    public Producer<K, V> getProducer() {
+        return client.getProducer();
     }
 
     private void updateLatestOffset(RecordMetadata metadata) {

@@ -4,13 +4,13 @@ import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
-import no.nav.common.kafka.producer.GracefulKafkaProducer;
+import no.nav.common.kafka.producer.KafkaProducerClient;
+import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 import no.nav.common.kafka.utils.LocalH2Database;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -71,7 +71,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "value1", "key1"));
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "value2", "key2"));
 
-        KafkaProducer<byte[], byte[]> producer = new GracefulKafkaProducer<>(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
+        KafkaProducerClient<byte[], byte[]> producer = new KafkaProducerClientImpl<>(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
         LeaderElectionClient leaderElectionClient = () -> true;
 
         KafkaProducerRecordProcessor recordProcessor = new KafkaProducerRecordProcessor(

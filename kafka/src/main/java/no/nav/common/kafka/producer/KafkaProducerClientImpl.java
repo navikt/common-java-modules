@@ -57,4 +57,9 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
         }
     }
 
+    @Override
+    public Producer<K, V> getProducer() {
+        return producer;
+    }
+
 }

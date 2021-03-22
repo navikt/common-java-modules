@@ -130,17 +130,6 @@ KafkaConsumerRecordProcessor consumerRecordProcessor = new KafkaConsumerRecordPr
 consumerRecordProcessor.start(); // Will periodically consume stored messages
 ```
 
-Hvordan sette opp retry for feilede konsumerte meldinger:
-```java
-Map<String, TopicConsumer<String, String>> topics = new HashMap<>();
-// Add topics to the map
-
-KafkaRetryConsumerRecordHandler<String, String> retryConsumerHandler = new KafkaRetryConsumerRecordHandler<>(topics, consumerRepository);
-
-// This should be used periodically in a schedule
-retryConsumerHandler.consumeFailedMessages();
-```
-
 #### NB
 
 Hvis en melding feiler, så vil andre meldinger med samme key på samme topic og partisjon ikke bli konsumert. Dette er for at meldinger ikke skal bli konsumert out-of-order.
@@ -204,21 +193,21 @@ KafkaProducerRecordStorage<String, String> producerRecordStorage = new KafkaProd
         new StringSerializer()
 );
 
-producerRecordStorage.store(ProducerUtils.toProducerRecord("topic", "key", "value"));
+producerRecordStorage.store(ProducerUtils.toProducerRecord("topic", "key", "value")); // Store a record in the database
 ```
 
 I tillegg så trengs det å settes opp en record processor for å publisere de lagrede meldingene.
 
 ```java
-KafkaProducer<byte[], byte[]> producer = new GracefulKafkaProducer<>(
-        KafkaProperties.onPremByteProducerProperties("producer_id", "broker_url", new Credentials("username", "password"))
-);
+KafkaProducerClient<byte[], byte[]> producerClient = KafkaProducerClientBuilder.<byte[], byte[]>builder()
+           .withProps(KafkaProperties.onPremByteProducerProperties("producer_id", "broker_url", credentials))
+           .build();
 
 LeaderElectionClient leaderElectionClient = new LeaderElectionHttpClient();
 
-KafkaProducerRecordProcessor producerRecordProcessor = new KafkaProducerRecordProcessor(producerRepository, producer, leaderElectionClient);
+KafkaProducerRecordProcessor producerRecordProcessor = new KafkaProducerRecordProcessor(producerRepository, producerClient, leaderElectionClient);
 
-producerRecordProcessor.start();
+producerRecordProcessor.start(); // Will periodically send stored messages
 ```
 
 ### Metrikker
