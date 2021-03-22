@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class KafkaProperties {
 
-    public static Properties defaultOnPremConsumerProperties(String consumerGroupId, String kafkaBrokersUrl, Credentials credentials) {
+    public static Properties onPremDefaultConsumerProperties(String consumerGroupId, String kafkaBrokersUrl, Credentials credentials) {
         return KafkaPropertiesBuilder.consumerBuilder()
                 .withBaseProperties()
                 .withConsumerGroupId(consumerGroupId)
@@ -19,7 +19,7 @@ public class KafkaProperties {
                 .build();
     }
 
-    public static Properties defaultOnPremProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
+    public static Properties onPremDefaultProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
         return KafkaPropertiesBuilder.producerBuilder()
                 .withBaseProperties()
                 .withProducerId(producerId)
@@ -29,7 +29,7 @@ public class KafkaProperties {
                 .build();
     }
 
-    public static Properties byteOnPremProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
+    public static Properties onPremByteProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
         return KafkaPropertiesBuilder.producerBuilder()
                 .withBaseProperties()
                 .withProducerId(producerId)

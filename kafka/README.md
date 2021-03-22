@@ -29,6 +29,7 @@ KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.
         })
         .withTopic("topic2", (record) -> {
             System.out.println("Record from topic 2: " + record.value());
+            somethingThatMightThrowAnException();
             return ConsumeStatus.OK;
         })
         .build();
@@ -38,31 +39,95 @@ consumerClient.start();
 // Records will be consumed from topic1 and topic2
 ```
 
+Eksempelet ovenfor vil sette opp en klient som konsumerer fra "topic1" og "topic2". 
+Hvis en feil opppstår under konsumering av f.eks "topic2", så vil konsumeringen stoppe opp på topicen (kun for partisjonen hvor meldingen ligger)
+og konsumering vil bli prøvd på nytt helt til konsumeren returnerer `ConsumeStatus.OK`. 
+
 ### Feilhåndtering
 
-Feilhåndtering for consumer settes opp pr topic ved bruk av `StoreOnFailureTopicConsumer`. 
-Feilhåndteringen vil sørge for at meldinger blir lagret hvis det feiler under konsumeringen, f.eks hvis en ekstern tjeneste feiler for en bestemt bruker.
-Hvis feilhåndtering ikke brukes så vil konsumeringen stå stille helt til konsumeringen går igjennom.
+Feilhåndtering for konsumere er anbefalt i de tilfellene hvor det kan oppstå feil i koden som konsumerer meldinger 
+og man ønsker å lagre den feilende meldingen og fortsette å konsumere slik at ting ikke stopper opp.
+Feilhåndtering for consumer settes opp pr topic ved bruk av `StoreOnFailureTopicConsumer`. Dette kan enten gjøres manuelt, eller ved bruk av `KafkaConsumerClientBuilder`.
+
+For å lagre feilede meldinger så trengs det å legge til nye tabeller ved bruk av migreringsscript.
+
+[Oracle](src/test/resources/kafka-consumer-record-oracle.sql)
+
+[Postgres](src/test/resources/kafka-consumer-record-postgres.sql)
+
+I tillegg til å lagre feilede meldinger, så må også `KafkaConsumerRecordProcessor` brukes for at de lagrede meldingene skal bli rekonsumert.
+
+`KafkaConsumerRecordProcessor` sprer konsumering utover flere instanser av applikasjonen som krever synkronisering mellom instansene ved bruk av shedlock.
+
+Dvs at shedlock må sette opp for applikasjoner som skal bruke `KafkaConsumerRecordProcessor`.
+
+Informasjon om shedlock: https://github.com/lukas-krecan/ShedLock#jdbctemplate
+
+Hvis applikasjonen bruker `JdbcTemplate` så kan **shedlock-provider-jdbc-template** brukes. 
+Følgende må gjøres for å sette opp shedlock med JdbcTemplate:
+
+Legg til avhengighet:
+```xml
+<dependency>
+    <groupId>net.javacrumbs.shedlock</groupId>
+    <artifactId>shedlock-provider-jdbc-template</artifactId>
+    <version>4.21.0</version>
+</dependency>
+```
+
+Opprett tabeller i migreringsscript:
+```sql
+-- Postgres
+CREATE TABLE shedlock(name VARCHAR(128) NOT NULL, lock_until TIMESTAMP NOT NULL,
+    locked_at TIMESTAMP NOT NULL, locked_by VARCHAR(255) NOT NULL, PRIMARY KEY (name));
+
+-- Oracle
+CREATE TABLE shedlock(name VARCHAR(128) NOT NULL, lock_until TIMESTAMP(3) NOT NULL,
+    locked_at TIMESTAMP(3) NOT NULL, locked_by VARCHAR(255) NOT NULL, PRIMARY KEY (name));
+```
+
+Lag `LockProvider` instanse:
+```java
+LockProvider lockProvider = new JdbcTemplateLockProvider(/* JdbcTemplate goes here */);
+```
 
 Hvordan sette opp topic med feilhåndtering:
 ```java
-KafkaConsumerRepository<String, String> consumerRepository = new OracleConsumerRepository<>(
-        dataSource,
-        new StringSerializer(),
+DataSource dataSource = /* Must be retrieved from somewhere, f.eks JdbcTemplate.getDataSource() */;
+
+Credentials credentials = new Credentials("username", "password");
+
+KafkaConsumerRepository kafkaConsumerRepository = new OracleConsumerRepository(dataSource);
+
+TopicConsumer<String, String> topic1Consumer = new JsonTopicConsumer<>(KafkaMessageDTO.class, (dto) -> ConsumeStatus.OK);
+TopicConsumer<String, String> topic2Consumer = new JsonTopicConsumer<>(KafkaMessageDTO.class, (dto) -> ConsumeStatus.OK);
+
+Map<String, TopicConsumer<String, String>> consumers = Map.of(
+        "topic1", topic1Consumer,
+        "topic2", topic2Consumer
+);
+
+KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
+                .withProps(KafkaProperties.onPremDefaultConsumerProperties("group_id", "broker_url", credentials))
+                .withRepository(kafkaConsumerRepository) // Required for storing records
+                .withSerializers(new StringSerializer(), new StringSerializer()) // Required for serializing the record into byte[]
+                .withStoreOnFailureConsumers(consumers) // Enable store on failure for topics
+                .build();
+
+consumerClient.start(); // Records will be stored in database if the consumer fails
+
+
+LockProvider lockProvider = new JdbcTemplateLockProvider(/* JdbcTemplate goes here */);
+
+Map<String, StoredRecordConsumer> storedRecordConsumers = ConsumerUtils.toStoredRecordConsumerMap(
+        consumers,
         new StringDeserializer(),
-        new StringSerializer(),
         new StringDeserializer()
 );
 
-TopicConsumer<String, String> consumer = TopicConsumerBuilder.<String, String>builder()
-        .withConsumer((record -> ConsumeStatus.OK))
-        .withStoreOnFailure(consumerRepository)
-        .build();
+KafkaConsumerRecordProcessor consumerRecordProcessor = new KafkaConsumerRecordProcessor(lockProvider, kafkaConsumerRepository, storedRecordConsumers);
 
-KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.defaultConsumerProperties("group_id", "broker_url", credentials))
-        .withTopic("topic1", consumer)
-        .build();
+consumerRecordProcessor.start(); // Will periodically consume stored messages
 ```
 
 Hvordan sette opp retry for feilede konsumerte meldinger:
@@ -78,20 +143,8 @@ retryConsumerHandler.consumeFailedMessages();
 
 #### NB
 
-Siden meldingene lagres til databasen og vi går videre til å konsumere neste melding så må det også lages en periodisk jobb for å rekonsumere feilede meldinger.
-
-En ting som er viktig å være obs på er at når man lagrer unna feilede meldinger, så mister man garantien for at meldinger blir lest inn i riktig rekkefølge.
-
-F.eks 
-```
-    Melding 1 for bruker med fnr: 123 -> Konsumering feiler, lagrer i databasen
-    Melding 2 for bruker med fnr: 456 -> Konsumering fullført, trenger ikke å lagre
-    Periodisk jobb -> Prøver å konsumere melding 1 på nytt, feiler fortsatt
-    Melding 3 for bruker med fnr: 123 -> Konsumering fullført, trenger ikke å lagre
-    Periodisk jobb -> Prøver å konsumere melding 1 på nytt, melding blir sendt
-```
-
-I dette tilfellet så blir melding 1 publisert etter melding 3, som kan føre til problemer hvis konsumenten ikke håndterer dette riktig.
+Hvis en melding feiler, så vil andre meldinger med samme key på samme topic og partisjon ikke bli konsumert. Dette er for at meldinger ikke skal bli konsumert out-of-order.
+Det vil derfor potensielt ligge 1 melding som blokker andre meldinger for en gitt bruker (hvis man bruker ident som key).
 
 ### Metrikker
 
@@ -101,16 +154,13 @@ Metrikker for consumer settes opp pr topic:
 ```java
 MeterRegistry registry = /* ... */;
 
-TopicConsumer<String, String> consumer1 = TopicConsumerBuilder.<String, String>builder()
-        .withConsumer((record -> ConsumeStatus.OK))
-        .withMetrics(registry)
-        .withLogging() // Kan også legge på optional logging til stdout
+KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
+        /* ... */
+        .withMetrics(registry) // Will enable metrics for all topics configured on this client
+        .withLogging() // (Optional) Will enable additional logging for all topics configured on this client
+        /* ... */
         .build();
 ```
-
-
-## ===============================
-
 
 ## Producer
 
@@ -120,7 +170,7 @@ TopicConsumer<String, String> consumer1 = TopicConsumerBuilder.<String, String>b
 Credentials credentials = new Credentials("username", "password");
 
 KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.defaultProducerProperties("group_id", "broker_url", credentials))
+        .withProps(KafkaProperties.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
         .build();
 
 // Send synchronously. Will block until sent or throw an exception
@@ -132,54 +182,45 @@ producerClient.send(new ProducerRecord<>("topic", "key", "value"), ((metadata, e
 
 ### Feilhåntering
 
-Basic produceren er relativt enkel og vil i flere tilfeller være den foretrukkede måten og sende meldinger på.
-F.eks hvis man ikke sender store mengder med meldinger og kan tåle at Kafka er nede, så kan man bruke `sendSync()`
-som vil blocke eller kaste et exception hvis meldingen ikke ble sendt.
+I flere tilfeller så vil det holde å bruke basic produceren med `sendSync()` hvis man ikke produserer mange meldinger og man tåler at ting feiler når kafka er nede.
+NB: Ved bruk av Aiven så vil det oftere bli nedetid siden credentials rulleres og podder har hittil ingen mulighet å få tak i nye uten å bli startet på nytt.
 
-Hvis man sender asynkront så vil man ikke være garantert at meldignen er sendt med mindre man lagrer meldingen før man prøver å sende den ut.
-Kafka-modulen inneholder en producer som implementerer store-and-forward patternet, som lagrer meldingen før den sender, og fjerner meldingen hvis sendingen gikk greit.
+Hvis man ønsker å batche opp meldinger eller ikke ønsker å stoppe opp hvis kafka er nede så kan store-and-forward patternet brukes.
+Meldinger vil bli lagret i databasen synkront og vil deretter batches opp og sendes ut gjennom en periodisk job.
 
-For å bruke store-and-forward så må det til en del mer konfigurasjon. Først så må tabellene settes opp slik at vi kan lagre meldingene når ting feiler.
-Nedenfor så ligger det lenker til ferdig SQL som kan brukes for Oracle og PostgreSQL.
+For å kunne ta i bruk store-and-forward så må tabellen hvor meldingene skal lagres settes opp.
+Eksempler ligger nedenfor:
 
 [Oracle](src/test/resources/kafka-producer-record-oracle.sql)
 
 [Postgres](src/test/resources/kafka-producer-record-postgres.sql)
 
-Deretter så må det settes opp med builderen når man lager produceren at man ønsker å bruke store-and-forward.
-
 ```java
-DataSource dataSource = null; // Must be retrieved from somewhere
-        
-KafkaProducerRepository<String, String> producerRepository = new OracleProducerRepository<>(
-        dataSource,
+KafkaProducerRepository producerRepository = new OracleProducerRepository(dataSource);
+
+KafkaProducerRecordStorage<String, String> producerRecordStorage = new KafkaProducerRecordStorage<>(
+        producerRepository,
         new StringSerializer(),
-        new StringDeserializer(),
-        new StringSerializer(),
-        new StringDeserializer()
+        new StringSerializer()
 );
 
-KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.defaultProducerProperties("group_id", "broker_url", credentials))
-        .withStoreAndForward(producerRepository)
-        .build();
+producerRecordStorage.store(ProducerUtils.toProducerRecord("topic", "key", "value"));
 ```
 
-Dette vil sørge for at meldingene blir lagret i databasen først før man sender og at de blir fjernet hvis meldingen ble sendt.
-Men hvis kafka er nede så trengs det også logikk for å periodisk sjekke om det ligger meldinger i databasen som ikke har blitt lagt ut på kafka.
+I tillegg så trengs det å settes opp en record processor for å publisere de lagrede meldingene.
 
 ```java
-// It is important to not use the store-and-forward producer with KafkaRetryProducerRecordHandler, 
-//  or else a new record will be stored in the database if the retry handler fails to send a record
-KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.defaultProducerProperties("group_id", "broker_url", credentials))
-        .build();
+KafkaProducer<byte[], byte[]> producer = new GracefulKafkaProducer<>(
+        KafkaProperties.onPremByteProducerProperties("producer_id", "broker_url", new Credentials("username", "password"))
+);
 
-KafkaRetryProducerRecordHandler<String, String> retryProducerRecordHandler = new KafkaRetryProducerRecordHandler<>(List.of("topic1"), producerRepository, producerClient);
+LeaderElectionClient leaderElectionClient = new LeaderElectionHttpClient();
 
-// This should be used periodically in a schedule
-retryProducerRecordHandler.sendFailedMessages();
+KafkaProducerRecordProcessor producerRecordProcessor = new KafkaProducerRecordProcessor(producerRepository, producer, leaderElectionClient);
+
+producerRecordProcessor.start();
 ```
+
 ### Metrikker
 
 Metrikker for producer kan settes opp gjennom builder:
@@ -187,7 +228,7 @@ Metrikker for producer kan settes opp gjennom builder:
 MeterRegistry registry = /* ... */;
 
 KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.defaultProducerProperties("group_id", "broker_url", credentials))
+        .withProps(KafkaProperties.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
         .withMetrics(registry)
         .build();
 ```
