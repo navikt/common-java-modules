@@ -115,7 +115,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
                 } catch (Exception e) {
-                    log.error("Exception occurred during polling of records. Waiting before trying again.", e);
+                    log.error("Exception occurred during polling of records. Waiting before trying again", e);
                     Thread.sleep(POLL_ERROR_TIMEOUT_MS);
                     continue;
                 }
@@ -200,7 +200,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     private void commitCurrentOffsets() {
         if (!currentOffsets.isEmpty()) {
             consumer.commitSync(currentOffsets, Duration.ofSeconds(3));
-            log.info("Offsets commited: " + currentOffsets.toString());
+            log.info("Offsets committed: " + currentOffsets.toString());
             currentOffsets.clear();
         }
     }

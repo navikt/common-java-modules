@@ -10,32 +10,32 @@ import java.util.Properties;
 public class KafkaProperties {
 
     public static Properties defaultOnPremConsumerProperties(String consumerGroupId, String kafkaBrokersUrl, Credentials credentials) {
-        return KafkaPropertiesBuilder.builder()
-                .withBaseConsumerProperties()
+        return KafkaPropertiesBuilder.consumerBuilder()
+                .withBaseProperties()
                 .withConsumerGroupId(consumerGroupId)
                 .withBrokerUrl(kafkaBrokersUrl)
                 .withOnPremAuth(credentials)
-                .withConsumerDeserializers(StringDeserializer.class, StringDeserializer.class)
+                .withDeserializers(StringDeserializer.class, StringDeserializer.class)
                 .build();
     }
 
     public static Properties defaultOnPremProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
-        return KafkaPropertiesBuilder.builder()
-                .withBaseProducerProperties()
+        return KafkaPropertiesBuilder.producerBuilder()
+                .withBaseProperties()
                 .withProducerId(producerId)
                 .withBrokerUrl(kafkaBrokersUrl)
                 .withOnPremAuth(credentials)
-                .withProducerSerializers(StringSerializer.class, StringSerializer.class)
+                .withSerializers(StringSerializer.class, StringSerializer.class)
                 .build();
     }
 
     public static Properties byteOnPremProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
-        return KafkaPropertiesBuilder.builder()
-                .withBaseProducerProperties()
+        return KafkaPropertiesBuilder.producerBuilder()
+                .withBaseProperties()
                 .withProducerId(producerId)
                 .withBrokerUrl(kafkaBrokersUrl)
                 .withOnPremAuth(credentials)
-                .withProducerSerializers(ByteArraySerializer.class, ByteArraySerializer.class)
+                .withSerializers(ByteArraySerializer.class, ByteArraySerializer.class)
                 .build();
     }
 
