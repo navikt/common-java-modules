@@ -6,6 +6,7 @@ import org.apache.kafka.common.TopicPartition;
 import javax.sql.DataSource;
 import java.sql.Array;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import static no.nav.common.kafka.util.DatabaseConstants.*;
 import static no.nav.common.kafka.util.DatabaseUtils.*;
 
 public class PostgresConsumerRepository implements KafkaConsumerRepository {
+
+    private final static int UNIQUE_VIOLATION_ERROR_CODE = 23505;
 
     private final DataSource dataSource;
 
@@ -50,8 +53,14 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
             statement.executeUpdate();
 
             return id;
-        } catch (SQLIntegrityConstraintViolationException e) {
-            return -1;
+        } catch (SQLException e) {
+            // The Postgres driver does not throw SQLIntegrityConstraintViolationException (but might at a later date),
+            //  therefore we need to check the error code as well
+            if (e instanceof SQLIntegrityConstraintViolationException || e.getErrorCode() == UNIQUE_VIOLATION_ERROR_CODE) {
+                return -1;
+            }
+
+            throw e;
         }
     }
 
