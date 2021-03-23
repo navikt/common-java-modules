@@ -12,6 +12,14 @@ import java.util.concurrent.*;
 
 import static java.lang.String.format;
 
+/**
+ * An abstracted client which uses {@link KafkaConsumer} to poll records.
+ * Each consumer is excepted to return a {@link ConsumeStatus} to indicate whether the record was consumed successfully.
+ * If a record fails to be consumed, then no more records for that partition will be consumed until the record is consumed successfully.
+ * Consumption on topics is performed on a single thread pr partition to ensure that messages are read in order.
+ * @param <K> topic key
+ * @param <V> topic value
+ */
 public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     public final static long DEFAULT_POLL_DURATION_MS = 1000;
@@ -100,7 +108,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     private void consumeTopics() {
         try {
             final List<String> topicNames = new ArrayList<>(config.topics.keySet());
-            final Map<String, ExecutorService> topicConsumptionExecutors = createTopicExecutors(topicNames);
+            final Map<TopicPartition, ExecutorService> topicConsumptionExecutors = new HashMap<>();
 
             shutdownLatch = new CountDownLatch(1);
             consumer = new KafkaConsumer<>(config.properties);
@@ -130,9 +138,13 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
                 for (ConsumerRecord<K, V> record : records) {
                     String topic = record.topic();
-                    TopicConsumer<K, V> topicConsumer = config.topics.get(topic);
-                    ExecutorService executor = topicConsumptionExecutors.get(topic);
+
                     TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
+
+                    TopicConsumer<K, V> topicConsumer = config.topics.get(topic);
+
+                    ExecutorService executor = topicConsumptionExecutors
+                            .computeIfAbsent(topicPartition, (tp) -> Executors.newSingleThreadExecutor());
 
                     executor.submit(() -> {
                         try {
@@ -217,12 +229,6 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         if (!Boolean.FALSE.equals(config.properties.get(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG))) {
             throw new IllegalArgumentException(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG + " must be false!");
         }
-    }
-
-    private static Map<String, ExecutorService> createTopicExecutors(Iterable<String> topics) {
-        Map<String, ExecutorService> executorsMap = new HashMap<>();
-        topics.forEach(topic -> executorsMap.put(topic, Executors.newSingleThreadExecutor()));
-        return executorsMap;
     }
 
 }

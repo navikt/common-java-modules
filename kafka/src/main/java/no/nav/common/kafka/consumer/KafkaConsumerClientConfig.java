@@ -1,5 +1,6 @@
 package no.nav.common.kafka.consumer;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Properties;
 
 import static no.nav.common.kafka.consumer.KafkaConsumerClient.DEFAULT_POLL_DURATION_MS;
 
+@AllArgsConstructor
 @Data
 public class KafkaConsumerClientConfig<K, V> {
 

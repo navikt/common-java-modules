@@ -179,9 +179,6 @@ public class KafkaConsumerClientTest {
 
         for (int i = 0; i < 5; i++) {
             producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value" + i));
-        }
-
-        for (int i = 0; i < 5; i++) {
             producer.send(new ProducerRecord<>(TEST_TOPIC_2, "key1", "value" + i));
         }
 
@@ -245,6 +242,37 @@ public class KafkaConsumerClientTest {
         assertTrue(committedOffsets.offset() > 10);
         assertTrue(counter1.get() > 5);
         assertTrue(counter2.get() > 5);
+    }
+
+    @Test
+    public void should_consume_on_1_thread_pr_partition() throws InterruptedException {
+        AtomicInteger counter1 = new AtomicInteger();
+        AtomicInteger counter2 = new AtomicInteger();
+
+        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(
+                        TEST_TOPIC_1, consumerWithCounter(counter1, 100),
+                        TEST_TOPIC_2, consumerWithCounter(counter2, 100)
+                ),
+                10
+        );
+
+        for (int i = 0; i < 5; i++) {
+            producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value" + i));
+            producer.send(new ProducerRecord<>(TEST_TOPIC_2, "key1", "value" + i));
+        }
+
+        producer.flush();
+
+        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
+        consumerClient.start();
+
+        Thread.sleep(750);
+
+        assertTrue(8 < counter1.get() + counter2.get());
+
+        consumerClient.stop();
     }
 
     private OffsetAndMetadata getCommittedOffsets(String topic, int partition) {
