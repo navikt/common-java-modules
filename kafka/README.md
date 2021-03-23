@@ -133,7 +133,7 @@ consumerRecordProcessor.start(); // Will periodically consume stored messages
 #### NB
 
 Hvis en melding feiler, så vil andre meldinger med samme key på samme topic og partisjon ikke bli konsumert. Dette er for at meldinger ikke skal bli konsumert out-of-order.
-Det vil derfor potensielt ligge 1 melding som blokker andre meldinger for en gitt bruker (hvis man bruker ident som key).
+Det vil derfor potensielt ligge 1 melding som blokker andre meldinger, f.eks. for en gitt bruker dersom man bruker ident som key.
 
 ### Metrikker
 
