@@ -23,11 +23,11 @@ Credentials credentials = new Credentials("username", "password");
 
 KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
         .withProps(KafkaProperties.defaultConsumerProperties("group_id", "broker_url", credentials))
-        .withTopic("topic1", (record) -> {
+        .withConsumer("topic1", (record) -> {
             System.out.println("Record from topic 1: " + record.value());
             return ConsumeStatus.OK;
         })
-        .withTopic("topic2", (record) -> {
+        .withConsumer("topic2", (record) -> {
             System.out.println("Record from topic 2: " + record.value());
             somethingThatMightThrowAnException();
             return ConsumeStatus.OK;

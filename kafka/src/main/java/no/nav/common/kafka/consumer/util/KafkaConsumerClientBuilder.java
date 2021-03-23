@@ -43,12 +43,12 @@ public class KafkaConsumerClientBuilder<K, V> {
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withTopic(String topic, TopicConsumer<K, V> consumer) {
+    public KafkaConsumerClientBuilder<K, V> withConsumer(String topic, TopicConsumer<K, V> consumer) {
         consumerMap.put(topic, consumer);
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withTopics(Map<String, TopicConsumer<K, V>> topicConsumers) {
+    public KafkaConsumerClientBuilder<K, V> withConsumers(Map<String, TopicConsumer<K, V>> topicConsumers) {
         consumerMap.putAll(topicConsumers);
         return this;
     }
