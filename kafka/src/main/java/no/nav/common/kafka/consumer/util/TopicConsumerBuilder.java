@@ -38,21 +38,6 @@ public class TopicConsumerBuilder<K, V> {
         return this;
     }
 
-    public <T> TopicConsumerBuilder<K, V> withJsonConsumer(Class<T> jsonType, Function<T, ConsumeStatus> consumer) {
-        this.consumer = JsonTopicConsumer.jsonConsumer(jsonType, consumer);
-        return this;
-    }
-
-    public <T> TopicConsumerBuilder<K, V> withJsonConsumer(Class<T> jsonType, Consumer<T> consumer) {
-        this.consumer = JsonTopicConsumer.jsonConsumer(jsonType, consumer);
-        return this;
-    }
-
-    public <T> TopicConsumerBuilder<K, V> withJsonConsumer(Class<T> jsonType, BiFunction<ConsumerRecord<K, V>, T, ConsumeStatus> consumer) {
-        this.consumer = new JsonTopicConsumer<>(jsonType, consumer);
-        return this;
-    }
-
     public TopicConsumerBuilder<K, V> withLogging() {
         listeners.add(new TopicConsumerLogger<>());
         return this;
