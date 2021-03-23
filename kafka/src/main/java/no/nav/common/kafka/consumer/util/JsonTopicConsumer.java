@@ -5,10 +5,7 @@ import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Topic consumer which deserializes JSON messages from topics.
@@ -31,24 +28,6 @@ public class JsonTopicConsumer<K, V, T> implements TopicConsumer<K, V> {
     public ConsumeStatus consume(ConsumerRecord<K, V> record) {
         String stringValue = assertedString(record.value());
         return consumer.apply(record, JsonUtils.fromJson(stringValue, dataClass));
-    }
-
-    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, Function<D, ConsumeStatus> consumer) {
-        return new JsonTopicConsumer<>(dataClass, (k, t) -> consumer.apply(t));
-    }
-
-    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, Consumer<D> consumer) {
-        return new JsonTopicConsumer<>(dataClass, (record, data) -> {
-            consumer.accept(data);
-            return ConsumeStatus.OK;
-        });
-    }
-
-    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, BiConsumer<ConsumerRecord<K, V>, D> consumer) {
-        return new JsonTopicConsumer<>(dataClass, (record, data) -> {
-            consumer.accept(record, data);
-            return ConsumeStatus.OK;
-        });
     }
 
     private static String assertedString(Object obj) {

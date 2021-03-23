@@ -16,7 +16,9 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 
@@ -151,4 +153,21 @@ public class ConsumerUtils {
         }
     }
 
+    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, Function<D, ConsumeStatus> consumer) {
+        return new JsonTopicConsumer<>(dataClass, (k, t) -> consumer.apply(t));
+    }
+
+    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, Consumer<D> consumer) {
+        return new JsonTopicConsumer<>(dataClass, (record, data) -> {
+            consumer.accept(data);
+            return ConsumeStatus.OK;
+        });
+    }
+
+    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, BiConsumer<ConsumerRecord<K, V>, D> consumer) {
+        return new JsonTopicConsumer<>(dataClass, (record, data) -> {
+            consumer.accept(record, data);
+            return ConsumeStatus.OK;
+        });
+    }
 }
