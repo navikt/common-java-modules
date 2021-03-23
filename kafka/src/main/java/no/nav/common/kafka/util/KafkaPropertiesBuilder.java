@@ -126,7 +126,7 @@ public class KafkaPropertiesBuilder {
          * @param maxWaitForEachBatch how long kafka will wait for the consumer to finish each batch
          * @return the consumer properties builder
          */
-        public ConsumerPropertiesBuilder withPollProperties(int maxRecordsPrBatch, long maxWaitForEachBatch) {
+        public ConsumerPropertiesBuilder withPollProperties(int maxRecordsPrBatch, int maxWaitForEachBatch) {
             properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxRecordsPrBatch);
             properties.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxWaitForEachBatch);
             return this;
