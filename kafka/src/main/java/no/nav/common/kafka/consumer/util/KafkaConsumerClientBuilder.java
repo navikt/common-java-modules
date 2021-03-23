@@ -121,6 +121,8 @@ public class KafkaConsumerClientBuilder<K, V> {
                 builder.withMetrics(meterRegistry);
             }
 
+            builder.withConsumer(consumer);
+
             extendedConsumers.put(topic, builder.build());
         });
 
