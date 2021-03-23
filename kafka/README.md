@@ -22,7 +22,7 @@ Legg til følgende i pom.xml. Hvis man allerede har avhengigheter som trekker in
 Credentials credentials = new Credentials("username", "password");
 
 KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.defaultConsumerProperties("group_id", "broker_url", credentials))
+        .withProps(KafkaPropertiesPreset.defaultConsumerProperties("group_id", "broker_url", credentials))
         .withConsumer("topic1", (record) -> {
             System.out.println("Record from topic 1: " + record.value());
             return ConsumeStatus.OK;
@@ -108,7 +108,7 @@ Map<String, TopicConsumer<String, String>> consumers = Map.of(
 );
 
 KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-                .withProps(KafkaProperties.onPremDefaultConsumerProperties("group_id", "broker_url", credentials))
+                .withProps(KafkaPropertiesPreset.onPremDefaultConsumerProperties("group_id", "broker_url", credentials))
                 .withRepository(kafkaConsumerRepository) // Required for storing records
                 .withSerializers(new StringSerializer(), new StringSerializer()) // Required for serializing the record into byte[]
                 .withStoreOnFailureConsumers(consumers) // Enable store on failure for topics
@@ -159,7 +159,7 @@ KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.
 Credentials credentials = new Credentials("username", "password");
 
 KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
+        .withProps(KafkaPropertiesPreset.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
         .build();
 
 // Send synchronously. Will block until sent or throw an exception
@@ -200,7 +200,7 @@ I tillegg så trengs det å settes opp en record processor for å publisere de l
 
 ```java
 KafkaProducerClient<byte[], byte[]> producerClient = KafkaProducerClientBuilder.<byte[], byte[]>builder()
-           .withProps(KafkaProperties.onPremByteProducerProperties("producer_id", "broker_url", credentials))
+           .withProps(KafkaPropertiesPreset.onPremByteProducerProperties("producer_id", "broker_url", credentials))
            .build();
 
 LeaderElectionClient leaderElectionClient = new LeaderElectionHttpClient();
@@ -217,7 +217,7 @@ Metrikker for producer kan settes opp gjennom builder:
 MeterRegistry registry = /* ... */;
 
 KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaProperties.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
+        .withProps(KafkaPropertiesPreset.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
         .withMetrics(registry)
         .build();
 ```

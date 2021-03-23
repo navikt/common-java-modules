@@ -7,7 +7,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
 
-public class KafkaProperties {
+public class KafkaPropertiesPreset {
 
     public static Properties onPremDefaultConsumerProperties(String consumerGroupId, String kafkaBrokersUrl, Credentials credentials) {
         return KafkaPropertiesBuilder.consumerBuilder()
