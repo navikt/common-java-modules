@@ -72,14 +72,14 @@ public class KafkaConsumerClientTest {
                 Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 0))
         );
 
-        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
-        consumerClient.start();
-
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value1"));
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value2"));
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", "value3"));
 
         producer.flush();
+
+        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
+        consumerClient.start();
 
         Thread.sleep(1000);
 
@@ -95,19 +95,20 @@ public class KafkaConsumerClientTest {
     public void should_commit_consumed_tasks_when_closed_gracefully() throws InterruptedException {
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
-                Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 100))
-        );
-
-        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
-        consumerClient.start();
-
         for (int i = 0; i < 15; i++) {
             producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value" + i));
         }
 
         producer.flush();
+
+        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
+                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 100)),
+                10
+        );
+
+        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
+        consumerClient.start();
 
         Thread.sleep(1000);
 
@@ -115,7 +116,8 @@ public class KafkaConsumerClientTest {
 
         OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_1, 0);
 
-        assertEquals(9, committedOffsets.offset()); // This might be a bit brittle when running on CI/CD
+        assertTrue(committedOffsets.offset() > 4);
+        assertTrue(committedOffsets.offset() < 12);
         assertEquals(counter.get(), committedOffsets.offset() + 1);
     }
 
