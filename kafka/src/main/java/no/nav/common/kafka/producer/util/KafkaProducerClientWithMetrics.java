@@ -17,9 +17,9 @@ import java.util.concurrent.Future;
 
 public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient<K, V> {
 
-    public final static String KAFKA_PRODUCER_STATUS_COUNTER = "kafka.producer.status";
+    public final static String KAFKA_PRODUCER_STATUS_COUNTER = "kafka_producer_status";
 
-    public final static String KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE = "kafka.producer.current-offset";
+    public final static String KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE = "kafka_producer_current_offset";
 
     private final KafkaProducerClient<K, V> client;
 

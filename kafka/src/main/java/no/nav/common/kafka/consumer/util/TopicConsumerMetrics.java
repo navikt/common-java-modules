@@ -16,9 +16,9 @@ import java.util.Map;
  */
 public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
 
-    public final static String KAFKA_CONSUMER_STATUS_COUNTER = "kafka.consumer.status";
+    public final static String KAFKA_CONSUMER_STATUS_COUNTER = "kafka_consumer_status";
 
-    public final static String KAFKA_CONSUMER_CONSUMED_OFFSET_GAUGE = "kafka.consumer.consumed-offset";
+    public final static String KAFKA_CONSUMER_CONSUMED_OFFSET_GAUGE = "kafka_consumer_consumed_offset";
 
     private final MeterRegistry meterRegistry;
 
