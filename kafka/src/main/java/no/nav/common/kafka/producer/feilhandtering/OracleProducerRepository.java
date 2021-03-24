@@ -4,12 +4,14 @@ import lombok.SneakyThrows;
 
 import javax.sql.DataSource;
 import java.sql.Array;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.util.DatabaseUtils.*;
+import static no.nav.common.kafka.util.DatabaseUtils.fetchProducerRecords;
+import static no.nav.common.kafka.util.DatabaseUtils.incrementAndGetOracleSequence;
 
 public class OracleProducerRepository implements KafkaProducerRepository {
 
@@ -34,26 +36,33 @@ public class OracleProducerRepository implements KafkaProducerRepository {
                 producerRecordTable, ID, TOPIC, KEY, VALUE, HEADERS_JSON
         );
 
-        long id = incrementAndGetOracleSequence(dataSource, PRODUCER_RECORD_ID_SEQ);
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            long id = incrementAndGetOracleSequence(connection, PRODUCER_RECORD_ID_SEQ);
 
-        try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
             statement.setString(2, record.getTopic());
             statement.setBytes(3, record.getKey());
             statement.setBytes(4, record.getValue());
             statement.setString(5, record.getHeadersJson());
             statement.executeUpdate();
-        }
 
-        return id;
+            return id;
+        }
     }
 
     @SneakyThrows
     @Override
     public void deleteRecords(List<Long> ids) {
         String sql = format("DELETE FROM %s WHERE %s = ANY(?)", producerRecordTable, ID);
-        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
-            Array array = dataSource.getConnection().createArrayOf("INTEGER", ids.toArray());
+
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            Array array = connection.createArrayOf("INTEGER", ids.toArray());
             statement.setArray(1, array);
             statement.executeUpdate();
         }
@@ -67,7 +76,10 @@ public class OracleProducerRepository implements KafkaProducerRepository {
                 producerRecordTable, ID, maxMessages
         );
 
-        try(PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
             return fetchProducerRecords(statement.executeQuery());
         }
     }
