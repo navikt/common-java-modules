@@ -3,6 +3,7 @@ package no.nav.common.kafka.consumer;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,8 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         log.info("Stopping kafka consumer client...");
 
         try {
-            shutdownLatch.await(15, TimeUnit.SECONDS);
+            consumer.wakeup(); // Will abort an ongoing consumer.poll()
+            shutdownLatch.await(10, TimeUnit.SECONDS);
             log.info("Kafka client stopped");
         } catch (InterruptedException e) {
             log.error("Failed to stop gracefully", e);
@@ -106,10 +108,10 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     }
 
     private void consumeTopics() {
-        try {
-            final List<String> topicNames = new ArrayList<>(config.topics.keySet());
-            final Map<TopicPartition, ExecutorService> topicConsumptionExecutors = new HashMap<>();
+        final List<String> topicNames = new ArrayList<>(config.topics.keySet());
+        final Map<TopicPartition, ExecutorService> topicConsumptionExecutors = new HashMap<>();
 
+        try {
             shutdownLatch = new CountDownLatch(1);
             consumer = new KafkaConsumer<>(config.properties);
             consumer.subscribe(topicNames, this);
@@ -122,6 +124,9 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
+                } catch (WakeupException e) {
+                  log.info("Polling was cancelled by wakeup(). Stopping kafka consumer...");
+                  return;
                 } catch (Exception e) {
                     log.error("Exception occurred during polling of records. Waiting before trying again", e);
                     Thread.sleep(POLL_ERROR_TIMEOUT_MS);
@@ -143,6 +148,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
                     TopicConsumer<K, V> topicConsumer = config.topics.get(topic);
 
+                    // Creates a single thread to consume each topic + partition sequentially
                     ExecutorService executor = topicConsumptionExecutors
                             .computeIfAbsent(topicPartition, (tp) -> Executors.newSingleThreadExecutor());
 
@@ -194,6 +200,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
             log.error("Unexpected exception caught from main loop. Shutting down...", e);
         } finally {
             try {
+                topicConsumptionExecutors.forEach(((topicPartition, executorService) -> executorService.shutdown()));
                 commitCurrentOffsets();
                 consumer.close(Duration.ofSeconds(3));
             } catch (Exception e) {

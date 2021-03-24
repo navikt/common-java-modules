@@ -80,14 +80,14 @@ public class KafkaConsumerRecordProcessor {
                     }
 
                 } catch (Exception e) {
-                    log.error("Failed to forward kafka records", e);
+                    log.error("Failed to consume stored kafka records", e);
                     Thread.sleep(ERROR_TIMEOUT_MS);
                 }
             }
         } catch (Exception e) {
-            log.error("Unexpected exception caught in record handler loop", e);
+            log.error("Unexpected exception caught in stored consumer record handler loop", e);
         } finally {
-            log.info("Closing kafka producer record forwarder...");
+            log.info("Closing kafka consumer record processor...");
         }
     }
 
