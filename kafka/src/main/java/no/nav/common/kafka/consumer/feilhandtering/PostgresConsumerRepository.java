@@ -4,10 +4,7 @@ import lombok.SneakyThrows;
 import org.apache.kafka.common.TopicPartition;
 
 import javax.sql.DataSource;
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.*;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -38,10 +35,12 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 consumerRecordTable, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP
         );
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            long id = incrementAndGetPostgresSequence(connection, CONSUMER_RECORD_ID_SEQ);
 
-        long id = incrementAndGetPostgresSequence(dataSource, CONSUMER_RECORD_ID_SEQ);
-
-        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
             statement.setLong(1, id);
             statement.setString(2, record.getTopic());
             statement.setInt(3, record.getPartition());
@@ -68,8 +67,12 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
     @Override
     public void deleteRecords(List<Long> ids) {
         String sql = format("DELETE FROM %s WHERE %s = ANY(?)", consumerRecordTable, ID);
-        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
-            Array array = dataSource.getConnection().createArrayOf("INTEGER", ids.toArray());
+
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            Array array = connection.createArrayOf("INTEGER", ids.toArray());
             statement.setArray(1, array);
             statement.executeUpdate();
         }
@@ -83,7 +86,10 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
                 ID, consumerRecordTable, TOPIC, PARTITION, KEY
         );
 
-        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
             statement.setString(1, topic);
             statement.setInt(2, partition);
             statement.setBytes(3, key);
@@ -100,7 +106,10 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
                 consumerRecordTable, TOPIC, PARTITION, RECORD_OFFSET, maxRecords
         );
 
-        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
             statement.setString(1, topic);
             statement.setInt(2, partition);
             return fetchConsumerRecords(statement.executeQuery());
@@ -115,7 +124,10 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
                 consumerRecordTable, RETRIES, RETRIES, LAST_RETRY, ID
         );
 
-        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
             statement.setLong(1, id);
             statement.execute();
         }
@@ -129,8 +141,11 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
                 TOPIC, PARTITION, consumerRecordTable, TOPIC
         );
 
-        try (PreparedStatement statement = createPreparedStatement(dataSource, sql)) {
-            Array array = dataSource.getConnection().createArrayOf("VARCHAR", topics.toArray());
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            Array array = connection.createArrayOf("VARCHAR", topics.toArray());
             statement.setArray(1, array);
             return fetchTopicPartitions(statement.executeQuery());
         }
