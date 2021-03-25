@@ -64,7 +64,7 @@ public class KafkaConsumerClientTest {
     }
 
     @Test
-    public void should_consume_and_commit_offsets() throws InterruptedException {
+    public void should_consume_and_commit_offsets_and_start_consuming_again_on_excepted_offset() throws InterruptedException {
         AtomicInteger counter = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
@@ -87,8 +87,24 @@ public class KafkaConsumerClientTest {
 
         OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_1, 0);
 
-        assertEquals(2, committedOffsets.offset());
+        assertEquals(3, committedOffsets.offset());
         assertEquals(3, counter.get());
+
+        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value4"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", "value5"));
+
+        producer.flush();
+
+        consumerClient.start();
+
+        Thread.sleep(1000);
+
+        consumerClient.stop();
+
+        OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_1, 0);
+
+        assertEquals(5, committedOffsets2.offset());
+        assertEquals(5, counter.get());
     }
 
     @Test
@@ -118,7 +134,7 @@ public class KafkaConsumerClientTest {
 
         assertTrue(committedOffsets.offset() > 4);
         assertTrue(committedOffsets.offset() < 12);
-        assertEquals(counter.get(), committedOffsets.offset() + 1);
+        assertEquals(counter.get(), committedOffsets.offset());
     }
 
     @Test
@@ -159,8 +175,8 @@ public class KafkaConsumerClientTest {
         OffsetAndMetadata committedOffsets1 = getCommittedOffsets(multiPartitionTopic, 1);
 
         assertEquals(7, counter.get());
-        assertEquals(2, committedOffsets0.offset());
-        assertEquals(3, committedOffsets1.offset());
+        assertEquals(3, committedOffsets0.offset());
+        assertEquals(4, committedOffsets1.offset());
     }
 
     @Test
@@ -195,10 +211,10 @@ public class KafkaConsumerClientTest {
         OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_2, 0);
 
         assertEquals(5, counter1.get());
-        assertEquals(4, committedOffsets1.offset());
+        assertEquals(5, committedOffsets1.offset());
 
         assertEquals(3, counter2.get());
-        assertEquals(1, committedOffsets2.offset());
+        assertEquals(2, committedOffsets2.offset());
     }
 
     @Test
