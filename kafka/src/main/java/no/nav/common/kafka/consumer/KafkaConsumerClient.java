@@ -35,7 +35,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
 
     private final ExecutorService pollExecutor = Executors.newSingleThreadExecutor();
 
-    private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new ConcurrentHashMap<>();
+    private final Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new ConcurrentHashMap<>();
 
     private final Set<TopicPartition> revokedOrFailedPartitions = ConcurrentHashMap.newKeySet();
 
@@ -98,7 +98,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         try {
             commitCurrentOffsets();
         } catch (Exception e) {
-            log.error("Failed to commit offsets when partitions were revoked: " + currentOffsets.toString(), e);
+            log.error("Failed to commit offsets when partitions were revoked: " + offsetsToCommit.toString(), e);
         }
     }
 
@@ -120,7 +120,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                 ConsumerRecords<K, V> records;
 
                 revokedOrFailedPartitions.clear();
-                currentOffsets.clear();
+                offsetsToCommit.clear();
 
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
@@ -170,8 +170,14 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                             ConsumeStatus status = ConsumerUtils.safeConsume(topicConsumer, record);
 
                             if (status == ConsumeStatus.OK) {
-                                OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset());
-                                currentOffsets.put(topicPartition, offsetAndMetadata);
+                                /*
+                                    From KafkaConsumer.commitSync documentation:
+
+                                    The committed offset should be the next message your application will consume, i.e.
+                                    lastProcessedMessageOffset + 1.
+                                 */
+                                OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset() + 1);
+                                offsetsToCommit.put(topicPartition, offsetAndMetadata);
                             } else {
                                 revokedOrFailedPartitions.add(topicPartition);
                             }
@@ -193,7 +199,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                     commitCurrentOffsets();
                 } catch (Exception e) {
                     // If we fail to commit offsets then continue polling records
-                    log.error("Failed to commit offsets: " + currentOffsets.toString(), e);
+                    log.error("Failed to commit offsets: " + offsetsToCommit.toString(), e);
                 }
             }
         } catch (Exception e) {
@@ -217,10 +223,10 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
     }
 
     private void commitCurrentOffsets() {
-        if (!currentOffsets.isEmpty()) {
-            consumer.commitSync(currentOffsets, Duration.ofSeconds(3));
-            log.info("Offsets committed: " + currentOffsets.toString());
-            currentOffsets.clear();
+        if (!offsetsToCommit.isEmpty()) {
+            consumer.commitSync(offsetsToCommit, Duration.ofSeconds(3));
+            log.info("Offsets committed: " + offsetsToCommit.toString());
+            offsetsToCommit.clear();
         }
     }
 
