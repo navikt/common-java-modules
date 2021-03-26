@@ -62,6 +62,7 @@ public class KafkaProducerRecordProcessor {
     }
 
     public void close() {
+        log.info("Closing kafka producer record processor...");
         isRunning = false;
         isClosed = true;
     }
@@ -94,9 +95,8 @@ public class KafkaProducerRecordProcessor {
                }
            }
        } catch (Exception e) {
-           log.error("Unexpected exception caught in record handler loop", e);
+           log.error("Unexpected exception caught in producer record handler loop", e);
        } finally {
-           log.info("Closing kafka producer record processor...");
            producerClient.close();
        }
     }
@@ -117,7 +117,7 @@ public class KafkaProducerRecordProcessor {
                 latch.countDown();
 
                 if (exception != null) {
-                    log.warn(format("Failed to resend failed message to topic %s", record.getTopic()), exception);
+                    log.warn(format("Failed to resend failed record to topic %s", record.getTopic()), exception);
                 } else {
                     idsToDelete.add(record.getId());
                 }

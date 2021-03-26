@@ -47,12 +47,12 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
     @Override
     public Future<RecordMetadata> send(final ProducerRecord<K, V> record, Callback callback) {
+        Callback callbackWithLog = wrapWithLog(callback);
+
         try {
-            return producer.send(record, callback);
+            return producer.send(record, callbackWithLog);
         } catch (Exception e) {
-            if (callback != null) {
-                callback.onCompletion(null, e);
-            }
+            callbackWithLog.onCompletion(null, e);
             return CompletableFuture.failedFuture(e);
         }
     }
@@ -60,6 +60,20 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
     @Override
     public Producer<K, V> getProducer() {
         return producer;
+    }
+
+    private Callback wrapWithLog(Callback callback) {
+        return (metadata, exception) -> {
+            if (metadata != null) {
+                log.info("Record was sent topic={} partition={} offset={}", metadata.topic(), metadata.partition(), metadata.offset());
+            } else if (exception != null) {
+                log.error("Failed to send record", exception);
+            }
+
+            if (callback != null) {
+                callback.onCompletion(metadata, exception);
+            }
+        };
     }
 
 }
