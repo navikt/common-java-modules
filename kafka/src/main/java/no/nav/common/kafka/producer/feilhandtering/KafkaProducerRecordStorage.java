@@ -29,9 +29,9 @@ public class KafkaProducerRecordStorage<K, V> {
     public void store(ProducerRecord<K, V> record) {
         try {
             producerRepository.storeRecord(ProducerUtils.mapToStoredRecord(record, keySerializer, valueSerializer));
-            log.info("Stored record for topic " + record.topic());
+            log.info("Stored producer record for topic " + record.topic());
         } catch (Exception e) {
-            log.error("Failed to store record for topic " + record.topic(), e);
+            log.error("Failed to store producer record for topic " + record.topic(), e);
             throw e;
         }
     }

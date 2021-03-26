@@ -81,9 +81,9 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
         try {
             consumer.wakeup(); // Will abort an ongoing consumer.poll()
             shutdownLatch.await(10, TimeUnit.SECONDS);
-            log.info("Kafka client stopped");
+            log.info("Kafka consumer client stopped");
         } catch (InterruptedException e) {
-            log.error("Failed to stop gracefully", e);
+            log.error("Failed to stop kafka consumer client gracefully", e);
         }
     }
 
@@ -125,7 +125,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
                 } catch (WakeupException e) {
-                  log.info("Polling was cancelled by wakeup(). Stopping kafka consumer...");
+                  log.info("Polling was cancelled by wakeup(). Stopping kafka consumer client...");
                   return;
                 } catch (Exception e) {
                     log.error("Exception occurred during polling of records. Waiting before trying again", e);
@@ -183,7 +183,7 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                             }
                         } catch (Exception e) {
                             String msg = format(
-                                    "Unexpected error occurred wile processing record. topic=%s partition=%d offset=%d",
+                                    "Unexpected error occurred while processing consumer record. topic=%s partition=%d offset=%d",
                                     topic, record.partition(), record.offset()
                             );
                             log.error(msg, e);
@@ -210,12 +210,12 @@ public class KafkaConsumerClient<K, V> implements ConsumerRebalanceListener {
                 commitCurrentOffsets();
                 consumer.close(Duration.ofSeconds(3));
             } catch (Exception e) {
-                log.error("Failed to shutdown properly", e);
+                log.error("Failed to shutdown kafka consumer client properly", e);
             } finally {
                 shutdownLatch.countDown();
 
                 if (clientState == ClientState.RUNNING) {
-                    log.warn("Unexpected failure while client was running. Restarting...");
+                    log.warn("Unexpected failure while kafka consumer client was running. Restarting...");
                     pollExecutor.submit(this::consumeTopics);
                 }
             }
