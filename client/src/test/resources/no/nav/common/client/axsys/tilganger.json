@@ -1,0 +1,30 @@
+{
+  "enheter": [
+    {
+      "enhetId": "1234",
+      "fagomrader": [
+        "OKO",
+        "AAR",
+        "MOT",
+        "BII",
+        "PEN",
+        "GOS",
+        "BID"
+      ],
+      "navn": "NAV Testheim"
+    },
+    {
+      "enhetId": "1235",
+      "fagomrader": [
+        "OKO",
+        "AAR",
+        "MOT",
+        "BII",
+        "PEN",
+        "GOS",
+        "BID"
+      ],
+      "navn": "NAV Testheim 2"
+    }
+  ]
+}
