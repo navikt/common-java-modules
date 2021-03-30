@@ -2,6 +2,7 @@ package no.nav.common.client.axsys;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
+import no.nav.common.log.MDCConstants;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.EnhetId;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static no.nav.common.log.LogFilter.CONSUMER_ID_HEADER_NAME;
 import static no.nav.common.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
+import static no.nav.common.log.MDCConstants.MDC_CALL_ID;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 import static no.nav.common.utils.IdUtils.generateId;
@@ -41,7 +43,7 @@ public class AxsysClientTest {
     @Test
     public void hentAnsatte__skal_hente_ansatte() {
         String jobId = generateId();
-        MDC.put("jobId", jobId);
+        MDC.put(MDC_CALL_ID, jobId);
 
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ansatte.json");
         List<AxsysClientImpl.AxsysEnhetBruker> jsonEnhet = JsonUtils.fromJsonArray(json, AxsysClientImpl.AxsysEnhetBruker.class);
@@ -60,14 +62,14 @@ public class AxsysClientTest {
         AxsysClient client = new AxsysClientImpl(baseUrl);
         assertEquals(client.hentAnsatte(new EnhetId("1234")), brukere);
 
-        MDC.remove("jobId");
+        MDC.remove(MDC_CALL_ID);
     }
 
 
     @Test
     public void hentTilganger__skal_hente_tilganger() {
         String jobId = generateId();
-        MDC.put("jobId", jobId);
+        MDC.put(MDC_CALL_ID, jobId);
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "tilganger.json");
         List<AxsysEnhet> jsonTilganger = JsonUtils.fromJson(json, AxsysClientImpl.AxsysEnheter.class).getEnheter();
         String baseUrl = "http://localhost:" + wireMockRule.port();
@@ -84,6 +86,6 @@ public class AxsysClientTest {
         AxsysClient client = new AxsysClientImpl(baseUrl);
         assertEquals(client.hentTilganger(new NavIdent("Z123456")), jsonTilganger);
 
-        MDC.remove("jobId");
+        MDC.remove(MDC_CALL_ID);
     }
 }
