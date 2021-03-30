@@ -2,10 +2,10 @@ package no.nav.common.client.axsys;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
+import no.nav.common.client.utils.SystemPropertiesRule;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.EnhetId;
 import no.nav.common.types.identer.NavIdent;
-import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
