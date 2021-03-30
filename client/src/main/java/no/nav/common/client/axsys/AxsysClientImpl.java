@@ -53,9 +53,9 @@ public class AxsysClientImpl implements AxsysClient {
     }
 
     @SneakyThrows
-    public List<AxsysEnhet> hentTilganger(NavIdent veileder) {
+    public List<AxsysEnhet> hentTilganger(NavIdent navIdent) {
         Request request = new Request.Builder()
-                .url(UrlUtils.joinPaths(axsysUrl, "api/v1/tilgang/" + veileder.get()))
+                .url(UrlUtils.joinPaths(axsysUrl, "api/v1/tilgang/" + navIdent.get()))
                 .header(HttpHeaders.ACCEPT, MEDIA_TYPE_JSON.toString())
                 .build();
 
@@ -76,4 +76,13 @@ public class AxsysClientImpl implements AxsysClient {
     static class AxsysEnheter {
         List<AxsysEnhet> enheter;
     }
+
+    @Data
+    @NoArgsConstructor
+    @Accessors(chain = true)
+    static class AxsysEnhetBruker {
+        private NavIdent appIdent;
+        private String historiskIdent;
+    }
+
 }

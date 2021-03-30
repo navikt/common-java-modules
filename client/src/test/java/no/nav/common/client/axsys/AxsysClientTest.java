@@ -2,7 +2,7 @@ package no.nav.common.client.axsys;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
-import no.nav.common.client.utils.SystemPropertiesRule;
+import no.nav.common.test.junit.SystemPropertiesRule;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.EnhetId;
 import no.nav.common.types.identer.NavIdent;
@@ -44,8 +44,8 @@ public class AxsysClientTest {
         MDC.put("jobId", jobId);
 
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ansatte.json");
-        List<AxsysEnhetBruker> jsonEnhet = JsonUtils.fromJsonArray(json, AxsysEnhetBruker.class);
-        List<NavIdent> brukere = jsonEnhet.stream().map(AxsysEnhetBruker::getAppIdent).collect(Collectors.toList());
+        List<AxsysClientImpl.AxsysEnhetBruker> jsonEnhet = JsonUtils.fromJsonArray(json, AxsysClientImpl.AxsysEnhetBruker.class);
+        List<NavIdent> brukere = jsonEnhet.stream().map(AxsysClientImpl.AxsysEnhetBruker::getAppIdent).collect(Collectors.toList());
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/enhet/1234/brukere")
