@@ -56,7 +56,7 @@ public class AxsysClientImpl implements AxsysClient {
     public List<AxsysEnhet> hentTilganger(NavIdent veileder) {
         Request request = new Request.Builder()
                 .url(UrlUtils.joinPaths(axsysUrl, "api/v1/tilgang/" + veileder.get()))
-                .header("Accept", "application/json")
+                .header(HttpHeaders.ACCEPT, MEDIA_TYPE_JSON.toString())
                 .build();
 
         try (Response response = client.newCall(request).execute()) {

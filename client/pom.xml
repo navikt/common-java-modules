@@ -53,6 +53,11 @@
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
+            <groupId>no.nav.common</groupId>
+            <artifactId>test</artifactId>
+            <version>2.2020.08.24_12.17-ce8722430a1d</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
