@@ -42,8 +42,8 @@ public class CachedAxsysClient implements AxsysClient {
     }
 
     @Override
-    public List<AxsysEnhet> hentTilganger(NavIdent veileder) {
-        return tryCacheFirst(hentTilgangerCache, veileder, () -> axsysClient.hentTilganger(veileder));
+    public List<AxsysEnhet> hentTilganger(NavIdent navIdent) {
+        return tryCacheFirst(hentTilgangerCache, navIdent, () -> axsysClient.hentTilganger(navIdent));
     }
 
     @Override
