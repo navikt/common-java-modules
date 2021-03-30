@@ -19,7 +19,7 @@ import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
 import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
-import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
+import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
 import static no.nav.common.utils.AuthUtils.basicCredentials;
 
 /**

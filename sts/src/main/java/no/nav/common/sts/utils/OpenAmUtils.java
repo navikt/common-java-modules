@@ -1,4 +1,4 @@
-package no.nav.common.sts;
+package no.nav.common.sts.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import no.nav.common.json.JsonUtils;
