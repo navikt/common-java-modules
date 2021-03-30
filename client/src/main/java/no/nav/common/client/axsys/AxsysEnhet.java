@@ -10,15 +10,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Accessors(chain = true)
-public class AxsysEnheter {
-    List<AxsysEnhet> enheter;
-
-    @Data
-    @NoArgsConstructor
-    @Accessors(chain = true)
-    static class AxsysEnhet {
-        EnhetId enhetId;
-        String navn;
-        List<String> temaer;
-    }
+public class AxsysEnhet {
+    EnhetId enhetId;
+    String navn;
+    List<String> temaer;
 }

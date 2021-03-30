@@ -35,7 +35,6 @@ public class AxsysClientTest {
         );
 
         AxsysClient client = new AxsysClientImpl(baseUrl);
-        System.out.println(client.hentAnsatte(new EnhetId("1234")));
         assertEquals(client.hentAnsatte(new EnhetId("1234")), brukere);
     }
 
@@ -43,7 +42,7 @@ public class AxsysClientTest {
     @Test
     public void hentTilganger__skal_hente_tilganger() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "tilganger.json");
-        AxsysEnheter jsonTilganger = JsonUtils.fromJson(json, AxsysEnheter.class);
+        List<AxsysEnhet> jsonTilganger = JsonUtils.fromJson(json, AxsysClientImpl.AxsysEnheter.class).getEnheter();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/tilgang/Z123456")
@@ -53,7 +52,6 @@ public class AxsysClientTest {
         );
 
         AxsysClient client = new AxsysClientImpl(baseUrl);
-
         assertEquals(client.hentTilganger(new NavIdent("Z123456")), jsonTilganger);
     }
 }

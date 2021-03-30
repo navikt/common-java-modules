@@ -8,6 +8,5 @@ import java.util.List;
 
 public interface AxsysClient extends HealthCheck {
     List<NavIdent> hentAnsatte(EnhetId enhetId);
-
-    AxsysEnheter hentTilganger(NavIdent veileder);
+    List<AxsysEnhet> hentTilganger(NavIdent veileder);
 }
