@@ -1,6 +1,8 @@
 package no.nav.common.sts.utils;
 
 import no.nav.common.sts.AzureAdServiceTokenProvider;
+import no.nav.common.sts.AzureAdTokenProvider;
+import no.nav.common.sts.ScopedTokenProvider;
 import no.nav.common.utils.EnvironmentUtils;
 
 import static no.nav.common.sts.utils.AzureAdEnvironmentVariables.*;
@@ -80,7 +82,9 @@ public class AzureAdServiceTokenProviderBuilder {
             throw new IllegalStateException("Token endpoint URL is required");
         }
 
-        return new AzureAdServiceTokenProvider(defaultCluster, defaultNamespace, clientId, clientSecret, tokenEndpointUrl);
+        ScopedTokenProvider scopedTokenProvider = new AzureAdTokenProvider(clientId, clientSecret, tokenEndpointUrl);
+
+        return new AzureAdServiceTokenProvider(defaultCluster, defaultNamespace, scopedTokenProvider);
     }
 
 }
