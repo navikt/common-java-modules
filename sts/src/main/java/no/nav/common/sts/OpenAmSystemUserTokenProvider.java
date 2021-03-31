@@ -73,7 +73,7 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
 
     @Override
     public String getSystemUserToken() {
-        if(tokenNeedsRefresh(accessToken)) {
+        if (tokenNeedsRefresh(accessToken)) {
             accessToken = fetchSystemUserToken();
         }
 

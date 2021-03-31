@@ -1,7 +1,5 @@
 package no.nav.common.sts;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
@@ -12,10 +10,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
 
 /**
  * Provides access tokens from Azure Ad through OAuth 2.0 credentials flow
@@ -27,14 +21,8 @@ public class AzureAdTokenProvider implements ScopedTokenProvider {
 
     private final URI tokenEndpoint;
 
-    private final Map<String, JWT> cachedTokens = new ConcurrentHashMap<>();
-
     @SneakyThrows
-    public AzureAdTokenProvider(
-            String clientId,
-            String clientSecret,
-            String tokenEndpointUrl
-    ) {
+    public AzureAdTokenProvider(String clientId, String clientSecret, String tokenEndpointUrl) {
         ClientID clientID = new ClientID(clientId);
         Secret secret = new Secret(clientSecret);
 
@@ -42,19 +30,9 @@ public class AzureAdTokenProvider implements ScopedTokenProvider {
         this.tokenEndpoint = new URI(tokenEndpointUrl);
     }
 
-    public String getToken(String scope) {
-        JWT token = cachedTokens.get(scope);
-
-        if (tokenNeedsRefresh(token)) {
-            token = fetchToken(scope);
-            cachedTokens.put(scope, token);
-        }
-
-        return token.getParsedString();
-    }
-
     @SneakyThrows
-    private JWT fetchToken(String scope) {
+    @Override
+    public String getToken(String scope) {
         Scope requestScope = new Scope(scope);
         ClientCredentialsGrant grant = new ClientCredentialsGrant();
 
@@ -70,7 +48,7 @@ public class AzureAdTokenProvider implements ScopedTokenProvider {
         AccessTokenResponse successResponse = response.toSuccessResponse();
         AccessToken accessToken = successResponse.getTokens().getAccessToken();
 
-        return JWTParser.parse(accessToken.getValue());
+        return accessToken.getValue();
     }
 
 }

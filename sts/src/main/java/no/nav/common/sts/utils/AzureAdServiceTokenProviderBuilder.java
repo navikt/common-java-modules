@@ -2,6 +2,7 @@ package no.nav.common.sts.utils;
 
 import no.nav.common.sts.AzureAdServiceTokenProvider;
 import no.nav.common.sts.AzureAdTokenProvider;
+import no.nav.common.sts.CachedScopedTokenProvider;
 import no.nav.common.sts.ScopedTokenProvider;
 import no.nav.common.utils.EnvironmentUtils;
 
@@ -84,7 +85,7 @@ public class AzureAdServiceTokenProviderBuilder {
 
         ScopedTokenProvider scopedTokenProvider = new AzureAdTokenProvider(clientId, clientSecret, tokenEndpointUrl);
 
-        return new AzureAdServiceTokenProvider(defaultCluster, defaultNamespace, scopedTokenProvider);
+        return new AzureAdServiceTokenProvider(defaultCluster, defaultNamespace, new CachedScopedTokenProvider(scopedTokenProvider));
     }
 
 }
