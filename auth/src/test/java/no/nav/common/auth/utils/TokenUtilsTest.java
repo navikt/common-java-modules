@@ -43,4 +43,11 @@ public class TokenUtilsTest {
         assertThat(TokenUtils.expiresWithin(jwt, FIVE_MINUTES)).isTrue();
     }
 
+    @Test
+    public void expiresWithin__shouldReturnTrueIfExpirationNotSet() {
+        JWT jwt = new PlainJWT(new JWTClaimsSet.Builder().build());
+
+        assertThat(TokenUtils.expiresWithin(jwt, FIVE_MINUTES)).isTrue();
+    }
+
 }
