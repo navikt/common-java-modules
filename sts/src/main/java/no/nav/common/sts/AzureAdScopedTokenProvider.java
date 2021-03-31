@@ -15,14 +15,14 @@ import java.net.URI;
  * Provides access tokens from Azure Ad through OAuth 2.0 credentials flow
  */
 @Slf4j
-public class AzureAdTokenProvider implements ScopedTokenProvider {
+public class AzureAdScopedTokenProvider implements ScopedTokenProvider {
 
     private final ClientAuthentication clientAuth;
 
     private final URI tokenEndpoint;
 
     @SneakyThrows
-    public AzureAdTokenProvider(String clientId, String clientSecret, String tokenEndpointUrl) {
+    public AzureAdScopedTokenProvider(String clientId, String clientSecret, String tokenEndpointUrl) {
         ClientID clientID = new ClientID(clientId);
         Secret secret = new Secret(clientSecret);
 
