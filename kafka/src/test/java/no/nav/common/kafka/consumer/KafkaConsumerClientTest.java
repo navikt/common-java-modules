@@ -75,6 +75,7 @@ public class KafkaConsumerClientTest {
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value1"));
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value2"));
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", "value3"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", null));
 
         producer.flush();
 
@@ -87,8 +88,8 @@ public class KafkaConsumerClientTest {
 
         OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_1, 0);
 
-        assertEquals(3, committedOffsets.offset());
-        assertEquals(3, counter.get());
+        assertEquals(4, committedOffsets.offset());
+        assertEquals(4, counter.get());
 
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value4"));
         producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", "value5"));
@@ -103,8 +104,8 @@ public class KafkaConsumerClientTest {
 
         OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_1, 0);
 
-        assertEquals(5, committedOffsets2.offset());
-        assertEquals(5, counter.get());
+        assertEquals(6, committedOffsets2.offset());
+        assertEquals(6, counter.get());
     }
 
     @Test

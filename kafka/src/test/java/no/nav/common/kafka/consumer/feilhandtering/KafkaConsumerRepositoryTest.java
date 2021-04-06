@@ -62,6 +62,13 @@ public class KafkaConsumerRepositoryTest {
     }
 
     @Test
+    public void should_insert_consumer_record_with_null_value() {
+        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key", null);
+        long id = kafkaConsumerRepository.storeRecord(mapRecord(record));
+        assertEquals(1, id);
+    }
+
+    @Test
     public void should_not_insert_more_than_1_record_with_same_topic_partition_offset() {
         ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key", "value");
         long id1 = kafkaConsumerRepository.storeRecord(mapRecord(record));
@@ -109,7 +116,7 @@ public class KafkaConsumerRepositoryTest {
     @Test
     public void should_retrieve_records_in_order() {
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key", "value")));
-        kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 3, "key", "value")));
+        kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 3, "key", null)));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value")));
 

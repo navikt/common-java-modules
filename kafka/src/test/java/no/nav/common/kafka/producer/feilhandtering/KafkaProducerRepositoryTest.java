@@ -61,6 +61,13 @@ public class KafkaProducerRepositoryTest {
     }
 
     @Test
+    public void should_insert_producer_record_with_null_value() {
+        ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key",null);
+        long id = kafkaProducerRepository.storeRecord(mapRecord(record));
+        assertEquals(1, id);
+    }
+
+    @Test
     public void should_retrieve_record() {
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic1", 1, "key","value");
         producerRecord.headers().add(new RecordHeader("header1", "test".getBytes()));
@@ -80,7 +87,7 @@ public class KafkaProducerRepositoryTest {
     public void should_retrieve_records_in_order() {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key",null)));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(10);
@@ -100,7 +107,7 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key",null)));
         kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
 
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(3);
@@ -113,8 +120,9 @@ public class KafkaProducerRepositoryTest {
         long id1 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key1","value1")));
         long id2 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key2","value2")));
         long id3 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key3","value3")));
+        long id4 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key3",null)));
 
-        kafkaProducerRepository.deleteRecords(List.of(id1, id3));
+        kafkaProducerRepository.deleteRecords(List.of(id1, id3, id4));
 
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(10);
 
