@@ -60,6 +60,12 @@ public class TokenUtils {
     public static boolean expiresWithin(JWT jwt, long withinMillis) {
         try {
             Date tokenExpiration = jwt.getJWTClaimsSet().getExpirationTime();
+
+            // Token should have an expiration, but if it does not, then the safest option is to assume it to be expired
+            if (tokenExpiration == null) {
+                return true;
+            }
+
             long expirationTime = tokenExpiration.getTime() - withinMillis;
 
             return System.currentTimeMillis() > expirationTime;

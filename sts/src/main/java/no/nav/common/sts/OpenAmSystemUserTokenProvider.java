@@ -6,10 +6,11 @@ import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
 import no.nav.common.rest.client.RestClient;
+import no.nav.common.sts.utils.OpenAmUtils;
 import no.nav.common.utils.Credentials;
 import okhttp3.OkHttpClient;
 
-import static no.nav.common.sts.SystemUserTokenUtils.tokenNeedsRefresh;
+import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
 
 /**
  * Retrieves system user tokens through OpenAM
@@ -72,7 +73,7 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
 
     @Override
     public String getSystemUserToken() {
-        if(tokenNeedsRefresh(accessToken)) {
+        if (tokenNeedsRefresh(accessToken)) {
             accessToken = fetchSystemUserToken();
         }
 

@@ -1,9 +1,9 @@
-package no.nav.common.sts;
+package no.nav.common.sts.utils;
 
 import com.nimbusds.jwt.JWT;
 import no.nav.common.auth.utils.TokenUtils;
 
-public class SystemUserTokenUtils {
+public class StsTokenUtils {
 
 	private final static int MINIMUM_TIME_TO_EXPIRE_BEFORE_REFRESH = 60 * 1000; // 1 minute
 
