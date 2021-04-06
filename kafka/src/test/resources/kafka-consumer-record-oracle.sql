@@ -7,7 +7,7 @@ CREATE TABLE KAFKA_CONSUMER_RECORD (
     RECORD_OFFSET           NUMBER(18) NOT NULL,
     RETRIES                 NUMBER(9) DEFAULT 0 NOT NULL,
     LAST_RETRY              TIMESTAMP,
-    KEY                     BLOB NOT NULL,
+    KEY                     BLOB,
     VALUE                   BLOB,
     HEADERS_JSON            CLOB,
     RECORD_TIMESTAMP        NUMBER(18),
