@@ -94,13 +94,15 @@ public class KafkaProducerClientImplIntegrationTest {
 
         producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"));
         producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"));
+        producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", null));
+        producerClient.send(new ProducerRecord<>(TEST_TOPIC, null, "value"));
         producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"));
 
         consumerClient.start();
         Thread.sleep(500);
         consumerClient.stop();
 
-        assertEquals(3, counter.get());
+        assertEquals(5, counter.get());
     }
 
     @Test
