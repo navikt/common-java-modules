@@ -139,7 +139,19 @@ public class ConsumerUtils {
 
     public static <K, V> ConsumeStatus safeConsume(TopicConsumer<K, V> topicConsumer, ConsumerRecord<K, V> consumerRecord) {
         try {
-            return topicConsumer.consume(consumerRecord);
+            ConsumeStatus status = topicConsumer.consume(consumerRecord);
+
+            if (status == null) {
+                log.warn(
+                        "Consumer returned null instead of OK/FAILED, defaulting to FAILED. topic={} partition={} offset={}",
+                        consumerRecord.topic(),
+                        consumerRecord.partition(),
+                        consumerRecord.offset()
+                );
+                return ConsumeStatus.FAILED;
+            }
+
+            return status;
         } catch (Exception e) {
             String msg = format(
                     "Consumer failed to process record from topic=%s partition=%d offset=%d",
