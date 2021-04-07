@@ -49,7 +49,6 @@ public class StoreOnFailureTopicConsumerTest {
 
         ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, null, "value");
 
-//        when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(true);
         when(consumer.consume(any())).thenReturn(ConsumeStatus.OK);
 
         assertEquals(ConsumeStatus.OK, storeOnFailureConsumer.consume(record));

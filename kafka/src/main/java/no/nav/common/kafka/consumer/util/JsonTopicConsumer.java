@@ -1,11 +1,12 @@
 package no.nav.common.kafka.consumer.util;
 
-import no.nav.common.json.JsonUtils;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import java.util.function.BiFunction;
+
+import static no.nav.common.json.JsonUtils.fromJson;
 
 /**
  * Topic consumer which deserializes JSON messages from topics.
@@ -26,8 +27,11 @@ public class JsonTopicConsumer<K, V, T> implements TopicConsumer<K, V> {
 
     @Override
     public ConsumeStatus consume(ConsumerRecord<K, V> record) {
-        String stringValue = assertedString(record.value());
-        return consumer.apply(record, JsonUtils.fromJson(stringValue, dataClass));
+        T jsonValue = record.value() != null
+                ? fromJson(assertedString(record.value()), dataClass)
+                : null;
+
+        return consumer.apply(record, jsonValue);
     }
 
     private static String assertedString(Object obj) {
