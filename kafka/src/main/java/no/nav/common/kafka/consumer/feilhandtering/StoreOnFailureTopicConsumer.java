@@ -38,13 +38,16 @@ public class StoreOnFailureTopicConsumer<K, V> implements TopicConsumer<K, V> {
     @Override
     public ConsumeStatus consume(ConsumerRecord<K, V> record) {
         byte[] key = keySerializer.serialize(record.topic(), record.key());
-        boolean hasRecord = consumerRepository.hasRecordWithKey(record.topic(), record.partition(), key);
+        boolean shouldConsumeRecord =
+                record.key() == null ||
+                !consumerRepository.hasRecordWithKey(record.topic(), record.partition(), key);
 
         /*
             If we consumed the record while there already was a record with the same key in the database,
             then the consumption would be out-of-order.
+            If the key is null, then the message can be consumed even if there is a record in the database.
          */
-        if (!hasRecord) {
+        if (shouldConsumeRecord) {
             ConsumeStatus status = ConsumerUtils.safeConsume(consumer, record);
 
             if (status == ConsumeStatus.OK) {

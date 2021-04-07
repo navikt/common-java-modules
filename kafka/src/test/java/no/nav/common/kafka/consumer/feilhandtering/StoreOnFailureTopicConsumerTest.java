@@ -36,6 +36,29 @@ public class StoreOnFailureTopicConsumerTest {
     }
 
     @Test
+    public void should_not_store_when_key_is_null_and_key_with_null_is_stored() {
+        KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
+        TopicConsumer<String, String> consumer = mock(TopicConsumer.class);
+
+        StoreOnFailureTopicConsumer<String, String> storeOnFailureConsumer = new StoreOnFailureTopicConsumer<>(
+                consumer,
+                consumerRepository,
+                new StringSerializer(),
+                new StringSerializer()
+        );
+
+        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, null, "value");
+
+//        when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(true);
+        when(consumer.consume(any())).thenReturn(ConsumeStatus.OK);
+
+        assertEquals(ConsumeStatus.OK, storeOnFailureConsumer.consume(record));
+
+        verify(consumer, times(1)).consume(any());
+        verify(consumerRepository, never()).storeRecord(any());
+    }
+
+    @Test
     public void should_store_when_has_key_in_database() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
         TopicConsumer<String, String> consumer = mock(TopicConsumer.class);
