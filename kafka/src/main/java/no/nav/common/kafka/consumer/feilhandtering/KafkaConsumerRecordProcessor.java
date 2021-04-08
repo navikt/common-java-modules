@@ -17,12 +17,6 @@ import java.util.concurrent.Executors;
 
 public class KafkaConsumerRecordProcessor {
 
-    private final static long ERROR_TIMEOUT_MS = 5000;
-
-    private final static long POLL_TIMEOUT_MS = 3000;
-
-    private final static int RECORDS_BATCH_SIZE = 100;
-
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -33,6 +27,8 @@ public class KafkaConsumerRecordProcessor {
 
     private final Map<String, StoredRecordConsumer> recordConsumers;
 
+    private final KafkaConsumerRecordProcessorConfig config;
+
     private volatile boolean isRunning;
 
     private volatile boolean isClosed;
@@ -40,11 +36,13 @@ public class KafkaConsumerRecordProcessor {
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
             KafkaConsumerRepository kafkaRepository,
-            Map<String, StoredRecordConsumer> recordConsumers
+            Map<String, StoredRecordConsumer> recordConsumers,
+            KafkaConsumerRecordProcessorConfig config
     ) {
         this.lockProvider = lockProvider;
         this.kafkaConsumerRepository = kafkaRepository;
         this.recordConsumers = recordConsumers;
+        this.config = config;
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
@@ -74,14 +72,14 @@ public class KafkaConsumerRecordProcessor {
                     List<TopicPartition> uniquePartitions = kafkaConsumerRepository.getTopicPartitions(topics);
 
                     if (uniquePartitions.isEmpty()) {
-                        Thread.sleep(POLL_TIMEOUT_MS);
+                        Thread.sleep(config.pollTimeout.toMillis());
                     } else {
                         consumeFromTopicPartitions(uniquePartitions);
                     }
 
                 } catch (Exception e) {
                     log.error("Failed to consume stored kafka records", e);
-                    Thread.sleep(ERROR_TIMEOUT_MS);
+                    Thread.sleep(config.errorTimeout.toMillis());
                 }
             }
         } catch (Exception e) {
@@ -107,7 +105,7 @@ public class KafkaConsumerRecordProcessor {
                 }
 
                 List<StoredConsumerRecord> records = kafkaConsumerRepository
-                        .getRecords(topicPartition.topic(), topicPartition.partition(), RECORDS_BATCH_SIZE);
+                        .getRecords(topicPartition.topic(), topicPartition.partition(), config.recordBatchSize);
 
                 StoredRecordConsumer recordConsumer = recordConsumers.get(topicPartition.topic());
 

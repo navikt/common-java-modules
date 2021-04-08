@@ -3,6 +3,7 @@ package no.nav.common.kafka.consumer.feilhandtering;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
+import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.utils.LocalH2Database;
 import org.junit.After;
 import org.junit.Before;
@@ -56,11 +57,13 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 }
         );
 
-        KafkaConsumerRecordProcessor consumerRecordProcessor = new KafkaConsumerRecordProcessor(
-                lockProvider,
-                consumerRepository,
-                storedRecordConsumers
-        );
+        KafkaConsumerRecordProcessor consumerRecordProcessor =
+                KafkaConsumerRecordProcessorBuilder
+                        .builder()
+                        .withLockProvider(lockProvider)
+                        .withKafkaConsumerRepository(consumerRepository)
+                        .withRecordConsumers(storedRecordConsumers)
+                        .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 2, 1, "key2", "value"));
@@ -105,11 +108,13 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 }
         );
 
-        KafkaConsumerRecordProcessor consumerRecordProcessor = new KafkaConsumerRecordProcessor(
-                lockProvider,
-                consumerRepository,
-                storedRecordConsumers
-        );
+        KafkaConsumerRecordProcessor consumerRecordProcessor =
+                KafkaConsumerRecordProcessorBuilder
+                        .builder()
+                        .withLockProvider(lockProvider)
+                        .withKafkaConsumerRepository(consumerRepository)
+                        .withRecordConsumers(storedRecordConsumers)
+                        .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 2, 1, "key2", "value"));
