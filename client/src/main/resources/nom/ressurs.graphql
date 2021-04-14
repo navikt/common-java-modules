@@ -1,0 +1,12 @@
+query($identer: [String!]!) {
+    ressurs(where: { navIdenter: $identer }){
+        navIdent
+        person {
+            navn {
+                fornavn
+                mellomnavn
+                etternavn
+            }
+        }
+    }
+}
