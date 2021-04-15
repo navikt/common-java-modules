@@ -71,7 +71,7 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
 
             identOppslag.forEach(hentFnrCache::put);
 
-            identOppslag.putAll(aktorIdTilFnrMap);
+            aktorIdTilFnrMap.putAll(identOppslag);
         }
 
         return aktorIdTilFnrMap;
@@ -96,7 +96,7 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
 
             identOppslag.forEach(hentAktorIdCache::put);
 
-            identOppslag.putAll(fnrTilAktorIdMap);
+            fnrTilAktorIdMap.putAll(identOppslag);
         }
 
         return fnrTilAktorIdMap;

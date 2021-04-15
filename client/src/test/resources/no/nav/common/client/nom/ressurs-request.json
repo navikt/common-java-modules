@@ -1,0 +1,6 @@
+{
+  "query": "query($identer: [String!]!) {    ressurs(where: { navIdenter: $identer }){        navIdent        person {            navn {                fornavn                mellomnavn                etternavn            }        }    }}",
+  "variables": {
+    "navIdenter": ["Z1234", "Z5678"]
+  }
+}

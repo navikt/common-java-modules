@@ -37,25 +37,25 @@ public class CachedNomClient implements NomClient {
 
     @Override
     public List<VeilederNavn> finnNavn(List<NavIdent> navIdenter) {
-        List<VeilederNavn> prevCachedNavn = new ArrayList<>();
+        List<VeilederNavn> veilederNavnListe = new ArrayList<>();
         List<NavIdent> uncachedNavIdenter = new ArrayList<>();
 
         navIdenter.forEach(navIdent -> {
             VeilederNavn veilederNavn = veilederNavnCache.getIfPresent(navIdent);
             if (veilederNavn != null) {
-                prevCachedNavn.add(veilederNavn);
+                veilederNavnListe.add(veilederNavn);
             } else {
                 uncachedNavIdenter.add(navIdent);
             }
         });
 
-        List<VeilederNavn> veilederNavnListe = nomClient.finnNavn(uncachedNavIdenter);
+        if (!uncachedNavIdenter.isEmpty()) {
+            List<VeilederNavn> funnetNavn = nomClient.finnNavn(uncachedNavIdenter);
 
-        // Update cache
-        veilederNavnListe.forEach(navn -> veilederNavnCache.put(navn.navIdent, navn));
+            funnetNavn.forEach(navn -> veilederNavnCache.put(navn.navIdent, navn));
 
-        // Add from previously cached results
-        veilederNavnListe.addAll(prevCachedNavn);
+            veilederNavnListe.addAll(funnetNavn);
+        }
 
         return veilederNavnListe;
     }
