@@ -23,8 +23,8 @@ public class NomClientImplTest {
     @Test
     public void skal_lage_riktig_request_og_parse_response() {
         String apiUrl = "http://localhost:" + wireMockRule.port();
-        String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurs-request.json");
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurs-response.json");
+        String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-request.json");
+        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
 
         VeilederNavn veilederNavn1 = new VeilederNavn()
                 .setNavIdent(NavIdent.of("Z1234"))
@@ -38,6 +38,8 @@ public class NomClientImplTest {
                 .setMellomnavn(null)
                 .setEtternavn("E5678");
 
+        NavIdent identTilVeilederSomIkkeFinnes = NavIdent.of("Z7777");
+
         NomClientImpl nomClient = new NomClientImpl(apiUrl, () -> "SERVICE_TOKEN");
 
         givenThat(post(urlEqualTo("/graphql"))
@@ -49,7 +51,13 @@ public class NomClientImplTest {
                         .withBody(graphqlJsonResponse))
         );
 
-        List<VeilederNavn> veilederNavnList = nomClient.finnNavn(List.of(veilederNavn1.navIdent, veilederNavn2.navIdent));
+        List<VeilederNavn> veilederNavnList = nomClient.finnNavn(
+                List.of(
+                        veilederNavn1.navIdent,
+                        veilederNavn2.navIdent,
+                        identTilVeilederSomIkkeFinnes
+                )
+        );
 
         assertEquals(2, veilederNavnList.size());
         assertEquals(veilederNavn1, veilederNavnList.get(0));

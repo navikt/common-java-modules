@@ -1,0 +1,39 @@
+{
+  "data": {
+    "ressurser": [
+      {
+        "id": "Z1234",
+        "ressurs": {
+          "navIdent": "Z1234",
+          "person": {
+            "navn": {
+              "fornavn": "F1234",
+              "mellomnavn": "M1234",
+              "etternavn": "E1234"
+            }
+          }
+        }
+      },
+
+      {
+        "id": "Z5678",
+        "ressurs": {
+          "navIdent": "Z5678",
+          "person": {
+            "navn": {
+              "fornavn": "F5678",
+              "mellomnavn": null,
+              "etternavn": "E5678"
+            }
+          }
+        }
+      },
+
+      {
+        "id": "Z7777",
+        "code": "NOT_FOUND",
+        "ressurs": null
+      }
+    ]
+  }
+}

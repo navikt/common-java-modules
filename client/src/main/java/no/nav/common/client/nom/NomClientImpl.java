@@ -33,8 +33,8 @@ import static no.nav.common.utils.UrlUtils.joinPaths;
 @Slf4j
 public class NomClientImpl implements NomClient {
 
-    private final GraphqlRequestBuilder<RessursQuery.Variables> ressursQueryRequestBuilder =
-            new GraphqlRequestBuilder<>("nom/ressurs.graphql");
+    private final GraphqlRequestBuilder<RessursQuery.Variables> ressurserQueryRequestBuilder =
+            new GraphqlRequestBuilder<>("nom/ressurser.graphql");
 
     private final String nomApiUrl;
 
@@ -69,7 +69,7 @@ public class NomClientImpl implements NomClient {
     @Override
     public List<VeilederNavn> finnNavn(List<NavIdent> navIdenter) {
 
-        GraphqlRequest<RessursQuery.Variables> gqlRequest = ressursQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
+        GraphqlRequest<RessursQuery.Variables> gqlRequest = ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
 
         Request request = new Request.Builder()
                 .url(joinPaths(nomApiUrl, "/graphql"))
@@ -80,33 +80,36 @@ public class NomClientImpl implements NomClient {
 
         try (Response response = client.newCall(request).execute()) {
             RestUtils.throwIfNotSuccessful(response);
+
             String gqlJsonResponse = RestUtils.getBodyStr(response)
-                    .orElseThrow(() -> new IllegalStateException("Body is missing from PDL response"));
+                    .orElseThrow(() -> new IllegalStateException("Body is missing from NOM response"));
 
             RessursQuery.Response graphqlResponse = JsonUtils.fromJson(gqlJsonResponse, RessursQuery.Response.class);
-            GraphqlUtils.throwIfErrorOrMissingData(graphqlResponse);
+
+            GraphqlUtils.logWarningIfError(graphqlResponse);
+            GraphqlUtils.throwIfMissingData(graphqlResponse);
 
             return mapTilVeilederNavn(graphqlResponse);
         }
     }
 
     private List<VeilederNavn> mapTilVeilederNavn(RessursQuery.Response graphqlResponse) {
-        List<RessursQuery.ResponseData.Ressurs> ressurser = graphqlResponse.getData().ressurs;
+        List<RessursQuery.ResponseData.RessurserItem> ressurser = graphqlResponse.getData().ressurser;
         List<VeilederNavn> veilederNavnListe = new ArrayList<>(ressurser.size());
 
-        ressurser.forEach(ressurs -> {
-            RessursQuery.ResponseData.Ressurs.Person person = ressurs.person;
+        ressurser.forEach(ressursItem -> {
+            RessursQuery.ResponseData.RessurserItem.Ressurs ressurs = ressursItem.ressurs;
 
-            if (person == null) {
-                log.warn("Fant ikke navn til veileder med ident: {}", ressurs.navIdent);
+            if (ressurs == null || ressurs.person == null) {
+                log.error("Fant ikke navn til veileder med ident: {}", ressursItem.id);
                 return;
             }
 
             VeilederNavn veilederNavn = new VeilederNavn()
                     .setNavIdent(ressurs.navIdent)
-                    .setFornavn(person.navn.fornavn)
-                    .setMellomnavn(person.navn.mellomnavn)
-                    .setEtternavn(person.navn.etternavn);
+                    .setFornavn(ressurs.person.navn.fornavn)
+                    .setMellomnavn(ressurs.person.navn.mellomnavn)
+                    .setEtternavn(ressurs.person.navn.etternavn);
 
             veilederNavnListe.add(veilederNavn);
         });
@@ -123,31 +126,37 @@ public class NomClientImpl implements NomClient {
     static class RessursQuery {
         @Value
         static class Variables {
-            List<NavIdent> navIdenter;
+            List<NavIdent> identer;
         }
 
         static class Response extends GraphqlResponse<ResponseData> {}
 
         @Data
         static class ResponseData {
-            List<Ressurs> ressurs;
+            List<RessurserItem> ressurser;
 
-            static class Ressurs {
-                NavIdent navIdent;
-                Person person; // Can be null
+            static class RessurserItem {
+                String id;
+                Ressurs ressurs; // Can be null
 
-                @Data
-                static class Person {
-                    Navn navn;
+                static class Ressurs {
+                    NavIdent navIdent;
+                    Person person; // Can be null
 
                     @Data
-                    static class Navn {
-                        String fornavn;
-                        String mellomnavn; // Can be null
-                        String etternavn;
+                    static class Person {
+                        Navn navn;
+
+                        @Data
+                        static class Navn {
+                            String fornavn;
+                            String mellomnavn; // Can be null
+                            String etternavn;
+                        }
                     }
                 }
             }
+
         }
     }
 
