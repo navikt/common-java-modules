@@ -54,52 +54,52 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
 
     @Override
     public Map<AktorId, Fnr> hentFnrBolk(List<AktorId> aktorIdListe) {
-        Map<AktorId, Fnr> cachedMapping = new HashMap<>();
+        Map<AktorId, Fnr> aktorIdTilFnrMap = new HashMap<>();
         List<AktorId> uncachedAktorIds = new ArrayList<>();
 
         aktorIdListe.forEach(aktorId -> {
             Fnr fnr = hentFnrCache.getIfPresent(aktorId);
             if (fnr != null) {
-                cachedMapping.put(aktorId, fnr);
+                aktorIdTilFnrMap.put(aktorId, fnr);
             } else {
                 uncachedAktorIds.add(aktorId);
             }
         });
 
-        Map<AktorId, Fnr> identOppslag = aktorOppslagClient.hentFnrBolk(uncachedAktorIds);
+        if (!uncachedAktorIds.isEmpty()) {
+            Map<AktorId, Fnr> identOppslag = aktorOppslagClient.hentFnrBolk(uncachedAktorIds);
 
-        // Update cache
-        identOppslag.forEach(hentFnrCache::put);
+            identOppslag.forEach(hentFnrCache::put);
 
-        // Add from previously cached results
-        identOppslag.putAll(cachedMapping);
+            aktorIdTilFnrMap.putAll(identOppslag);
+        }
 
-        return identOppslag;
+        return aktorIdTilFnrMap;
     }
 
     @Override
     public Map<Fnr, AktorId> hentAktorIdBolk(List<Fnr> fnrListe) {
-        Map<Fnr, AktorId> cachedMapping = new HashMap<>();
+        Map<Fnr, AktorId> fnrTilAktorIdMap = new HashMap<>();
         List<Fnr> uncachedFnrs = new ArrayList<>();
 
         fnrListe.forEach(fnr -> {
             AktorId aktorId = hentAktorIdCache.getIfPresent(fnr);
             if (aktorId != null) {
-                cachedMapping.put(fnr, aktorId);
+                fnrTilAktorIdMap.put(fnr, aktorId);
             } else {
                 uncachedFnrs.add(fnr);
             }
         });
 
-        Map<Fnr, AktorId> identOppslag = aktorOppslagClient.hentAktorIdBolk(uncachedFnrs);
+        if (!uncachedFnrs.isEmpty()) {
+            Map<Fnr, AktorId> identOppslag = aktorOppslagClient.hentAktorIdBolk(uncachedFnrs);
 
-        // Update cache
-        identOppslag.forEach(hentAktorIdCache::put);
+            identOppslag.forEach(hentAktorIdCache::put);
 
-        // Add from previously cached results
-        identOppslag.putAll(cachedMapping);
+            fnrTilAktorIdMap.putAll(identOppslag);
+        }
 
-        return identOppslag;
+        return fnrTilAktorIdMap;
     }
 
     @Override

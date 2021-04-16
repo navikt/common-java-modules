@@ -116,6 +116,33 @@ public class CachedAktorOppslagClientTest {
     }
 
     @Test
+    public void hentFnrBolk__skal_ikke_gjore_request_hvis_alt_er_cachet() {
+        Fnr fnr1 = Fnr.of("fnr1");
+        Fnr fnr2 = Fnr.of("fnr2");
+
+        AktorId aktorId1 = AktorId.of("aktor1");
+        AktorId aktorId2 = AktorId.of("aktor2");
+
+        AktorOppslagClient mockedClient = mock(AktorOppslagClient.class);
+
+        CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
+
+        ArgumentCaptor<List<AktorId>> captor = ArgumentCaptor.forClass(List.class);
+
+        Map<AktorId, Fnr> mapping1 = new HashMap<>();
+        mapping1.put(aktorId1, fnr1);
+        mapping1.put(aktorId2, fnr2);
+
+        doReturn(mapping1).when(mockedClient).hentFnrBolk(captor.capture());
+
+        List<AktorId> aktorIdList = List.of(aktorId1, aktorId2);
+        cachedClient.hentFnrBolk(aktorIdList);
+        cachedClient.hentFnrBolk(aktorIdList);
+
+        verify(mockedClient, times(1)).hentFnrBolk(any());
+    }
+
+    @Test
     public void hentAktorIdBolk__skal_cache_aktorid_individuelt() {
 
         AktorId aktorId1 = AktorId.of("aktor1");
@@ -169,6 +196,34 @@ public class CachedAktorOppslagClientTest {
         assertEquals(aktorId3, oppslag2.get(fnr3));
         assertEquals(aktorId4, oppslag2.get(fnr4));
         assertEquals(List.of(fnr4), captor.getValue());
+    }
+
+    @Test
+    public void hentAktorIdBolk__skal_ikke_gjore_request_hvis_alt_er_cachet() {
+
+        AktorId aktorId1 = AktorId.of("aktor1");
+        AktorId aktorId2 = AktorId.of("aktor2");
+
+        Fnr fnr1 = Fnr.of("fnr1");
+        Fnr fnr2 = Fnr.of("fnr2");
+
+        AktorOppslagClient mockedClient = mock(AktorOppslagClient.class);
+
+        CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
+
+        ArgumentCaptor<List<Fnr>> captor = ArgumentCaptor.forClass(List.class);
+
+        Map<Fnr, AktorId> mapping1 = new HashMap<>();
+        mapping1.put(fnr1, aktorId1);
+        mapping1.put(fnr2, aktorId2);
+
+        doReturn(mapping1).when(mockedClient).hentAktorIdBolk(captor.capture());
+
+        List<Fnr> fnrList1 = List.of(fnr1, fnr2);
+        cachedClient.hentAktorIdBolk(fnrList1);
+        cachedClient.hentAktorIdBolk(fnrList1);
+
+        verify(mockedClient, times(1)).hentAktorIdBolk(any());
     }
 
 }

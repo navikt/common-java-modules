@@ -15,22 +15,25 @@ public class CachedAxsysClient implements AxsysClient {
 
     private final AxsysClient axsysClient;
 
+    private final Cache<EnhetId, List<NavIdent>> hentAnsatteCache;
+
     private final Cache<NavIdent, List<AxsysEnhet>> hentTilgangerCache;
-    private final Cache<EnhetId, List<NavIdent> > hentAnsatteCache;
 
     public CachedAxsysClient(AxsysClient axsysClient) {
         this.axsysClient = axsysClient;
+
         this.hentAnsatteCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
                 .maximumSize(500)
                 .build();
+
         this.hentTilgangerCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
-                .maximumSize(5000)
+                .maximumSize(10_000)
                 .build();
     }
 
-    public CachedAxsysClient(AxsysClient axsysClient, Cache<NavIdent, List<AxsysEnhet>> hentTilgangerCache, Cache<EnhetId, List<NavIdent> > hentAnsatteCache) {
+    public CachedAxsysClient(AxsysClient axsysClient, Cache<NavIdent, List<AxsysEnhet>> hentTilgangerCache, Cache<EnhetId, List<NavIdent>> hentAnsatteCache) {
         this.axsysClient = axsysClient;
         this.hentTilgangerCache = hentTilgangerCache;
         this.hentAnsatteCache = hentAnsatteCache;
