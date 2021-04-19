@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import org.apache.kafka.common.TopicPartition;
 
 import javax.sql.DataSource;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -62,14 +61,15 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
     @SneakyThrows
     @Override
     public void deleteRecords(List<Long> ids) {
-        String sql = format("DELETE FROM %s WHERE %s = ANY(?)", consumerRecordTable, ID);
+        String sql = format("DELETE FROM %s WHERE %s " + inClause(ids.size()), consumerRecordTable, ID);
 
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)
         ) {
-            Array array = connection.createArrayOf("INTEGER", ids.toArray());
-            statement.setArray(1, array);
+            for (int i = 0; i < ids.size(); i++) {
+                statement.setLong(i + 1, ids.get(i));
+            }
             statement.executeUpdate();
         }
     }
@@ -133,7 +133,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
     @Override
     public List<TopicPartition> getTopicPartitions(List<String> topics) {
         String sql = format(
-                "SELECT DISTINCT %s, %s FROM %s WHERE %s = ANY(?)",
+                "SELECT DISTINCT %s, %s FROM %s WHERE %s " + inClause(topics.size()),
                 TOPIC, PARTITION, consumerRecordTable, TOPIC
         );
 
@@ -141,10 +141,10 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)
         ) {
-            Array array = connection.createArrayOf("VARCHAR", topics.toArray());
-            statement.setArray(1, array);
+            for (int i = 0; i < topics.size(); i++) {
+                statement.setString(i + 1, topics.get(i));
+            }
             return fetchTopicPartitions(statement.executeQuery());
         }
     }
-
 }

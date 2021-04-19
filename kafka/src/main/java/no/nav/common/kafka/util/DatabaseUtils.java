@@ -103,4 +103,16 @@ public class DatabaseUtils {
         }
     }
 
+    public static String inClause(int number) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("IN (");
+        for (int i = 0; i < number; i++ ) {
+            sb.append("?");
+            if (i < number - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+        return sb.toString();
+    }
 }
