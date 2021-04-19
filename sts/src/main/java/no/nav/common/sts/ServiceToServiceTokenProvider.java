@@ -7,6 +7,6 @@ public interface ServiceToServiceTokenProvider {
 
     String getServiceToken(String serviceName);
 
-    String getServiceToken(String cluster, String namespace, String serviceName);
+    String getServiceToken(String serviceName, String namespace, String cluster);
 
 }

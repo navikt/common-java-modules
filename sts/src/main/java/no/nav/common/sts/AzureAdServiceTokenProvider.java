@@ -25,8 +25,8 @@ public class AzureAdServiceTokenProvider implements ServiceToServiceTokenProvide
     }
 
     @Override
-    public String getServiceToken(String cluster, String namespace, String serviceName) {
-        String serviceIdentifier = createServiceIdentifier(cluster, namespace, serviceName);
+    public String getServiceToken(String serviceName, String namespace, String cluster) {
+        String serviceIdentifier = createServiceIdentifier(serviceName, namespace, cluster);
         String scope = createScope(serviceIdentifier);
 
         return scopedTokenProvider.getToken(scope);
@@ -36,7 +36,7 @@ public class AzureAdServiceTokenProvider implements ServiceToServiceTokenProvide
         return format("api://%s/.default", serviceIdentifier);
     }
 
-    private static String createServiceIdentifier(String cluster, String namespace, String serviceName) {
+    private static String createServiceIdentifier(String serviceName, String namespace, String cluster) {
         return format("%s.%s.%s", cluster, namespace, serviceName);
     }
 
