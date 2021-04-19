@@ -3,15 +3,13 @@ package no.nav.common.kafka.producer.feilhandtering;
 import lombok.SneakyThrows;
 
 import javax.sql.DataSource;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.util.DatabaseUtils.fetchProducerRecords;
-import static no.nav.common.kafka.util.DatabaseUtils.incrementAndGetOracleSequence;
+import static no.nav.common.kafka.util.DatabaseUtils.*;
 
 public class OracleProducerRepository implements KafkaProducerRepository {
 
@@ -56,14 +54,15 @@ public class OracleProducerRepository implements KafkaProducerRepository {
     @SneakyThrows
     @Override
     public void deleteRecords(List<Long> ids) {
-        String sql = format("DELETE FROM %s WHERE %s = ANY(?)", producerRecordTable, ID);
+        String sql = format("DELETE FROM %s WHERE %s " + inClause(ids.size()), producerRecordTable, ID);
 
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement statement = connection.prepareStatement(sql)
         ) {
-            Array array = connection.createArrayOf("INTEGER", ids.toArray());
-            statement.setArray(1, array);
+            for (int i = 0; i < ids.size(); i++) {
+                statement.setLong(i + 1, ids.get(i));
+            }
             statement.executeUpdate();
         }
     }
