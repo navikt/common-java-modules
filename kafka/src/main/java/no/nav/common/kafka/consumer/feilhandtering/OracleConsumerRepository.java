@@ -78,7 +78,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
     @Override
     public boolean hasRecordWithKey(String topic, int partition, byte[] key) {
         String sql = format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? FETCH NEXT 1 ROWS ONLY",
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND dbms_lob.compare(%s, ?) = 0 FETCH NEXT 1 ROWS ONLY",
                 ID, consumerRecordTable, TOPIC, PARTITION, KEY
         );
 

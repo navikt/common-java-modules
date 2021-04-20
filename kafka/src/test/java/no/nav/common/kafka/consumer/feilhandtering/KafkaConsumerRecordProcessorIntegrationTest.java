@@ -30,7 +30,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     @Before
     public void setup() {
         dataSource = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.POSTGRES);
-        LocalH2Database.init(dataSource, "kafka-consumer-record-postgres.sql");
+        LocalH2Database.runScript(dataSource, "kafka-consumer-record-postgres.sql");
         consumerRepository = new PostgresConsumerRepository(dataSource);
     }
 
