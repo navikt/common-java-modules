@@ -45,7 +45,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         String brokerUrl = kafka.getBootstrapServers();
 
         dataSource = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.POSTGRES);
-        LocalH2Database.init(dataSource, "kafka-producer-record-postgres.sql");
+        LocalH2Database.runScript(dataSource, "kafka-producer-record-postgres.sql");
         producerRepository = new PostgresProducerRepository(dataSource);
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));

@@ -18,7 +18,7 @@ public class LocalH2Database {
     public static DataSource createDatabase(DatabaseType type) {
         String dbType = type == DatabaseType.ORACLE ? "Oracle" : "PostgreSQL";
 
-        String url = String.format("jdbc:h2:mem:common-db-%d;DB_CLOSE_DELAY=-1;MODE=%s;", counter.incrementAndGet(), dbType);
+        String url = String.format("jdbc:h2:mem:common-db-%d;DB_CLOSE_DELAY=-1;MODE=%s;BUILTIN_ALIAS_OVERRIDE=1;", counter.incrementAndGet(), dbType);
 
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setUrl(url);
@@ -27,7 +27,7 @@ public class LocalH2Database {
     }
 
     @SneakyThrows
-    public static void init(DataSource dataSource, String resourceFile) {
+    public static void runScript(DataSource dataSource, String resourceFile) {
         try(Statement statement = dataSource.getConnection().createStatement()) {
             String sql = TestUtils.readTestResourceFile(resourceFile);
             statement.execute(sql);
