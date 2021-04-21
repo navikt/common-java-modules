@@ -17,6 +17,20 @@ public class UrlUtils {
         return String.format("http://%s.%s.svc.nais.local%s", appName, namespace, contextPath);
     }
 
+    public static String createInternalIngressUrl(@NonNull String appName) {
+        return EnvironmentUtils.isDevelopment().orElse(false)
+                ? createDevInternalIngressUrl(appName)
+                : createProdInternalIngressUrl(appName);
+    }
+
+    public static String createProdInternalIngressUrl(@NonNull String appName) {
+        return String.format("https://%s.intern.nav.no", appName);
+    }
+
+    public static String createDevInternalIngressUrl(@NonNull String appName) {
+        return String.format("https://%s.dev.intern.nav.no", appName);
+    }
+
     public static String createAppAdeoPreprodIngressUrl(@NonNull String appName, @NonNull String environment) {
         return String.format("https://app-%s.adeo.no/%s", environment, appName);
     }
