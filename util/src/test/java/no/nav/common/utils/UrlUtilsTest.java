@@ -2,6 +2,7 @@ package no.nav.common.utils;
 
 import org.junit.Test;
 
+import static no.nav.common.utils.EnvironmentUtils.NAIS_CLUSTER_NAME_PROPERTY_NAME;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
 import static no.nav.common.utils.UrlUtils.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +23,28 @@ public class UrlUtilsTest {
         System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, "default");
         assertThat(createServiceUrl("app1")).isEqualTo("http://app1.default.svc.nais.local");
         assertThat(createServiceUrl("app2")).isEqualTo("http://app2.default.svc.nais.local");
+    }
+
+    @Test
+    public void createInternalIngressUrl__should_create_correct_dev_url() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-fss");
+        assertEquals("https://test.dev.intern.nav.no", createInternalIngressUrl("test"));
+    }
+
+    @Test
+    public void createInternalIngressUrl__should_create_correct_prod_url() {
+        System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-fss");
+        assertEquals("https://test.intern.nav.no", createInternalIngressUrl("test"));
+    }
+
+    @Test
+    public void createDevInternalIngressUrl__should_create_correct_url() {
+        assertEquals("https://test.dev.intern.nav.no", createDevInternalIngressUrl("test"));
+    }
+
+    @Test
+    public void createProdInternalIngressUrl__should_create_correct_url() {
+        assertEquals("https://test.intern.nav.no", createProdInternalIngressUrl("test"));
     }
 
     @Test
