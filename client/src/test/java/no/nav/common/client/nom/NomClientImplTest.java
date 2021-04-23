@@ -6,6 +6,7 @@ import no.nav.common.types.identer.NavIdent;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -62,6 +63,29 @@ public class NomClientImplTest {
         assertEquals(2, veilederNavnList.size());
         assertEquals(veilederNavn1, veilederNavnList.get(0));
         assertEquals(veilederNavn2, veilederNavnList.get(1));
+    }
+
+    @Test
+    public void skal_batche_requests_mot_nom() {
+        String apiUrl = "http://localhost:" + wireMockRule.port();
+        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
+
+        NomClientImpl nomClient = new NomClientImpl(apiUrl, () -> "SERVICE_TOKEN");
+
+        givenThat(post(urlEqualTo("/graphql"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(graphqlJsonResponse))
+        );
+
+        List<NavIdent> navIdenter = new ArrayList<>();
+        for (int i = 0; i < 420; i++) {
+            navIdenter.add(NavIdent.of("Z231231"));
+        }
+
+        nomClient.finnNavn(navIdenter);
+
+        verify(exactly(5), postRequestedFor(urlEqualTo("/graphql")));
     }
 
 
