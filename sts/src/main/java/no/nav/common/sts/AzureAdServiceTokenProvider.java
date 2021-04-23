@@ -7,21 +7,10 @@ import static java.lang.String.format;
 @Slf4j
 public class AzureAdServiceTokenProvider implements ServiceToServiceTokenProvider {
 
-    private final String defaultCluster;
-
-    private final String defaultNamespace;
-
     private final ScopedTokenProvider scopedTokenProvider;
 
-    public AzureAdServiceTokenProvider(String defaultCluster, String defaultNamespace, ScopedTokenProvider scopedTokenProvider) {
-        this.defaultCluster = defaultCluster;
-        this.defaultNamespace = defaultNamespace;
+    public AzureAdServiceTokenProvider(ScopedTokenProvider scopedTokenProvider) {
         this.scopedTokenProvider = scopedTokenProvider;
-    }
-
-    @Override
-    public String getServiceToken(String serviceName) {
-        return getServiceToken(defaultCluster, defaultNamespace, serviceName);
     }
 
     @Override

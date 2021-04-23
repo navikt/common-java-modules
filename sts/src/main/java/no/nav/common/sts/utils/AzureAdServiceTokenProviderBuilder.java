@@ -10,10 +10,6 @@ import static no.nav.common.sts.utils.AzureAdEnvironmentVariables.*;
 
 public class AzureAdServiceTokenProviderBuilder {
 
-    private String defaultCluster;
-
-    private String defaultNamespace;
-
     private String clientId;
 
     private String clientSecret;
@@ -27,23 +23,10 @@ public class AzureAdServiceTokenProviderBuilder {
     }
 
     public AzureAdServiceTokenProviderBuilder withEnvironmentDefaults() {
-        defaultCluster = EnvironmentUtils.getClusterName().orElse(null);
-        defaultNamespace = EnvironmentUtils.getNamespace().orElse(null);
-
         clientId = EnvironmentUtils.getOptionalProperty(AZURE_APP_CLIENT_ID).orElse(null);
         clientSecret = EnvironmentUtils.getOptionalProperty(AZURE_APP_CLIENT_SECRET).orElse(null);
         tokenEndpointUrl = EnvironmentUtils.getOptionalProperty(AZURE_OPENID_CONFIG_TOKEN_ENDPOINT).orElse(null);
 
-        return this;
-    }
-
-    public AzureAdServiceTokenProviderBuilder withDefaultCluster(String defaultCluster) {
-        this.defaultCluster = defaultCluster;
-        return this;
-    }
-
-    public AzureAdServiceTokenProviderBuilder withDefaultNamespace(String defaultNamespace) {
-        this.defaultNamespace = defaultNamespace;
         return this;
     }
 
@@ -63,14 +46,6 @@ public class AzureAdServiceTokenProviderBuilder {
     }
 
     public AzureAdServiceTokenProvider build() {
-        if (defaultCluster == null) {
-            throw new IllegalStateException("Default cluster is required");
-        }
-
-        if (defaultNamespace == null) {
-            throw new IllegalStateException("Default namespace is required");
-        }
-
         if (clientId == null) {
             throw new IllegalStateException("Client ID is required");
         }
@@ -85,7 +60,7 @@ public class AzureAdServiceTokenProviderBuilder {
 
         ScopedTokenProvider scopedTokenProvider = new AzureAdScopedTokenProvider(clientId, clientSecret, tokenEndpointUrl);
 
-        return new AzureAdServiceTokenProvider(defaultCluster, defaultNamespace, new CachedScopedTokenProvider(scopedTokenProvider));
+        return new AzureAdServiceTokenProvider(new CachedScopedTokenProvider(scopedTokenProvider));
     }
 
 }
