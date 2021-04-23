@@ -7,23 +7,11 @@ import static org.mockito.Mockito.*;
 public class AzureAdServiceTokenProviderTest {
 
     @Test
-    public void skal_lage_scope_med_default_verdier() {
+    public void skal_lage_riktig_scope() {
         ScopedTokenProvider scopedTokenProvider = mock(ScopedTokenProvider.class);
 
         AzureAdServiceTokenProvider serviceTokenProvider =
-                new AzureAdServiceTokenProvider("cluster", "namespace", scopedTokenProvider);
-
-        serviceTokenProvider.getServiceToken("my-app");
-
-        verify(scopedTokenProvider, times(1)).getToken("api://my-app.namespace.cluster/.default");
-    }
-
-    @Test
-    public void skal_lage_scope_med_spesifisierte_verdier() {
-        ScopedTokenProvider scopedTokenProvider = mock(ScopedTokenProvider.class);
-
-        AzureAdServiceTokenProvider serviceTokenProvider =
-                new AzureAdServiceTokenProvider("cluster", "namespace", scopedTokenProvider);
+                new AzureAdServiceTokenProvider(scopedTokenProvider);
 
         serviceTokenProvider.getServiceToken("my-app", "test-namespace", "test-cluster");
 
