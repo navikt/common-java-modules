@@ -39,4 +39,35 @@ public class KafkaPropertiesPreset {
                 .build();
     }
 
+
+    public static Properties aivenDefaultConsumerProperties(String consumerGroupId) {
+        return KafkaPropertiesBuilder.consumerBuilder()
+                .withBaseProperties()
+                .withConsumerGroupId(consumerGroupId)
+                .withAivenBrokerUrl()
+                .withAivenAuth()
+                .withDeserializers(StringDeserializer.class, StringDeserializer.class)
+                .build();
+    }
+
+    public static Properties aivenDefaultProducerProperties(String producerId) {
+        return KafkaPropertiesBuilder.producerBuilder()
+                .withBaseProperties()
+                .withProducerId(producerId)
+                .withAivenBrokerUrl()
+                .withAivenAuth()
+                .withSerializers(StringSerializer.class, StringSerializer.class)
+                .build();
+    }
+
+    public static Properties aivenByteProducerProperties(String producerId) {
+        return KafkaPropertiesBuilder.producerBuilder()
+                .withBaseProperties()
+                .withProducerId(producerId)
+                .withAivenBrokerUrl()
+                .withAivenAuth()
+                .withSerializers(ByteArraySerializer.class, ByteArraySerializer.class)
+                .build();
+    }
+
 }

@@ -5,10 +5,14 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Properties;
+
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.*;
+import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
 
 public class KafkaPropertiesBuilder {
 
@@ -33,6 +37,12 @@ public class KafkaPropertiesBuilder {
             return (T) this;
         }
 
+        public T withAivenBrokerUrl() {
+            String brokerUrl = getRequiredProperty(KAFKA_BROKERS);
+            properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl);
+            return (T) this;
+        }
+
         public T withOnPremAuth(String username, String password) {
             return withOnPremAuth(new Credentials(username, password));
         }
@@ -41,6 +51,20 @@ public class KafkaPropertiesBuilder {
             properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
             properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
             properties.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + credentials.username + "\" password=\"" + credentials.password + "\";");
+            return (T) this;
+        }
+
+        public T withAivenAuth() {
+            String keystorePath = getRequiredProperty(KAFKA_KEYSTORE_PATH);
+            String credstorePassword = getRequiredProperty(KAFKA_CREDSTORE_PASSWORD);
+            String truststorePath = getRequiredProperty(KAFKA_TRUSTSTORE_PATH);
+
+            properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
+            properties.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, keystorePath);
+            properties.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, credstorePassword);
+            properties.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, truststorePath);
+            properties.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, credstorePassword);
+
             return (T) this;
         }
 
