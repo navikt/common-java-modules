@@ -1,6 +1,7 @@
 package no.nav.common.kafka.consumer.util;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.NonNull;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
 import no.nav.common.kafka.consumer.TopicConsumer;
@@ -20,6 +21,8 @@ public class KafkaConsumerClientBuilder<K, V> {
 
     private Properties properties;
 
+    private Properties additionalProperties;
+
     private long pollDurationMs = -1;
 
     private KafkaConsumerRepository consumerRepository;
@@ -35,30 +38,59 @@ public class KafkaConsumerClientBuilder<K, V> {
     private KafkaConsumerClientBuilder() {}
 
     public static <K, V> KafkaConsumerClientBuilder<K, V> builder() {
-        return new KafkaConsumerClientBuilder<K, V>();
+        return new KafkaConsumerClientBuilder<>();
     }
 
-    public KafkaConsumerClientBuilder<K, V> withProps(Properties properties) {
-        this.properties = properties;
+    public KafkaConsumerClientBuilder<K, V> withProperties(@NonNull Properties properties) {
+        this.properties = (Properties) properties.clone();
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withConsumer(String topic, TopicConsumer<K, V> consumer) {
+    /**
+     * Adds additional properties that will overwrite properties from {@link #withProperties(Properties)}.
+     * Useful for configuring a consumer with additional properties when using a preset from
+     * {@link no.nav.common.kafka.util.KafkaPropertiesPreset} as the base.
+     * @param properties additional properties
+     * @return this builder
+     */
+    public KafkaConsumerClientBuilder<K, V> withAdditionalProperties(@NonNull Properties properties) {
+        this.additionalProperties = (Properties) properties.clone();
+        return this;
+    }
+
+    /**
+     * Adds an additional property that will overwrite properties from {@link #withProperties(Properties)}.
+     * Useful for configuring a consumer with additional properties when using a preset from
+     * {@link no.nav.common.kafka.util.KafkaPropertiesPreset} as the base.
+     * @param name property name
+     * @param value property value
+     * @return this builder
+     */
+    public KafkaConsumerClientBuilder<K, V> withAdditionalProperty(@NonNull String name, Object value) {
+        if (additionalProperties == null) {
+            additionalProperties = new Properties();
+        }
+
+        additionalProperties.put(name, value);
+        return this;
+    }
+
+    public KafkaConsumerClientBuilder<K, V> withConsumer(@NonNull String topic, @NonNull TopicConsumer<K, V> consumer) {
         consumerMap.put(topic, consumer);
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withConsumers(Map<String, TopicConsumer<K, V>> topicConsumers) {
+    public KafkaConsumerClientBuilder<K, V> withConsumers(@NonNull Map<String, TopicConsumer<K, V>> topicConsumers) {
         consumerMap.putAll(topicConsumers);
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withStoreOnFailureConsumer(String topic, TopicConsumer<K, V> topicConsumer) {
+    public KafkaConsumerClientBuilder<K, V> withStoreOnFailureConsumer(@NonNull String topic, @NonNull TopicConsumer<K, V> topicConsumer) {
         consumersWithErrorHandlingMap.put(topic, topicConsumer);
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withStoreOnFailureConsumers(Map<String, TopicConsumer<K, V>> topicConsumers) {
+    public KafkaConsumerClientBuilder<K, V> withStoreOnFailureConsumers(@NonNull Map<String, TopicConsumer<K, V>> topicConsumers) {
         consumersWithErrorHandlingMap.putAll(topicConsumers);
         return this;
     }
