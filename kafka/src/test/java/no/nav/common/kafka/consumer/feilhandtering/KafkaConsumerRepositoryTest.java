@@ -1,16 +1,19 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
-import no.nav.common.kafka.utils.LocalH2Database;
+import no.nav.common.kafka.utils.DbUtils;
+import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -18,25 +21,30 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class KafkaConsumerRepositoryTest {
 
+    public static final PostgreSQLContainer<?> postgreSQLContainer = createPostgresContainer();
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
-        DataSource postgres = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.POSTGRES);
-        LocalH2Database.runScript(postgres, "kafka-consumer-record-postgres.sql");
+        postgreSQLContainer.start();
+        DataSource postgres = createPostgresDataSource(postgreSQLContainer);
+        DbUtils.runScript(postgres, "kafka-consumer-record-postgres.sql");
         PostgresConsumerRepository postgresConsumerRepository = new PostgresConsumerRepository(postgres);
 
-        DataSource oracle = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.ORACLE);
-        LocalH2Database.runScript(oracle, "kafka-consumer-record-oracle.sql");
-        LocalH2Database.runScript(oracle, "oracle-mock.sql");
+        DataSource oracle = LocalOracleH2Database.createDatabase();
+        DbUtils.runScript(oracle, "kafka-consumer-record-oracle.sql");
+        DbUtils.runScript(oracle, "oracle-mock.sql");
         OracleConsumerRepository oracleConsumerRepository = new OracleConsumerRepository(oracle);
 
         return Arrays.asList(
-                new Object[]{LocalH2Database.DatabaseType.POSTGRES, postgres, postgresConsumerRepository},
-                new Object[]{LocalH2Database.DatabaseType.ORACLE, oracle, oracleConsumerRepository}
+                new Object[]{"POSTGRES", postgres, postgresConsumerRepository},
+                new Object[]{"ORACLE", oracle, oracleConsumerRepository}
         );
     }
 
@@ -45,14 +53,19 @@ public class KafkaConsumerRepositoryTest {
     private final KafkaConsumerRepository kafkaConsumerRepository;
 
     // databaseType must be sent as a parameter for the name to show up when running the tests
-    public KafkaConsumerRepositoryTest(LocalH2Database.DatabaseType databaseType, DataSource dataSource, KafkaConsumerRepository kafkaConsumerRepository) {
+    public KafkaConsumerRepositoryTest(String databaseType, DataSource dataSource, KafkaConsumerRepository kafkaConsumerRepository) {
         this.dataSource = dataSource;
         this.kafkaConsumerRepository = kafkaConsumerRepository;
     }
 
+    @AfterClass
+    public static void stop() {
+        postgreSQLContainer.stop();
+    }
+
     @After
     public void cleanup() {
-        LocalH2Database.cleanupConsumer(dataSource);
+        DbUtils.cleanupConsumer(dataSource);
     }
 
     @Test

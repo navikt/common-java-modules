@@ -1,14 +1,17 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.kafka.producer.util.ProducerUtils;
-import no.nav.common.kafka.utils.LocalH2Database;
+import no.nav.common.kafka.utils.DbUtils;
+import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -16,26 +19,37 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class KafkaProducerRepositoryTest {
 
+    public static final PostgreSQLContainer<?> postgreSQLContainer = createPostgresContainer();
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
-        DataSource postgres = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.POSTGRES);
-        LocalH2Database.runScript(postgres, "kafka-producer-record-postgres.sql");
+        postgreSQLContainer.start();
+        DataSource postgres = createPostgresDataSource(postgreSQLContainer);
+
+        DbUtils.runScript(postgres, "kafka-producer-record-postgres.sql");
         PostgresProducerRepository postgresProducerRepository = new PostgresProducerRepository(postgres);
 
-        DataSource oracle = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.ORACLE);
-        LocalH2Database.runScript(oracle, "kafka-producer-record-oracle.sql");
+        DataSource oracle = LocalOracleH2Database.createDatabase();
+        DbUtils.runScript(oracle, "kafka-producer-record-oracle.sql");
         OracleProducerRepository oracleProducerRepository = new OracleProducerRepository(oracle);
 
         return Arrays.asList(
-                new Object[]{LocalH2Database.DatabaseType.POSTGRES, postgres, postgresProducerRepository},
-                new Object[]{LocalH2Database.DatabaseType.ORACLE, oracle, oracleProducerRepository}
+                new Object[]{"POSTGRES", postgres, postgresProducerRepository},
+                new Object[]{"ORACLE", oracle, oracleProducerRepository}
         );
+    }
+
+    @AfterClass
+    public static void stop() {
+        postgreSQLContainer.stop();
     }
 
     private final DataSource dataSource;
@@ -43,14 +57,14 @@ public class KafkaProducerRepositoryTest {
     private final KafkaProducerRepository kafkaProducerRepository;
 
     // databaseType must be sent as a parameter for the name to show up when running the tests
-    public KafkaProducerRepositoryTest(LocalH2Database.DatabaseType databaseType, DataSource dataSource, KafkaProducerRepository kafkaProducerRepository) {
+    public KafkaProducerRepositoryTest(String databaseType, DataSource dataSource, KafkaProducerRepository kafkaProducerRepository) {
         this.dataSource = dataSource;
         this.kafkaProducerRepository = kafkaProducerRepository;
     }
 
     @After
     public void cleanup() {
-        LocalH2Database.cleanupProducer(dataSource);
+        DbUtils.cleanupProducer(dataSource);
     }
 
     @Test

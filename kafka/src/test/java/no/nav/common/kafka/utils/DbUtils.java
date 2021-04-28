@@ -1,30 +1,11 @@
 package no.nav.common.kafka.utils;
 
 import lombok.SneakyThrows;
-import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Statement;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class LocalH2Database {
-
-    private final static AtomicInteger counter = new AtomicInteger();
-
-    public enum DatabaseType {
-        POSTGRES, ORACLE
-    }
-
-    public static DataSource createDatabase(DatabaseType type) {
-        String dbType = type == DatabaseType.ORACLE ? "Oracle" : "PostgreSQL";
-
-        String url = String.format("jdbc:h2:mem:common-db-%d;DB_CLOSE_DELAY=-1;MODE=%s;BUILTIN_ALIAS_OVERRIDE=1;", counter.incrementAndGet(), dbType);
-
-        JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setUrl(url);
-
-        return dataSource;
-    }
+public class DbUtils {
 
     @SneakyThrows
     public static void runScript(DataSource dataSource, String resourceFile) {

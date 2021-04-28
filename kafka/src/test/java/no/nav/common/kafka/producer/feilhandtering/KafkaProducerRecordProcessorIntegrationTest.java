@@ -6,7 +6,8 @@ import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
-import no.nav.common.kafka.utils.LocalH2Database;
+import no.nav.common.kafka.utils.DbUtils;
+import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
@@ -44,8 +45,8 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     public void setup() {
         String brokerUrl = kafka.getBootstrapServers();
 
-        dataSource = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.POSTGRES);
-        LocalH2Database.runScript(dataSource, "kafka-producer-record-postgres.sql");
+        dataSource = LocalOracleH2Database.createDatabase();
+        DbUtils.runScript(dataSource, "kafka-producer-record-postgres.sql");
         producerRepository = new PostgresProducerRepository(dataSource);
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
@@ -59,7 +60,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     @After
     public void cleanup() {
-        LocalH2Database.cleanupProducer(dataSource);
+        DbUtils.cleanupProducer(dataSource);
     }
 
     @Test

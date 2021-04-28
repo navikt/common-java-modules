@@ -4,7 +4,8 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
-import no.nav.common.kafka.utils.LocalH2Database;
+import no.nav.common.kafka.utils.DbUtils;
+import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,14 +30,14 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
     @Before
     public void setup() {
-        dataSource = LocalH2Database.createDatabase(LocalH2Database.DatabaseType.POSTGRES);
-        LocalH2Database.runScript(dataSource, "kafka-consumer-record-postgres.sql");
+        dataSource = LocalOracleH2Database.createDatabase();
+        DbUtils.runScript(dataSource, "kafka-consumer-record-postgres.sql");
         consumerRepository = new PostgresConsumerRepository(dataSource);
     }
 
     @After
     public void cleanup() {
-        LocalH2Database.cleanupConsumer(dataSource);
+        DbUtils.cleanupConsumer(dataSource);
     }
 
     @Test
