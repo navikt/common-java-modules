@@ -14,6 +14,9 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.lang.String.format;
 
 public class KafkaConsumerRecordProcessor {
 
@@ -74,7 +77,10 @@ public class KafkaConsumerRecordProcessor {
                     if (uniquePartitions.isEmpty()) {
                         Thread.sleep(config.pollTimeout.toMillis());
                     } else {
-                        consumeFromTopicPartitions(uniquePartitions);
+                        boolean haveAllSucceeded = consumeFromTopicPartitions(uniquePartitions);
+                        if (!haveAllSucceeded) {
+                            Thread.sleep(config.errorTimeout.toMillis());
+                        }
                     }
 
                 } catch (Exception e) {
@@ -89,7 +95,8 @@ public class KafkaConsumerRecordProcessor {
         }
     }
 
-    private void consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
+    private boolean consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
+        AtomicBoolean haveAllSucceeded = new AtomicBoolean(true);
         uniquePartitions.forEach(topicPartition -> {
             if (!isRunning) {
                 return;
@@ -115,44 +122,58 @@ public class KafkaConsumerRecordProcessor {
                 records.forEach(r -> {
                     Set<Bytes> keySet = failedKeys.get(topicPartition);
 
+                    Bytes keyBytes = Bytes.wrap(r.getKey());
+
                     // We cannot process records where a previous record with the same key (and topic+partition) has failed to be consumed
-                    if (keySet != null && keySet.contains(Bytes.wrap(r.getKey()))) {
+                    if (keySet != null && keyBytes != null && keySet.contains(keyBytes)) {
                         return;
                     }
 
                     // TODO: Can implement exponential backoff if necessary
 
                     ConsumeStatus status;
+                    Exception exception = null;
 
                     try {
                         status = recordConsumer.consume(r);
                     } catch (Exception e) {
+                        exception = e;
                         status = ConsumeStatus.FAILED;
                     }
 
                     if (status == ConsumeStatus.OK) {
-                        recordsToDelete.add(r.getId());
-                    } else {
-                        log.error(
-                                "Failed to process consumer record topic={} partition={} offset={} dbId={}",
+                        log.info(
+                                "Successfully process stored record topic={} partition={} offset={} dbId={}",
                                 r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
                         );
+                        recordsToDelete.add(r.getId());
+                    } else {
+                        String message = format(
+                                "Failed to process stored consumer record topic=%s partition=%d offset=%d dbId=%d",
+                                r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                        );
+
+                        haveAllSucceeded.set(false);
+                        log.error(message, exception);
                         kafkaConsumerRepository.incrementRetries(r.getId());
-                        failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(Bytes.wrap(r.getKey()));
+                        if (keyBytes != null) {
+                            failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                        }
                     }
                 });
 
                 if (!recordsToDelete.isEmpty()) {
                     kafkaConsumerRepository.deleteRecords(recordsToDelete);
-                    log.info("Consumed records deleted " + Arrays.toString(recordsToDelete.toArray()));
+                    log.info("Stored consumer records deleted " + Arrays.toString(recordsToDelete.toArray()));
                 }
 
             } catch (Exception e) {
-                log.error("Unexpected exception caught while processing consumer records", e);
+                log.error("Unexpected exception caught while processing stored consumer records", e);
             } finally {
                 lock.ifPresent(SimpleLock::unlock);
             }
         });
+        return haveAllSucceeded.get();
     }
 
     private Optional<SimpleLock> acquireLock(TopicPartition topicPartition) {

@@ -13,7 +13,7 @@ import static no.nav.common.kafka.util.DatabaseUtils.*;
 
 public class PostgresConsumerRepository implements KafkaConsumerRepository {
 
-    private final static int UNIQUE_VIOLATION_ERROR_CODE = 23505;
+    private final static String UNIQUE_VIOLATION_ERROR_CODE = "23505";
 
     private final DataSource dataSource;
 
@@ -55,7 +55,7 @@ public class PostgresConsumerRepository implements KafkaConsumerRepository {
         } catch (SQLException e) {
             // The Postgres driver does not throw SQLIntegrityConstraintViolationException (but might at a later date),
             //  therefore we need to check the error code as well
-            if (e instanceof SQLIntegrityConstraintViolationException || e.getErrorCode() == UNIQUE_VIOLATION_ERROR_CODE) {
+            if (e instanceof SQLIntegrityConstraintViolationException || UNIQUE_VIOLATION_ERROR_CODE.equals(e.getSQLState())) {
                 return -1;
             }
 
