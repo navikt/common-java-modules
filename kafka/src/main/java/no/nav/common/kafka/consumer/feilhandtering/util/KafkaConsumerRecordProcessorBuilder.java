@@ -26,7 +26,7 @@ public class KafkaConsumerRecordProcessorBuilder {
     private final KafkaConsumerRecordProcessorConfig config = new KafkaConsumerRecordProcessorConfig(
             DEFAULT_ERROR_TIMEOUT,
             DEFAULT_POLL_TIMEOUT,
-            DEFAULT_RECORDS_BATCH_SIZE);;
+            DEFAULT_RECORDS_BATCH_SIZE);
 
     public static KafkaConsumerRecordProcessorBuilder builder() {
         return new KafkaConsumerRecordProcessorBuilder();

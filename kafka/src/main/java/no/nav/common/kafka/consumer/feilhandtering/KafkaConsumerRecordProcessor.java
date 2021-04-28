@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
 
@@ -76,7 +77,10 @@ public class KafkaConsumerRecordProcessor {
                     if (uniquePartitions.isEmpty()) {
                         Thread.sleep(config.pollTimeout.toMillis());
                     } else {
-                        consumeFromTopicPartitions(uniquePartitions);
+                        boolean haveAllSucceeded = consumeFromTopicPartitions(uniquePartitions);
+                        if (!haveAllSucceeded) {
+                            Thread.sleep(config.errorTimeout.toMillis());
+                        }
                     }
 
                 } catch (Exception e) {
@@ -91,7 +95,8 @@ public class KafkaConsumerRecordProcessor {
         }
     }
 
-    private void consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
+    private boolean consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
+        AtomicBoolean haveAllSucceeded = new AtomicBoolean(true);
         uniquePartitions.forEach(topicPartition -> {
             if (!isRunning) {
                 return;
@@ -148,6 +153,7 @@ public class KafkaConsumerRecordProcessor {
                                 r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
                         );
 
+                        haveAllSucceeded.set(false);
                         log.error(message, exception);
                         kafkaConsumerRepository.incrementRetries(r.getId());
                         if (keyBytes != null) {
@@ -167,6 +173,7 @@ public class KafkaConsumerRecordProcessor {
                 lock.ifPresent(SimpleLock::unlock);
             }
         });
+        return haveAllSucceeded.get();
     }
 
     private Optional<SimpleLock> acquireLock(TopicPartition topicPartition) {
