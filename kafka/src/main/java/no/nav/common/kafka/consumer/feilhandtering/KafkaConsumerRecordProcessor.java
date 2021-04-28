@@ -117,8 +117,10 @@ public class KafkaConsumerRecordProcessor {
                 records.forEach(r -> {
                     Set<Bytes> keySet = failedKeys.get(topicPartition);
 
+                    Bytes keyBytes = Bytes.wrap(r.getKey());
+
                     // We cannot process records where a previous record with the same key (and topic+partition) has failed to be consumed
-                    if (keySet != null && keySet.contains(Bytes.wrap(r.getKey()))) {
+                    if (keySet != null && keyBytes != null && keySet.contains(keyBytes)) {
                         return;
                     }
 
@@ -136,19 +138,21 @@ public class KafkaConsumerRecordProcessor {
 
                     if (status == ConsumeStatus.OK) {
                         log.info(
-                            "Successfully process stored record topic={} partition={} offset={} dbId={}",
-                            r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                                "Successfully process stored record topic={} partition={} offset={} dbId={}",
+                                r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
                         );
                         recordsToDelete.add(r.getId());
                     } else {
                         String message = format(
-                            "Failed to process stored consumer record topic=%s partition=%d offset=%d dbId=%d",
-                            r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                                "Failed to process stored consumer record topic=%s partition=%d offset=%d dbId=%d",
+                                r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
                         );
 
                         log.error(message, exception);
                         kafkaConsumerRepository.incrementRetries(r.getId());
-                        failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(Bytes.wrap(r.getKey()));
+                        if (keyBytes != null) {
+                            failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                        }
                     }
                 });
 
