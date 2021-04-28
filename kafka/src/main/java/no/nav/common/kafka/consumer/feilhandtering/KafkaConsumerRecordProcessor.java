@@ -15,6 +15,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static java.lang.String.format;
+
 public class KafkaConsumerRecordProcessor {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -123,20 +125,28 @@ public class KafkaConsumerRecordProcessor {
                     // TODO: Can implement exponential backoff if necessary
 
                     ConsumeStatus status;
+                    Exception exception = null;
 
                     try {
                         status = recordConsumer.consume(r);
                     } catch (Exception e) {
+                        exception = e;
                         status = ConsumeStatus.FAILED;
                     }
 
                     if (status == ConsumeStatus.OK) {
+                        log.info(
+                            "Successfully process stored record topic={} partition={} offset={} dbId={}",
+                            r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                        );
                         recordsToDelete.add(r.getId());
                     } else {
-                        log.error(
-                                "Failed to process consumer record topic={} partition={} offset={} dbId={}",
-                                r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                        String message = format(
+                            "Failed to process stored consumer record topic=%s partition=%d offset=%d dbId=%d",
+                            r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
                         );
+
+                        log.error(message, exception);
                         kafkaConsumerRepository.incrementRetries(r.getId());
                         failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(Bytes.wrap(r.getKey()));
                     }
@@ -144,11 +154,11 @@ public class KafkaConsumerRecordProcessor {
 
                 if (!recordsToDelete.isEmpty()) {
                     kafkaConsumerRepository.deleteRecords(recordsToDelete);
-                    log.info("Consumed records deleted " + Arrays.toString(recordsToDelete.toArray()));
+                    log.info("Stored consumer records deleted " + Arrays.toString(recordsToDelete.toArray()));
                 }
 
             } catch (Exception e) {
-                log.error("Unexpected exception caught while processing consumer records", e);
+                log.error("Unexpected exception caught while processing stored consumer records", e);
             } finally {
                 lock.ifPresent(SimpleLock::unlock);
             }
