@@ -13,21 +13,21 @@ public class GraphqlUtils {
 
     public static void logWarningIfError(GraphqlResponse<?> response) {
         if (response.getErrors() != null) {
-            log.warn("Graphql request feilet med feilmelding: " + JsonUtils.toJson(response.getErrors()));
+            log.warn("Graphql response feilet med feilmelding: " + JsonUtils.toJson(response.getErrors()));
         }
     }
 
     public static void throwIfError(GraphqlResponse<?> response) {
         if (response.getErrors() != null) {
-            log.error("Graphql request feilet med feilmelding: " + JsonUtils.toJson(response.getErrors()));
-            throw new RuntimeException("Graphql request feilet");
+            log.error("Graphql response feilet med feilmelding: " + JsonUtils.toJson(response.getErrors()));
+            throw new GraphqlErrorException(response.errors);
         }
     }
 
     public static void throwIfMissingData(GraphqlResponse<?> response) {
         if (response.getData() == null) {
-            log.error("Graphql request mangler data");
-            throw new RuntimeException("Graphql request mangler data");
+            log.error("Graphql response mangler data");
+            throw new GraphqlNoDataException();
         }
     }
 }
