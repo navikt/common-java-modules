@@ -13,6 +13,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Leader election implemented with ShedLock (https://github.com/lukas-krecan/ShedLock).
+ * Guarantees that 0 or 1 leader is elected at any give moment. (Clock skew above 'CLOCK_SKEW_SECONDS' seconds might affect this claim)
+ *
+ * The first client that asks to be leader will acquire the lock and become leader until the application is stopped.
+ * The lock will periodically be extended before it expires. If the lock cannot be extended, then another client will be able to acquire the lock from the leader.
+ */
 @Slf4j
 public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
