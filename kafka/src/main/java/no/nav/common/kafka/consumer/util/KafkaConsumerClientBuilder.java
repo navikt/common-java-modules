@@ -2,9 +2,7 @@ package no.nav.common.kafka.consumer.util;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.NonNull;
-import no.nav.common.kafka.consumer.KafkaConsumerClient;
-import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
-import no.nav.common.kafka.consumer.TopicConsumer;
+import no.nav.common.kafka.consumer.*;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.StoreOnFailureTopicConsumer;
 import org.apache.kafka.common.serialization.Serializer;
@@ -34,6 +32,8 @@ public class KafkaConsumerClientBuilder<K, V> {
     private boolean enableLogging;
 
     private MeterRegistry meterRegistry;
+
+    private boolean useRollingCredentials;
 
     private KafkaConsumerClientBuilder() {}
 
@@ -126,7 +126,12 @@ public class KafkaConsumerClientBuilder<K, V> {
         return this;
     }
 
-    public KafkaConsumerClient<K, V> build() {
+    public KafkaConsumerClientBuilder<K, V> withRollingCredentials() {
+        useRollingCredentials = true;
+        return this;
+    }
+
+    public KafkaConsumerClient build() {
         if (properties == null) {
             throw new IllegalStateException("Cannot build kafka consumer without properties");
         }
@@ -173,7 +178,11 @@ public class KafkaConsumerClientBuilder<K, V> {
             config.setPollDurationMs(pollDurationMs);
         }
 
-        return new KafkaConsumerClient<>(config);
+        if (useRollingCredentials) {
+            return new RollingCredentialsKafkaConsumerClient(config);
+        }
+
+        return new KafkaConsumerClientImpl<>(config);
     }
 
 }
