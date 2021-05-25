@@ -138,6 +138,20 @@ public class KafkaProducerRepositoryTest {
     }
 
     @Test
+    public void should_retrieve_records_with_topic() {
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key",null)));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic3", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic4", "key","value")));
+
+        List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(5, List.of("topic1", "topic3"));
+
+        assertEquals(3, records.size());
+    }
+
+    @Test
     public void should_delete_records() {
         long id1 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key1","value1")));
         long id2 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key2","value2")));

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -35,6 +36,8 @@ public class KafkaProducerRecordProcessor {
 
     private final LeaderElectionClient leaderElectionClient;
 
+    private final List<String> topicWhitelist;
+
     private volatile boolean isRunning;
 
     private volatile boolean isClosed;
@@ -42,13 +45,23 @@ public class KafkaProducerRecordProcessor {
     public KafkaProducerRecordProcessor(
             KafkaProducerRepository producerRepository,
             KafkaProducerClient<byte[], byte[]> producerClient,
-            LeaderElectionClient leaderElectionClient
+            LeaderElectionClient leaderElectionClient,
+            List<String> topicWhitelist
     ) {
         this.producerRepository = producerRepository;
         this.producerClient = producerClient;
         this.leaderElectionClient = leaderElectionClient;
+        this.topicWhitelist = topicWhitelist;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+    }
+
+    public KafkaProducerRecordProcessor(
+            KafkaProducerRepository producerRepository,
+            KafkaProducerClient<byte[], byte[]> producerClient,
+            LeaderElectionClient leaderElectionClient
+    ) {
+        this(producerRepository, producerClient, leaderElectionClient, Collections.emptyList());
     }
 
     public void start() {
@@ -78,7 +91,9 @@ public class KafkaProducerRecordProcessor {
                        continue;
                    }
 
-                   List<StoredProducerRecord> records = producerRepository.getRecords(RECORDS_BATCH_SIZE);
+                   List<StoredProducerRecord> records = topicWhitelist.isEmpty()
+                           ? producerRepository.getRecords(RECORDS_BATCH_SIZE)
+                           : producerRepository.getRecords(RECORDS_BATCH_SIZE, topicWhitelist);
 
                    if (!records.isEmpty()) {
                        publishStoredRecordsBatch(records);

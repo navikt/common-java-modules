@@ -10,4 +10,6 @@ public interface KafkaProducerRepository {
 
     List<StoredProducerRecord> getRecords(int maxMessages);
 
+    List<StoredProducerRecord> getRecords(int maxMessages, List<String> topics);
+
 }

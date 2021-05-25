@@ -84,4 +84,22 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public List<StoredProducerRecord> getRecords(int maxMessages, List<String> topics) {
+        String sql = format(
+                "SELECT * FROM %s WHERE %s = ANY(?) ORDER BY %s LIMIT %d",
+                producerRecordTable, TOPIC, ID, maxMessages
+        );
+
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            Array array = connection.createArrayOf("VARCHAR", topics.toArray());
+            statement.setArray(1, array);
+            return fetchProducerRecords(statement.executeQuery());
+        }
+    }
+
 }
