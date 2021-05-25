@@ -3,15 +3,11 @@ package no.nav.common.kafka.consumer.util;
 import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Builder which makes it easier to compose a {@link no.nav.common.kafka.consumer.TopicConsumer} with additional functionality
@@ -50,6 +46,11 @@ public class TopicConsumerBuilder<K, V> {
 
     public TopicConsumerBuilder<K, V> withListener(TopicConsumerListener<K, V> consumerListener) {
         listeners.add(consumerListener);
+        return this;
+    }
+
+    public TopicConsumerBuilder<K, V> withListeners(List<TopicConsumerListener<K, V>> consumerListeners) {
+        listeners.addAll(consumerListeners);
         return this;
     }
 

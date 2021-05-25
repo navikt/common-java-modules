@@ -9,15 +9,15 @@ import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.StoreOnFailureTopicConsumer;
 import org.apache.kafka.common.serialization.Serializer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class KafkaConsumerClientBuilder<K, V> {
 
     private final Map<String, TopicConsumer<K, V>> consumerMap = new HashMap<>();
 
     private final Map<String, TopicConsumer<K, V>> consumersWithErrorHandlingMap = new HashMap<>();
+
+    private final List<TopicConsumerListener<K, V>> topicConsumerListeners = new ArrayList<>();
 
     private Properties properties;
 
@@ -105,6 +105,11 @@ public class KafkaConsumerClientBuilder<K, V> {
         return this;
     }
 
+    public KafkaConsumerClientBuilder<K, V> withListener(TopicConsumerListener<K, V> topicConsumerListener) {
+        topicConsumerListeners.add(topicConsumerListener);
+        return this;
+    }
+
     public KafkaConsumerClientBuilder<K, V> withRepository(KafkaConsumerRepository consumerRepository) {
         this.consumerRepository = consumerRepository;
         return this;
@@ -151,6 +156,10 @@ public class KafkaConsumerClientBuilder<K, V> {
 
             if (meterRegistry != null) {
                 builder.withMetrics(meterRegistry);
+            }
+
+            if (!topicConsumerListeners.isEmpty()) {
+                builder.withListeners(topicConsumerListeners);
             }
 
             builder.withConsumer(consumer);
