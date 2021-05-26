@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -36,6 +35,7 @@ public class KafkaProducerRecordProcessor {
 
     private final LeaderElectionClient leaderElectionClient;
 
+    // If the list is not null then it will be used to filter which records will be sent to Kafka
     private final List<String> topicWhitelist;
 
     private volatile boolean isRunning;
@@ -61,7 +61,7 @@ public class KafkaProducerRecordProcessor {
             KafkaProducerClient<byte[], byte[]> producerClient,
             LeaderElectionClient leaderElectionClient
     ) {
-        this(producerRepository, producerClient, leaderElectionClient, Collections.emptyList());
+        this(producerRepository, producerClient, leaderElectionClient, null);
     }
 
     public void start() {
@@ -91,7 +91,7 @@ public class KafkaProducerRecordProcessor {
                        continue;
                    }
 
-                   List<StoredProducerRecord> records = topicWhitelist.isEmpty()
+                   List<StoredProducerRecord> records = topicWhitelist == null
                            ? producerRepository.getRecords(RECORDS_BATCH_SIZE)
                            : producerRepository.getRecords(RECORDS_BATCH_SIZE, topicWhitelist);
 
