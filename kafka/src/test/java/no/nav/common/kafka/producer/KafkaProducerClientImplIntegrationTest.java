@@ -1,8 +1,8 @@
 package no.nav.common.kafka.producer;
 
 import no.nav.common.kafka.consumer.ConsumeStatus;
-import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
+import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
@@ -60,7 +60,7 @@ public class KafkaProducerClientImplIntegrationTest {
     public void should_produce_record() throws InterruptedException {
         AtomicReference<ConsumerRecord<String, String>> recordRef = new AtomicReference<>();
 
-        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(new KafkaConsumerClientConfig<>(
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(TEST_TOPIC, (record) -> {
                     recordRef.set(record);
@@ -84,7 +84,7 @@ public class KafkaProducerClientImplIntegrationTest {
     public void should_produce_multiple_records() throws InterruptedException {
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(new KafkaConsumerClientConfig<>(
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(TEST_TOPIC, (record) -> {
                     counter.incrementAndGet();
@@ -109,7 +109,7 @@ public class KafkaProducerClientImplIntegrationTest {
     public void should_produce_record_sync() throws InterruptedException {
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(new KafkaConsumerClientConfig<>(
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(TEST_TOPIC, (record) -> {
                     counter.incrementAndGet();

@@ -83,4 +83,23 @@ public class OracleProducerRepository implements KafkaProducerRepository {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public List<StoredProducerRecord> getRecords(int maxMessages, List<String> topics) {
+        String sql = format(
+                "SELECT * FROM %s WHERE %s " + inClause(topics.size()) + " ORDER BY %s FETCH NEXT %d ROWS ONLY",
+                producerRecordTable, TOPIC, ID, maxMessages
+        );
+
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+            for (int i = 0; i < topics.size(); i++) {
+                statement.setString(i + 1, topics.get(i));
+            }
+            return fetchProducerRecords(statement.executeQuery());
+        }
+    }
+
 }

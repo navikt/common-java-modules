@@ -2,8 +2,8 @@ package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.consumer.ConsumeStatus;
-import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
+import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 import no.nav.common.kafka.utils.DbUtils;
@@ -102,7 +102,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 )
         );
 
-        KafkaConsumerClient<String, String> consumerClient = new KafkaConsumerClient<>(config);
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
 
         consumerClient.start();
         Thread.sleep(1000);

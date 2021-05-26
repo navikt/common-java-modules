@@ -35,6 +35,9 @@ public class KafkaProducerRecordProcessor {
 
     private final LeaderElectionClient leaderElectionClient;
 
+    // If the list is not null then it will be used to filter which records will be sent to Kafka
+    private final List<String> topicWhitelist;
+
     private volatile boolean isRunning;
 
     private volatile boolean isClosed;
@@ -42,13 +45,23 @@ public class KafkaProducerRecordProcessor {
     public KafkaProducerRecordProcessor(
             KafkaProducerRepository producerRepository,
             KafkaProducerClient<byte[], byte[]> producerClient,
-            LeaderElectionClient leaderElectionClient
+            LeaderElectionClient leaderElectionClient,
+            List<String> topicWhitelist
     ) {
         this.producerRepository = producerRepository;
         this.producerClient = producerClient;
         this.leaderElectionClient = leaderElectionClient;
+        this.topicWhitelist = topicWhitelist;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+    }
+
+    public KafkaProducerRecordProcessor(
+            KafkaProducerRepository producerRepository,
+            KafkaProducerClient<byte[], byte[]> producerClient,
+            LeaderElectionClient leaderElectionClient
+    ) {
+        this(producerRepository, producerClient, leaderElectionClient, null);
     }
 
     public void start() {
@@ -78,7 +91,9 @@ public class KafkaProducerRecordProcessor {
                        continue;
                    }
 
-                   List<StoredProducerRecord> records = producerRepository.getRecords(RECORDS_BATCH_SIZE);
+                   List<StoredProducerRecord> records = topicWhitelist == null
+                           ? producerRepository.getRecords(RECORDS_BATCH_SIZE)
+                           : producerRepository.getRecords(RECORDS_BATCH_SIZE, topicWhitelist);
 
                    if (!records.isEmpty()) {
                        publishStoredRecordsBatch(records);
