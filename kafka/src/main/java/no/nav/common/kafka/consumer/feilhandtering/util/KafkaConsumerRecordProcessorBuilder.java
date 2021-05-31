@@ -44,7 +44,7 @@ public class KafkaConsumerRecordProcessorBuilder {
         return this;
     }
 
-    public KafkaConsumerRecordProcessorBuilder withStoredRecordConsumers(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
+    public KafkaConsumerRecordProcessorBuilder withConsumerConfigs(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
         this.topicConsumerConfigs = topicConsumerConfigs;
         return this;
     }
