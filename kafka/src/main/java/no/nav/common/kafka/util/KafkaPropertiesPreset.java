@@ -1,8 +1,8 @@
 package no.nav.common.kafka.util;
 
 import no.nav.common.utils.Credentials;
+import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
@@ -15,7 +15,7 @@ public class KafkaPropertiesPreset {
                 .withConsumerGroupId(consumerGroupId)
                 .withBrokerUrl(kafkaBrokersUrl)
                 .withOnPremAuth(credentials)
-                .withDeserializers(StringDeserializer.class, StringDeserializer.class)
+                .withDeserializers(ByteArrayDeserializer.class, ByteArrayDeserializer.class)
                 .build();
     }
 
@@ -46,7 +46,7 @@ public class KafkaPropertiesPreset {
                 .withConsumerGroupId(consumerGroupId)
                 .withAivenBrokerUrl()
                 .withAivenAuth()
-                .withDeserializers(StringDeserializer.class, StringDeserializer.class)
+                .withDeserializers(ByteArrayDeserializer.class, ByteArrayDeserializer.class)
                 .build();
     }
 

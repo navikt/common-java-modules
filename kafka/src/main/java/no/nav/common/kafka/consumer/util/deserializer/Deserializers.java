@@ -10,8 +10,6 @@ import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
 
 public class Deserializers {
 
-    // TODO: Burde deserializer suffix fjernes?
-
     public static Deserializer<String> stringDeserializer() {
         return new StringDeserializer();
     }

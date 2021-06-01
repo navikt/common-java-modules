@@ -1,10 +1,14 @@
 package no.nav.common.kafka.consumer.util;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.common.serialization.Deserializer;
 
-@Value
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TopicConsumerConfig<K, V> {
 
     String topic;

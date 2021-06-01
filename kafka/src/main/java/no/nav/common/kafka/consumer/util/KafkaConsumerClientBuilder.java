@@ -2,46 +2,37 @@ package no.nav.common.kafka.consumer.util;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.*;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.StoreOnFailureTopicConsumer;
-import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.serialization.Deserializer;
 
 import java.util.*;
 
-public class KafkaConsumerClientBuilder<K, V> {
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.deserializeConsumerRecord;
 
-    private final Map<String, TopicConsumer<K, V>> consumerMap = new HashMap<>();
+@Slf4j
+public class KafkaConsumerClientBuilder {
 
-    private final Map<String, TopicConsumer<K, V>> consumersWithErrorHandlingMap = new HashMap<>();
-
-    private final List<TopicConsumerListener<K, V>> topicConsumerListeners = new ArrayList<>();
-
+    private final List<Config<?, ?>> consumerConfigs = new ArrayList<>();
+    
     private Properties properties;
 
     private Properties additionalProperties;
 
     private long pollDurationMs = -1;
 
-    private KafkaConsumerRepository consumerRepository;
-
-    private Serializer<K> keySerializer;
-
-    private Serializer<V> valueSerializer;
-
-    private boolean enableLogging;
-
-    private MeterRegistry meterRegistry;
-
     private boolean useRollingCredentials;
 
     private KafkaConsumerClientBuilder() {}
 
-    public static <K, V> KafkaConsumerClientBuilder<K, V> builder() {
-        return new KafkaConsumerClientBuilder<>();
+    public static KafkaConsumerClientBuilder builder() {
+        return new KafkaConsumerClientBuilder();
     }
 
-    public KafkaConsumerClientBuilder<K, V> withProperties(@NonNull Properties properties) {
+    public KafkaConsumerClientBuilder withProperties(@NonNull Properties properties) {
         this.properties = (Properties) properties.clone();
         return this;
     }
@@ -53,7 +44,7 @@ public class KafkaConsumerClientBuilder<K, V> {
      * @param properties additional properties
      * @return this builder
      */
-    public KafkaConsumerClientBuilder<K, V> withAdditionalProperties(@NonNull Properties properties) {
+    public KafkaConsumerClientBuilder withAdditionalProperties(@NonNull Properties properties) {
         this.additionalProperties = (Properties) properties.clone();
         return this;
     }
@@ -62,11 +53,9 @@ public class KafkaConsumerClientBuilder<K, V> {
      * Adds an additional property that will overwrite properties from {@link #withProperties(Properties)}.
      * Useful for configuring a consumer with additional properties when using a preset from
      * {@link no.nav.common.kafka.util.KafkaPropertiesPreset} as the base.
-     * @param name property name
-     * @param value property value
      * @return this builder
      */
-    public KafkaConsumerClientBuilder<K, V> withAdditionalProperty(@NonNull String name, Object value) {
+    public KafkaConsumerClientBuilder withAdditionalProperty(@NonNull String name, Object value) {
         if (additionalProperties == null) {
             additionalProperties = new Properties();
         }
@@ -75,58 +64,22 @@ public class KafkaConsumerClientBuilder<K, V> {
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withConsumer(@NonNull String topic, @NonNull TopicConsumer<K, V> consumer) {
-        consumerMap.put(topic, consumer);
+    public KafkaConsumerClientBuilder withConfig(Config<?, ?> config) {
+        consumerConfigs.add(config);
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withConsumers(@NonNull Map<String, TopicConsumer<K, V>> topicConsumers) {
-        consumerMap.putAll(topicConsumers);
+    public KafkaConsumerClientBuilder withConfigs(List<Config<?, ?>> configs) {
+        consumerConfigs.addAll(configs);
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withStoreOnFailureConsumer(@NonNull String topic, @NonNull TopicConsumer<K, V> topicConsumer) {
-        consumersWithErrorHandlingMap.put(topic, topicConsumer);
-        return this;
-    }
-
-    public KafkaConsumerClientBuilder<K, V> withStoreOnFailureConsumers(@NonNull Map<String, TopicConsumer<K, V>> topicConsumers) {
-        consumersWithErrorHandlingMap.putAll(topicConsumers);
-        return this;
-    }
-
-    public KafkaConsumerClientBuilder<K, V> withLogging() {
-        this.enableLogging = true;
-        return this;
-    }
-
-    public KafkaConsumerClientBuilder<K, V> withMetrics(MeterRegistry meterRegistry) {
-        this.meterRegistry = meterRegistry;
-        return this;
-    }
-
-    public KafkaConsumerClientBuilder<K, V> withListener(TopicConsumerListener<K, V> topicConsumerListener) {
-        topicConsumerListeners.add(topicConsumerListener);
-        return this;
-    }
-
-    public KafkaConsumerClientBuilder<K, V> withRepository(KafkaConsumerRepository consumerRepository) {
-        this.consumerRepository = consumerRepository;
-        return this;
-    }
-
-    public KafkaConsumerClientBuilder<K, V> withSerializers(Serializer<K> keySerializer, Serializer<V> valueSerializer) {
-        this.keySerializer = keySerializer;
-        this.valueSerializer = valueSerializer;
-        return this;
-    }
-
-    public KafkaConsumerClientBuilder<K, V> withPollDuration(long pollDurationMs) {
+    public KafkaConsumerClientBuilder withPollDuration(long pollDurationMs) {
         this.pollDurationMs = pollDurationMs;
         return this;
     }
 
-    public KafkaConsumerClientBuilder<K, V> withRollingCredentials() {
+    public KafkaConsumerClientBuilder withRollingCredentials() {
         useRollingCredentials = true;
         return this;
     }
@@ -136,43 +89,17 @@ public class KafkaConsumerClientBuilder<K, V> {
             throw new IllegalStateException("Cannot build kafka consumer without properties");
         }
 
-        if (!consumersWithErrorHandlingMap.isEmpty()) {
-            if (consumerRepository == null) {
-                throw new IllegalStateException("Consumer repository is required when using error handling");
-            }
+        Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
 
-            if (keySerializer == null || valueSerializer == null) {
-                throw new IllegalStateException("Key serializer and value serializer is required when using error handling");
-            }
-        }
-
-        consumersWithErrorHandlingMap.forEach((topic, consumer) -> {
-            consumerMap.put(topic, new StoreOnFailureTopicConsumer<>(consumer, consumerRepository, keySerializer, valueSerializer));
+        consumerConfigs.forEach((consumerConfig) -> {
+            // TODO: Validate config
+            consumers.put(
+                    consumerConfig.getConsumerConfig().getTopic(),
+                    createTopicConsumer(consumerConfig)
+            );
         });
 
-        Map<String, TopicConsumer<K, V>> extendedConsumers = new HashMap<>();
-
-        consumerMap.forEach((topic, consumer) -> {
-            TopicConsumerBuilder<K, V> builder = TopicConsumerBuilder.builder();
-
-            if (enableLogging) {
-                builder.withLogging();
-            }
-
-            if (meterRegistry != null) {
-                builder.withMetrics(meterRegistry);
-            }
-
-            if (!topicConsumerListeners.isEmpty()) {
-                builder.withListeners(topicConsumerListeners);
-            }
-
-            builder.withConsumer(consumer);
-
-            extendedConsumers.put(topic, builder.build());
-        });
-
-        KafkaConsumerClientConfig<K, V> config = new KafkaConsumerClientConfig<>(properties, extendedConsumers);
+        KafkaConsumerClientConfig<byte[], byte[]> config = new KafkaConsumerClientConfig<>(properties, consumers);
 
         if (pollDurationMs >= 0) {
             config.setPollDurationMs(pollDurationMs);
@@ -183,6 +110,97 @@ public class KafkaConsumerClientBuilder<K, V> {
         }
 
         return new KafkaConsumerClientImpl<>(config);
+    }
+
+    public static <K, V> TopicConsumer<byte[], byte[]> createTopicConsumer(Config<K, V> consumerConfig) {
+        var listeners = consumerConfig.getListeners();
+        var config = consumerConfig.getConsumerConfig();
+        var consumerRepository = consumerConfig.getConsumerRepository();
+
+        TopicConsumer<byte[], byte[]> topicConsumer = (record) -> {
+            ConsumeStatus status = ConsumerUtils.safeConsume(ConsumerUtils.createTopicConsumer(config), record);
+
+            if (!listeners.isEmpty()) {
+                ConsumerRecord<K, V> deserializedRecord = deserializeConsumerRecord(
+                        record,
+                        config.getKeyDeserializer(),
+                        config.getValueDeserializer()
+                );
+
+                listeners.forEach(listener -> {
+                    try {
+                        listener.onConsumed(deserializedRecord, status);
+                    } catch (Exception e) {
+                        log.error("Caught exception from consumer listener", e);
+                    }
+                });
+            }
+
+            return status;
+        };
+
+        if (consumerRepository != null) {
+            return new StoreOnFailureTopicConsumer(topicConsumer, consumerRepository);
+        }
+
+        return topicConsumer;
+    }
+    
+    public static class Config<K, V> {
+
+        private final List<TopicConsumerListener<K, V>> listeners = new ArrayList<>();
+
+        private TopicConsumerConfig<K, V> consumerConfig;
+
+        private KafkaConsumerRepository consumerRepository;
+
+        public Config<K, V> withConsumerConfig(TopicConsumerConfig<K, V> consumerConfig) {
+            this.consumerConfig = consumerConfig;
+            return this;
+        }
+
+        public Config<K, V> withConsumerConfig(String topic, Deserializer<K> keyDeserializer, Deserializer<V> valueDeserializer, TopicConsumer<K, V> consumer) {
+            this.consumerConfig = new TopicConsumerConfig<>(topic, keyDeserializer, valueDeserializer, consumer);
+            return this;
+        }
+
+        public Config<K, V> withLogging() {
+            listeners.add(new TopicConsumerLogger<>());
+            return this;
+        }
+
+        public Config<K, V> withMetrics(MeterRegistry meterRegistry) {
+            listeners.add(new TopicConsumerMetrics<>(meterRegistry));
+            return this;
+        }
+
+        public Config<K, V> withStoreOnFailure(KafkaConsumerRepository consumerRepository) {
+            this.consumerRepository = consumerRepository;
+            return this;
+        }
+
+        public Config<K, V> withListener(TopicConsumerListener<K, V> consumerListener) {
+            listeners.add(consumerListener);
+            return this;
+        }
+
+        public Config<K, V> withListeners(List<TopicConsumerListener<K, V>> consumerListeners) {
+            listeners.addAll(consumerListeners);
+            return this;
+        }
+
+        public List<TopicConsumerListener<K, V>> getListeners() {
+            return listeners;
+        }
+
+        public TopicConsumerConfig<K, V> getConsumerConfig() {
+            return consumerConfig;
+        }
+
+        public KafkaConsumerRepository getConsumerRepository() {
+            return consumerRepository;
+        }
+
     }
 
 }
