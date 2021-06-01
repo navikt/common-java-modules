@@ -24,12 +24,12 @@ import static java.lang.String.format;
 
 public class ConsumerUtils {
 
-    private final static Serializer<byte[]> BYTE_SERIALIZER = new ByteArraySerializer();
+    public final static Serializer<byte[]> BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
 
     private final static Logger log = LoggerFactory.getLogger(ConsumerUtils.class);
 
     public static StoredConsumerRecord mapToStoredRecord(ConsumerRecord<byte[], byte[]> record) {
-        return mapToStoredRecord(record, BYTE_SERIALIZER, BYTE_SERIALIZER);
+        return mapToStoredRecord(record, BYTE_ARRAY_SERIALIZER, BYTE_ARRAY_SERIALIZER);
     }
 
     public static <K, V> StoredConsumerRecord mapToStoredRecord(
