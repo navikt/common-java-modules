@@ -1,24 +1,16 @@
 package no.nav.common.kafka.consumer.util.deserializer;
 
-import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
-import io.confluent.kafka.schemaregistry.client.SchemaRegistryClientConfig;
-import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import org.apache.kafka.common.serialization.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
-import static java.lang.String.format;
 import static no.nav.common.kafka.util.KafkaEnvironmentVariables.*;
 import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
 
 public class Deserializers {
 
-    private final static Map<String, SchemaRegistryClient> SCHEMA_REGISTRY_CLIENTS = new HashMap<>();
-
-    private final static int SCHEMA_MAP_CAPACITY = 100;
+    // TODO: Burde deserializer suffix fjernes?
 
     public static Deserializer<String> stringDeserializer() {
         return new StringDeserializer();
@@ -49,11 +41,15 @@ public class Deserializers {
     }
 
     public static <T> Deserializer<T> jsonDeserializer(Class<T> jsonClass) {
-        return new JsonDeserializer<>(jsonClass);
+        return new JsonObjectDeserializer<>(jsonClass);
+    }
+
+    public static <T> Deserializer<List<T>> jsonArrayDeserializer(Class<T> jsonClass) {
+        return new JsonArrayDeserializer<>(jsonClass);
     }
 
     public static <T> Deserializer<T> onPremAvroDeserializer(String schemaRegistryUrl) {
-        return avroDeserializer(schemaRegistryUrl);
+        return new AvroDeserializer<>(schemaRegistryUrl);
     }
 
     public static <T> Deserializer<T> aivenAvroDeserializer() {
@@ -61,32 +57,7 @@ public class Deserializers {
         String username = getRequiredProperty(KAFKA_SCHEMA_REGISTRY_USER);
         String password = getRequiredProperty(KAFKA_SCHEMA_REGISTRY_PASSWORD);
 
-        return avroDeserializer(schemaRegistryUrl, username, password);
-    }
-
-    public static <T> Deserializer<T> avroDeserializer(String schemaRegistryUrl) {
-        SchemaRegistryClient schemaRegistryClient = SCHEMA_REGISTRY_CLIENTS.computeIfAbsent(
-                schemaRegistryUrl,
-                (url) -> new CachedSchemaRegistryClient(schemaRegistryUrl, SCHEMA_MAP_CAPACITY)
-        );
-
-        return (Deserializer<T>) new KafkaAvroDeserializer(schemaRegistryClient);
-    }
-
-    public static <T> Deserializer<T> avroDeserializer(String schemaRegistryUrl, String username, String password) {
-        SchemaRegistryClient schemaRegistryClient = SCHEMA_REGISTRY_CLIENTS.computeIfAbsent(
-                schemaRegistryUrl,
-                (url) -> {
-                    Map<String, Object> configs = new HashMap<>();
-
-                    configs.put(SchemaRegistryClientConfig.BASIC_AUTH_CREDENTIALS_SOURCE, "USER_INFO");
-                    configs.put(SchemaRegistryClientConfig.USER_INFO_CONFIG, format("%s:%s", username, password));
-
-                    return new CachedSchemaRegistryClient(schemaRegistryUrl, SCHEMA_MAP_CAPACITY, configs);
-                }
-        );
-
-        return (Deserializer<T>) new KafkaAvroDeserializer(schemaRegistryClient);
+        return new AvroDeserializer<>(schemaRegistryUrl, username, password);
     }
 
 }
