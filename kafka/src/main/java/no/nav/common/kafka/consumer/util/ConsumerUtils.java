@@ -111,6 +111,13 @@ public class ConsumerUtils {
         };
     }
 
+    public static <K, V> TopicConsumer<K, V> toTopicConsumer(Consumer<ConsumerRecord<K, V>> consumer) {
+        return (record) -> {
+            consumer.accept(record);
+            return ConsumeStatus.OK;
+        };
+    }
+
     public static <K, V> TopicConsumer<K, V> aggregateConsumer(final List<TopicConsumer<K, V>> consumers) {
         return record -> {
             ConsumeStatus aggregatedStatus = ConsumeStatus.OK;
@@ -129,10 +136,11 @@ public class ConsumerUtils {
 
     /**
      * Used to wrap consumers that dont return a ConsumeStatus
+     *
      * @param consumer the consumer which will consume the record
-     * @param record the kafka record to consume
-     * @param <K> topic key
-     * @param <V> topic value
+     * @param record   the kafka record to consume
+     * @param <K>      topic key
+     * @param <V>      topic value
      * @return ConsumeStatus.OK
      */
     public static <K, V> ConsumeStatus consume(Consumer<ConsumerRecord<K, V>> consumer, ConsumerRecord<K, V> record) {

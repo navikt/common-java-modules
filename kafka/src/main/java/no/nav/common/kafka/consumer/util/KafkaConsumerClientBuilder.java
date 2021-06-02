@@ -10,8 +10,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.deserializeConsumerRecord;
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.toTopicConsumer;
 
 @Slf4j
 public class KafkaConsumerClientBuilder {
@@ -181,8 +183,23 @@ public class KafkaConsumerClientBuilder {
             return this;
         }
 
-        public Config<K, V> withConsumerConfig(String topic, Deserializer<K> keyDeserializer, Deserializer<V> valueDeserializer, TopicConsumer<K, V> consumer) {
+        public Config<K, V> withConsumerConfig(
+                String topic,
+                Deserializer<K> keyDeserializer,
+                Deserializer<V> valueDeserializer,
+                TopicConsumer<K, V> consumer
+        ) {
             this.consumerConfig = new TopicConsumerConfig<>(topic, keyDeserializer, valueDeserializer, consumer);
+            return this;
+        }
+
+        public Config<K, V> withConsumerConfig(
+                String topic,
+                Deserializer<K> keyDeserializer,
+                Deserializer<V> valueDeserializer,
+                Consumer<ConsumerRecord<K, V>> consumer
+        ) {
+            this.consumerConfig = new TopicConsumerConfig<>(topic, keyDeserializer, valueDeserializer, toTopicConsumer(consumer));
             return this;
         }
 
