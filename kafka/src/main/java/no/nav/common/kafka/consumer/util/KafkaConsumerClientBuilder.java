@@ -92,7 +92,7 @@ public class KafkaConsumerClientBuilder {
         Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
 
         consumerConfigs.forEach((consumerConfig) -> {
-            // TODO: Validate config
+            validateConfig(consumerConfig);
             consumers.put(
                     consumerConfig.getConsumerConfig().getTopic(),
                     createTopicConsumer(consumerConfig)
@@ -110,6 +110,28 @@ public class KafkaConsumerClientBuilder {
         }
 
         return new KafkaConsumerClientImpl<>(config);
+    }
+
+    private static void validateConfig(Config<?, ?> consumerConfig) {
+        if (consumerConfig.consumerConfig == null) {
+            throw new IllegalStateException("Config is missing");
+        }
+
+        if (consumerConfig.consumerConfig.topic == null) {
+            throw new IllegalStateException("Topic is missing");
+        }
+
+        if (consumerConfig.consumerConfig.keyDeserializer == null) {
+            throw new IllegalStateException("Key deserializer is missing");
+        }
+
+        if (consumerConfig.consumerConfig.valueDeserializer == null) {
+            throw new IllegalStateException("Value deserializer is missing");
+        }
+
+        if (consumerConfig.consumerConfig.consumer == null) {
+            throw new IllegalStateException("Topic consumer is missing");
+        }
     }
 
     public static <K, V> TopicConsumer<byte[], byte[]> createTopicConsumer(Config<K, V> consumerConfig) {
