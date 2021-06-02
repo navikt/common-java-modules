@@ -119,10 +119,10 @@ public class ConsumerUtils {
         };
     }
 
-    public static List<TopicConsumerConfig<?, ?>> findConsumerConfigsWithStoreOnFailure(List<KafkaConsumerClientBuilder.Config<?, ?>> configs) {
-        return configs.stream()
+    public static List<TopicConsumerConfig<?, ?>> findConsumerConfigsWithStoreOnFailure(List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs) {
+        return topicConfigs.stream()
                 .filter(c -> c.getConsumerRepository() != null)
-                .map(KafkaConsumerClientBuilder.Config::getConsumerConfig)
+                .map(KafkaConsumerClientBuilder.TopicConfig::getConsumerConfig)
                 .collect(Collectors.toList());
     }
 

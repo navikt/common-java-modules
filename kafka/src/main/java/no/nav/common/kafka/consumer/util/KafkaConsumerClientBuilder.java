@@ -18,7 +18,7 @@ import static no.nav.common.kafka.consumer.util.ConsumerUtils.toTopicConsumer;
 @Slf4j
 public class KafkaConsumerClientBuilder {
 
-    private final List<Config<?, ?>> consumerConfigs = new ArrayList<>();
+    private final List<TopicConfig<?, ?>> consumerTopicConfigs = new ArrayList<>();
     
     private Properties properties;
 
@@ -66,13 +66,13 @@ public class KafkaConsumerClientBuilder {
         return this;
     }
 
-    public KafkaConsumerClientBuilder withConfig(Config<?, ?> config) {
-        consumerConfigs.add(config);
+    public KafkaConsumerClientBuilder withTopicConfig(TopicConfig<?, ?> topicConfig) {
+        consumerTopicConfigs.add(topicConfig);
         return this;
     }
 
-    public KafkaConsumerClientBuilder withConfigs(List<Config<?, ?>> configs) {
-        consumerConfigs.addAll(configs);
+    public KafkaConsumerClientBuilder withTopicConfigs(List<TopicConfig<?, ?>> topicConfigs) {
+        consumerTopicConfigs.addAll(topicConfigs);
         return this;
     }
 
@@ -93,11 +93,11 @@ public class KafkaConsumerClientBuilder {
 
         Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
 
-        consumerConfigs.forEach((consumerConfig) -> {
-            validateConfig(consumerConfig);
+        consumerTopicConfigs.forEach((consumerTopicConfig) -> {
+            validateConfig(consumerTopicConfig);
             consumers.put(
-                    consumerConfig.getConsumerConfig().getTopic(),
-                    createTopicConsumer(consumerConfig)
+                    consumerTopicConfig.getConsumerConfig().getTopic(),
+                    createTopicConsumer(consumerTopicConfig)
             );
         });
 
@@ -114,32 +114,32 @@ public class KafkaConsumerClientBuilder {
         return new KafkaConsumerClientImpl<>(config);
     }
 
-    private static void validateConfig(Config<?, ?> consumerConfig) {
-        if (consumerConfig.consumerConfig == null) {
+    private static void validateConfig(TopicConfig<?, ?> consumerTopicConfig) {
+        if (consumerTopicConfig.consumerConfig == null) {
             throw new IllegalStateException("Config is missing");
         }
 
-        if (consumerConfig.consumerConfig.topic == null) {
+        if (consumerTopicConfig.consumerConfig.topic == null) {
             throw new IllegalStateException("Topic is missing");
         }
 
-        if (consumerConfig.consumerConfig.keyDeserializer == null) {
+        if (consumerTopicConfig.consumerConfig.keyDeserializer == null) {
             throw new IllegalStateException("Key deserializer is missing");
         }
 
-        if (consumerConfig.consumerConfig.valueDeserializer == null) {
+        if (consumerTopicConfig.consumerConfig.valueDeserializer == null) {
             throw new IllegalStateException("Value deserializer is missing");
         }
 
-        if (consumerConfig.consumerConfig.consumer == null) {
+        if (consumerTopicConfig.consumerConfig.consumer == null) {
             throw new IllegalStateException("Topic consumer is missing");
         }
     }
 
-    public static <K, V> TopicConsumer<byte[], byte[]> createTopicConsumer(Config<K, V> consumerConfig) {
-        var listeners = consumerConfig.getListeners();
-        var config = consumerConfig.getConsumerConfig();
-        var consumerRepository = consumerConfig.getConsumerRepository();
+    public static <K, V> TopicConsumer<byte[], byte[]> createTopicConsumer(TopicConfig<K, V> consumerTopicConfig) {
+        var listeners = consumerTopicConfig.getListeners();
+        var config = consumerTopicConfig.getConsumerConfig();
+        var consumerRepository = consumerTopicConfig.getConsumerRepository();
 
         TopicConsumer<byte[], byte[]> topicConsumer = (record) -> {
             ConsumeStatus status = ConsumerUtils.safeConsume(ConsumerUtils.createTopicConsumer(config), record);
@@ -170,7 +170,7 @@ public class KafkaConsumerClientBuilder {
         return topicConsumer;
     }
     
-    public static class Config<K, V> {
+    public static class TopicConfig<K, V> {
 
         private final List<TopicConsumerListener<K, V>> listeners = new ArrayList<>();
 
@@ -178,12 +178,12 @@ public class KafkaConsumerClientBuilder {
 
         private KafkaConsumerRepository consumerRepository;
 
-        public Config<K, V> withConsumerConfig(TopicConsumerConfig<K, V> consumerConfig) {
+        public TopicConfig<K, V> withConsumerConfig(TopicConsumerConfig<K, V> consumerConfig) {
             this.consumerConfig = consumerConfig;
             return this;
         }
 
-        public Config<K, V> withConsumerConfig(
+        public TopicConfig<K, V> withConsumerConfig(
                 String topic,
                 Deserializer<K> keyDeserializer,
                 Deserializer<V> valueDeserializer,
@@ -193,7 +193,7 @@ public class KafkaConsumerClientBuilder {
             return this;
         }
 
-        public Config<K, V> withConsumerConfig(
+        public TopicConfig<K, V> withConsumerConfig(
                 String topic,
                 Deserializer<K> keyDeserializer,
                 Deserializer<V> valueDeserializer,
@@ -203,27 +203,27 @@ public class KafkaConsumerClientBuilder {
             return this;
         }
 
-        public Config<K, V> withLogging() {
+        public TopicConfig<K, V> withLogging() {
             listeners.add(new TopicConsumerLogger<>());
             return this;
         }
 
-        public Config<K, V> withMetrics(MeterRegistry meterRegistry) {
+        public TopicConfig<K, V> withMetrics(MeterRegistry meterRegistry) {
             listeners.add(new TopicConsumerMetrics<>(meterRegistry));
             return this;
         }
 
-        public Config<K, V> withStoreOnFailure(KafkaConsumerRepository consumerRepository) {
+        public TopicConfig<K, V> withStoreOnFailure(KafkaConsumerRepository consumerRepository) {
             this.consumerRepository = consumerRepository;
             return this;
         }
 
-        public Config<K, V> withListener(TopicConsumerListener<K, V> consumerListener) {
+        public TopicConfig<K, V> withListener(TopicConsumerListener<K, V> consumerListener) {
             listeners.add(consumerListener);
             return this;
         }
 
-        public Config<K, V> withListeners(List<TopicConsumerListener<K, V>> consumerListeners) {
+        public TopicConfig<K, V> withListeners(List<TopicConsumerListener<K, V>> consumerListeners) {
             listeners.addAll(consumerListeners);
             return this;
         }
