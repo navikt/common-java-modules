@@ -19,19 +19,31 @@ Legg til følgende i pom.xml. Hvis man allerede har avhengigheter som trekker in
 ### Basic
 
 ```java
+List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs = List.of(
+                new KafkaConsumerClientBuilder.TopicConfig<String, String>()
+                        .withConsumerConfig(
+                                "topic1",
+                                stringDeserializer(),
+                                stringDeserializer(),
+                                (record) -> { System.out.println(record); }
+                        ),
+                new KafkaConsumerClientBuilder.TopicConfig<String, String>()
+                        .withConsumerConfig(
+                                "topic2",
+                                stringDeserializer(),
+                                stringDeserializer(),
+                                 (record) -> { 
+                                    somethingThatMightThrowAnException();
+                                    return ConsumeStatus.OK;
+                                }
+                        )
+        );
+
 Credentials credentials = new Credentials("username", "password");
 
 KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
         .withProps(KafkaPropertiesPreset.defaultConsumerProperties("group_id", "broker_url", credentials))
-        .withConsumer("topic1", (record) -> {
-            System.out.println("Record from topic 1: " + record.value());
-            return ConsumeStatus.OK;
-        })
-        .withConsumer("topic2", (record) -> {
-            System.out.println("Record from topic 2: " + record.value());
-            somethingThatMightThrowAnException();
-            return ConsumeStatus.OK;
-        })
+        .withTopicConfigs(topicConfigs)
         .build();
 
 consumerClient.start();
@@ -47,7 +59,7 @@ og konsumering vil bli prøvd på nytt helt til konsumeren returnerer `ConsumeSt
 
 Feilhåndtering for konsumere er anbefalt i de tilfellene hvor det kan oppstå feil i koden som konsumerer meldinger 
 og man ønsker å lagre den feilende meldingen og fortsette å konsumere slik at ting ikke stopper opp.
-Feilhåndtering for consumer settes opp pr topic ved bruk av `StoreOnFailureTopicConsumer`. Dette kan enten gjøres manuelt, eller ved bruk av `KafkaConsumerClientBuilder`.
+Feilhåndtering for consumer settes opp pr topic ved bruk av `StoreOnFailureTopicConsumer`. Dette kan enten gjøres manuelt, eller ved bruk av `KafkaConsumerClientBuilder.TopicConfig`.
 
 For å lagre feilede meldinger så trengs det å legge til nye tabeller ved bruk av migreringsscript.
 
@@ -99,33 +111,41 @@ Credentials credentials = new Credentials("username", "password");
 
 KafkaConsumerRepository kafkaConsumerRepository = new OracleConsumerRepository(dataSource);
 
-TopicConsumer<String, String> topic1Consumer = new JsonTopicConsumer<>(KafkaMessageDTO.class, (dto) -> ConsumeStatus.OK);
-TopicConsumer<String, String> topic2Consumer = new JsonTopicConsumer<>(KafkaMessageDTO.class, (dto) -> ConsumeStatus.OK);
-
-Map<String, TopicConsumer<String, String>> consumers = Map.of(
-        "topic1", topic1Consumer,
-        "topic2", topic2Consumer
+var topicConfigs = List.of(
+    new KafkaConsumerClientBuilder.TopicConfig<String, String>()
+         .withStoreOnFailure(kafkaConsumerRepository) // Enable store on failure for topic1
+         .withConsumerConfig(
+                 "topic1",
+                 stringDeserializer(),
+                 stringDeserializer(),
+                 (record) -> { System.out.println(record); }
+         )
+    new KafkaConsumerClientBuilder.TopicConfig<String, String>()
+         .withConsumerConfig(
+                 "topic2",
+                 stringDeserializer(),
+                 stringDeserializer(),
+                 (record) -> { System.out.println(record); }
+         )
 );
+
 
 KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
                 .withProps(KafkaPropertiesPreset.onPremDefaultConsumerProperties("group_id", "broker_url", credentials))
-                .withRepository(kafkaConsumerRepository) // Required for storing records
-                .withSerializers(new StringSerializer(), new StringSerializer()) // Required for serializing the record into byte[]
-                .withStoreOnFailureConsumers(consumers) // Enable store on failure for topics
+                .withTopicConfigs(topicConfigs)
                 .build();
 
-consumerClient.start(); // Records will be stored in database if the consumer fails
+consumerClient.start(); // If consumption of records from topic1 fails, then the records will be stored
 
 
 LockProvider lockProvider = new JdbcTemplateLockProvider(/* JdbcTemplate goes here */);
 
-Map<String, StoredRecordConsumer> storedRecordConsumers = ConsumerUtils.toStoredRecordConsumerMap(
-        consumers,
-        new StringDeserializer(),
-        new StringDeserializer()
-);
-
-KafkaConsumerRecordProcessor consumerRecordProcessor = new KafkaConsumerRecordProcessor(lockProvider, kafkaConsumerRepository, storedRecordConsumers);
+KafkaConsumerRecordProcessor consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
+                .builder()
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(topicConfigs))
+                .build();
 
 consumerRecordProcessor.start(); // Will periodically consume stored messages
 ```
@@ -139,16 +159,15 @@ Det vil derfor potensielt ligge 1 melding som blokker andre meldinger, f.eks. fo
 
 Det er lagt til støtte for et sett med default prometheus metrikker for consumer/producer.
 
-Metrikker for consumer settes opp pr topic:
+Metrikker for consumer settes opp pr topic ved bruk av `KafkaConsumerClientBuilder.TopicConfig`:
 ```java
 MeterRegistry registry = /* ... */;
 
-KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-        /* ... */
-        .withMetrics(registry) // Will enable metrics for all topics configured on this client
-        .withLogging() // (Optional) Will enable additional logging for all topics configured on this client
-        /* ... */
-        .build();
+new KafkaConsumerClientBuilder.TopicConfig<String, String>()
+         .withMetrics(registry)
+         .withLogging()
+         .withListener((record, status) -> { /* Can add custom logging or metrics here */})
+         .withConsumerConfig(/*...*/)
 ```
 
 ## Producer
