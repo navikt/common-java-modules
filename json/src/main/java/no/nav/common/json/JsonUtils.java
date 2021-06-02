@@ -51,7 +51,7 @@ public class JsonUtils {
         return objectMapper.readValue(inputStream, listType(valueClass));
     }
 
-    private static <T> CollectionType listType(Class<T> valueClass) {
+    private static CollectionType listType(Class<?> valueClass) {
         return objectMapper.getTypeFactory().constructCollectionType(List.class, valueClass);
     }
 

@@ -3,11 +3,11 @@ package no.nav.common.kafka.consumer.util;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
-import no.nav.common.kafka.consumer.feilhandtering.StoredRecordConsumer;
 import no.nav.common.kafka.util.KafkaUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.record.TimestampType;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.slf4j.Logger;
@@ -16,15 +16,20 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
 public class ConsumerUtils {
 
+    public final static Serializer<byte[]> BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
+
     private final static Logger log = LoggerFactory.getLogger(ConsumerUtils.class);
+
+    public static StoredConsumerRecord mapToStoredRecord(ConsumerRecord<byte[], byte[]> record) {
+        return mapToStoredRecord(record, BYTE_ARRAY_SERIALIZER, BYTE_ARRAY_SERIALIZER);
+    }
 
     public static <K, V> StoredConsumerRecord mapToStoredRecord(
             ConsumerRecord<K, V> record,
@@ -46,29 +51,10 @@ public class ConsumerUtils {
         );
     }
 
-    public static StoredConsumerRecord mapToStoredRecord(ConsumerRecord<byte[], byte[]> record) {
-        String headersJson = KafkaUtils.headersToJson(record.headers());
-        return new StoredConsumerRecord(
-                record.topic(),
-                record.partition(),
-                record.offset(),
-                record.key(),
-                record.value(),
-                headersJson,
-                record.timestamp()
-        );
-    }
-
-    public static <K, V> ConsumerRecord<K, V> mapFromStoredRecord(
-            StoredConsumerRecord record,
-            Deserializer<K> keyDeserializer,
-            Deserializer<V> valueDeserializer
-    ) {
-        K key = keyDeserializer.deserialize(record.getTopic(), record.getKey());
-        V value = valueDeserializer.deserialize(record.getTopic(), record.getValue());
+    public static ConsumerRecord<byte[], byte[]> mapFromStoredRecord(StoredConsumerRecord record) {
         Headers headers = KafkaUtils.jsonToHeaders(record.getHeadersJson());
 
-        ConsumerRecord<K, V> consumerRecord = new ConsumerRecord<>(
+        ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>(
                 record.getTopic(),
                 record.getPartition(),
                 record.getOffset(),
@@ -77,8 +63,8 @@ public class ConsumerUtils {
                 ConsumerRecord.NULL_CHECKSUM,
                 ConsumerRecord.NULL_SIZE,
                 ConsumerRecord.NULL_SIZE,
-                key,
-                value
+                record.getKey(),
+                record.getValue()
         );
 
         headers.forEach(header -> consumerRecord.headers().add(header));
@@ -86,26 +72,58 @@ public class ConsumerUtils {
         return consumerRecord;
     }
 
-    public static <K, V> Map<String, StoredRecordConsumer> toStoredRecordConsumerMap(
-            Map<String, TopicConsumer<K, V>> consumerMap,
+    public static <K, V> ConsumerRecord<K, V> deserializeConsumerRecord(
+            ConsumerRecord<byte[], byte[]> record,
             Deserializer<K> keyDeserializer,
             Deserializer<V> valueDeserializer
     ) {
-        Map<String, StoredRecordConsumer> storedRecordConsumerMap = new HashMap<>();
+        K key = keyDeserializer.deserialize(record.topic(), record.key());
+        V value = valueDeserializer.deserialize(record.topic(), record.value());
 
-        consumerMap.forEach((topic, topicConsumer) -> {
-            storedRecordConsumerMap.put(topic, toStoredRecordConsumer(topicConsumer, keyDeserializer, valueDeserializer));
-        });
-
-        return storedRecordConsumerMap;
+        return new ConsumerRecord<>(
+                record.topic(),
+                record.partition(),
+                record.offset(),
+                record.timestamp(),
+                record.timestampType(),
+                ConsumerRecord.NULL_CHECKSUM,
+                ConsumerRecord.NULL_SIZE,
+                ConsumerRecord.NULL_SIZE,
+                key,
+                value
+        );
     }
 
-    public static <K, V> StoredRecordConsumer toStoredRecordConsumer(
-            TopicConsumer<K, V> topicConsumer,
-            Deserializer<K> keyDeserializer,
-            Deserializer<V> valueDeserializer
-    ) {
-        return storedRecord -> topicConsumer.consume(mapFromStoredRecord(storedRecord, keyDeserializer, valueDeserializer));
+    public static Map<String, TopicConsumer<byte[], byte[]>> createTopicConsumers(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
+        Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
+        topicConsumerConfigs.forEach(config -> consumers.put(config.getTopic(), createTopicConsumer(config)));
+        return consumers;
+    }
+
+    public static <K, V> TopicConsumer<byte[], byte[]> createTopicConsumer(TopicConsumerConfig<K, V> config) {
+        return record -> {
+            ConsumerRecord<K, V> deserializedRecord = deserializeConsumerRecord(
+                    record,
+                    config.getKeyDeserializer(),
+                    config.getValueDeserializer()
+            );
+
+            return config.getConsumer().consume(deserializedRecord);
+        };
+    }
+
+    public static <K, V> TopicConsumer<K, V> toTopicConsumer(Consumer<ConsumerRecord<K, V>> consumer) {
+        return (record) -> {
+            consumer.accept(record);
+            return ConsumeStatus.OK;
+        };
+    }
+
+    public static List<TopicConsumerConfig<?, ?>> findConsumerConfigsWithStoreOnFailure(List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs) {
+        return topicConfigs.stream()
+                .filter(c -> c.getConsumerRepository() != null)
+                .map(KafkaConsumerClientBuilder.TopicConfig::getConsumerConfig)
+                .collect(Collectors.toList());
     }
 
     public static <K, V> TopicConsumer<K, V> aggregateConsumer(final List<TopicConsumer<K, V>> consumers) {
@@ -126,10 +144,11 @@ public class ConsumerUtils {
 
     /**
      * Used to wrap consumers that dont return a ConsumeStatus
+     *
      * @param consumer the consumer which will consume the record
-     * @param record the kafka record to consume
-     * @param <K> topic key
-     * @param <V> topic value
+     * @param record   the kafka record to consume
+     * @param <K>      topic key
+     * @param <V>      topic value
      * @return ConsumeStatus.OK
      */
     public static <K, V> ConsumeStatus consume(Consumer<ConsumerRecord<K, V>> consumer, ConsumerRecord<K, V> record) {
@@ -165,21 +184,4 @@ public class ConsumerUtils {
         }
     }
 
-    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, Function<D, ConsumeStatus> consumer) {
-        return new JsonTopicConsumer<>(dataClass, (k, t) -> consumer.apply(t));
-    }
-
-    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, Consumer<D> consumer) {
-        return new JsonTopicConsumer<>(dataClass, (record, data) -> {
-            consumer.accept(data);
-            return ConsumeStatus.OK;
-        });
-    }
-
-    public static <K, V, D> JsonTopicConsumer<K, V, D> jsonConsumer(Class<D> dataClass, BiConsumer<ConsumerRecord<K, V>, D> consumer) {
-        return new JsonTopicConsumer<>(dataClass, (record, data) -> {
-            consumer.accept(record, data);
-            return ConsumeStatus.OK;
-        });
-    }
 }

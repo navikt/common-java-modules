@@ -4,10 +4,12 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessorConfig;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
-import no.nav.common.kafka.consumer.feilhandtering.StoredRecordConsumer;
+import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 
 import java.time.Duration;
-import java.util.Map;
+import java.util.List;
+
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.createTopicConsumers;
 
 public class KafkaConsumerRecordProcessorBuilder {
 
@@ -21,7 +23,7 @@ public class KafkaConsumerRecordProcessorBuilder {
 
     private KafkaConsumerRepository kafkaConsumerRepository;
 
-    private Map<String, StoredRecordConsumer> recordConsumers;
+    private List<TopicConsumerConfig<?, ?>> topicConsumerConfigs;
 
     private final KafkaConsumerRecordProcessorConfig config = new KafkaConsumerRecordProcessorConfig(
             DEFAULT_ERROR_TIMEOUT,
@@ -42,8 +44,8 @@ public class KafkaConsumerRecordProcessorBuilder {
         return this;
     }
 
-    public KafkaConsumerRecordProcessorBuilder withRecordConsumers(Map<String, StoredRecordConsumer> recordConsumers) {
-        this.recordConsumers = recordConsumers;
+    public KafkaConsumerRecordProcessorBuilder withConsumerConfigs(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
+        this.topicConsumerConfigs = topicConsumerConfigs;
         return this;
     }
 
@@ -71,14 +73,15 @@ public class KafkaConsumerRecordProcessorBuilder {
             throw new IllegalStateException("Cannot build kafka consumer record processor without kafkaConsumerRepository");
         }
 
-        if (recordConsumers == null) {
+        if (topicConsumerConfigs == null) {
             throw new IllegalStateException("Cannot build kafka consumer record processor without recordConsumers");
         }
 
         return new KafkaConsumerRecordProcessor(
                 lockProvider,
                 kafkaConsumerRepository,
-                recordConsumers,
-                config);
+                createTopicConsumers(topicConsumerConfigs),
+                config
+        );
     }
 }

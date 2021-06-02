@@ -4,6 +4,7 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
+import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.mapFromStoredRecord;
 
 public class KafkaConsumerRecordProcessor {
 
@@ -28,7 +30,7 @@ public class KafkaConsumerRecordProcessor {
 
     private final KafkaConsumerRepository kafkaConsumerRepository;
 
-    private final Map<String, StoredRecordConsumer> recordConsumers;
+    private final Map<String, TopicConsumer<byte[], byte[]>> topicConsumers;
 
     private final KafkaConsumerRecordProcessorConfig config;
 
@@ -39,13 +41,14 @@ public class KafkaConsumerRecordProcessor {
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
             KafkaConsumerRepository kafkaRepository,
-            Map<String, StoredRecordConsumer> recordConsumers,
+            Map<String, TopicConsumer<byte[], byte[]>> topicConsumers,
             KafkaConsumerRecordProcessorConfig config
     ) {
         this.lockProvider = lockProvider;
         this.kafkaConsumerRepository = kafkaRepository;
-        this.recordConsumers = recordConsumers;
         this.config = config;
+        this.topicConsumers = topicConsumers;
+
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
@@ -67,7 +70,7 @@ public class KafkaConsumerRecordProcessor {
     private void recordHandlerLoop() {
         isRunning = true;
 
-        List<String> topics = new ArrayList<>(recordConsumers.keySet());
+        List<String> topics = new ArrayList<>(topicConsumers.keySet());
 
         try {
             while (isRunning) {
@@ -114,7 +117,7 @@ public class KafkaConsumerRecordProcessor {
                 List<StoredConsumerRecord> records = kafkaConsumerRepository
                         .getRecords(topicPartition.topic(), topicPartition.partition(), config.recordBatchSize);
 
-                StoredRecordConsumer recordConsumer = recordConsumers.get(topicPartition.topic());
+                TopicConsumer<byte[], byte[]> recordConsumer = topicConsumers.get(topicPartition.topic());
 
                 List<Long> recordsToDelete = new ArrayList<>();
                 Map<TopicPartition, Set<Bytes>> failedKeys = new HashMap<>();
@@ -135,7 +138,7 @@ public class KafkaConsumerRecordProcessor {
                     Exception exception = null;
 
                     try {
-                        status = recordConsumer.consume(r);
+                        status = recordConsumer.consume(mapFromStoredRecord(r));
                     } catch (Exception e) {
                         exception = e;
                         status = ConsumeStatus.FAILED;
