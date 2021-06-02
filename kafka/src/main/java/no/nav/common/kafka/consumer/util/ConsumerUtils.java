@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -116,6 +117,13 @@ public class ConsumerUtils {
             consumer.accept(record);
             return ConsumeStatus.OK;
         };
+    }
+
+    public static List<TopicConsumerConfig<?, ?>> findConsumerConfigsWithStoreOnFailure(List<KafkaConsumerClientBuilder.Config<?, ?>> configs) {
+        return configs.stream()
+                .filter(c -> c.getConsumerRepository() != null)
+                .map(KafkaConsumerClientBuilder.Config::getConsumerConfig)
+                .collect(Collectors.toList());
     }
 
     public static <K, V> TopicConsumer<K, V> aggregateConsumer(final List<TopicConsumer<K, V>> consumers) {

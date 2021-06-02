@@ -3,7 +3,6 @@ package no.nav.common.kafka.consumer.feilhandtering;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -15,16 +14,11 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_not_store_when_key_is_not_stored_and_consumption_succeeded() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<String, String> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer<String, String> storeOnFailureConsumer = new StoreOnFailureTopicConsumer<>(
-                consumer,
-                consumerRepository,
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key", "value");
+        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(false);
         when(consumer.consume(any())).thenReturn(ConsumeStatus.OK);
@@ -38,16 +32,11 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_not_store_when_key_is_null_and_key_with_null_is_stored() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<String, String> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer<String, String> storeOnFailureConsumer = new StoreOnFailureTopicConsumer<>(
-                consumer,
-                consumerRepository,
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, null, "value");
+        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, null, "value".getBytes());
 
         when(consumer.consume(any())).thenReturn(ConsumeStatus.OK);
 
@@ -60,16 +49,11 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_store_when_has_key_in_database() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<String, String> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer<String, String> storeOnFailureConsumer = new StoreOnFailureTopicConsumer<>(
-                consumer,
-                consumerRepository,
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key", "value");
+        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(true);
         when(consumer.consume(any())).thenReturn(ConsumeStatus.OK);
@@ -83,16 +67,11 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_store_when_consumer_returns_failed_status() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<String, String> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer<String, String> storeOnFailureConsumer = new StoreOnFailureTopicConsumer<>(
-                consumer,
-                consumerRepository,
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key", "value");
+        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(false);
         when(consumer.consume(any())).thenReturn(ConsumeStatus.FAILED);
@@ -106,16 +85,11 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_store_when_consumer_throws_exception() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<String, String> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer<String, String> storeOnFailureConsumer = new StoreOnFailureTopicConsumer<>(
-                consumer,
-                consumerRepository,
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic", 1, 1, "key", "value");
+        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(false);
         when(consumer.consume(any())).thenThrow(new RuntimeException());
