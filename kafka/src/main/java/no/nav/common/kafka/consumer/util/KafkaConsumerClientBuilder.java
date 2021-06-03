@@ -22,8 +22,6 @@ public class KafkaConsumerClientBuilder {
     
     private Properties properties;
 
-    private Properties additionalProperties;
-
     private long pollDurationMs = -1;
 
     private boolean useRollingCredentials;
@@ -36,33 +34,6 @@ public class KafkaConsumerClientBuilder {
 
     public KafkaConsumerClientBuilder withProperties(@NonNull Properties properties) {
         this.properties = (Properties) properties.clone();
-        return this;
-    }
-
-    /**
-     * Adds additional properties that will overwrite properties from {@link #withProperties(Properties)}.
-     * Useful for configuring a consumer with additional properties when using a preset from
-     * {@link no.nav.common.kafka.util.KafkaPropertiesPreset} as the base.
-     * @param properties additional properties
-     * @return this builder
-     */
-    public KafkaConsumerClientBuilder withAdditionalProperties(@NonNull Properties properties) {
-        this.additionalProperties = (Properties) properties.clone();
-        return this;
-    }
-
-    /**
-     * Adds an additional property that will overwrite properties from {@link #withProperties(Properties)}.
-     * Useful for configuring a consumer with additional properties when using a preset from
-     * {@link no.nav.common.kafka.util.KafkaPropertiesPreset} as the base.
-     * @return this builder
-     */
-    public KafkaConsumerClientBuilder withAdditionalProperty(@NonNull String name, Object value) {
-        if (additionalProperties == null) {
-            additionalProperties = new Properties();
-        }
-
-        additionalProperties.put(name, value);
         return this;
     }
 
