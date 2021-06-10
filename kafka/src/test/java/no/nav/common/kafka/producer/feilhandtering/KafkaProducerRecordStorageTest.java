@@ -1,8 +1,8 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -15,16 +15,12 @@ public class KafkaProducerRecordStorageTest {
     public void should_store_record_in_repository() {
         KafkaProducerRepository producerRepository = mock(KafkaProducerRepository.class);
 
-        KafkaProducerRecordStorage<String, String> producerRecordStorage = new KafkaProducerRecordStorage<>(
-                producerRepository,
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        KafkaProducerRecordStorage producerRecordStorage = new KafkaProducerRecordStorage(producerRepository);
 
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic", "key", "value");
         producerRecord.headers().add(new RecordHeader("header", "header-value".getBytes()));
 
-        producerRecordStorage.store(producerRecord);
+        producerRecordStorage.store(ProducerUtils.serializeStringRecord(producerRecord));
 
         ArgumentCaptor<StoredProducerRecord> recordCaptor = ArgumentCaptor.forClass(StoredProducerRecord.class);
 
@@ -45,13 +41,12 @@ public class KafkaProducerRecordStorageTest {
         // Could be any exception
         when(producerRepository.storeRecord(any())).thenThrow(new IllegalStateException());
 
-        KafkaProducerRecordStorage<String, String> producerRecordStorage = new KafkaProducerRecordStorage<>(
-                producerRepository,
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        KafkaProducerRecordStorage producerRecordStorage = new KafkaProducerRecordStorage(producerRepository);
 
-        assertThrows(IllegalStateException.class, () -> producerRecordStorage.store(new ProducerRecord<>("topic", "key", "value")));
+        assertThrows(
+                IllegalStateException.class,
+                () -> producerRecordStorage.store(ProducerUtils.serializeStringRecord(new ProducerRecord<>("topic", "key", "value")))
+        );
     }
 
 }

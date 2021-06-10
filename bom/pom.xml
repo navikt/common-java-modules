@@ -35,6 +35,7 @@
         <jaxb-api.version>2.3.1</jaxb-api.version>
         <hk2.version>2.5.0-b42</hk2.version>
         <okhttp.version>3.14.7</okhttp.version>
+        <json-schema-validation.version>1.12.2</json-schema-validation.version>
 
         <!-- DIV -->
         <micrometer.version>1.1.0</micrometer.version>
@@ -286,6 +287,12 @@
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>20160810</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.everit-org.json-schema</groupId>
+                <artifactId>org.everit.json.schema</artifactId>
+                <version>${json-schema-validation.version}</version>
             </dependency>
 
             <!--Logging-->
