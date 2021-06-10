@@ -23,7 +23,7 @@ import static java.lang.String.format;
 
 public class ConsumerUtils {
 
-    public final static Serializer<byte[]> BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
+    private final static Serializer<byte[]> BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
 
     private final static Logger log = LoggerFactory.getLogger(ConsumerUtils.class);
 
