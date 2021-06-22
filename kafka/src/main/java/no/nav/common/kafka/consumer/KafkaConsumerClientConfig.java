@@ -2,9 +2,7 @@ package no.nav.common.kafka.consumer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import no.nav.common.kafka.consumer.util.ConsumerClientExceptionListener;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,8 +17,6 @@ public class KafkaConsumerClientConfig<K, V> {
     Map<String, TopicConsumer<K, V>> topics;
 
     long pollDurationMs;
-
-    List<ConsumerClientExceptionListener> exceptionListeners;
 
     public KafkaConsumerClientConfig(Properties properties, Map<String, TopicConsumer<K, V>> topics) {
         this.properties = properties;
