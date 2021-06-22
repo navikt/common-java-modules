@@ -17,7 +17,6 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -123,8 +122,7 @@ public class KafkaConsumerClientTest {
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 100)),
-                10,
-                Collections.emptyList()
+                10
         );
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
@@ -277,8 +275,7 @@ public class KafkaConsumerClientTest {
                         TEST_TOPIC_1, consumerWithCounter(counter1, 100),
                         TEST_TOPIC_2, consumerWithCounter(counter2, 100)
                 ),
-                10,
-                Collections.emptyList()
+                10
         );
 
         for (int i = 0; i < 5; i++) {

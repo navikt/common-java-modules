@@ -24,8 +24,6 @@ public class KafkaConsumerClientBuilder {
 
     private long pollDurationMs = -1;
 
-    private boolean useRollingCredentials;
-
     private KafkaConsumerClientBuilder() {}
 
     public static KafkaConsumerClientBuilder builder() {
@@ -52,11 +50,6 @@ public class KafkaConsumerClientBuilder {
         return this;
     }
 
-    public KafkaConsumerClientBuilder withRollingCredentials() {
-        useRollingCredentials = true;
-        return this;
-    }
-
     public KafkaConsumerClient build() {
         if (properties == null) {
             throw new IllegalStateException("Cannot build kafka consumer without properties");
@@ -76,10 +69,6 @@ public class KafkaConsumerClientBuilder {
 
         if (pollDurationMs >= 0) {
             config.setPollDurationMs(pollDurationMs);
-        }
-
-        if (useRollingCredentials) {
-            return new RollingCredentialsKafkaConsumerClient(config);
         }
 
         return new KafkaConsumerClientImpl<>(config);

@@ -1,6 +1,5 @@
 package no.nav.common.kafka.consumer;
 
-import no.nav.common.kafka.consumer.util.ConsumerClientExceptionListener;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.String.format;
 
@@ -123,13 +121,13 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
             consumer.subscribe(topicNames, this);
 
             while (clientState == ClientState.RUNNING) {
-                AtomicReference<ConsumerRecords<K, V>> records = new AtomicReference<>();
+                ConsumerRecords<K, V> records;
 
                 revokedOrFailedPartitions.clear();
                 offsetsToCommit.clear();
 
                 try {
-                    executeWithErrorListener(() -> records.set(consumer.poll(Duration.ofMillis(config.pollDurationMs))));
+                    records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
                 } catch (WakeupException e) {
                     log.info("Polling was cancelled by wakeup(). Stopping kafka consumer client...");
                     return;
@@ -139,15 +137,15 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                     continue;
                 }
 
-                if (records.get().isEmpty()) {
+                if (records.isEmpty()) {
                     continue;
                 }
 
-                int totalRecords = records.get().count();
+                int totalRecords = records.count();
 
                 processedRecordsLatch = new CountDownLatch(totalRecords);
 
-                for (ConsumerRecord<K, V> record : records.get()) {
+                for (ConsumerRecord<K, V> record : records) {
                     String topic = record.topic();
 
                     TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
@@ -230,35 +228,10 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     private void commitCurrentOffsets() {
         if (!offsetsToCommit.isEmpty()) {
-            executeWithErrorListener(() -> consumer.commitSync(offsetsToCommit, Duration.ofSeconds(3)));
+            consumer.commitSync(offsetsToCommit, Duration.ofSeconds(3));
             log.info("Offsets committed: " + offsetsToCommit.toString());
             offsetsToCommit.clear();
         }
-    }
-
-    private void executeWithErrorListener(Runnable runnable) {
-        try {
-            runnable.run();
-        } catch (Exception e) {
-            forwardExceptionToListener(e);
-            throw e;
-        }
-    }
-
-    private void forwardExceptionToListener(Exception exception) {
-        List<ConsumerClientExceptionListener> listeners = config.getExceptionListeners();
-
-        if (listeners == null || listeners.isEmpty()) {
-            return;
-        }
-
-        listeners.forEach(listener -> {
-            try {
-                listener.onExceptionCaught(exception);
-            } catch (Exception e) {
-                log.error("Unexpected failure from exception listener", e);
-            }
-        });
     }
 
     private static void validateConfig(KafkaConsumerClientConfig<?, ?> config) {

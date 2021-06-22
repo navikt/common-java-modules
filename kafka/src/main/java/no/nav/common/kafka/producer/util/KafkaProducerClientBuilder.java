@@ -4,7 +4,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import lombok.NonNull;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
-import no.nav.common.kafka.producer.RollingCredentialsKafkaProducerClient;
 
 import java.util.Properties;
 
@@ -15,8 +14,6 @@ public class KafkaProducerClientBuilder<K, V> {
     private Properties additionalProperties;
 
     private MeterRegistry meterRegistry;
-
-    private boolean useRollingCredentialsClient;
 
     private KafkaProducerClientBuilder() {}
 
@@ -63,11 +60,6 @@ public class KafkaProducerClientBuilder<K, V> {
         return this;
     }
 
-    public KafkaProducerClientBuilder<K, V> withRollingCredentials() {
-        useRollingCredentialsClient = true;
-        return this;
-    }
-
     public KafkaProducerClient<K, V> build() {
         if (properties == null) {
             throw new IllegalStateException("Cannot build kafka producer without properties");
@@ -75,10 +67,6 @@ public class KafkaProducerClientBuilder<K, V> {
 
         if (additionalProperties != null) {
             properties.putAll(additionalProperties);
-        }
-
-        if (useRollingCredentialsClient) {
-            return new RollingCredentialsKafkaProducerClient<>(() -> createClient(properties, meterRegistry));
         }
 
         return createClient(properties, meterRegistry);
