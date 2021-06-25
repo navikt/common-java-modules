@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
- * {@link KafkaConsumerClient} with support for toggling the consumer on/off based off the result from a {@link Supplier<Boolean>}
+ * {@link KafkaConsumerClient} with support for toggling the consumer on/off based off the result from a {@link Supplier}
  * Use cases for this implementation is for example when there is a need to pause the consumer to change the offset and restart the client.
  */
 @Slf4j
