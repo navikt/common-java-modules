@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 /**
  * {@link KafkaConsumerClient} with support for toggling the consumer on/off based off the result from a {@link Supplier<Boolean>}
+ * Use cases for this implementation is for example when there is a need to pause the consumer to change the offset and restart the client.
  */
 @Slf4j
 public class ToggledKafkaConsumerClient implements KafkaConsumerClient {
@@ -41,6 +42,13 @@ public class ToggledKafkaConsumerClient implements KafkaConsumerClient {
     public void start() {
         if (!isRunning()) {
             kafkaConsumerClient.start();
+        }
+
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
+        }
+
+        if (executorService == null || executorService.isShutdown()) {
             executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(this::syncRunningStateWithToggle, pollTimeoutDuration.toMillis(), pollTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
         }

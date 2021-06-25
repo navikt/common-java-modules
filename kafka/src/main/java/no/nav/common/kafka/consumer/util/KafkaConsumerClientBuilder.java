@@ -11,6 +11,7 @@ import org.apache.kafka.common.serialization.Deserializer;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.deserializeConsumerRecord;
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.toTopicConsumer;
@@ -23,6 +24,8 @@ public class KafkaConsumerClientBuilder {
     private Properties properties;
 
     private long pollDurationMs = -1;
+
+    private Supplier<Boolean> isToggledOnSupplier;
 
     private KafkaConsumerClientBuilder() {}
 
@@ -50,6 +53,11 @@ public class KafkaConsumerClientBuilder {
         return this;
     }
 
+    public KafkaConsumerClientBuilder withToggle(Supplier<Boolean> isToggledOnSupplier) {
+        this.isToggledOnSupplier = isToggledOnSupplier;
+        return this;
+    }
+
     public KafkaConsumerClient build() {
         if (properties == null) {
             throw new IllegalStateException("Cannot build kafka consumer without properties");
@@ -71,7 +79,13 @@ public class KafkaConsumerClientBuilder {
             config.setPollDurationMs(pollDurationMs);
         }
 
-        return new KafkaConsumerClientImpl<>(config);
+        var client = new KafkaConsumerClientImpl<>(config);
+
+        if (isToggledOnSupplier != null) {
+            return new ToggledKafkaConsumerClient(client, isToggledOnSupplier);
+        }
+
+        return client;
     }
 
     private static void validateConfig(TopicConfig<?, ?> consumerTopicConfig) {
