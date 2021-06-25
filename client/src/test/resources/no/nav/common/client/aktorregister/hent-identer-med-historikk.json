@@ -1,0 +1,32 @@
+{
+  "22222": {
+    "identer": [
+      {
+        "ident": "33333",
+        "identgruppe": "NorskIdent",
+        "gjeldende": true
+      },
+      {
+        "ident": "22222",
+        "identgruppe": "NorskIdent",
+        "gjeldende": false
+      },
+      {
+        "ident": "11111",
+        "identgruppe": "AktoerId",
+        "gjeldende": false
+      },
+      {
+        "ident": "55555",
+        "identgruppe": "AktoerId",
+        "gjeldende": true
+      },
+      {
+        "ident": "44444",
+        "identgruppe": "NorskIdent",
+        "gjeldende": false
+      }
+    ],
+    "feilmelding": null
+  }
+}

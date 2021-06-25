@@ -20,20 +20,23 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
 public class PdlAktorOppslagClient implements AktorOppslagClient {
 
-    private final static String IDENT_GRUPPE_AKTORID = "AKTORID";
+    private static final String IDENT_GRUPPE_AKTORID = "AKTORID";
 
-    private final static String IDENT_GRUPPE_FNR = "FOLKEREGISTERIDENT";
+    private static final String IDENT_GRUPPE_FOLKEREGISTERIDENT = "FOLKEREGISTERIDENT";
 
     private final GraphqlRequestBuilder<HentIdentVariables> hentAktorIdRequestBuilder =
             new GraphqlRequestBuilder<>("pdl/hent-gjeldende-aktorid.graphql");
 
-
     private final GraphqlRequestBuilder<HentIdentVariables> hentFnrRequestBuilder =
             new GraphqlRequestBuilder<>("pdl/hent-gjeldende-fnr.graphql");
 
+    private final GraphqlRequestBuilder<HentIdentVariables> hentIdenterMedHistorikkRequestBuilder =
+            new GraphqlRequestBuilder<>("pdl/hent-identer-med-hist.graphql");
 
     private final GraphqlRequestBuilder<HentIdentBolkVariables<?>> hentIdentBolkRequestBuilder =
             new GraphqlRequestBuilder<>("pdl/hent-gjeldende-ident-bolk.graphql");
@@ -110,6 +113,32 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
                 .collect(Collectors.toMap(IdentPair::getFnr, IdentPair::getAktorId));
     }
 
+    @Override
+    public BrukerIdenter hentIdenter(EksternBrukerId brukerId) {
+        HentIdenterResponse response = pdlClient.request(
+                hentIdenterMedHistorikkRequestBuilder.buildRequest(new HentIdentVariables(brukerId.get())),
+                HentIdenterResponse.class
+        );
+
+        GraphqlUtils.throwIfErrorOrMissingData(response);
+
+        List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> identer =
+                response.getData().hentIdenter.identer;
+
+        List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> folkeregisteridenter =
+                identer.stream().filter(ident -> IDENT_GRUPPE_FOLKEREGISTERIDENT.equals(ident.gruppe)).collect(toList());
+
+        List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> aktorIder =
+                identer.stream().filter(ident -> IDENT_GRUPPE_AKTORID.equals(ident.gruppe)).collect(toList());
+
+        return new BrukerIdenter(
+                folkeregisteridenter.stream().filter(ident -> !ident.historisk).findFirst().map(ident -> Fnr.of(ident.ident)).orElseThrow(),
+                aktorIder.stream().filter(ident -> !ident.historisk).findFirst().map(ident -> AktorId.of(ident.ident)).orElseThrow(),
+                folkeregisteridenter.stream().filter(ident -> ident.historisk).map(ident -> Fnr.of(ident.ident)).collect(toList()),
+                aktorIder.stream().filter(ident -> ident.historisk).map(ident -> AktorId.of(ident.ident)).collect(toList())
+        );
+    }
+
     private static Stream<IdentPair> hentAlleIdentPairFraBolk(HentIdenterBolkResponse.HentIdenterBolkResponseData bolkResponseData) {
         return bolkResponseData
                 .hentIdenterBolk
@@ -124,7 +153,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
         brukerIdenter
                 .forEach(ident -> {
                     switch (ident.gruppe) {
-                        case IDENT_GRUPPE_FNR:
+                        case IDENT_GRUPPE_FOLKEREGISTERIDENT:
                             identPair.setFnr(Fnr.of(ident.ident));
                             break;
                         case IDENT_GRUPPE_AKTORID:
@@ -157,7 +186,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
         List<T> identer;
     }
 
-    static class HentIdenterResponse extends GraphqlResponse<HentIdenterResponse.HentIdenterResponseData> {
+    protected static class HentIdenterResponse extends GraphqlResponse<HentIdenterResponse.HentIdenterResponseData> {
         private static class HentIdenterResponseData {
             IdenterResponseData hentIdenter;
 
@@ -166,12 +195,15 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
 
                 private static class IdentData {
                     String ident;
+                    String gruppe;
+                    Boolean historisk;
                 }
             }
         }
     }
 
-    static class HentIdenterBolkResponse extends GraphqlResponse<HentIdenterBolkResponse.HentIdenterBolkResponseData> {
+
+    protected static class HentIdenterBolkResponse extends GraphqlResponse<HentIdenterBolkResponse.HentIdenterBolkResponseData> {
         private static class HentIdenterBolkResponseData {
             List<IdenterResponseData> hentIdenterBolk;
 

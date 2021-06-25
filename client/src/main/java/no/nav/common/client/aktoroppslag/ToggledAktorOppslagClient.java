@@ -3,6 +3,7 @@ package no.nav.common.client.aktoroppslag;
 import no.nav.common.client.aktorregister.AktorregisterHttpClient;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
 
 import java.util.List;
@@ -48,6 +49,11 @@ public class ToggledAktorOppslagClient implements AktorOppslagClient {
     @Override
     public Map<Fnr, AktorId> hentAktorIdBolk(List<Fnr> fnrListe) {
         return getClient().hentAktorIdBolk(fnrListe);
+    }
+
+    @Override
+    public BrukerIdenter hentIdenter(EksternBrukerId brukerId) {
+        return getClient().hentIdenter(brukerId);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
 
 import java.util.ArrayList;
@@ -22,10 +23,18 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
 
     private final Cache<Fnr, AktorId> hentAktorIdCache;
 
-    public CachedAktorOppslagClient(AktorOppslagClient aktorOppslagClient, Cache<AktorId, Fnr> hentFnrCache, Cache<Fnr, AktorId> hentAktorIdCache) {
+    private final Cache<EksternBrukerId, BrukerIdenter> hentIdenterCache;
+
+    public CachedAktorOppslagClient(
+            AktorOppslagClient aktorOppslagClient,
+            Cache<AktorId, Fnr> hentFnrCache,
+            Cache<Fnr, AktorId> hentAktorIdCache,
+            Cache<EksternBrukerId, BrukerIdenter> hentIdenterCache
+    ) {
         this.aktorOppslagClient = aktorOppslagClient;
         this.hentFnrCache = hentFnrCache;
         this.hentAktorIdCache = hentAktorIdCache;
+        this.hentIdenterCache = hentIdenterCache;
     }
 
     public CachedAktorOppslagClient(AktorOppslagClient aktorOppslagClient) {
@@ -37,6 +46,11 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
                 .build();
 
         hentAktorIdCache = Caffeine.newBuilder()
+                .expireAfterWrite(12, TimeUnit.HOURS)
+                .maximumSize(10_000)
+                .build();
+
+        hentIdenterCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
                 .maximumSize(10_000)
                 .build();
@@ -100,6 +114,11 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
         }
 
         return fnrTilAktorIdMap;
+    }
+
+    @Override
+    public BrukerIdenter hentIdenter(EksternBrukerId brukerId) {
+        return tryCacheFirst(hentIdenterCache, brukerId, () -> aktorOppslagClient.hentIdenter(brukerId));
     }
 
     @Override

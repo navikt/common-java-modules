@@ -3,6 +3,7 @@ package no.nav.common.client.aktorregister;
 import com.fasterxml.jackson.databind.type.MapType;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.client.aktoroppslag.BrukerIdenter;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.json.JsonUtils;
@@ -21,6 +22,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.lang.String.valueOf;
+import static java.util.stream.Collectors.toList;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
 import static no.nav.common.utils.UrlUtils.joinPaths;
 
@@ -107,7 +109,30 @@ public class AktorregisterHttpClient implements AktorregisterClient {
                         .stream()
                         .filter(i -> i.identgruppe == Identgruppe.AktoerId && i.ident != null)
                         .map(i -> AktorId.of(i.ident)))
-                .collect(Collectors.toList());
+                .collect(toList());
+    }
+
+    @SneakyThrows
+    @Override
+    public BrukerIdenter hentIdenter(EksternBrukerId brukerId) {
+        Map<String, IdentData> stringIdentDataMap = hentIdenter(Collections.singletonList(brukerId), null, false);
+
+        if (!stringIdentDataMap.containsKey(brukerId.get())) {
+            throw new RuntimeException("Fant ikke identer for bruker");
+        }
+
+        IdentData identData = stringIdentDataMap.get(brukerId.get());
+        var norskeIdenter = identData.identer.stream()
+                .filter(ident -> Identgruppe.NorskIdent.equals(ident.identgruppe)).collect(toList());
+        var aktorIder = identData.identer.stream()
+                .filter(ident -> Identgruppe.AktoerId.equals(ident.identgruppe)).collect(toList());
+
+        return new BrukerIdenter(
+                norskeIdenter.stream().filter(ident -> ident.gjeldende).findFirst().map(ident -> Fnr.of(ident.ident)).orElseThrow(),
+                aktorIder.stream().filter(ident -> ident.gjeldende).findFirst().map(ident -> AktorId.of(ident.ident)).orElseThrow(),
+                norskeIdenter.stream().filter(ident -> !ident.gjeldende).map(ident -> Fnr.of(ident.ident)).collect(toList()),
+                aktorIder.stream().filter(ident -> !ident.gjeldende).map(ident -> AktorId.of(ident.ident)).collect(toList())
+        );
     }
 
     @SneakyThrows
@@ -123,10 +148,21 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     private String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe, boolean gjeldende) {
+        var queryParams = new HashMap<String, String>();
+
         if (gjeldende) {
-            return String.format("%s/identer?gjeldende=true&identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
+            queryParams.put("gjeldende", "true");
         }
-        return String.format("%s/identer?identgruppe=%s", aktorregisterUrl, valueOf(identgruppe));
+
+        if (identgruppe != null) {
+            queryParams.put("identgruppe", valueOf(identgruppe));
+        }
+
+        var queryParamsString = queryParams.entrySet().stream()
+                .map(param -> param.getKey() + "=" + param.getValue())
+                .collect(Collectors.joining("&", queryParams.isEmpty() ? "" : "?", ""));
+
+        return String.format("%s/identer%s", aktorregisterUrl, queryParamsString);
     }
 
     private boolean filtrerIkkeGjeldendeIdent(Map.Entry<String, IdentData> identEntry) {
@@ -144,7 +180,12 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
 
-    private <T extends EksternBrukerId> Map<String, IdentData> hentIdenter(List<T> eksternBrukerIdList, Identgruppe identgruppe, boolean gjeldende) throws IOException {
+    private Map<String, IdentData> hentIdenter(
+            List<? extends EksternBrukerId> eksternBrukerIdList,
+            Identgruppe identgruppe,
+            boolean gjeldende
+    ) throws IOException {
+
         String personidenter = eksternBrukerIdList.stream().map(Id::get).collect(Collectors.joining(","));
         String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe, gjeldende);
 

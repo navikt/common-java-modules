@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -79,7 +80,6 @@ public class CachedAktorOppslagClientTest {
         ArgumentCaptor<List<AktorId>> captor = ArgumentCaptor.forClass(List.class);
 
 
-
         Map<AktorId, Fnr> mapping1 = new HashMap<>();
         mapping1.put(aktorId1, fnr1);
         mapping1.put(aktorId2, fnr2);
@@ -95,7 +95,6 @@ public class CachedAktorOppslagClientTest {
         assertEquals(fnr2, oppslag1.get(aktorId2));
         assertEquals(fnr3, oppslag1.get(aktorId3));
         assertEquals(aktorIdList1, captor.getValue());
-
 
 
         Map<AktorId, Fnr> mapping2 = new HashMap<>();
@@ -180,7 +179,6 @@ public class CachedAktorOppslagClientTest {
         assertEquals(fnrList1, captor.getValue());
 
 
-
         Map<Fnr, AktorId> mapping2 = new HashMap<>();
         mapping2.put(fnr2, aktorId2);
         mapping2.put(fnr3, aktorId3);
@@ -226,4 +224,37 @@ public class CachedAktorOppslagClientTest {
         verify(mockedClient, times(1)).hentAktorIdBolk(any());
     }
 
+    @Test
+    public void hentIdenter__skal_cache_flere_identer() {
+        Fnr brukerId1 = Fnr.of("fnr1");
+        AktorId brukerId2 = AktorId.of("aktorId2");
+
+        BrukerIdenter brukerIdenter1 = new BrukerIdenter(
+                brukerId1,
+                AktorId.of("aktorId1"),
+                asList(Fnr.of("fnr12"), Fnr.of("fnr13")),
+                asList(AktorId.of("aktorId12"))
+        );
+        BrukerIdenter brukerIdenter2 = new BrukerIdenter(
+                Fnr.of("fnr2"),
+                brukerId2,
+                asList(Fnr.of("fnr22"), Fnr.of("fnr23")),
+                asList(AktorId.of("aktorId22"), AktorId.of("aktorId23"))
+        );
+
+        AktorOppslagClient mockedClient = mock(AktorOppslagClient.class);
+
+        when(mockedClient.hentIdenter(brukerId1)).thenReturn(brukerIdenter1);
+        when(mockedClient.hentIdenter(brukerId2)).thenReturn(brukerIdenter2);
+
+        CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
+
+        assertEquals(brukerIdenter1, cachedClient.hentIdenter(brukerId1));
+        assertEquals(brukerIdenter2, cachedClient.hentIdenter(brukerId2));
+        assertEquals(brukerIdenter1, cachedClient.hentIdenter(brukerId1));
+        assertEquals(brukerIdenter2, cachedClient.hentIdenter(brukerId2));
+
+        verify(mockedClient, times(1)).hentIdenter(brukerId1);
+        verify(mockedClient, times(1)).hentIdenter(brukerId2);
+    }
 }

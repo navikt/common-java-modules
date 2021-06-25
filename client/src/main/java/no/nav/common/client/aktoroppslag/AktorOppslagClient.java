@@ -2,6 +2,7 @@ package no.nav.common.client.aktoroppslag;
 
 import no.nav.common.health.HealthCheck;
 import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
 
 import java.util.List;
@@ -38,5 +39,12 @@ public interface AktorOppslagClient extends HealthCheck {
      *          Hvis oppslag på en aktør id feilet så vil hverken fnr eller aktør ligge i mappet for oppslaget.
      */
     Map<Fnr, AktorId> hentAktorIdBolk(List<Fnr> fnrListe);
+
+    /**
+     * Henter gjeldende og historiske fnr og aktør id
+     * @param brukerId bruker id som det blir gjort oppslag på
+     * @return gjeldende og historiske fnr og aktør id
+     */
+    BrukerIdenter hentIdenter(EksternBrukerId brukerId);
 
 }
