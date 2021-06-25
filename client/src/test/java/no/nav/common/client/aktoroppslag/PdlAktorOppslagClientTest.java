@@ -12,6 +12,9 @@ import org.mockito.ArgumentCaptor;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
+import static no.nav.common.client.TestUtils.readTestResourceFile;
+import static no.nav.common.client.TestUtils.readTestResourceFileWithoutWhitespace;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
@@ -20,13 +23,16 @@ public class PdlAktorOppslagClientTest {
 
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/pdl/aktor_oppslag/";
 
+    PdlClient pdlClient = mock(PdlClient.class);
+    PdlAktorOppslagClient pdlAktorOppslagClient = new PdlAktorOppslagClient(pdlClient);
+
     @Test
     public void hentAktorId__skal_lage_riktig_request_og_hente_aktorid() {
-        String graphqlJsonRequest = TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-request.json");
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-aktorid-response.json");
+        String graphqlJsonRequest =
+                readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-request.json");
+        String graphqlJsonResponse =
+                readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-aktorid-response.json");
 
-        PdlClient pdlClient = mock(PdlClient.class);
-        PdlAktorOppslagClient pdlAktorOppslagClient = new PdlAktorOppslagClient(pdlClient);
         ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
@@ -40,11 +46,11 @@ public class PdlAktorOppslagClientTest {
 
     @Test
     public void hentFnr__skal_lage_riktig_request_og_hente_fnr() {
-        String graphqlJsonRequest = TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-fnr-request.json");
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-fnr-response.json");
+        String graphqlJsonRequest =
+                readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-fnr-request.json");
+        String graphqlJsonResponse =
+                readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-fnr-response.json");
 
-        PdlClient pdlClient = mock(PdlClient.class);
-        PdlAktorOppslagClient pdlAktorOppslagClient = new PdlAktorOppslagClient(pdlClient);
         ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
@@ -58,11 +64,11 @@ public class PdlAktorOppslagClientTest {
 
     @Test
     public void hentAktorIdBolk__skal_lage_riktig_request_og_hente_aktorid_bolk() {
-        String graphqlJsonRequest = TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-bolk-request.json");
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-ident-bolk-response.json");
+        String graphqlJsonRequest =
+                readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-bolk-request.json");
+        String graphqlJsonResponse =
+                readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-ident-bolk-response.json");
 
-        PdlClient pdlClient = mock(PdlClient.class);
-        PdlAktorOppslagClient pdlAktorOppslagClient = new PdlAktorOppslagClient(pdlClient);
         ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterBolkResponse.class))
@@ -84,11 +90,11 @@ public class PdlAktorOppslagClientTest {
 
     @Test
     public void hentFnrBolk__skal_lage_riktig_request_og_hente_fnr_bolk() {
-        String graphqlJsonRequest = TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-fnr-bolk-request.json");
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-ident-bolk-response.json");
+        String graphqlJsonRequest =
+                readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-fnr-bolk-request.json");
+        String graphqlJsonResponse =
+                readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-ident-bolk-response.json");
 
-        PdlClient pdlClient = mock(PdlClient.class);
-        PdlAktorOppslagClient pdlAktorOppslagClient = new PdlAktorOppslagClient(pdlClient);
         ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterBolkResponse.class))
@@ -108,4 +114,32 @@ public class PdlAktorOppslagClientTest {
         assertEquals(Fnr.of("0987654321"), identMapping.get(aktorId3));
     }
 
+
+    @Test
+    public void hentIdenter__skal_lage_riktig_request_og_hente_gjeldende_og_historiske_identer() {
+        String graphqlJsonRequest =
+                readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-identer-request.json");
+        String graphqlJsonResponse =
+                readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-identer-response.json");
+
+        var requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+
+        doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
+                .when(pdlClient).request(requestCaptor.capture(), eq(PdlAktorOppslagClient.HentIdenterResponse.class));
+
+        Fnr fnr = Fnr.of("22222");
+
+        BrukerIdenter hentIdenter = pdlAktorOppslagClient.hentIdenter(fnr);
+
+        assertEquals(graphqlJsonRequest, TestUtils.removeWhitespace(JsonUtils.toJson(requestCaptor.getValue())));
+
+        BrukerIdenter forventet = new BrukerIdenter(
+                Fnr.of("33333"),
+                AktorId.of("55555"),
+                asList(Fnr.of("22222"), Fnr.of("44444")),
+                asList(AktorId.of("11111"))
+        );
+
+        assertEquals(forventet, hentIdenter);
+    }
 }
