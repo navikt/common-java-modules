@@ -6,9 +6,9 @@ import no.nav.common.types.identer.NavIdent;
 
 @Data
 @Accessors(chain = true)
-public class VeilederNavn {
+public class VeilederVisningsnavn {
     NavIdent navIdent;
-    String fornavn;
-    String etternavn;
-    String mellomnavn;
+    String visningsFornavn;
+    String visningsEtternavn;
+    String visningsnavn;
 }

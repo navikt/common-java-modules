@@ -15,60 +15,60 @@ public class CachedNomClientTest {
 
     @Test
     public void skal_cache_navn() {
-        VeilederNavn veilederNavn1 = new VeilederNavn()
+        VeilederVisningsnavn veilederVisningsnavn1 = new VeilederVisningsnavn()
                 .setNavIdent(NavIdent.of("Z1234"));
 
-        VeilederNavn veilederNavn2 = new VeilederNavn()
+        VeilederVisningsnavn veilederVisningsnavn2 = new VeilederVisningsnavn()
                 .setNavIdent(NavIdent.of("Z5678"));
 
         NomClient nomClient = mock(NomClient.class);
-        when(nomClient.finnNavn(any(NavIdent.class))).thenReturn(veilederNavn1);
+        when(nomClient.finnVisningsnavn(any(NavIdent.class))).thenReturn(veilederVisningsnavn1);
 
         CachedNomClient cachedNomClient = new CachedNomClient(nomClient);
 
-        VeilederNavn funnetNavn = cachedNomClient.finnNavn(veilederNavn1.navIdent);
-        assertEquals(veilederNavn1, funnetNavn);
+        VeilederVisningsnavn funnetVisningsnavn = cachedNomClient.finnVisningsnavn(veilederVisningsnavn1.navIdent);
+        assertEquals(veilederVisningsnavn1, funnetVisningsnavn);
 
 
         ArgumentCaptor<List<NavIdent>> captor = ArgumentCaptor.forClass(List.class);
 
         // Create mutable list instead of using List.of()
-        List<VeilederNavn> navn = new ArrayList<>() {{
-            add(veilederNavn1);
-            add(veilederNavn2);
+        List<VeilederVisningsnavn> visningsnavn = new ArrayList<>() {{
+            add(veilederVisningsnavn1);
+            add(veilederVisningsnavn2);
         }};
 
-        when(nomClient.finnNavn(captor.capture())).thenReturn(navn);
+        when(nomClient.finnVisningsnavn(captor.capture())).thenReturn(visningsnavn);
 
-        cachedNomClient.finnNavn(List.of(veilederNavn1.navIdent, veilederNavn2.navIdent));
+        cachedNomClient.finnVisningsnavn(List.of(veilederVisningsnavn1.navIdent, veilederVisningsnavn2.navIdent));
 
         assertEquals(1, captor.getValue().size());
-        assertEquals(veilederNavn2.navIdent, captor.getValue().get(0));
+        assertEquals(veilederVisningsnavn2.navIdent, captor.getValue().get(0));
     }
 
     @Test
     public void skal_ikke_gjore_request_hvis_alt_er_cachet() {
-        VeilederNavn veilederNavn1 = new VeilederNavn()
+        VeilederVisningsnavn veilederVisningsnavn1 = new VeilederVisningsnavn()
                 .setNavIdent(NavIdent.of("Z1234"));
 
-        VeilederNavn veilederNavn2 = new VeilederNavn()
+        VeilederVisningsnavn veilederVisningsnavn2 = new VeilederVisningsnavn()
                 .setNavIdent(NavIdent.of("Z5678"));
 
-        List<VeilederNavn> navn = new ArrayList<>() {{
-            add(veilederNavn1);
-            add(veilederNavn2);
+        List<VeilederVisningsnavn> visningsnavn = new ArrayList<>() {{
+            add(veilederVisningsnavn1);
+            add(veilederVisningsnavn2);
         }};
 
         NomClient nomClient = mock(NomClient.class);
-        when(nomClient.finnNavn(anyList())).thenReturn(navn);
+        when(nomClient.finnVisningsnavn(anyList())).thenReturn(visningsnavn);
 
         CachedNomClient cachedNomClient = new CachedNomClient(nomClient);
 
-        List<NavIdent> navIdenter = List.of(veilederNavn1.navIdent, veilederNavn2.navIdent);
-        cachedNomClient.finnNavn(navIdenter);
-        cachedNomClient.finnNavn(navIdenter);
+        List<NavIdent> navIdenter = List.of(veilederVisningsnavn1.navIdent, veilederVisningsnavn2.navIdent);
+        cachedNomClient.finnVisningsnavn(navIdenter);
+        cachedNomClient.finnVisningsnavn(navIdenter);
 
-        verify(nomClient, times(1)).finnNavn(anyList());
+        verify(nomClient, times(1)).finnVisningsnavn(anyList());
     }
 
 

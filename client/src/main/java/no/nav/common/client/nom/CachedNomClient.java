@@ -15,49 +15,53 @@ public class CachedNomClient implements NomClient {
 
     private final NomClient nomClient;
 
-    private final Cache<NavIdent, VeilederNavn> veilederNavnCache;
+    private final Cache<NavIdent, VeilederVisningsnavn> veilederVisningsnavnCache;
 
-    public CachedNomClient(NomClient nomClient, Cache<NavIdent, VeilederNavn> veilederNavnCache) {
+    public CachedNomClient(NomClient nomClient, Cache<NavIdent, VeilederVisningsnavn> veilederVisningsnavnCache) {
         this.nomClient = nomClient;
-        this.veilederNavnCache = veilederNavnCache;
+        this.veilederVisningsnavnCache = veilederVisningsnavnCache;
     }
+
+
 
     public CachedNomClient(NomClient nomClient) {
         this.nomClient = nomClient;
-        this.veilederNavnCache = Caffeine.newBuilder()
+        this.veilederVisningsnavnCache = Caffeine.newBuilder()
                 .expireAfterWrite(12, TimeUnit.HOURS)
                 .maximumSize(10_000)
                 .build();
     }
 
+
+
     @Override
-    public VeilederNavn finnNavn(NavIdent navIdent) {
-        return tryCacheFirst(veilederNavnCache, navIdent, () -> nomClient.finnNavn(navIdent));
+    public VeilederVisningsnavn finnVisningsnavn(NavIdent navIdent) {
+        return tryCacheFirst(veilederVisningsnavnCache, navIdent, () -> nomClient.finnVisningsnavn(navIdent));
     }
 
     @Override
-    public List<VeilederNavn> finnNavn(List<NavIdent> navIdenter) {
-        List<VeilederNavn> veilederNavnListe = new ArrayList<>();
+    public List<VeilederVisningsnavn> finnVisningsnavn(List<NavIdent> navIdenter) {
+        List<VeilederVisningsnavn> veilederVisningsnavnListe = new ArrayList<>();
         List<NavIdent> uncachedNavIdenter = new ArrayList<>();
 
         navIdenter.forEach(navIdent -> {
-            VeilederNavn veilederNavn = veilederNavnCache.getIfPresent(navIdent);
-            if (veilederNavn != null) {
-                veilederNavnListe.add(veilederNavn);
+            VeilederVisningsnavn veilederVisningsnavn = veilederVisningsnavnCache.getIfPresent(navIdent);
+            if (veilederVisningsnavn != null) {
+                veilederVisningsnavnListe.add(veilederVisningsnavn);
             } else {
                 uncachedNavIdenter.add(navIdent);
             }
         });
 
         if (!uncachedNavIdenter.isEmpty()) {
-            List<VeilederNavn> funnetNavn = nomClient.finnNavn(uncachedNavIdenter);
+            List<VeilederVisningsnavn> funnetVisningsNavn = nomClient.finnVisningsnavn(uncachedNavIdenter);
 
-            funnetNavn.forEach(navn -> veilederNavnCache.put(navn.navIdent, navn));
+            funnetVisningsNavn.forEach(visningsnavn -> veilederVisningsnavnCache.put(visningsnavn.navIdent, visningsnavn));
 
-            veilederNavnListe.addAll(funnetNavn);
+            veilederVisningsnavnListe.addAll(funnetVisningsNavn);
         }
 
-        return veilederNavnListe;
+        return veilederVisningsnavnListe;
     }
 
     @Override

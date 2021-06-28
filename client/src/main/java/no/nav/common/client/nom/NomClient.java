@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface NomClient extends HealthCheck {
 
-    VeilederNavn finnNavn(NavIdent navIdent);
+    VeilederVisningsnavn finnVisningsnavn(NavIdent navIdent);
 
-    List<VeilederNavn> finnNavn(List<NavIdent> navIdenter);
+    List<VeilederVisningsnavn> finnVisningsnavn(List<NavIdent> navIdenter);
 
 }

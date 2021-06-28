@@ -1,5 +1,5 @@
 {
-  "query": "query($identer: [String!]!) {    ressurser(where: { navIdenter: $identer }){        id        ressurs {            navIdent            person {                navn {                    fornavn                    mellomnavn                    etternavn                }            }        }    }}",
+  "query": "query($identer: [String!]!) {    ressurser(where: { navIdenter: $identer }){        id        ressurs {            navIdent            visningsnavn            visningsfornavn            visningsetternavn        }    }}",
   "variables": {
     "identer": ["Z1234", "Z5678", "Z7777"]
   }

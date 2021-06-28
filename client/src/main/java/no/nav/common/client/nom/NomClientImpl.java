@@ -62,28 +62,28 @@ public class NomClientImpl implements NomClient {
     }
 
     @Override
-    public VeilederNavn finnNavn(NavIdent navIdent) {
-        List<VeilederNavn> veilederNavn = finnNavn(Collections.singletonList(navIdent));
+    public VeilederVisningsnavn finnVisningsnavn(NavIdent navIdent) {
+        List<VeilederVisningsnavn> veilederVisningsnavn = finnVisningsnavn(Collections.singletonList(navIdent));
 
-        if (veilederNavn.isEmpty()) {
+        if (veilederVisningsnavn.isEmpty()) {
             throw new IllegalStateException("Fant ikke navn for NAV-ident: " + navIdent);
         }
 
-        return veilederNavn.get(0);
+        return veilederVisningsnavn.get(0);
     }
 
     @Override
-    public List<VeilederNavn> finnNavn(List<NavIdent> navIdenter) {
+    public List<VeilederVisningsnavn> finnVisningsnavn(List<NavIdent> navIdenter) {
         Map<String, String> contextMap = MDC.getCopyOfContextMap();
 
         return CollectionUtils.partition(navIdenter, NOM_MAX_BATCH_SIZE)
                 .parallelStream()
-                .flatMap((identBatch) -> runWithMDCContext(contextMap, () -> hentNavnTilIdenter(identBatch).stream()))
+                .flatMap((identBatch) -> runWithMDCContext(contextMap, () -> hentVisningsnavnTilIdenter(identBatch).stream()))
                 .collect(Collectors.toList());
     }
 
     @SneakyThrows
-    private List<VeilederNavn> hentNavnTilIdenter(List<NavIdent> navIdenter) {
+    private List<VeilederVisningsnavn> hentVisningsnavnTilIdenter(List<NavIdent> navIdenter) {
         GraphqlRequest<RessursQuery.Variables> gqlRequest = ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
 
         Request request = new Request.Builder()
@@ -104,33 +104,33 @@ public class NomClientImpl implements NomClient {
             GraphqlUtils.logWarningIfError(graphqlResponse);
             GraphqlUtils.throwIfMissingData(graphqlResponse);
 
-            return mapTilVeilederNavn(graphqlResponse);
+            return mapTilVeilederVisningsnavn(graphqlResponse);
         }
     }
 
 
-    private List<VeilederNavn> mapTilVeilederNavn(RessursQuery.Response graphqlResponse) {
+    private List<VeilederVisningsnavn> mapTilVeilederVisningsnavn(RessursQuery.Response graphqlResponse) {
         List<RessursQuery.ResponseData.RessurserItem> ressurser = graphqlResponse.getData().ressurser;
-        List<VeilederNavn> veilederNavnListe = new ArrayList<>(ressurser.size());
+        List<VeilederVisningsnavn> veilederVisningsnavnListe = new ArrayList<>(ressurser.size());
 
         ressurser.forEach(ressursItem -> {
             RessursQuery.ResponseData.RessurserItem.Ressurs ressurs = ressursItem.ressurs;
 
-            if (ressurs == null || ressurs.person == null) {
+            if (ressurs == null || ressurs.visningsnavn == null || ressurs.visningsfornavn == null || ressurs.visningsetternavn == null ) {
                 log.error("Fant ikke navn til veileder med ident: {}", ressursItem.id);
                 return;
             }
 
-            VeilederNavn veilederNavn = new VeilederNavn()
+            VeilederVisningsnavn veilederVisningsnavn = new VeilederVisningsnavn()
                     .setNavIdent(ressurs.navIdent)
-                    .setFornavn(ressurs.person.navn.fornavn)
-                    .setMellomnavn(ressurs.person.navn.mellomnavn)
-                    .setEtternavn(ressurs.person.navn.etternavn);
+                    .setVisningsnavn(ressurs.visningsnavn)
+                    .setVisningsFornavn(ressurs.visningsfornavn)
+                    .setVisningsEtternavn(ressurs.visningsetternavn);
 
-            veilederNavnListe.add(veilederNavn);
+            veilederVisningsnavnListe.add(veilederVisningsnavn);
         });
 
-        return veilederNavnListe;
+        return veilederVisningsnavnListe;
     }
 
     @Override
@@ -157,19 +157,11 @@ public class NomClientImpl implements NomClient {
 
                 static class Ressurs {
                     NavIdent navIdent;
-                    Person person; // Can be null
+                    String visningsnavn;
+                    String visningsfornavn;
+                    String visningsetternavn;
 
-                    @Data
-                    static class Person {
-                        Navn navn;
 
-                        @Data
-                        static class Navn {
-                            String fornavn;
-                            String mellomnavn; // Can be null
-                            String etternavn;
-                        }
-                    }
                 }
             }
 
