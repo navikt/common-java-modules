@@ -26,8 +26,8 @@ public class CachedNomClientTest {
 
         CachedNomClient cachedNomClient = new CachedNomClient(nomClient);
 
-        VeilederNavn funnetVisningsnavn = cachedNomClient.finnNavn(veilederNavn1.navIdent);
-        assertEquals(veilederNavn1, funnetVisningsnavn);
+        VeilederNavn funnetNavn = cachedNomClient.finnNavn(veilederNavn1.navIdent);
+        assertEquals(veilederNavn1, funnetNavn);
 
 
         ArgumentCaptor<List<NavIdent>> captor = ArgumentCaptor.forClass(List.class);
