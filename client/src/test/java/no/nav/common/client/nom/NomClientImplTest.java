@@ -27,13 +27,13 @@ public class NomClientImplTest {
         String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-request.json");
         String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
 
-        VeilederVisningsnavn veilederVisningsnavn1 = new VeilederVisningsnavn()
+        VeilederNavn veilederNavn1 = new VeilederNavn()
                 .setNavIdent(NavIdent.of("Z1234"))
                 .setFornavn("F1234 M1234")
                 .setEtternavn("E1234")
                 .setVisningsNavn("E1234, F1234 M1234");
 
-        VeilederVisningsnavn veilederVisningsnavn2 = new VeilederVisningsnavn()
+        VeilederNavn veilederNavn2 = new VeilederNavn()
                 .setNavIdent(NavIdent.of("Z5678"))
                 .setFornavn("F5678")
                 .setEtternavn("E5678")
@@ -52,17 +52,17 @@ public class NomClientImplTest {
                         .withBody(graphqlJsonResponse))
         );
 
-        List<VeilederVisningsnavn> veilederVisningsnavnList = nomClient.finnVisningsnavn(
+        List<VeilederNavn> veilederNavnList = nomClient.finnNavn(
                 List.of(
-                        veilederVisningsnavn1.navIdent,
-                        veilederVisningsnavn2.navIdent,
+                        veilederNavn1.navIdent,
+                        veilederNavn2.navIdent,
                         identTilVeilederSomIkkeFinnes
                 )
         );
 
-        assertEquals(2, veilederVisningsnavnList.size());
-        assertEquals(veilederVisningsnavn1, veilederVisningsnavnList.get(0));
-        assertEquals(veilederVisningsnavn2, veilederVisningsnavnList.get(1));
+        assertEquals(2, veilederNavnList.size());
+        assertEquals(veilederNavn1, veilederNavnList.get(0));
+        assertEquals(veilederNavn2, veilederNavnList.get(1));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class NomClientImplTest {
             navIdenter.add(NavIdent.of("Z231231"));
         }
 
-        nomClient.finnVisningsnavn(navIdenter);
+        nomClient.finnNavn(navIdenter);
 
         verify(exactly(5), postRequestedFor(urlEqualTo("/graphql")));
     }

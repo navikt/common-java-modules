@@ -62,28 +62,28 @@ public class NomClientImpl implements NomClient {
     }
 
     @Override
-    public VeilederVisningsnavn finnVisningsnavn(NavIdent navIdent) {
-        List<VeilederVisningsnavn> veilederVisningsnavn = finnVisningsnavn(Collections.singletonList(navIdent));
+    public VeilederNavn finnNavn(NavIdent navIdent) {
+        List<VeilederNavn> veilederNavn = finnNavn(Collections.singletonList(navIdent));
 
-        if (veilederVisningsnavn.isEmpty()) {
+        if (veilederNavn.isEmpty()) {
             throw new IllegalStateException("Fant ikke navn for NAV-ident: " + navIdent);
         }
 
-        return veilederVisningsnavn.get(0);
+        return veilederNavn.get(0);
     }
 
     @Override
-    public List<VeilederVisningsnavn> finnVisningsnavn(List<NavIdent> navIdenter) {
+    public List<VeilederNavn> finnNavn(List<NavIdent> navIdenter) {
         Map<String, String> contextMap = MDC.getCopyOfContextMap();
 
         return CollectionUtils.partition(navIdenter, NOM_MAX_BATCH_SIZE)
                 .parallelStream()
-                .flatMap((identBatch) -> runWithMDCContext(contextMap, () -> hentVisningsnavnTilIdenter(identBatch).stream()))
+                .flatMap((identBatch) -> runWithMDCContext(contextMap, () -> hentNavnTilIdenter(identBatch).stream()))
                 .collect(Collectors.toList());
     }
 
     @SneakyThrows
-    private List<VeilederVisningsnavn> hentVisningsnavnTilIdenter(List<NavIdent> navIdenter) {
+    private List<VeilederNavn> hentNavnTilIdenter(List<NavIdent> navIdenter) {
         GraphqlRequest<RessursQuery.Variables> gqlRequest = ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
 
         Request request = new Request.Builder()
@@ -104,14 +104,14 @@ public class NomClientImpl implements NomClient {
             GraphqlUtils.logWarningIfError(graphqlResponse);
             GraphqlUtils.throwIfMissingData(graphqlResponse);
 
-            return mapTilVeilederVisningsnavn(graphqlResponse);
+            return mapTilVeilederNavn(graphqlResponse);
         }
     }
 
 
-    private List<VeilederVisningsnavn> mapTilVeilederVisningsnavn(RessursQuery.Response graphqlResponse) {
+    private List<VeilederNavn> mapTilVeilederNavn(RessursQuery.Response graphqlResponse) {
         List<RessursQuery.ResponseData.RessurserItem> ressurser = graphqlResponse.getData().ressurser;
-        List<VeilederVisningsnavn> veilederVisningsnavnListe = new ArrayList<>(ressurser.size());
+        List<VeilederNavn> veilederNavnListe = new ArrayList<>(ressurser.size());
 
         ressurser.forEach(ressursItem -> {
             RessursQuery.ResponseData.RessurserItem.Ressurs ressurs = ressursItem.ressurs;
@@ -121,16 +121,16 @@ public class NomClientImpl implements NomClient {
                 return;
             }
 
-            VeilederVisningsnavn veilederVisningsnavn = new VeilederVisningsnavn()
+            VeilederNavn veilederNavn = new VeilederNavn()
                     .setNavIdent(ressurs.navIdent)
                     .setVisningsNavn(ressurs.visningsNavn)
                     .setFornavn(ressurs.fornavn)
                     .setEtternavn(ressurs.etternavn);
 
-            veilederVisningsnavnListe.add(veilederVisningsnavn);
+            veilederNavnListe.add(veilederNavn);
         });
 
-        return veilederVisningsnavnListe;
+        return veilederNavnListe;
     }
 
     @Override
