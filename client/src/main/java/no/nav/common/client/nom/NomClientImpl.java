@@ -116,16 +116,16 @@ public class NomClientImpl implements NomClient {
         ressurser.forEach(ressursItem -> {
             RessursQuery.ResponseData.RessurserItem.Ressurs ressurs = ressursItem.ressurs;
 
-            if (ressurs == null || ressurs.visningsnavn == null || ressurs.visningsfornavn == null || ressurs.visningsetternavn == null ) {
+            if (ressurs == null || ressurs.visningsNavn == null || ressurs.fornavn == null || ressurs.etternavn == null ) {
                 log.error("Fant ikke navn til veileder med ident: {}", ressursItem.id);
                 return;
             }
 
             VeilederVisningsnavn veilederVisningsnavn = new VeilederVisningsnavn()
                     .setNavIdent(ressurs.navIdent)
-                    .setVisningsnavn(ressurs.visningsnavn)
-                    .setVisningsFornavn(ressurs.visningsfornavn)
-                    .setVisningsEtternavn(ressurs.visningsetternavn);
+                    .setVisningsNavn(ressurs.visningsNavn)
+                    .setFornavn(ressurs.fornavn)
+                    .setEtternavn(ressurs.etternavn);
 
             veilederVisningsnavnListe.add(veilederVisningsnavn);
         });
@@ -157,9 +157,9 @@ public class NomClientImpl implements NomClient {
 
                 static class Ressurs {
                     NavIdent navIdent;
-                    String visningsnavn;
-                    String visningsfornavn;
-                    String visningsetternavn;
+                    String visningsNavn;
+                    String fornavn;
+                    String etternavn;
 
 
                 }

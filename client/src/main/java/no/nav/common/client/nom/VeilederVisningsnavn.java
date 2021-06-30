@@ -8,7 +8,7 @@ import no.nav.common.types.identer.NavIdent;
 @Accessors(chain = true)
 public class VeilederVisningsnavn {
     NavIdent navIdent;
-    String visningsFornavn;
-    String visningsEtternavn;
-    String visningsnavn;
+    String fornavn;
+    String etternavn;
+    String visningsNavn;
 }

@@ -5,9 +5,9 @@
         "id": "Z1234",
         "ressurs": {
           "navIdent": "Z1234",
-          "visningsnavn": "E1234, F1234 M1234",
-          "visningsfornavn": "F1234 M1234",
-          "visningsetternavn": "E1234"
+          "visningsNavn": "E1234, F1234 M1234",
+          "fornavn": "F1234 M1234",
+          "etternavn": "E1234"
         }
       },
 
@@ -15,9 +15,9 @@
         "id": "Z5678",
         "ressurs": {
           "navIdent": "Z5678",
-          "visningsnavn": "E5678, F5678",
-          "visningsfornavn": "F5678",
-          "visningsetternavn": "E5678"
+          "visningsNavn": "E5678, F5678",
+          "fornavn": "F5678",
+          "etternavn": "E5678"
         }
       },
 

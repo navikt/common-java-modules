@@ -3,9 +3,9 @@ query($identer: [String!]!) {
         id
         ressurs {
             navIdent
-            visningsnavn
-            visningsfornavn
-            visningsetternavn
+            visningsNavn
+            fornavn
+            etternavn
         }
     }
 }

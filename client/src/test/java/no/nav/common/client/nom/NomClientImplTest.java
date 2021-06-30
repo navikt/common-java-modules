@@ -29,15 +29,15 @@ public class NomClientImplTest {
 
         VeilederVisningsnavn veilederVisningsnavn1 = new VeilederVisningsnavn()
                 .setNavIdent(NavIdent.of("Z1234"))
-                .setVisningsFornavn("F1234 M1234")
-                .setVisningsEtternavn("E1234")
-                .setVisningsnavn("E1234, F1234 M1234");
+                .setFornavn("F1234 M1234")
+                .setEtternavn("E1234")
+                .setVisningsNavn("E1234, F1234 M1234");
 
         VeilederVisningsnavn veilederVisningsnavn2 = new VeilederVisningsnavn()
                 .setNavIdent(NavIdent.of("Z5678"))
-                .setVisningsFornavn("F5678")
-                .setVisningsEtternavn("E5678")
-                .setVisningsnavn("E5678, F5678");
+                .setFornavn("F5678")
+                .setEtternavn("E5678")
+                .setVisningsNavn("E5678, F5678");
 
         NavIdent identTilVeilederSomIkkeFinnes = NavIdent.of("Z7777");
 
