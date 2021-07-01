@@ -10,5 +10,5 @@ public class VeilederNavn {
     NavIdent navIdent;
     String fornavn;
     String etternavn;
-    String mellomnavn;
+    String visningsNavn;
 }
