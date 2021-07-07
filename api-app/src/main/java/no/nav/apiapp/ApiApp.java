@@ -42,6 +42,8 @@ public class ApiApp {
     public static final String NAV_TRUSTSTORE_PATH = "NAV_TRUSTSTORE_PATH";
     public static final String NAV_TRUSTSTORE_PASSWORD = "NAV_TRUSTSTORE_PASSWORD";
 
+    public static final String DISABLE_SENSU_METRICS = "DISABLE_SENSU_METRICS";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiApp.class);
 
     static final int DEFAULT_HTTP_PORT = 8080;

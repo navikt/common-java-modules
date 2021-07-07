@@ -154,7 +154,11 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
             leggTilServlet(servletContextEvent, new SoapServlet(), WEBSERVICE_PATH);
         }
 
-        MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
+        if (sensuMetricsBrukes()) {
+            MetricsClient.enableMetrics(MetricsConfig.resolveNaisConfig());
+        } else {
+            LOGGER.info("Sensu metrics deaktivert");
+        }
 
         webApplicationContext.getAutowireCapableBeanFactory().autowireBean(apiApplication);
 
@@ -167,6 +171,11 @@ public class ApiAppServletContextListener implements ServletContextListener, Htt
         pingables.addAll(webApplicationContext.getBeansOfType(Pingable.class).values());
         pingables.addAll(konfigurator.getPingables());
         return pingables;
+    }
+
+    private boolean sensuMetricsBrukes() {
+        boolean sensuDisabled = getOptionalProperty(ApiApp.DISABLE_SENSU_METRICS).map(Boolean::parseBoolean).orElse(false);
+        return !sensuDisabled;
     }
 
     private boolean stsBrukes() {

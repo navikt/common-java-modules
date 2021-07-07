@@ -62,3 +62,9 @@ Cache-Control-headeren vil da se slik ut:
 `Cache-Control: no-cache`
 
 Man kan også fjerne Pragma-headeren ved å definere `DISABLE_PRAGMA_HEADER=true`
+
+### Annen konfigurasjon
+
+Metrics sendes ut av boksen til `sensu.nais:3030`, men dette kan deaktiveres ved å definere følgende miljøvariabel:
+
+`DISABLE_SENSU_METRICS=true`
