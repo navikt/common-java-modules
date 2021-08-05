@@ -117,7 +117,7 @@ public class NomClientImpl implements NomClient {
             RessursQuery.ResponseData.RessurserItem.Ressurs ressurs = ressursItem.ressurs;
 
             if (ressurs == null || ressurs.visningsNavn == null || ressurs.fornavn == null || ressurs.etternavn == null ) {
-                log.error("Fant ikke navn til veileder med ident: {}", ressursItem.id);
+                log.warn("Fant ikke navn til veileder med ident: {}", ressursItem.id);
                 return;
             }
 
