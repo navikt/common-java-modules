@@ -1,7 +1,8 @@
-package no.nav.common.kafka.consumer.feilhandtering;
+package no.nav.common.kafka.spring;
 
 import lombok.SneakyThrows;
-import no.nav.common.kafka.util.DatabaseUtils;
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
+import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,21 +12,21 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.util.DatabaseUtils.inClause;
-import static no.nav.common.kafka.util.DatabaseUtils.incrementAndGetOracleSequence;
+import static no.nav.common.kafka.spring.DatabaseUtils.incrementAndGetPostgresSequence;
+import static no.nav.common.kafka.spring.DatabaseUtils.toPostgresArray;
 
-public class OracleConsumerRepository implements KafkaConsumerRepository {
+public class PostgresJdbcTemplateConsumerRepository implements KafkaConsumerRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
     private final String consumerRecordTable;
 
-    public OracleConsumerRepository(JdbcTemplate jdbcTemplate, String consumerRecordTable) {
+    public PostgresJdbcTemplateConsumerRepository(JdbcTemplate jdbcTemplate, String consumerRecordTable) {
         this.jdbcTemplate = jdbcTemplate;
         this.consumerRecordTable = consumerRecordTable;
     }
 
-    public OracleConsumerRepository(JdbcTemplate jdbcTemplate) {
+    public PostgresJdbcTemplateConsumerRepository(JdbcTemplate jdbcTemplate) {
         this(jdbcTemplate, CONSUMER_RECORD_TABLE);
     }
 
@@ -36,8 +37,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 consumerRecordTable, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP
         );
-
-        long id = incrementAndGetOracleSequence(jdbcTemplate, CONSUMER_RECORD_ID_SEQ);
+        long id = incrementAndGetPostgresSequence(jdbcTemplate, CONSUMER_RECORD_ID_SEQ);
 
         try {
             jdbcTemplate.update(
@@ -50,26 +50,26 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                     record.getValue(),
                     record.getHeadersJson(),
                     record.getTimestamp());
+
+            return id;
         } catch (DuplicateKeyException e) {
             return -1;
         }
-
-        return id;
     }
 
     @SneakyThrows
     @Override
     public void deleteRecords(List<Long> ids) {
-        String sql = format("DELETE FROM %s WHERE %s " + inClause(ids.size()), consumerRecordTable, ID);
+        String sql = format("DELETE FROM %s WHERE %s = ANY(?::bigint[])", consumerRecordTable, ID);
 
-        jdbcTemplate.update(sql, ids.toArray());
+        jdbcTemplate.update(sql, toPostgresArray(ids));
     }
 
     @SneakyThrows
     @Override
     public boolean hasRecordWithKey(String topic, int partition, byte[] key) {
         String sql = format(
-                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND dbms_lob.compare(%s, ?) = 0 FETCH NEXT 1 ROWS ONLY",
+                "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND %s = ? LIMIT 1",
                 ID, consumerRecordTable, TOPIC, PARTITION, KEY
         );
 
@@ -80,7 +80,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
     @Override
     public List<StoredConsumerRecord> getRecords(String topic, int partition, int maxRecords) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s = ? AND %s = ? ORDER BY %s FETCH NEXT %d ROWS ONLY",
+                "SELECT * FROM %s WHERE %s = ? AND %s = ? ORDER BY %s LIMIT %d",
                 consumerRecordTable, TOPIC, PARTITION, RECORD_OFFSET, maxRecords
         );
 
@@ -102,10 +102,11 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
     @Override
     public List<TopicPartition> getTopicPartitions(List<String> topics) {
         String sql = format(
-                "SELECT DISTINCT %s, %s FROM %s WHERE %s " + inClause(topics.size()),
+                "SELECT DISTINCT %s, %s FROM %s WHERE %s = ANY(?::varchar[])",
                 TOPIC, PARTITION, consumerRecordTable, TOPIC
         );
 
-        return jdbcTemplate.query(sql, DatabaseUtils::fetchTopicPartitions, topics.toArray());
+        return jdbcTemplate.query(sql, DatabaseUtils::fetchTopicPartitions, toPostgresArray(topics));
     }
+
 }

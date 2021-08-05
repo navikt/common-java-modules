@@ -1,28 +1,29 @@
-package no.nav.common.kafka.producer.feilhandtering;
+package no.nav.common.kafka.spring;
 
 import lombok.SneakyThrows;
-import no.nav.common.kafka.util.DatabaseUtils;
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.util.DatabaseUtils.incrementAndGetPostgresSequence;
-import static no.nav.common.kafka.util.DatabaseUtils.toPostgresArray;
+import static no.nav.common.kafka.spring.DatabaseUtils.incrementAndGetPostgresSequence;
+import static no.nav.common.kafka.spring.DatabaseUtils.toPostgresArray;
 
-public class PostgresProducerRepository implements KafkaProducerRepository {
+public class PostgresJdbcTemplateProducerRepository implements KafkaProducerRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
     private final String producerRecordTable;
 
-    public PostgresProducerRepository(JdbcTemplate jdbcTemplate, String producerRecordTableName) {
+    public PostgresJdbcTemplateProducerRepository(JdbcTemplate jdbcTemplate, String producerRecordTableName) {
         this.jdbcTemplate = jdbcTemplate;
         this.producerRecordTable = producerRecordTableName;
     }
 
-    public PostgresProducerRepository(JdbcTemplate jdbcTemplate) {
+    public PostgresJdbcTemplateProducerRepository(JdbcTemplate jdbcTemplate) {
         this(jdbcTemplate, PRODUCER_RECORD_TABLE);
     }
 

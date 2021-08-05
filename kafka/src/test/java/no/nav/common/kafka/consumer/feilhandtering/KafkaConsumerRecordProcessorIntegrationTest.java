@@ -6,6 +6,7 @@ import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
+import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.utils.DbUtils;
 import org.junit.*;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,7 +49,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
     @Before
     public void setup() {
-        consumerRepository = new PostgresConsumerRepository(new JdbcTemplate(dataSource));
+        consumerRepository = new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(dataSource));
     }
 
     @After

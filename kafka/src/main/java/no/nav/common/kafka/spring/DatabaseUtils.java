@@ -1,4 +1,4 @@
-package no.nav.common.kafka.util;
+package no.nav.common.kafka.spring;
 
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;

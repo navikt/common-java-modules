@@ -1,28 +1,29 @@
-package no.nav.common.kafka.producer.feilhandtering;
+package no.nav.common.kafka.spring;
 
 import lombok.SneakyThrows;
-import no.nav.common.kafka.util.DatabaseUtils;
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.util.DatabaseUtils.inClause;
-import static no.nav.common.kafka.util.DatabaseUtils.incrementAndGetOracleSequence;
+import static no.nav.common.kafka.spring.DatabaseUtils.inClause;
+import static no.nav.common.kafka.spring.DatabaseUtils.incrementAndGetOracleSequence;
 
-public class OracleProducerRepository implements KafkaProducerRepository {
+public class OracleJdbcTemplateProducerRepository implements KafkaProducerRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
     private final String producerRecordTable;
 
-    public OracleProducerRepository(JdbcTemplate jdbcTemplate, String producerRecordTableName) {
+    public OracleJdbcTemplateProducerRepository(JdbcTemplate jdbcTemplate, String producerRecordTableName) {
         this.jdbcTemplate = jdbcTemplate;
         this.producerRecordTable = producerRecordTableName;
     }
 
-    public OracleProducerRepository(JdbcTemplate jdbcTemplate) {
+    public OracleJdbcTemplateProducerRepository(JdbcTemplate jdbcTemplate) {
         this(jdbcTemplate, PRODUCER_RECORD_TABLE);
     }
 

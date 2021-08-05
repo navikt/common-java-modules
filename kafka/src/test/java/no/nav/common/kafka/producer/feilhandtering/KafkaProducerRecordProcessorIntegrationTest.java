@@ -6,6 +6,7 @@ import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
 import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
+import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
 import no.nav.common.kafka.utils.DbUtils;
 import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -58,7 +59,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
         dataSource = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(dataSource, "kafka-producer-record-oracle.sql");
-        producerRepository = new OracleProducerRepository(new JdbcTemplate(dataSource));
+        producerRepository = new OracleJdbcTemplateProducerRepository(new JdbcTemplate(dataSource));
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
         admin.deleteTopics(List.of(TEST_TOPIC_A, TEST_TOPIC_B));

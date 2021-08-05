@@ -1,6 +1,8 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
+import no.nav.common.kafka.spring.OracleJdbcTemplateConsumerRepository;
+import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.utils.DbUtils;
 import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -36,12 +38,12 @@ public class KafkaConsumerRepositoryTest {
         postgreSQLContainer.start();
         DataSource postgres = createPostgresDataSource(postgreSQLContainer);
         DbUtils.runScript(postgres, "kafka-consumer-record-postgres.sql");
-        PostgresConsumerRepository postgresConsumerRepository = new PostgresConsumerRepository(new JdbcTemplate(postgres));
+        PostgresJdbcTemplateConsumerRepository postgresConsumerRepository = new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(postgres));
 
         DataSource oracle = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(oracle, "kafka-consumer-record-oracle.sql");
         DbUtils.runScript(oracle, "oracle-mock.sql");
-        OracleConsumerRepository oracleConsumerRepository = new OracleConsumerRepository(new JdbcTemplate(oracle));
+        OracleJdbcTemplateConsumerRepository oracleConsumerRepository = new OracleJdbcTemplateConsumerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
                 new Object[]{"POSTGRES", postgres, postgresConsumerRepository},
