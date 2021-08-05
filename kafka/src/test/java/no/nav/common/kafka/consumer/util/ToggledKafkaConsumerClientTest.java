@@ -11,14 +11,14 @@ import static org.mockito.Mockito.*;
 public class ToggledKafkaConsumerClientTest {
 
     @Test
-    public void should_start_consumer_when_toggle_is_on_and_consumer_is_not_running() throws InterruptedException {
+    public void should_start_consumer_when_toggle_is_off_and_consumer_is_not_running() throws InterruptedException {
         KafkaConsumerClient consumerClient = mock(KafkaConsumerClient.class);
-        Supplier<Boolean> isToggledOnSupplier = mock(Supplier.class);
+        Supplier<Boolean> toggleForStoppingConsumersSupplier = mock(Supplier.class);
 
         when(consumerClient.isRunning()).thenReturn(false);
-        when(isToggledOnSupplier.get()).thenReturn(true);
+        when(toggleForStoppingConsumersSupplier.get()).thenReturn(false);
 
-        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, isToggledOnSupplier, Duration.ofMillis(10));
+        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
 
         toggledClient.start();
@@ -37,20 +37,19 @@ public class ToggledKafkaConsumerClientTest {
     }
 
     @Test
-    public void should_stop_consumer_when_toggle_is_off_and_consumer_is_running() throws InterruptedException {
+    public void should_stop_consumer_when_toggle_is_on_and_consumer_is_running() throws InterruptedException {
         KafkaConsumerClient consumerClient = mock(KafkaConsumerClient.class);
-        Supplier<Boolean> isToggledOnSupplier = mock(Supplier.class);
+        Supplier<Boolean> toggleForStoppingConsumersSupplier = mock(Supplier.class);
 
         when(consumerClient.isRunning()).thenReturn(false);
-        when(isToggledOnSupplier.get()).thenReturn(true);
 
-        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, isToggledOnSupplier, Duration.ofMillis(10));
+        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
         toggledClient.start();
 
         when(consumerClient.isRunning()).thenReturn(true);
 
-        when(isToggledOnSupplier.get()).thenReturn(false);
+        when(toggleForStoppingConsumersSupplier.get()).thenReturn(true);
 
         Thread.sleep(20);
 
@@ -58,20 +57,19 @@ public class ToggledKafkaConsumerClientTest {
     }
 
     @Test
-    public void should_not_stop_consumer_when_toggle_is_on_and_consumer_is_running() throws InterruptedException {
+    public void should_not_stop_consumer_when_toggle_is_off_and_consumer_is_running() throws InterruptedException {
         KafkaConsumerClient consumerClient = mock(KafkaConsumerClient.class);
-        Supplier<Boolean> isToggledOnSupplier = mock(Supplier.class);
+        Supplier<Boolean> toggleForStoppingConsumersSupplier = mock(Supplier.class);
 
         when(consumerClient.isRunning()).thenReturn(false);
-        when(isToggledOnSupplier.get()).thenReturn(true);
 
-        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, isToggledOnSupplier, Duration.ofMillis(10));
+        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
         toggledClient.start();
 
         when(consumerClient.isRunning()).thenReturn(true);
 
-        when(isToggledOnSupplier.get()).thenReturn(true);
+        when(toggleForStoppingConsumersSupplier.get()).thenReturn(false);
 
         Thread.sleep(20);
 

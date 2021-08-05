@@ -22,19 +22,19 @@ public class ToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     private final Duration pollTimeoutDuration;
 
-    private final Supplier<Boolean> isToggledOnSupplier;
+    private final Supplier<Boolean> toggleForStoppingConsumersSupplier;
 
     private ScheduledExecutorService executorService;
 
     public ToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOnSupplier) {
         this.kafkaConsumerClient = kafkaConsumerClient;
-        this.isToggledOnSupplier = isToggledOnSupplier;
+        this.toggleForStoppingConsumersSupplier = isToggledOnSupplier;
         this.pollTimeoutDuration = DEFAULT_POLL_TIMEOUT;
     }
 
     public ToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOnSupplier, Duration pollTimeoutDuration) {
         this.kafkaConsumerClient = kafkaConsumerClient;
-        this.isToggledOnSupplier = isToggledOnSupplier;
+        this.toggleForStoppingConsumersSupplier = isToggledOnSupplier;
         this.pollTimeoutDuration = pollTimeoutDuration;
     }
 
@@ -71,15 +71,15 @@ public class ToggledKafkaConsumerClient implements KafkaConsumerClient {
     }
 
     private void syncRunningStateWithToggle() {
-        boolean isToggledOn = isToggledOnSupplier.get();
+        boolean isToggleOnForConsumersStopping = toggleForStoppingConsumersSupplier.get();
         boolean isRunning = isRunning();
 
-        if (isToggledOn && !isRunning) {
-            log.info("Starting consumer... Toggle is on and kafka consumer client is not running");
-            kafkaConsumerClient.start();
-        } else if (!isToggledOn && isRunning) {
-            log.info("Stopping consumer... Toggle is off and kafka consumer client is running");
+        if (isToggleOnForConsumersStopping && isRunning) {
+            log.info("Stopping consumer... Toggle for stopping consumers is on and kafka consumer client is running");
             kafkaConsumerClient.stop();
+        } else if (!isToggleOnForConsumersStopping && !isRunning) {
+            log.info("Starting consumer... Toggle for stopping consumers is off and kafka consumer client is not running");
+            kafkaConsumerClient.start();
         }
     }
 }
