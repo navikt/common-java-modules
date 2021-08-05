@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -46,8 +47,8 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         String brokerUrl = kafka.getBootstrapServers();
 
         dataSource = LocalOracleH2Database.createDatabase();
-        DbUtils.runScript(dataSource, "kafka-producer-record-postgres.sql");
-        producerRepository = new PostgresProducerRepository(dataSource);
+        DbUtils.runScript(dataSource, "kafka-producer-record-oracle.sql");
+        producerRepository = new OracleProducerRepository(new JdbcTemplate(dataSource));
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
         admin.deleteTopics(List.of(TEST_TOPIC_A, TEST_TOPIC_B));

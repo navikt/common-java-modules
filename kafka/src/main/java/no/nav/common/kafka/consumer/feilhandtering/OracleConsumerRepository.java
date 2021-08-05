@@ -1,31 +1,32 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
 import lombok.SneakyThrows;
+import no.nav.common.kafka.util.DatabaseUtils;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.ResultSet;
 import java.util.List;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.util.DatabaseUtils.*;
+import static no.nav.common.kafka.util.DatabaseUtils.inClause;
+import static no.nav.common.kafka.util.DatabaseUtils.incrementAndGetOracleSequence;
 
 public class OracleConsumerRepository implements KafkaConsumerRepository {
 
-    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
 
     private final String consumerRecordTable;
 
-    public OracleConsumerRepository(DataSource dataSource, String consumerRecordTable) {
-        this.dataSource = dataSource;
+    public OracleConsumerRepository(JdbcTemplate jdbcTemplate, String consumerRecordTable) {
+        this.jdbcTemplate = jdbcTemplate;
         this.consumerRecordTable = consumerRecordTable;
     }
 
-    public OracleConsumerRepository(DataSource dataSource) {
-        this(dataSource, CONSUMER_RECORD_TABLE);
+    public OracleConsumerRepository(JdbcTemplate jdbcTemplate) {
+        this(jdbcTemplate, CONSUMER_RECORD_TABLE);
     }
 
     @SneakyThrows
@@ -36,26 +37,24 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                 consumerRecordTable, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            long id = incrementAndGetOracleSequence(connection, CONSUMER_RECORD_ID_SEQ);
+        long id = incrementAndGetOracleSequence(jdbcTemplate, CONSUMER_RECORD_ID_SEQ);
 
-            statement.setLong(1, id);
-            statement.setString(2, record.getTopic());
-            statement.setInt(3, record.getPartition());
-            statement.setLong(4, record.getOffset());
-            statement.setBytes(5, record.getKey());
-            statement.setBytes(6, record.getValue());
-            statement.setString(7, record.getHeadersJson());
-            statement.setLong(8, record.getTimestamp());
-            statement.executeUpdate();
-
-            return id;
-        } catch (SQLIntegrityConstraintViolationException e) {
+        try {
+            jdbcTemplate.update(
+                    sql,
+                    id,
+                    record.getTopic(),
+                    record.getPartition(),
+                    record.getOffset(),
+                    record.getKey(),
+                    record.getValue(),
+                    record.getHeadersJson(),
+                    record.getTimestamp());
+        } catch (DuplicateKeyException e) {
             return -1;
         }
+
+        return id;
     }
 
     @SneakyThrows
@@ -63,15 +62,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
     public void deleteRecords(List<Long> ids) {
         String sql = format("DELETE FROM %s WHERE %s " + inClause(ids.size()), consumerRecordTable, ID);
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            for (int i = 0; i < ids.size(); i++) {
-                statement.setLong(i + 1, ids.get(i));
-            }
-            statement.executeUpdate();
-        }
+        jdbcTemplate.update(sql, ids.toArray());
     }
 
     @SneakyThrows
@@ -82,16 +73,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                 ID, consumerRecordTable, TOPIC, PARTITION, KEY
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            statement.setString(1, topic);
-            statement.setInt(2, partition);
-            statement.setBytes(3, key);
-
-            return statement.executeQuery().next();
-        }
+        return jdbcTemplate.query(sql, ResultSet::next, topic, partition, key);
     }
 
     @SneakyThrows
@@ -102,14 +84,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                 consumerRecordTable, TOPIC, PARTITION, RECORD_OFFSET, maxRecords
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            statement.setString(1, topic);
-            statement.setInt(2, partition);
-            return fetchConsumerRecords(statement.executeQuery());
-        }
+        return jdbcTemplate.query(sql, DatabaseUtils::fetchConsumerRecords, topic, partition);
     }
 
     @SneakyThrows
@@ -120,13 +95,7 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                 consumerRecordTable, RETRIES, RETRIES, LAST_RETRY, ID
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            statement.setLong(1, id);
-            statement.execute();
-        }
+        jdbcTemplate.update(sql, id);
     }
 
     @SneakyThrows
@@ -137,14 +106,6 @@ public class OracleConsumerRepository implements KafkaConsumerRepository {
                 TOPIC, PARTITION, consumerRecordTable, TOPIC
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            for (int i = 0; i < topics.size(); i++) {
-                statement.setString(i + 1, topics.get(i));
-            }
-            return fetchTopicPartitions(statement.executeQuery());
-        }
+        return jdbcTemplate.query(sql, DatabaseUtils::fetchTopicPartitions, topics.toArray());
     }
 }

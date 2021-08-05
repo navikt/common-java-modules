@@ -13,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
@@ -35,12 +36,12 @@ public class KafkaConsumerRepositoryTest {
         postgreSQLContainer.start();
         DataSource postgres = createPostgresDataSource(postgreSQLContainer);
         DbUtils.runScript(postgres, "kafka-consumer-record-postgres.sql");
-        PostgresConsumerRepository postgresConsumerRepository = new PostgresConsumerRepository(postgres);
+        PostgresConsumerRepository postgresConsumerRepository = new PostgresConsumerRepository(new JdbcTemplate(postgres));
 
         DataSource oracle = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(oracle, "kafka-consumer-record-oracle.sql");
         DbUtils.runScript(oracle, "oracle-mock.sql");
-        OracleConsumerRepository oracleConsumerRepository = new OracleConsumerRepository(oracle);
+        OracleConsumerRepository oracleConsumerRepository = new OracleConsumerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
                 new Object[]{"POSTGRES", postgres, postgresConsumerRepository},

@@ -1,31 +1,29 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import lombok.SneakyThrows;
+import no.nav.common.kafka.util.DatabaseUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
-import java.sql.Array;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.List;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.util.DatabaseUtils.fetchProducerRecords;
 import static no.nav.common.kafka.util.DatabaseUtils.incrementAndGetPostgresSequence;
+import static no.nav.common.kafka.util.DatabaseUtils.toPostgresArray;
 
 public class PostgresProducerRepository implements KafkaProducerRepository {
 
-    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
 
     private final String producerRecordTable;
 
-    public PostgresProducerRepository(DataSource dataSource, String producerRecordTableName) {
-        this.dataSource = dataSource;
+    public PostgresProducerRepository(JdbcTemplate jdbcTemplate, String producerRecordTableName) {
+        this.jdbcTemplate = jdbcTemplate;
         this.producerRecordTable = producerRecordTableName;
     }
 
-    public PostgresProducerRepository(DataSource dataSource) {
-        this(dataSource, PRODUCER_RECORD_TABLE);
+    public PostgresProducerRepository(JdbcTemplate jdbcTemplate) {
+        this(jdbcTemplate, PRODUCER_RECORD_TABLE);
     }
 
     @SneakyThrows
@@ -36,36 +34,25 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
                 producerRecordTable, ID, TOPIC, KEY, VALUE, HEADERS_JSON
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            long id = incrementAndGetPostgresSequence(connection, PRODUCER_RECORD_ID_SEQ);
+        long id = incrementAndGetPostgresSequence(jdbcTemplate, PRODUCER_RECORD_ID_SEQ);
 
-            statement.setLong(1, id);
-            statement.setString(2, record.getTopic());
-            statement.setBytes(3, record.getKey());
-            statement.setBytes(4, record.getValue());
-            statement.setString(5, record.getHeadersJson());
-            statement.executeUpdate();
+        jdbcTemplate.update(
+                sql,
+                id,
+                record.getTopic(),
+                record.getKey(),
+                record.getValue(),
+                record.getHeadersJson());
 
-            return id;
-        }
+        return id;
     }
 
     @SneakyThrows
     @Override
     public void deleteRecords(List<Long> ids) {
-        String sql = format("DELETE FROM %s WHERE %s = ANY(?)", producerRecordTable, ID);
+        String sql = format("DELETE FROM %s WHERE %s = ANY(?::bigint[])", producerRecordTable, ID);
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            Array array = connection.createArrayOf("INTEGER", ids.toArray());
-            statement.setArray(1, array);
-            statement.executeUpdate();
-        }
+        jdbcTemplate.update(sql, toPostgresArray(ids));
     }
 
     @SneakyThrows
@@ -76,30 +63,18 @@ public class PostgresProducerRepository implements KafkaProducerRepository {
                 producerRecordTable, ID, maxMessages
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            return fetchProducerRecords(statement.executeQuery());
-        }
+        return jdbcTemplate.query(sql, DatabaseUtils::fetchProducerRecords);
     }
 
     @SneakyThrows
     @Override
     public List<StoredProducerRecord> getRecords(int maxMessages, List<String> topics) {
         String sql = format(
-                "SELECT * FROM %s WHERE %s = ANY(?) ORDER BY %s LIMIT %d",
+                "SELECT * FROM %s WHERE %s = ANY(?::varchar[]) ORDER BY %s LIMIT %d",
                 producerRecordTable, TOPIC, ID, maxMessages
         );
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(sql)
-        ) {
-            Array array = connection.createArrayOf("VARCHAR", topics.toArray());
-            statement.setArray(1, array);
-            return fetchProducerRecords(statement.executeQuery());
-        }
+        return jdbcTemplate.query(sql, DatabaseUtils::fetchProducerRecords, toPostgresArray(topics));
     }
 
 }

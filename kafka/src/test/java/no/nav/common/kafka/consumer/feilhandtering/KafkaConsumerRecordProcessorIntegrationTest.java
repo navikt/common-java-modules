@@ -7,10 +7,9 @@ import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 import no.nav.common.kafka.utils.DbUtils;
-import no.nav.common.kafka.utils.LocalOracleH2Database;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -18,6 +17,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer;
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -27,25 +28,37 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
     private final static String TEST_TOPIC_B = "test-topic-b";
 
-    private DataSource dataSource;
+    private static DataSource dataSource;
 
     private KafkaConsumerRepository consumerRepository;
 
     private static Optional<SimpleLock> lock(LockConfiguration lockConfiguration) {
-        return Optional.of((SimpleLock) () -> {
+        return Optional.of(() -> {
         });
+    }
+
+    private static final PostgreSQLContainer<?> postgreSQLContainer = createPostgresContainer();
+
+    @BeforeClass
+    public static void setupClass() {
+        postgreSQLContainer.start();
+        dataSource = createPostgresDataSource(postgreSQLContainer);
+        DbUtils.runScript(dataSource, "kafka-consumer-record-postgres.sql");
     }
 
     @Before
     public void setup() {
-        dataSource = LocalOracleH2Database.createDatabase();
-        DbUtils.runScript(dataSource, "kafka-consumer-record-postgres.sql");
-        consumerRepository = new PostgresConsumerRepository(dataSource);
+        consumerRepository = new PostgresConsumerRepository(new JdbcTemplate(dataSource));
     }
 
     @After
-    public void cleanup() {
+    public void after() {
         DbUtils.cleanupConsumer(dataSource);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        postgreSQLContainer.stop();
     }
 
     @Test
