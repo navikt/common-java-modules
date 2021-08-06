@@ -1,6 +1,8 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.kafka.producer.util.ProducerUtils;
+import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
+import no.nav.common.kafka.spring.PostgresJdbcTemplateProducerRepository;
 import no.nav.common.kafka.utils.DbUtils;
 import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -11,6 +13,7 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
@@ -35,11 +38,11 @@ public class KafkaProducerRepositoryTest {
         DataSource postgres = createPostgresDataSource(postgreSQLContainer);
 
         DbUtils.runScript(postgres, "kafka-producer-record-postgres.sql");
-        PostgresProducerRepository postgresProducerRepository = new PostgresProducerRepository(postgres);
+        PostgresJdbcTemplateProducerRepository postgresProducerRepository = new PostgresJdbcTemplateProducerRepository(new JdbcTemplate(postgres));
 
         DataSource oracle = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(oracle, "kafka-producer-record-oracle.sql");
-        OracleProducerRepository oracleProducerRepository = new OracleProducerRepository(oracle);
+        OracleJdbcTemplateProducerRepository oracleProducerRepository = new OracleJdbcTemplateProducerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
                 new Object[]{"POSTGRES", postgres, postgresProducerRepository},

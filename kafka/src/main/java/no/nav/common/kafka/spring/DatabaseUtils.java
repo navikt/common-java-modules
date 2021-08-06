@@ -1,16 +1,16 @@
-package no.nav.common.kafka.util;
+package no.nav.common.kafka.spring;
 
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
@@ -75,32 +75,20 @@ public class DatabaseUtils {
     }
 
     @SneakyThrows
-    public static long incrementAndGetPostgresSequence(Connection connection, String sequenceName) {
+    public static long incrementAndGetPostgresSequence(JdbcTemplate jdbcTemplate, String sequenceName) {
         String sql = format("SELECT nextval('%s')", sequenceName);
-
-        try(Statement statement = connection.createStatement()) {
-            return fetchSequence(statement.executeQuery(sql));
-        }
+        return fetchSequence(jdbcTemplate, sql);
     }
 
     @SneakyThrows
-    public static long incrementAndGetOracleSequence(Connection connection, String sequenceName) {
+    public static long incrementAndGetOracleSequence(JdbcTemplate jdbcTemplate, String sequenceName) {
         String sql = format("SELECT %s.NEXTVAL FROM dual", sequenceName);
-
-        try(Statement statement = connection.createStatement()) {
-            return fetchSequence(statement.executeQuery(sql));
-        }
+        return fetchSequence(jdbcTemplate, sql);
     }
 
     @SneakyThrows
-    public static long fetchSequence(ResultSet resultSet) {
-        try (resultSet) {
-            if (!resultSet.next()) {
-                throw new IllegalStateException("Result set does not contain sequence");
-            }
-
-            return resultSet.getLong(1);
-        }
+    private static long fetchSequence(JdbcTemplate jdbcTemplate, String sql) {
+        return jdbcTemplate.queryForObject(sql, (rs, rn) -> rs.getLong(1));
     }
 
     public static String inClause(int number) {
@@ -114,5 +102,9 @@ public class DatabaseUtils {
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    public static String toPostgresArray(List<?> values) {
+        return "{" + values.stream().map(Object::toString).collect(Collectors.joining(",")) + "}";
     }
 }
