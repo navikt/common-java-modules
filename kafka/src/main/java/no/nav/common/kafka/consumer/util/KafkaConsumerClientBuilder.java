@@ -25,7 +25,7 @@ public class KafkaConsumerClientBuilder {
 
     private long pollDurationMs = -1;
 
-    private Supplier<Boolean> isToggledOnSupplier;
+    private Supplier<Boolean> isConsumerToggledOffSupplier;
 
     private KafkaConsumerClientBuilder() {}
 
@@ -53,8 +53,8 @@ public class KafkaConsumerClientBuilder {
         return this;
     }
 
-    public KafkaConsumerClientBuilder withToggle(Supplier<Boolean> isToggledOnSupplier) {
-        this.isToggledOnSupplier = isToggledOnSupplier;
+    public KafkaConsumerClientBuilder withToggle(Supplier<Boolean> isToggledOffSupplier) {
+        this.isConsumerToggledOffSupplier = isToggledOffSupplier;
         return this;
     }
 
@@ -81,8 +81,8 @@ public class KafkaConsumerClientBuilder {
 
         var client = new KafkaConsumerClientImpl<>(config);
 
-        if (isToggledOnSupplier != null) {
-            return new ToggledKafkaConsumerClient(client, isToggledOnSupplier);
+        if (isConsumerToggledOffSupplier != null) {
+            return new FeatureToggledKafkaConsumerClient(client, isConsumerToggledOffSupplier);
         }
 
         return client;

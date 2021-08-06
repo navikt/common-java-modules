@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  * Use cases for this implementation is for example when there is a need to pause the consumer to change the offset and restart the client.
  */
 @Slf4j
-public class ToggledKafkaConsumerClient implements KafkaConsumerClient {
+public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     private final static Duration DEFAULT_POLL_TIMEOUT = Duration.ofMinutes(1);
 
@@ -22,19 +22,19 @@ public class ToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     private final Duration pollTimeoutDuration;
 
-    private final Supplier<Boolean> isToggledOnSupplier;
+    private final Supplier<Boolean> isConsumerToggledOffSupplier;
 
     private ScheduledExecutorService executorService;
 
-    public ToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOnSupplier) {
+    public FeatureToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier) {
         this.kafkaConsumerClient = kafkaConsumerClient;
-        this.isToggledOnSupplier = isToggledOnSupplier;
+        this.isConsumerToggledOffSupplier = isToggledOffSupplier;
         this.pollTimeoutDuration = DEFAULT_POLL_TIMEOUT;
     }
 
-    public ToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOnSupplier, Duration pollTimeoutDuration) {
+    public FeatureToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier, Duration pollTimeoutDuration) {
         this.kafkaConsumerClient = kafkaConsumerClient;
-        this.isToggledOnSupplier = isToggledOnSupplier;
+        this.isConsumerToggledOffSupplier = isToggledOffSupplier;
         this.pollTimeoutDuration = pollTimeoutDuration;
     }
 
@@ -71,15 +71,15 @@ public class ToggledKafkaConsumerClient implements KafkaConsumerClient {
     }
 
     private void syncRunningStateWithToggle() {
-        boolean isToggledOn = isToggledOnSupplier.get();
+        boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
         boolean isRunning = isRunning();
 
-        if (isToggledOn && !isRunning) {
-            log.info("Starting consumer... Toggle is on and kafka consumer client is not running");
-            kafkaConsumerClient.start();
-        } else if (!isToggledOn && isRunning) {
-            log.info("Stopping consumer... Toggle is off and kafka consumer client is running");
+        if (isConsumerToggledOff && isRunning) {
+            log.info("Stopping consumer... Toggle for stopping consumers is on and kafka consumer client is running");
             kafkaConsumerClient.stop();
+        } else if (!isConsumerToggledOff && !isRunning) {
+            log.info("Starting consumer... Toggle for stopping consumers is off and kafka consumer client is not running");
+            kafkaConsumerClient.start();
         }
     }
 }
