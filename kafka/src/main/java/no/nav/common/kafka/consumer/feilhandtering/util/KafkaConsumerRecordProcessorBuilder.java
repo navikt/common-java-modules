@@ -14,6 +14,7 @@ import static no.nav.common.kafka.consumer.util.ConsumerUtils.createTopicConsume
 public class KafkaConsumerRecordProcessorBuilder {
 
     private final static Duration DEFAULT_ERROR_TIMEOUT = Duration.ofMinutes(1);
+    private final static Duration DEFAULT_MAX_ERROR_BACKOFF = Duration.ofMinutes(10);
     private final static Duration DEFAULT_POLL_TIMEOUT = Duration.ofSeconds(30);
     private final static int DEFAULT_RECORDS_BATCH_SIZE = 100;
 
@@ -27,6 +28,7 @@ public class KafkaConsumerRecordProcessorBuilder {
 
     private final KafkaConsumerRecordProcessorConfig config = new KafkaConsumerRecordProcessorConfig(
             DEFAULT_ERROR_TIMEOUT,
+            DEFAULT_MAX_ERROR_BACKOFF,
             DEFAULT_POLL_TIMEOUT,
             DEFAULT_RECORDS_BATCH_SIZE);
 
@@ -59,6 +61,11 @@ public class KafkaConsumerRecordProcessorBuilder {
         return this;
     }
 
+    public KafkaConsumerRecordProcessorBuilder withMaxErrorBackoff(Duration maxErrorBackoff) {
+        this.config.setMaxErrorBackoff(maxErrorBackoff);
+        return this;
+    }
+
     public KafkaConsumerRecordProcessorBuilder withRecordBatchSize(int recordBatchSize) {
         this.config.setRecordBatchSize(recordBatchSize);
         return this;
@@ -75,6 +82,10 @@ public class KafkaConsumerRecordProcessorBuilder {
 
         if (topicConsumerConfigs == null) {
             throw new IllegalStateException("Cannot build kafka consumer record processor without recordConsumers");
+        }
+
+        if (config.getMaxErrorBackoff().compareTo(config.getErrorTimeout()) < 0) {
+            throw new IllegalStateException("Cannot build kafka consumer record processor where error timeout is greater than max error backoff");
         }
 
         return new KafkaConsumerRecordProcessor(

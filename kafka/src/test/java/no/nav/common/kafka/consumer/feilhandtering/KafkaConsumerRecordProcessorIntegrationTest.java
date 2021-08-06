@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -220,6 +221,46 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         assertEquals(2, counterTopicA.get());
 
+    }
+
+    @Test
+    public void should_back_off_on_retries() throws InterruptedException {
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {
+        });
+
+        AtomicInteger counterTopicA = new AtomicInteger();
+
+        List<TopicConsumerConfig<?, ?>> configs1 = List.of(
+                new TopicConsumerConfig<>(
+                        TEST_TOPIC_A,
+                        stringDeserializer(),
+                        stringDeserializer(),
+                        (record) -> {
+                            counterTopicA.incrementAndGet();
+                            System.out.println("consumer 1");
+                            return ConsumeStatus.FAILED;
+                        }
+                ));
+
+        KafkaConsumerRecordProcessor consumerRecordProcessor1 =
+                KafkaConsumerRecordProcessorBuilder
+                        .builder()
+                        .withLockProvider(lockProvider)
+                        .withKafkaConsumerRepository(consumerRepository)
+                        .withConsumerConfigs(configs1)
+                        .withErrorTimeout(Duration.ofMillis(1000))
+                        .withMaxErrorBackoff(Duration.ofMillis(3000))
+                        .build();
+
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
+
+        consumerRecordProcessor1.start();
+
+        Thread.sleep(5000);
+
+        consumerRecordProcessor1.close();
+
+        assertTrue("Expected low number of retries", counterTopicA.get() < 4);
     }
 
     private StoredConsumerRecord storedRecord(String topic, int partition, long offset, String key, String value) {

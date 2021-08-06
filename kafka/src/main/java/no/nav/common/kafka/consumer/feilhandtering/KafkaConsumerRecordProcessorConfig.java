@@ -9,6 +9,7 @@ import java.time.Duration;
 @Data
 public class KafkaConsumerRecordProcessorConfig {
     Duration errorTimeout;
+    Duration maxErrorBackoff;
     Duration pollTimeout;
     int recordBatchSize;
 }

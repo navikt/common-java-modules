@@ -10,6 +10,7 @@ import org.apache.kafka.common.utils.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -132,7 +133,11 @@ public class KafkaConsumerRecordProcessor {
                         return;
                     }
 
-                    // TODO: Can implement exponential backoff if necessary
+                    if (r.getRetries() > 0 &&
+                            calculateNextRetry(r.getRetries(), r.getLastRetry()).isAfter(Instant.now())) {
+                        haveAllSucceeded.set(false);
+                        return;
+                    }
 
                     ConsumeStatus status;
                     Exception exception = null;
@@ -183,6 +188,14 @@ public class KafkaConsumerRecordProcessor {
         String name = "kcrp-" + topicPartition.topic() + "-" + topicPartition.partition();
         LockConfiguration configuration = new LockConfiguration(Instant.now(), name, Duration.ofMinutes(5), Duration.ofSeconds(5));
         return lockProvider.lock(configuration);
+    }
+
+    private Instant calculateNextRetry(int numberOfRetries, Timestamp lastRetry) {
+        long backoffMillis = Math.min(
+                config.maxErrorBackoff.toMillis(),
+                config.errorTimeout.toMillis() * (int) Math.pow(2, numberOfRetries) + new Random().nextInt(1000)
+        );
+        return lastRetry.toInstant().plusMillis(backoffMillis);
     }
 
 }
