@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import static org.mockito.Mockito.*;
 
-public class ToggledKafkaConsumerClientTest {
+public class FeatureToggledKafkaConsumerClientTest {
 
     @Test
     public void should_start_consumer_when_toggle_is_off_and_consumer_is_not_running() throws InterruptedException {
@@ -18,7 +18,7 @@ public class ToggledKafkaConsumerClientTest {
         when(consumerClient.isRunning()).thenReturn(false);
         when(toggleForStoppingConsumersSupplier.get()).thenReturn(false);
 
-        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
+        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
 
         toggledClient.start();
@@ -43,7 +43,7 @@ public class ToggledKafkaConsumerClientTest {
 
         when(consumerClient.isRunning()).thenReturn(false);
 
-        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
+        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
         toggledClient.start();
 
@@ -63,7 +63,7 @@ public class ToggledKafkaConsumerClientTest {
 
         when(consumerClient.isRunning()).thenReturn(false);
 
-        ToggledKafkaConsumerClient toggledClient = new ToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
+        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
         toggledClient.start();
 
