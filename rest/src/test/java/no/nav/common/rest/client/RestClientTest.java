@@ -66,4 +66,28 @@ public class RestClientTest {
         MDC.remove(MDCConstants.MDC_JOB_ID);
     }
 
+    @Test
+    public void client_skal_legge_pa_ny_call_id_hvis_call_id_mangler() throws IOException {
+        OkHttpClient client = RestClient.baseClient();
+
+        MDC.remove(MDCConstants.MDC_CALL_ID);
+        System.setProperty(NAIS_APP_NAME_PROPERTY_NAME, "test");
+
+        Request request = new Request.Builder()
+                .url("http://localhost:" + wireMockRule.port())
+                .build();
+
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+
+        var idPattern = matching("^[a-z0-9]{32}$");
+
+        try (Response ignored = client.newCall(request).execute()) {
+            verify(getRequestedFor(anyUrl())
+                    .withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, idPattern)
+                    .withHeader("Nav-CallId", idPattern)
+                    .withHeader("X-Correlation-Id", idPattern));
+        }
+
+    }
+
 }
