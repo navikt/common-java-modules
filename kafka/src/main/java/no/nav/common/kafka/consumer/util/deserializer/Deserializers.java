@@ -3,6 +3,7 @@ package no.nav.common.kafka.consumer.util.deserializer;
 import org.apache.kafka.common.serialization.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static no.nav.common.kafka.util.KafkaEnvironmentVariables.*;
@@ -48,6 +49,10 @@ public class Deserializers {
 
     public static <T> Deserializer<T> onPremAvroDeserializer(String schemaRegistryUrl) {
         return new AvroDeserializer<>(schemaRegistryUrl);
+    }
+
+    public static <T> Deserializer<T> onPremAvroDeserializer(String schemaRegistryUrl, Map<String, ?> props) {
+        return new AvroDeserializer<>(schemaRegistryUrl, props);
     }
 
     public static <T> Deserializer<T> aivenAvroDeserializer() {
