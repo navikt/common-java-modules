@@ -71,7 +71,7 @@ public class KafkaProducerClientImplIntegrationTest {
         producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"));
 
         consumerClient.start();
-        Thread.sleep(500);
+        Thread.sleep(1500);
         consumerClient.stop();
 
         ConsumerRecord<String, String> record = recordRef.get();

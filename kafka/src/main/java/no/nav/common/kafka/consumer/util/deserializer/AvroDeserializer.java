@@ -36,12 +36,16 @@ public class AvroDeserializer<T> implements Deserializer<T> {
     }
 
     public AvroDeserializer(String schemaRegistryUrl) {
+        this(schemaRegistryUrl, Map.of());
+    }
+
+    public AvroDeserializer(String schemaRegistryUrl, Map<String, ?> props) {
         SchemaRegistryClient schemaRegistryClient = SCHEMA_REGISTRY_CLIENTS.computeIfAbsent(
                 schemaRegistryUrl,
                 (url) -> new CachedSchemaRegistryClient(schemaRegistryUrl, SCHEMA_MAP_CAPACITY)
         );
 
-        kafkaAvroDeserializer = new KafkaAvroDeserializer(schemaRegistryClient);
+        kafkaAvroDeserializer = new KafkaAvroDeserializer(schemaRegistryClient, props);
     }
 
     @Override
