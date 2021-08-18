@@ -1,0 +1,22 @@
+name: Jitpack test release
+on:
+  push:
+    branches:
+      - publish-jitpack
+jobs:
+  release:
+    name: Release common-java-modules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create Version
+        run: echo "VERSION=1.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)" >> $GITHUB_ENV
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          prerelease: false
