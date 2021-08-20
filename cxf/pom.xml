@@ -11,7 +11,7 @@
 	<artifactId>cxf</artifactId>
 
 	<properties>
-        <jsoup.version>1.14.1</jsoup.version>
+        <jsoup.version>1.14.2</jsoup.version>
         <opensaml.version>3.3.0</opensaml.version>
     </properties>
 
