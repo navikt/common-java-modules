@@ -2,6 +2,7 @@ package no.nav.common.kafka.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.utils.StringUtils;
 import org.apache.kafka.common.header.Header;
@@ -43,6 +44,7 @@ public class KafkaUtils {
     /**
      * {@link org.apache.kafka.common.header.Header} contains information we dont need when serializing
      */
+    @NoArgsConstructor
     @AllArgsConstructor
     @Data
     static class KafkaHeader {
