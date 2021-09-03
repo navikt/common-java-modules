@@ -1,5 +1,6 @@
 package no.nav.common.client.aktoroppslag;
 
+import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.EksternBrukerId;
@@ -14,15 +15,17 @@ public interface AktorOppslagClient extends HealthCheck {
      * Henter gjeldende fnr basert på brukers aktør id
      * @param aktorId aktør id som det blir gjort oppslag på
      * @return gjeldende fnr for bruker
+     * @throws IngenGjeldendeIdentException ved ingen gjeldende ident
      */
-    Fnr hentFnr(AktorId aktorId);
+    Fnr hentFnr(AktorId aktorId) throws IngenGjeldendeIdentException;
 
     /**
      * Henter gjeldende aktør id basert på brukers fnr
      * @param fnr fnr som det blir gjort oppslag på
      * @return gjeldende aktør id for bruker
+     * @throws IngenGjeldendeIdentException ved ingen gjeldende ident
      */
-    AktorId hentAktorId(Fnr fnr);
+    AktorId hentAktorId(Fnr fnr) throws IngenGjeldendeIdentException;
 
     /**
      * Henter gjeldende fnr for en liste med aktør ider fra forskjellige brukere
