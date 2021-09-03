@@ -3,6 +3,7 @@ package no.nav.common.client.aktoroppslag;
 import lombok.Data;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.client.pdl.PdlClient;
 import no.nav.common.client.pdl.PdlClientImpl;
 import no.nav.common.client.pdl.Tema;
@@ -66,7 +67,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
                 .stream()
                 .findFirst()
                 .map(identData -> Fnr.of(identData.ident))
-                .orElseThrow();
+                .orElseThrow(IngenGjeldendeIdentException::new);
     }
 
     @Override

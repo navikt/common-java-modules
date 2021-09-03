@@ -1,6 +1,5 @@
 package no.nav.common.client.aktoroppslag;
 
-import no.nav.common.client.aktorregister.AktorregisterHttpClient;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.EksternBrukerId;
