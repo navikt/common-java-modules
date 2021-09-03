@@ -1,9 +1,11 @@
-package no.nav.common.client.aktorregister;
+package no.nav.common.client.aktoroppslag;
 
 import com.fasterxml.jackson.databind.type.MapType;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.client.aktoroppslag.BrukerIdenter;
+import no.nav.common.client.aktorregister.AktorregisterClient;
+import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.json.JsonUtils;
