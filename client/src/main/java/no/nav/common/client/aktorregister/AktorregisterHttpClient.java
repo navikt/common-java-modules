@@ -144,7 +144,7 @@ public class AktorregisterHttpClient implements AktorregisterClient {
                 .findFirst()
                 .flatMap(e -> finnGjeldendeIdent(e.getValue().identer))
                 .map(i -> i.ident)
-                .orElseThrow(() -> new RuntimeException("Fant ikke gjeldende ident"));
+                .orElseThrow(IngenGjeldendeIdentException::new);
     }
 
     private String createRequestUrl(String aktorregisterUrl, Identgruppe identgruppe, boolean gjeldende) {
