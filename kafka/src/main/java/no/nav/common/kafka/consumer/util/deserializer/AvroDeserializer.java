@@ -48,6 +48,10 @@ public class AvroDeserializer<T> implements Deserializer<T> {
         kafkaAvroDeserializer = new KafkaAvroDeserializer(schemaRegistryClient, props);
     }
 
+    public void configure(Map<String, ?> props, boolean isKey){
+        this.kafkaAvroDeserializer.configure(props, isKey);
+    }
+
     @Override
     public T deserialize(String topic, byte[] data) {
         return (T) kafkaAvroDeserializer.deserialize(topic, data);
