@@ -78,19 +78,13 @@ public class KafkaConsumerRecordProcessor {
                 try {
                     List<TopicPartition> uniquePartitions = kafkaConsumerRepository.getTopicPartitions(topics);
 
-                    if (uniquePartitions.isEmpty()) {
-                        Thread.sleep(config.pollTimeout.toMillis());
-                    } else {
-                        boolean haveAllSucceeded = consumeFromTopicPartitions(uniquePartitions);
-                        if (!haveAllSucceeded) {
-                            Thread.sleep(config.errorTimeout.toMillis());
-                        }
+                    if (!uniquePartitions.isEmpty()) {
+                        consumeFromTopicPartitions(uniquePartitions);
                     }
-
                 } catch (Exception e) {
                     log.error("Failed to consume stored kafka records", e);
-                    Thread.sleep(config.errorTimeout.toMillis());
                 }
+                Thread.sleep(config.pollTimeout.toMillis());
             }
         } catch (Exception e) {
             log.error("Unexpected exception caught in stored consumer record handler loop", e);
@@ -193,7 +187,7 @@ public class KafkaConsumerRecordProcessor {
     private Instant calculateNextRetry(int numberOfRetries, Timestamp lastRetry) {
         long backoffMillis = Math.min(
                 config.maxErrorBackoff.toMillis(),
-                config.errorTimeout.toMillis() * (int) Math.pow(2, numberOfRetries) + new Random().nextInt(1000)
+                config.getPollTimeout().toMillis() * (int) Math.pow(2, numberOfRetries) + new Random().nextInt(1000)
         );
         return lastRetry.toInstant().plusMillis(backoffMillis);
     }

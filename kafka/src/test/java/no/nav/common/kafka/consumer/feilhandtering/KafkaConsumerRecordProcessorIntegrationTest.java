@@ -248,7 +248,6 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                         .withLockProvider(lockProvider)
                         .withKafkaConsumerRepository(consumerRepository)
                         .withConsumerConfigs(configs1)
-                        .withErrorTimeout(Duration.ofMillis(1000))
                         .withMaxErrorBackoff(Duration.ofMillis(3000))
                         .build();
 
