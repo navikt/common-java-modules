@@ -19,18 +19,21 @@ import org.testcontainers.utility.DockerImageName;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.nav.common.kafka.utils.TestUtils.*;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class KafkaConsumerClientTest {
 
-    private final static String TEST_TOPIC_1 = "test-topic-a";
+    private final static String TEST_TOPIC_A = "test-topic-a";
 
-    private final static String TEST_TOPIC_2 = "test-topic-b";
+    private final static String TEST_TOPIC_B = "test-topic-b";
 
     private KafkaProducer<String, String> producer;
 
@@ -47,11 +50,11 @@ public class KafkaConsumerClientTest {
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
 
-        admin.deleteTopics(List.of(TEST_TOPIC_1, TEST_TOPIC_2));
+        admin.deleteTopics(List.of(TEST_TOPIC_A, TEST_TOPIC_B));
 
         admin.createTopics(List.of(
-                new NewTopic(TEST_TOPIC_1, 1, (short) 1),
-                new NewTopic(TEST_TOPIC_2, 1, (short) 1)
+                new NewTopic(TEST_TOPIC_A, 1, (short) 1),
+                new NewTopic(TEST_TOPIC_B, 1, (short) 1)
         ));
 
         admin.close(); // Apply changes
@@ -69,14 +72,14 @@ public class KafkaConsumerClientTest {
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
-                Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 0))
+                Map.of(TEST_TOPIC_A, consumerWithCounter(counter, 0))
         );
 
-        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value1"));
-        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value2"));
-        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", "value3"));
-        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", null));
-        producer.send(new ProducerRecord<>(TEST_TOPIC_1, null, "value5"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value1"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value2"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key2", "value3"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key2", null));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_A, null, "value5"));
 
         producer.flush();
 
@@ -87,13 +90,13 @@ public class KafkaConsumerClientTest {
 
         consumerClient.stop();
 
-        OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_1, 0);
+        OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_A, 0);
 
         assertEquals(5, committedOffsets.offset());
         assertEquals(5, counter.get());
 
-        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value4"));
-        producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key2", "value5"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value4"));
+        producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key2", "value5"));
 
         producer.flush();
 
@@ -103,7 +106,7 @@ public class KafkaConsumerClientTest {
 
         consumerClient.stop();
 
-        OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_1, 0);
+        OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_A, 0);
 
         assertEquals(7, committedOffsets2.offset());
         assertEquals(7, counter.get());
@@ -114,14 +117,14 @@ public class KafkaConsumerClientTest {
         AtomicInteger counter = new AtomicInteger();
 
         for (int i = 0; i < 15; i++) {
-            producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value" + i));
+            producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value" + i));
         }
 
         producer.flush();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
-                Map.of(TEST_TOPIC_1, consumerWithCounter(counter, 100)),
+                Map.of(TEST_TOPIC_A, consumerWithCounter(counter, 100)),
                 10
         );
 
@@ -132,7 +135,7 @@ public class KafkaConsumerClientTest {
 
         consumerClient.stop();
 
-        OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_1, 0);
+        OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_A, 0);
 
         assertTrue(committedOffsets.offset() > 4);
         assertTrue(committedOffsets.offset() < 12);
@@ -189,8 +192,8 @@ public class KafkaConsumerClientTest {
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(
-                        TEST_TOPIC_1, consumerWithCounter(counter1, 0),
-                        TEST_TOPIC_2, failOnCountConsumer(counter2, 3)
+                        TEST_TOPIC_A, consumerWithCounter(counter1, 0),
+                        TEST_TOPIC_B, failOnCountConsumer(counter2, 3)
                 )
         );
 
@@ -198,8 +201,8 @@ public class KafkaConsumerClientTest {
         consumerClient.start();
 
         for (int i = 0; i < 5; i++) {
-            producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value" + i));
-            producer.send(new ProducerRecord<>(TEST_TOPIC_2, "key1", "value" + i));
+            producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value" + i));
+            producer.send(new ProducerRecord<>(TEST_TOPIC_B, "key1", "value" + i));
         }
 
         producer.flush();
@@ -208,9 +211,9 @@ public class KafkaConsumerClientTest {
 
         consumerClient.stop();
 
-        OffsetAndMetadata committedOffsets1 = getCommittedOffsets(TEST_TOPIC_1, 0);
+        OffsetAndMetadata committedOffsets1 = getCommittedOffsets(TEST_TOPIC_A, 0);
 
-        OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_2, 0);
+        OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_B, 0);
 
         assertEquals(5, counter1.get());
         assertEquals(5, committedOffsets1.offset());
@@ -220,25 +223,58 @@ public class KafkaConsumerClientTest {
     }
 
     @Test
+    public void should_stop_consumption_of_topic_on_and_seek_back_to_retry_until_it_succeeds() throws InterruptedException {
+        AtomicBoolean doFail = new AtomicBoolean(true);
+        Properties properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
+        properties.setProperty(MAX_POLL_RECORDS_CONFIG, "4");
+        KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
+                properties,
+                Map.of(
+                        TEST_TOPIC_A, failOnMessage("value3", doFail)
+                )
+        );
+
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient.start();
+
+        for (int i = 1; i <= 5; i++) {
+            producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value" + i));
+        }
+        producer.flush();
+
+        Thread.sleep(1000);
+        assertEquals(2, getCommittedOffsets(TEST_TOPIC_A, 0).offset());
+
+        doFail.set(false);
+
+        Thread.sleep(1000);
+        assertEquals(5, getCommittedOffsets(TEST_TOPIC_A, 0).offset());
+
+        consumerClient.stop();
+
+
+    }
+
+    @Test
     public void should_commit_on_both_clients() throws InterruptedException {
         AtomicInteger counter1 = new AtomicInteger();
         AtomicInteger counter2 = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config1 = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
-                Map.of(TEST_TOPIC_1, consumerWithCounter(counter1, 100))
+                Map.of(TEST_TOPIC_A, consumerWithCounter(counter1, 100))
         );
 
         KafkaConsumerClientConfig<String, String> config2 = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
-                Map.of(TEST_TOPIC_1, consumerWithCounter(counter2, 100))
+                Map.of(TEST_TOPIC_A, consumerWithCounter(counter2, 100))
         );
 
         KafkaConsumerClientImpl<String, String> consumerClient1 = new KafkaConsumerClientImpl<>(config1);
         KafkaConsumerClientImpl<String, String> consumerClient2 = new KafkaConsumerClientImpl<>(config2);
 
         for (int i = 0; i < 100; i++) {
-            producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value" + i));
+            producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value" + i));
         }
 
         producer.flush();
@@ -257,7 +293,7 @@ public class KafkaConsumerClientTest {
 
         consumerClient2.stop();
 
-        OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_1, 0);
+        OffsetAndMetadata committedOffsets = getCommittedOffsets(TEST_TOPIC_A, 0);
 
         assertTrue(committedOffsets.offset() > 10);
         assertTrue(counter1.get() > 5);
@@ -272,15 +308,15 @@ public class KafkaConsumerClientTest {
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(
-                        TEST_TOPIC_1, consumerWithCounter(counter1, 100),
-                        TEST_TOPIC_2, consumerWithCounter(counter2, 100)
+                        TEST_TOPIC_A, consumerWithCounter(counter1, 100),
+                        TEST_TOPIC_B, consumerWithCounter(counter2, 100)
                 ),
                 10
         );
 
         for (int i = 0; i < 5; i++) {
-            producer.send(new ProducerRecord<>(TEST_TOPIC_1, "key1", "value" + i));
-            producer.send(new ProducerRecord<>(TEST_TOPIC_2, "key1", "value" + i));
+            producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value" + i));
+            producer.send(new ProducerRecord<>(TEST_TOPIC_B, "key1", "value" + i));
         }
 
         producer.flush();
@@ -322,4 +358,12 @@ public class KafkaConsumerClientTest {
         };
     }
 
+    private TopicConsumer<String, String> failOnMessage(String message, AtomicBoolean doFail) {
+        return record -> {
+            if (record.value().equals(message) && doFail.get()) {
+                return ConsumeStatus.FAILED;
+            }
+            return ConsumeStatus.OK;
+        };
+    }
 }
