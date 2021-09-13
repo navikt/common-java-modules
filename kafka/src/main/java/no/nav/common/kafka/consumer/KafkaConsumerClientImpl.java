@@ -104,7 +104,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         try {
             commitCurrentOffsets();
         } catch (Exception e) {
-            log.error("Failed to commit offsets when partitions were revoked: " + offsetsToCommit.toString(), e);
+            log.error("Failed to commit offsets when partitions were revoked: " + offsetsToCommit, e);
         }
     }
 
@@ -127,6 +127,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
                 revokedPartitions.clear();
                 offsetsToCommit.clear();
+                failedRecords.clear();
 
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
@@ -171,9 +172,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                             */
                             if (clientState == ClientState.NOT_RUNNING ||
                                     revokedPartitions.contains(topicPartition) ||
-                                    failedRecords.stream().anyMatch(failedRecord  ->
-                                            failedRecord.topic().equals(record.topic()) &&
-                                                    failedRecord.partition() == record.partition())
+                                    hasPreviouslyFailedRecord(topicPartition)
                             ) {
                                 return;
                             }
@@ -208,10 +207,16 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
                 try {
                     commitCurrentOffsets();
-                    seekBackOnFailed();
                 } catch (Exception e) {
                     // If we fail to commit offsets then continue polling records
-                    log.error("Failed to commit offsets: " + offsetsToCommit.toString(), e);
+                    log.error("Failed to commit offsets: " + offsetsToCommit, e);
+                }
+
+                try {
+                    seekBackOnFailed();
+                } catch (Exception e) {
+                    // If we fail to seek back then continue polling records
+                    log.error("Failed to seek back", e);
                 }
             }
         } catch (Exception e) {
@@ -232,6 +237,12 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                 }
             }
         }
+    }
+
+    private boolean hasPreviouslyFailedRecord(TopicPartition topicPartition) {
+        return failedRecords.stream().anyMatch(failedRecord  ->
+                failedRecord.topic().equals(topicPartition.topic()) &&
+                        failedRecord.partition() == topicPartition.partition());
     }
 
     private void commitCurrentOffsets() {
