@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static no.nav.common.kafka.utils.TestUtils.*;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
@@ -186,14 +187,15 @@ public class KafkaConsumerClientTest {
 
     @Test
     public void should_stop_consumption_of_topic_on_failure() throws InterruptedException {
-        AtomicInteger counter1 = new AtomicInteger();
-        AtomicInteger counter2 = new AtomicInteger();
+        AtomicInteger messagesReadCounterA = new AtomicInteger();
+        AtomicInteger messagesReadCounterB = new AtomicInteger();
+        AtomicLong maxRecordOffsetB = new AtomicLong(-1);
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(
-                        TEST_TOPIC_A, consumerWithCounter(counter1, 0),
-                        TEST_TOPIC_B, failOnCountConsumer(counter2, 3)
+                        TEST_TOPIC_A, consumerWithCounter(messagesReadCounterA, 0),
+                        TEST_TOPIC_B, failOnOffsetConsumer(maxRecordOffsetB, messagesReadCounterB, 2)
                 )
         );
 
@@ -215,10 +217,11 @@ public class KafkaConsumerClientTest {
 
         OffsetAndMetadata committedOffsets2 = getCommittedOffsets(TEST_TOPIC_B, 0);
 
-        assertEquals(5, counter1.get());
+        assertEquals(5, messagesReadCounterA.get());
         assertEquals(5, committedOffsets1.offset());
 
-        assertEquals(3, counter2.get());
+        assertEquals(2, maxRecordOffsetB.get());
+        assertTrue("Should have been reading messages", messagesReadCounterB.get() >= 3);
         assertEquals(2, committedOffsets2.offset());
     }
 
@@ -348,11 +351,12 @@ public class KafkaConsumerClientTest {
         };
     }
 
-    private TopicConsumer<String, String> failOnCountConsumer(AtomicInteger counter, int failOnCount) {
+    private TopicConsumer<String, String> failOnOffsetConsumer(AtomicLong maxRecord, AtomicInteger counter, int offset) {
         return record -> {
-            int count = counter.incrementAndGet();
+            counter.incrementAndGet();
+            maxRecord.set(Math.max(maxRecord.get(), record.offset()));
 
-            return count == failOnCount
+            return record.offset() == offset
                     ? ConsumeStatus.FAILED
                     : ConsumeStatus.OK;
         };
