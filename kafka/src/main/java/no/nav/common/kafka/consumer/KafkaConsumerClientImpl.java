@@ -212,12 +212,9 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                     log.error("Failed to commit offsets: " + offsetsToCommit, e);
                 }
 
-                try {
-                    seekBackOnFailed();
-                } catch (Exception e) {
-                    // If we fail to seek back then continue polling records
-                    log.error("Failed to seek back", e);
-                }
+                // We do not catch exceptions if seeking back fails since we then will lose messages.
+                // Propagates exception so the consumer restarts.
+                seekBackOnFailed();
             }
         } catch (Exception e) {
             log.error("Unexpected exception caught from main loop. Shutting down...", e);
