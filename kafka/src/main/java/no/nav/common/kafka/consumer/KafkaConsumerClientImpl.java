@@ -146,13 +146,13 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                 processedRecordsLatch = new CountDownLatch(totalRecords);
 
                 /*
-                 We seek to the first offset of each topic+partition so that all the records in the batch must
+                 We seek to the offset of the first record in each topic+partition so that all the records in the batch must
                  be processed before polling new records.
 
                  If this is not done then it is possible for records from revoked partitions or failed records to be skipped if
                  no other record for that topic+partition has been added to offsetsToCommit.
                 */
-                seekToFirstOffsetForEachTopicPartition(records);
+                seekToFirstRecordOffsetForEachTopicPartition(records);
 
                 for (ConsumerRecord<K, V> record : records) {
                     String topic = record.topic();
@@ -237,14 +237,15 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     private void commitCurrentOffsets() {
         if (!offsetsToCommit.isEmpty()) {
-            offsetsToCommit.forEach(consumer::seek);
+            safeSeek(offsetsToCommit);
+
             consumer.commitSync(offsetsToCommit, Duration.ofSeconds(3));
             log.info("Offsets committed: " + offsetsToCommit);
             offsetsToCommit.clear();
         }
     }
 
-    private void seekToFirstOffsetForEachTopicPartition(ConsumerRecords<K, V> records) {
+    private void seekToFirstRecordOffsetForEachTopicPartition(ConsumerRecords<K, V> records) {
         Map<TopicPartition, OffsetAndMetadata> offsetMap = new HashMap<>();
 
         records.forEach(record -> {
@@ -258,7 +259,20 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
             }
         });
 
-        offsetMap.forEach(consumer::seek);
+        safeSeek(offsetMap);
+    }
+
+    private void safeSeek(Map<TopicPartition, OffsetAndMetadata> offsetMap) {
+        offsetMap.forEach((topicPartition, offsetAndMetadata) -> {
+            try {
+                consumer.seek(topicPartition, offsetAndMetadata);
+            } catch (IllegalStateException e) {
+                log.warn(
+                        "Unable to seek to topicPartition={} offset={}. The TopicPartition is not assigned to this consumer",
+                        topicPartition, offsetAndMetadata.offset()
+                );
+            }
+        });
     }
 
     private static void validateConfig(KafkaConsumerClientConfig<?, ?> config) {
