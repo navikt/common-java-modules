@@ -38,9 +38,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     private final Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new ConcurrentHashMap<>();
 
-    private final Set<TopicPartition> revokedPartitions = ConcurrentHashMap.newKeySet();
-
-    private final Set<ConsumerRecord<K, V>> failedRecords = ConcurrentHashMap.newKeySet();
+    private final Set<TopicPartition> revokedOrFailedPartitions = ConcurrentHashMap.newKeySet();
 
     private final KafkaConsumerClientConfig<K, V> config;
 
@@ -100,7 +98,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
         log.info("Partitions has been revoked from consumer: " + Arrays.toString(partitions.toArray()));
-        revokedPartitions.addAll(partitions);
+        revokedOrFailedPartitions.addAll(partitions);
         try {
             commitCurrentOffsets();
         } catch (Exception e) {
@@ -125,9 +123,8 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
             while (clientState == ClientState.RUNNING) {
                 ConsumerRecords<K, V> records;
 
-                revokedPartitions.clear();
+                revokedOrFailedPartitions.clear();
                 offsetsToCommit.clear();
-                failedRecords.clear();
 
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
@@ -147,6 +144,15 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                 int totalRecords = records.count();
 
                 processedRecordsLatch = new CountDownLatch(totalRecords);
+
+                /*
+                 We seek to the offset of the first record in each topic+partition so that all the records in the batch must
+                 be processed before polling new records.
+
+                 If this is not done then it is possible for records from revoked partitions or failed records to be skipped if
+                 no other record for that topic+partition has been added to offsetsToCommit.
+                */
+                seekToFirstRecordOffsetForEachTopicPartition(records);
 
                 for (ConsumerRecord<K, V> record : records) {
                     String topic = record.topic();
@@ -170,10 +176,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
                                  The finally-clause will make sure that the processed records counter is incremented.
                             */
-                            if (clientState == ClientState.NOT_RUNNING ||
-                                    revokedPartitions.contains(topicPartition) ||
-                                    hasPreviouslyFailedRecord(topicPartition)
-                            ) {
+                            if (clientState == ClientState.NOT_RUNNING || revokedOrFailedPartitions.contains(topicPartition)) {
                                 return;
                             }
 
@@ -189,7 +192,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                                 OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset() + 1);
                                 offsetsToCommit.put(topicPartition, offsetAndMetadata);
                             } else {
-                                failedRecords.add(record);
+                                revokedOrFailedPartitions.add(topicPartition);
                             }
                         } catch (Exception e) {
                             String msg = format(
@@ -211,10 +214,6 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                     // If we fail to commit offsets then continue polling records
                     log.error("Failed to commit offsets: " + offsetsToCommit, e);
                 }
-
-                // We do not catch exceptions if seeking back fails since we then will lose messages.
-                // Propagates exception so the consumer restarts.
-                seekBackOnFailed();
             }
         } catch (Exception e) {
             log.error("Unexpected exception caught from main loop. Shutting down...", e);
@@ -236,27 +235,44 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         }
     }
 
-    private boolean hasPreviouslyFailedRecord(TopicPartition topicPartition) {
-        return failedRecords.stream().anyMatch(failedRecord  ->
-                failedRecord.topic().equals(topicPartition.topic()) &&
-                        failedRecord.partition() == topicPartition.partition());
-    }
-
     private void commitCurrentOffsets() {
         if (!offsetsToCommit.isEmpty()) {
+            safeSeek(offsetsToCommit);
+
             consumer.commitSync(offsetsToCommit, Duration.ofSeconds(3));
             log.info("Offsets committed: " + offsetsToCommit);
             offsetsToCommit.clear();
         }
     }
 
-    private void seekBackOnFailed() {
-        failedRecords.forEach(failedRecord -> {
-            TopicPartition topicPartition = new TopicPartition(failedRecord.topic(), failedRecord.partition());
-            log.warn("Seeking back to offset " + failedRecord.offset() + " for: " + topicPartition);
-            consumer.seek(topicPartition, failedRecord.offset());
+    private void seekToFirstRecordOffsetForEachTopicPartition(ConsumerRecords<K, V> records) {
+        Map<TopicPartition, OffsetAndMetadata> offsetMap = new HashMap<>();
+
+        records.forEach(record -> {
+            TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
+            OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset());
+
+            OffsetAndMetadata storedOffset = offsetMap.get(topicPartition);
+
+            if (storedOffset == null || offsetAndMetadata.offset() < storedOffset.offset()) {
+                offsetMap.put(topicPartition, offsetAndMetadata);
+            }
         });
-        failedRecords.clear();
+
+        safeSeek(offsetMap);
+    }
+
+    private void safeSeek(Map<TopicPartition, OffsetAndMetadata> offsetMap) {
+        offsetMap.forEach((topicPartition, offsetAndMetadata) -> {
+            try {
+                consumer.seek(topicPartition, offsetAndMetadata);
+            } catch (IllegalStateException e) {
+                log.warn(
+                        "Unable to seek to topicPartition={} offset={}. The TopicPartition is not assigned to this consumer",
+                        topicPartition, offsetAndMetadata.offset()
+                );
+            }
+        });
     }
 
     private static void validateConfig(KafkaConsumerClientConfig<?, ?> config) {
