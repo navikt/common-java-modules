@@ -66,7 +66,11 @@ public class NomClientImpl implements NomClient {
         List<VeilederNavn> veilederNavn = finnNavn(Collections.singletonList(navIdent));
 
         if (veilederNavn.isEmpty()) {
-            throw new IllegalStateException("Fant ikke navn for NAV-ident: " + navIdent);
+            // Vi kan her anta at personen er skjult?
+            return new VeilederNavn().setNavIdent(navIdent)
+                    .setFornavn("Anonym")
+                    .setEtternavn(navIdent.get())
+                    .setVisningsNavn("Anonym " + navIdent.get());
         }
 
         return veilederNavn.get(0);
