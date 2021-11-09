@@ -22,7 +22,7 @@ public class OidcAuthenticatorConfig {
     public List<String> clientIds;
 
     // What type of user is being authenticated
-    public UserRole userRole;
+    public UserRoleResolver userRoleResolver;
 
     // Name of the cookie where the users id token is stored (optional)
     // If provided: will try to retrieve id token from cookie before using "idTokenFinder"
@@ -41,12 +41,17 @@ public class OidcAuthenticatorConfig {
     public boolean isValid() {
         return discoveryUrl != null
                 && clientIds != null
-                && userRole != null
+                && userRoleResolver != null
                 && idTokenFinder != null;
     }
 
     public OidcAuthenticatorConfig withClientId(String clientId) {
         this.clientIds = Collections.singletonList(clientId);
+        return this;
+    }
+
+    public OidcAuthenticatorConfig withUserRole(UserRole userRole) {
+        this.userRoleResolver = jwt -> userRole;
         return this;
     }
 

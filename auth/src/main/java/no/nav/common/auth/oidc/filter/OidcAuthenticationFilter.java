@@ -7,6 +7,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
+import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.oidc.TokenRefreshClient;
 import no.nav.common.auth.utils.CookieUtils;
 import org.slf4j.Logger;
@@ -71,7 +72,13 @@ public class OidcAuthenticationFilter implements Filter {
 
                     authenticator.tokenValidator.validate(jwtToken);
 
-                    AuthContext authContext = new AuthContext(authenticator.config.userRole, jwtToken);
+                    UserRole userRole = authenticator.config.userRoleResolver.resolve(jwtToken.getJWTClaimsSet());
+
+                    if (userRole == null) {
+                        throw new IllegalArgumentException("User role kan ikke være null");
+                    }
+
+                    AuthContext authContext = new AuthContext(userRole, jwtToken);
 
                     AuthContextHolderThreadLocal.instance().withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
@@ -81,6 +88,8 @@ public class OidcAuthenticationFilter implements Filter {
                     } else {
                         logger.error("Token validation failed", exception);
                     }
+                } catch(Exception exception) {
+                    logger.error("Caught exception when validating token", exception);
                 }
             }
         }

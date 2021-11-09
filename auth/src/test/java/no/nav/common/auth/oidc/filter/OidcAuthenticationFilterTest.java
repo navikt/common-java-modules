@@ -376,6 +376,39 @@ public class OidcAuthenticationFilterTest {
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
     }
 
+    @Test
+    public void userRoleIsNull_returnsUnauthorized() throws IOException, ServletException {
+        OidcAuthenticatorConfig config = new OidcAuthenticatorConfig()
+                .withDiscoveryUrl(azureAdAuthenticatorConfig.discoveryUrl)
+                .withClientIds(azureAdAuthenticatorConfig.clientIds)
+                .withUserRoleResolver(_jwtClaims -> null)
+                .withRefreshUrl(azureAdAuthenticatorConfig.refreshUrl)
+                .withIdTokenCookieName(azureAdAuthenticatorConfig.idTokenCookieName)
+                .withRefreshTokenCookieName(azureAdAuthenticatorConfig.refreshTokenCookieName);
+
+        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
+                singletonList(OidcAuthenticator.fromConfig(config))
+        );
+
+        JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
+        String token = azureAdOidcProviderRule.getToken(claims);
+
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+        HttpServletRequest servletRequest = request("/hello");
+
+        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
+                new Cookie(config.idTokenCookieName, token)
+        });
+
+        authenticationFilter.init(config("/abc"));
+
+        authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
+
+        verify(servletResponse, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(filterChain, never()).doFilter(servletRequest, servletResponse);
+    }
+
     private HttpServletRequest request(String requestPath) {
         HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
         when(httpServletRequest.getRequestURI()).thenReturn(requestPath);
