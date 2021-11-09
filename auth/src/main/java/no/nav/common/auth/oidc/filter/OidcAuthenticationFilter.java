@@ -7,6 +7,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
+import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.oidc.TokenRefreshClient;
 import no.nav.common.auth.utils.CookieUtils;
 import org.slf4j.Logger;
