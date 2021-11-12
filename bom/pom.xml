@@ -38,7 +38,7 @@
         <json-schema-validation.version>1.12.2</json-schema-validation.version>
 
         <!-- DIV -->
-        <micrometer.version>1.1.0</micrometer.version>
+        <micrometer.version>1.7.1</micrometer.version>
         <prometheus.version>0.4.0</prometheus.version>
         <commons-lang.version>3.5</commons-lang.version>
         <commons-io.version>2.7</commons-io.version>
