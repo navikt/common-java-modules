@@ -27,6 +27,8 @@ public class KafkaConsumerClientBuilder {
 
     private Supplier<Boolean> isConsumerToggledOffSupplier;
 
+    private  MeterRegistry meterRegistry;
+
     private KafkaConsumerClientBuilder() {}
 
     public static KafkaConsumerClientBuilder builder() {
@@ -50,6 +52,11 @@ public class KafkaConsumerClientBuilder {
 
     public KafkaConsumerClientBuilder withPollDuration(long pollDurationMs) {
         this.pollDurationMs = pollDurationMs;
+        return this;
+    }
+
+    public KafkaConsumerClientBuilder withMetric(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
         return this;
     }
 
@@ -79,7 +86,7 @@ public class KafkaConsumerClientBuilder {
             config.setPollDurationMs(pollDurationMs);
         }
 
-        var client = new KafkaConsumerClientImpl<>(config);
+        var client = new KafkaConsumerClientImpl<>(config, meterRegistry);
 
         if (isConsumerToggledOffSupplier != null) {
             return new FeatureToggledKafkaConsumerClient(client, isConsumerToggledOffSupplier);

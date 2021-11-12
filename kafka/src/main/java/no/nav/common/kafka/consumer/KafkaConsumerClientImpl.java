@@ -1,5 +1,8 @@
 package no.nav.common.kafka.consumer;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
@@ -48,12 +51,15 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     private volatile CountDownLatch shutdownLatch;
 
+    private MeterRegistry meterRegistry;
+
     private KafkaConsumer<K, V> consumer;
 
-    public KafkaConsumerClientImpl(KafkaConsumerClientConfig<K, V> config) {
+    public KafkaConsumerClientImpl(KafkaConsumerClientConfig<K, V> config, MeterRegistry meterRegistry) {
         validateConfig(config);
 
         this.config = config;
+        this.meterRegistry = meterRegistry;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
@@ -118,7 +124,13 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         try {
             shutdownLatch = new CountDownLatch(1);
             consumer = new KafkaConsumer<>(config.properties);
+
             consumer.subscribe(topicNames, this);
+
+            if(meterRegistry != null) {
+                new KafkaClientMetrics(consumer, List.of(Tag.of("navCommons", "todo"))) //TODO find bether tag
+                        .bindTo(meterRegistry);
+            }
 
             while (clientState == ClientState.RUNNING) {
                 ConsumerRecords<K, V> records;

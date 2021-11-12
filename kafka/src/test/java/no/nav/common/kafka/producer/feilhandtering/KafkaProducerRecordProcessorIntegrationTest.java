@@ -92,7 +92,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 )
         );
 
-        consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient = new KafkaConsumerClientImpl<>(config, null);
     }
 
     @After

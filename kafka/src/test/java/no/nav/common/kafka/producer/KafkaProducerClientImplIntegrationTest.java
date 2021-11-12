@@ -66,7 +66,7 @@ public class KafkaProducerClientImplIntegrationTest {
                     recordRef.set(record);
                     return ConsumeStatus.OK;
                 })
-        ));
+        ), null);
 
         producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"));
 
@@ -90,7 +90,7 @@ public class KafkaProducerClientImplIntegrationTest {
                     counter.incrementAndGet();
                     return ConsumeStatus.OK;
                 })
-        ));
+        ), null);
 
         producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"));
         producerClient.send(new ProducerRecord<>(TEST_TOPIC, "key", "value"));
@@ -115,7 +115,7 @@ public class KafkaProducerClientImplIntegrationTest {
                     counter.incrementAndGet();
                     return ConsumeStatus.OK;
                 })
-        ));
+        ), null);
 
         consumerClient.start();
 

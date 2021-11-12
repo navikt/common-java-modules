@@ -84,7 +84,7 @@ public class KafkaConsumerClientTest {
 
         producer.flush();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config, meterRegistry);
         consumerClient.start();
 
         Thread.sleep(1000);
@@ -129,7 +129,7 @@ public class KafkaConsumerClientTest {
                 10
         );
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config, meterRegistry);
         consumerClient.start();
 
         Thread.sleep(1000);
@@ -169,7 +169,7 @@ public class KafkaConsumerClientTest {
 
         producer.flush();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config, meterRegistry);
         consumerClient.start();
 
         Thread.sleep(1000);
@@ -199,7 +199,7 @@ public class KafkaConsumerClientTest {
                 )
         );
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config, meterRegistry);
         consumerClient.start();
 
         for (int i = 0; i < 5; i++) {
@@ -237,7 +237,7 @@ public class KafkaConsumerClientTest {
                 )
         );
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config, meterRegistry);
         consumerClient.start();
 
         for (int i = 1; i <= 5; i++) {
@@ -273,8 +273,8 @@ public class KafkaConsumerClientTest {
                 Map.of(TEST_TOPIC_A, consumerWithCounter(counter2, 100))
         );
 
-        KafkaConsumerClientImpl<String, String> consumerClient1 = new KafkaConsumerClientImpl<>(config1);
-        KafkaConsumerClientImpl<String, String> consumerClient2 = new KafkaConsumerClientImpl<>(config2);
+        KafkaConsumerClientImpl<String, String> consumerClient1 = new KafkaConsumerClientImpl<>(config1, meterRegistry);
+        KafkaConsumerClientImpl<String, String> consumerClient2 = new KafkaConsumerClientImpl<>(config2, meterRegistry);
 
         for (int i = 0; i < 100; i++) {
             producer.send(new ProducerRecord<>(TEST_TOPIC_A, "key1", "value" + i));
@@ -324,7 +324,7 @@ public class KafkaConsumerClientTest {
 
         producer.flush();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config, meterRegistry);
         consumerClient.start();
 
         Thread.sleep(750);
