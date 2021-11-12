@@ -1,5 +1,7 @@
 package no.nav.common.abac;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.abac.domain.request.XacmlRequest;
 import no.nav.common.abac.domain.response.XacmlResponse;
@@ -19,11 +21,21 @@ public class AbacHttpClient implements AbacClient {
 
     private final OkHttpClient client;
 
+    @Deprecated
     public AbacHttpClient(String abacUrl, String srvUsername, String srvPassword) {
         this.abacUrl = abacUrl;
         this.srvUsername = srvUsername;
         this.srvPassword = srvPassword;
         this.client = new OkHttpClient();
+    }
+
+    public AbacHttpClient(String abacUrl, String srvUsername, String srvPassword, MeterRegistry meterRegistry) {
+        this.abacUrl = abacUrl;
+        this.srvUsername = srvUsername;
+        this.srvPassword = srvPassword;
+        this.client = new OkHttpClient.Builder()
+                .eventListener(OkHttpMetricsEventListener.builder(meterRegistry, "okhttp.abac").build())
+                .build();
     }
 
     @Override
