@@ -14,7 +14,7 @@ public class AzureAdUserRoleResolverTest {
         AzureAdUserRoleResolver resolver = new AzureAdUserRoleResolver();
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet
                 .Builder()
-                .claim("sub", "test")
+                .claim("sub", new String("test")) // Wrap with new String() to test equals() vs ==
                 .claim("oid", "test")
                 .build();
 

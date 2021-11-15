@@ -24,7 +24,7 @@ public class AzureAdUserRoleResolver implements UserRoleResolver {
             throw new IllegalArgumentException("Kunne ikke resolve UserRole. sub eller oid i token er null");
         }
 
-        return sub == oid
+        return sub.equals(oid)
                 ? UserRole.SYSTEM
                 : UserRole.INTERN;
     }
