@@ -9,10 +9,13 @@ import no.nav.common.utils.EnvironmentUtils;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Leader election implemented with ShedLock (https://github.com/lukas-krecan/ShedLock).
- * Guarantees that 0 or 1 leader is elected at any give moment. (Clock skew above 'CLOCK_SKEW_SECONDS' seconds might affect this claim)
+ * Guarantees that 0 or 1 leader is elected at any give moment.
  */
 @Slf4j
 public class ShedLockLeaderElectionClient implements LeaderElectionClient {
@@ -21,13 +24,21 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
     private final static Duration LOCK_AT_MOST_FOR = Duration.ofMinutes(10);
 
-    private final static Duration LOCK_AT_LEAST_FOR = Duration.ofSeconds(5);
+    private final static Duration LOCK_AT_LEAST_FOR = Duration.ofSeconds(10);
 
+    private final static long CHECK_LOCK_EVERY_SECONDS = 60;
+
+    // The clock skew is strictly speaking not necessary since we only compare timestamps that has been made by this class.
+    // We still add a tiny skew to prevent problems from happening when checking a lock that is just about to expire.
     private final static int CLOCK_SKEW_SECONDS = 5;
 
-    private final static int EXPIRATION_THRESHOLD_SECONDS = 120;
+    private final static int EXPIRATION_THRESHOLD_SECONDS = 3 * 60; // 3 minutes
 
     private final LockProvider lockProvider;
+
+    private final ScheduledExecutorService scheduler;
+
+    private final String hostname;
 
     private volatile boolean hasShutDown;
 
@@ -37,21 +48,24 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
     public ShedLockLeaderElectionClient(LockProvider lockProvider) {
         this.lockProvider = lockProvider;
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        hostname = EnvironmentUtils.resolveHostName();
+
+        scheduler.scheduleWithFixedDelay(this::keepLockAlive, 0, CHECK_LOCK_EVERY_SECONDS, TimeUnit.SECONDS);
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownHook));
     }
 
     @Override
     public boolean isLeader() {
-        if (hasShutDown) {
-            return false;
-        }
+        return hasAcquiredLock();
+    }
 
+    private void keepLockAlive() {
         if (hasAcquiredLock()) {
             extendLockIfAboutToExpire();
-            return true;
+        } else {
+            tryToAcquireLock();
         }
-
-        return tryToAcquireLock();
     }
 
     private void extendLockIfAboutToExpire() {
@@ -66,60 +80,57 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
                 if (maybeLock.isPresent()) {
                     setupNewLock(maybeLock.get(), now);
+                    log.info("Lock was extended. {} is still the leader", hostname);
                 } else {
                     log.warn("Unable to extend lock");
                 }
             } catch (UnsupportedOperationException uoe) {
-                log.error("{} is being used with a lock provider that does not support lock extension", getClass().getCanonicalName());
+                log.error("Shed lock leader election is being used with a lock provider that does not support lock extension", uoe);
             } catch (Exception e) {
                 log.error("Caught exception when extending leader election lock", e);
             }
         }
     }
 
-    private boolean tryToAcquireLock() {
+    private void tryToAcquireLock() {
         Instant createdAt = Instant.now();
-        Optional<SimpleLock> maybeLock = lockProvider.lock(createLockConfig(createdAt));
+        LockConfiguration config = new LockConfiguration(createdAt, LOCK_NAME, LOCK_AT_MOST_FOR, LOCK_AT_LEAST_FOR);
 
-        if (maybeLock.isPresent()) {
-            setupNewLock(maybeLock.get(), createdAt);
-            return true;
-        }
-
-        return false;
+        lockProvider.lock(config).ifPresent((lock) -> {
+            setupNewLock(lock, createdAt);
+            log.info("Acquired leader election lock. {} is now the leader", hostname);
+        });
     }
 
     private void setupNewLock(SimpleLock newLock, Instant createdAt) {
         lock = newLock;
         lockExpiration = createdAt.plusMillis(LOCK_AT_MOST_FOR.toMillis());
-        log.info("Acquired leader-election lock. {} is now the leader", EnvironmentUtils.resolveHostName());
-    }
-
-    private void shutdownHook() {
-        hasShutDown = true;
-
-        if (lock != null) {
-            try {
-                lock.unlock();
-            } catch (Exception e) {
-                log.error("Caught exception when unlocking lock during shutdown hook", e);
-            }
-        }
     }
 
     private boolean hasAcquiredLock() {
-        if (lockExpiration == null) {
+        if (hasShutDown || lockExpiration == null) {
             return false;
         }
 
-        // Add clock skew to reduce the chance that more than 1 leader is elected simultaneously
         Instant currentTimeWithSkew = Instant.now().plusSeconds(CLOCK_SKEW_SECONDS);
 
         return currentTimeWithSkew.isBefore(lockExpiration);
     }
 
-    private LockConfiguration createLockConfig(Instant createdAt) {
-        return new LockConfiguration(createdAt, LOCK_NAME, LOCK_AT_MOST_FOR, LOCK_AT_LEAST_FOR);
+    private void shutdownHook() {
+        log.info("Shutting down shedlock leader election client...");
+
+        hasShutDown = true;
+        scheduler.shutdown();
+
+        if (lock != null) {
+            try {
+                lock.unlock();
+                log.info("Leader election lock was released from {} due to shutting down", hostname);
+            } catch (Exception e) {
+                log.error("Caught exception when unlocking lock during shutdown hook", e);
+            }
+        }
     }
 
 }
