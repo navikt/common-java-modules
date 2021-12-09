@@ -26,7 +26,7 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
     private final static Duration LOCK_AT_LEAST_FOR = Duration.ofSeconds(10);
 
-    private final static long CHECK_LOCK_EVERY_SECONDS = 60;
+    private final static long CHECK_LOCK_INTERVAL_IN_SECONDS = 60;
 
     // The clock skew is strictly speaking not necessary since we only compare timestamps that has been made by this class.
     // We still add a tiny skew to prevent problems from happening when checking a lock that is just about to expire.
@@ -51,7 +51,7 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
         scheduler = Executors.newSingleThreadScheduledExecutor();
         hostname = EnvironmentUtils.resolveHostName();
 
-        scheduler.scheduleWithFixedDelay(this::keepLockAlive, 0, CHECK_LOCK_EVERY_SECONDS, TimeUnit.SECONDS);
+        scheduler.scheduleWithFixedDelay(this::keepLockAlive, 0, CHECK_LOCK_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownHook));
     }
 
@@ -85,7 +85,7 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
                     log.warn("Unable to extend lock");
                 }
             } catch (UnsupportedOperationException uoe) {
-                log.error("Shed lock leader election is being used with a lock provider that does not support lock extension", uoe);
+                log.error("ShedLock leader election is being used with a lock provider that does not support lock extension", uoe);
             } catch (Exception e) {
                 log.error("Caught exception when extending leader election lock", e);
             }
@@ -118,7 +118,7 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
     }
 
     private void shutdownHook() {
-        log.info("Shutting down shedlock leader election client...");
+        log.info("Shutting down ShedLock leader election client...");
 
         hasShutDown = true;
         scheduler.shutdown();
