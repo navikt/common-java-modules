@@ -88,8 +88,6 @@ public class OidcAuthenticationFilter implements Filter {
                     } else {
                         logger.error("Token validation failed", exception);
                     }
-                } catch(Exception exception) {
-                    logger.error("Caught exception when validating token", exception);
                 }
             }
         }
