@@ -2,10 +2,8 @@ package no.nav.common.cxf.jetty;
 
 import lombok.SneakyThrows;
 import no.nav.common.cxf.CXFEndpoint;
-import org.apache.commons.io.IOUtils;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.apache.http.client.utils.URIBuilder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
 import org.slf4j.Logger;
@@ -15,6 +13,7 @@ import javax.servlet.ServletException;
 import java.net.ServerSocket;
 import java.net.URI;
 
+import static java.lang.String.format;
 import static java.lang.System.setProperty;
 import static org.apache.cxf.staxutils.StaxUtils.ALLOW_INSECURE_PARSER;
 import static org.mockito.Mockito.mock;
@@ -49,16 +48,10 @@ public abstract class JettyTestServer {
         jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service)), "/*");
         jetty.start();
 
-        URIBuilder uriBuilder = new URIBuilder("http://localhost").setPort(port).setPath(CONTEXT_PATH + SERVICE_PATH);
-        String path = uriBuilder.build().toString();
+        String uri = URI.create(format("http://localhost:%d", port) + CONTEXT_PATH + SERVICE_PATH).toString();
 
-        // Sjekk at vi kan hente wsdl-en
-        LOG.info("WSDL:");
-        URI wsdlUrl = uriBuilder.addParameter("wsdl", null).build();
-        LOG.info(IOUtils.toString(wsdlUrl));
-
-        LOG.info("{} is running at {} wsdl: {}", serviceClass, path, wsdlUrl);
-        return path;
+        LOG.info("{} is running at {}", serviceClass, uri);
+        return uri;
     }
 
     @SneakyThrows

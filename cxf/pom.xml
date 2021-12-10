@@ -7,13 +7,7 @@
         <version>1-SNAPSHOT</version>
     </parent>
 
-
 	<artifactId>cxf</artifactId>
-
-	<properties>
-        <jsoup.version>1.14.2</jsoup.version>
-        <opensaml.version>3.3.0</opensaml.version>
-    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -67,7 +61,6 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -129,11 +122,6 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
