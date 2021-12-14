@@ -2,6 +2,7 @@ package no.nav.common.auth.oidc.filter;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.BadJWSException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
@@ -9,6 +10,7 @@ import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.oidc.TokenRefreshClient;
+import no.nav.common.auth.oidc.UserRoleNullException;
 import no.nav.common.auth.utils.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,21 +77,21 @@ public class OidcAuthenticationFilter implements Filter {
                     UserRole userRole = authenticator.config.userRoleResolver.resolve(jwtToken.getJWTClaimsSet());
 
                     if (userRole == null) {
-                        throw new IllegalArgumentException("User role kan ikke være null");
+                        throw new UserRoleNullException();
                     }
 
                     AuthContext authContext = new AuthContext(userRole, jwtToken);
 
                     AuthContextHolderThreadLocal.instance().withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
-                } catch (ParseException | JOSEException | BadJOSEException exception) {
+                } catch ( ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {
                         logger.info("Token validation failed", exception);
                     } else {
                         logger.error("Token validation failed", exception);
                     }
-                } catch(Exception exception) {
-                    logger.error("Caught exception when validating token", exception);
+                } catch (UserRoleNullException e) {
+                    logger.error("User roll is null");
                 }
             }
         }
