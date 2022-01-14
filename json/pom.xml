@@ -9,11 +9,8 @@
         <artifactId>mor-pom</artifactId>
         <version>1-SNAPSHOT</version>
     </parent>
-    <artifactId>json</artifactId>
 
-    <properties>
-        <java.jdk.version>8</java.jdk.version>
-    </properties>
+    <artifactId>json</artifactId>
 
     <dependencyManagement>
         <dependencies>
@@ -35,10 +32,6 @@
         <dependency>
             <groupId>no.nav.common</groupId>
             <artifactId>util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

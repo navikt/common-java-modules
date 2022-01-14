@@ -12,18 +12,23 @@ If possible, no new features should be added to version 1.
 ## Version 2
 Version 2 removes all of the deprecated modules from version 1 (including `api-app`) and aims to provide framework agnostic modules that can be used in any application.
 
+## Checking for new dependency versions
+
+```shell
+mvn versions:display-dependency-updates
+```
 
 ## Building the libraries
 
 In order to build `common-java-modules`, run from the root directory:
 
-```
+```shell
 mvn clean install
 ```
 
 Currently, all tests do not run outside of NAV's internal network, because of dependencies on internal resources. In order to run tests without network or on an external build server, use:
 
-```
+```shell
 mvn clean install -Plokal
 ```
 
