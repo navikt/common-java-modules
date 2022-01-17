@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.mapFromStoredRecord;
@@ -77,15 +77,9 @@ public class KafkaConsumerRecordProcessor {
                 try {
                     List<TopicPartition> uniquePartitions = kafkaConsumerRepository.getTopicPartitions(topics);
 
-                    if (uniquePartitions.isEmpty()) {
-                        Thread.sleep(config.pollTimeout.toMillis());
-                    } else {
-                        boolean haveAllSucceeded = consumeFromTopicPartitions(uniquePartitions);
-                        if (!haveAllSucceeded) {
-                            Thread.sleep(config.errorTimeout.toMillis());
-                        }
-                    }
+                    consumeFromTopicPartitions(uniquePartitions);
 
+                    Thread.sleep(config.pollTimeout.toMillis());
                 } catch (Exception e) {
                     log.error("Failed to consume stored kafka records", e);
                     Thread.sleep(config.errorTimeout.toMillis());
@@ -98,8 +92,7 @@ public class KafkaConsumerRecordProcessor {
         }
     }
 
-    private boolean consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
-        AtomicBoolean haveAllSucceeded = new AtomicBoolean(true);
+    private void consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
         uniquePartitions.forEach(topicPartition -> {
             if (!isRunning) {
                 return;
@@ -120,10 +113,10 @@ public class KafkaConsumerRecordProcessor {
                 TopicConsumer<byte[], byte[]> recordConsumer = topicConsumers.get(topicPartition.topic());
 
                 List<Long> recordsToDelete = new ArrayList<>();
-                Map<TopicPartition, Set<Bytes>> failedKeys = new HashMap<>();
+                Map<TopicPartition, Set<Bytes>> failedOrBackedOffKeys = new HashMap<>();
 
                 records.forEach(r -> {
-                    Set<Bytes> keySet = failedKeys.get(topicPartition);
+                    Set<Bytes> keySet = failedOrBackedOffKeys.get(topicPartition);
 
                     Bytes keyBytes = Bytes.wrap(r.getKey());
 
@@ -132,7 +125,16 @@ public class KafkaConsumerRecordProcessor {
                         return;
                     }
 
-                    // TODO: Can implement exponential backoff if necessary
+                    Duration backoffDuration = config.backoffStrategy.getBackoffDuration(r);
+
+                    LocalDateTime now = LocalDateTime.now();
+
+                    if (r.getLastRetry() != null && r.getLastRetry().toLocalDateTime().plus(backoffDuration).isAfter(now)) {
+                        if (keyBytes != null) {
+                            failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                        }
+                        return;
+                    }
 
                     ConsumeStatus status;
                     Exception exception = null;
@@ -146,7 +148,7 @@ public class KafkaConsumerRecordProcessor {
 
                     if (status == ConsumeStatus.OK) {
                         log.info(
-                                "Successfully process stored record topic={} partition={} offset={} dbId={}",
+                                "Successfully processed stored record topic={} partition={} offset={} dbId={}",
                                 r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
                         );
                         recordsToDelete.add(r.getId());
@@ -156,11 +158,12 @@ public class KafkaConsumerRecordProcessor {
                                 r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
                         );
 
-                        haveAllSucceeded.set(false);
                         log.error(message, exception);
+
                         kafkaConsumerRepository.incrementRetries(r.getId());
+
                         if (keyBytes != null) {
-                            failedKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                            failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
                         }
                     }
                 });
@@ -176,7 +179,6 @@ public class KafkaConsumerRecordProcessor {
                 lock.ifPresent(SimpleLock::unlock);
             }
         });
-        return haveAllSucceeded.get();
     }
 
     private Optional<SimpleLock> acquireLock(TopicPartition topicPartition) {

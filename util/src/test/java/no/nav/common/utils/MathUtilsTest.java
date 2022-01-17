@@ -16,4 +16,11 @@ public class MathUtilsTest {
         assertEquals(20, MathUtils.linearInterpolation(10, 20, 1.1F));
     }
 
+    @Test
+    public void clampShouldReturnCorrectValues() {
+        assertEquals(20, MathUtils.clamp(10, 20, 30));
+        assertEquals(25, MathUtils.clamp(25, 20, 30));
+        assertEquals(30, MathUtils.clamp(40, 20, 30));
+    }
+
 }

@@ -8,4 +8,8 @@ public class MathUtils {
         return (long) ((1 - t) * from + t * to);
     }
 
+    public static int clamp(int val, int min, int max) {
+        return Math.max(min, Math.min(max, val));
+    }
+
 }

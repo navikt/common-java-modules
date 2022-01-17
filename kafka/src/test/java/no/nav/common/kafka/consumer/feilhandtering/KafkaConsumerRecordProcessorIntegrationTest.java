@@ -4,6 +4,7 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
+import no.nav.common.kafka.consumer.feilhandtering.backoff.BackoffStrategy;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
@@ -13,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -64,8 +66,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
     @Test
     public void should_consume_stored_records() throws InterruptedException {
-        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {
-        });
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
 
         AtomicInteger counterTopicA = new AtomicInteger();
         AtomicInteger counterTopicB = new AtomicInteger();
@@ -192,10 +193,6 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                         stringDeserializer(),
                         stringDeserializer(),
                         (record) -> {
-                            if (record.offset() == 2) {
-                                return ConsumeStatus.FAILED;
-                            }
-
                             counterTopicA.incrementAndGet();
                             return ConsumeStatus.OK;
                         }
@@ -218,8 +215,89 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         Thread.sleep(1000);
         consumerRecordProcessor.close();
 
+        assertEquals(3, counterTopicA.get());
+    }
+
+    @Test
+    public void should_consume_records_if_backoff_expired() throws InterruptedException {
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
+        AtomicInteger counterTopicA = new AtomicInteger();
+
+        List<TopicConsumerConfig<?, ?>> configs = List.of(
+                new TopicConsumerConfig<>(
+                        TEST_TOPIC_A,
+                        stringDeserializer(),
+                        stringDeserializer(),
+                        (record) -> {
+                            counterTopicA.incrementAndGet();
+                            return ConsumeStatus.OK;
+                        }
+                )
+        );
+
+        KafkaConsumerRecordProcessor consumerRecordProcessor =
+                KafkaConsumerRecordProcessorBuilder
+                        .builder()
+                        .withLockProvider(lockProvider)
+                        .withKafkaConsumerRepository(consumerRepository)
+                        .withConsumerConfigs(configs)
+                        .withBackoffStrategy((r) -> Duration.ZERO)
+                        .build();
+
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 2, "key1", "value"));
+
+        List<StoredConsumerRecord> records = consumerRepository.getRecords(TEST_TOPIC_A, 1, 5);
+        records.forEach(record -> consumerRepository.incrementRetries(record.getId()));
+
+        Thread.sleep(1000);
+        consumerRecordProcessor.start();
+        Thread.sleep(1000);
+        consumerRecordProcessor.close();
+
         assertEquals(2, counterTopicA.get());
 
+        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
+    }
+
+    @Test
+    public void should_not_consume_records_if_backoff_not_expired() throws InterruptedException {
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
+        AtomicInteger counterTopicA = new AtomicInteger();
+
+        List<TopicConsumerConfig<?, ?>> configs = List.of(
+                new TopicConsumerConfig<>(
+                        TEST_TOPIC_A,
+                        stringDeserializer(),
+                        stringDeserializer(),
+                        (record) -> {
+                            counterTopicA.incrementAndGet();
+                            return ConsumeStatus.OK;
+                        }
+                )
+        );
+
+        KafkaConsumerRecordProcessor consumerRecordProcessor =
+                KafkaConsumerRecordProcessorBuilder
+                        .builder()
+                        .withLockProvider(lockProvider)
+                        .withKafkaConsumerRepository(consumerRepository)
+                        .withConsumerConfigs(configs)
+                        .withBackoffStrategy((r) -> Duration.ofHours(1))
+                        .build();
+
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 2, "key1", "value"));
+
+        List<StoredConsumerRecord> records = consumerRepository.getRecords(TEST_TOPIC_A, 1, 5);
+        records.forEach(record -> consumerRepository.incrementRetries(record.getId()));
+
+        consumerRecordProcessor.start();
+        Thread.sleep(1000);
+        consumerRecordProcessor.close();
+
+        assertEquals(0, counterTopicA.get());
+        assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
     }
 
     private StoredConsumerRecord storedRecord(String topic, int partition, long offset, String key, String value) {
