@@ -7,6 +7,7 @@ import java.time.Duration;
 
 /**
  * Decides how long {@link KafkaConsumerRecordProcessor} should back off when retrying consumption of stored kafka records.
+ * The backoff only decides the minimum time before {@link KafkaConsumerRecordProcessor} will try to reconsume a record.
  */
 public interface BackoffStrategy {
 
