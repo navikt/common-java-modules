@@ -215,8 +215,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         Thread.sleep(1000);
         consumerRecordProcessor.close();
 
-        assertEquals(2, counterTopicA.get());
-
+        assertEquals(3, counterTopicA.get());
     }
 
     @Test

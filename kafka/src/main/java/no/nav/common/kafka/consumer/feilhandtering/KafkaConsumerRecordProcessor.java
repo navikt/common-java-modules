@@ -77,12 +77,9 @@ public class KafkaConsumerRecordProcessor {
                 try {
                     List<TopicPartition> uniquePartitions = kafkaConsumerRepository.getTopicPartitions(topics);
 
-                    if (uniquePartitions.isEmpty()) {
-                        Thread.sleep(config.pollTimeout.toMillis());
-                    } else {
-                        consumeFromTopicPartitions(uniquePartitions);
-                    }
+                    consumeFromTopicPartitions(uniquePartitions);
 
+                    Thread.sleep(config.pollTimeout.toMillis());
                 } catch (Exception e) {
                     log.error("Failed to consume stored kafka records", e);
                     Thread.sleep(config.errorTimeout.toMillis());
