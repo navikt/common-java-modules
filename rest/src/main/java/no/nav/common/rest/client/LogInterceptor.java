@@ -38,12 +38,18 @@ public class LogInterceptor implements Interceptor {
                 .method(original.method(), original.body())
                 .build();
 
+        long requestStarted = System.currentTimeMillis();
+
         try {
             Response response = chain.proceed(request);
-            log.info(format("%d %s %s", response.code(), request.method(), request.url()));
+            long timeTakenMs = System.currentTimeMillis() - requestStarted;
+
+            log.info(format("%d %s %dms %s", response.code(), request.method(), timeTakenMs, request.url()));
             return response;
         } catch (Exception exception) {
-            log.error(format("Request failed: %s %s", request.method(), request.url()), exception);
+            long timeTakenMs = System.currentTimeMillis() - requestStarted;
+
+            log.error(format("Request failed: %s %dms %s", request.method(), timeTakenMs, request.url()), exception);
             throw exception;
         }
     }
