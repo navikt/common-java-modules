@@ -7,11 +7,15 @@ import com.nimbusds.jwt.PlainJWT;
 import org.junit.Test;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
+import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
@@ -114,6 +118,83 @@ public class AuthContextHolderTest {
         });
 
         assertNoContext();
+    }
+
+    @Test
+    public void getUid__returns_sub_claim() {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("subject")
+                .audience("audience")
+                .issuer("issuer")
+                .build();
+
+        Arrays.stream(UserRole.values()).forEach(userRole ->
+                assertInContext(claimsSet, userRole, cxt -> assertEquals(Optional.of("subject"), cxt.getUid())));
+    }
+
+    @Test
+    public void getUid__returns_null_if_sub_claim_is_missing() {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .audience("audience")
+                .issuer("issuer")
+                .build();
+
+        Arrays.stream(UserRole.values()).forEach(userRole ->
+                assertInContext(claimsSet, userRole, cxt -> assertEquals(Optional.empty(), cxt.getUid())));
+    }
+
+    @Test
+    public void getUid__returns_pid_claim_for_external_users() {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("subject")
+                .audience("audience")
+                .issuer("issuer")
+                .claim("pid", "pid")
+                .build();
+
+        Arrays.stream(UserRole.values())
+                .filter(userRole -> !UserRole.EKSTERN.equals(userRole))
+                .forEach(userRole ->
+                        assertInContext(claimsSet, userRole, ctx -> assertEquals(Optional.of("subject"), ctx.getUid()))
+
+                );
+
+        assertInContext(claimsSet, UserRole.EKSTERN, ctx -> assertEquals(Optional.of("pid"), ctx.getUid()));
+    }
+
+    @Test
+    public void getUid__returns_NAVident_claim_for_internal_users() {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("subject")
+                .audience("audience")
+                .issuer("issuer")
+                .claim(AAD_NAV_IDENT_CLAIM, "A123456")
+                .build();
+
+        assertInContext(claimsSet, UserRole.EKSTERN, ctx -> assertEquals(Optional.of("subject"), ctx.getUid()));
+        assertInContext(claimsSet, UserRole.INTERN, ctx -> assertEquals(Optional.of("A123456"), ctx.getUid()));
+        assertInContext(claimsSet, UserRole.SYSTEM, ctx -> assertEquals(Optional.of("subject"), ctx.getUid()));
+    }
+
+    @Test
+    public void getUid__returns_pid_claim_for_external_users_and_NAVident_claim_for_internal_users() {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("subject")
+                .audience("audience")
+                .issuer("issuer")
+                .claim("pid", "pid")
+                .claim(AAD_NAV_IDENT_CLAIM, "A123456")
+                .build();
+
+        assertInContext(claimsSet, UserRole.EKSTERN, ctx -> assertEquals(Optional.of("pid"), ctx.getUid()));
+        assertInContext(claimsSet, UserRole.INTERN, ctx -> assertEquals(Optional.of("A123456"), ctx.getUid()));
+        assertInContext(claimsSet, UserRole.SYSTEM, ctx -> assertEquals(Optional.of("subject"), ctx.getUid()));
+    }
+
+    private void assertInContext(JWTClaimsSet claims, UserRole userRole, Consumer<AuthContextHolder> assertion) {
+        AuthContextHolderThreadLocal.instance().withContext(
+                new AuthContext(userRole, new PlainJWT(claims)),
+                () -> assertion.accept(AuthContextHolderThreadLocal.instance()));
     }
 
     private AuthContext newAuthContext(String subject) {
