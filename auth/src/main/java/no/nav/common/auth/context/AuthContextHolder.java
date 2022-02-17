@@ -79,16 +79,10 @@ public interface AuthContextHolder {
      */
     default Optional<NavIdent> getNavIdent() {
         return getIdTokenClaims()
-                .flatMap(claims -> {
-                    try {
-                        return ofNullable(claims.getStringClaim(AAD_NAV_IDENT_CLAIM))
-                                .map(NavIdent::of)
-                                .or(() -> getSubject().map(NavIdent::of));
-                    } catch (Exception e) {
-                        InternalLogger.log.warn(AAD_NAV_IDENT_CLAIM + " was not a string");
-                        return empty();
-                    }
-                }).filter(navIdent -> {
+                .flatMap(claims -> getStringClaim(claims, AAD_NAV_IDENT_CLAIM))
+                .or(this::getSubject)
+                .map(NavIdent::of)
+                .filter(navIdent -> {
                     boolean erGyldig = IdentUtils.erGydligNavIdent(navIdent.get());
 
                     if (!erGyldig) {
@@ -97,6 +91,30 @@ public interface AuthContextHolder {
 
                     return erGyldig;
                 });
+    }
+
+    /**
+     * @return fnr fra pid-claim for ekstern bruker, NAV ident fra NAVident-claim for intern bruker, med fallback til
+     * sub-claim.
+     */
+    default Optional<String> getUid() {
+        if (erEksternBruker()) {
+            return getIdTokenClaims()
+                    .flatMap(claims -> getStringClaim(claims, "pid"))
+                    .or(this::getSubject);
+        } else if (erInternBruker()) {
+            return getNavIdent().map(NavIdent::get).or(this::getSubject);
+        }
+        return getSubject();
+    }
+
+    default Optional<String> getStringClaim(JWTClaimsSet claims, String claimName) {
+        try {
+            return ofNullable(claims.getStringClaim(claimName));
+        } catch (Exception e) {
+            InternalLogger.log.warn(claimName + " was not a string");
+            return empty();
+        }
     }
 
     default Optional<UserRole> getRole() {
