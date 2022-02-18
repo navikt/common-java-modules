@@ -14,6 +14,7 @@ import java.util.Optional;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
+import static no.nav.common.auth.Constants.ID_PORTEN_PID_CLAIM;
 
 /**
  * Holds the authentication context such as the role and ID token of a logged in user
@@ -100,7 +101,7 @@ public interface AuthContextHolder {
     default Optional<String> getUid() {
         if (erEksternBruker()) {
             return getIdTokenClaims()
-                    .flatMap(claims -> getStringClaim(claims, "pid"))
+                    .flatMap(claims -> getStringClaim(claims, ID_PORTEN_PID_CLAIM))
                     .or(this::getSubject);
         } else if (erInternBruker()) {
             return getNavIdent().map(NavIdent::get).or(this::getSubject);
