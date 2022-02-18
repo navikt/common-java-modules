@@ -14,6 +14,9 @@ public class Constants {
     // Custom claim for NAV ident, brukes i V1 av Azure AD. Skal ikke brukes i V2.
     public final static String AAD_NAV_IDENT_CLAIM = "NAVident";
 
+    // Custom claim for fnr fra ID-porten
+    public final static String ID_PORTEN_PID_CLAIM = "pid";
+
     public final static String REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
     
 }
