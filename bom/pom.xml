@@ -37,7 +37,7 @@
         <jackson.version>2.13.1</jackson.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <okhttp.version>4.9.3</okhttp.version>
-        <micrometer.version>1.8.2</micrometer.version>
+        <micrometer.version>1.8.3</micrometer.version>
         <prometheus.version>0.12.0</prometheus.version>
         <commons-lang.version>3.12.0</commons-lang.version>
         <commons-io.version>2.11.0</commons-io.version>
