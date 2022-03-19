@@ -23,7 +23,7 @@
 
         <!-- CXF -->
         <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
-        <cxf-core.version>3.5.0</cxf-core.version>
+        <cxf-core.version>3.5.1</cxf-core.version>
         <jsoup.version>1.14.3</jsoup.version>
 
         <!-- COMMON -->
