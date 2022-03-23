@@ -4,7 +4,10 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.Date;
 
 public class TokenUtils {
@@ -39,6 +42,13 @@ public class TokenUtils {
         } catch (ParseException e) {
             return true;
         }
+    }
+
+    @SneakyThrows
+    public static String hashToken(String token) {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(hash);
     }
 
 }

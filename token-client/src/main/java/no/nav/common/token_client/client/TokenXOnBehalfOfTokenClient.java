@@ -1,52 +1,40 @@
-package no.nav.common.token_client.clients;
+package no.nav.common.token_client.client;
 
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.TokenTypeURI;
 import com.nimbusds.oauth2.sdk.tokenexchange.TokenExchangeGrant;
-import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.token_client.OnBehalfOfTokenClient;
-import no.nav.common.token_client.utils.OidcDiscoveryClient;
+import no.nav.common.token_client.cache.TokenCache;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Optional.ofNullable;
 import static no.nav.common.token_client.utils.TokenClientUtils.*;
+import static no.nav.common.token_client.utils.TokenUtils.hashToken;
 
 @Slf4j
-public class TokenXTokenClient implements OnBehalfOfTokenClient {
+public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
-    private final String clientId;
+    public TokenXOnBehalfOfTokenClient(String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
+        super(clientId, tokenEndpointUrl, privateJwk, tokenCache);
+    }
 
-    private final URI tokenEndpoint;
+    @Override
+    public String exchangeOnBehalfOfToken(String tokenScope, String accessToken) {
+        String cacheKey = tokenScope + "-" + hashToken(accessToken);
 
-    private final String privateJwkKeyId;
-
-    private final JWSSigner assertionSigner;
-
-    @SneakyThrows
-    public TokenXTokenClient(String clientId, String privateJwk, String discoveryUrl) {
-        this.clientId = clientId;
-
-        RSAKey rsaKey = RSAKey.parse(privateJwk);
-        privateJwkKeyId = rsaKey.getKeyID();
-        assertionSigner = new RSASSASigner(rsaKey);
-
-        OIDCProviderMetadata oidcProviderMetadata = OidcDiscoveryClient.fetchDiscoveryMetadata(discoveryUrl);
-        tokenEndpoint = oidcProviderMetadata.getTokenEndpointURI();
+        return ofNullable(tokenCache)
+                .map(cache -> cache.getFromCacheOrTryProvider(cacheKey, () -> exchangeToken(tokenScope, accessToken)))
+                .orElse(exchangeToken(tokenScope, accessToken));
     }
 
     @SneakyThrows
-    @Override
-    public String exchangeOnBehalfOfToken(String appIdentifier, String accessToken) {
+    private String exchangeToken(String appIdentifier, String accessToken) {
         PrivateKeyJWT signedJwt = signedClientAssertion(
                 clientAssertionHeader(privateJwkKeyId),
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
