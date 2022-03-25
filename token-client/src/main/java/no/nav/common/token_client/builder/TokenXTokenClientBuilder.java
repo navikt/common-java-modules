@@ -24,7 +24,7 @@ public class TokenXTokenClientBuilder {
         return new TokenXTokenClientBuilder();
     }
 
-    public TokenXTokenClientBuilder withNaisEnvironmentVariables() {
+    public TokenXTokenClientBuilder withNaisDefaults() {
         clientId = System.getenv(TOKEN_X_CLIENT_ID);
         privateJwk = System.getenv(TOKEN_X_PRIVATE_JWK);
         discoveryUrl = System.getenv(TOKEN_X_WELL_KNOWN_URL);

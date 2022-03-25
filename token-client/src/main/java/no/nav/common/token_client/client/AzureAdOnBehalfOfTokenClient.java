@@ -28,7 +28,7 @@ public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements
 
         return ofNullable(tokenCache)
                 .map(cache -> cache.getFromCacheOrTryProvider(cacheKey, () -> exchangeToken(tokenScope, accessToken)))
-                .orElse(exchangeToken(tokenScope, accessToken));
+                .orElseGet(() -> exchangeToken(tokenScope, accessToken));
     }
 
     @SneakyThrows

@@ -2,6 +2,7 @@ package no.nav.common.token_client.client;
 
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.token_client.cache.TokenCache;
@@ -24,7 +25,7 @@ public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient impl
     public String createMachineToMachineToken(String tokenScope) {
         return ofNullable(tokenCache)
                 .map(cache -> cache.getFromCacheOrTryProvider(tokenScope, () -> createToken(tokenScope)))
-                .orElse(createToken(tokenScope));
+                .orElseGet(() -> createToken(tokenScope));
     }
 
     @SneakyThrows
@@ -54,7 +55,9 @@ public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient impl
 
         AccessTokenResponse successResponse = response.toSuccessResponse();
 
-        return successResponse.getTokens().getAccessToken().getValue();
+        AccessToken accessToken = successResponse.getTokens().getAccessToken();
+
+        return accessToken.getValue();
     }
 
     private static Map<String, List<String>> additionalClaims(String audience) {

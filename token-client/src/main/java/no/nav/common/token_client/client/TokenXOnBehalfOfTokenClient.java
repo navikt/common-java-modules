@@ -30,11 +30,11 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
 
         return ofNullable(tokenCache)
                 .map(cache -> cache.getFromCacheOrTryProvider(cacheKey, () -> exchangeToken(tokenScope, accessToken)))
-                .orElse(exchangeToken(tokenScope, accessToken));
+                .orElseGet(() -> exchangeToken(tokenScope, accessToken));
     }
 
     @SneakyThrows
-    private String exchangeToken(String appIdentifier, String accessToken) {
+    private String exchangeToken(String tokenScope, String accessToken) {
         PrivateKeyJWT signedJwt = signedClientAssertion(
                 clientAssertionHeader(privateJwkKeyId),
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
@@ -45,17 +45,17 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
                 tokenEndpoint,
                 signedJwt,
                 new TokenExchangeGrant(new BearerAccessToken(accessToken), TokenTypeURI.ACCESS_TOKEN),
-                new Scope(appIdentifier),
+                new Scope(tokenScope),
                 null,
-                additionalClaims(appIdentifier, accessToken)
+                additionalClaims(tokenScope, accessToken)
         );
 
         TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
 
         if (!response.indicatesSuccess()) {
             TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error("Failed to fetch TokenX OBO for scope={}. Error: {}", appIdentifier, tokenErrorResponse.toJSONObject().toString());
-            throw new RuntimeException("Failed to fetch TokenX OBO token for scope=" + appIdentifier);
+            log.error("Failed to fetch TokenX OBO for scope={}. Error: {}", tokenScope, tokenErrorResponse.toJSONObject().toString());
+            throw new RuntimeException("Failed to fetch TokenX OBO token for scope=" + tokenScope);
         }
 
         AccessTokenResponse successResponse = response.toSuccessResponse();

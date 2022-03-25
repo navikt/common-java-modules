@@ -23,7 +23,7 @@ public class AzureAdTokenClientBuilder {
         return new AzureAdTokenClientBuilder();
     }
 
-    public AzureAdTokenClientBuilder withNaisEnvironmentVariables() {
+    public AzureAdTokenClientBuilder withNaisDefaults() {
         clientId = System.getenv(AZURE_APP_CLIENT_ID);
         privateJwk = System.getenv(AZURE_APP_JWK);
         tokenEndpointUrl = System.getenv(AZURE_OPENID_CONFIG_TOKEN_ENDPOINT);
