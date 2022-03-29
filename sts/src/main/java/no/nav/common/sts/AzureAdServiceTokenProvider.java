@@ -4,6 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import static java.lang.String.format;
 
+/**
+ * Deprecated: Succeeded by token-client module
+ */
+@Deprecated
 @Slf4j
 public class AzureAdServiceTokenProvider implements ServiceToServiceTokenProvider {
 
