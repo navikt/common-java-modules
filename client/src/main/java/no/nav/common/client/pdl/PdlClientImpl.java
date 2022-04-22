@@ -36,10 +36,10 @@ public class PdlClientImpl implements PdlClient {
     private final Supplier<String> consumerTokenSupplier;
 
     /**
-     * @param pdlUrl                URL til PDL
-     * @param tema                  hvilket tema som skal benyttes i requests mot PDL
-     * @param userTokenSupplier     supplier for tokens som brukes i Authorization header. Kan enten være systembruker eller ekstern/intern.
-     *                              OBS: Hvis systembruker token blir brukt så vil ikke PDL gjøre tilgangskontroll på requestet.
+     * @param pdlUrl URL til PDL
+     * @param tema hvilket tema som skal benyttes i requests mot PDL
+     * @param userTokenSupplier supplier for tokens som brukes i Authorization header. Kan enten være systembruker eller ekstern/intern.
+     *                          OBS: Hvis systembruker token blir brukt så vil ikke PDL gjøre tilgangskontroll på requestet.
      * @param consumerTokenSupplier supplier av systembruker tokens for applikasjonen som gjør requests mot PDL
      */
     public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
