@@ -32,7 +32,7 @@
         <!-- MISCELLANEOUS -->
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-        <spring.version>5.3.18</spring.version>
+        <spring.version>5.3.20</spring.version>
         <jersey.version>2.27</jersey.version>
         <jackson.version>2.13.2</jackson.version>
         <jackson-databind.version>2.13.2.2</jackson-databind.version>
