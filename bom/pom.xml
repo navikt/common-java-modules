@@ -27,7 +27,7 @@
         <jsoup.version>1.14.3</jsoup.version>
 
         <!-- COMMON -->
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.24</lombok.version>
 
         <!-- MISCELLANEOUS -->
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
