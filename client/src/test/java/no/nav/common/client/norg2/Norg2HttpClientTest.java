@@ -1,6 +1,7 @@
 package no.nav.common.client.norg2;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
 import org.junit.Rule;
@@ -57,7 +58,7 @@ public class Norg2HttpClientTest {
     }
 
     @Test
-    public void hentTilhorendeEnhet__skal_hente_enhet() {
+    public void hentTilhorendeEnhet__skal_hente_enhet_uten_disk_og_skjermet() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "enhet.json");
         Enhet jsonEnhet = JsonUtils.fromJson(json, Enhet.class);
         String baseUrl = "http://localhost:" + wireMockRule.port();
@@ -69,8 +70,26 @@ public class Norg2HttpClientTest {
         );
 
         NorgHttp2Client client = new NorgHttp2Client(baseUrl);
+        CachedNorg2Client cachedClient = new CachedNorg2Client(client);
 
-        assertEquals(client.hentTilhorendeEnhet("030105"), jsonEnhet);
+        assertEquals(client.hentTilhorendeEnhet("030105", null, false), jsonEnhet);
+    }
+
+    @Test
+    public void hentTilhorendeEnhet__skal_hente_enhet_med_disk_og_skjermet() {
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "enhet.json");
+        Enhet jsonEnhet = JsonUtils.fromJson(json, Enhet.class);
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+
+        givenThat(get("/api/v1/enhet/navkontor/030105?disk=SPFO&skjermet=true")
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json))
+        );
+
+        NorgHttp2Client client = new NorgHttp2Client(baseUrl);
+
+        assertEquals(client.hentTilhorendeEnhet("030105", Norg2Client.Diskresjonskode.SPFO, true), jsonEnhet);
     }
 
     @Test
