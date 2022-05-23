@@ -7,6 +7,7 @@ import no.nav.common.health.HealthCheckResult;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Optional.ofNullable;
 import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
 
 public class CachedNorg2Client implements Norg2Client {
@@ -44,8 +45,12 @@ public class CachedNorg2Client implements Norg2Client {
     }
 
     @Override
-    public Enhet hentTilhorendeEnhet(String geografiskOmrade) {
-        return tryCacheFirst(hentEnhetFraOmradeCache, geografiskOmrade, () -> norg2Client.hentTilhorendeEnhet(geografiskOmrade));
+    public Enhet hentTilhorendeEnhet(String geografiskOmrade, Diskresjonskode diskresjonskode, boolean skjermet) {
+        return tryCacheFirst(
+                hentEnhetFraOmradeCache,
+                geografiskOmrade + ofNullable(diskresjonskode).map(Diskresjonskode::name).orElse("") + skjermet,
+                () -> norg2Client.hentTilhorendeEnhet(geografiskOmrade, diskresjonskode, skjermet)
+        );
     }
 
     @Override
