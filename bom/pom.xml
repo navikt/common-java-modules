@@ -47,7 +47,7 @@
         <gson.version>2.9.0</gson.version>
         <caffeine.version>3.0.6</caffeine.version>
         <bitbucket-jose4.version>0.7.9</bitbucket-jose4.version>
-        <nimbusds.version>9.34</nimbusds.version>
+        <nimbusds.version>9.35</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
         <org.json.version>20211205</org.json.version>
         <jetty.version>9.4.44.v20210927</jetty.version>
