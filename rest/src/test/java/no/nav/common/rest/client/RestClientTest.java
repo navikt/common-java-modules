@@ -79,7 +79,7 @@ public class RestClientTest {
 
         givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
-        var idPattern = matching("^[a-z0-9]{32}$");
+        var idPattern = matching("^[a-z0-9]{30}(\\w*)$");
 
         try (Response ignored = client.newCall(request).execute()) {
             verify(getRequestedFor(anyUrl())
