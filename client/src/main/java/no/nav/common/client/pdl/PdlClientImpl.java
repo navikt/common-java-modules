@@ -54,19 +54,24 @@ public class PdlClientImpl implements PdlClient {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier);
     }
 
+    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier) {
+        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null);
+    }
+
     @Override
     @SneakyThrows
     public String rawRequest(String gqlRequestJson) {
-        Request request = new Request.Builder()
+        Request.Builder request = new Request.Builder()
                 .url(joinPaths(pdlUrl, "/graphql"))
                 .header(ACCEPT, MEDIA_TYPE_JSON.toString())
                 .header(AUTHORIZATION, createBearerToken(userTokenSupplier.get()))
-                .header("Nav-Consumer-Token", createBearerToken(consumerTokenSupplier.get()))
                 .header("Tema", pdlTema.name())
-                .post(RequestBody.create(MEDIA_TYPE_JSON, gqlRequestJson))
-                .build();
+                .post(RequestBody.create(gqlRequestJson, MEDIA_TYPE_JSON));
+        if (consumerTokenSupplier != null) {
+            request.header("Nav-Consumer-Token", createBearerToken(consumerTokenSupplier.get()));
+        }
 
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = client.newCall(request.build()).execute()) {
             RestUtils.throwIfNotSuccessful(response);
             return RestUtils.getBodyStr(response)
                     .orElseThrow(() -> new IllegalStateException("Body is missing from PDL response"));

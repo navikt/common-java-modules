@@ -8,6 +8,10 @@ import no.nav.common.utils.EnvironmentUtils;
 
 import static no.nav.common.sts.utils.AzureAdEnvironmentVariables.*;
 
+/**
+ * Deprecated: Succeeded by token-client module
+ */
+@Deprecated
 public class AzureAdServiceTokenProviderBuilder {
 
     private String clientId;

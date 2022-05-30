@@ -6,8 +6,8 @@ import io.micrometer.core.instrument.MeterRegistry;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Consumer listener which adds a consumption status metric for each topic + partition
@@ -22,11 +22,11 @@ public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
 
     private final MeterRegistry meterRegistry;
 
-    private final Map<String, Counter> statusCounterMap = new HashMap<>();
+    private final Map<String, Counter> statusCounterMap = new ConcurrentHashMap<>();
 
-    private final Map<String, Gauge> consumedOffsetGaugeMap = new HashMap<>();
+    private final Map<String, Gauge> consumedOffsetGaugeMap = new ConcurrentHashMap<>();
 
-    private final Map<String, Long> consumedOffsetMap = new HashMap<>();
+    private final Map<String, Long> consumedOffsetMap = new ConcurrentHashMap<>();
 
     public TopicConsumerMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;

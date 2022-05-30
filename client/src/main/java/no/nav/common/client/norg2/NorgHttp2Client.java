@@ -9,7 +9,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static no.nav.common.rest.client.RestUtils.*;
 import static no.nav.common.utils.UrlUtils.joinPaths;
@@ -59,9 +61,23 @@ public class NorgHttp2Client implements Norg2Client {
 
     @Override
     @SneakyThrows
-    public Enhet hentTilhorendeEnhet(String geografiskOmrade) {
+    public Enhet hentTilhorendeEnhet(String geografiskOmrade, Diskresjonskode diskresjonskode, boolean skjermet) {
+        var queryParams = new HashMap<String, String>();
+
+        if (diskresjonskode != null) {
+            queryParams.put("disk", diskresjonskode.name());
+        }
+
+        if (skjermet) {
+            queryParams.put("skjermet", "true");
+        }
+
+        var queryParamsString = queryParams.entrySet().stream()
+                .map(param -> param.getKey() + "=" + param.getValue())
+                .collect(Collectors.joining("&", queryParams.isEmpty() ? "" : "?", ""));
+
         Request request = new Request.Builder()
-                .url(joinPaths(norg2Url, "/api/v1/enhet/navkontor/", geografiskOmrade))
+                .url(joinPaths(norg2Url, "/api/v1/enhet/navkontor/", geografiskOmrade) + queryParamsString)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {

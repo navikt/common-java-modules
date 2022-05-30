@@ -13,7 +13,9 @@ import java.net.URI;
 
 /**
  * Provides access tokens from Azure Ad through OAuth 2.0 credentials flow
+ * Deprecated: Succeeded by token-client module
  */
+@Deprecated
 @Slf4j
 public class AzureAdScopedTokenProvider implements ScopedTokenProvider {
 

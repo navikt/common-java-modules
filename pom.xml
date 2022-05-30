@@ -52,6 +52,7 @@
         <module>util</module>
         <module>yaml</module>
         <module>nais</module>
+        <module>token-client</module>
     </modules>
 
     <prerequisites>

@@ -10,9 +10,9 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient<K, V> {
@@ -25,11 +25,11 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
 
     private final MeterRegistry meterRegistry;
 
-    private final Map<String, Counter> statusCounterMap = new HashMap<>();
+    private final Map<String, Counter> statusCounterMap = new ConcurrentHashMap<>();
 
-    private final Map<String, Gauge> currentOffsetGaugeMap = new HashMap<>();
+    private final Map<String, Gauge> currentOffsetGaugeMap = new ConcurrentHashMap<>();
 
-    private final Map<String, Long> currentOffsetMap = new HashMap<>();
+    private final Map<String, Long> currentOffsetMap = new ConcurrentHashMap<>();
 
     public KafkaProducerClientWithMetrics(Properties properties, MeterRegistry meterRegistry) {
         this.client = new KafkaProducerClientImpl<>(properties);
