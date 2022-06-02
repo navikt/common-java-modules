@@ -37,7 +37,7 @@ public class CefMessageBuilder {
     }
 
     public CefMessageBuilder event(CefMessageEvent event) {
-        this.signatureId = event.name();
+        this.signatureId = event.type;
         return this;
     }
 
@@ -83,6 +83,11 @@ public class CefMessageBuilder {
 
     public CefMessageBuilder extension(String name, String value) {
         extension.put(name, value);
+        return this;
+    }
+
+    public CefMessageBuilder extensions(Map<String, String> extensions) {
+        extension.putAll(extensions);
         return this;
     }
 

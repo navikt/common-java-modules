@@ -1,6 +1,6 @@
 package no.nav.common.audit_log.cef;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NonNull;
 
 import java.util.Map;
@@ -11,13 +11,13 @@ import static java.util.stream.Collectors.joining;
 /**
  * Represents a CEF (Common Event Format) message.
  */
-@Getter
+@Data
 public class CefMessage {
     private final int version;                      // Version
     private final String deviceVendor;              // Application name
     private final String deviceProduct;             // Name of the log that originated the event
     private final String deviceVersion;             // Version of the log format
-    private final String signatureId;               // Type of the event
+    private final String signatureId;               // Event type
     private final String name;                      // Description
     private final String severity;                  // Severity of the event, usually "INFO" or "WARN"
     private final Map<String, String> extension;    // Additional attributes
@@ -80,7 +80,8 @@ public class CefMessage {
     private String escapeExtensionValue(String attribute) {
         return attribute
                 .replace("\\", "\\\\")
-                .replace("=", "\\=");
+                .replace("=", "\\=")
+                .replace("\n", "\\n");
     }
 
 }
