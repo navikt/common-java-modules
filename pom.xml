@@ -34,6 +34,7 @@
 
     <modules>
         <module>abac</module>
+        <module>audit-log</module>
         <module>auth</module>
         <module>bom</module>
         <module>client</module>
