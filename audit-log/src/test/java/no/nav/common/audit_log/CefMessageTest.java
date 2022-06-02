@@ -25,7 +25,7 @@ public class CefMessageTest {
         CefMessage cefMessage = new CefMessage(
                 0,
                 "my-application",
-                "auditLogger",
+                "AuditLogger",
                 "1.0",
                 CefMessageEvent.ACCESS.type,
                 "NAV-ansatt har gjort oppslag på bruker",
@@ -33,7 +33,7 @@ public class CefMessageTest {
                 extension
         );
 
-        String expectedStr = "CEF:0|my-application|auditLogger|1.0|audit:access|NAV-ansatt har gjort oppslag på bruker|INFO|sproc=0bfe8d02-93d9-4530-99ac-3debae410769 duid=12345678900 end=1654185299215 suid=Z12345";
+        String expectedStr = "CEF:0|my-application|AuditLogger|1.0|audit:access|NAV-ansatt har gjort oppslag på bruker|INFO|sproc=0bfe8d02-93d9-4530-99ac-3debae410769 duid=12345678900 end=1654185299215 suid=Z12345";
 
         assertEquals(expectedStr, cefMessage.toString());
     }
