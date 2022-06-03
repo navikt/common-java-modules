@@ -18,8 +18,10 @@ public class CefMessageBuilderTest {
     public void should_build_cef_message() {
         Map<String, String> extensions = new HashMap<>();
         extensions.put(FIELD_SOURCE_USER_ID, "Z12345");
-        extensions.put("flexStringLabel1", "hello");
+        extensions.put("flexString1Label", "hello");
         extensions.put("flexString1", "world");
+        extensions.put("cs1Label", "testLabel");
+        extensions.put("cs1", "testValue");
 
         CefMessage expectedMessage = new CefMessage(
                 0,
@@ -38,6 +40,7 @@ public class CefMessageBuilderTest {
                 .description("NAV-ansatt har gjort oppslag på bruker")
                 .severity(CefMessageSeverity.INFO)
                 .flexString(1, "hello", "world")
+                .customString(1, "testLabel", "testValue")
                 .extensions(extensions)
                 .build();
 
@@ -51,10 +54,12 @@ public class CefMessageBuilderTest {
 
         Map<String, String> newMessageExt = newMessage.getExtension();
 
-        assertEquals(3, newMessageExt.size());
+        assertEquals(5, newMessageExt.size());
         assertEquals(extensions.get(FIELD_SOURCE_USER_ID), newMessageExt.get(FIELD_SOURCE_USER_ID));
+        assertEquals(extensions.get("flexString1Label"), newMessageExt.get("flexString1Label"));
         assertEquals(extensions.get("flexString1"), newMessageExt.get("flexString1"));
-        assertEquals(extensions.get("flexStringLabel1"), newMessageExt.get("flexStringLabel1"));
+        assertEquals(extensions.get("cs1Label"), newMessageExt.get("cs1Label"));
+        assertEquals(extensions.get("cs1"), newMessageExt.get("cs1"));
     }
 
     @Test
