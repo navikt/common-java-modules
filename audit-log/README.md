@@ -19,47 +19,21 @@ CEF:0|my-application|AuditLogger|1.0|audit:access|NAV-ansatt har gjort oppslag p
 </dependency>
 ```
 
-2. Lag en logback fil (logback-naudit.xml) for å konfigurere opp audit loggeren som skal sende data til naudit.
-**logback-naudit.xml** kan gjerne ligge i samme mappe som hoved-logback (logback.xml) filen.
-
-Innholdet i naudit logback filen burde se slik ut, husk å bytte ut **MY_APP_NAME** med navnet til applikasjonen.
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<included>
-    <appender name="AuditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%m%n%xEx</pattern>
-        </layout>
-
-        <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.TCPNetSyslogConfig">
-            <host>audit.nais</host>
-            <port>6514</port>
-            <ident>MY_APP_NAME</ident>
-            <maxMessageLength>128000</maxMessageLength>
-        </syslogConfig>
-    </appender>
-
-    <logger name="AuditLogger" level="INFO" additivity="false">
-        <appender-ref ref="AuditLogger"/>
-    </logger>
-</included>
-```
+2. Inkluder logback audit loggeren
 
 NB: Hvis du har tatt i bruk **logback-default.xml** fra log-modulen så trekker denne allerede inn audit log configen for deg
-og man trenger ikke å gjøre dette steget eller steg 3, men det anbefales å ikke lenger ta i bruk
+og man trenger ikke å gjøre dette steget, men det anbefales å ikke lenger ta i bruk
 **logback-default.xml** siden man mister kontrollen på hvilke logback configer som blir trukket inn.
-
-3. Inkluder logback audit loggeren fra hoved-logback filen.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <!-- config for annen logging ... -->
-    <include resource="logback-naudit.xml"/>
+    <include resource="no/nav/common/audit_log/logback-naudit.xml"/>
 </configuration>
 ```
 
-4. Opprett en instanse av audit loggeren og log meldinger
+3. Opprett en instanse av audit loggeren og log meldinger
 
 ```java
 AuditLogger auditLogger = new AuditLoggerImpl();
