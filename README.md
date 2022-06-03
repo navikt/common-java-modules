@@ -4,6 +4,24 @@
 
 These libraries are in use by many applications in NAV.
 
+## Modules
+
+### Audit log
+Audit logging on NAIS. Contains code and logback config to make it easy to write audit logs.
+
+[Read more here](audit-log/README.md)
+
+### Kafka
+High-level abstractions built on-top of `org.apache.kafka.kafka-clients` to prevent common mistakes when dealing with kafka.
+
+[Read more here](kafka/README.md)
+
+### Token client
+OAuth2 token clients which can be used with Azure AD and TokenX for machine-to-machine and on-behalf-of flows when sending requests between applications. 
+Provides easy-to-use clients which requires minimal configuration for applications running on NAIS.
+
+[Read more here](token-client/README.md)
+
 ## Version 1
 This version is tightly coupled to `api-app` and contains many modules that can be considered deprecated after the release of version 2.
 This version will continue to live on the `master` branch until most users of `common-java-modules` has migrated over to version 2.
@@ -26,15 +44,8 @@ In order to build `common-java-modules`, run from the root directory:
 mvn clean install
 ```
 
-Currently, all tests do not run outside of NAV's internal network, because of dependencies on internal resources. In order to run tests without network or on an external build server, use:
-
-```shell
-mvn clean install -Plokal
-```
-
 ### Contact
 
 For questions, create an issue on the Github repository.
 
-See the [CODEOWNERS file](CODEOWNERS) for information on who to contact
-regarding a specific submodule.
+See the [CODEOWNERS file](CODEOWNERS) for information on who to contact.
