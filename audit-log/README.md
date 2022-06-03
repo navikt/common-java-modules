@@ -59,7 +59,7 @@ og man trenger ikke å gjøre dette steget eller steg 3, men det anbefales å ik
 </configuration>
 ```
 
-4. Opprett en instanse av audit loggeren
+4. Opprett en instanse av audit loggeren og log meldinger
 
 ```java
 AuditLogger auditLogger = new AuditLoggerImpl();
@@ -69,7 +69,9 @@ CefMessage cefMessage = CefMessage.builder()
         .event(CefMessageEvent.ACCESS)
         .description("NAV-ansatt har gjort oppslag på bruker")
         .severity(CefMessageSeverity.INFO)
-        .extensions(extensions)
+        .sourceUserId("Z12345")
+        .destinationUserId("12345678900")
+        .timeEnded(System.currentTimeMillis())
         .build();
 
 auditLogger.log(cefMessage);

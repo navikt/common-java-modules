@@ -91,6 +91,25 @@ public class CefMessageBuilder {
         return this;
     }
 
+    /**
+     * Creates a flexString{position}/flexStringLabel{position} extension pair.
+     * The flexStringLabel should contain a string that describes the value inside flexString.
+     * Ex: flexString(1, "Decision", "Permit") -> flexStringLabel1=Decision flexString1=Permit
+     * @param position added as a suffix on flexString and flexStringLabel to allow for multiple pairs, must be 1 or greater
+     * @param label the value for flexStringLabel, should describe the value in flexString
+     * @param value the value for flexString
+     * @return the builder
+     */
+    public CefMessageBuilder flexString(int position, String label, String value) {
+        if (position < 1)
+            throw new IllegalArgumentException("position must be greater than 1");
+
+        extension.put("flexStringLabel" + position, label);
+        extension.put("flexString" + position, value);
+
+        return this;
+    }
+
     public CefMessage build() {
         return new CefMessage(
                 version,

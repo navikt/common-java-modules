@@ -18,6 +18,8 @@ public class CefMessageBuilderTest {
     public void should_build_cef_message() {
         Map<String, String> extensions = new HashMap<>();
         extensions.put(FIELD_SOURCE_USER_ID, "Z12345");
+        extensions.put("flexStringLabel1", "hello");
+        extensions.put("flexString1", "world");
 
         CefMessage expectedMessage = new CefMessage(
                 0,
@@ -35,10 +37,24 @@ public class CefMessageBuilderTest {
                 .event(CefMessageEvent.ACCESS)
                 .description("NAV-ansatt har gjort oppslag på bruker")
                 .severity(CefMessageSeverity.INFO)
+                .flexString(1, "hello", "world")
                 .extensions(extensions)
                 .build();
 
-        assertEquals(expectedMessage, newMessage);
+        assertEquals(expectedMessage.getVersion(), newMessage.getVersion());
+        assertEquals(expectedMessage.getDeviceProduct(), newMessage.getDeviceProduct());
+        assertEquals(expectedMessage.getDeviceVendor(), newMessage.getDeviceVendor());
+        assertEquals(expectedMessage.getDeviceVersion(), newMessage.getDeviceVersion());
+        assertEquals(expectedMessage.getName(), newMessage.getName());
+        assertEquals(expectedMessage.getSeverity(), newMessage.getSeverity());
+        assertEquals(expectedMessage.getSignatureId(), newMessage.getSignatureId());
+
+        Map<String, String> newMessageExt = newMessage.getExtension();
+
+        assertEquals(3, newMessageExt.size());
+        assertEquals(extensions.get(FIELD_SOURCE_USER_ID), newMessageExt.get(FIELD_SOURCE_USER_ID));
+        assertEquals(extensions.get("flexString1"), newMessageExt.get("flexString1"));
+        assertEquals(extensions.get("flexStringLabel1"), newMessageExt.get("flexStringLabel1"));
     }
 
     @Test
