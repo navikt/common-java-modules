@@ -45,6 +45,10 @@ Innholdet i naudit logback filen burde se slik ut, husk å bytte ut **MY_APP_NAM
 </included>
 ```
 
+NB: Hvis du har tatt i bruk **logback-default.xml** fra log-modulen så trekker denne allerede inn audit log configen for deg
+og man trenger ikke å gjøre dette steget eller steg 3, men det anbefales å ikke lenger ta i bruk
+**logback-default.xml** siden man mister kontrollen på hvilke logback configer som blir trukket inn.
+
 3. Inkluder logback audit loggeren fra hoved-logback filen.
 
 ```xml

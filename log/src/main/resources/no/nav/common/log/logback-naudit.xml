@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included scan="true" scanPeriod="30 seconds">
+    <!-- Deprecated. This logger has been moved to the audit-log module. -->
+
     <appender name="AuditLogger" class="com.papertrailapp.logback.Syslog4jAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>%m%n%xEx</pattern>

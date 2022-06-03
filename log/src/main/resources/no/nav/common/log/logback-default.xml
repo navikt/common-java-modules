@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
+    <!-- Deprecated. It is discouraged to use this logback file, you should explicitly include the configs that you need -->
     <include resource="no/nav/common/log/logback-stdout-json.xml"/>
     <include resource="no/nav/common/log/logback-naudit.xml"/>
     <include resource="no/nav/common/log/logback-securelogs.xml"/>
