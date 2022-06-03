@@ -41,11 +41,12 @@ AuditLogger auditLogger = new AuditLoggerImpl();
 CefMessage cefMessage = CefMessage.builder()
         .applicationName("MY_APP_NAME")
         .event(CefMessageEvent.ACCESS)
-        .description("NAV-ansatt har gjort oppslag på bruker")
+        .name("Sporingslogg")
         .severity(CefMessageSeverity.INFO)
         .sourceUserId("Z12345")
         .destinationUserId("12345678900")
         .timeEnded(System.currentTimeMillis())
+        .flexString(1, "reason", "NAV-ansatt har gjort oppslag på bruker")
         .build();
 
 auditLogger.log(cefMessage);

@@ -47,8 +47,8 @@ public class CefMessageBuilder {
         return this;
     }
 
-    public CefMessageBuilder description(String description) {
-        this.name = description;
+    public CefMessageBuilder name(String name) {
+        this.name = name;
         return this;
     }
 

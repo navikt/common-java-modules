@@ -37,7 +37,7 @@ public class CefMessageBuilderTest {
         CefMessage newMessage = CefMessage.builder()
                 .applicationName("my-application")
                 .event(CefMessageEvent.ACCESS)
-                .description("NAV-ansatt har gjort oppslag på bruker")
+                .name("NAV-ansatt har gjort oppslag på bruker")
                 .severity(CefMessageSeverity.INFO)
                 .flexString(1, "hello", "world")
                 .customString(1, "testLabel", "testValue")
