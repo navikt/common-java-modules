@@ -95,7 +95,7 @@ public class CefMessageBuilder {
     /**
      * Creates a flexString{position}/flexString{position}Label extension pair. Used to add custom data to the message.
      * The flexStringLabel should contain a string that describes the value inside flexString.
-     * Ex: flexString(1, "Decision", "Permit") -> flexString1Label=Decision flexString1=Permit
+     * Ex: {@code flexString(1, "Decision", "Permit") -> flexString1Label=Decision flexString1=Permit}
      * @param position added onto flexString and flexStringLabel to allow for multiple pairs, must be either 1 or 2
      * @param label the value for flexStringLabel, should describe the value in flexString
      * @param value the value for flexString
@@ -114,7 +114,7 @@ public class CefMessageBuilder {
     /**
      * Creates a cs{position}/cs{position}Label extension pair. Used to add custom data to the message.
      * The csLabel should contain a string that describes the value inside cs.
-     * Ex: customString(1, "Decision", "Permit") -> cs1Label=Decision cs1=Permit
+     * Ex: {@code customString(1, "Decision", "Permit") -> cs1Label=Decision cs1=Permit}
      * @param position added onto cs and csLabel to allow for multiple pairs, must be between 1 to 6 inclusive
      * @param label the value for csLabel, should describe the value in cs
      * @param value the value for cs

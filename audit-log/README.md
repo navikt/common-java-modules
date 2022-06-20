@@ -46,11 +46,14 @@ CefMessage cefMessage = CefMessage.builder()
         .sourceUserId("Z12345")
         .destinationUserId("12345678900")
         .timeEnded(System.currentTimeMillis())
-        .flexString(1, "reason", "NAV-ansatt har gjort oppslag på bruker")
+        .extension("msg", "NAV-ansatt har gjort oppslag på bruker")
         .build();
 
 auditLogger.log(cefMessage);
 ```
+
+4. Når stegene ovenfor er utført og applikasjonen har sendt logger i preprod eller prod, ta kontakt med ArcSight folkene 
+i **#tech-logg_analyse_og_datainnsikt** for å bekrefte at loggene har blitt motatt.
 
 ## Ressurser
 
