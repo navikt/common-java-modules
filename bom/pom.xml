@@ -74,6 +74,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <!--
+                Dette er en midlertidig patch, i nyere versjoner av f.eks org.apache.cxf:cxf-rt-ws-security
+                så trengs forhåpentligvis ikke dette.
+            -->
+            <dependency>
+                <groupId>commons-collections</groupId>
+                <artifactId>commons-collections</artifactId>
+                <version>3.2.2</version>
+            </dependency>
+
             <!-- START COMMON -->
             <dependency>
                 <groupId>no.nav.common</groupId>
