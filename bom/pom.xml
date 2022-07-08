@@ -50,7 +50,7 @@
         <nimbusds.version>9.37.2</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
         <org.json.version>20211205</org.json.version>
-        <jetty.version>9.4.44.v20210927</jetty.version>
+        <jetty.version>11.0.11</jetty.version>
 
         <!-- KAFKA -->
         <kafka.version>3.2.0</kafka.version>
