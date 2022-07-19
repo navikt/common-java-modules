@@ -8,6 +8,7 @@ import no.nav.common.auth.test_provider.OidcProviderTestRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.servlet.*;
 import javax.servlet.http.Cookie;
@@ -341,9 +342,15 @@ public class OidcAuthenticationFilterTest {
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
-        verify(servletResponse, atLeastOnce()).addCookie(any());
+        ArgumentCaptor<Cookie> cookieCapture = ArgumentCaptor.forClass(Cookie.class);
+        verify(servletResponse, atLeastOnce()).addCookie(cookieCapture.capture());
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+
+        Cookie cookie = cookieCapture.getValue();
+        assertEquals("isso-idtoken", cookie.getName());
+        assertEquals("local", cookie.getDomain());
+        assertEquals("/", cookie.getPath());
     }
 
     @Test
