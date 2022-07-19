@@ -5,6 +5,7 @@ import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
+import no.nav.common.auth.utils.CookieUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -342,6 +343,36 @@ public class OidcAuthenticationFilterTest {
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
+        verify(servletResponse, atLeastOnce()).addCookie(any());
+        verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verify(filterChain, times(1)).doFilter(servletRequest, servletResponse);
+    }
+
+    @Test
+    public void shouldRefreshWithCorrectCookieDomainAndPath() throws IOException, ServletException {
+        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
+        );
+
+        JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
+        long threeMinutesFuture = (System.currentTimeMillis() + (1000 * 60 * 3)) / 1000;
+        claims.setClaim("exp", threeMinutesFuture);
+        String token = azureAdOidcProviderRule.getToken(claims);
+
+        HttpServletResponse servletResponse = mock(HttpServletResponse.class);
+        FilterChain filterChain = mock(FilterChain.class);
+        HttpServletRequest servletRequest = request("/hello");
+
+        when(servletRequest.getServerName()).thenReturn("test.local");
+        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
+                CookieUtils.createCookie(azureAdAuthenticatorConfig.idTokenCookieName, token, "overridden.local", "/overriddenpath", 0, false),
+                CookieUtils.createCookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token", "overridden.local", "/overriddenpath", 0, false)
+        });
+
+        authenticationFilter.init(config("/abc"));
+
+        authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
+
         ArgumentCaptor<Cookie> cookieCapture = ArgumentCaptor.forClass(Cookie.class);
         verify(servletResponse, atLeastOnce()).addCookie(cookieCapture.capture());
         verify(servletResponse, never()).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -349,8 +380,8 @@ public class OidcAuthenticationFilterTest {
 
         Cookie cookie = cookieCapture.getValue();
         assertEquals("isso-idtoken", cookie.getName());
-        assertEquals("local", cookie.getDomain());
-        assertEquals("/", cookie.getPath());
+        assertEquals("overridden.local", cookie.getDomain());
+        assertEquals("/overriddenpath", cookie.getPath());
     }
 
     @Test
