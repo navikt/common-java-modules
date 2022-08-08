@@ -2,7 +2,6 @@ package no.nav.common.auth.oidc.filter;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
-import com.nimbusds.jose.proc.BadJWSException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
@@ -24,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static no.nav.common.auth.utils.CookieUtils.cookieDomain;
 import static no.nav.common.auth.utils.CookieUtils.dateToCookieMaxAge;
 import static no.nav.common.auth.utils.TokenUtils.*;
 
@@ -69,12 +69,7 @@ public class OidcAuthenticationFilter implements Filter {
                     if (refreshedIdToken.isPresent()) {
                         jwtToken = JWTParser.parse(refreshedIdToken.get());
 
-                        Optional<Cookie> oldCookie = authenticator.findIdTokenCookie(request);
-                        if (oldCookie.isEmpty()) {
-                            logger.warn("Cannot refresh id_token for cookie {}, no cookie found", authenticator.config.idTokenCookieName);
-                        } else {
-                            updateIdTokenCookie(oldCookie.get(), jwtToken, response);
-                        }
+                        addNewIdTokenCookie(authenticator.config, jwtToken, request, response);
                     }
 
                     authenticator.tokenValidator.validate(jwtToken);
@@ -103,17 +98,24 @@ public class OidcAuthenticationFilter implements Filter {
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
-    private void updateIdTokenCookie(Cookie oldCookie, JWT jwtToken, HttpServletResponse response) throws ParseException {
+
+    private void addNewIdTokenCookie(
+            OidcAuthenticatorConfig oidcConfig, JWT jwtToken, HttpServletRequest request, HttpServletResponse response
+    ) throws ParseException {
+        String cookieDomain = oidcConfig.cookieDomain != null ? oidcConfig.cookieDomain : cookieDomain(request);
+        String cookiePath = oidcConfig.cookiePath != null ? oidcConfig.cookiePath : "/";
         Date cookieExpiration = jwtToken.getJWTClaimsSet().getExpirationTime();
-        Cookie newCookie = new Cookie(oldCookie.getName(), jwtToken.getParsedString());
-        if (oldCookie.getDomain() != null) {
-            newCookie.setDomain(oldCookie.getDomain());
-        }
-        newCookie.setPath(oldCookie.getPath());
-        newCookie.setHttpOnly(oldCookie.isHttpOnly());
-        newCookie.setSecure(oldCookie.getSecure());
-        newCookie.setMaxAge(dateToCookieMaxAge(cookieExpiration));
-        response.addCookie(newCookie);
+
+        Cookie newIdCookie = CookieUtils.createCookie(
+                oidcConfig.idTokenCookieName,
+                jwtToken.getParsedString(),
+                cookieDomain,
+                cookiePath,
+                dateToCookieMaxAge(cookieExpiration),
+                request.isSecure()
+        );
+
+        response.addCookie(newIdCookie);
     }
 
     private Optional<String> refreshIdTokenIfNecessary(JWT token, OidcAuthenticator authenticator, HttpServletRequest request) {

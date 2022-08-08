@@ -4,9 +4,7 @@ import lombok.Value;
 import no.nav.common.auth.oidc.OidcTokenValidator;
 import no.nav.common.auth.utils.CookieUtils;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -34,14 +32,9 @@ public class OidcAuthenticator {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Cookie> findIdTokenCookie(HttpServletRequest request) {
-        return Optional.ofNullable(config.idTokenCookieName)
-                .flatMap(tokenName -> CookieUtils.getCookie(tokenName, request));
-    }
-
     public Optional<String> findIdToken(HttpServletRequest request) {
-        Optional<String> maybeIdTokenFromCookie = findIdTokenCookie(request)
-                .map(Cookie::getValue);
+        Optional<String> maybeIdTokenFromCookie = Optional.ofNullable(config.idTokenCookieName)
+                .flatMap(tokenName -> CookieUtils.getCookieValue(tokenName, request));
 
         if (maybeIdTokenFromCookie.isPresent()) {
             return maybeIdTokenFromCookie;
