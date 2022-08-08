@@ -38,11 +38,11 @@ public class OidcAuthenticatorConfig {
     // Url to call when refreshing the id token (optional)
     public String refreshUrl;
 
-    // Domain for id token cookie (optional)
-    public String cookieDomain;
+    // Domain to use for the refreshed id token cookie (optional)
+    public String refreshedCookieDomain;
 
-    // Path for id token cookie (optional)
-    public String cookiePath;
+    // Path to use for the refreshed id token cookie (optional)
+    public String refreshedCookiePath;
 
     public boolean isValid() {
         return discoveryUrl != null

@@ -102,8 +102,8 @@ public class OidcAuthenticationFilter implements Filter {
     private void addNewIdTokenCookie(
             OidcAuthenticatorConfig oidcConfig, JWT jwtToken, HttpServletRequest request, HttpServletResponse response
     ) throws ParseException {
-        String cookieDomain = oidcConfig.cookieDomain != null ? oidcConfig.cookieDomain : cookieDomain(request);
-        String cookiePath = oidcConfig.cookiePath != null ? oidcConfig.cookiePath : "/";
+        String cookieDomain = oidcConfig.refreshedCookieDomain != null ? oidcConfig.refreshedCookieDomain : cookieDomain(request);
+        String cookiePath = oidcConfig.refreshedCookiePath != null ? oidcConfig.refreshedCookiePath : "/";
         Date cookieExpiration = jwtToken.getJWTClaimsSet().getExpirationTime();
 
         Cookie newIdCookie = CookieUtils.createCookie(

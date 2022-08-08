@@ -88,8 +88,8 @@ public class OidcAuthenticationFilterTest {
                 .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
                 .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
                 .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME)
-                .withCookieDomain("overridden.local")
-                .withCookiePath("/overriddenpath");
+                .withRefreshedCookieDomain("overridden.local")
+                .withRefreshedCookiePath("/overriddenpath");
 
         openAMAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(openAMOidcProviderRule.getDiscoveryUri())
