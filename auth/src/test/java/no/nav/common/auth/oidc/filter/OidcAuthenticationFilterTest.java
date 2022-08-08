@@ -62,6 +62,8 @@ public class OidcAuthenticationFilterTest {
 
     private OidcAuthenticatorConfig azureAdAuthenticatorConfig;
 
+    private OidcAuthenticatorConfig azureAdAuthenticatorConfigCookieOverride;
+
     private OidcAuthenticatorConfig openAMAuthenticatorConfig;
 
     @Before
@@ -78,6 +80,16 @@ public class OidcAuthenticationFilterTest {
                 .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
                 .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
                 .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME);
+
+        azureAdAuthenticatorConfigCookieOverride = new OidcAuthenticatorConfig()
+                .withDiscoveryUrl(azureAdOidcProviderRule.getDiscoveryUri())
+                .withClientId(azureAdOidcProviderRule.getAudience())
+                .withUserRole(UserRole.INTERN)
+                .withRefreshUrl(azureAdOidcProviderRule.getRefreshUri())
+                .withIdTokenCookieName(AZURE_AD_ID_TOKEN_COOKIE_NAME)
+                .withRefreshTokenCookieName(REFRESH_TOKEN_COOKIE_NAME)
+                .withRefreshedCookieDomain("overridden.local")
+                .withRefreshedCookiePath("/overriddenpath");
 
         openAMAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(openAMOidcProviderRule.getDiscoveryUri())
@@ -351,7 +363,7 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void shouldRefreshWithCorrectCookieDomainAndPath() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfigCookieOverride))
         );
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
@@ -365,7 +377,7 @@ public class OidcAuthenticationFilterTest {
 
         when(servletRequest.getServerName()).thenReturn("test.local");
         when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                CookieUtils.createCookie(azureAdAuthenticatorConfig.idTokenCookieName, token, "overridden.local", "/overriddenpath", 0, false),
+                CookieUtils.createCookie(azureAdAuthenticatorConfigCookieOverride.idTokenCookieName, token, "overridden.local", "/overriddenpath", 0, false),
                 CookieUtils.createCookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token", "overridden.local", "/overriddenpath", 0, false)
         });
 
