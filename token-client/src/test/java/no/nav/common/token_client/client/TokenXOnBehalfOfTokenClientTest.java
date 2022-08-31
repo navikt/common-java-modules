@@ -14,8 +14,7 @@ import java.util.Map;
 import static no.nav.common.token_client.test_utils.Constants.TEST_JWK;
 import static no.nav.common.token_client.test_utils.RequestUtils.parseFormData;
 import static no.nav.common.token_client.test_utils.RequestUtils.tokenMockResponse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TokenXOnBehalfOfTokenClientTest {
 
@@ -34,7 +33,7 @@ public class TokenXOnBehalfOfTokenClientTest {
 
     @Test
     public void skal_lage_riktig_request_og_parse_response() throws InterruptedException {
-        String accessToken = TokenCreator.instance().createToken();
+        String accessToken = TokenCreator.instance().createToken("test");
 
         server.enqueue(tokenMockResponse(accessToken));
 
@@ -45,7 +44,7 @@ public class TokenXOnBehalfOfTokenClientTest {
                 new CaffeineTokenCache()
         );
 
-        String token = tokenClient.exchangeOnBehalfOfToken("test-scope", TokenCreator.instance().createToken());
+        String token = tokenClient.exchangeOnBehalfOfToken("test-scope", TokenCreator.instance().createToken("test"));
 
         RecordedRequest recordedRequest = server.takeRequest();
 
@@ -64,9 +63,9 @@ public class TokenXOnBehalfOfTokenClientTest {
 
     @Test
     public void should_cache_request() {
-        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken()));
-        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken()));
-        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken()));
+        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("user-1")));
+        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("user-2")));
+        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("user-2")));
 
         TokenXOnBehalfOfTokenClient tokenClient = new TokenXOnBehalfOfTokenClient(
                 "test-id",
@@ -75,11 +74,13 @@ public class TokenXOnBehalfOfTokenClientTest {
                 new CaffeineTokenCache()
         );
 
-        String token1 = TokenCreator.instance().createToken();
-        String token2 = TokenCreator.instance().createToken();
+        String token1 = TokenCreator.instance().createToken("user-1");
+        String token2 = TokenCreator.instance().createToken("user-2");
+        String token3 = TokenCreator.instance().createToken("user-1");
 
         tokenClient.exchangeOnBehalfOfToken("test-scope", token1);
         tokenClient.exchangeOnBehalfOfToken("test-scope", token1);
+        tokenClient.exchangeOnBehalfOfToken("test-scope", token3);
 
         assertEquals(1, server.getRequestCount());
 
@@ -87,6 +88,22 @@ public class TokenXOnBehalfOfTokenClientTest {
         tokenClient.exchangeOnBehalfOfToken("test-scope-2", token2);
 
         assertEquals(3, server.getRequestCount());
+    }
+
+    @Test
+    public void should_throw_exception_if_subject_missing() {
+        TokenXOnBehalfOfTokenClient tokenClient = new TokenXOnBehalfOfTokenClient(
+                "test-id",
+                server.url("/token").toString(),
+                TEST_JWK,
+                new CaffeineTokenCache()
+        );
+
+        String token = TokenCreator.instance().createToken(null);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            tokenClient.exchangeOnBehalfOfToken("test-scope", token);
+        }, "Unable to get subject, access token is missing subject");
     }
 
 }

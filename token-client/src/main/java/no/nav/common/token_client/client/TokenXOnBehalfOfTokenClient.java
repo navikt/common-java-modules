@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.common.token_client.utils.TokenClientUtils.*;
-import static no.nav.common.token_client.utils.TokenUtils.hashToken;
+import static no.nav.common.token_client.utils.TokenUtils.getSubject;
 
 @Slf4j
 public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
@@ -26,7 +26,7 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
 
     @Override
     public String exchangeOnBehalfOfToken(String tokenScope, String accessToken) {
-        String cacheKey = tokenScope + "-" + hashToken(accessToken);
+        String cacheKey = tokenScope + "-" + getSubject(accessToken);
 
         return ofNullable(tokenCache)
                 .map(cache -> cache.getFromCacheOrTryProvider(cacheKey, () -> exchangeToken(tokenScope, accessToken)))

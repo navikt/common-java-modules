@@ -34,7 +34,7 @@ public class AzureAdMachineToMachineTokenClientTest {
 
     @Test
     public void skal_lage_riktig_request_og_parse_response() throws InterruptedException {
-        String accessToken = TokenCreator.instance().createToken();
+        String accessToken = TokenCreator.instance().createToken("test");
 
         server.enqueue(tokenMockResponse(accessToken));
 
@@ -63,9 +63,8 @@ public class AzureAdMachineToMachineTokenClientTest {
 
     @Test
     public void should_cache_request() {
-        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken()));
-        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken()));
-        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken()));
+        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("test-1")));
+        server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("test-2")));
 
         AzureAdMachineToMachineTokenClient tokenClient = new AzureAdMachineToMachineTokenClient(
                 "test-id",

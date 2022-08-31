@@ -31,14 +31,14 @@ public class TokenCreator {
     }
 
     @SneakyThrows
-    public String createToken() {
-        return createToken(60 * 1000);
+    public String createToken(String subject) {
+        return createToken(subject, 60 * 1000);
     }
 
     @SneakyThrows
-    public String createToken(int expireFromNowMs) {
+    public String createToken(String subject, int expireFromNowMs) {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject("test")
+                .subject(subject)
                 .issuer("https://example.com")
                 .jwtID(UUID.randomUUID().toString())
                 .expirationTime(new Date(new Date().getTime() + expireFromNowMs))

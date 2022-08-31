@@ -18,7 +18,7 @@ public class CaffeineTokenCacheTest {
 
         Supplier<String> supplier = () -> {
             counter.incrementAndGet();
-            return TokenCreator.instance().createToken();
+            return TokenCreator.instance().createToken("test");
         };
 
         tokenCache.getFromCacheOrTryProvider("key1", supplier);
@@ -35,7 +35,7 @@ public class CaffeineTokenCacheTest {
 
         Supplier<String> supplier = () -> {
             counter.incrementAndGet();
-            return TokenCreator.instance().createToken();
+            return TokenCreator.instance().createToken("test");
         };
 
         tokenCache.getFromCacheOrTryProvider("key1", supplier);
