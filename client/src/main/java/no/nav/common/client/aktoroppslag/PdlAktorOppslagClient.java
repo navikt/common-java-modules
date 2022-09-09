@@ -48,6 +48,10 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
         this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, userTokenSupplier, consumerTokenSupplier);
     }
 
+    public PdlAktorOppslagClient(String pdlUrl, Supplier<String> azureAdTokenSupplier) {
+        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, azureAdTokenSupplier, null);
+    }
+
     public PdlAktorOppslagClient(PdlClient pdlClient) {
         this.pdlClient = pdlClient;
     }
