@@ -8,22 +8,27 @@ import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import okhttp3.*;
 
+import java.util.function.Supplier;
+
 @Slf4j
 public class AbacHttpClient implements AbacClient {
 
     private final String abacUrl;
 
-    private final String srvUsername;
-
-    private final String srvPassword;
+    private final Supplier<String> tokenSupplier;
 
     private final OkHttpClient client;
 
     public AbacHttpClient(String abacUrl, String srvUsername, String srvPassword) {
         this.abacUrl = abacUrl;
-        this.srvUsername = srvUsername;
-        this.srvPassword = srvPassword;
         this.client = new OkHttpClient();
+        this.tokenSupplier = () -> Credentials.basic(srvUsername, srvPassword);
+    }
+
+    public AbacHttpClient(String abacUrl, Supplier<String> tokenSupplier) {
+        this.abacUrl = abacUrl;
+        this.client = new OkHttpClient();
+        this.tokenSupplier = tokenSupplier;
     }
 
     @Override
@@ -37,7 +42,7 @@ public class AbacHttpClient implements AbacClient {
     public String sendRawRequest(String xacmlRequestJson) {
         Request request = new Request.Builder()
                 .url(abacUrl)
-                .addHeader("Authorization", Credentials.basic(srvUsername, srvPassword))
+                .addHeader("Authorization", tokenSupplier.get())
                 .post(RequestBody.create(MediaType.get("application/xacml+json"), xacmlRequestJson))
                 .build();
 
@@ -58,7 +63,7 @@ public class AbacHttpClient implements AbacClient {
     public HealthCheckResult checkHealth() {
         Request request = new Request.Builder()
                 .url(abacUrl)
-                .addHeader("Authorization", Credentials.basic(srvUsername, srvPassword))
+                .addHeader("Authorization", tokenSupplier.get())
                 .build();
 
         return HealthCheckUtils.pingUrl(request, client);
