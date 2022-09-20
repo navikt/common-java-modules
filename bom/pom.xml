@@ -53,7 +53,7 @@
         <jetty.version>9.4.44.v20210927</jetty.version>
 
         <!-- KAFKA -->
-        <kafka.version>3.2.1</kafka.version>
+        <kafka.version>3.2.2</kafka.version>
         <avro.version>1.11.1</avro.version>
         <avro-serializer.version>6.1.1</avro-serializer.version>
         <json-schema-validation.version>1.12.2</json-schema-validation.version>
