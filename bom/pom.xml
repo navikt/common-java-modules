@@ -35,7 +35,7 @@
         <spring.version>5.3.22</spring.version>
         <jersey.version>2.27</jersey.version>
         <jackson.version>2.13.4</jackson.version>
-        <jackson-databind.version>2.13.3</jackson-databind.version>
+        <jackson-databind.version>2.13.4</jackson-databind.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <micrometer.version>1.9.3</micrometer.version>
         <okhttp.version>4.10.0</okhttp.version>
