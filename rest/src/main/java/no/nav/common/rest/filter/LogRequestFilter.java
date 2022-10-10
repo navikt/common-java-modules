@@ -24,9 +24,11 @@ public class LogRequestFilter implements Filter {
 
     public static final String NAV_CALL_ID_HEADER_NAME = "Nav-Call-Id";
 
-    public static final String SERVER_HEADER_NAME = "Server";
+    private static final String SERVER_HEADER_NAME = "Server";
 
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
+
+    private static final String UNKNOWN_CONSUMER_ID = "unknown";
 
     private static final int ONE_MONTH_IN_SECONDS = 60 * 60 * 24 * 30;
 
@@ -62,8 +64,10 @@ public class LogRequestFilter implements Filter {
         }
 
         try {
-            String consumerId = resolveConsumerId(httpRequest).orElse("unknown");
-            String callId = resolveCallId(httpRequest).orElseGet(IdUtils::generateId);
+            long requestStarted = System.currentTimeMillis();
+
+            String consumerId = resolveConsumerId(httpRequest);
+            String callId = resolveCallId(httpRequest);
             String userId = resolveUserId(httpRequest)
                     .orElseGet(() -> {
                         String newUserId = generateId();
@@ -81,11 +85,13 @@ public class LogRequestFilter implements Filter {
 
             filterChainWithErrorHandling(httpRequest, httpResponse, filterChain);
 
-            String requestLogMsg = format("status=%s method=%s host=%s path=%s",
+            long timeTakenMs = System.currentTimeMillis() - requestStarted;
+
+            String requestLogMsg = format("IN status=%s method=%s time=%dms url=%s",
                     httpResponse.getStatus(),
                     httpRequest.getMethod(),
-                    httpRequest.getServerName(),
-                    httpRequest.getRequestURI()
+                    timeTakenMs,
+                    httpRequest.getRequestURL()
             );
 
             log.info(requestLogMsg);
@@ -132,14 +138,16 @@ public class LogRequestFilter implements Filter {
         return httpServletRequest.getRequestURI().contains("/internal/");
     }
 
-    private static Optional<String> resolveConsumerId(HttpServletRequest httpRequest) {
+    public static String resolveConsumerId(HttpServletRequest httpRequest) {
         return ofNullable(httpRequest.getHeader(NAV_CONSUMER_ID_HEADER_NAME))
-                .filter(v -> !v.isBlank());
+                .filter(v -> !v.isBlank())
+                .orElse(UNKNOWN_CONSUMER_ID);
     }
 
-    private static Optional<String> resolveCallId(HttpServletRequest httpRequest) {
+    public static String resolveCallId(HttpServletRequest httpRequest) {
         return ofNullable(httpRequest.getHeader(NAV_CALL_ID_HEADER_NAME))
-                .filter(v -> !v.isBlank());
+                .filter(v -> !v.isBlank())
+                .orElseGet(IdUtils::generateId);
     }
 
     private static Optional<String> resolveUserId(HttpServletRequest httpRequest) {
