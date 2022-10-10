@@ -12,8 +12,8 @@ import org.slf4j.MDC;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static no.nav.common.log.LogFilter.CONSUMER_ID_HEADER_NAME;
-import static no.nav.common.log.LogFilter.PREFERRED_NAV_CALL_ID_HEADER_NAME;
+import static no.nav.common.log.LogFilter.NAV_CALL_ID_HEADER_NAME;
+import static no.nav.common.log.LogFilter.NAV_CONSUMER_ID_HEADER_NAME;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
 public class RestClientTest {
@@ -36,10 +36,8 @@ public class RestClientTest {
         
         try (Response ignored = client.newCall(request).execute()) {
             verify(getRequestedFor(anyUrl())
-                    .withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, equalTo("CALL_ID"))
-                    .withHeader("Nav-CallId", equalTo("CALL_ID"))
-                    .withHeader("X-Correlation-Id", equalTo("CALL_ID"))
-                    .withHeader(CONSUMER_ID_HEADER_NAME, equalTo("test")));
+                    .withHeader(NAV_CALL_ID_HEADER_NAME, equalTo("CALL_ID"))
+                    .withHeader(NAV_CONSUMER_ID_HEADER_NAME, equalTo("test")));
         }
 
         MDC.remove(MDCConstants.MDC_CALL_ID);
@@ -60,7 +58,7 @@ public class RestClientTest {
 
         try (Response ignored = client.newCall(request).execute()) {
             verify(getRequestedFor(anyUrl())
-                    .withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, equalTo("JOB_ID")));
+                    .withHeader(NAV_CALL_ID_HEADER_NAME, equalTo("JOB_ID")));
         }
 
         MDC.remove(MDCConstants.MDC_JOB_ID);
@@ -83,9 +81,7 @@ public class RestClientTest {
 
         try (Response ignored = client.newCall(request).execute()) {
             verify(getRequestedFor(anyUrl())
-                    .withHeader(PREFERRED_NAV_CALL_ID_HEADER_NAME, idPattern)
-                    .withHeader("Nav-CallId", idPattern)
-                    .withHeader("X-Correlation-Id", idPattern));
+                    .withHeader(NAV_CALL_ID_HEADER_NAME, idPattern));
         }
 
     }

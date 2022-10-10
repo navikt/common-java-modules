@@ -12,8 +12,7 @@ import org.slf4j.MDC;
 import java.io.IOException;
 
 import static java.lang.String.format;
-import static java.util.Arrays.stream;
-import static no.nav.common.log.LogFilter.NAV_CALL_ID_HEADER_NAMES;
+import static no.nav.common.log.LogFilter.NAV_CALL_ID_HEADER_NAME;
 import static no.nav.common.utils.EnvironmentUtils.getApplicationName;
 import static no.nav.common.utils.StringUtils.of;
 
@@ -28,11 +27,9 @@ public class LogInterceptor implements Interceptor {
         of(MDC.get(MDCConstants.MDC_CALL_ID))
                 .or(() -> of(MDC.get(MDCConstants.MDC_JOB_ID)))
                 .or(() -> of(IdUtils.generateId())) // Generate a new call-id if it is missing from the MDC context
-                .ifPresent(callId ->
-                        stream(NAV_CALL_ID_HEADER_NAMES).forEach(headerName -> requestBuilder.header(headerName, callId))
-                );
+                .ifPresent(callId -> requestBuilder.header(NAV_CALL_ID_HEADER_NAME, callId));
 
-        getApplicationName().ifPresent(applicationName -> requestBuilder.header(LogFilter.CONSUMER_ID_HEADER_NAME, applicationName));
+        getApplicationName().ifPresent(applicationName -> requestBuilder.header(LogFilter.NAV_CONSUMER_ID_HEADER_NAME, applicationName));
 
         Request request = requestBuilder
                 .method(original.method(), original.body())
