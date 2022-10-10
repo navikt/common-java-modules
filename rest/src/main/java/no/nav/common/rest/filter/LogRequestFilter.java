@@ -24,7 +24,7 @@ public class LogRequestFilter implements Filter {
 
     public static final String NAV_CALL_ID_HEADER_NAME = "Nav-Call-Id";
 
-    private static final String LOG_FILTER_FILTERED = "LOG_FILTER_FILTERED";
+    public static final String SERVER_HEADER_NAME = "Server";
 
     private static final String RANDOM_USER_ID_COOKIE_NAME = "RUIDC";
 
@@ -35,11 +35,14 @@ public class LogRequestFilter implements Filter {
     private final boolean exposeErrorDetails;
 
     public LogRequestFilter(String applicationName) {
-        this.applicationName = applicationName;
-        this.exposeErrorDetails = false;
+       this(applicationName, false);
     }
 
     public LogRequestFilter(String applicationName, boolean exposeErrorDetails) {
+        if (applicationName == null) {
+            throw new IllegalArgumentException("Application name must not be null");
+        }
+
         this.applicationName = applicationName;
         this.exposeErrorDetails = exposeErrorDetails;
     }
@@ -47,66 +50,45 @@ public class LogRequestFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
-            throw new ServletException("LogFilter supports only HTTP requests");
+            throw new ServletException("LogRequestFilter supports only HTTP requests");
         }
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        boolean hasAlreadyFilteredAttribute = request.getAttribute(LOG_FILTER_FILTERED) != null;
-
-        // Make sure that the same request does not get filtered twice
-        if (hasAlreadyFilteredAttribute) {
-            filterChain.doFilter(request, response);
-        } else {
-            request.setAttribute(LOG_FILTER_FILTERED, Boolean.TRUE);
-            try {
-                filter(httpRequest, httpResponse, filterChain);
-            } finally {
-                request.removeAttribute(LOG_FILTER_FILTERED);
-            }
-        }
-    }
-
-    public void filter(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain) throws IOException, ServletException {
-        Optional<String> maybeUserId = resolveUserId(httpRequest);
-
-        String userId;
-
-        if (maybeUserId.isPresent()) {
-            userId = maybeUserId.get();
-        } else {
-            userId = generateId();
-            createUserIdCookie(userId, httpResponse);
-        }
-
-        String consumerId = httpRequest.getHeader(NAV_CONSUMER_ID_HEADER_NAME);
-        String callId = resolveCallId(httpRequest);
-
-        MDC.put(MDCConstants.MDC_CALL_ID, callId);
-        MDC.put(MDCConstants.MDC_USER_ID, userId);
-        MDC.put(MDCConstants.MDC_CONSUMER_ID, consumerId);
-        MDC.put(MDCConstants.MDC_REQUEST_ID, generateId());
-
-        httpResponse.setHeader(NAV_CALL_ID_HEADER_NAME, callId);
-
-        if (applicationName != null) {
-            httpResponse.setHeader("Server", applicationName);
+        if (isInternalRequest(httpRequest)) {
+            filterChain.doFilter(httpRequest, httpResponse);
+            return;
         }
 
         try {
-            filterWithErrorHandling(httpRequest, httpResponse, filterChain);
+            String consumerId = resolveConsumerId(httpRequest).orElse("unknown");
+            String callId = resolveCallId(httpRequest).orElseGet(IdUtils::generateId);
+            String userId = resolveUserId(httpRequest)
+                    .orElseGet(() -> {
+                        String newUserId = generateId();
+                        createUserIdCookie(newUserId, httpResponse);
+                        return newUserId;
+                    });
 
-            if (!isInternalRequest(httpRequest)) {
-                String msg = format("status=%s method=%s host=%s path=%s",
-                        httpResponse.getStatus(),
-                        httpRequest.getMethod(),
-                        httpRequest.getServerName(),
-                        httpRequest.getRequestURI()
-                );
+            MDC.put(MDCConstants.MDC_CALL_ID, callId);
+            MDC.put(MDCConstants.MDC_USER_ID, userId);
+            MDC.put(MDCConstants.MDC_CONSUMER_ID, consumerId);
+            MDC.put(MDCConstants.MDC_REQUEST_ID, generateId());
 
-                log.info(msg);
-            }
+            httpResponse.setHeader(NAV_CALL_ID_HEADER_NAME, callId);
+            httpResponse.setHeader(SERVER_HEADER_NAME, applicationName);
+
+            filterChainWithErrorHandling(httpRequest, httpResponse, filterChain);
+
+            String requestLogMsg = format("status=%s method=%s host=%s path=%s",
+                    httpResponse.getStatus(),
+                    httpRequest.getMethod(),
+                    httpRequest.getServerName(),
+                    httpRequest.getRequestURI()
+            );
+
+            log.info(requestLogMsg);
         } finally {
             MDC.remove(MDCConstants.MDC_CALL_ID);
             MDC.remove(MDCConstants.MDC_USER_ID);
@@ -115,14 +97,26 @@ public class LogRequestFilter implements Filter {
         }
     }
 
-    public static boolean isInternalRequest(HttpServletRequest httpServletRequest) {
-        return httpServletRequest.getRequestURI().contains("/internal/");
-    }
+    private void filterChainWithErrorHandling(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws IOException {
+        try {
+            filterChain.doFilter(request, response);
+        } catch (Throwable e) {
+            log.error("Uncaught exception", e);
 
-    public static String resolveCallId(HttpServletRequest httpRequest) {
-        return ofNullable(httpRequest.getHeader(NAV_CALL_ID_HEADER_NAME))
-                .filter(v -> !v.isBlank())
-                .orElseGet(IdUtils::generateId);
+            if (response.isCommitted()) {
+                log.error("Response already committed, unable to set response error details");
+            } else {
+                response.setStatus(500);
+
+                if (exposeErrorDetails) {
+                    e.printStackTrace(response.getWriter());
+                }
+            }
+        }
     }
 
     private void createUserIdCookie(String userId, HttpServletResponse httpResponse) {
@@ -134,24 +128,21 @@ public class LogRequestFilter implements Filter {
         httpResponse.addCookie(cookie);
     }
 
-    private void filterWithErrorHandling(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain filterChain) throws IOException, ServletException {
-        try {
-            filterChain.doFilter(httpRequest, httpResponse);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            if (httpResponse.isCommitted()) {
-                log.error("failed with status={}", httpResponse.getStatus());
-                throw e;
-            } else {
-                httpResponse.setStatus(500);
-                if (exposeErrorDetails) {
-                    e.printStackTrace(httpResponse.getWriter());
-                }
-            }
-        }
+    private static boolean isInternalRequest(HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getRequestURI().contains("/internal/");
     }
 
-    private Optional<String> resolveUserId(HttpServletRequest httpRequest) {
+    private static Optional<String> resolveConsumerId(HttpServletRequest httpRequest) {
+        return ofNullable(httpRequest.getHeader(NAV_CONSUMER_ID_HEADER_NAME))
+                .filter(v -> !v.isBlank());
+    }
+
+    private static Optional<String> resolveCallId(HttpServletRequest httpRequest) {
+        return ofNullable(httpRequest.getHeader(NAV_CALL_ID_HEADER_NAME))
+                .filter(v -> !v.isBlank());
+    }
+
+    private static Optional<String> resolveUserId(HttpServletRequest httpRequest) {
         return ofNullable(httpRequest.getCookies())
                 .flatMap(cookies -> {
                     for (Cookie cookie : cookies) {
