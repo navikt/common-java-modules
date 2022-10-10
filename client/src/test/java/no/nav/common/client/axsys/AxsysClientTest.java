@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static no.nav.common.log.LogFilter.NAV_CALL_ID_HEADER_NAME;
-import static no.nav.common.log.LogFilter.NAV_CONSUMER_ID_HEADER_NAME;
 import static no.nav.common.log.MDCConstants.MDC_CALL_ID;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CONSUMER_ID_HEADER_NAME;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 import static no.nav.common.utils.IdUtils.generateId;
 import static org.junit.Assert.assertEquals;

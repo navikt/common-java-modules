@@ -12,8 +12,8 @@ import org.slf4j.MDC;
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static no.nav.common.log.LogFilter.NAV_CALL_ID_HEADER_NAME;
-import static no.nav.common.log.LogFilter.NAV_CONSUMER_ID_HEADER_NAME;
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CONSUMER_ID_HEADER_NAME;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
 public class RestClientTest {

@@ -1,4 +1,4 @@
-package no.nav.common.log;
+package no.nav.common.rest.filter;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ import java.util.Optional;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.HttpHeaders.SET_COOKIE;
-import static no.nav.common.log.LogFilter.NAV_CALL_ID_HEADER_NAME;
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -27,7 +27,7 @@ public class LogFilterTest {
     private MockHttpServletRequest httpServletRequest = new MockHttpServletRequest();
     private HttpServletResponse httpServletResponse = new MockHttpServletResponse();
 
-    private LogFilter logFilter = new LogFilter("test");
+    private LogRequestFilter logRequestFilter = new LogRequestFilter("test");
 
     @Before
     public void setup() {
@@ -37,21 +37,21 @@ public class LogFilterTest {
 
     @Test
     public void smoketest() throws ServletException, IOException {
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 1"));
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 2"));
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 3"));
+        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 1"));
+        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 2"));
+        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 3"));
     }
 
     @Test
     public void cleanupOfMDCContext() throws ServletException, IOException {
         Map<String, String> initialContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElseGet(HashMap::new);
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {});
+        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {});
         assertThat(initialContextMap).isEqualTo(MDC.getCopyOfContextMap());
     }
 
     @Test
     public void addResponseHeaders() throws ServletException, IOException {
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {});
+        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {});
 
         assertThat(httpServletResponse.getHeader(NAV_CALL_ID_HEADER_NAME)).isNotEmpty();
         assertThat(httpServletResponse.getHeader(SET_COOKIE)).isNotEmpty();
@@ -59,7 +59,7 @@ public class LogFilterTest {
 
     @Test
     public void handleExceptions() throws ServletException, IOException {
-        logFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> fail());
+        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> fail());
         assertThat(httpServletResponse.getStatus()).isEqualTo(SC_INTERNAL_SERVER_ERROR);
     }
 

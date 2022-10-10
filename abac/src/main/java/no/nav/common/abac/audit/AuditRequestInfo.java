@@ -5,8 +5,8 @@ import lombok.Builder;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static no.nav.common.log.LogFilter.NAV_CONSUMER_ID_HEADER_NAME;
-import static no.nav.common.log.LogFilter.resolveCallId;
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CONSUMER_ID_HEADER_NAME;
+import static no.nav.common.rest.filter.LogRequestFilter.resolveCallId;
 
 @Builder
 @AllArgsConstructor

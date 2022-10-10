@@ -1,6 +1,7 @@
-package no.nav.common.log;
+package no.nav.common.rest.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.log.MDCConstants;
 import no.nav.common.utils.IdUtils;
 import org.slf4j.MDC;
 
@@ -17,7 +18,7 @@ import static java.util.Optional.ofNullable;
 import static no.nav.common.utils.IdUtils.generateId;
 
 @Slf4j
-public class LogFilter implements Filter {
+public class LogRequestFilter implements Filter {
 
     public static final String NAV_CONSUMER_ID_HEADER_NAME = "Nav-Consumer-Id";
 
@@ -33,12 +34,12 @@ public class LogFilter implements Filter {
 
     private final boolean exposeErrorDetails;
 
-    public LogFilter(String applicationName) {
+    public LogRequestFilter(String applicationName) {
         this.applicationName = applicationName;
         this.exposeErrorDetails = false;
     }
 
-    public LogFilter(String applicationName, boolean exposeErrorDetails) {
+    public LogRequestFilter(String applicationName, boolean exposeErrorDetails) {
         this.applicationName = applicationName;
         this.exposeErrorDetails = exposeErrorDetails;
     }

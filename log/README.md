@@ -22,7 +22,7 @@ provides this functionality.
 
 The correlation id needs to be passed on to downstream services. This
 currently implemented in the [common-java-modules/rest](../rest), 
-```no.nav.common.rest.client.LogInterceptor```.
+```no.nav.common.rest.client.LogRequestInterceptor```.
 
 Log configuration inspection
 ----------------------------
