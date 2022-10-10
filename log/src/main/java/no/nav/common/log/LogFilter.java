@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static no.nav.common.log.LogUtils.buildMarker;
+import static java.lang.String.format;
 import static no.nav.common.utils.IdUtils.generateId;
 import static no.nav.common.utils.StringUtils.nullOrEmpty;
 
@@ -47,7 +47,7 @@ public class LogFilter implements Filter {
         this.applicationName = applicationName;
         this.exposeErrorDetails = exposeErrorDetails;
     }
-    
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
@@ -98,14 +98,15 @@ public class LogFilter implements Filter {
             filterWithErrorHandling(httpRequest, httpResponse, filterChain);
 
             if (!isInternalRequest(httpRequest)) {
-                buildMarker()
-                        .field("status", httpResponse.getStatus())
-                        .field("method", httpRequest.getMethod())
-                        .field("host", httpRequest.getServerName())
-                        .field("path", httpRequest.getRequestURI())
-                        .log(log::info);
-            }
+                String msg = format("status=%s method=%s host=%s path=%s",
+                        httpResponse.getStatus(),
+                        httpRequest.getMethod(),
+                        httpRequest.getServerName(),
+                        httpRequest.getRequestURI()
+                );
 
+                log.info(msg);
+            }
         } finally {
             MDC.remove(MDCConstants.MDC_CALL_ID);
             MDC.remove(MDCConstants.MDC_USER_ID);
@@ -165,8 +166,10 @@ public class LogFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) {}
+    public void init(FilterConfig filterConfig) {
+    }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+    }
 }
