@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MaskedLoggingEventTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LogUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaskedLoggingEvent.class);
 
     public static final String MASKED_FNR = "***********";
 

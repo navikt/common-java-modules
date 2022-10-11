@@ -5,8 +5,7 @@ import lombok.Builder;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static no.nav.common.log.LogFilter.CONSUMER_ID_HEADER_NAME;
-import static no.nav.common.log.LogFilter.resolveCallId;
+import static no.nav.common.rest.filter.LogRequestFilter.*;
 
 @Builder
 @AllArgsConstructor
@@ -19,7 +18,7 @@ public class AuditRequestInfo {
     public static AuditRequestInfo fraHttpServletRequest(HttpServletRequest request) {
         return AuditRequestInfo.builder()
                 .callId(resolveCallId(request))
-                .consumerId(request.getHeader(CONSUMER_ID_HEADER_NAME))
+                .consumerId(resolveConsumerId(request))
                 .requestMethod(request.getMethod())
                 .requestPath(request.getRequestURI())
                 .build();
