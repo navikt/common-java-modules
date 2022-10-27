@@ -1,5 +1,6 @@
 package no.nav.common.kafka.consumer.util;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
 
@@ -40,25 +41,23 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     @Override
     public void start() {
-        if (!isRunning()) {
+        boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
+        
+        if (!isRunning() && !isConsumerToggledOff) {
             kafkaConsumerClient.start();
         }
 
-        if (executorService != null && !executorService.isShutdown()) {
-            executorService.shutdown();
-        }
+        shutAndAwaitExecutor();
 
         if (executorService == null || executorService.isShutdown()) {
             executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(this::syncRunningStateWithToggle, pollTimeoutDuration.toMillis(), pollTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
         }
     }
-
+    
     @Override
     public void stop() {
-        if (executorService != null) {
-            executorService.shutdown();
-        }
+        shutAndAwaitExecutor();
 
         if (isRunning()) {
             kafkaConsumerClient.stop();
@@ -80,6 +79,14 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
         } else if (!isConsumerToggledOff && !isRunning) {
             log.info("Starting consumer... Toggle for stopping consumers is off and kafka consumer client is not running");
             kafkaConsumerClient.start();
+        }
+    }
+
+    @SneakyThrows
+    private void shutAndAwaitExecutor() {
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdown();
+            executorService.awaitTermination(10L, TimeUnit.SECONDS);
         }
     }
 }
