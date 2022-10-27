@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -86,12 +87,27 @@ public class ConsumerUtils {
                 record.offset(),
                 record.timestamp(),
                 record.timestampType(),
+                ConsumerRecord.NULL_SIZE,
+                ConsumerRecord.NULL_SIZE,
+                key,
+                value,
+                record.headers(),
+                record.leaderEpoch()
+        );
+/*
+        return new ConsumerRecord<>(
+                record.topic(),
+                record.partition(),
+                record.offset(),
+                record.timestamp(),
+                record.timestampType(),
                 ConsumerRecord.NULL_CHECKSUM,
                 ConsumerRecord.NULL_SIZE,
                 ConsumerRecord.NULL_SIZE,
                 key,
                 value
         );
+*/
     }
 
     public static Map<String, TopicConsumer<byte[], byte[]>> createTopicConsumers(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
