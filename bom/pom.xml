@@ -68,7 +68,7 @@
         <wiremock.version>2.27.2</wiremock.version>
         <testcontainers.version>1.16.2</testcontainers.version>
         <h2.version>1.4.200</h2.version>
-        <postgres.version>42.4.1</postgres.version>
+        <postgres.version>42.5.1</postgres.version>
     </properties>
 
 
