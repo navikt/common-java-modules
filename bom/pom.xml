@@ -59,7 +59,7 @@
         <json-schema-validation.version>1.12.2</json-schema-validation.version>
 
         <!-- TEST -->
-        <assertj.version>3.9.1</assertj.version>
+        <assertj.version>3.24.0</assertj.version>
         <hamcrest.version>2.2</hamcrest.version>
         <junit.version>4.13.2</junit.version>
         <mockito.version>2.2.27</mockito.version>
