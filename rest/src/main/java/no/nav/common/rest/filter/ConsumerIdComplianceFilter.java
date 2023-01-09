@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-import static no.nav.common.log.LogFilter.CONSUMER_ID_HEADER_NAME;
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CONSUMER_ID_HEADER_NAME;
 
 @Slf4j
 public class ConsumerIdComplianceFilter implements Filter {
@@ -23,7 +23,7 @@ public class ConsumerIdComplianceFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
-        boolean isMissingConsumerId = getHeader(request, CONSUMER_ID_HEADER_NAME).isEmpty();
+        boolean isMissingConsumerId = getHeader(request, NAV_CONSUMER_ID_HEADER_NAME).isEmpty();
 
         if (isMissingConsumerId) {
             log.warn("Request is missing consumer id, enforcingCompliance={}", enforceCompliance);
@@ -33,7 +33,7 @@ public class ConsumerIdComplianceFilter implements Filter {
 
                 response.setStatus(400);
                 response.getWriter().write(
-                        "Bad request: Consumer id is missing from header: " + CONSUMER_ID_HEADER_NAME +
+                        "Bad request: Consumer id is missing from header: " + NAV_CONSUMER_ID_HEADER_NAME +
                                 ". Make sure to set the header with the name of the requesting application."
                 );
                 response.getWriter().flush();

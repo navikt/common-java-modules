@@ -53,7 +53,7 @@ auditLogger.log(cefMessage);
 ```
 
 4. Når stegene ovenfor er utført og applikasjonen har sendt logger i preprod eller prod, ta kontakt med ArcSight folkene 
-i **#tech-logg_analyse_og_datainnsikt** for å bekrefte at loggene har blitt motatt.
+i **#auditlogging-arcsight** for å bekrefte at loggene har blitt motatt.
 
 ## Log-output ved lokal kjøring av applikasjon
 Dersom du kjører opp appen din lokalt og tester endepunkter som har implementert audit-logging så kan du få en feilmelding i konsollen om at du ikke klarer å nå serveren som tar i mot log-statements fra appen din. Det kan derfor være ønskelig å logge lokalt til stdout. Slik kan du gjøre det for en Ktor-applikasjon.
