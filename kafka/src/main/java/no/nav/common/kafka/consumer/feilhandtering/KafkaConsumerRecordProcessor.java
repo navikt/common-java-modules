@@ -36,8 +36,6 @@ public class KafkaConsumerRecordProcessor {
 
     private volatile boolean isRunning;
 
-    private volatile boolean isClosed;
-
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
             KafkaConsumerRepository kafkaRepository,
@@ -49,22 +47,17 @@ public class KafkaConsumerRecordProcessor {
         this.config = config;
         this.topicConsumers = topicConsumers;
 
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
     public void start() {
-        if (isClosed) {
-            throw new IllegalStateException("Cannot start closed consumer record forwarder");
-        }
-
         if (!isRunning) {
             executorService.submit(this::recordHandlerLoop);
         }
     }
 
-    public void close() {
+    public void stop() {
         isRunning = false;
-        isClosed = true;
     }
 
     private void recordHandlerLoop() {

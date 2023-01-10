@@ -6,12 +6,14 @@ import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessorC
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.backoff.LinearBackoffStrategy;
 import no.nav.common.kafka.consumer.feilhandtering.backoff.BackoffStrategy;
+import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 
 import java.time.Duration;
 import java.util.List;
 
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.createTopicConsumers;
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure;
 
 public class KafkaConsumerRecordProcessorBuilder {
 
@@ -57,6 +59,12 @@ public class KafkaConsumerRecordProcessorBuilder {
         this.topicConsumerConfigs = topicConsumerConfigs;
         return this;
     }
+
+    public KafkaConsumerRecordProcessorBuilder withTopicConfigs(List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs) {
+        this.topicConsumerConfigs = findConsumerConfigsWithStoreOnFailure(topicConfigs);
+        return this;
+    }
+
 
     public KafkaConsumerRecordProcessorBuilder withErrorTimeout(Duration errorTimeout) {
         this.config.setErrorTimeout(errorTimeout);

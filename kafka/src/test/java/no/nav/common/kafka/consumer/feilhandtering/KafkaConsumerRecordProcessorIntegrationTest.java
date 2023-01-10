@@ -4,7 +4,6 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
-import no.nav.common.kafka.consumer.feilhandtering.backoff.BackoffStrategy;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
@@ -109,7 +108,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(3, counterTopicA.get());
         assertEquals(2, counterTopicB.get());
@@ -171,7 +170,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(0, counterTopicA.get());
         assertEquals(2, counterTopicB.get());
@@ -213,7 +212,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(3, counterTopicA.get());
     }
@@ -253,7 +252,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         Thread.sleep(1000);
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(2, counterTopicA.get());
 
@@ -294,7 +293,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(0, counterTopicA.get());
         assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
