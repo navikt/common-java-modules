@@ -62,7 +62,7 @@
         <assertj.version>3.9.1</assertj.version>
         <hamcrest.version>2.2</hamcrest.version>
         <junit.version>4.13.2</junit.version>
-        <mockito.version>2.2.27</mockito.version>
+        <mockito.version>5.0.0</mockito.version>
         <org.eclipse.jetty.version>9.3.0.M2</org.eclipse.jetty.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <wiremock.version>2.27.2</wiremock.version>
