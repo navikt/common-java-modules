@@ -42,7 +42,7 @@ CefMessage cefMessage = CefMessage.builder()
         .applicationName("MY_APP_NAME")
         .event(CefMessageEvent.ACCESS)
         .name("Sporingslogg")
-        .severity(CefMessageSeverity.INFO)
+        .authorizationDecision(AuthorizationDecision.PERMIT) // Bruk AuthorizationDecision.DENY hvis Nav-ansatt ikke fikk tilgang til å gjøre oppslag
         .sourceUserId("Z12345")
         .destinationUserId("12345678900")
         .timeEnded(System.currentTimeMillis())

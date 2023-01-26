@@ -1,5 +1,6 @@
 package no.nav.common.audit_log;
 
+import no.nav.common.audit_log.cef.AuthorizationDecision;
 import no.nav.common.audit_log.cef.CefMessage;
 import no.nav.common.audit_log.cef.CefMessageEvent;
 import no.nav.common.audit_log.cef.CefMessageSeverity;
@@ -60,6 +61,34 @@ public class CefMessageBuilderTest {
         assertEquals(extensions.get("flexString1"), newMessageExt.get("flexString1"));
         assertEquals(extensions.get("cs1Label"), newMessageExt.get("cs1Label"));
         assertEquals(extensions.get("cs1"), newMessageExt.get("cs1"));
+    }
+
+    @Test
+    public void authorizationDecision_skal_legge_til_riktig_verdier_for_permit() {
+        CefMessage message = CefMessage.builder()
+                .applicationName("my-application")
+                .event(CefMessageEvent.ACCESS)
+                .name("NAV-ansatt har gjort oppslag på bruker")
+                .authorizationDecision(AuthorizationDecision.PERMIT)
+                .build();
+
+        assertEquals(CefMessageSeverity.INFO.name(), message.getSeverity());
+        assertEquals("Decision", message.getExtension().get("flexString1Label"));
+        assertEquals("Permit", message.getExtension().get("flexString1"));
+    }
+
+    @Test
+    public void authorizationDecision_skal_legge_til_riktig_verdier_for_deny() {
+        CefMessage message = CefMessage.builder()
+                .applicationName("my-application")
+                .event(CefMessageEvent.ACCESS)
+                .name("NAV-ansatt har gjort oppslag på bruker")
+                .authorizationDecision(AuthorizationDecision.DENY)
+                .build();
+
+        assertEquals(CefMessageSeverity.WARN.name(), message.getSeverity());
+        assertEquals("Decision", message.getExtension().get("flexString1Label"));
+        assertEquals("Deny", message.getExtension().get("flexString1"));
     }
 
     @Test
