@@ -136,6 +136,27 @@ public class VeilarbPepTest {
     }
 
     @Test
+    public void harTilgangTilEnhetMedSperre_med_nav_ident__skal_lage_riktig_request() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, subjectProvider, auditConfig);
+        String expectedRequest = getContentFromJsonFile("xacmlrequest-harTilgangTilEnhetMedSperreMedNavIdent.json");
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+
+        boolean tilgang = veilarbPep.harTilgangTilEnhetMedSperre(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
+
+        assertTrue(tilgang);
+        verify(genericPermitClient, times(1)).sendRawRequest(captor.capture());
+        assertJsonEquals(expectedRequest, captor.getValue());
+    }
+
+    @Test
+    public void harTilgangTilEnhetMedSperre_med_nav_ident__skal_returnere_false_hvis_ikke_tilgang() {
+        VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericDenyClient, subjectProvider, auditConfig);
+        boolean tilgang = veilarbPep.harTilgangTilEnhetMedSperre(TEST_VEILEDER_IDENT, TEST_ENHET_ID);
+
+        assertFalse(tilgang);
+    }
+
+    @Test
     public void harVeilederTilgangTilPerson__skal_lage_riktig_request() {
         VeilarbPep veilarbPep = new VeilarbPep(TEST_SRV_USERNAME, genericPermitClient, subjectProvider, auditConfig);
         String expectedRequest = getContentFromJsonFile("xacmlrequest-harVeilederTilgangTilPerson.json");
