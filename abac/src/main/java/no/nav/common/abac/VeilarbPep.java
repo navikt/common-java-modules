@@ -99,6 +99,25 @@ public class VeilarbPep implements Pep {
     }
 
     @Override
+    public boolean harTilgangTilEnhetMedSperre(NavIdent navIdent, EnhetId enhetId) {
+        Resource resource = lagEnhetMedSperreResource(enhetId, AbacDomain.VEILARB_DOMAIN);
+
+        XacmlRequest xacmlRequest = buildRequest(
+                lagEnvironment(srvUsername),
+                null,
+                lagVeilederAccessSubject(navIdent),
+                resource
+        );
+
+        Supplier<CefAbacEventContext> cefEventContext = () -> {
+            CefAbacResponseMapper mapper = CefAbacResponseMapper.enhetIdMapper(enhetId, null, resource);
+            return lagCefEventContext(mapper, navIdent.get());
+        };
+
+        return harTilgang(xacmlRequest, cefEventContext);
+    }
+
+    @Override
     public boolean harVeilederTilgangTilPerson(NavIdent veilederIdent, ActionId actionId, EksternBrukerId eksternBrukerId) {
         Resource resource = lagPersonResource(eksternBrukerId, AbacDomain.VEILARB_DOMAIN);
         XacmlRequest xacmlRequest = buildRequest(
