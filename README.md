@@ -1,8 +1,56 @@
-[![Maven Central](https://img.shields.io/maven-central/v/no.nav.common/bom.svg)](https://search.maven.org/search?q=g:no.nav.common) ![Build Status](https://github.com/navikt/common-java-modules/workflows/Test,%20build%20and%20publish/badge.svg)
+# Common Java Modules
 
-# NAV common Java modules
+Felles Java moduler som løser vanlige problemer som f.eks kafka, token exchange, logging, observability etc...
 
-These libraries are in use by many applications in NAV.
+Hver av modulene er laget for å løse et spesifikt behov og man kan plukke og mikse de modulene man trenger etter behov.
+
+## Hvordan ta i bruk
+
+Modulene blir publisert til https://jitpack.io. For at maven/gradle skal hente modulene fra riktig sted så må følgende settes opp.
+
+Maven:
+```xml
+    <repositories>
+        <!-- Legger til central eksplisitt for prioritet over jitpack -->
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+```
+
+Gradle:
+```groovy
+repositories {
+    // Legger til central eksplisitt for prioritet over jitpack
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+```
+
+Etter dette er gjort kan man legge til de modulene som man trenger, eksemplet nedenfor viser hvordan man trekker inn **token-client**-modulen:
+For å finne siste release versjon av common-java-modules, se https://github.com/navikt/common-java-modules/releases.
+Versjonene er på følgende format: `YYYY.MM.DD_HH.mm-SHA`
+
+Maven:
+```xml
+<dependency>
+    <groupId>com.github.navikt.common-java-modules</groupId>
+    <artifactId>token-client</artifactId>
+    <version>INSERT_LATEST_VERSION</version>
+</dependency>
+```
+
+Gradle:
+```groovy
+dependencies {
+    implementation 'com.github.navikt.common-java-modules:client:INSERT_LATEST_VERSION'
+}
+```
 
 ## Modules
 
