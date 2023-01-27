@@ -699,16 +699,8 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>2.5.2</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.4</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
@@ -720,10 +712,6 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.22.2</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -743,35 +731,6 @@
                         </archive>
                     </configuration>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>versions-maven-plugin</artifactId>
-                    <version>2.5</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.3.2</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>1.3.1</version>
-                    <executions>
-                        <execution>
-                            <id>validate-dependencies</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <dependencyConvergence/>
-                                </rules>
-                                <fail>true</fail>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -785,56 +744,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.shared</groupId>
-                        <artifactId>maven-dependency-analyzer</artifactId>
-                        <version>1.11.3</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <id>analyze</id>
-                        <goals>
-                            <goal>analyze-only</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>analyze-pom</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>analyze-dep-mgt</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <failBuild>true</failBuild>
-                    <ignoreDirect>false</ignoreDirect>
-                    <ignoredUsedUndeclaredDependencies>
-                        <!--
-                        This deactivates the requirement of declaring every used dependency in a project's pom.
-                        We are omitting this, even though it its considered best practice, because:
-
-                        - enforced management of transitive dependencies increases the likelihood of management errors
-                          that may cause diamonds of death, which often results in nasty runtime errors. Even having decent
-                          test coverage over the affected dependencies may not detect such errors due to the indeterministic
-                          nature of classloading in different contexts (different OSes, JVMs, build tools, packaging formats)
-
-                        - the main motivation of the requirement seems to be avoiding compile errors when a change of a
-                          direct dependency causes a change in transitive dependencies. A transitive dependency might for
-                          instance be eliminated and must be added as a direct dependency instead.
-
-                        Since compile errors generally are easier to detect and fix than runtime error, we should try to minimize
-                        the risk of having runtime errors by being allowed to use a dependency transitively when it makes sense.
-
-                        -->
-                        <ignoredUsedUndeclaredDependency>*</ignoredUsedUndeclaredDependency>
-                    </ignoredUsedUndeclaredDependencies>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -871,16 +780,12 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>3.0.0-M8</version>
                 <configuration>
-
                     <!-- Ellers vil maven kun kjøre tester som slutter på 'Test' (!) -->
                     <includes>
                         <include>*</include>
                     </includes>
-
-                    <!--suppress MavenModelInspection -->
-                    <argLine>${jacoco.agent.argLine} -Xmx2g</argLine>
 
                     <!--
                     Å sette `reuseFork` til `true` vil føre til at surefire fyrer opp en separat JVM for hver
