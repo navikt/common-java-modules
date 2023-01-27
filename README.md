@@ -1,5 +1,7 @@
 # Common Java Modules
 
+[![](https://jitpack.io/v/navikt/common-java-modules.svg)](https://jitpack.io/#navikt/common-java-modules)
+
 Felles Java moduler som løser vanlige problemer som f.eks kafka, token exchange, logging, observability etc...
 
 Hver av modulene er laget for å løse et spesifikt behov og man kan plukke og mikse de modulene man trenger etter behov.
