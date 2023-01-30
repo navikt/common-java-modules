@@ -1,14 +1,14 @@
 package no.nav.common.auth.utils;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
-public class CookieUtils {
+@Deprecated
+public class JavaxCookieUtils {
 
     public static Optional<Cookie> getCookie(String cookieName, HttpServletRequest request) {
         return Optional.ofNullable(request.getCookies())

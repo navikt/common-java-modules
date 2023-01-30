@@ -1,22 +1,24 @@
 package no.nav.common.test.auth;
 
-import jakarta.servlet.*;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
 
+import javax.servlet.*;
+
 /**
  * Brukes for å legge til AuthContext når man kjører lokalt
  */
-public class TestAuthContextFilter implements Filter {
+@Deprecated
+public class JavaxTestAuthContextFilter implements Filter {
 
     private final AuthContext authContext;
 
-    public TestAuthContextFilter(AuthContext authContext) {
+    public JavaxTestAuthContextFilter(AuthContext authContext) {
         this.authContext = authContext;
     }
 
-    public TestAuthContextFilter(UserRole role, String subject) {
+    public JavaxTestAuthContextFilter(UserRole role, String subject) {
         this.authContext = AuthTestUtils.createAuthContext(role, subject);
     }
 

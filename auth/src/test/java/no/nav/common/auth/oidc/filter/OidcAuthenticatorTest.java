@@ -1,10 +1,10 @@
 package no.nav.common.auth.oidc.filter;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import no.nav.common.auth.context.UserRole;
 import org.junit.Test;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;

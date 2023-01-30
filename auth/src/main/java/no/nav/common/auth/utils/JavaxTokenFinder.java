@@ -1,10 +1,10 @@
 package no.nav.common.auth.utils;
 
-import jakarta.servlet.http.HttpServletRequest;
-
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
-public interface TokenFinder {
+@Deprecated
+public interface JavaxTokenFinder {
 
     Optional<String> findToken(HttpServletRequest request);
 
