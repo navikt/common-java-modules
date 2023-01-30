@@ -8,15 +8,16 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public class SetHeaderFilter implements Filter {
+@Deprecated
+public class JavaxSetHeaderFilter implements Filter {
 
     private final BiFunction<HttpServletRequest, HttpServletResponse, Map<String, String>> createHeaders;
 
-    public SetHeaderFilter(Map<String, String> headers) {
+    public JavaxSetHeaderFilter(Map<String, String> headers) {
         this.createHeaders = (req, resp) -> headers;
     }
 
-    public SetHeaderFilter(BiFunction<HttpServletRequest, HttpServletResponse, Map<String, String>> createHeaders) {
+    public JavaxSetHeaderFilter(BiFunction<HttpServletRequest, HttpServletResponse, Map<String, String>> createHeaders) {
         this.createHeaders = createHeaders;
     }
 

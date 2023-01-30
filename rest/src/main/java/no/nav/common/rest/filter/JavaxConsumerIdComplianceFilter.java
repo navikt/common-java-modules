@@ -1,21 +1,22 @@
 package no.nav.common.rest.filter;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
 import static no.nav.common.rest.filter.LogRequestFilter.NAV_CONSUMER_ID_HEADER_NAME;
 
+@Deprecated
 @Slf4j
-public class ConsumerIdComplianceFilter implements Filter {
+public class JavaxConsumerIdComplianceFilter implements Filter {
 
     private final boolean enforceCompliance;
 
-    public ConsumerIdComplianceFilter(boolean enforceCompliance) {
+    public JavaxConsumerIdComplianceFilter(boolean enforceCompliance) {
         this.enforceCompliance = enforceCompliance;
     }
 
