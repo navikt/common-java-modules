@@ -5,7 +5,11 @@ import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestUtils;
 import no.nav.common.utils.AuthUtils;
 import no.nav.common.utils.Credentials;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -13,7 +17,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static javax.ws.rs.core.HttpHeaders.*;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static jakarta.ws.rs.core.HttpHeaders.CACHE_CONTROL;
+import static jakarta.ws.rs.core.HttpHeaders.COOKIE;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 
 public class OpenAmUtils {

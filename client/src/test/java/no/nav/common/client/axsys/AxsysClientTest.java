@@ -1,6 +1,7 @@
 package no.nav.common.client.axsys;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import jakarta.ws.rs.core.HttpHeaders;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.test.junit.SystemPropertiesRule;
@@ -11,13 +12,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.MDC;
 
-import javax.ws.rs.core.HttpHeaders;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
 import static no.nav.common.log.MDCConstants.MDC_CALL_ID;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;

@@ -1,9 +1,9 @@
 package no.nav.common.abac.audit;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 import static no.nav.common.rest.filter.JavaxLogRequestFilter.resolveCallId;

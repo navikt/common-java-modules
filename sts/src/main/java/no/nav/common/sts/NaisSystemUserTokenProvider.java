@@ -3,6 +3,7 @@ package no.nav.common.sts;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import jakarta.ws.rs.core.MediaType;
 import lombok.SneakyThrows;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
@@ -13,10 +14,8 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.MediaType;
-
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static no.nav.common.rest.client.RestUtils.getBodyStr;
 import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
 import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;

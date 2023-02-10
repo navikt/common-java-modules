@@ -27,7 +27,7 @@ public class ConsumerIdComplianceFilterTest {
         filter.doFilter(request, response, chain);
 
         verify(response, times(1)).setStatus(400);
-        verifyZeroInteractions(chain);
+        verifyNoInteractions(chain);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class ConsumerIdComplianceFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verifyZeroInteractions(response);
+        verifyNoInteractions(response);
         verify(chain, times(1)).doFilter(request, response);
     }
 
@@ -58,7 +58,7 @@ public class ConsumerIdComplianceFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verifyZeroInteractions(response);
+        verifyNoInteractions(response);
         verify(chain, times(1)).doFilter(request, response);
     }
 

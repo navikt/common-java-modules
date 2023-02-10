@@ -37,7 +37,7 @@ public class MaskedThrowableProxy implements IThrowableProxy {
     }
 
     public static IThrowableProxy mask(IThrowableProxy throwableProxy) {
-        return throwableProxy == null ? throwableProxy : new MaskedThrowableProxy(throwableProxy);
+        return throwableProxy == null ? null : new MaskedThrowableProxy(throwableProxy);
     }
 
     @Override
@@ -48,5 +48,10 @@ public class MaskedThrowableProxy implements IThrowableProxy {
             maskedSuppressed[i] = mask(suppressed[i]);
         }
         return maskedSuppressed;
+    }
+
+    @Override
+    public boolean isCyclic() {
+        return throwableProxy.isCyclic();
     }
 }

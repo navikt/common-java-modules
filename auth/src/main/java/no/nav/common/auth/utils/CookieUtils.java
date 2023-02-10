@@ -2,8 +2,8 @@ package no.nav.common.auth.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.UriInfo;
 
-import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;

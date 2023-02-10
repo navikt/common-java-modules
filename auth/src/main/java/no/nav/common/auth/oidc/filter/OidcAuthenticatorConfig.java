@@ -2,7 +2,7 @@ package no.nav.common.auth.oidc.filter;
 
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Wither;
+import lombok.With;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.utils.AuthHeaderTokenFinder;
 import no.nav.common.auth.utils.TokenFinder;
@@ -10,7 +10,7 @@ import no.nav.common.auth.utils.TokenFinder;
 import java.util.Collections;
 import java.util.List;
 
-@Wither
+@With
 @NoArgsConstructor
 @AllArgsConstructor
 public class OidcAuthenticatorConfig {

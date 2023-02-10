@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static javax.ws.rs.core.HttpHeaders.ACCEPT;
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 import static org.junit.Assert.assertEquals;
 

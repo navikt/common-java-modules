@@ -1,28 +1,44 @@
 package no.nav.common.cxf.jetty;
 
-import org.eclipse.jetty.server.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ForwardedRequestCustomizer;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.*;
+import org.eclipse.jetty.webapp.FragmentConfiguration;
+import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.WebInfConfiguration;
+import org.eclipse.jetty.webapp.WebXmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
+import static jakarta.servlet.DispatcherType.REQUEST;
 import static java.lang.System.setProperty;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static javax.servlet.DispatcherType.REQUEST;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -212,7 +228,7 @@ public final class Jetty {
             JettyWebXmlConfiguration.class.getName(),
     };
 
-    private Jetty(String warPath, JettyBuilder builder) {
+    private Jetty(String warPath, JettyBuilder builder) throws IOException {
         this.warPath = warPath;
         this.overrideWebXmlFile = builder.overridewebXmlFile;
         this.dataSources = builder.dataSources;
@@ -227,7 +243,7 @@ public final class Jetty {
         this.developmentMode = builder.developmentMode;
     }
 
-    private WebAppContext setupWebapp(JettyBuilder builder) {
+    private WebAppContext setupWebapp(JettyBuilder builder) throws IOException {
         WebAppContext webAppContext = builder.context;
         if (isNotBlank(contextPath)) {
             webAppContext.setContextPath(contextPath);
@@ -252,7 +268,7 @@ public final class Jetty {
         }
         initParams.put("org.eclipse.jetty.servlet.Default.etags", "true");
         initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
-        webAppContext.setAttribute(WebInfConfiguration.CONTAINER_JAR_PATTERN, CLASSPATH_PATTERN);
+        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", CLASSPATH_PATTERN);
         return webAppContext;
     }
 
@@ -274,7 +290,6 @@ public final class Jetty {
         jettyBuilder.customizers.forEach(customizer -> customizer.customize(configuration));
 
         ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
-        httpConnector.setSoLingerTime(-1);
         httpConnector.setPort(port);
 
         Optional<ServerConnector> sslConnector = sslPort.map(new CreateSslConnector(jetty, configuration));

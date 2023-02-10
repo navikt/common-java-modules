@@ -5,6 +5,14 @@ import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
@@ -14,17 +22,15 @@ import no.nav.common.auth.utils.JavaxCookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static no.nav.common.auth.utils.CookieUtils.dateToCookieMaxAge;
-import static no.nav.common.auth.utils.TokenUtils.*;
+import static no.nav.common.auth.utils.TokenUtils.expiresWithin;
+import static no.nav.common.auth.utils.TokenUtils.hasMatchingAudience;
+import static no.nav.common.auth.utils.TokenUtils.hasMatchingIssuer;
 
 @Deprecated
 public class JavaxOidcAuthenticationFilter implements Filter {

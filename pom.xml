@@ -52,67 +52,66 @@
     </modules>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.jacoco.reportPaths>${user.dir}/target/jacoco.exec</sonar.jacoco.reportPaths>
 
         <!-- LOGGING -->
-        <slf4j.version>1.7.36</slf4j.version>
-        <logback.version>1.2.11</logback.version>
+        <slf4j.version>2.0.6</slf4j.version>
+        <logback.version>1.4.5</logback.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <janino.version>3.1.8</janino.version>
+        <janino.version>3.1.9</janino.version>
         <logstash-logback.version>7.2</logstash-logback.version>
 
         <!-- CXF -->
         <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
-        <cxf-core.version>3.5.4</cxf-core.version>
+        <cxf-core.version>4.0.0</cxf-core.version>
         <jsoup.version>1.15.3</jsoup.version>
 
         <!-- COMMON -->
-        <lombok.version>1.18.24</lombok.version>
+        <lombok.version>1.18.26</lombok.version>
 
         <!-- MISCELLANEOUS -->
-        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <spring.version>5.3.23</spring.version>
-        <jersey.version>2.27</jersey.version>
-        <jackson.version>2.14.0</jackson.version>
-        <jackson-databind.version>2.13.4.2</jackson-databind.version>
+        <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
+        <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
+        <spring.version>6.0.4</spring.version>
+        <jersey.version>3.1.1</jersey.version>
+        <jackson.version>2.14.2</jackson.version>
+        <jackson-databind.version>2.14.2</jackson-databind.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <micrometer.version>1.9.5</micrometer.version>
+        <micrometer.version>1.10.3</micrometer.version>
         <okhttp.version>4.10.0</okhttp.version>
         <prometheus.version>0.16.0</prometheus.version>
         <commons-lang.version>3.12.0</commons-lang.version>
         <commons-io.version>2.11.0</commons-io.version>
-        <shedlock.version>4.42.0</shedlock.version>
+        <shedlock.version>4.44.0</shedlock.version>
         <handlebars.version>4.3.0</handlebars.version>
-        <gson.version>2.9.1</gson.version>
-        <caffeine.version>3.1.1</caffeine.version>
-        <bitbucket-jose4.version>0.7.12</bitbucket-jose4.version>
-        <nimbusds.version>9.43.1</nimbusds.version>
+        <gson.version>2.10.1</gson.version>
+        <caffeine.version>3.1.2</caffeine.version>
+        <bitbucket-jose4.version>0.9.2</bitbucket-jose4.version>
+        <nimbusds.version>10.5.1</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
-        <org.json.version>20211205</org.json.version>
-        <jetty.version>9.4.44.v20210927</jetty.version>
+        <org.json.version>20220924</org.json.version>
+        <jetty.version>11.0.13</jetty.version>
 
         <!-- KAFKA -->
         <kafka.version>7.3.0-ccs</kafka.version>
         <avro.version>1.11.1</avro.version>
-        <avro-serializer.version>7.3.0</avro-serializer.version>
+        <avro-serializer.version>7.3.1</avro-serializer.version>
         <json-schema-validation.version>1.12.2</json-schema-validation.version>
 
         <!-- TEST -->
-        <assertj.version>3.9.1</assertj.version>
+        <assertj.version>3.24.2</assertj.version>
         <hamcrest.version>2.2</hamcrest.version>
         <junit.version>4.13.2</junit.version>
-        <mockito.version>2.2.27</mockito.version>
-        <org.eclipse.jetty.version>9.3.0.M2</org.eclipse.jetty.version>
-        <junit.jupiter.version>5.8.2</junit.jupiter.version>
+        <mockito.version>5.1.1</mockito.version>
+        <junit.jupiter.version>5.9.2</junit.jupiter.version>
         <wiremock.version>2.27.2</wiremock.version>
-        <testcontainers.version>1.16.2</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <h2.version>1.4.200</h2.version>
-        <postgres.version>42.4.1</postgres.version>
+        <postgres.version>42.5.3</postgres.version>
     </properties>
 
 
@@ -126,6 +125,22 @@
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
                 <version>3.2.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sun.xml.fastinfoset</groupId>
+                <artifactId>FastInfoset</artifactId>
+                <version>1.2.15</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.istack</groupId>
+                <artifactId>istack-commons-runtime</artifactId>
+                <version>3.0.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>4.0.2</version>
             </dependency>
 
             <!-- START COMMON -->
@@ -284,9 +299,9 @@
 
             <!-- jersey/jackson -->
             <dependency>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>javax.ws.rs-api</artifactId>
-                <version>${javax.ws.rs-api.version}</version>
+                <groupId>jakarta.ws.rs</groupId>
+                <artifactId>jakarta.ws.rs-api</artifactId>
+                <version>${jakarta.ws.rs-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
@@ -322,8 +337,8 @@
 
             <!-- Jackson -->
             <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+                <artifactId>jackson-jakarta-rs-json-provider</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <dependency>
@@ -466,11 +481,6 @@
             </dependency>
 
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${javax.servlet-api.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
                 <version>${caffeine.version}</version>
@@ -573,8 +583,7 @@
             <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
-                <version>6.0.0</version>
-                <scope>provided</scope>
+                <version>${jakarta.servlet.version}</version>
             </dependency>
 
             <!--Testing-->
@@ -676,7 +685,7 @@
             <dependency>
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
-                <version>4.1.0</version>
+                <version>4.2.0</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
@@ -690,15 +699,15 @@
 
                 <plugin>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.10.0</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -706,7 +715,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
@@ -721,7 +730,7 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.0</version>
                     <executions>
                         <execution>
                             <goals>

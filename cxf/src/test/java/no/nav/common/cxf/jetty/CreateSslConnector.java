@@ -20,7 +20,7 @@ class CreateSslConnector implements Function<Integer, ServerConnector> {
     @Override
     public ServerConnector apply(Integer sslPort) {
 
-        SslContextFactory factory = new SslContextFactory(true);
+        SslContextFactory.Server factory = new SslContextFactory.Server();
         factory.setKeyStorePath(EnvironmentUtils.getRequiredProperty("javax.net.ssl.trustStore"));
         factory.setKeyStorePassword(EnvironmentUtils.getRequiredProperty("javax.net.ssl.trustStorePassword"));
 
