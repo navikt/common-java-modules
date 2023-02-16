@@ -55,7 +55,6 @@ public class MockHandler extends ResourceHandler {
             }
 
             baseRequest.setMethod(HttpMethod.GET.name());
-//            baseRequest.setPathInfo(pathInfo);
 
             super.handle(target, baseRequest, request, httpServletResponse);
 
