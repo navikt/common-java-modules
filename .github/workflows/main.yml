@@ -35,6 +35,6 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ env.VERSION }}
+          name: Release ${{ env.VERSION }} (Spring Boot 3)
           tag_name: ${{ env.VERSION }}
-          prerelease: false
+          prerelease: true
