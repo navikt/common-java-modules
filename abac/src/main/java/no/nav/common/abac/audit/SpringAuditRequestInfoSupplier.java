@@ -1,17 +1,17 @@
 package no.nav.common.abac.audit;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.Optional;
 
-import static no.nav.common.rest.filter.JavaxLogRequestFilter.resolveCallId;
-import static no.nav.common.rest.filter.JavaxLogRequestFilter.resolveConsumerId;
+import static no.nav.common.rest.filter.LogRequestFilter.resolveCallId;
+import static no.nav.common.rest.filter.LogRequestFilter.resolveConsumerId;
 
-// TODO: Når vi har oppgradert til Spring Boot 3 og bumpet spring-web i common så kan vi fjerne Javax prefix og ta i bruk jakarta
-@Deprecated
-public class JavaxSpringAuditRequestInfoSupplier implements AuditRequestInfoSupplier {
+
+public class SpringAuditRequestInfoSupplier implements AuditRequestInfoSupplier {
 
     @Override
     public AuditRequestInfo get() {
@@ -19,7 +19,7 @@ public class JavaxSpringAuditRequestInfoSupplier implements AuditRequestInfoSupp
                 .filter(requestAttributes -> requestAttributes instanceof ServletRequestAttributes)
                 .map(requestAttributes -> (ServletRequestAttributes) requestAttributes)
                 .map(ServletRequestAttributes::getRequest)
-                .map(JavaxSpringAuditRequestInfoSupplier::utledRequestInfo)
+                .map(SpringAuditRequestInfoSupplier::utledRequestInfo)
                 .orElse(null);
     }
 
