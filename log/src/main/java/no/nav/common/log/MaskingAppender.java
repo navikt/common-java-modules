@@ -7,7 +7,7 @@ public class MaskingAppender extends AsyncAppenderBase<ILoggingEvent> {
 
     @Override
     protected void append(ILoggingEvent iLoggingEvent) {
-        super.doAppend(new MaskedLoggingEvent(iLoggingEvent));
+        super.append(new MaskedLoggingEvent(iLoggingEvent));
     }
 
 }
