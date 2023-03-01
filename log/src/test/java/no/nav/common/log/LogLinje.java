@@ -2,7 +2,7 @@ package no.nav.common.log;
 
 import com.google.gson.annotations.SerializedName;
 
-public class LogLingje {
+public class LogLinje {
 
     @SerializedName("@timestamp")
     public String timestamp;
