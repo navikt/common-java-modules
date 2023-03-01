@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="logback-default.xml"/>
+    <include resource="no/nav/common/log/logback-stdout-json.xml"/>
 </configuration>
