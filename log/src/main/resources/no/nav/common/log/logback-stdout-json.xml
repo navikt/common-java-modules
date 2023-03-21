@@ -2,7 +2,7 @@
 <included>
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
 
-    <appender name="stdout_json" class="no.nav.common.log.MaskingAppender">
+    <appender name="stdout_json_masked" class="no.nav.common.log.MaskingAppender">
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator>
                 <expression>
@@ -12,16 +12,17 @@
             <onMatch>DENY</onMatch>
             <onMismatch>NEUTRAL</onMismatch>
         </filter>
-        <appender name="stdout_json_masked" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
-        </appender>
+        <appender-ref ref="consoleAppender"/>
+    </appender>
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
     <!-- Prometheus metrikker for antall ganger logget per nivå -->
     <appender name="metrics" class="io.prometheus.client.logback.InstrumentedAppender"/>
 
     <root level="${ROOT_LOG_LEVEL:-INFO}">
-        <appender-ref ref="stdout_json"/>
+        <appender-ref ref="stdout_json_masked"/>
         <appender-ref ref="metrics"/>
     </root>
 

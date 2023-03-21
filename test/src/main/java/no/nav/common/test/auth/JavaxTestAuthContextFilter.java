@@ -1,10 +1,13 @@
 package no.nav.common.test.auth;
 
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
-
-import javax.servlet.*;
 
 /**
  * Brukes for å legge til AuthContext når man kjører lokalt

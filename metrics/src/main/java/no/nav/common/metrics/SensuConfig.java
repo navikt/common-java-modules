@@ -2,13 +2,13 @@ package no.nav.common.metrics;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.experimental.Wither;
+import lombok.With;
 
 import static no.nav.common.utils.EnvironmentUtils.*;
 
+@With
 @Value
 @Builder
-@Wither
 public class SensuConfig {
 
     public static final long DEFAULT_SENSU_RETRY_INTERVAL = 5000;

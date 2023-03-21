@@ -1,5 +1,6 @@
 package no.nav.common.cxf;
 
+import jakarta.activation.DataSource;
 import org.apache.cxf.attachment.AttachmentDataSource;
 import org.apache.cxf.message.Attachment;
 import org.apache.cxf.message.Exchange;
@@ -8,7 +9,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.slf4j.LoggerFactory;
 
-import javax.activation.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;

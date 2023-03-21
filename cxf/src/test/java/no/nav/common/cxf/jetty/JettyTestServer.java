@@ -1,5 +1,7 @@
 package no.nav.common.cxf.jetty;
 
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
 import lombok.SneakyThrows;
 import no.nav.common.cxf.CXFEndpoint;
 import org.apache.cxf.BusFactory;
@@ -8,8 +10,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.After;
 import org.slf4j.Logger;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
 import java.net.ServerSocket;
 import java.net.URI;
 

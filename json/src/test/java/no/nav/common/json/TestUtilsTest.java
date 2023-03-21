@@ -49,7 +49,7 @@ public class TestUtilsTest {
     }
 
     private void comparisonFailure(ThrowableAssert.ThrowingCallable throwingCallable) {
-        assertThatThrownBy(throwingCallable).isInstanceOf(ComparisonFailure.class);
+        assertThatThrownBy(throwingCallable).isInstanceOf(AssertionError.class);
     }
 
 }

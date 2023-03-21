@@ -12,8 +12,13 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static javax.ws.rs.core.HttpHeaders.ACCEPT;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
