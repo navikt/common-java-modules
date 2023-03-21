@@ -37,3 +37,4 @@ jobs:
         with:
           name: Release ${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}
+          prerelease: false
