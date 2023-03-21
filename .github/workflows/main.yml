@@ -24,7 +24,7 @@ jobs:
     name: Create new release
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/springboot3'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,7 +35,5 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ env.VERSION }} (Spring Boot 3)
+          name: Release ${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}
-          target_commitish: springboot3
-          prerelease: true
