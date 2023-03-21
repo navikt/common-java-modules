@@ -12,12 +12,38 @@ CEF:0|my-application|AuditLogger|1.0|audit:access|NAV-ansatt har gjort oppslag p
 
 1. Legg til avhengigheten for audit logging i **pom.xml** filen til applikasjonen:
 ```xml
+<repositories>
+    <!-- Legger til central eksplisitt for prioritet over jitpack -->
+    <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+        <id>jitpack</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
 <dependency>
-    <groupId>no.nav.common</groupId>
+    <groupId>com.github.navikt.common-java-modules</groupId>
     <artifactId>audit-log</artifactId>
-    <version>NEWEST_VERSION</version>
+    <version>INSERT_LATEST_VERSION</version>
 </dependency>
 ```
+
+eller i **build.gradle** filen til applikasjonen:
+
+```groovy
+repositories {
+    // Legger til central eksplisitt for prioritet over jitpack
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    implementation 'com.github.navikt.common-java-modules:audit-log:INSERT_LATEST_VERSION'
+}
+ ```
 
 2. Inkluder logback audit loggeren
 

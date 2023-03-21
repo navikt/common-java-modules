@@ -47,16 +47,16 @@ public class LogbackStdoutJsonTest {
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
         Stream<String> jsonLogLingjer = hentLingjerSomStarterMedCurlyBraces(logtext);
 
-        List<LogLingje> logLingjes = jsonLogLingjer
-                .map(l -> gson.fromJson(l, LogLingje.class))
+        List<LogLinje> logLinjes = jsonLogLingjer
+                .map(l -> gson.fromJson(l, LogLinje.class))
                 .toList();
 
-        Assert.assertEquals("skal bare vere 2 log lingjer",2, logLingjes.size());
+        Assert.assertEquals("skal bare vere 2 log lingjer",2, logLinjes.size());
 
-        LogLingje skalVereMaskert = logLingjes.get(0);
+        LogLinje skalVereMaskert = logLinjes.get(0);
         Assert.assertEquals(maskert, skalVereMaskert.message);
 
-        LogLingje skalIkkeBliMaskert = logLingjes.get(1);
+        LogLinje skalIkkeBliMaskert = logLinjes.get(1);
         Assert.assertEquals(skalIkkeMaskeres, skalIkkeBliMaskert.message);
 
         System.setOut(out);
@@ -89,26 +89,26 @@ public class LogbackStdoutJsonTest {
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
         Stream<String> jsonLogLingjer = hentLingjerSomStarterMedCurlyBraces(logtext);
 
-        List<LogLingje> logLingjes = jsonLogLingjer
-                .map(l -> gson.fromJson(l, LogLingje.class))
+        List<LogLinje> logLinjes = jsonLogLingjer
+                .map(l -> gson.fromJson(l, LogLinje.class))
                 .toList();
 
-        Assert.assertEquals("skal være 3 loglingjer (ikke debug)",3, logLingjes.size());
+        Assert.assertEquals("skal være 3 loglingjer (ikke debug)",3, logLinjes.size());
 
-        LogLingje info = logLingjes.get(0);
+        LogLinje info = logLinjes.get(0);
         Assert.assertEquals(infoMelding, info.message);
         Assert.assertEquals("INFO", info.level);
 
-        LogLingje warn = logLingjes.get(1);
+        LogLinje warn = logLinjes.get(1);
         Assert.assertEquals(advarselMelding, warn.message);
         Assert.assertEquals("WARN", warn.level);
 
-        LogLingje error = logLingjes.get(2);
+        LogLinje error = logLinjes.get(2);
         Assert.assertEquals(errorMelding, error.message);
         Assert.assertEquals("ERROR", error.level);
 
         //verifiser at ingen av feltene i logLingje er null
-        logLingjes.forEach(l -> {
+        logLinjes.forEach(l -> {
             Assert.assertNotNull(l.timestamp);
             Assert.assertNotNull(l.version);
             Assert.assertNotNull(l.message);
