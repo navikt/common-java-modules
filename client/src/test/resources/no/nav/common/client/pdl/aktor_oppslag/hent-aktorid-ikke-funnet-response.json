@@ -1,0 +1,23 @@
+{
+  "errors": [
+    {
+      "message": "Fant ikke person",
+      "locations": [
+        {
+          "line": 2,
+          "column": 3
+        }
+      ],
+      "path": [
+        "hentIdenter"
+      ],
+      "extensions": {
+        "code": "not_found",
+        "classification": "ExecutionAborted"
+      }
+    }
+  ],
+  "data": {
+    "hentIdenter": null
+  }
+}
