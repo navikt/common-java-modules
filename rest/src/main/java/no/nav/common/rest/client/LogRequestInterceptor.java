@@ -42,8 +42,11 @@ public class LogRequestInterceptor implements Interceptor {
         try {
             Response response = chain.proceed(request);
             long timeTakenMs = System.currentTimeMillis() - requestStarted;
-
-            log.info(format("OUT status=%s method=%s time=%dms url=%s", response.code(), request.method(), timeTakenMs, url));
+            if (response.isSuccessful()) {
+                log.info(format("OUT status=%s method=%s time=%dms url=%s", response.code(), request.method(), timeTakenMs, url));
+            } else {
+                log.warn(format("Request failed: status=%s method=%s time=%dms url=%s", response.code(), request.method(), timeTakenMs, url));
+            }
             return response;
         } catch (Throwable exception) {
             long timeTakenMs = System.currentTimeMillis() - requestStarted;
