@@ -57,8 +57,6 @@
 
         <sonar.organization>navikt</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <sonar.coverage.jacoco.xmlReportPaths>${user.dir}/target/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <!-- LOGGING -->
         <slf4j.version>2.0.6</slf4j.version>
@@ -792,11 +790,16 @@
 
                     <forkCount>1C</forkCount> <!-- fyr opp 1 JVM per cpu-kjerne -->
 
-                    <argLine>-Xmx1024m</argLine> <!-- Gi nok minne for å unngå terminerende JVM-er -->
+                    <argLine>@{argLine} -Xmx1024m</argLine> <!-- Gi nok minne for å unngå terminerende JVM-er -->
 
                     <!-- fjerner edge-caser ved nøstede classloadere, som f.eks. hvis man tester med jetty -->
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
             </plugin>
         </plugins>
     </build>
@@ -843,28 +846,24 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.7</version>
-                        <configuration>
-                            <destFile>${sonar.coverage.jacoco.xmlReportPaths}</destFile>
-                            <append>true</append>
-                        </configuration>
                         <executions>
                             <execution>
-                                <id>prepare-agent</id>
+                                <id>jacoco-prepare-agent</id>
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
                             <execution>
-                                <id>report</id>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
+                                <id>post-test</id>
+                                <phase>test</phase>
                                 <configuration>
                                     <formats>
                                         <format>XML</format>
                                     </formats>
                                 </configuration>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
