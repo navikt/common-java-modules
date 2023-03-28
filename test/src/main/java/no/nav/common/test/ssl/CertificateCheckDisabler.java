@@ -16,7 +16,7 @@ public class CertificateCheckDisabler implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-
+        // ignore in test
     }
 
 }
