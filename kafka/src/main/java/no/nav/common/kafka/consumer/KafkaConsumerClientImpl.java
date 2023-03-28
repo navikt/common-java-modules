@@ -24,9 +24,9 @@ import static java.lang.String.format;
  */
 public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, ConsumerRebalanceListener {
 
-    public final static long DEFAULT_POLL_DURATION_MS = 1000;
+    public static final long DEFAULT_POLL_DURATION_MS = 1000;
 
-    private final static long POLL_ERROR_TIMEOUT_MS = 5000;
+    private static final long POLL_ERROR_TIMEOUT_MS = 5000;
 
     private enum ClientState {
         RUNNING, NOT_RUNNING
@@ -63,6 +63,9 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         if (clientState == ClientState.RUNNING) {
             return;
         }
+        final List<String> topicNames = new ArrayList<>(config.topics.keySet());
+        consumer = new KafkaConsumer<>(config.properties);
+        consumer.subscribe(topicNames, this);
 
         clientState = ClientState.RUNNING;
 
@@ -112,13 +115,12 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
     }
 
     private void consumeTopics() {
-        final List<String> topicNames = new ArrayList<>(config.topics.keySet());
+
         final Map<TopicPartition, ExecutorService> topicConsumptionExecutors = new HashMap<>();
 
         try {
             shutdownLatch = new CountDownLatch(1);
-            consumer = new KafkaConsumer<>(config.properties);
-            consumer.subscribe(topicNames, this);
+
 
             while (clientState == ClientState.RUNNING) {
                 ConsumerRecords<K, V> records;

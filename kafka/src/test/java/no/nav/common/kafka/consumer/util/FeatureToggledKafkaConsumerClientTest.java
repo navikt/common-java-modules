@@ -1,7 +1,6 @@
 package no.nav.common.kafka.consumer.util;
 
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
-import org.awaitility.Awaitility;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -13,7 +12,7 @@ import static org.mockito.Mockito.*;
 public class FeatureToggledKafkaConsumerClientTest {
 
     @Test
-    public void should_start_consumer_when_toggle_is_off_and_consumer_is_not_running() throws InterruptedException {
+    public void should_start_consumer_when_toggle_is_off_and_consumer_is_not_running() {
         KafkaConsumerClient consumerClient = mock(KafkaConsumerClient.class);
         Supplier<Boolean> toggleForStoppingConsumersSupplier = mock(Supplier.class);
 
@@ -40,7 +39,7 @@ public class FeatureToggledKafkaConsumerClientTest {
     }
 
     @Test
-    public void should_stop_consumer_when_toggle_is_on_and_consumer_is_running() throws InterruptedException {
+    public void should_stop_consumer_when_toggle_is_on_and_consumer_is_running() {
         KafkaConsumerClient consumerClient = mock(KafkaConsumerClient.class);
         Supplier<Boolean> toggleForStoppingConsumersSupplier = mock(Supplier.class);
         when(toggleForStoppingConsumersSupplier.get()).thenReturn(false);
@@ -59,6 +58,7 @@ public class FeatureToggledKafkaConsumerClientTest {
             verify(consumerClient, atLeastOnce()).stop();
             return true;
         });
+        toggledClient.stop();
 
     }
 
@@ -80,6 +80,7 @@ public class FeatureToggledKafkaConsumerClientTest {
             verify(consumerClient, never()).stop();
             return true;
         });
+        toggledClient.stop();
     }
 
 }

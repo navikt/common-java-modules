@@ -9,17 +9,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 public class SSLTestUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SSLTestUtils.class);
 
     public static final SSLContext sslContext = trustAllSSLContext();
     public static final SSLSocketFactory TRUST_ALL_SSL_SOCKET_FACTORY = sslContext.getSocketFactory();
+    @SuppressWarnings("java:S5527")
     public static final HostnameVerifier ALLOW_ALL_HOSTNAME_VERIFIER = (s, sslSession) -> true;
 
+    private SSLTestUtils() {
+    }
     @SneakyThrows
+    @SuppressWarnings({"java:S5527", "java:S4423"})
     private static SSLContext trustAllSSLContext() {
         SSLContext sslContext = SSLContext.getInstance("SSL");
         sslContext.init(null, new TrustManager[]{ new TrustAllX509TrustManager() }, new SecureRandom());
