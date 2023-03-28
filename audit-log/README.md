@@ -81,6 +81,48 @@ auditLogger.log(cefMessage);
 4. Når stegene ovenfor er utført og applikasjonen har sendt logger i preprod eller prod, ta kontakt med ArcSight folkene 
 i **#auditlogging-arcsight** for å bekrefte at loggene har blitt motatt.
 
+## Log-output ved lokal kjøring av applikasjon
+Dersom du kjører opp appen din lokalt og tester endepunkter som har implementert audit-logging så kan du få en feilmelding i konsollen om at du ikke klarer å nå serveren som tar i mot log-statements fra appen din. Det kan derfor være ønskelig å logge lokalt til stdout. Slik kan du gjøre det for en Ktor-applikasjon.
+
+I logback.xml benytter du deg av en if-else og sjekker om miljøvariabelen `NAIS_CLUSTER_NAME` er definert. Hvis den er definert så inkluderer du en `logback-nais.xml`. Dette er logback-filen du bruker i dev og prod til vanlig. Dersom `NAIS_CLUSTER_NAME` ikke er definert inkluderer du en `logback-local.xml` som logger til stdout.
+```xml
+<configuration>
+    <if condition='isDefined("NAIS_CLUSTER_NAME")'>
+        <then>
+            <include resource="logback-nais.xml"/>
+        </then>
+        <else>
+            <include resource="logback-local.xml"/>
+        </else>
+    </if>
+</configuration>
+```
+
+**Eksempel på logback-local.xml**
+```xml
+<included scan="true" scanPeriod="30 seconds">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5relative %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="secureLogger" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
+</included>
+```
+
+**Legg merke til:** 
+Rot-elementet i logback-local.xml som er `<included ...>` og ikke `<configuration>`.
+
 ## Ressurser
 
 Informasjon om naudit:
