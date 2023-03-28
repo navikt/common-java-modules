@@ -42,7 +42,7 @@ public class LogRequestInterceptorTest {
     }
 
     @Test
-    public void filter_skal_logge_info_hvis_suksess() throws IOException {
+    public void filter_skal_logge_debug_hvis_suksess() throws IOException {
         OkHttpClient client = RestClient.baseClient();
         MDC.put(MDCConstants.MDC_CALL_ID, "CALL_ID");
 
@@ -55,7 +55,7 @@ public class LogRequestInterceptorTest {
         try (Response response = client.newCall(request).execute()) {
             assertThat(response.code()).isEqualTo(200);
             assertThat(filterAppender.list).hasSize(1);
-            assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getLevel() == Level.INFO);
+            assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getLevel() == Level.DEBUG);
             assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
         }
     }
