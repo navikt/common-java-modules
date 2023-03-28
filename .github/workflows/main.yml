@@ -1,6 +1,9 @@
-name: Test, build and publish
+name: Test and release
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   test:
@@ -10,52 +13,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
-          java-version: 11
+          java-version: 17
           cache: 'maven'
 
       - name: Run tests
         run: mvn -B -V verify
 
-  build-and-publish:
-    name: Build and push
+  create-release:
+    name: Create new release
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 11
-          cache: 'maven'
-
       - name: Create Version
-        run: echo "VERSION=2.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)" >> $GITHUB_ENV
-
-      - name: Release Maven package
-        env:
-          SONATYPE_USER: ${{ secrets.SONATYPE_USER }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-          GPG_KEYNAME: ${{ secrets.GPG_KEYNAME }}
-          GPG_KEYS: ${{ secrets.GPG_KEYS }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          export GPG_TTY=$(tty) && echo "$GPG_KEYS" | gpg --fast-import --batch
-          mvn versions:set versions:commit -DnewVersion="$VERSION"
-          mvn -B -Prelease -DskipTests=true --settings ./settings.xml deploy
+        run: echo "VERSION=3.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)" >> $GITHUB_ENV
 
       - name: Create release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: release/${{ env.VERSION }}
-          release_name: Release ${{ env.VERSION }} to maven central
+          name: Release ${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
           prerelease: false

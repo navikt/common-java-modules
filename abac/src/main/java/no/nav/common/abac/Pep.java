@@ -33,7 +33,17 @@ public interface Pep {
      * @param enhetId       enheten som det sjekkes tilgang på
      * @return true hvis tilgang, false hvis ikke tilgang
      */
+    @Deprecated
     boolean harTilgangTilEnhetMedSperre(String innloggetBrukerIdToken, EnhetId enhetId);
+
+    /**
+     * Sjekker om NAV-anasatt har tilgang til enhet med sperre. Brukes for å sjekke tilgang til KVP.
+     *
+     * @param navIdent identen til veileder (f.eks Z1234567)
+     * @param enhetId  enheten som det sjekkes tilgang på
+     * @return true hvis tilgang, false hvis ikke tilgang
+     */
+    boolean harTilgangTilEnhetMedSperre(NavIdent navIdent, EnhetId enhetId);
 
 
     /**

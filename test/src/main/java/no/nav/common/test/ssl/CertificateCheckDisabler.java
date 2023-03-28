@@ -1,7 +1,7 @@
 package no.nav.common.test.ssl;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 /*
  Kan brukes til å disable SSL i riktig/nødvendig class-context for en webapp, altså for webappens classloader
@@ -16,7 +16,7 @@ public class CertificateCheckDisabler implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-
+        // ignore in test
     }
 
 }

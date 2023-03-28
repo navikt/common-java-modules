@@ -5,8 +5,10 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.LoggerContextVO;
 import org.slf4j.Marker;
+import org.slf4j.event.KeyValuePair;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MaskedLoggingEvent implements ILoggingEvent {
@@ -77,6 +79,11 @@ public class MaskedLoggingEvent implements ILoggingEvent {
     }
 
     @Override
+    public List<Marker> getMarkerList() {
+        return iLoggingEvent.getMarkerList();
+    }
+
+    @Override
     public Map<String, String> getMDCPropertyMap() {
         return new MaskedMap(iLoggingEvent.getMDCPropertyMap());
     }
@@ -89,6 +96,21 @@ public class MaskedLoggingEvent implements ILoggingEvent {
     @Override
     public long getTimeStamp() {
         return iLoggingEvent.getTimeStamp();
+    }
+
+    @Override
+    public int getNanoseconds() {
+        return iLoggingEvent.getNanoseconds();
+    }
+
+    @Override
+    public long getSequenceNumber() {
+        return iLoggingEvent.getSequenceNumber();
+    }
+
+    @Override
+    public List<KeyValuePair> getKeyValuePairs() {
+        return iLoggingEvent.getKeyValuePairs();
     }
 
     @Override

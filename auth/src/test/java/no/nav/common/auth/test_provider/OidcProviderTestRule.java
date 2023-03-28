@@ -2,7 +2,13 @@ package no.nav.common.auth.test_provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 import lombok.SneakyThrows;
 import lombok.Value;
 import org.eclipse.jetty.server.Server;
@@ -13,12 +19,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.rules.ExternalResource;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +68,7 @@ public class OidcProviderTestRule extends ExternalResource {
         ServletHolder servletHolder =
                 new ServletHolder(
                         new ServletContainer(
-                                new ResourceConfig(OidcProviderServlet.class, JacksonJaxbJsonProvider.class)));
+                                new ResourceConfig(OidcProviderServlet.class, JacksonXmlBindJsonProvider.class)));
 
         servletHolder.setInitOrder(0);
         contextHandler.addServlet(servletHolder, "/*");

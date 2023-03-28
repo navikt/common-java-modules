@@ -39,10 +39,8 @@ List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs = List.of(
                         )
         );
 
-Credentials credentials = new Credentials("username", "password");
-
 KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-        .withProps(KafkaPropertiesPreset.defaultConsumerProperties("group_id", "broker_url", credentials))
+        .withProps(KafkaPropertiesPreset.aivenDefaultConsumerProperties("<your-app>"))
         .withTopicConfigs(topicConfigs)
         .build();
 
@@ -105,11 +103,9 @@ LockProvider lockProvider = new JdbcTemplateLockProvider(/* JdbcTemplate goes he
 
 Hvordan sette opp topic med feilhåndtering:
 ```java
-DataSource dataSource = /* Must be retrieved from somewhere, f.eks JdbcTemplate.getDataSource() */;
+JdbcTemplate jdbcTemplate = // Construct from DataSource or inject from bean
 
-Credentials credentials = new Credentials("username", "password");
-
-KafkaConsumerRepository kafkaConsumerRepository = new OracleConsumerRepository(dataSource);
+KafkaConsumerRepository kafkaConsumerRepository = new PostgresJdbcTemplateConsumerRepository(jdbcTemplate);
 
 var topicConfigs = List.of(
     new KafkaConsumerClientBuilder.TopicConfig<String, String>()
@@ -131,20 +127,20 @@ var topicConfigs = List.of(
 
 
 KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-                .withProps(KafkaPropertiesPreset.onPremDefaultConsumerProperties("group_id", "broker_url", credentials))
+                .withProps(KafkaPropertiesPreset.aivenDefaultConsumerProperties("<your-app>"))
                 .withTopicConfigs(topicConfigs)
                 .build();
 
 consumerClient.start(); // If consumption of records from topic1 fails, then the records will be stored
 
 
-LockProvider lockProvider = new JdbcTemplateLockProvider(/* JdbcTemplate goes here */);
+LockProvider lockProvider = new JdbcTemplateLockProvider(jdbcTemplate);
 
 KafkaConsumerRecordProcessor consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
                 .builder()
                 .withLockProvider(lockProvider)
                 .withKafkaConsumerRepository(consumerRepository)
-                .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(topicConfigs))
+                .withTopicConfigs(topicConfigs)
                 .build();
 
 consumerRecordProcessor.start(); // Will periodically consume stored messages
@@ -175,10 +171,8 @@ new KafkaConsumerClientBuilder.TopicConfig<String, String>()
 ### Basic
 
 ```java
-Credentials credentials = new Credentials("username", "password");
-
 KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaPropertiesPreset.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
+        .withProps(KafkaPropertiesPreset.aivenDefaultProducerProperties("<your-app>"))
         .build();
 
 // Send synchronously. Will block until sent or throw an exception
@@ -204,7 +198,7 @@ Eksempler ligger nedenfor:
 [Postgres](src/test/resources/kafka-producer-record-postgres.sql)
 
 ```java
-KafkaProducerRepository producerRepository = new OracleProducerRepository(dataSource);
+KafkaProducerRepository producerRepository = new OracleJdbcTemplateProducerRepository(jdbcTemplate);
 
 KafkaProducerRecordStorage<String, String> producerRecordStorage = new KafkaProducerRecordStorage<>(
         producerRepository,
@@ -219,7 +213,7 @@ I tillegg så trengs det å settes opp en record processor for å publisere de l
 
 ```java
 KafkaProducerClient<byte[], byte[]> producerClient = KafkaProducerClientBuilder.<byte[], byte[]>builder()
-           .withProps(KafkaPropertiesPreset.onPremByteProducerProperties("producer_id", "broker_url", credentials))
+           .withProps(KafkaPropertiesPreset.aivenByteProducerProperties("<your-app>"))
            .build();
 
 LeaderElectionClient leaderElectionClient = new LeaderElectionHttpClient();
@@ -236,7 +230,7 @@ Metrikker for producer kan settes opp gjennom builder:
 MeterRegistry registry = /* ... */;
 
 KafkaProducerClient<String, String> producerClient = KafkaProducerClientBuilder.<String, String>builder()
-        .withProps(KafkaPropertiesPreset.onPremDefaultProducerProperties("producer_id", "broker_url", credentials))
+        .withProps(KafkaPropertiesPreset.aivenDefaultConsumerProperties("<your-app>"))
         .withMetrics(registry)
         .build();
 ```

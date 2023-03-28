@@ -7,6 +7,7 @@ import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.client.pdl.PdlClient;
 import no.nav.common.client.pdl.PdlClientImpl;
 import no.nav.common.client.pdl.Tema;
+import no.nav.common.client.utils.graphql.GraphqlError;
 import no.nav.common.client.utils.graphql.GraphqlRequestBuilder;
 import no.nav.common.client.utils.graphql.GraphqlResponse;
 import no.nav.common.client.utils.graphql.GraphqlUtils;
@@ -63,6 +64,8 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
                 HentIdenterResponse.class
         );
 
+        validerGyldigIdentOrThrow(response);
+
         GraphqlUtils.throwIfErrorOrMissingData(response);
 
         return response.getData()
@@ -74,12 +77,23 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
                 .orElseThrow(IngenGjeldendeIdentException::new);
     }
 
+    private void validerGyldigIdentOrThrow(HentIdenterResponse response) {
+        if (response.getErrors() == null || response.getErrors().isEmpty()) {
+            return;
+        }
+        if (response.getErrors().stream().anyMatch(graphqlError -> graphqlError.getMessage().equals("Fant ikke person") || graphqlError.getMessage().equals("Ugyldig ident") )) {
+            throw new IngenGjeldendeIdentException();
+        }
+    }
+
     @Override
     public AktorId hentAktorId(Fnr fnr) {
         HentIdenterResponse response = pdlClient.request(
                 hentAktorIdRequestBuilder.buildRequest(new HentIdentVariables(fnr.get())),
                 HentIdenterResponse.class
         );
+
+        validerGyldigIdentOrThrow(response);
 
         GraphqlUtils.throwIfErrorOrMissingData(response);
 
@@ -131,16 +145,16 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
                 response.getData().hentIdenter.identer;
 
         List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> folkeregisteridenter =
-                identer.stream().filter(ident -> IDENT_GRUPPE_FOLKEREGISTERIDENT.equals(ident.gruppe)).collect(toList());
+                identer.stream().filter(ident -> IDENT_GRUPPE_FOLKEREGISTERIDENT.equals(ident.gruppe)).toList();
 
         List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> aktorIder =
-                identer.stream().filter(ident -> IDENT_GRUPPE_AKTORID.equals(ident.gruppe)).collect(toList());
+                identer.stream().filter(ident -> IDENT_GRUPPE_AKTORID.equals(ident.gruppe)).toList();
 
         return new BrukerIdenter(
                 folkeregisteridenter.stream().filter(ident -> !ident.historisk).findFirst().map(ident -> Fnr.of(ident.ident)).orElseThrow(),
                 aktorIder.stream().filter(ident -> !ident.historisk).findFirst().map(ident -> AktorId.of(ident.ident)).orElseThrow(),
-                folkeregisteridenter.stream().filter(ident -> ident.historisk).map(ident -> Fnr.of(ident.ident)).collect(toList()),
-                aktorIder.stream().filter(ident -> ident.historisk).map(ident -> AktorId.of(ident.ident)).collect(toList())
+                folkeregisteridenter.stream().filter(ident -> ident.historisk).map(ident -> Fnr.of(ident.ident)).toList(),
+                aktorIder.stream().filter(ident -> ident.historisk).map(ident -> AktorId.of(ident.ident)).toList()
         );
     }
 
@@ -158,12 +172,9 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
         brukerIdenter
                 .forEach(ident -> {
                     switch (ident.gruppe) {
-                        case IDENT_GRUPPE_FOLKEREGISTERIDENT:
-                            identPair.setFnr(Fnr.of(ident.ident));
-                            break;
-                        case IDENT_GRUPPE_AKTORID:
-                            identPair.setAktorId(AktorId.of(ident.ident));
-                            break;
+                        case IDENT_GRUPPE_FOLKEREGISTERIDENT -> identPair.setFnr(Fnr.of(ident.ident));
+                        case IDENT_GRUPPE_AKTORID -> identPair.setAktorId(AktorId.of(ident.ident));
+                        default -> throw new IllegalStateException("Unexpected value: " + ident.gruppe);
                     }
                 });
 

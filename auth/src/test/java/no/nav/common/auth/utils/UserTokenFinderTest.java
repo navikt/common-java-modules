@@ -1,12 +1,12 @@
 package no.nav.common.auth.utils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;

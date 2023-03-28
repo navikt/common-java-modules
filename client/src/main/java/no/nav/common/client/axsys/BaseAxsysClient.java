@@ -1,5 +1,6 @@
 package no.nav.common.client.axsys;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
@@ -16,13 +17,14 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
-import javax.ws.rs.core.HttpHeaders;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static no.nav.common.rest.client.RestUtils.*;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
+import static no.nav.common.rest.client.RestUtils.createBearerToken;
+import static no.nav.common.rest.client.RestUtils.throwIfNotSuccessful;
 import static no.nav.common.utils.UrlUtils.joinPaths;
 
 abstract class BaseAxsysClient implements AxsysClient {

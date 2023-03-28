@@ -4,7 +4,6 @@ import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
-import no.nav.common.kafka.consumer.feilhandtering.backoff.BackoffStrategy;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
@@ -12,6 +11,7 @@ import no.nav.common.kafka.utils.DbUtils;
 import org.junit.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 
 import javax.sql.DataSource;
 import java.time.Duration;
@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer;
-import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,28 +39,21 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         });
     }
 
-    private static final PostgreSQLContainer<?> postgreSQLContainer = createPostgresContainer();
-
-    @BeforeClass
-    public static void setupClass() {
-        postgreSQLContainer.start();
-        dataSource = createPostgresDataSource(postgreSQLContainer);
-        DbUtils.runScript(dataSource, "kafka-consumer-record-postgres.sql");
-    }
+    @ClassRule
+    public static final PostgreSQLContainer<?> postgreSQLContainer =
+            new PostgreSQLContainer<>("postgres:12-alpine")
+                .withInitScript("kafka-consumer-record-postgres.sql")
+                .waitingFor(new HostPortWaitStrategy());
 
     @Before
     public void setup() {
+        dataSource = createPostgresDataSource(postgreSQLContainer);
         consumerRepository = new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(dataSource));
     }
 
     @After
     public void after() {
         DbUtils.cleanupConsumer(dataSource);
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        postgreSQLContainer.stop();
     }
 
     @Test
@@ -109,7 +101,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(3, counterTopicA.get());
         assertEquals(2, counterTopicB.get());
@@ -171,7 +163,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(0, counterTopicA.get());
         assertEquals(2, counterTopicB.get());
@@ -213,7 +205,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(3, counterTopicA.get());
     }
@@ -253,7 +245,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         Thread.sleep(1000);
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(2, counterTopicA.get());
 
@@ -294,7 +286,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
         consumerRecordProcessor.start();
         Thread.sleep(1000);
-        consumerRecordProcessor.close();
+        consumerRecordProcessor.stop();
 
         assertEquals(0, counterTopicA.get());
         assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());

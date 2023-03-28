@@ -130,6 +130,16 @@ public class CefMessageBuilder {
         return this;
     }
 
+    /**
+     * Hvis du oppretter en CEF-melding i forbindelse med en tilgangskontroll sjekk så bør det logges resultatet av sjekken.
+     * Denne hjelpefunksjonen gjør det enklere å sette opp en CEF-melding med riktig felter.
+     * @param decision resultatet av tilgangskontroll sjekken
+     * @return the builder
+     */
+    public CefMessageBuilder authorizationDecision(AuthorizationDecision decision) {
+        return this.severity(authDecisionToSeverity(decision)).flexString(1, "Decision",  authDecisionToStr(decision));
+    }
+
     public CefMessage build() {
         return new CefMessage(
                 version,
@@ -141,6 +151,28 @@ public class CefMessageBuilder {
                 severity,
                 extension
         );
+    }
+
+    private String authDecisionToStr(AuthorizationDecision decision) {
+        switch (decision) {
+            case DENY:
+                return "Deny";
+            case PERMIT:
+                return "Permit";
+            default:
+                throw new IllegalArgumentException("Unable to map to string for unknown decision " + decision.name());
+        }
+    }
+
+    private CefMessageSeverity authDecisionToSeverity(AuthorizationDecision decision) {
+        switch (decision) {
+            case DENY:
+                return CefMessageSeverity.WARN;
+            case PERMIT:
+                return CefMessageSeverity.INFO;
+            default:
+                throw new IllegalArgumentException("Unable to find severity for unknown decision " + decision.name());
+        }
     }
 
 }

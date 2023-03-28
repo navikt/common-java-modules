@@ -1,6 +1,7 @@
 package no.nav.common.client.aktoroppslag;
 
 import no.nav.common.client.TestUtils;
+import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.client.pdl.PdlClient;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.json.JsonUtils;
@@ -15,8 +16,7 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 import static no.nav.common.client.TestUtils.readTestResourceFile;
 import static no.nav.common.client.TestUtils.readTestResourceFileWithoutWhitespace;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class PdlAktorOppslagClientTest {
@@ -42,6 +42,42 @@ public class PdlAktorOppslagClientTest {
 
         assertEquals(graphqlJsonRequest, TestUtils.removeWhitespace(JsonUtils.toJson(requestCaptor.getValue())));
         assertEquals("111222333", aktorId.get());
+    }
+
+    @Test
+    public void hentAktorId__skal_kaste_IngenGjeldendeIdentException_naar_ident_ikke_funnet() {
+        String graphqlJsonRequest =
+                readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-request.json");
+        String graphqlJsonResponse =
+                readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-aktorid-ikke-funnet-response.json");
+
+        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+
+        doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
+                .when(pdlClient).request(requestCaptor.capture(), eq(PdlAktorOppslagClient.HentIdenterResponse.class));
+
+        var fnr = Fnr.of("1234567890");
+        assertThrows(IngenGjeldendeIdentException.class, () ->  pdlAktorOppslagClient.hentAktorId(fnr));
+
+        assertEquals(graphqlJsonRequest, TestUtils.removeWhitespace(JsonUtils.toJson(requestCaptor.getValue())));
+    }
+
+    @Test
+    public void hentAktorId__skal_kaste_IngenGjeldendeIdentException_naar_ugyldig_ident() {
+        String graphqlJsonRequest =
+                readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-request.json");
+        String graphqlJsonResponse =
+                readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-aktorid-ugyldig-ident-response.json");
+
+        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+
+        doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
+                .when(pdlClient).request(requestCaptor.capture(), eq(PdlAktorOppslagClient.HentIdenterResponse.class));
+
+        var fnr = Fnr.of("1234567890");
+        assertThrows(IngenGjeldendeIdentException.class, () ->  pdlAktorOppslagClient.hentAktorId(fnr));
+
+        assertEquals(graphqlJsonRequest, TestUtils.removeWhitespace(JsonUtils.toJson(requestCaptor.getValue())));
     }
 
     @Test

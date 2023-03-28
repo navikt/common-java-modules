@@ -97,6 +97,9 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     @After
     public void cleanup() {
+        recordProcessor.close();
+        consumerClient.stop();
+
         DbUtils.cleanupProducer(dataSource);
     }
 

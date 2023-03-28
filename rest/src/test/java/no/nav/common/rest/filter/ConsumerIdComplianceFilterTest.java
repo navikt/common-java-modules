@@ -1,11 +1,11 @@
 package no.nav.common.rest.filter;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Test;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -27,7 +27,7 @@ public class ConsumerIdComplianceFilterTest {
         filter.doFilter(request, response, chain);
 
         verify(response, times(1)).setStatus(400);
-        verifyZeroInteractions(chain);
+        verifyNoInteractions(chain);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class ConsumerIdComplianceFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verifyZeroInteractions(response);
+        verifyNoInteractions(response);
         verify(chain, times(1)).doFilter(request, response);
     }
 
@@ -58,7 +58,7 @@ public class ConsumerIdComplianceFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verifyZeroInteractions(response);
+        verifyNoInteractions(response);
         verify(chain, times(1)).doFilter(request, response);
     }
 

@@ -1,10 +1,10 @@
 package no.nav.common.auth.oidc.filter;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Value;
 import no.nav.common.auth.oidc.OidcTokenValidator;
 import no.nav.common.auth.utils.CookieUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

@@ -1,5 +1,8 @@
 package no.nav.common.cxf;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -7,9 +10,6 @@ import org.eclipse.jetty.util.resource.URLResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +55,6 @@ public class MockHandler extends ResourceHandler {
             }
 
             baseRequest.setMethod(HttpMethod.GET.name());
-            baseRequest.setPathInfo(pathInfo);
 
             super.handle(target, baseRequest, request, httpServletResponse);
 

@@ -8,10 +8,9 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.ArrayList;
@@ -30,8 +29,19 @@ public class KafkaProducerWithClientMetricsTest {
 
     private final static String TEST_TOPIC_B = "test-topic-b";
 
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
+    private static KafkaContainer kafka;
+
+    @BeforeClass
+    public static void beforeClass() {
+        kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
+        kafka.waitingFor(new HostPortWaitStrategy());
+        kafka.start();
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        kafka.stop();
+    }
 
     @Before
     public void setup() {
