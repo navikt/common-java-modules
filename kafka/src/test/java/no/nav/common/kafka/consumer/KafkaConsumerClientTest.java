@@ -9,18 +9,13 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,18 +31,32 @@ public class KafkaConsumerClientTest {
 
     private final static String TEST_TOPIC_B = "test-topic-b";
 
+    private String consumerGroupId;
+
     private KafkaProducer<String, String> producer;
 
     private KafkaConsumer<String, String> commitChecker;
 
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
+    private static KafkaContainer kafka;
+
+    @BeforeClass
+    public static void beforeClass() {
+        kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
+        kafka.waitingFor(new HostPortWaitStrategy());
+        kafka.start();
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        kafka.stop();
+    }
 
     @Before
     public void setup() {
+        consumerGroupId = UUID.randomUUID().toString();
         String brokerUrl = kafka.getBootstrapServers();
         producer = new KafkaProducer<>(kafkaTestProducerProperties(brokerUrl));
-        commitChecker = new KafkaConsumer<>(kafkaTestConsumerProperties(brokerUrl));
+        commitChecker = new KafkaConsumer<>(kafkaTestConsumerProperties(brokerUrl, consumerGroupId));
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
 
@@ -72,7 +81,7 @@ public class KafkaConsumerClientTest {
         AtomicInteger counter = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(TEST_TOPIC_A, consumerWithCounter(counter, 0))
         );
 
@@ -124,7 +133,7 @@ public class KafkaConsumerClientTest {
         producer.flush();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(TEST_TOPIC_A, consumerWithCounter(counter, 100)),
                 10
         );
@@ -154,7 +163,7 @@ public class KafkaConsumerClientTest {
         AtomicInteger counter = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(multiPartitionTopic, consumerWithCounter(counter, 0))
         );
 
@@ -192,7 +201,7 @@ public class KafkaConsumerClientTest {
         AtomicLong maxRecordOffsetB = new AtomicLong(-1);
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(
                         TEST_TOPIC_A, consumerWithCounter(messagesReadCounterA, 0),
                         TEST_TOPIC_B, failOnOffsetConsumer(maxRecordOffsetB, messagesReadCounterB, 2)
@@ -228,7 +237,7 @@ public class KafkaConsumerClientTest {
     @Test
     public void should_stop_consumption_of_topic_on_and_seek_back_to_retry_until_it_succeeds() throws InterruptedException {
         AtomicBoolean doFail = new AtomicBoolean(true);
-        Properties properties = kafkaTestConsumerProperties(kafka.getBootstrapServers());
+        Properties properties = kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId);
         properties.setProperty(MAX_POLL_RECORDS_CONFIG, "4");
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 properties,
@@ -264,12 +273,12 @@ public class KafkaConsumerClientTest {
         AtomicInteger counter2 = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config1 = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(TEST_TOPIC_A, consumerWithCounter(counter1, 100))
         );
 
         KafkaConsumerClientConfig<String, String> config2 = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(TEST_TOPIC_A, consumerWithCounter(counter2, 100))
         );
 
@@ -309,7 +318,7 @@ public class KafkaConsumerClientTest {
         AtomicInteger counter2 = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(kafka.getBootstrapServers()),
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(
                         TEST_TOPIC_A, consumerWithCounter(counter1, 100),
                         TEST_TOPIC_B, consumerWithCounter(counter2, 100)
