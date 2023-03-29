@@ -68,6 +68,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         consumer.subscribe(topicNames, this);
 
         clientState = ClientState.RUNNING;
+        shutdownLatch = new CountDownLatch(1);
 
         log.info("Starting kafka consumer client...");
 
@@ -119,8 +120,6 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         final Map<TopicPartition, ExecutorService> topicConsumptionExecutors = new HashMap<>();
 
         try {
-            shutdownLatch = new CountDownLatch(1);
-
 
             while (clientState == ClientState.RUNNING) {
                 ConsumerRecords<K, V> records;
