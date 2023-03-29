@@ -94,7 +94,14 @@ public class LogRequestFilter implements Filter {
                     httpRequest.getRequestURL()
             );
 
-            log.info(requestLogMsg);
+            int statusCode = httpResponse.getStatus();
+            if (statusCode >= 200 && statusCode < 300) {
+                log.debug(requestLogMsg);
+            } else if (statusCode <=400 && statusCode < 600) {
+                log.warn(requestLogMsg);
+            } else {
+                log.info(requestLogMsg);
+            }
         } finally {
             MDC.remove(MDCConstants.MDC_CALL_ID);
             MDC.remove(MDCConstants.MDC_USER_ID);
@@ -111,7 +118,11 @@ public class LogRequestFilter implements Filter {
         try {
             filterChain.doFilter(request, response);
         } catch (Throwable e) {
-            log.error("Uncaught exception", e);
+            String requestLogMsg = format("Uncaught exception processing request IN method=%s url=%s",
+                    request.getMethod(),
+                    request.getRequestURL()
+            );
+            log.error(requestLogMsg, e);
 
             if (response.isCommitted()) {
                 log.error("Response already committed, unable to set response error details");
