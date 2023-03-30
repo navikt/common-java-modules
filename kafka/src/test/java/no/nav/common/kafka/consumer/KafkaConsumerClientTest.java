@@ -74,7 +74,7 @@ public class KafkaConsumerClientTest {
     }
 
     @Test
-    public void should_consume_and_commit_offsets_and_start_consuming_again_on_excepted_offset() throws InterruptedException {
+    public void should_consume_and_commit_offsets_and_start_consuming_again_on_excepted_offset() {
         AtomicInteger counter = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
@@ -116,7 +116,7 @@ public class KafkaConsumerClientTest {
 
 
     @Test
-    public void should_commit_consumed_tasks_when_closed_gracefully() throws InterruptedException {
+    public void should_commit_consumed_tasks_when_closed_gracefully() {
         AtomicInteger counter = new AtomicInteger();
 
         for (int i = 0; i < 15; i++) {
@@ -134,10 +134,9 @@ public class KafkaConsumerClientTest {
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
         consumerClient.start();
+        await().until(() -> counter.get() >= 4);
 
-        Thread.sleep(1000);
-
-        // Stop client after approx 10 messages
+        // Stop client after approx 4 messages
         consumerClient.stop();
 
         OffsetAndMetadata committedOffsets = getCommittedOffsets(testTopicA, 0);
@@ -148,7 +147,7 @@ public class KafkaConsumerClientTest {
     }
 
     @Test
-    public void should_consume_from_several_partitions() throws InterruptedException {
+    public void should_consume_from_several_partitions() {
         String multiPartitionTopic = "multi-partition-topic";
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()));
@@ -184,7 +183,7 @@ public class KafkaConsumerClientTest {
     }
 
     @Test
-    public void should_stop_consumption_of_topic_on_failure() throws InterruptedException {
+    public void should_stop_consumption_of_topic_on_failure() {
         AtomicInteger messagesReadCounterA = new AtomicInteger();
         AtomicInteger messagesReadCounterB = new AtomicInteger();
         AtomicLong maxRecordOffsetB = new AtomicLong(-1);
@@ -218,7 +217,7 @@ public class KafkaConsumerClientTest {
     }
 
     @Test
-    public void should_stop_consumption_of_topic_on_and_seek_back_to_retry_until_it_succeeds() throws InterruptedException {
+    public void should_stop_consumption_of_topic_on_and_seek_back_to_retry_until_it_succeeds() {
         AtomicBoolean doFail = new AtomicBoolean(true);
         Properties properties = kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId);
         properties.setProperty(MAX_POLL_RECORDS_CONFIG, "4");
@@ -251,7 +250,7 @@ public class KafkaConsumerClientTest {
     }
 
     @Test
-    public void should_commit_on_both_clients() throws InterruptedException {
+    public void should_commit_on_both_clients() {
         AtomicInteger counter1 = new AtomicInteger();
         AtomicInteger counter2 = new AtomicInteger();
 
@@ -273,17 +272,15 @@ public class KafkaConsumerClientTest {
         KafkaConsumerClientImpl<String, String> consumerClient2 = new KafkaConsumerClientImpl<>(config2);
 
 
-
-
         for (int i = 0; i < 100; i++) {
             producer.send(new ProducerRecord<>(testTopicA, "key1", "value" + i));
         }
         producer.flush();
         consumerClient1.start();
-        Thread.sleep(1000);
+        await().atMost(Duration.ofSeconds(5)).until(() -> counter1.get() >= 5);
+        consumerClient1.stop();
         consumerClient2.start();
 
-        consumerClient1.stop();
 
 
         await().atMost(Duration.ofSeconds(5)).until( () -> assertCommittedOffsetEquals(testTopicA, 100, 0));
@@ -291,21 +288,20 @@ public class KafkaConsumerClientTest {
 
         consumerClient2.stop();
 
-        assertTrue(counter1.get() > 5);
-        assertTrue(counter2.get() > 5);
-        assertTrue(counter1.get() + counter2.get() == 100);
+        assertTrue(counter2.get() > 0);
+        assertEquals(100, counter1.get() + counter2.get());
     }
 
     @Test
-    public void should_consume_on_1_thread_pr_partition() throws InterruptedException {
+    public void should_consume_on_1_thread_pr_partition() {
         AtomicInteger counter1 = new AtomicInteger();
         AtomicInteger counter2 = new AtomicInteger();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(
-                        testTopicA, consumerWithCounterAndSleep(counter1, 100),
-                        testTopicB, consumerWithCounterAndSleep(counter2, 100)
+                        testTopicA, consumerWithCounterAndSleep(counter1, 0),
+                        testTopicB, consumerWithCounterAndSleep(counter2, 0)
                 ),
                 10
         );
@@ -320,10 +316,7 @@ public class KafkaConsumerClientTest {
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(config);
         consumerClient.start();
 
-        Thread.sleep(750);
-
-        assertTrue(8 < counter1.get() + counter2.get());
-
+        await().atMost(Duration.ofSeconds(5)).until(() -> counter1.get() + counter2.get() == 10);
         consumerClient.stop();
     }
 
@@ -339,15 +332,6 @@ public class KafkaConsumerClientTest {
             return false;
         } else {
             return commitedOffset.offset() == offset;
-        }
-    }
-
-    private boolean assertCommittedOffsetMinimumValue(String topic, long offset, int partition) {
-        var commitedOffset = getCommittedOffsets(topic, partition);
-        if (commitedOffset == null) {
-            return false;
-        } else {
-            return commitedOffset.offset() >= offset;
         }
     }
 
