@@ -21,11 +21,13 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.nav.common.kafka.utils.TestUtils.*;
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -46,9 +48,9 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     private KafkaConsumerClientImpl<String, String> consumerClient;
 
-    private AtomicInteger counterTopicA = new AtomicInteger();
+    private final AtomicInteger counterTopicA = new AtomicInteger();
 
-    private AtomicInteger counterTopicB = new AtomicInteger();
+    private final AtomicInteger counterTopicB = new AtomicInteger();
 
     @Before
     public void setup() {
@@ -104,7 +106,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     }
 
     @Test
-    public void should_send_stored_records_to_kafka() throws InterruptedException {
+    public void should_send_stored_records_to_kafka() {
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "value1", "key1"));
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "value2", "key2"));
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "value3", "key1"));
@@ -113,15 +115,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "value2", "key2"));
 
         recordProcessor.start();
-        Thread.sleep(1000);
-        recordProcessor.close();
-
         consumerClient.start();
-        Thread.sleep(1000);
+        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicA.get() == 3 && counterTopicB.get() == 2);
+        recordProcessor.close();
         consumerClient.stop();
 
-        assertEquals(3, counterTopicA.get());
-        assertEquals(2, counterTopicB.get());
         assertTrue(producerRepository.getRecords(10).isEmpty());
     }
 
