@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer;
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -57,7 +58,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     }
 
     @Test
-    public void should_consume_stored_records() throws InterruptedException {
+    public void should_consume_stored_records() {
         LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
 
         AtomicInteger counterTopicA = new AtomicInteger();
@@ -100,11 +101,8 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_B, 1, 2, "key2", "value"));
 
         consumerRecordProcessor.start();
-        Thread.sleep(1000);
+        await().atMost(Duration.ofSeconds(5)).until( () -> counterTopicA.get() == 3 && counterTopicB.get() ==2);
         consumerRecordProcessor.stop();
-
-        assertEquals(3, counterTopicA.get());
-        assertEquals(2, counterTopicB.get());
 
         assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
         assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
@@ -112,7 +110,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     }
 
     @Test
-    public void should_only_consume_from_topics_when_lock_is_acquired() throws InterruptedException {
+    public void should_only_consume_from_topics_when_lock_is_acquired() {
         LockProvider lockProvider = lockConfiguration -> {
             if (lockConfiguration.getName().contains(TEST_TOPIC_B)) {
                 return Optional.of((SimpleLock) () -> {
@@ -162,11 +160,10 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_B, 1, 2, "key2", "value"));
 
         consumerRecordProcessor.start();
-        Thread.sleep(1000);
+        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicB.get() == 2);
         consumerRecordProcessor.stop();
 
         assertEquals(0, counterTopicA.get());
-        assertEquals(2, counterTopicB.get());
 
         assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
         assertEquals(1, consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).size());
@@ -174,7 +171,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     }
 
     @Test
-    public void should_not_block_processing_when_null_keys() throws InterruptedException {
+    public void should_not_block_processing_when_null_keys() {
         LockProvider lockProvider = KafkaConsumerRecordProcessorIntegrationTest::lock;
 
         AtomicInteger counterTopicA = new AtomicInteger();
@@ -204,14 +201,13 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 3, null, "value3"));
 
         consumerRecordProcessor.start();
-        Thread.sleep(1000);
+        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicA.get() == 3);
         consumerRecordProcessor.stop();
-
         assertEquals(3, counterTopicA.get());
     }
 
     @Test
-    public void should_consume_records_if_backoff_expired() throws InterruptedException {
+    public void should_consume_records_if_backoff_expired() {
         LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
         AtomicInteger counterTopicA = new AtomicInteger();
 
@@ -242,12 +238,9 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         List<StoredConsumerRecord> records = consumerRepository.getRecords(TEST_TOPIC_A, 1, 5);
         records.forEach(record -> consumerRepository.incrementRetries(record.getId()));
 
-        Thread.sleep(1000);
         consumerRecordProcessor.start();
-        Thread.sleep(1000);
+        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicA.get() == 2);
         consumerRecordProcessor.stop();
-
-        assertEquals(2, counterTopicA.get());
 
         assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
     }

@@ -1,5 +1,6 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import no.nav.common.kafka.spring.OracleJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
@@ -10,6 +11,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.awaitility.Awaitility;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -19,6 +21,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import javax.sql.DataSource;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +32,7 @@ import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresData
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
+@Slf4j
 public class KafkaConsumerRepositoryTest {
 
     public static final PostgreSQLContainer<?> postgreSQLContainer = createPostgresContainer();
@@ -36,6 +40,7 @@ public class KafkaConsumerRepositoryTest {
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         postgreSQLContainer.start();
+        Awaitility.await().atMost(Duration.ofSeconds(60)).until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
         DataSource postgres = createPostgresDataSource(postgreSQLContainer);
         DbUtils.runScript(postgres, "kafka-consumer-record-postgres.sql");
         PostgresJdbcTemplateConsumerRepository postgresConsumerRepository = new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(postgres));
