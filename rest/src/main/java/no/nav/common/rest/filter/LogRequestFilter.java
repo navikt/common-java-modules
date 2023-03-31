@@ -97,7 +97,7 @@ public class LogRequestFilter implements Filter {
             int statusCode = httpResponse.getStatus();
             if (statusCode >= 200 && statusCode < 300) {
                 log.debug(requestLogMsg);
-            } else if (statusCode <=400 && statusCode < 600) {
+            } else if (statusCode >= 400 && statusCode < 600) {
                 log.warn(requestLogMsg);
             } else {
                 log.info(requestLogMsg);
