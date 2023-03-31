@@ -26,7 +26,7 @@ public class RestUtils {
     public static void throwIfNotSuccessful(Response response) {
         if (!response.isSuccessful()) {
             String message = String.format("Uventet status %d ved kall mot mot %s", response.code(), response.request().url().toString());
-            log.error(message);
+            log.warn(message);
             throw new RuntimeException(message);
         }
     }

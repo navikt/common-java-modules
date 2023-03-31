@@ -108,7 +108,7 @@
         <junit.version>4.13.2</junit.version>
         <mockito.version>5.1.1</mockito.version>
         <junit.jupiter.version>5.9.2</junit.jupiter.version>
-        <wiremock.version>3.0.0-beta-4</wiremock.version>
+        <wiremock.version>3.0.0-beta-7</wiremock.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <h2.version>1.4.200</h2.version>
         <postgres.version>42.5.3</postgres.version>
