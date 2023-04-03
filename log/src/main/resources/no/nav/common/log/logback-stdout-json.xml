@@ -35,6 +35,6 @@
     <logger name="org.apache.http.client.protocol.ResponseProcessCookies" level="ERROR"/>
     <logger name="org.apache.wss4j.common.crypto.CryptoBase" level="ERROR"/>
     <logger name="no.nav.common.rest.client.LogRequestInterceptor" level="DEBUG"/>
-    <logger name="no.nav.common.rest.filter.LogRequestFilter.LogRequestFilter" level="DEBUG"/>
+    <logger name="no.nav.common.rest.filter.LogRequestFilter" level="DEBUG"/>
 
 </included>
