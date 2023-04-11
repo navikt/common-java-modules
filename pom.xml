@@ -39,6 +39,7 @@
         <module>job</module>
         <module>metrics</module>
         <module>rest</module>
+        <module>feature-toggle</module>
         <module>sts</module>
         <module>health</module>
         <module>test</module>
