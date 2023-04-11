@@ -7,6 +7,7 @@ import ch.qos.logback.classic.spi.LoggerContextVO;
 import org.slf4j.Marker;
 import org.slf4j.event.KeyValuePair;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,11 +75,6 @@ public class MaskedLoggingEvent implements ILoggingEvent {
     }
 
     @Override
-    public Marker getMarker() {
-        return iLoggingEvent.getMarker();
-    }
-
-    @Override
     public List<Marker> getMarkerList() {
         return iLoggingEvent.getMarkerList();
     }
@@ -90,12 +86,22 @@ public class MaskedLoggingEvent implements ILoggingEvent {
 
     @Override
     public Map<String, String> getMdc() {
-        return new MaskedMap(iLoggingEvent.getMdc());
+        return new MaskedMap(iLoggingEvent.getMDCPropertyMap());
     }
 
     @Override
     public long getTimeStamp() {
         return iLoggingEvent.getTimeStamp();
+    }
+
+    @Override
+    // Workaround for bug https://github.com/logfellow/logstash-logback-encoder/issues/939 in logstash version 7.3
+    public Instant getInstant() {
+        if (ILoggingEvent.super.getInstant() == null) {
+            return Instant.now();
+        } else {
+            return ILoggingEvent.super.getInstant();
+        }
     }
 
     @Override
