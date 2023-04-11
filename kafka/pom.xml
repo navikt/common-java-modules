@@ -58,6 +58,10 @@
 
         <dependency>
             <groupId>no.nav.common</groupId>
+            <artifactId>job</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>no.nav.common</groupId>
             <artifactId>json</artifactId>
         </dependency>
         <dependency>
@@ -83,6 +87,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
             <scope>test</scope>
@@ -103,7 +112,6 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 </project>

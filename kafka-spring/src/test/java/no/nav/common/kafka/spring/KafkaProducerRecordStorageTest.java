@@ -1,5 +1,8 @@
-package no.nav.common.kafka.producer.feilhandtering;
+package no.nav.common.kafka.spring;
 
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordStorage;
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;

@@ -1,5 +1,7 @@
-package no.nav.common.kafka.producer.feilhandtering;
+package no.nav.common.kafka.spring;
 
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateProducerRepository;
