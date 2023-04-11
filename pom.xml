@@ -38,6 +38,7 @@
         <module>json</module>
         <module>kafka</module>
         <module>log</module>
+        <module>kafka-spring</module>
         <module>job</module>
         <module>metrics</module>
         <module>rest</module>
@@ -657,6 +658,11 @@
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
