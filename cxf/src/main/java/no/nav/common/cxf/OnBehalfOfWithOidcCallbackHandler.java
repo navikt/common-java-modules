@@ -44,6 +44,7 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
         Document document;
 
         try {
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             builder = factory.newDocumentBuilder();
             document = builder.parse(new InputSource(new StringReader(getOnBehalfOfString())));
         } catch (ParserConfigurationException e) {
