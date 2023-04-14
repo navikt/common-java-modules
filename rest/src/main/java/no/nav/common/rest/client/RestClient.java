@@ -19,8 +19,9 @@ public class RestClient {
     public static OkHttpClient.Builder baseClientBuilder() {
         return new OkHttpClient.Builder()
                 .addInterceptor(new LogRequestInterceptor())
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .readTimeout(15, TimeUnit.SECONDS)
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
                 .followRedirects(false);
     }
 
