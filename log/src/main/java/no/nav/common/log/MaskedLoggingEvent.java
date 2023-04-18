@@ -95,7 +95,7 @@ public class MaskedLoggingEvent implements ILoggingEvent {
     }
 
     @Override
-    // Workaround for bug https://github.com/logfellow/logstash-logback-encoder/issues/939 in logstash version 7.3
+    // TODO Workaround for bug https://github.com/logfellow/logstash-logback-encoder/issues/939 in logstash version 7.3
     public Instant getInstant() {
         if (ILoggingEvent.super.getInstant() == null) {
             return Instant.now();
