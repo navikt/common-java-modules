@@ -64,7 +64,7 @@
         <logback.version>1.4.5</logback.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <janino.version>3.1.9</janino.version>
-        <logstash-logback.version>7.2</logstash-logback.version>
+        <logstash-logback.version>7.3</logstash-logback.version>
 
         <!-- CXF -->
         <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
