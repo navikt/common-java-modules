@@ -94,7 +94,7 @@
         <nimbusds.version>10.5.1</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
         <org.json.version>20230227</org.json.version>
-        <jetty.version>11.0.13</jetty.version>
+        <jetty.version>11.0.14</jetty.version>
 
         <!-- KAFKA -->
         <kafka.version>7.3.0-ccs</kafka.version>
