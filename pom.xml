@@ -90,7 +90,7 @@
         <handlebars.version>4.3.0</handlebars.version>
         <gson.version>2.10.1</gson.version>
         <caffeine.version>3.1.2</caffeine.version>
-        <bitbucket-jose4.version>0.9.2</bitbucket-jose4.version>
+        <bitbucket-jose4.version>0.9.3</bitbucket-jose4.version>
         <nimbusds.version>10.5.1</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
         <org.json.version>20230227</org.json.version>
