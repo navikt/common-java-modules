@@ -93,14 +93,14 @@
         <bitbucket-jose4.version>0.9.2</bitbucket-jose4.version>
         <nimbusds.version>10.5.1</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
-        <org.json.version>20220924</org.json.version>
+        <org.json.version>20230227</org.json.version>
         <jetty.version>11.0.13</jetty.version>
 
         <!-- KAFKA -->
         <kafka.version>7.3.0-ccs</kafka.version>
         <avro.version>1.11.1</avro.version>
         <avro-serializer.version>7.3.1</avro-serializer.version>
-        <json-schema-validation.version>1.12.2</json-schema-validation.version>
+        <json-schema-validation.version>1.14.2</json-schema-validation.version>
 
         <!-- TEST -->
         <assertj.version>3.24.2</assertj.version>
@@ -374,8 +374,8 @@
             </dependency>
 
             <dependency>
-                <groupId>com.github.everit-org.json-schema</groupId>
-                <artifactId>org.everit.json.schema</artifactId>
+                <groupId>com.github.erosb</groupId>
+                <artifactId>everit-json-schema</artifactId>
                 <version>${json-schema-validation.version}</version>
             </dependency>
 
