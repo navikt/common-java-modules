@@ -1,9 +1,12 @@
-package no.nav.common.kafka.consumer.feilhandtering;
+package no.nav.common.kafka.spring.integration;
 
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor;
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
+import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;

@@ -61,9 +61,9 @@ Feilhåndtering for consumer settes opp pr topic ved bruk av `StoreOnFailureTopi
 
 For å lagre feilede meldinger så trengs det å legge til nye tabeller ved bruk av migreringsscript.
 
-[Oracle](src/test/resources/kafka-consumer-record-oracle.sql)
+[Oracle](../kafka-spring/src/test/resources/kafka-consumer-record-oracle.sql)
 
-[Postgres](src/test/resources/kafka-consumer-record-postgres.sql)
+[Postgres](../kafka-spring/src/test/resources/kafka-consumer-record-postgres.sql)
 
 I tillegg til å lagre feilede meldinger, så må også `KafkaConsumerRecordProcessor` brukes for at de lagrede meldingene skal bli rekonsumert.
 
@@ -193,9 +193,9 @@ Meldinger vil bli lagret i databasen synkront og vil deretter batches opp og sen
 For å kunne ta i bruk store-and-forward så må tabellen hvor meldingene skal lagres settes opp.
 Eksempler ligger nedenfor:
 
-[Oracle](src/test/resources/kafka-producer-record-oracle.sql)
+[Oracle](../kafka-spring/src/test/resources/kafka-producer-record-oracle.sql)
 
-[Postgres](src/test/resources/kafka-producer-record-postgres.sql)
+[Postgres](../kafka-spring/src/test/resources/kafka-producer-record-postgres.sql)
 
 ```java
 KafkaProducerRepository producerRepository = new OracleJdbcTemplateProducerRepository(jdbcTemplate);

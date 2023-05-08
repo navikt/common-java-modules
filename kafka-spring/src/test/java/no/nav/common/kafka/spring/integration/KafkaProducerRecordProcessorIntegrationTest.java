@@ -1,4 +1,4 @@
-package no.nav.common.kafka.producer.feilhandtering;
+package no.nav.common.kafka.spring.integration;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.consumer.ConsumeStatus;
@@ -6,6 +6,9 @@ import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
 import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor;
+import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
 import no.nav.common.kafka.utils.DbUtils;
 import no.nav.common.kafka.utils.LocalOracleH2Database;

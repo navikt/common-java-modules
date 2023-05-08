@@ -1,6 +1,8 @@
-package no.nav.common.kafka.consumer.feilhandtering;
+package no.nav.common.kafka.spring;
 
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
+import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import no.nav.common.kafka.spring.OracleJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
