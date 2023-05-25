@@ -108,7 +108,7 @@ public class SensuHandler {
                             writeToSensu(jsonObject, socket);
                         } catch (IOException e) {
                             reportQueue.addAll(reports); // Legger tilbake i køen
-                            log.error("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+                            log.warn("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}", e.getClass().getSimpleName(), e.getMessage());
                             if (!isShutDown) {
                                 Thread.sleep(sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
                             }
