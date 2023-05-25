@@ -7,11 +7,16 @@ import no.nav.common.abac.constants.AbacDomain;
 import no.nav.common.abac.domain.request.ActionId;
 import no.nav.common.abac.domain.request.Resource;
 import no.nav.common.abac.domain.request.XacmlRequest;
+import no.nav.common.abac.domain.response.Advice;
 import no.nav.common.abac.domain.response.XacmlResponse;
 import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.EnhetId;
 import no.nav.common.types.identer.NavIdent;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -28,14 +33,25 @@ public class VeilarbPep implements Pep {
 
     private final AuditConfig auditConfig;
 
+    private final Logger securelogs;
+
     public VeilarbPep(String srvUsername,
                       AbacClient abacClient,
                       SubjectProvider subjectProvider,
                       AuditConfig auditConfig) {
+        this(srvUsername, abacClient, subjectProvider, auditConfig, null);
+    }
+
+    public VeilarbPep(String srvUsername,
+                      AbacClient abacClient,
+                      SubjectProvider subjectProvider,
+                      AuditConfig auditConfig,
+                      Logger securelogs) {
         this.srvUsername = srvUsername;
         this.abacClient = abacClient;
         this.subjectProvider = subjectProvider;
         this.auditConfig = auditConfig;
+        this.securelogs = securelogs;
     }
 
     @Override
@@ -264,7 +280,15 @@ public class VeilarbPep implements Pep {
                     auditLogger.logCef(xacmlRequest, xacmlResponse, cefEventContext.get()));
         }
 
-        return XacmlResponseParser.harTilgang(xacmlResponse);
+        boolean harTilgang = XacmlResponseParser.harTilgang(xacmlResponse);
+        if(securelogs != null && !harTilgang) {
+            xacmlResponse.getResponse().stream().findFirst().ifPresent(response -> {
+                List<Advice> associatedAdvice = response.getAssociatedAdvice();
+                securelogs.debug("Tilgang avist pga: {}", associatedAdvice );
+            });
+        }
+
+        return harTilgang;
     }
 
     private boolean skalLogges(XacmlRequest xacmlRequest, XacmlResponse xacmlResponse) {
