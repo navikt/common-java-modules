@@ -1,6 +1,7 @@
 package no.nav.common.auth.context;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import lombok.SneakyThrows;
 import no.nav.common.auth.utils.IdentUtils;
 import no.nav.common.auth.utils.TokenUtils;
 import no.nav.common.types.identer.NavIdent;
@@ -10,11 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
-import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
-import static no.nav.common.auth.Constants.ID_PORTEN_PID_CLAIM;
+import static no.nav.common.auth.Constants.*;
 
 /**
  * Holds the authentication context such as the role and ID token of a logged in user
@@ -32,6 +33,20 @@ public interface AuthContextHolder {
     @SuppressWarnings("unused")
     default NavIdent requireNavIdent() {
         return getNavIdent().orElseThrow(() -> new IllegalStateException("NAV Ident is missing from AuthContext"));
+    }
+
+    /**
+     * Returns the azure oid claim from the id token
+     * to be used with poao-tilgang
+     */
+    default UUID requireOid() {
+        return getOid().orElseThrow(() -> new IllegalStateException("OID claim missing from token"));
+    }
+
+    default Optional<UUID> getOid() {
+        return getIdTokenClaims()
+                .flatMap(it -> getStringClaim(it, AZURE_OID_CLAIM))
+                .map(UUID::fromString);
     }
 
     default String requireSubject() {
