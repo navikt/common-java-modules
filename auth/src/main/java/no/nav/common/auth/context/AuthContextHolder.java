@@ -45,7 +45,7 @@ public interface AuthContextHolder {
 
     default Optional<UUID> getOid() {
         return getIdTokenClaims()
-                .flatMap(it -> getStringClaim(it, AZHURE_OID_CLAIM))
+                .flatMap(it -> getStringClaim(it, AZURE_OID_CLAIM))
                 .map(UUID::fromString);
     }
 
