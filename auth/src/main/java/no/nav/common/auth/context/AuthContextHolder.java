@@ -36,11 +36,11 @@ public interface AuthContextHolder {
     }
 
     /**
-     * returns teh azure oid claim from the id token
+     * Returns the azure oid claim from the id token
      * to be used with poao-tilgang
      */
     default UUID requireOid() {
-        return getOid().orElseThrow(() -> new IllegalStateException("OID is missing from AuthContext"));
+        return getOid().orElseThrow(() -> new IllegalStateException("OID claim missing from token"));
     }
 
     default Optional<UUID> getOid() {
