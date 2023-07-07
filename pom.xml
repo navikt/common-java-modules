@@ -33,14 +33,13 @@
         <module>audit-log</module>
         <module>auth</module>
         <module>client</module>
-        <module>cxf</module>
-        <module>feature-toggle</module>
         <module>json</module>
         <module>kafka</module>
         <module>log</module>
         <module>job</module>
         <module>metrics</module>
         <module>rest</module>
+        <module>feature-toggle</module>
         <module>sts</module>
         <module>health</module>
         <module>test</module>
@@ -65,10 +64,7 @@
         <janino.version>3.1.9</janino.version>
         <logstash-logback.version>7.3</logstash-logback.version>
 
-        <!-- CXF -->
-        <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
-        <cxf-core.version>4.0.0</cxf-core.version>
-        <jsoup.version>1.15.3</jsoup.version>
+
 
         <!-- COMMON -->
         <lombok.version>1.18.26</lombok.version>
@@ -117,31 +113,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!--
-                Dette er en midlertidig patch, i nyere versjoner av f.eks org.apache.cxf:cxf-rt-ws-security
-                så trengs forhåpentligvis ikke dette.
-            -->
-            <dependency>
-                <groupId>commons-collections</groupId>
-                <artifactId>commons-collections</artifactId>
-                <version>3.2.2</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.sun.xml.fastinfoset</groupId>
-                <artifactId>FastInfoset</artifactId>
-                <version>1.2.15</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.istack</groupId>
-                <artifactId>istack-commons-runtime</artifactId>
-                <version>3.0.7</version>
-            </dependency>
-            <dependency>
-                <groupId>org.glassfish.jaxb</groupId>
-                <artifactId>jaxb-runtime</artifactId>
-                <version>4.0.2</version>
-            </dependency>
 
             <!-- START COMMON -->
             <dependency>
@@ -259,17 +230,7 @@
                 <scope>test</scope>
             </dependency>
 
-            <dependency>
-                <groupId>no.nav.common</groupId>
-                <artifactId>cxf</artifactId>
-                <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+
             <dependency>
                 <groupId>no.nav.common</groupId>
                 <artifactId>nais</artifactId>
@@ -528,58 +489,12 @@
                 <version>${jetty.version}</version>
             </dependency>
 
-            <!-- SOAP -->
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-core</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-policy</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-bindings-soap</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-ws-security</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-features-logging</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-frontend-simple</artifactId>
-                <version>${cxf-core.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.jsoup</groupId>
-                <artifactId>jsoup</artifactId>
-                <version>${jsoup.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>jakarta.servlet</groupId>
                 <artifactId>jakarta.servlet-api</artifactId>
@@ -587,18 +502,7 @@
             </dependency>
 
             <!--Testing-->
-            <dependency>
-                <groupId>org.apache.servicemix.examples</groupId>
-                <artifactId>cxf-jaxws-blueprint</artifactId>
-                <version>${cxf-jaxws-blueprint.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>mockwebserver</artifactId>

@@ -4,5 +4,4 @@
     <include resource="no/nav/common/log/logback-stdout-json.xml"/>
     <include resource="no/nav/common/log/logback-naudit.xml"/>
     <include resource="no/nav/common/log/logback-securelogs.xml"/>
-    <include resource="no/nav/common/log/logback-cxf.xml"/>
 </included>

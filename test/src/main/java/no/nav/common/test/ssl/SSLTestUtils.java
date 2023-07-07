@@ -37,7 +37,6 @@ public class SSLTestUtils {
         setupKeyAndTrustStore();
         setProperty("disable.ssl.cn.check", Boolean.TRUE.toString());
         Security.setProperty("ssl.SocketFactory.provider", TrustAllSSLSocketFactory.class.getName());
-        CxfCertificateValidationDisabler.init();
         HttpsURLConnection.setDefaultSSLSocketFactory(TRUST_ALL_SSL_SOCKET_FACTORY);
         HttpsURLConnection.setDefaultHostnameVerifier(ALLOW_ALL_HOSTNAME_VERIFIER);
         SSLContext.setDefault(sslContext);

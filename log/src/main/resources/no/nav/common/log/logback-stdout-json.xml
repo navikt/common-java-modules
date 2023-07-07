@@ -3,15 +3,6 @@
     <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
 
     <appender name="stdout_json_masked" class="no.nav.common.log.MaskingAppender">
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>
-                    return level != ERROR &amp;&amp; (logger.contains("org.apache.cxf") || logger.contains("no.nav.common.cxf"));
-                </expression>
-            </evaluator>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
         <appender-ref ref="consoleAppender"/>
     </appender>
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
@@ -30,8 +21,6 @@
     <logger name="org.apache.tomcat.util.http.parser.Cookie" level="OFF" />
 
     <logger name="org.apache" level="INFO"/>
-    <logger name="org.apache.cxf" level="ERROR"/>
-    <logger name="no.nav.common.cxf" level="ERROR"/>
     <logger name="org.apache.http.client.protocol.ResponseProcessCookies" level="ERROR"/>
     <logger name="org.apache.wss4j.common.crypto.CryptoBase" level="ERROR"/>
     <logger name="no.nav.common.rest.client.LogRequestInterceptor" level="DEBUG"/>
