@@ -35,10 +35,11 @@ jobs:
       - name: Create Version
         run: echo "VERSION=3.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)-SNAPSHOT" >> $GITHUB_ENV
 
-      - name: Deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy release
         run: mvn -B -Drevision="${{ env.VERSION }}" -DskipTests source:jar deploy
+        env:
+          GITHUB_USERNAME: x-access-token
+          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create release
         uses: softprops/action-gh-release@v1
