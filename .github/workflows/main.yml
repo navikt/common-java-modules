@@ -26,6 +26,9 @@ jobs:
 
   create-release:
     name: Create new release
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
     needs: test
     steps:
@@ -38,8 +41,7 @@ jobs:
       - name: Deploy release
         run: mvn -B -Drevision="${{ env.VERSION }}" -DskipTests source:jar deploy
         env:
-          GITHUB_USERNAME: x-access-token
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create release
         uses: softprops/action-gh-release@v1
