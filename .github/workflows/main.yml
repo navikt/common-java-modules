@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - github-package-registry
 
 jobs:
   test:
