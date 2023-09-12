@@ -46,7 +46,7 @@ jobs:
           cache: 'maven'
 
       - name: Deploy release
-        run: mvn --settings maven-settings.xml -B -Drevision="${{ env.VERSION }}" -DskipTests source:jar deploy
+        run: mvn -B -Drevision="${{ env.VERSION }}" -DskipTests source:jar deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
