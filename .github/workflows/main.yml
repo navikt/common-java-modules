@@ -27,7 +27,7 @@ jobs:
   create-release:
     name: Create new release
     permissions:
-      contents: read
+      contents: write
       packages: write
     runs-on: ubuntu-latest
     needs: test
