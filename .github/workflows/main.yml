@@ -38,8 +38,15 @@ jobs:
       - name: Create Version
         run: echo "VERSION=3.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)-SNAPSHOT" >> $GITHUB_ENV
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: 'maven'
+
       - name: Deploy release
-        run: mvn --settings maven-settings.xml -B -e -X -Drevision="${{ env.VERSION }}" -DskipTests source:jar deploy
+        run: mvn --settings maven-settings.xml -B -Drevision="${{ env.VERSION }}" -DskipTests source:jar deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
