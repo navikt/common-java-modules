@@ -13,19 +13,19 @@ CEF:0|my-application|AuditLogger|1.0|audit:access|NAV-ansatt har gjort oppslag p
 1. Legg til avhengigheten for audit logging i **pom.xml** filen til applikasjonen:
 ```xml
 <repositories>
-    <!-- Legger til central eksplisitt for prioritet over jitpack -->
+    <!-- Legger til central eksplisitt for prioritet over github -->
     <repository>
         <id>central</id>
         <url>https://repo.maven.apache.org/maven2</url>
     </repository>
     <repository>
-        <id>jitpack</id>
-        <url>https://jitpack.io</url>
+        <id>github</id>
+        <url>https://github-package-registry-mirror.gc.nav.no/cached/maven-release</url>
     </repository>
 </repositories>
 
 <dependency>
-    <groupId>com.github.navikt.common-java-modules</groupId>
+    <groupId>no.nav.common</groupId>
     <artifactId>audit-log</artifactId>
     <version>INSERT_LATEST_VERSION</version>
 </dependency>
@@ -35,13 +35,13 @@ eller i **build.gradle** filen til applikasjonen:
 
 ```groovy
 repositories {
-    // Legger til central eksplisitt for prioritet over jitpack
+    // Legger til central eksplisitt for prioritet over github
     mavenCentral()
-    maven { url "https://jitpack.io" }
+    maven { url "https://github-package-registry-mirror.gc.nav.no/cached/maven-release" }
 }
 
 dependencies {
-    implementation 'com.github.navikt.common-java-modules:audit-log:INSERT_LATEST_VERSION'
+    implementation 'no.nav.common:audit-log:INSERT_LATEST_VERSION'
 }
  ```
 
