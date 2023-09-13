@@ -6,7 +6,7 @@
     <parent>
         <artifactId>mor-pom</artifactId>
         <groupId>no.nav.common</groupId>
-        <version>1-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>nais</artifactId>

@@ -1,6 +1,6 @@
 # Common Java Modules
 
-[![](https://jitpack.io/v/navikt/common-java-modules.svg)](https://jitpack.io/#navikt/common-java-modules)
+[![Build status](https://github.com/navikt/common-java-modules/workflows/Test%20and%20release/badge.svg)](https://github.com/navikt/common-java-modules/workflows/Test%20and%20release/badge.svg)
 
 Felles Java moduler som løser vanlige problemer som f.eks kafka, token exchange, logging, observability etc...
 
@@ -8,19 +8,19 @@ Hver av modulene er laget for å løse et spesifikt behov og man kan plukke og m
 
 ## Hvordan ta i bruk
 
-Modulene blir publisert til https://jitpack.io. For at maven/gradle skal hente modulene fra riktig sted så må følgende settes opp.
+Modulene blir publisert til GitHub Package Registry. For at maven/gradle skal hente modulene fra riktig sted så må følgende settes opp.
 
 Maven:
 ```xml
     <repositories>
-        <!-- Legger til central eksplisitt for prioritet over jitpack -->
+        <!-- Legger til central eksplisitt for prioritet over github -->
         <repository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
         <repository>
-            <id>jitpack</id>
-            <url>https://jitpack.io</url>
+            <id>github</id>
+            <url>https://github-package-registry-mirror.gc.nav.no/cached/maven-release</url>
         </repository>
     </repositories>
 ```
@@ -28,9 +28,9 @@ Maven:
 Gradle:
 ```groovy
 repositories {
-    // Legger til central eksplisitt for prioritet over jitpack
+    // Legger til central eksplisitt for prioritet over github
     mavenCentral()
-    maven { url "https://jitpack.io" }
+    maven { url "https://github-package-registry-mirror.gc.nav.no/cached/maven-release" }
 }
 ```
 
@@ -41,7 +41,7 @@ Versjonene er på følgende format: `YYYY.MM.DD_HH.mm-SHA`
 Maven:
 ```xml
 <dependency>
-    <groupId>com.github.navikt.common-java-modules</groupId>
+    <groupId>no.nav.common</groupId>
     <artifactId>token-client</artifactId>
     <version>INSERT_LATEST_VERSION</version>
 </dependency>
@@ -50,7 +50,7 @@ Maven:
 Gradle:
 ```groovy
 dependencies {
-    implementation 'com.github.navikt.common-java-modules:client:INSERT_LATEST_VERSION'
+    implementation 'no.nav.common:token-client:INSERT_LATEST_VERSION'
 }
 ```
 

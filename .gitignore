@@ -4,6 +4,7 @@
 *.ipr
 *.iws
 *.log
+.flattened-pom.xml
 .checkstyle
 .classpath
 .pmd
