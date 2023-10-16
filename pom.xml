@@ -67,47 +67,47 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
         <!-- LOGGING -->
-        <slf4j.version>2.0.6</slf4j.version>
-        <logback.version>1.4.5</logback.version>
+        <slf4j.version>2.0.9</slf4j.version>
+        <logback.version>1.4.11</logback.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <janino.version>3.1.9</janino.version>
-        <logstash-logback.version>7.3</logstash-logback.version>
+        <janino.version>3.1.10</janino.version>
+        <logstash-logback.version>7.4</logstash-logback.version>
 
         <!-- CXF -->
         <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
-        <cxf-core.version>4.0.0</cxf-core.version>
-        <jsoup.version>1.15.3</jsoup.version>
+        <cxf-core.version>4.0.3</cxf-core.version>
+        <jsoup.version>1.16.1</jsoup.version>
 
         <!-- COMMON -->
-        <lombok.version>1.18.26</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
 
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
-        <spring.version>6.0.4</spring.version>
-        <jersey.version>3.1.1</jersey.version>
-        <jackson.version>2.14.2</jackson.version>
-        <jackson-databind.version>2.14.2</jackson-databind.version>
+        <spring.version>6.0.13</spring.version>
+        <jersey.version>3.1.3</jersey.version>
+        <jackson.version>2.15.3</jackson.version>
+        <jackson-databind.version>2.15.3</jackson-databind.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <micrometer.version>1.10.3</micrometer.version>
-        <okhttp.version>4.10.0</okhttp.version>
+        <micrometer.version>1.11.5</micrometer.version>
+        <okhttp.version>4.11.0</okhttp.version>
         <prometheus.version>0.16.0</prometheus.version>
-        <commons-lang.version>3.12.0</commons-lang.version>
-        <commons-io.version>2.11.0</commons-io.version>
-        <shedlock.version>4.44.0</shedlock.version>
-        <handlebars.version>4.3.0</handlebars.version>
+        <commons-lang.version>3.13.0</commons-lang.version>
+        <commons-io.version>2.14.0</commons-io.version>
+        <shedlock.version>5.9.0</shedlock.version>
+        <handlebars.version>4.3.1</handlebars.version>
         <gson.version>2.10.1</gson.version>
-        <caffeine.version>3.1.2</caffeine.version>
-        <bitbucket-jose4.version>0.9.2</bitbucket-jose4.version>
-        <nimbusds.version>10.5.1</nimbusds.version>
+        <caffeine.version>3.1.8</caffeine.version>
+        <bitbucket-jose4.version>0.9.3</bitbucket-jose4.version>
+        <nimbusds.version>11.2</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
-        <org.json.version>20230227</org.json.version>
-        <jetty.version>11.0.13</jetty.version>
+        <org.json.version>20231013</org.json.version>
+        <jetty.version>11.0.17</jetty.version>
 
         <!-- KAFKA -->
-        <kafka.version>7.3.0-ccs</kafka.version>
-        <avro.version>1.11.1</avro.version>
-        <avro-serializer.version>7.3.1</avro-serializer.version>
+        <kafka.version>7.4.0-ccs</kafka.version>
+        <avro.version>1.11.3</avro.version>
+        <avro-serializer.version>7.4.0</avro-serializer.version>
         <json-schema-validation.version>1.14.2</json-schema-validation.version>
 
         <!-- TEST -->
@@ -115,11 +115,11 @@
         <hamcrest.version>2.2</hamcrest.version>
         <junit.version>4.13.2</junit.version>
         <mockito.version>5.1.1</mockito.version>
-        <junit.jupiter.version>5.9.2</junit.jupiter.version>
-        <wiremock.version>3.0.0-beta-7</wiremock.version>
-        <testcontainers.version>1.17.6</testcontainers.version>
-        <h2.version>2.1.214</h2.version>
-        <postgres.version>42.5.3</postgres.version>
+        <junit.jupiter.version>5.10.0</junit.jupiter.version>
+        <wiremock.version>3.0.1</wiremock.version>
+        <testcontainers.version>1.19.1</testcontainers.version>
+        <h2.version>2.2.224</h2.version>
+        <postgres.version>42.6.0</postgres.version>
     </properties>
 
 
@@ -138,17 +138,17 @@
             <dependency>
                 <groupId>com.sun.xml.fastinfoset</groupId>
                 <artifactId>FastInfoset</artifactId>
-                <version>1.2.15</version>
+                <version>2.1.0</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>
                 <artifactId>istack-commons-runtime</artifactId>
-                <version>3.0.7</version>
+                <version>4.2.0</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>4.0.2</version>
+                <version>4.0.3</version>
             </dependency>
 
             <!-- START COMMON -->
