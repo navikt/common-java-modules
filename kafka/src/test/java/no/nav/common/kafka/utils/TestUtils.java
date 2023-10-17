@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class TestUtils {
 
-    public static final String KAFKA_IMAGE = "confluentinc/cp-kafka:5.4.3";
+    public static final String KAFKA_IMAGE = "confluentinc/cp-kafka:7.5.1";
 
     @SneakyThrows
     public static String readTestResourceFile(String fileName) {
