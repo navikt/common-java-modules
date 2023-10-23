@@ -55,7 +55,7 @@ public class PdlClientImpl implements PdlClient {
 
     @Deprecated
     public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
-        this(pdlUrl, tema, userTokenSupplier, consumerTokenSupplier, null);
+        this(pdlUrl, tema, userTokenSupplier, consumerTokenSupplier, "");
     }
 
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier, String behandlingsnummer) {
@@ -64,7 +64,7 @@ public class PdlClientImpl implements PdlClient {
 
     @Deprecated
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
-        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, null);
+        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, "");
     }
 
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, String behandlingsnummer) {
@@ -73,7 +73,7 @@ public class PdlClientImpl implements PdlClient {
 
     @Deprecated
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier) {
-        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, null);
+        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, "");
     }
 
 
