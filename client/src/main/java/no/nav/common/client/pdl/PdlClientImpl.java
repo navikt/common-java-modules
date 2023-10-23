@@ -35,6 +35,8 @@ public class PdlClientImpl implements PdlClient {
 
     private final Supplier<String> consumerTokenSupplier;
 
+    private final String behandlingsnummer;
+
     /**
      * @param pdlUrl URL til PDL
      * @param tema hvilket tema som skal benyttes i requests mot PDL
@@ -42,21 +44,41 @@ public class PdlClientImpl implements PdlClient {
      *                          OBS: Hvis systembruker token blir brukt så vil ikke PDL gjøre tilgangskontroll på requestet.
      * @param consumerTokenSupplier supplier av systembruker tokens for applikasjonen som gjør requests mot PDL
      */
-    public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
+    public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier, String behandlingsnummer) {
         this.pdlUrl = pdlUrl;
         this.pdlTema = tema;
         this.userTokenSupplier = userTokenSupplier;
         this.consumerTokenSupplier = consumerTokenSupplier;
         this.client = RestClient.baseClient();
+        this.behandlingsnummer = behandlingsnummer;
     }
 
+    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
+    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
+    public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
+        this(pdlUrl, tema, userTokenSupplier, consumerTokenSupplier, "");
+    }
+
+    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier, String behandlingsnummer) {
+        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, behandlingsnummer);
+    }
+
+    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
+    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
-        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier);
+        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, "");
     }
 
-    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier) {
-        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null);
+    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, String behandlingsnummer) {
+        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, behandlingsnummer);
     }
+
+    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
+    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
+    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier) {
+        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, "");
+    }
+
 
     @Override
     @SneakyThrows
@@ -66,6 +88,7 @@ public class PdlClientImpl implements PdlClient {
                 .header(ACCEPT, MEDIA_TYPE_JSON.toString())
                 .header(AUTHORIZATION, createBearerToken(userTokenSupplier.get()))
                 .header("Tema", pdlTema.name())
+                .header("behandlingsnummer", behandlingsnummer)
                 .post(RequestBody.create(gqlRequestJson, MEDIA_TYPE_JSON));
         if (consumerTokenSupplier != null) {
             request.header("Nav-Consumer-Token", createBearerToken(consumerTokenSupplier.get()));
