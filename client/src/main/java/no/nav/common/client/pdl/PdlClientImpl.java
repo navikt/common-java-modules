@@ -53,7 +53,8 @@ public class PdlClientImpl implements PdlClient {
         this.behandlingsnummer = behandlingsnummer;
     }
 
-    @Deprecated
+    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
+    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
     public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
         this(pdlUrl, tema, userTokenSupplier, consumerTokenSupplier, "");
     }
@@ -62,7 +63,8 @@ public class PdlClientImpl implements PdlClient {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, behandlingsnummer);
     }
 
-    @Deprecated
+    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
+    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, "");
     }
@@ -71,7 +73,8 @@ public class PdlClientImpl implements PdlClient {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, behandlingsnummer);
     }
 
-    @Deprecated
+    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
+    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier) {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, "");
     }
