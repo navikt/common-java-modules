@@ -107,7 +107,7 @@
         <!-- KAFKA -->
         <kafka.version>7.4.0-ccs</kafka.version>
         <avro.version>1.11.3</avro.version>
-        <avro-serializer.version>7.4.0</avro-serializer.version>
+        <avro-serializer.version>7.4.akt.0</avro-serializer.version>
         <json-schema-validation.version>1.14.3</json-schema-validation.version>
 
         <!-- TEST -->
