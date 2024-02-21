@@ -119,7 +119,7 @@
         <wiremock.version>3.0.1</wiremock.version>
         <testcontainers.version>1.19.1</testcontainers.version>
         <h2.version>2.2.224</h2.version>
-        <postgres.version>42.6.0</postgres.version>
+        <postgres.version>42.7.2</postgres.version>
     </properties>
 
 
