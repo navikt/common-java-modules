@@ -28,7 +28,7 @@ public class UrlUtilsTest {
     @Test
     public void createInternalIngressUrl__should_create_correct_dev_url() {
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-fss");
-        assertEquals("https://test.dev.intern.nav.no", createInternalIngressUrl("test"));
+        assertEquals("https://test.intern.dev.nav.no", createInternalIngressUrl("test"));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class UrlUtilsTest {
 
     @Test
     public void createDevInternalIngressUrl__should_create_correct_url() {
-        assertEquals("https://test.dev.intern.nav.no", createDevInternalIngressUrl("test"));
+        assertEquals("https://test.intern.dev.nav.no", createDevInternalIngressUrl("test"));
     }
 
     @Test

@@ -28,7 +28,7 @@ public class UrlUtils {
     }
 
     public static String createDevInternalIngressUrl(@NonNull String appName) {
-        return String.format("https://%s.dev.intern.nav.no", appName);
+        return String.format("https://%s.intern.dev.nav.no", appName);
     }
 
     public static String createAppAdeoPreprodIngressUrl(@NonNull String appName, @NonNull String environment) {
