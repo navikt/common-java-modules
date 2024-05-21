@@ -14,6 +14,7 @@ import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
 import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -74,7 +75,7 @@ public class OidcTokenValidator {
         Issuer issuer = new Issuer(issuerUrl);
         ClientID clientID = new ClientID(clientId);
         try {
-            return new IDTokenValidator(issuer, clientID, algorithm, new URL(jwksUrl));
+            return new IDTokenValidator(issuer, clientID, algorithm, URI.create(jwksUrl).toURL());
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid jwks URL " + jwksUrl);
         }

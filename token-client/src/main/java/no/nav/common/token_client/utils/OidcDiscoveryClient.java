@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import net.minidev.json.JSONObject;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 
 public class OidcDiscoveryClient {
@@ -17,7 +18,7 @@ public class OidcDiscoveryClient {
 
     @SneakyThrows
     public static OIDCProviderMetadata fetchDiscoveryMetadata(String discoveryUrl) {
-        URL configURL = new URL(discoveryUrl);
+        URL configURL = URI.create(discoveryUrl).toURL();
 
         HTTPRequest httpRequest = new HTTPRequest(HTTPRequest.Method.GET, configURL);
         httpRequest.setConnectTimeout(CONNECT_TIMEOUT);

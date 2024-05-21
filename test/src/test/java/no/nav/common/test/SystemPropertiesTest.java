@@ -9,8 +9,8 @@ import java.io.ByteArrayInputStream;
 import static java.lang.System.getProperty;
 import static no.nav.common.test.SystemProperties.setTemporaryProperty;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 
 
