@@ -13,8 +13,8 @@ import java.util.Map;
 
 import static no.nav.common.utils.NaisUtils.CONFIG_MAPS_BASE_PATH_PROPERTY_NAME;
 import static no.nav.common.utils.NaisUtils.SECRETS_BASE_PATH_PROPERTY_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class NaisUtilsTest {
 
