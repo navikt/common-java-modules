@@ -88,7 +88,7 @@ public class NorgHttp2Client implements Norg2Client {
 
     @Override
     public HealthCheckResult checkHealth() {
-        return HealthCheckUtils.pingUrl(joinPaths(norg2Url, "/internal/isAlive"), client);
+        return HealthCheckUtils.pingUrl(joinPaths(norg2Url, "/internal/health/readiness"), client);
     }
 
 }
