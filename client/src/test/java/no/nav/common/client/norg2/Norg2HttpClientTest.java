@@ -100,7 +100,7 @@ public class Norg2HttpClientTest {
         Norg2Client client = new NorgHttp2Client(baseUrl);
 
         assertTrue(client.checkHealth().isHealthy());
-        verify(getRequestedFor(urlEqualTo("/internal/isAlive")));
+        verify(getRequestedFor(urlEqualTo("/internal/health/readiness")));
     }
 
 }
