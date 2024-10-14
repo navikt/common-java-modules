@@ -229,7 +229,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                         .withLockProvider(lockProvider)
                         .withKafkaConsumerRepository(consumerRepository)
                         .withConsumerConfigs(configs)
-                        .withBackoffStrategy((r) -> Duration.ZERO)
+                        .withBackoffStrategy((r) -> Duration.ofSeconds(-1))
                         .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));

@@ -206,8 +206,10 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                         }
                     });
                 }
-
+                log.debug("ProcessedRecordsLatch.await start");
+                var awaitStart = System.currentTimeMillis();
                 processedRecordsLatch.await();
+                log.debug("ProcessedRecordsLatch.await: finished after {} ms", System.currentTimeMillis() - awaitStart);
 
                 try {
                     commitCurrentOffsets();

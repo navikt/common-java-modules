@@ -2,6 +2,7 @@ package no.nav.common.cxf.jetty;
 
 import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.function.Function;
@@ -22,9 +23,9 @@ public class ToUrl implements Function<Integer, URL> {
     public URL apply(Integer port) {
         try {
             if(System.getProperty(JETTY_PRINT_LOCALHOST) != null) {
-                return new URL(scheme + "://localhost:" + port + path);
+                return URI.create(scheme + "://localhost:" + port + path).toURL();
             }
-            return new URL(scheme + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port + path);
+            return URI.create(scheme + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port + path).toURL();
         } catch (MalformedURLException | UnknownHostException e) {
             throw new RuntimeException(e);
         }

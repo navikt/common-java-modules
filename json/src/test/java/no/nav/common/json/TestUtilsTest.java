@@ -1,7 +1,6 @@
 package no.nav.common.json;
 
 import org.assertj.core.api.ThrowableAssert;
-import org.junit.ComparisonFailure;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
