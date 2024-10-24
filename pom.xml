@@ -75,7 +75,7 @@
 
         <!-- CXF -->
         <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
-        <cxf-core.version>4.0.4</cxf-core.version>
+        <cxf-core.version>4.0.5</cxf-core.version>
         <jsoup.version>1.17.2</jsoup.version>
 
         <!-- COMMON -->
@@ -84,7 +84,7 @@
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
-        <spring.version>6.1.7</spring.version>
+        <spring.version>6.1.12</spring.version>
         <jersey.version>3.1.6</jersey.version>
         <jackson.version>2.17.1</jackson.version>
         <jackson-databind.version>2.17.1</jackson-databind.version>
@@ -98,15 +98,15 @@
         <handlebars.version>4.4.0</handlebars.version>
         <gson.version>2.11.0</gson.version>
         <caffeine.version>3.1.8</caffeine.version>
-        <bitbucket-jose4.version>0.9.3</bitbucket-jose4.version>
+        <bitbucket-jose4.version>0.9.4</bitbucket-jose4.version>
         <nimbusds.version>11.12</nimbusds.version>
         <unleash.version>4.4.1</unleash.version>
         <org.json.version>20231013</org.json.version>
-        <jetty.version>11.0.21</jetty.version>
+        <jetty.version>11.0.24</jetty.version>
 
         <!-- KAFKA -->
         <kafka.version>7.6.0-ccs</kafka.version>
-        <avro.version>1.11.3</avro.version>
+        <avro.version>1.11.4</avro.version>
         <avro-serializer.version>7.6.0</avro-serializer.version>
         <json-schema-validation.version>1.14.4</json-schema-validation.version>
 
