@@ -3,21 +3,19 @@ package no.nav.common.log;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import com.google.gson.Gson;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import lombok.SneakyThrows;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
 
 
 public class LogbackStdoutJsonTest {
@@ -32,8 +30,8 @@ public class LogbackStdoutJsonTest {
 
         Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
 
-        String skalMaskeres =   "dette er en test av maskereren 12345678910 kanskje den virker";
-        String maskert =        "dette er en test av maskereren *********** kanskje den virker";
+        String skalMaskeres = "dette er en test av maskereren 12345678910 kanskje den virker";
+        String maskert = "dette er en test av maskereren *********** kanskje den virker";
         log.info(skalMaskeres);
 
         String skalIkkeMaskeres = "denne skal ikke maskerers 123456789123456789 eller kanskje den blir det?";
@@ -41,17 +39,12 @@ public class LogbackStdoutJsonTest {
 
         flushLogs();
 
-        Gson gson = new Gson();
         String logtext = outputStream.toString();
 
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
-        Stream<String> jsonLogLingjer = hentLingjerSomStarterMedCurlyBraces(logtext);
+        var logLinjes = hentLingjerSomStarterMedCurlyBraces(logtext);
 
-        List<LogLinje> logLinjes = jsonLogLingjer
-                .map(l -> gson.fromJson(l, LogLinje.class))
-                .toList();
-
-        Assert.assertEquals("skal bare vere 2 log lingjer",2, logLinjes.size());
+        Assert.assertEquals("skal bare vere 2 log lingjer", 2, logLinjes.size());
 
         LogLinje skalVereMaskert = logLinjes.get(0);
         Assert.assertEquals(maskert, skalVereMaskert.message);
@@ -83,17 +76,12 @@ public class LogbackStdoutJsonTest {
 
         flushLogs();
 
-        Gson gson = new Gson();
         String logtext = outputStream.toString();
 
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
-        Stream<String> jsonLogLingjer = hentLingjerSomStarterMedCurlyBraces(logtext);
+        var logLinjes = hentLingjerSomStarterMedCurlyBraces(logtext);
 
-        List<LogLinje> logLinjes = jsonLogLingjer
-                .map(l -> gson.fromJson(l, LogLinje.class))
-                .toList();
-
-        Assert.assertEquals("skal være 3 loglingjer (ikke debug)",3, logLinjes.size());
+        Assert.assertEquals("skal være 3 loglingjer (ikke debug)", 3, logLinjes.size());
 
         LogLinje info = logLinjes.get(0);
         Assert.assertEquals(infoMelding, info.message);
@@ -122,10 +110,12 @@ public class LogbackStdoutJsonTest {
         System.setOut(out);
     }
 
-    private static Stream<String> hentLingjerSomStarterMedCurlyBraces(String logtext) {
-        return Arrays.stream(logtext
-                        .split("\n"))
-                .filter(l -> l.startsWith("{"));
+    private static List<LogLinje> hentLingjerSomStarterMedCurlyBraces(String logtext) {
+        Gson gson = new Gson();
+        return Arrays.stream(logtext.split("\n"))
+                .filter(l -> l.startsWith("{"))
+                .map(l -> gson.fromJson(l, LogLinje.class))
+                .toList();
     }
 
 
@@ -138,8 +128,11 @@ public class LogbackStdoutJsonTest {
 
         URL configUrl = getClass().getResource(path);
         JoranConfigurator configurator = new JoranConfigurator();
-        configurator.setContext(loggerContext);configurator.doConfigure(configUrl);
-        StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
+        configurator.setContext(loggerContext);
+        configurator.doConfigure(configUrl);
+
+        var statusPrinter = new StatusPrinter2();
+        statusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
     }
 
     @NotNull
@@ -150,7 +143,8 @@ public class LogbackStdoutJsonTest {
     }
 
     private static void flushLogs() {
-        LoggerContext loggerContext1 = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext1.stop();
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.stop();
+        loggerContext.start();
     }
 }
