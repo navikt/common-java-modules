@@ -3,7 +3,7 @@ package no.nav.common.log;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
+import ch.qos.logback.core.util.StatusPrinter2;
 import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -130,7 +130,9 @@ public class LogbackStdoutJsonTest {
         JoranConfigurator configurator = new JoranConfigurator();
         configurator.setContext(loggerContext);
         configurator.doConfigure(configUrl);
-        StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
+
+        var statusPrinter = new StatusPrinter2();
+        statusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
     }
 
     @NotNull
