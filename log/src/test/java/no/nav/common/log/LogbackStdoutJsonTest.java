@@ -10,7 +10,6 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.junit.Assert;
@@ -77,7 +76,6 @@ public class LogbackStdoutJsonTest {
 
         flushLogs();
 
-        Gson gson = new Gson();
         String logtext = outputStream.toString();
 
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
