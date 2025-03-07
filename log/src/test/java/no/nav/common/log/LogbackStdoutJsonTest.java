@@ -1,9 +1,5 @@
 package no.nav.common.log;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.codehaus.commons.nullanalysis.NotNull;
@@ -14,10 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 
 public class LogbackStdoutJsonTest {
@@ -27,31 +21,26 @@ public class LogbackStdoutJsonTest {
     public void fodselsnummerSkalMaskerer() {
         PrintStream out = System.out;
 
-        LoadLogbackConfig("/logback-test.xml");
+        LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
 
         Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
 
-        String skalMaskeres =   "dette er en test av maskereren 12345678910 kanskje den virker";
-        String maskert =        "dette er en test av maskereren *********** kanskje den virker";
+        String skalMaskeres = "dette er en test av maskereren 12345678910 kanskje den virker";
+        String maskert = "dette er en test av maskereren *********** kanskje den virker";
         log.info(skalMaskeres);
 
         String skalIkkeMaskeres = "denne skal ikke maskerers 123456789123456789 eller kanskje den blir det?";
         log.info(skalIkkeMaskeres);
 
-        flushLogs();
+        LogTestHelpers.flushLogs();
 
-        Gson gson = new Gson();
         String logtext = outputStream.toString();
 
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
-        Stream<String> jsonLogLingjer = hentLingjerSomStarterMedCurlyBraces(logtext);
+        var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
 
-        List<LogLinje> logLinjes = jsonLogLingjer
-                .map(l -> gson.fromJson(l, LogLinje.class))
-                .toList();
-
-        Assert.assertEquals("skal bare vere 2 log lingjer",2, logLinjes.size());
+        Assert.assertEquals("skal bare vere 2 log lingjer", 2, logLinjes.size());
 
         LogLinje skalVereMaskert = logLinjes.get(0);
         Assert.assertEquals(maskert, skalVereMaskert.message);
@@ -68,7 +57,7 @@ public class LogbackStdoutJsonTest {
     public void skal_logge_json_med_logbackStdoutJson() {
         PrintStream out = System.out;
 
-        LoadLogbackConfig("/logback-test.xml");
+        LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
 
         Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
@@ -81,19 +70,14 @@ public class LogbackStdoutJsonTest {
         String errorMelding = "Feilmelding";
         log.error(errorMelding);
 
-        flushLogs();
+        LogTestHelpers.flushLogs();
 
-        Gson gson = new Gson();
         String logtext = outputStream.toString();
 
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
-        Stream<String> jsonLogLingjer = hentLingjerSomStarterMedCurlyBraces(logtext);
+        var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
 
-        List<LogLinje> logLinjes = jsonLogLingjer
-                .map(l -> gson.fromJson(l, LogLinje.class))
-                .toList();
-
-        Assert.assertEquals("skal være 3 loglingjer (ikke debug)",3, logLinjes.size());
+        Assert.assertEquals("skal være 3 loglingjer (ikke debug)", 3, logLinjes.size());
 
         LogLinje info = logLinjes.get(0);
         Assert.assertEquals(infoMelding, info.message);
@@ -122,24 +106,12 @@ public class LogbackStdoutJsonTest {
         System.setOut(out);
     }
 
-    private static Stream<String> hentLingjerSomStarterMedCurlyBraces(String logtext) {
-        return Arrays.stream(logtext
-                        .split("\n"))
-                .filter(l -> l.startsWith("{"));
-    }
-
-
-    private void LoadLogbackConfig(String path) throws JoranException {
-        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext.reset();
-        loggerContext.putProperty("testName", "LogbackTest");
-        loggerContext.putProperty("logDirectory", "logs");
-        // Sett konfigurasjonsfilen for LoggerContext
-
-        URL configUrl = getClass().getResource(path);
-        JoranConfigurator configurator = new JoranConfigurator();
-        configurator.setContext(loggerContext);configurator.doConfigure(configUrl);
-        StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
+    private static List<LogLinje> hentLinjerSomStarterMedCurlyBraces(String logtext) {
+        Gson gson = new Gson();
+        return Arrays.stream(logtext.split("\n"))
+                .filter(l -> l.startsWith("{"))
+                .map(l -> gson.fromJson(l, LogLinje.class))
+                .toList();
     }
 
     @NotNull
@@ -147,10 +119,5 @@ public class LogbackStdoutJsonTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
         return outputStream;
-    }
-
-    private static void flushLogs() {
-        LoggerContext loggerContext1 = (LoggerContext) LoggerFactory.getILoggerFactory();
-        loggerContext1.stop();
     }
 }
