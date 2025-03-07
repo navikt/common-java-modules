@@ -75,7 +75,7 @@
 
         <!-- CXF -->
         <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
-        <cxf-core.version>4.0.5</cxf-core.version>
+        <cxf-core.version>4.0.6</cxf-core.version>
         <jsoup.version>1.17.2</jsoup.version>
 
         <!-- COMMON -->
@@ -84,7 +84,7 @@
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
-        <spring.version>6.1.12</spring.version>
+        <spring.version>6.1.14</spring.version>
         <jersey.version>3.1.6</jersey.version>
         <jackson.version>2.17.1</jackson.version>
         <jackson-databind.version>2.17.1</jackson-databind.version>
