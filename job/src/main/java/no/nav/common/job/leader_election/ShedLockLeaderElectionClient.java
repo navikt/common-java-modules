@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Leader election implemented with ShedLock (https://github.com/lukas-krecan/ShedLock).
+ * Leader election implemented with [ShedLock](https://github.com/lukas-krecan/ShedLock).
  * Guarantees that 0 or 1 leader is elected at any give moment.
  */
 @Slf4j
@@ -40,7 +40,7 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
     private final String hostname;
 
-    private volatile boolean hasShutDown;
+    private volatile boolean isClosed;
 
     private volatile Instant lockExpiration;
 
@@ -52,12 +52,28 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
         hostname = EnvironmentUtils.resolveHostName();
 
         scheduler.scheduleWithFixedDelay(this::keepLockAlive, 0, CHECK_LOCK_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownHook));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
     }
 
     @Override
     public boolean isLeader() {
         return hasAcquiredLock();
+    }
+
+    public void close() {
+        log.info("Closing ShedLock leader election client...");
+        isClosed = true;
+        scheduler.shutdown();
+
+        if (lock != null) {
+            try {
+                lock.unlock();
+                lock = null;
+                log.info("Leader election lock was released from {}", hostname);
+            } catch (Exception e) {
+                log.error("Caught exception when unlocking lock during shutdown hook", e);
+            }
+        }
     }
 
     private void keepLockAlive() {
@@ -108,7 +124,7 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
     }
 
     private boolean hasAcquiredLock() {
-        if (hasShutDown || lockExpiration == null) {
+        if (isClosed || lockExpiration == null) {
             return false;
         }
 
@@ -116,21 +132,4 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
         return currentTimeWithSkew.isBefore(lockExpiration);
     }
-
-    private void shutdownHook() {
-        log.info("Shutting down ShedLock leader election client...");
-
-        hasShutDown = true;
-        scheduler.shutdown();
-
-        if (lock != null) {
-            try {
-                lock.unlock();
-                log.info("Leader election lock was released from {} due to shutting down", hostname);
-            } catch (Exception e) {
-                log.error("Caught exception when unlocking lock during shutdown hook", e);
-            }
-        }
-    }
-
 }
