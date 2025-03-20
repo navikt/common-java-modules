@@ -84,36 +84,36 @@ public class KafkaProducerRecordProcessor {
         isRunning = true;
 
         try {
-           while (isRunning) {
-               try {
-                   if (!leaderElectionClient.isLeader()) {
-                       Thread.sleep(WAITING_FOR_LEADER_TIMEOUT_MS);
-                       continue;
-                   }
+            while (isRunning) {
+                try {
+                    if (!leaderElectionClient.isLeader()) {
+                        Thread.sleep(WAITING_FOR_LEADER_TIMEOUT_MS);
+                        continue;
+                    }
 
-                   List<StoredProducerRecord> records = topicWhitelist == null
-                           ? producerRepository.getRecords(RECORDS_BATCH_SIZE)
-                           : producerRepository.getRecords(RECORDS_BATCH_SIZE, topicWhitelist);
+                    List<StoredProducerRecord> records = topicWhitelist == null
+                            ? producerRepository.getRecords(RECORDS_BATCH_SIZE)
+                            : producerRepository.getRecords(RECORDS_BATCH_SIZE, topicWhitelist);
 
-                   if (!records.isEmpty()) {
-                       publishStoredRecordsBatch(records);
-                   }
+                    if (!records.isEmpty()) {
+                        publishStoredRecordsBatch(records);
+                    }
 
-                   // If the number of records are less than the max batch size,
-                   //   then most likely there are not many messages to process and we can wait a bit
-                   if (records.size() < RECORDS_BATCH_SIZE) {
-                       Thread.sleep(POLL_TIMEOUT_MS);
-                   }
-               } catch (Exception e) {
-                   log.error("Failed to process kafka producer records", e);
-                   Thread.sleep(ERROR_TIMEOUT_MS);
-               }
-           }
-       } catch (Exception e) {
-           log.error("Unexpected exception caught in producer record handler loop", e);
-       } finally {
-           producerClient.close();
-       }
+                    // If the number of records are less than the max batch size,
+                    //   then most likely there are not many messages to process and we can wait a bit
+                    if (records.size() < RECORDS_BATCH_SIZE) {
+                        Thread.sleep(POLL_TIMEOUT_MS);
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to process kafka producer records", e);
+                    Thread.sleep(ERROR_TIMEOUT_MS);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unexpected exception caught in producer record handler loop", e);
+        } finally {
+            producerClient.close();
+        }
     }
 
     private void publishStoredRecordsBatch(List<StoredProducerRecord> records) throws InterruptedException {
