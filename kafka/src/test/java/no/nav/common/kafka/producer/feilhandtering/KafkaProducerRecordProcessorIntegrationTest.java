@@ -5,6 +5,7 @@ import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
 import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
+import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder;
 import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
 import no.nav.common.kafka.utils.DbUtils;
 import no.nav.common.kafka.utils.LocalOracleH2Database;
@@ -107,12 +108,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "key1", "value1"));
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "key2", "value2"));
 
-        var producer = new KafkaProducerClientImpl<byte[], byte[]>(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
-        var recordProcessor = new KafkaProducerRecordProcessor(
-                producerRepository,
-                producer,
-                () -> true
-        );
+        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+                .withProducerRepository(producerRepository)
+                .withLeaderElectionClient(() -> true)
+                .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
+                .build();
 
         recordProcessor.start();
         consumerClient.start();
@@ -139,11 +139,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             }
         });
 
-        var recordProcessor = new KafkaProducerRecordProcessor(
-                producerRepository,
-                producerClient,
-                () -> true
-        );
+        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+                .withProducerRepository(producerRepository)
+                .withLeaderElectionClient(() -> true)
+                .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
+                .build();
 
         recordProcessor.start();
         consumerClient.start();
@@ -177,11 +177,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             }
         });
 
-        var recordProcessor = new KafkaProducerRecordProcessor(
-                producerRepository,
-                new QueuedKafkaProducerRecordPublisher(producerClient),
-                () -> true
-        );
+        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+                .withProducerRepository(producerRepository)
+                .withLeaderElectionClient(() -> true)
+                .withRecordPublisher(new QueuedKafkaProducerRecordPublisher(producerClient))
+                .build();
 
         recordProcessor.start();
         consumerClient.start();
@@ -209,12 +209,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     public void should_not_send_records_to_kafka_stored_in_a_transaction_that_gets_rolled_back() throws InterruptedException {
         TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
 
-        var producer = new KafkaProducerClientImpl<byte[], byte[]>(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
-        var recordProcessor = new KafkaProducerRecordProcessor(
-                producerRepository,
-                producer,
-                () -> true
-        );
+        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+                .withProducerRepository(producerRepository)
+                .withLeaderElectionClient(() -> true)
+                .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
+                .build();
 
         consumerClient.start();
         recordProcessor.start();
