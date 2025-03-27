@@ -13,6 +13,7 @@ public class KafkaProducerRecordProcessorBuilder {
     public static final long DEFAULT_POLL_TIMEOUT_MS = 3000;
     public static final long DEFAULT_WAITING_FOR_LEADER_TIMEOUT_MS = 10_000;
     public static final int DEFAULT_RECORDS_BATCH_SIZE = 100;
+    public static final boolean DEFAULT_REGISTER_SHUTDOWN_HOOK = true;
 
     private KafkaProducerRepository producerRepository;
     private KafkaProducerRecordPublisher kafkaProducerRecordPublisher;
@@ -23,6 +24,7 @@ public class KafkaProducerRecordProcessorBuilder {
     private long pollTimeoutMs = DEFAULT_POLL_TIMEOUT_MS;
     private long waitingForLeaderTimeoutMs = DEFAULT_WAITING_FOR_LEADER_TIMEOUT_MS;
     private int recordsBatchSize = DEFAULT_RECORDS_BATCH_SIZE;
+    private boolean registerShutdownHook = DEFAULT_REGISTER_SHUTDOWN_HOOK;
 
     private KafkaProducerRecordProcessorBuilder() {
     }
@@ -71,6 +73,11 @@ public class KafkaProducerRecordProcessorBuilder {
         return this;
     }
 
+    public KafkaProducerRecordProcessorBuilder withShutdownHookEnabled(boolean registerShutdownHook) {
+        this.registerShutdownHook = registerShutdownHook;
+        return this;
+    }
+
     public KafkaProducerRecordProcessor build() {
         if (producerRepository == null) {
             throw new IllegalStateException("Cannot build kafka producer record processor without producerRepository");
@@ -89,6 +96,7 @@ public class KafkaProducerRecordProcessorBuilder {
                 pollTimeoutMs,
                 waitingForLeaderTimeoutMs,
                 recordsBatchSize,
+                registerShutdownHook,
                 producerRepository,
                 kafkaProducerRecordPublisher,
                 leaderElectionClient,
