@@ -38,6 +38,10 @@ import static org.junit.Assert.assertTrue;
 
 public class KafkaProducerRecordProcessorIntegrationTest {
 
+    private final static long POLL_TIMEOUT = 100;
+
+    private final static long WAIT_TIMEOUT = 500;
+
     private final static String TEST_TOPIC_A = "test-topic-a";
 
     private final static String TEST_TOPIC_B = "test-topic-b";
@@ -111,6 +115,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
+                .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
 
         recordProcessor.start();
@@ -142,11 +147,12 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
+                .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
 
         recordProcessor.start();
         consumerClient.start();
-        await().atMost(Duration.ofSeconds(10)).until(() -> sentOnTopicB.size() == 2);
+        await().atMost(Duration.ofSeconds(5)).until(() -> sentOnTopicB.size() == 2);
         recordProcessor.close();
         consumerClient.stop();
 
@@ -180,13 +186,14 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new QueuedKafkaProducerRecordPublisher(producerClient))
+                .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
 
         recordProcessor.start();
         consumerClient.start();
 
         // Wait for all messages to be consumed
-        Thread.sleep(4000);
+        Thread.sleep(WAIT_TIMEOUT);
 
         recordProcessor.close();
         consumerClient.stop();
@@ -212,6 +219,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
+                .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
 
         consumerClient.start();
@@ -220,13 +228,13 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         transactionTemplate.execute(status -> {
             producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "value1", "key1"));
             try {
-                Thread.sleep(4000);
+                Thread.sleep(WAIT_TIMEOUT);
             } catch (InterruptedException ignored) {
             }
             status.setRollbackOnly();
             return null;
         });
-        Thread.sleep(4000);
+        Thread.sleep(WAIT_TIMEOUT);
 
         recordProcessor.close();
         consumerClient.stop();
