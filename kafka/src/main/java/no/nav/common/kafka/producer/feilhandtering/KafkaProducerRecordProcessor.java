@@ -2,6 +2,7 @@ package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.producer.KafkaProducerClient;
+import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,37 +13,35 @@ import java.util.concurrent.Executors;
 
 public class KafkaProducerRecordProcessor {
 
-    private final static long ERROR_TIMEOUT_MS = 5000;
-
-    private final static long POLL_TIMEOUT_MS = 3000;
-
-    private final static long WAITING_FOR_LEADER_TIMEOUT_MS = 10_000;
-
-    private final static int RECORDS_BATCH_SIZE = 100;
-
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
+    private final long errorTimeoutMs;
+    private final long pollTimeoutMs;
+    private final long waitingForLeaderTimeoutMs;
+    private final int recordsBatchSize;
     private final KafkaProducerRepository producerRepository;
-
     private final KafkaProducerRecordPublisher kafkaProducerRecordPublisher;
-
     private final LeaderElectionClient leaderElectionClient;
-
     // If the list is not null then it will be used to filter which records will be sent to Kafka
     private final List<String> topicWhitelist;
 
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private volatile boolean isRunning;
-
     private volatile boolean isClosed;
 
     public KafkaProducerRecordProcessor(
+            long errorTimeoutMs,
+            long pollTimeoutMs,
+            long waitingForLeaderTimeoutMs,
+            int recordsBatchSize,
             KafkaProducerRepository producerRepository,
             KafkaProducerRecordPublisher kafkaProducerRecordPublisher,
             LeaderElectionClient leaderElectionClient,
             List<String> topicWhitelist
     ) {
+        this.errorTimeoutMs = errorTimeoutMs;
+        this.pollTimeoutMs = pollTimeoutMs;
+        this.waitingForLeaderTimeoutMs = waitingForLeaderTimeoutMs;
+        this.recordsBatchSize = recordsBatchSize;
         this.producerRepository = producerRepository;
         this.kafkaProducerRecordPublisher = kafkaProducerRecordPublisher;
         this.leaderElectionClient = leaderElectionClient;
@@ -57,7 +56,16 @@ public class KafkaProducerRecordProcessor {
             LeaderElectionClient leaderElectionClient,
             List<String> topicWhitelist
     ) {
-        this(producerRepository, new BatchedKafkaProducerRecordPublisher(producerClient), leaderElectionClient, topicWhitelist);
+        this(
+                KafkaProducerRecordProcessorBuilder.DEFAULT_ERROR_TIMEOUT_MS,
+                KafkaProducerRecordProcessorBuilder.DEFAULT_POLL_TIMEOUT_MS,
+                KafkaProducerRecordProcessorBuilder.DEFAULT_WAITING_FOR_LEADER_TIMEOUT_MS,
+                KafkaProducerRecordProcessorBuilder.DEFAULT_RECORDS_BATCH_SIZE,
+                producerRepository,
+                new BatchedKafkaProducerRecordPublisher(producerClient),
+                leaderElectionClient,
+                topicWhitelist
+        );
     }
 
     public KafkaProducerRecordProcessor(
@@ -66,14 +74,6 @@ public class KafkaProducerRecordProcessor {
             LeaderElectionClient leaderElectionClient
     ) {
         this(producerRepository, producerClient, leaderElectionClient, null);
-    }
-
-    public KafkaProducerRecordProcessor(
-            KafkaProducerRepository producerRepository,
-            KafkaProducerRecordPublisher kafkaProducerRecordPublisher,
-            LeaderElectionClient leaderElectionClient
-    ) {
-        this(producerRepository, kafkaProducerRecordPublisher, leaderElectionClient, null);
     }
 
     public void start() {
@@ -99,13 +99,13 @@ public class KafkaProducerRecordProcessor {
             while (isRunning) {
                 try {
                     if (!leaderElectionClient.isLeader()) {
-                        Thread.sleep(WAITING_FOR_LEADER_TIMEOUT_MS);
+                        Thread.sleep(waitingForLeaderTimeoutMs);
                         continue;
                     }
 
                     List<StoredProducerRecord> records = topicWhitelist == null
-                            ? producerRepository.getRecords(RECORDS_BATCH_SIZE)
-                            : producerRepository.getRecords(RECORDS_BATCH_SIZE, topicWhitelist);
+                            ? producerRepository.getRecords(recordsBatchSize)
+                            : producerRepository.getRecords(recordsBatchSize, topicWhitelist);
 
                     if (!records.isEmpty()) {
                         publishStoredRecords(records);
@@ -113,12 +113,12 @@ public class KafkaProducerRecordProcessor {
 
                     // If the number of records are less than the max batch size,
                     //   then most likely there are not many messages to process and we can wait a bit
-                    if (records.size() < RECORDS_BATCH_SIZE) {
-                        Thread.sleep(POLL_TIMEOUT_MS);
+                    if (records.size() < recordsBatchSize) {
+                        Thread.sleep(pollTimeoutMs);
                     }
                 } catch (Exception e) {
                     log.error("Failed to process kafka producer records", e);
-                    Thread.sleep(ERROR_TIMEOUT_MS);
+                    Thread.sleep(errorTimeoutMs);
                 }
             }
         } catch (Exception e) {
