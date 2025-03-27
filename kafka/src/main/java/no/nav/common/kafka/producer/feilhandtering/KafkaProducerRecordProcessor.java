@@ -2,18 +2,13 @@ package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.producer.KafkaProducerClient;
-import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static java.lang.String.format;
 
 public class KafkaProducerRecordProcessor {
 
@@ -31,7 +26,7 @@ public class KafkaProducerRecordProcessor {
 
     private final KafkaProducerRepository producerRepository;
 
-    private final KafkaProducerClient<byte[], byte[]> producerClient;
+    private final KafkaProducerRecordPublisher kafkaProducerRecordPublisher;
 
     private final LeaderElectionClient leaderElectionClient;
 
@@ -44,12 +39,12 @@ public class KafkaProducerRecordProcessor {
 
     public KafkaProducerRecordProcessor(
             KafkaProducerRepository producerRepository,
-            KafkaProducerClient<byte[], byte[]> producerClient,
+            KafkaProducerRecordPublisher kafkaProducerRecordPublisher,
             LeaderElectionClient leaderElectionClient,
             List<String> topicWhitelist
     ) {
         this.producerRepository = producerRepository;
-        this.producerClient = producerClient;
+        this.kafkaProducerRecordPublisher = kafkaProducerRecordPublisher;
         this.leaderElectionClient = leaderElectionClient;
         this.topicWhitelist = topicWhitelist;
 
@@ -59,9 +54,26 @@ public class KafkaProducerRecordProcessor {
     public KafkaProducerRecordProcessor(
             KafkaProducerRepository producerRepository,
             KafkaProducerClient<byte[], byte[]> producerClient,
+            LeaderElectionClient leaderElectionClient,
+            List<String> topicWhitelist
+    ) {
+        this(producerRepository, new BatchedKafkaProducerRecordPublisher(producerClient), leaderElectionClient, topicWhitelist);
+    }
+
+    public KafkaProducerRecordProcessor(
+            KafkaProducerRepository producerRepository,
+            KafkaProducerClient<byte[], byte[]> producerClient,
             LeaderElectionClient leaderElectionClient
     ) {
         this(producerRepository, producerClient, leaderElectionClient, null);
+    }
+
+    public KafkaProducerRecordProcessor(
+            KafkaProducerRepository producerRepository,
+            KafkaProducerRecordPublisher kafkaProducerRecordPublisher,
+            LeaderElectionClient leaderElectionClient
+    ) {
+        this(producerRepository, kafkaProducerRecordPublisher, leaderElectionClient, null);
     }
 
     public void start() {
@@ -96,7 +108,7 @@ public class KafkaProducerRecordProcessor {
                             : producerRepository.getRecords(RECORDS_BATCH_SIZE, topicWhitelist);
 
                     if (!records.isEmpty()) {
-                        publishStoredRecordsBatch(records);
+                        publishStoredRecords(records);
                     }
 
                     // If the number of records are less than the max batch size,
@@ -112,39 +124,16 @@ public class KafkaProducerRecordProcessor {
         } catch (Exception e) {
             log.error("Unexpected exception caught in producer record handler loop", e);
         } finally {
-            producerClient.close();
+            try {
+                kafkaProducerRecordPublisher.close();
+            } catch (IOException e) {
+                log.error("Failed to close kafka producer record publisher", e);
+            }
         }
     }
 
-    private void publishStoredRecordsBatch(List<StoredProducerRecord> records) throws InterruptedException {
-        /* TODO
-            Sending batches could also be done in a transaction.
-            This would make the batches idempotent, and only produce 1 message once.
-            It would also ensure that all messages are sent atomically and that all messages are either sent or not sent.
-        */
-
-        ConcurrentLinkedQueue<Long> idsToDelete = new ConcurrentLinkedQueue<>();
-
-        CountDownLatch latch = new CountDownLatch(records.size());
-
-        records.forEach(record -> {
-            producerClient.send(ProducerUtils.mapFromStoredRecord(record), (metadata, exception) -> {
-                latch.countDown();
-
-                if (exception != null) {
-                    log.warn(format("Failed to resend failed record to topic %s", record.getTopic()), exception);
-                } else {
-                    idsToDelete.add(record.getId());
-                }
-            });
-        });
-
-        producerClient.getProducer().flush();
-
-        latch.await();
-
-        producerRepository.deleteRecords(new ArrayList<>(idsToDelete));
-
+    private void publishStoredRecords(List<StoredProducerRecord> records) {
+        var idsToDelete = kafkaProducerRecordPublisher.publishStoredRecords(records);
+        producerRepository.deleteRecords(idsToDelete);
     }
-
 }
