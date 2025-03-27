@@ -31,6 +31,7 @@ public class KafkaProducerRecordProcessor {
             long pollTimeoutMs,
             long waitingForLeaderTimeoutMs,
             int recordsBatchSize,
+            boolean registerShutdownHook,
             KafkaProducerRepository producerRepository,
             KafkaProducerRecordPublisher kafkaProducerRecordPublisher,
             LeaderElectionClient leaderElectionClient,
@@ -45,7 +46,9 @@ public class KafkaProducerRecordProcessor {
         this.leaderElectionClient = leaderElectionClient;
         this.topicWhitelist = topicWhitelist;
 
-        Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+        if (registerShutdownHook) {
+            Runtime.getRuntime().addShutdownHook(new Thread(this::close));
+        }
     }
 
     public void start() {
