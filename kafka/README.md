@@ -212,13 +212,19 @@ producerRecordStorage.store(ProducerUtils.toProducerRecord("topic", "key", "valu
 I tillegg så trengs det å settes opp en record processor for å publisere de lagrede meldingene.
 
 ```java
-KafkaProducerClient<byte[], byte[]> producerClient = KafkaProducerClientBuilder.<byte[], byte[]>builder()
-           .withProps(KafkaPropertiesPreset.aivenByteProducerProperties("<your-app>"))
-           .build();
+var producerClient = KafkaProducerClientBuilder.<byte[], byte[]>builder()
+        .withProperties(KafkaPropertiesPreset.aivenByteProducerProperties("my-producer"))
+        .build();
 
-LeaderElectionClient leaderElectionClient = new LeaderElectionHttpClient();
+var recordPublisher = new BatchedKafkaProducerRecordPublisher(producerClient);
 
-KafkaProducerRecordProcessor producerRecordProcessor = new KafkaProducerRecordProcessor(producerRepository, producerClient, leaderElectionClient);
+var leaderElectionClient = new LeaderElectionHttpClient();
+
+KafkaProducerRecordProcessor producerRecordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+        .withProducerRepository(producerRepository)
+        .withRecordPublisher(recordPublisher)
+        .withLeaderElectionClient(leaderElectionClient)
+        .build();
 
 producerRecordProcessor.start(); // Will periodically send stored messages
 ```
