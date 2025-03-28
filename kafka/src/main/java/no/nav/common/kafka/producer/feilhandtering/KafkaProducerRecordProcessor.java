@@ -1,6 +1,7 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
+import no.nav.common.kafka.producer.feilhandtering.publisher.KafkaProducerRecordPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

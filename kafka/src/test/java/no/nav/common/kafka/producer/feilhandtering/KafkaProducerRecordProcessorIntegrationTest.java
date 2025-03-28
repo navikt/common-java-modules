@@ -4,6 +4,8 @@ import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
 import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
+import no.nav.common.kafka.producer.feilhandtering.publisher.BatchedKafkaProducerRecordPublisher;
+import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducerRecordPublisher;
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder;
 import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
 import no.nav.common.kafka.utils.DbUtils;

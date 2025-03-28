@@ -2,7 +2,7 @@ package no.nav.common.kafka.producer.feilhandtering.util;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor;
-import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordPublisher;
+import no.nav.common.kafka.producer.feilhandtering.publisher.KafkaProducerRecordPublisher;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
 
 import java.util.List;

@@ -1,4 +1,6 @@
-package no.nav.common.kafka.producer.feilhandtering;
+package no.nav.common.kafka.producer.feilhandtering.publisher;
+
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 
 import java.io.Closeable;
 import java.util.List;
