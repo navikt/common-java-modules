@@ -1,6 +1,7 @@
-package no.nav.common.kafka.producer.feilhandtering;
+package no.nav.common.kafka.producer.feilhandtering.publisher;
 
 import no.nav.common.kafka.producer.KafkaProducerClient;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +11,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
-import static java.lang.String.format;
-
-class BatchedKafkaProducerRecordPublisher implements KafkaProducerRecordPublisher {
+public class BatchedKafkaProducerRecordPublisher implements KafkaProducerRecordPublisher {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 

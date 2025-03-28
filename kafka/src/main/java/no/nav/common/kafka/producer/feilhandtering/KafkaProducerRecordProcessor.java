@@ -2,6 +2,8 @@ package no.nav.common.kafka.producer.feilhandtering;
 
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.producer.KafkaProducerClient;
+import no.nav.common.kafka.producer.feilhandtering.publisher.BatchedKafkaProducerRecordPublisher;
+import no.nav.common.kafka.producer.feilhandtering.publisher.KafkaProducerRecordPublisher;
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
