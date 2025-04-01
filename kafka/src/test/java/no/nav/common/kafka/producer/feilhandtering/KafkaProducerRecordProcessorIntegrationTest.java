@@ -40,13 +40,13 @@ import static org.junit.Assert.assertTrue;
 
 public class KafkaProducerRecordProcessorIntegrationTest {
 
-    private final static long POLL_TIMEOUT = 100;
+    private static final long POLL_TIMEOUT = 100;
 
-    private final static long WAIT_TIMEOUT = 500;
+    private static final long WAIT_TIMEOUT = 500;
 
-    private final static String TEST_TOPIC_A = "test-topic-a";
+    private static final String TEST_TOPIC_A = "test-topic-a";
 
-    private final static String TEST_TOPIC_B = "test-topic-b";
+    private static final String TEST_TOPIC_B = "test-topic-b";
 
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
@@ -84,11 +84,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(
-                        TEST_TOPIC_A, (r) -> {
+                        TEST_TOPIC_A, r -> {
                             sentOnTopicA.add(r.value());
                             return ConsumeStatus.OK;
                         },
-                        TEST_TOPIC_B, (r) -> {
+                        TEST_TOPIC_B, r -> {
                             sentOnTopicB.add(r.value());
                             return ConsumeStatus.OK;
                         }
@@ -138,8 +138,8 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-2", "b-2"));
 
         // Simulate a producer that fails on the second message to TOPIC_A
-        producerClient.setOnSend((record) -> {
-            String value = new String(record.value(), StandardCharsets.UTF_8);
+        producerClient.setOnSend(producerRecord -> {
+            String value = new String(producerRecord.value(), StandardCharsets.UTF_8);
             if (value.equals("a-2")) {
                 throw new RuntimeException("Simulated error");
             }
@@ -168,6 +168,45 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     }
 
     @Test
+    public void legacy_constructor_uses_batch_processor() {
+        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-1", "a-1"));
+        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-2", "a-2"));
+        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-3", "a-3"));
+        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-1", "b-1"));
+        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-2", "b-2"));
+
+        // Simulate a producer that fails on the second message to TOPIC_A
+        producerClient.setOnSend(producerRecord -> {
+            String value = new String(producerRecord.value(), StandardCharsets.UTF_8);
+            if (value.equals("a-2")) {
+                throw new RuntimeException("Simulated error");
+            }
+        });
+
+        var recordProcessor = new KafkaProducerRecordProcessor(
+                producerRepository,
+                producerClient,
+                () -> true,
+                null
+        );
+
+        recordProcessor.start();
+        consumerClient.start();
+        await().atMost(Duration.ofSeconds(5)).until(() -> sentOnTopicB.size() == 2);
+        recordProcessor.close();
+        consumerClient.stop();
+
+        // We expect most of the messages to have been sent
+        assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
+        assertEquals(Set.of("b-1", "b-2"), Set.copyOf(sentOnTopicB));
+
+        // But the batch of messages is still available in the repository since of the messages failed
+        List<StoredProducerRecord> records = producerRepository.getRecords(10);
+        assertEquals(5, records.size());
+    }
+
+
+    @Test
     public void should_send_records_in_the_stored_record_order_from_the_producer_record_repository() throws InterruptedException {
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-1", "a-1"));
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-1", "b-1"));
@@ -177,8 +216,8 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-3", "b-3"));
 
         // Simulate a producer that fails on the second message to TOPIC_B
-        producerClient.setOnSend((record) -> {
-            String value = new String(record.value(), StandardCharsets.UTF_8);
+        producerClient.setOnSend(producerRecord -> {
+            String value = new String(producerRecord.value(), StandardCharsets.UTF_8);
             if (value.equals("b-2")) {
                 throw new RuntimeException("Simulated error");
             }
