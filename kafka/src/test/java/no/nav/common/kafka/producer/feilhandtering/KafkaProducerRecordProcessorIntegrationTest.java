@@ -186,8 +186,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         var recordProcessor = new KafkaProducerRecordProcessor(
                 producerRepository,
                 producerClient,
-                () -> true,
-                null
+                () -> true
         );
 
         recordProcessor.start();
