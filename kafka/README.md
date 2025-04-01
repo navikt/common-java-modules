@@ -200,25 +200,29 @@ Eksempler ligger nedenfor:
 ```java
 KafkaProducerRepository producerRepository = new OracleJdbcTemplateProducerRepository(jdbcTemplate);
 
-KafkaProducerRecordStorage<String, String> producerRecordStorage = new KafkaProducerRecordStorage<>(
-        producerRepository,
-        new StringSerializer(),
-        new StringSerializer()
-);
+KafkaProducerRecordStorage producerRecordStorage = new KafkaProducerRecordStorage(producerRepository);
 
-producerRecordStorage.store(ProducerUtils.toProducerRecord("topic", "key", "value")); // Store a record in the database
+ProducerRecord<String, String> record = ProducerUtils.toProducerRecord("topic", "key", "value");
+
+producerRecordStorage.store(ProducerUtils.serializeStringRecord(record)); // Store a record in the database
 ```
 
 I tillegg så trengs det å settes opp en record processor for å publisere de lagrede meldingene.
 
 ```java
 KafkaProducerClient<byte[], byte[]> producerClient = KafkaProducerClientBuilder.<byte[], byte[]>builder()
-           .withProps(KafkaPropertiesPreset.aivenByteProducerProperties("<your-app>"))
-           .build();
+        .withProperties(KafkaPropertiesPreset.aivenByteProducerProperties("<your-app>"))
+        .build();
+
+KafkaProducerRecordPublisher recordPublisher = new BatchedKafkaProducerRecordPublisher(producerClient);
 
 LeaderElectionClient leaderElectionClient = new LeaderElectionHttpClient();
 
-KafkaProducerRecordProcessor producerRecordProcessor = new KafkaProducerRecordProcessor(producerRepository, producerClient, leaderElectionClient);
+KafkaProducerRecordProcessor producerRecordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+        .withProducerRepository(producerRepository)
+        .withRecordPublisher(recordPublisher)
+        .withLeaderElectionClient(leaderElectionClient)
+        .build();
 
 producerRecordProcessor.start(); // Will periodically send stored messages
 ```
