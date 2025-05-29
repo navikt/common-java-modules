@@ -13,11 +13,11 @@ import org.apache.kafka.common.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -94,9 +94,15 @@ public class ConsumerUtils {
     }
 
     public static Map<String, TopicConsumer<byte[], byte[]>> createTopicConsumers(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
-        Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
-        topicConsumerConfigs.forEach(config -> consumers.put(config.getTopic(), createTopicConsumer(config)));
-        return consumers;
+        Collector<TopicConsumerConfig<?, ?>, ?, TopicConsumer<byte[], byte[]>> aggregateByTopicCollector = Collectors.mapping(
+                ConsumerUtils::createTopicConsumer,
+                Collectors.collectingAndThen(
+                        Collectors.toList(),
+                        consumers -> consumers.size() == 1 ? consumers.getFirst() : aggregateConsumer(consumers)
+                )
+        );
+        return topicConsumerConfigs.stream()
+                .collect(Collectors.groupingBy(TopicConsumerConfig::getTopic, aggregateByTopicCollector));
     }
 
     public static <K, V> TopicConsumer<byte[], byte[]> createTopicConsumer(TopicConsumerConfig<K, V> config) {
