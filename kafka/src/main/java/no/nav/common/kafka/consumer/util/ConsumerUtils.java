@@ -54,23 +54,20 @@ public class ConsumerUtils {
 
     public static ConsumerRecord<byte[], byte[]> mapFromStoredRecord(StoredConsumerRecord record) {
         Headers headers = KafkaUtils.jsonToHeaders(record.getHeadersJson());
-
-        ConsumerRecord<byte[], byte[]> consumerRecord = new ConsumerRecord<>(
+        Optional<Integer> leaderEpoch = Optional.empty();
+        return new ConsumerRecord<>(
                 record.getTopic(),
                 record.getPartition(),
                 record.getOffset(),
                 record.getTimestamp(),
                 TimestampType.CREATE_TIME,
-                ConsumerRecord.NULL_CHECKSUM,
                 ConsumerRecord.NULL_SIZE,
                 ConsumerRecord.NULL_SIZE,
                 record.getKey(),
-                record.getValue()
+                record.getValue(),
+                headers,
+                leaderEpoch
         );
-
-        headers.forEach(header -> consumerRecord.headers().add(header));
-
-        return consumerRecord;
     }
 
     public static <K, V> ConsumerRecord<K, V> deserializeConsumerRecord(
@@ -94,20 +91,6 @@ public class ConsumerUtils {
                 record.headers(),
                 record.leaderEpoch()
         );
-/*
-        return new ConsumerRecord<>(
-                record.topic(),
-                record.partition(),
-                record.offset(),
-                record.timestamp(),
-                record.timestampType(),
-                ConsumerRecord.NULL_CHECKSUM,
-                ConsumerRecord.NULL_SIZE,
-                ConsumerRecord.NULL_SIZE,
-                key,
-                value
-        );
-*/
     }
 
     public static Map<String, TopicConsumer<byte[], byte[]>> createTopicConsumers(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
