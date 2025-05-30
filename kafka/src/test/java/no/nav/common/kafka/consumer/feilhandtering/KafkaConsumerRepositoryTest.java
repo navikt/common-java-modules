@@ -9,6 +9,7 @@ import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.awaitility.Awaitility;
@@ -25,7 +26,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
@@ -110,19 +111,21 @@ public class KafkaConsumerRepositoryTest {
     @Test
     public void should_retrieve_record() {
         long now = System.currentTimeMillis();
+        var headers = new RecordHeaders().add(new RecordHeader("header1", "test".getBytes()));
+        Optional<Integer> leaderEpoch = Optional.empty();
         ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>(
                 "topic1",
                 1,
                 2,
                 now,
                 TimestampType.CREATE_TIME,
-                ConsumerRecord.NULL_CHECKSUM,
                 ConsumerRecord.NULL_SIZE,
                 ConsumerRecord.NULL_SIZE,
                 "key",
-                "value"
+                "value",
+                headers,
+                leaderEpoch
         );
-        consumerRecord.headers().add(new RecordHeader("header1", "test".getBytes()));
 
         kafkaConsumerRepository.storeRecord(mapRecord(consumerRecord));
 
@@ -158,7 +161,7 @@ public class KafkaConsumerRepositoryTest {
         List<StoredConsumerRecord> sortedRecords = records
                 .stream()
                 .sorted((r1, r2) -> (int) (r1.getOffset() - r2.getOffset())) // Sort offset ascending
-                .collect(Collectors.toList());
+                .toList();
 
         for (int i = 0; i < records.size(); i++) {
             assertEquals(records.get(i), sortedRecords.get(i));

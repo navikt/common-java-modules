@@ -43,8 +43,8 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     @ClassRule
     public static final PostgreSQLContainer<?> postgreSQLContainer =
             new PostgreSQLContainer<>("postgres:12-alpine")
-                .withInitScript("kafka-consumer-record-postgres.sql")
-                .waitingFor(new HostPortWaitStrategy());
+                    .withInitScript("kafka-consumer-record-postgres.sql")
+                    .waitingFor(new HostPortWaitStrategy());
 
     @Before
     public void setup() {
@@ -85,13 +85,11 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 )
         );
 
-        KafkaConsumerRecordProcessor consumerRecordProcessor =
-                KafkaConsumerRecordProcessorBuilder
-                        .builder()
-                        .withLockProvider(lockProvider)
-                        .withKafkaConsumerRepository(consumerRepository)
-                        .withConsumerConfigs(configs)
-                        .build();
+        KafkaConsumerRecordProcessor consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 2, 1, "key2", "value"));
@@ -101,12 +99,58 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_B, 1, 2, "key2", "value"));
 
         consumerRecordProcessor.start();
-        await().atMost(Duration.ofSeconds(5)).until( () -> counterTopicA.get() == 3 && counterTopicB.get() ==2);
+        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicA.get() == 3 && counterTopicB.get() == 2);
         consumerRecordProcessor.stop();
 
         assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
         assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
         assertTrue(consumerRepository.getRecords(TEST_TOPIC_B, 1, 5).isEmpty());
+    }
+
+    @Test
+    public void should_support_multiple_consumers_for_the_same_topic() {
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
+
+        AtomicInteger counterConsumer1 = new AtomicInteger();
+        AtomicInteger counterConsumer2 = new AtomicInteger();
+
+        List<TopicConsumerConfig<?, ?>> configs = List.of(
+                new TopicConsumerConfig<>(
+                        TEST_TOPIC_A,
+                        stringDeserializer(),
+                        stringDeserializer(),
+                        (record) -> {
+                            counterConsumer1.incrementAndGet();
+                            return ConsumeStatus.OK;
+                        }
+                ),
+                new TopicConsumerConfig<>(
+                        TEST_TOPIC_A,
+                        stringDeserializer(),
+                        stringDeserializer(),
+                        (record) -> {
+                            counterConsumer2.incrementAndGet();
+                            return ConsumeStatus.OK;
+                        }
+                )
+        );
+
+        KafkaConsumerRecordProcessor consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .build();
+
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value1"));
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 2, 1, "key2", "value2"));
+        consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 2, "key1", "value3"));
+
+        consumerRecordProcessor.start();
+        await().atMost(Duration.ofSeconds(5)).until(() -> counterConsumer1.get() == 3 && counterConsumer2.get() == 3);
+        consumerRecordProcessor.stop();
+
+        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
+        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
     }
 
     @Test
