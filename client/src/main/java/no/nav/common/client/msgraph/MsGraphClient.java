@@ -2,6 +2,8 @@ package no.nav.common.client.msgraph;
 
 import no.nav.common.health.HealthCheck;
 
+import java.util.List;
+
 /**
  * Klient som henter ut data fra Microsoft til Graph API.
  * Se https://docs.microsoft.com/en-us/graph/overview for mer informasjon.
@@ -16,6 +18,8 @@ public interface MsGraphClient extends HealthCheck {
      * @return Informasjon om brukeren
      */
     UserData hentUserData(String userAccessToken);
+
+    List<UserData> hentUserDataForGroup(String userAccessToken, String groupId);
 
     /**
      * Henter OnPremisesSamAccountName til brukeren.
