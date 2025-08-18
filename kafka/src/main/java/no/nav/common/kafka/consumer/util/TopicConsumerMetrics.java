@@ -49,7 +49,7 @@ public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
 
             consumedOffsetMap.put(offsetMapKey, record.offset());
 
-            consumedOffsetGaugeMap.computeIfAbsent(statusMapKey, (k) ->
+            consumedOffsetGaugeMap.computeIfAbsent(offsetMapKey, (k) ->
                     Gauge.builder(KAFKA_CONSUMER_CONSUMED_OFFSET_GAUGE, () -> {
                         Long offset = consumedOffsetMap.get(offsetMapKey);
                         return offset != null ? offset : 0;
