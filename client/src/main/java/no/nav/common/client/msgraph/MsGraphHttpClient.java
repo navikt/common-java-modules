@@ -11,6 +11,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +64,6 @@ public class MsGraphHttpClient implements MsGraphClient {
         }
     }
 
-    @SneakyThrows
     @Override
     public List<UserData> hentUserDataForGroup(String userAccessToken, String groupId) {
         Request request = createUsersRequest(userAccessToken, groupId);
@@ -74,12 +74,10 @@ public class MsGraphHttpClient implements MsGraphClient {
                 return Collections.emptyList();
             }
 
-            // Parse the JSON response
             String responseBody = response.body().string();
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(responseBody);
 
-            // Extract the "value" array and deserialize it to List<UserData>
             JsonNode valueNode = rootNode.get("value");
             if (valueNode == null || !valueNode.isArray()) {
                 log.warn("Missing or invalid 'value' array in response");
@@ -88,8 +86,12 @@ public class MsGraphHttpClient implements MsGraphClient {
 
             return mapper.readValue(valueNode.toString(),
                     mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
+        } catch (IOException e) {
+            log.error("Feil ved henting av brukerdata for gruppe {}: {}", groupId, e.getMessage(), e);
         }
+        return Collections.emptyList();
     }
+
 
     private Request createMeRequest(String userAccessToken, List<String> fields) {
         return new Request.Builder()
