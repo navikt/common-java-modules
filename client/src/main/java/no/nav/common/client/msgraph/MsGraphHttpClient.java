@@ -21,14 +21,7 @@ import static no.nav.common.utils.UrlUtils.joinPaths;
 @Slf4j
 public class MsGraphHttpClient implements MsGraphClient {
 
-    private final static List<String> USER_DATA_FIELDS = List.of(
-            "givenName",
-            "surname",
-            "displayName",
-            "mail",
-            "onPremisesSamAccountName",
-            "id"
-    );
+    private final static List<String> USER_DATA_FIELDS = List.of("givenName", "surname", "displayName", "mail", "onPremisesSamAccountName", "id");
 
     private final static List<String> USER_DATA_NAV_IDENT_FIELDS = Collections.singletonList("onPremisesSamAccountName");
 
@@ -74,35 +67,26 @@ public class MsGraphHttpClient implements MsGraphClient {
                 return Collections.emptyList();
             }
 
-            // Parse the JSON response
             String responseBody = response.body().string();
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(responseBody);
 
-            // Extract the "value" array and deserialize it to List<UserData>
             JsonNode valueNode = rootNode.get("value");
             if (valueNode == null || !valueNode.isArray()) {
                 log.warn("Missing or invalid 'value' array in response");
                 return Collections.emptyList();
             }
 
-            return mapper.readValue(valueNode.toString(),
-                    mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
+            return mapper.readValue(valueNode.toString(), mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
         }
     }
 
     private Request createMeRequest(String userAccessToken, List<String> fields) {
-        return new Request.Builder()
-                .url(joinPaths(msGraphApiUrl, "/me") + format("?$select=%s", String.join(",", fields)))
-                .header("Authorization", "Bearer " + userAccessToken)
-                .build();
+        return new Request.Builder().url(joinPaths(msGraphApiUrl, "/me") + format("?$select=%s", String.join(",", fields))).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
     private Request createUsersRequest(String userAccessToken, String groupId) {
-        return new Request.Builder()
-                .url(joinPaths(msGraphApiUrl, "/groups", groupId) + format("?$select=%s", String.join(",", MsGraphHttpClient.USER_DATA_FIELDS)))
-                .header("Authorization", "Bearer " + userAccessToken)
-                .build();
+        return new Request.Builder().url(joinPaths(msGraphApiUrl, "/groups", groupId) + format("?$select=%s", String.join(",", MsGraphHttpClient.USER_DATA_FIELDS))).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
     @Override
