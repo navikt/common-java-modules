@@ -86,6 +86,30 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
+    public void hentUserDataForGroup_skal_hente_data_for_gruppe_men_ingen_members() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data-for-group-empty.json");
+        JsonNode root = mapper.readTree(json);
+        List<UserData> expectedData = mapper.readValue(root.get("value").toString(),
+                mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
+
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+
+        givenThat(get(urlPathEqualTo("/groups/1234"))
+                .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json))
+        );
+
+        MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
+
+        assertEquals(expectedData, klient.hentUserDataForGroup("ACCESS_TOKEN", "1234"));
+    }
+
+    @Test
     public void skal_pinge_riktig_url() {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
