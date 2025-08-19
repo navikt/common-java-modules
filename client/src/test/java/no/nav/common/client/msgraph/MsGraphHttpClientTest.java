@@ -3,6 +3,7 @@ package no.nav.common.client.msgraph;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
+import okhttp3.*;
 import org.junit.Rule;
 import org.junit.Test;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -10,12 +11,19 @@ import wiremock.com.fasterxml.jackson.core.JsonProcessingException;
 import wiremock.com.fasterxml.jackson.databind.JsonNode;
 import wiremock.com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.mockito.Mockito.*;
+
+import okhttp3.Call;
+
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MsGraphHttpClientTest {
 
@@ -23,6 +31,13 @@ public class MsGraphHttpClientTest {
     public WireMockRule wireMockRule = new WireMockRule(0);
 
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/msgraph/";
+
+    // Helper method to set private field
+    private void setField(Object target, Object value) throws Exception {
+        Field field = target.getClass().getDeclaredField("client");
+        field.setAccessible(true);
+        field.set(target, value);
+    }
 
     @Test
     public void hentUserData_skal_hente_data() {
@@ -91,6 +106,25 @@ public class MsGraphHttpClientTest {
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
         klient.hentUserDataForGroup("ACCESS_TOKEN", "1234");
+    }
+
+    @Test
+    public void hentUserDataForGroup_skal_returnere_tom_liste_naar_response_body_er_faktisk_null() throws Exception {
+        OkHttpClient mockClient = mock(OkHttpClient.class);
+        Call mockCall = mock(Call.class);
+        Response mockResponse = mock(Response.class);
+
+        when(mockClient.newCall(any(Request.class))).thenReturn(mockCall);
+        when(mockCall.execute()).thenReturn(mockResponse);
+        when(mockResponse.isSuccessful()).thenReturn(true);
+        when(mockResponse.body()).thenReturn(null);
+
+        MsGraphHttpClient klient = new MsGraphHttpClient("http://localhost");
+        setField(klient, mockClient);
+        List<UserData> result = klient.hentUserDataForGroup("ACCESS_TOKEN", "1234");
+
+        assertTrue(result.isEmpty());
+        assertEquals(Collections.emptyList(), result);
     }
 
     @Test
