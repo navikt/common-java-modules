@@ -70,7 +70,7 @@ public class MsGraphHttpClient implements MsGraphClient {
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
             if (response.body() == null) {
-                log.warn("Response body is null for request: {}", request.url());
+                log.warn("Response body is null or empty for request: {}", request.url());
                 return Collections.emptyList();
             }
 

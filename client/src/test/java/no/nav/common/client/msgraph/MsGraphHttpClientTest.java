@@ -9,6 +9,7 @@ import wiremock.com.fasterxml.jackson.core.JsonProcessingException;
 import wiremock.com.fasterxml.jackson.databind.JsonNode;
 import wiremock.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -86,14 +87,7 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentUserDataForGroup_skal_hente_data_for_gruppe_men_ingen_members() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-
-        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data-for-group-empty.json");
-        JsonNode root = mapper.readTree(json);
-        List<UserData> expectedData = mapper.readValue(root.get("value").toString(),
-                mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
-
+    public void hentUserDataForGroup_skal_returnere_tom_liste_naar_response_body_er_null() {
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get(urlPathEqualTo("/groups/1234"))
@@ -101,12 +95,14 @@ public class MsGraphHttpClientTest {
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withBody(json))
-        );
+                        .withBody("{}")));
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
 
-        assertEquals(expectedData, klient.hentUserDataForGroup("ACCESS_TOKEN", "1234"));
+        List<UserData> result = klient.hentUserDataForGroup("ACCESS_TOKEN", "1234");
+
+        assertTrue(result.isEmpty());
+        assertEquals(Collections.emptyList(), result);
     }
 
     @Test
