@@ -50,8 +50,7 @@ public class CachedMsGraphClient implements MsGraphClient {
     @SneakyThrows
     @Override
     public List<UserData> hentUserDataForGroup(String userAccessToken, String groupId) {
-        String cacheKey = JWTParser.parse(userAccessToken).getJWTClaimsSet().getSubject();
-        return tryCacheFirst(hentUserDataForGroupCache, cacheKey, () -> msGraphClient.hentUserDataForGroup(userAccessToken, groupId));
+        return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(userAccessToken, groupId));
     }
 
     @Override

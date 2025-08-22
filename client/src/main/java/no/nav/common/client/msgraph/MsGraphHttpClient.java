@@ -1,7 +1,5 @@
 package no.nav.common.client.msgraph;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.health.HealthCheckResult;
@@ -62,22 +60,8 @@ public class MsGraphHttpClient implements MsGraphClient {
         Request request = createUsersRequest(userAccessToken, groupId);
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
-            if (response.body() == null) {
-                log.warn("Response body is null or empty for request: {}", request.url());
-                return Collections.emptyList();
-            }
+            return parseJsonResponseWithValueArrayOrThrow(response, UserData.class);
 
-            String responseBody = response.body().string();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode rootNode = mapper.readTree(responseBody);
-
-            JsonNode valueNode = rootNode.get("value");
-            if (valueNode == null || !valueNode.isArray()) {
-                log.warn("Missing or invalid 'value' array in response");
-                return Collections.emptyList();
-            }
-
-            return mapper.readValue(valueNode.toString(), mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
         }
     }
 
