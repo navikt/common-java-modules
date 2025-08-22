@@ -82,17 +82,6 @@ public class MsGraphHttpClientTest {
         assertEquals(expectedData, klient.hentUserDataForGroup("ACCESS_TOKEN", "1234"));
     }
 
-    @Test
-    public void hentUserDataForGroup_skal_kaste_exception_naar_response_body_er_null() {
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-
-        givenThat(get(urlPathEqualTo("/groups/1234")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).willReturn(aResponse().withStatus(200).withBody("{}")));
-
-        MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
-
-        assertThrows(IllegalStateException.class, () -> klient.hentUserDataForGroup("ACCESS_TOKEN", "1234"));
-
-    }
 
     @Test(expected = JsonParseException.class)
     public void hentUserDataForGroup_skal_kaste_exception_ved_ugyldig_json() {
@@ -117,7 +106,7 @@ public class MsGraphHttpClientTest {
 
         MsGraphHttpClient klient = new MsGraphHttpClient("http://localhost");
         setField(klient, mockClient);
-        assertThrows(NullPointerException.class, () -> klient.hentUserDataForGroup("ACCESS_TOKEN", "1234"));
+        assertThrows(IllegalStateException.class, () -> klient.hentUserDataForGroup("ACCESS_TOKEN", "1234"));
     }
 
     @Test

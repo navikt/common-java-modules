@@ -60,7 +60,7 @@ public class MsGraphHttpClient implements MsGraphClient {
         Request request = createUsersRequest(userAccessToken, groupId);
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
-            return parseJsonResponseWithValueArrayOrThrow(response, UserData.class);
+            return parseJsonResponseOrThrow(response, GroupResponse.class).value();
 
         }
     }
