@@ -1,4 +1,4 @@
-name: Test and release branch
+name: Test and create beta-release
 on:
   workflow_dispatch:
 jobs:
