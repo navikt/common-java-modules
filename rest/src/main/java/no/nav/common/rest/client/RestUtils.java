@@ -1,5 +1,7 @@
 package no.nav.common.rest.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.json.JsonUtils;
 import okhttp3.MediaType;
@@ -25,7 +27,7 @@ public class RestUtils {
 
     public static void throwIfNotSuccessful(Response response) {
         if (!response.isSuccessful()) {
-            String message = String.format("Uventet status %d ved kall mot mot %s", response.code(), response.request().url().toString());
+            String message = String.format("Uventet status %d ved kall mot mot %s", response.code(), response.request().url());
             log.warn(message);
             throw new RuntimeException(message);
         }
@@ -59,6 +61,35 @@ public class RestUtils {
     public static <T> List<T> parseJsonResponseArrayOrThrow(Response response, Class<T> classOfT) throws IOException {
         return parseJsonArrayResponse(response, classOfT)
                 .orElseThrow(() -> new IllegalStateException("Unable to parse JSON array from response body"));
+    }
+
+    public static <T> List<T> parseJsonResponseWithValueArrayOrThrow(Response response, Class<T> classOfT) throws IOException {
+        if (response.body() == null) {
+            throw new IllegalStateException("Response body is null for request: " + response.request().url());
+        }
+
+        String responseBody = response.body().string();
+
+        // Handle empty response body
+        if (responseBody.isBlank() || responseBody.equals("{}")) {
+            throw new IllegalStateException("Empty response body for request: " + response.request().url());
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(responseBody);
+
+            JsonNode valueNode = rootNode.get("value");
+            if (valueNode == null || !valueNode.isArray()) {
+                throw new IllegalStateException("Missing or invalid 'value' array in response");
+            }
+
+            return mapper.readValue(valueNode.toString(),
+                    mapper.getTypeFactory().constructCollectionType(List.class, classOfT));
+        } catch (Exception e) {
+            log.error("Failed to parse response body", e);
+            throw e;
+        }
     }
 
     public static RequestBody toJsonRequestBody(Object obj) {
