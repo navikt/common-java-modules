@@ -20,7 +20,7 @@ jobs:
         run: mvn -B -V verify
 
   create-release:
-    name: Create new release
+    name: Create new beta-release
     permissions:
       contents: write
       packages: write
