@@ -75,7 +75,7 @@ public class MsGraphHttpClientTest {
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups/1234")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).willReturn(aResponse().withStatus(200).withBody(json)));
+        givenThat(get(urlPathEqualTo("/groups/1234/members")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).willReturn(aResponse().withStatus(200).withBody(json)));
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
 
@@ -87,7 +87,7 @@ public class MsGraphHttpClientTest {
     public void hentUserDataForGroup_skal_kaste_exception_ved_ugyldig_json() {
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups/1234")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).willReturn(aResponse().withStatus(200).withBody("{invalid json content}")));
+        givenThat(get(urlPathEqualTo("/groups/1234/members")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).willReturn(aResponse().withStatus(200).withBody("{invalid json content}")));
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
         klient.hentUserDataForGroup("ACCESS_TOKEN", "1234");
