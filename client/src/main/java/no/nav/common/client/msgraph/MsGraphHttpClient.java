@@ -70,7 +70,9 @@ public class MsGraphHttpClient implements MsGraphClient {
     }
 
     private Request createUsersRequest(String userAccessToken, String groupId) {
-        return new Request.Builder().url(joinPaths(msGraphApiUrl, "/groups", groupId) + format("?$select=%s", String.join(",", MsGraphHttpClient.USER_DATA_FIELDS))).header("Authorization", "Bearer " + userAccessToken).build();
+        return new Request.Builder().url(
+                joinPaths(msGraphApiUrl, "/groups", groupId, "/members") + format("?$select=%s", String.join(",", MsGraphHttpClient.USER_DATA_FIELDS))
+        ).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
     @Override
