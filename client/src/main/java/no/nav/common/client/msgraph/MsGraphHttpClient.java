@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import no.nav.common.rest.client.RestClient;
+import no.nav.common.types.identer.EnhetId;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,7 +14,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.lang.String.format;
-import static no.nav.common.rest.client.RestUtils.*;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
+import static no.nav.common.rest.client.RestUtils.throwIfNotSuccessful;
 import static no.nav.common.utils.UrlUtils.joinPaths;
 
 @Slf4j
@@ -56,12 +58,29 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
+    public String hentAzureGroupId(String accessToken, EnhetId enhetId) {
+        Request request = createAzureGroupIdRequest(accessToken, enhetId);
+
+        try (Response response = client.newCall(request).execute()) {
+            throwIfNotSuccessful(response);
+            return parseJsonResponseOrThrow(response, GroupId.class).id();
+        }
+    }
+
+    @SneakyThrows
+    @Override
     public List<UserData> hentUserDataForGroup(String accessToken, String groupId) {
         Request request = createUsersRequest(accessToken, groupId);
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
             return parseJsonResponseOrThrow(response, GroupResponse.class).value();
         }
+    }
+
+    @Override
+    public List<UserData> hentUserDataForGroup(String accessToken, EnhetId enhetId) {
+        String groupId = hentAzureGroupId(accessToken, enhetId);
+        return hentUserDataForGroup(accessToken, groupId);
     }
 
     private Request createMeRequest(String userAccessToken, List<String> fields) {
@@ -74,9 +93,14 @@ public class MsGraphHttpClient implements MsGraphClient {
         ).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
+    private Request createAzureGroupIdRequest(String accessToken, EnhetId enhetId) {
+        return new Request.Builder().url(
+                joinPaths(msGraphApiUrl, "/groups") + format("?$select=id&$filter=startswith(displayName,'0000-GA-ENHET_%s')", enhetId)
+        ).header("Authorization", "Bearer " + accessToken).build();
+    }
+
     @Override
     public HealthCheckResult checkHealth() {
         return HealthCheckUtils.pingUrl(msGraphApiUrl, client);
     }
-
 }

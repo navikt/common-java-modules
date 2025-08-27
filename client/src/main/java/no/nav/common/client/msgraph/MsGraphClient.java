@@ -1,6 +1,8 @@
 package no.nav.common.client.msgraph;
 
+import lombok.SneakyThrows;
 import no.nav.common.health.HealthCheck;
+import no.nav.common.types.identer.EnhetId;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ public interface MsGraphClient extends HealthCheck {
     UserData hentUserData(String userAccessToken);
 
     List<UserData> hentUserDataForGroup(String userAccessToken, String groupId);
+    List<UserData> hentUserDataForGroup(String accessToken, EnhetId enhetId);
 
     /**
      * Henter OnPremisesSamAccountName til brukeren.
@@ -28,6 +31,5 @@ public interface MsGraphClient extends HealthCheck {
      */
     String hentOnPremisesSamAccountName(String userAccessToken);
 
+    String hentAzureGroupId(String accessToken, EnhetId enhetId);
 }
-
-

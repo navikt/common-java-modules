@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.common.health.HealthCheckResult;
+import no.nav.common.types.identer.EnhetId;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,13 @@ public class CachedMsGraphClient implements MsGraphClient {
             .expireAfterWrite(12, TimeUnit.HOURS)
             .maximumSize(20_000)
             .build();
+
     private final Cache<String, List<UserData>> hentUserDataForGroupCache = Caffeine.newBuilder()
+            .expireAfterWrite(30, TimeUnit.MINUTES)
+            .maximumSize(10_000)
+            .build();
+
+    private final Cache<EnhetId, String> hentAzureGroupIdCache = Caffeine.newBuilder()
             .expireAfterWrite(30, TimeUnit.MINUTES)
             .maximumSize(10_000)
             .build();
@@ -49,7 +56,20 @@ public class CachedMsGraphClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
+    public String hentAzureGroupId(String accessToken, EnhetId enhetId) {
+        return tryCacheFirst(hentAzureGroupIdCache, enhetId, () -> msGraphClient.hentAzureGroupId(accessToken, enhetId));
+    }
+
+    @SneakyThrows
+    @Override
     public List<UserData> hentUserDataForGroup(String accessToken, String groupId) {
+        return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
+    }
+
+    @SneakyThrows
+    @Override
+    public List<UserData> hentUserDataForGroup(String accessToken, EnhetId enhetId) {
+        String groupId = hentAzureGroupId(accessToken, enhetId);
         return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
     }
 
