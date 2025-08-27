@@ -56,12 +56,11 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
-    public List<UserData> hentUserDataForGroup(String userAccessToken, String groupId) {
-        Request request = createUsersRequest(userAccessToken, groupId);
+    public List<UserData> hentUserDataForGroup(String accessToken, String groupId) {
+        Request request = createUsersRequest(accessToken, groupId);
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
             return parseJsonResponseOrThrow(response, GroupResponse.class).value();
-
         }
     }
 
