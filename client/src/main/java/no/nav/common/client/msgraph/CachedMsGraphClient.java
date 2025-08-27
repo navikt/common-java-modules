@@ -49,8 +49,8 @@ public class CachedMsGraphClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
-    public List<UserData> hentUserDataForGroup(String userAccessToken, String groupId) {
-        return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(userAccessToken, groupId));
+    public List<UserData> hentUserDataForGroup(String accessToken, String groupId) {
+        return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
     }
 
     @Override
