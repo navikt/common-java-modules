@@ -13,13 +13,12 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 
-
 import java.io.IOException;
-import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.function.Predicate.isEqual;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class RestUtilsTest {
 
@@ -47,7 +46,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             Assertions.assertThat(RestUtils.getBodyStr(response)).isPresent().get().isEqualTo(json);
@@ -71,7 +70,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             Assertions.assertThat(RestUtils.parseJsonResponse(response, HelloWorldPayload.class)).isPresent().get().isEqualTo(expected);
@@ -92,7 +91,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertThrows(IllegalStateException.class, () -> RestUtils.parseJsonResponseOrThrow(response, HelloWorldPayload.class));
@@ -116,11 +115,11 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             Assertions.assertThat(
-                    RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class))
+                            RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class))
                     .isPresent()
                     .get().asList()
                     .hasSize(2)
@@ -145,7 +144,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertThrows(IllegalStateException.class, () -> RestUtils.parseJsonResponseArrayOrThrow(response, HelloWorldPayload.class));
@@ -164,7 +163,7 @@ public class RestUtilsTest {
                         .withStatus(204))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertTrue(RestUtils.getBodyStr(response).isEmpty());
@@ -183,7 +182,7 @@ public class RestUtilsTest {
                         .withBody(""))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertTrue(RestUtils.getBodyStr(response).isEmpty());
@@ -202,7 +201,7 @@ public class RestUtilsTest {
                         .withBody(""))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertThrows(RuntimeException.class, () -> RestUtils.throwIfNotSuccessful(response));
@@ -223,135 +222,4 @@ public class RestUtilsTest {
     public void createBearerToken_simply_suffixes_token_with_Bearer() {
         Assertions.assertThat(RestUtils.createBearerToken("Token")).isEqualTo("Bearer Token");
     }
-
-    @SneakyThrows
-    @Test
-    public void parseJsonResponseWithValueArrayOrThrow_skal_deserialisere_body() {
-        // Arrange
-        HelloWorldPayload expected = new HelloWorldPayload();
-        expected.hello = "world";
-
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-        String json = "{\"value\": [{\"hello\": \"world\"}, {\"hello\": \"world\"}]}";
-
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
-
-        Request request = new Request.Builder().url(baseUrl).build();
-
-        // Act & Assert
-        try (Response response = client.newCall(request).execute()) {
-            List<HelloWorldPayload> result = RestUtils.parseJsonResponseWithValueArrayOrThrow(response, HelloWorldPayload.class);
-            Assertions.assertThat(result)
-                    .hasSize(2)
-                    .allMatch(isEqual(expected));
-        }
-    }
-
-    @SneakyThrows
-    @Test
-    public void parseJsonResponseWithValueArrayOrThrow_skal_kaste_exception_ved_null_body() {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(204))
-        );
-
-        Request request = new Request.Builder().url(baseUrl).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            assertThrows(IllegalStateException.class, () ->
-                    RestUtils.parseJsonResponseWithValueArrayOrThrow(response, HelloWorldPayload.class));
-        }
-    }
-
-    @SneakyThrows
-    @Test
-    public void parseJsonResponseWithValueArrayOrThrow_skal_kaste_exception_ved_tom_body() {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody("{}"))
-        );
-
-        Request request = new Request.Builder().url(baseUrl).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            assertThrows(IllegalStateException.class, () ->
-                    RestUtils.parseJsonResponseWithValueArrayOrThrow(response, HelloWorldPayload.class));
-        }
-    }
-
-    @SneakyThrows
-    @Test
-    public void parseJsonResponseWithValueArrayOrThrow_skal_kaste_exception_uten_value_felt() {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-        String json = "{\"data\": [{\"hello\": \"world\"}]}";
-
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
-
-        Request request = new Request.Builder().url(baseUrl).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            assertThrows(IllegalStateException.class, () ->
-                    RestUtils.parseJsonResponseWithValueArrayOrThrow(response, HelloWorldPayload.class));
-        }
-    }
-
-    @SneakyThrows
-    @Test
-    public void parseJsonResponseWithValueArrayOrThrow_skal_kaste_exception_naar_value_ikke_er_array() {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-        String json = "{\"value\": \"not an array\"}";
-
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
-
-        Request request = new Request.Builder().url(baseUrl).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            assertThrows(IllegalStateException.class, () ->
-                    RestUtils.parseJsonResponseWithValueArrayOrThrow(response, HelloWorldPayload.class));
-        }
-    }
-
-    @SneakyThrows
-    @Test
-    public void parseJsonResponseWithValueArrayOrThrow_skal_kaste_exception_ved_ugyldig_json() {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-        String json = "{invalid json";
-
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
-
-        Request request = new Request.Builder().url(baseUrl).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            assertThrows(Exception.class, () ->
-                    RestUtils.parseJsonResponseWithValueArrayOrThrow(response, HelloWorldPayload.class));
-        }
-    }
-
 }
