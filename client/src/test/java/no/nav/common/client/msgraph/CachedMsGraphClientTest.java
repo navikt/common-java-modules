@@ -2,11 +2,13 @@ package no.nav.common.client.msgraph;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import no.nav.common.types.identer.EnhetId;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class CachedMsGraphClientTest {
@@ -64,7 +66,7 @@ public class CachedMsGraphClientTest {
         UserData userData1 = new UserData().setId("1");
         UserData userData2 = new UserData().setId("2");
 
-        List brukere = List.of(userData1, userData2);
+        List<UserData> brukere = List.of(userData1, userData2);
 
         MsGraphClient graphClient = mock(MsGraphClient.class);
 
@@ -83,6 +85,29 @@ public class CachedMsGraphClientTest {
                 .build();
 
         return new PlainJWT(claimsSet).serialize();
+    }
+    @Test
+    public void hentUserDataForGroup_skal_kaste_exception_naar_groupId_er_null() {
+        // Arrange
+        String tokenStr = createJwtToken("user1");
+        EnhetId enhetId = new EnhetId("1234");
+
+        MsGraphClient graphClient = mock(MsGraphClient.class);
+        when(graphClient.hentAzureGroupId(tokenStr, enhetId)).thenReturn(null);
+
+        CachedMsGraphClient cachedMsGraphClient = new CachedMsGraphClient(graphClient);
+
+        // Act & Assert
+        try {
+            cachedMsGraphClient.hentUserDataForGroup(tokenStr, enhetId);
+            fail("Expected RuntimeException was not thrown");
+        } catch (RuntimeException e) {
+            assertEquals("Fant ingen groupId for enhet " + enhetId, e.getMessage());
+        }
+
+        // Verify
+        verify(graphClient, times(1)).hentAzureGroupId(tokenStr, enhetId);
+        verify(graphClient, never()).hentUserDataForGroup(anyString(), anyString());
     }
 
 }
