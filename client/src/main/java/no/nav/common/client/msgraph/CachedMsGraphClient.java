@@ -7,9 +7,11 @@ import lombok.SneakyThrows;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.EnhetId;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
 import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
 
 public class CachedMsGraphClient implements MsGraphClient {
@@ -70,6 +72,11 @@ public class CachedMsGraphClient implements MsGraphClient {
     @Override
     public List<UserData> hentUserDataForGroup(String accessToken, EnhetId enhetId) {
         String groupId = hentAzureGroupId(accessToken, enhetId);
+
+        if (groupId == null) {
+            throw new RuntimeException(format("Fant ingen groupId for enhet %s", enhetId));
+        }
+
         return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
     }
 

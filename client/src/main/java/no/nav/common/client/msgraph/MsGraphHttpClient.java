@@ -63,7 +63,7 @@ public class MsGraphHttpClient implements MsGraphClient {
 
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
-            return parseJsonResponseOrThrow(response, GroupId.class).id();
+            return parseJsonResponseOrThrow(response, GroupIdResponse.class).value().getFirst().id();
         }
     }
 
@@ -95,7 +95,7 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     private Request createAzureGroupIdRequest(String accessToken, EnhetId enhetId) {
         return new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/groups") + format("?$select=id&$filter=startswith(displayName,'0000-GA-ENHET_%s')", enhetId)
+                joinPaths(msGraphApiUrl, "/groups") + format("?$select=id&$filter=displayName eq '0000-GA-ENHET_%s'", enhetId)
         ).header("Authorization", "Bearer " + accessToken).build();
     }
 
