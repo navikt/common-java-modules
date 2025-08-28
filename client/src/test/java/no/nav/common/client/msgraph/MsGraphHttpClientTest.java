@@ -3,6 +3,7 @@ package no.nav.common.client.msgraph;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
+import no.nav.common.types.identer.EnhetId;
 import okhttp3.*;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +45,10 @@ public class MsGraphHttpClientTest {
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/me")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).willReturn(aResponse().withStatus(200).withBody(json)));
+        givenThat(get(urlPathEqualTo("/me"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
 
@@ -58,7 +62,10 @@ public class MsGraphHttpClientTest {
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/me")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).withQueryParam("$select", equalTo("onPremisesSamAccountName")).willReturn(aResponse().withStatus(200).withBody(json)));
+        givenThat(get(urlPathEqualTo("/me"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .withQueryParam("$select", equalTo("onPremisesSamAccountName"))
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
 
@@ -68,18 +75,57 @@ public class MsGraphHttpClientTest {
     @Test
     public void hentUserDataForGroup_skal_hente_data_for_gruppe() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data-for-group.json");
         JsonNode root = mapper.readTree(json);
         List<UserData> expectedData = mapper.readValue(root.get("value").toString(), mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups/1234/members")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).willReturn(aResponse().withStatus(200).withBody(json)));
+        givenThat(get(urlPathEqualTo("/groups/1234/members"))
+                .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
 
         assertEquals(expectedData, klient.hentUserDataForGroup("ACCESS_TOKEN", "1234"));
+    }
+
+    @Test
+    public void hentUserDataForGroup_skal_hente_data_for_enhet() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String groupIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "group-id.json");
+        String userDataForGroupJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data-for-group.json");
+        JsonNode root = mapper.readTree(userDataForGroupJson);
+        List<UserData> expectedData = mapper.readValue(root.get("value").toString(), mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
+        EnhetId enhetId = new EnhetId("0123");
+
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+
+
+        givenThat(get(urlPathEqualTo("/groups"))
+                .withQueryParam("$select", equalTo("id"))
+                .withQueryParam("$filter", equalTo("displayName eq '0000-GA-ENHET_0123'"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(groupIdJson)));
+
+        givenThat(get(urlPathEqualTo("/groups/group-123-id/members"))
+                .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse().withStatus(200).withBody(userDataForGroupJson)));
+
+        MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
+
+        List<UserData> result = klient.hentUserDataForGroup("ACCESS_TOKEN", enhetId);
+
+        assertEquals(expectedData, result);
+
+        verify(getRequestedFor(urlPathEqualTo("/groups"))
+                .withQueryParam("$filter", equalTo("displayName eq '0000-GA-ENHET_0123'")));
+        verify(getRequestedFor(urlPathEqualTo("/groups/group-123-id/members")));
+
     }
 
 
@@ -87,7 +133,10 @@ public class MsGraphHttpClientTest {
     public void hentUserDataForGroup_skal_kaste_exception_ved_ugyldig_json() {
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups/1234/members")).withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id")).withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN")).willReturn(aResponse().withStatus(200).withBody("{invalid json content}")));
+        givenThat(get(urlPathEqualTo("/groups/1234/members"))
+                .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse().withStatus(200).withBody("{invalid json content}")));
 
         MsGraphHttpClient klient = new MsGraphHttpClient(baseUrl);
         klient.hentUserDataForGroup("ACCESS_TOKEN", "1234");
@@ -119,5 +168,28 @@ public class MsGraphHttpClientTest {
         assertTrue(client.checkHealth().isHealthy());
         verify(getRequestedFor(urlEqualTo("/")));
     }
+
+    @Test
+    public void hentAzureGroupId_skal_hente_id_for_enhet() {
+        String groupIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "group-id.json");
+
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+        EnhetId enhetId = new EnhetId("0123");
+
+        givenThat(get(urlPathEqualTo("/groups"))
+                .withQueryParam("$select", equalTo("id"))
+                .withQueryParam("$filter", equalTo("displayName eq '0000-GA-ENHET_0123'"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(groupIdJson)));
+
+        MsGraphHttpClient client = new MsGraphHttpClient(baseUrl);
+
+        String result = client.hentAzureGroupId("ACCESS_TOKEN", enhetId);
+
+        assertEquals("group-123-id", result);
+    }
+
 
 }
