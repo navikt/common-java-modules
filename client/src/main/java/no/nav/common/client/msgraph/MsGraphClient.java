@@ -1,12 +1,15 @@
 package no.nav.common.client.msgraph;
 
 import no.nav.common.health.HealthCheck;
+import no.nav.common.types.identer.EnhetId;
+
+import java.util.List;
 
 /**
  * Klient som henter ut data fra Microsoft til Graph API.
- * Se https://docs.microsoft.com/en-us/graph/overview for mer informasjon.
- * Kan også testes ut med egen bruker: https://developer.microsoft.com/en-us/graph/graph-explorer.
- * URLen til APIet er pr dags dato: https://graph.microsoft.com/v1.0.
+ * Se <a href="https://docs.microsoft.com/en-us/graph/overview" /> for mer informasjon.
+ * Kan også testes ut med egen bruker: <a href="https://developer.microsoft.com/en-us/graph/graph-explorer" />.
+ * URLen til APIet er pr dags dato: <a href="https://graph.microsoft.com/v1.0" />.
  */
 public interface MsGraphClient extends HealthCheck {
 
@@ -17,6 +20,9 @@ public interface MsGraphClient extends HealthCheck {
      */
     UserData hentUserData(String userAccessToken);
 
+    List<UserData> hentUserDataForGroup(String userAccessToken, String groupId);
+    List<UserData> hentUserDataForGroup(String accessToken, EnhetId enhetId);
+
     /**
      * Henter OnPremisesSamAccountName til brukeren.
      * @param userAccessToken Brukeren sitt access token
@@ -24,6 +30,5 @@ public interface MsGraphClient extends HealthCheck {
      */
     String hentOnPremisesSamAccountName(String userAccessToken);
 
+    String hentAzureGroupId(String accessToken, EnhetId enhetId);
 }
-
-

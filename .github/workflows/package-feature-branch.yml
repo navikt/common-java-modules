@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create Version
-        run: echo "VERSION=3.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)" >> $GITHUB_ENV
+        run: echo "VERSION=3.$(TZ=\"Europe/Oslo\" date +%Y.%m.%d_%H.%M)-$(git rev-parse --short=12 HEAD)-beta" >> $GITHUB_ENV
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -48,6 +48,6 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ env.VERSION }}-beta
-          tag_name: ${{ env.VERSION }}-beta
+          name: Release ${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
           prerelease: true

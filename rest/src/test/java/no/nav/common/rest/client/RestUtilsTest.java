@@ -2,6 +2,8 @@ package no.nav.common.rest.client;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -11,18 +13,20 @@ import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 
-
 import java.io.IOException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.util.function.Predicate.isEqual;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class RestUtilsTest {
 
+    @Setter
+    @Getter
     @EqualsAndHashCode
     static class HelloWorldPayload {
-        String hello;
+        private String hello;
     }
 
     @Rule
@@ -42,7 +46,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             Assertions.assertThat(RestUtils.getBodyStr(response)).isPresent().get().isEqualTo(json);
@@ -66,7 +70,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             Assertions.assertThat(RestUtils.parseJsonResponse(response, HelloWorldPayload.class)).isPresent().get().isEqualTo(expected);
@@ -87,7 +91,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertThrows(IllegalStateException.class, () -> RestUtils.parseJsonResponseOrThrow(response, HelloWorldPayload.class));
@@ -111,11 +115,11 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             Assertions.assertThat(
-                    RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class))
+                            RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class))
                     .isPresent()
                     .get().asList()
                     .hasSize(2)
@@ -140,7 +144,7 @@ public class RestUtilsTest {
                         .withBody(json))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertThrows(IllegalStateException.class, () -> RestUtils.parseJsonResponseArrayOrThrow(response, HelloWorldPayload.class));
@@ -159,7 +163,7 @@ public class RestUtilsTest {
                         .withStatus(204))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertTrue(RestUtils.getBodyStr(response).isEmpty());
@@ -178,7 +182,7 @@ public class RestUtilsTest {
                         .withBody(""))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertTrue(RestUtils.getBodyStr(response).isEmpty());
@@ -197,7 +201,7 @@ public class RestUtilsTest {
                         .withBody(""))
         );
 
-        Request request =  new Request.Builder().url(baseUrl).build();
+        Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
             assertThrows(RuntimeException.class, () -> RestUtils.throwIfNotSuccessful(response));
@@ -218,5 +222,4 @@ public class RestUtilsTest {
     public void createBearerToken_simply_suffixes_token_with_Bearer() {
         Assertions.assertThat(RestUtils.createBearerToken("Token")).isEqualTo("Bearer Token");
     }
-
 }
