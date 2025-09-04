@@ -2,6 +2,7 @@ package no.nav.common.client.msgraph;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import no.nav.common.types.identer.AzureObjectId;
 import no.nav.common.types.identer.EnhetId;
 import org.junit.Test;
 
@@ -108,6 +109,54 @@ public class CachedMsGraphClientTest {
         // Verify
         verify(graphClient, times(1)).hentAzureGroupId(tokenStr, enhetId);
         verify(graphClient, never()).hentUserDataForGroup(anyString(), anyString());
+    }
+    @Test
+    public void hentAdGroupsForUser_skal_cache_grupper_for_bruker() {
+        // Arrange
+        String tokenStr = createJwtToken("user1");
+        String azureId = "azure-id-123";
+
+        AdGroupData group1 = new AdGroupData().setId(AzureObjectId.of("group-1")).setDisplayName("Group 1");
+        AdGroupData group2 = new AdGroupData().setId(AzureObjectId.of("group-2")).setDisplayName("Group 2");
+        List<AdGroupData> adGroups = List.of(group1, group2);
+
+        MsGraphClient graphClient = mock(MsGraphClient.class);
+        when(graphClient.hentAdGroupsForUser(tokenStr, azureId)).thenReturn(adGroups);
+
+        CachedMsGraphClient cachedMsGraphClient = new CachedMsGraphClient(graphClient);
+
+        // Act & Assert
+        assertEquals(adGroups, cachedMsGraphClient.hentAdGroupsForUser(tokenStr, azureId));
+        assertEquals(adGroups, cachedMsGraphClient.hentAdGroupsForUser(tokenStr, azureId));
+
+        // Verify
+        verify(graphClient, times(1)).hentAdGroupsForUser(tokenStr, azureId);
+    }
+
+    @Test
+    public void hentAzureIdMedNavIdent_skal_cache_flere_brukere() {
+        // Arrange
+        String tokenStr = createJwtToken("user1");
+        String navIdent1 = "A123456";
+        String navIdent2 = "B654321";
+
+        String azureId1 = "azure-id-1";
+        String azureId2 = "azure-id-2";
+
+        MsGraphClient graphClient = mock(MsGraphClient.class);
+        when(graphClient.hentAzureIdMedNavIdent(tokenStr, navIdent1)).thenReturn(azureId1);
+        when(graphClient.hentAzureIdMedNavIdent(tokenStr, navIdent2)).thenReturn(azureId2);
+
+        CachedMsGraphClient cachedMsGraphClient = new CachedMsGraphClient(graphClient);
+
+        // Act & Assert
+        assertEquals(azureId1, cachedMsGraphClient.hentAzureIdMedNavIdent(tokenStr, navIdent1));
+        assertEquals(azureId2, cachedMsGraphClient.hentAzureIdMedNavIdent(tokenStr, navIdent2));
+        assertEquals(azureId1, cachedMsGraphClient.hentAzureIdMedNavIdent(tokenStr, navIdent1));
+
+        // Verify
+        verify(graphClient, times(1)).hentAzureIdMedNavIdent(tokenStr, navIdent1);
+        verify(graphClient, times(1)).hentAzureIdMedNavIdent(tokenStr, navIdent2);
     }
 
 }
