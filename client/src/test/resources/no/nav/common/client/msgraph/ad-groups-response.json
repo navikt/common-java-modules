@@ -1,0 +1,12 @@
+{
+  "value": [
+    {
+      "id": "group-id-1",
+      "displayName": "Group 1"
+    },
+    {
+      "id": "group-id-2",
+      "displayName": "Group 2"
+    }
+  ]
+}
