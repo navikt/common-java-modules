@@ -22,6 +22,7 @@ public interface MsGraphClient extends HealthCheck {
 
     List<UserData> hentUserDataForGroup(String userAccessToken, String groupId);
     List<UserData> hentUserDataForGroup(String accessToken, EnhetId enhetId);
+    List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String azureAdObjectId);
 
     /**
      * Henter OnPremisesSamAccountName til brukeren.
@@ -31,4 +32,6 @@ public interface MsGraphClient extends HealthCheck {
     String hentOnPremisesSamAccountName(String userAccessToken);
 
     String hentAzureGroupId(String accessToken, EnhetId enhetId);
+
+    String hentAzureIdMedNavIdent(String accessToken, String navIdent);
 }
