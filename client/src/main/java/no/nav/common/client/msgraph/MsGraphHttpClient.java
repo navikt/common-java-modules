@@ -109,8 +109,9 @@ public class MsGraphHttpClient implements MsGraphClient {
     @SneakyThrows
     @Override
     public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String azureAdObjectId) {
+        String userId = hentAzureIdMedNavIdent(userAccessToken, azureAdObjectId);
         Request request = new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/users", azureAdObjectId, "memberOf") + format("?$select=%s&$top=999", String.join(",", MsGraphHttpClient.AD_GROUP_DATA_FIELDS))
+                joinPaths(msGraphApiUrl, "/users", userId, "memberOf") + format("?$select=%s&$top=999", String.join(",", MsGraphHttpClient.AD_GROUP_DATA_FIELDS))
         ).header("Authorization", "Bearer " + userAccessToken).build();
 
         try (Response response = client.newCall(request).execute()) {
