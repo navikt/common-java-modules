@@ -251,31 +251,44 @@ public class MsGraphHttpClientTest {
 
         assertEquals("first-user-id", result);
     }
+
     @Test
     public void hentAdGroupsForUser_skal_hente_grupper() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ad-groups-response.json");
-        JsonNode root = mapper.readTree(json);
+        String userIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
+        String adGroupsJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ad-groups-response.json");
+        JsonNode root = mapper.readTree(adGroupsJson);
         List<AdGroupData> expectedGroups = mapper.readValue(root.get("value").toString(),
                 mapper.getTypeFactory().constructCollectionType(List.class, AdGroupData.class));
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
-        String userId = "azure-user-id-123";
+        String navIdent = "A123456";
+        String azureId = "azure-user-id-123";
 
-        givenThat(get(urlPathEqualTo("/users/" + userId + "/memberOf"))
+        // Mock the first call to get Azure ID from NAV ident
+        givenThat(get(urlPathEqualTo("/users"))
+                .withQueryParam("$select", equalTo("azureADObjectId"))
+                .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq '" + navIdent + "'"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(userIdJson)));
+
+        // Mock the second call to get AD groups
+        givenThat(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
                 .withQueryParam("$select", equalTo("id,displayName"))
                 .withQueryParam("$top", equalTo("999"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withBody(json)));
+                        .withBody(adGroupsJson)));
 
         MsGraphHttpClient client = new MsGraphHttpClient(baseUrl);
 
-        List<AdGroupData> result = client.hentAdGroupsForUser("ACCESS_TOKEN", userId);
+        List<AdGroupData> result = client.hentAdGroupsForUser("ACCESS_TOKEN", navIdent);
 
         assertEquals(expectedGroups, result);
-        verify(getRequestedFor(urlPathEqualTo("/users/" + userId + "/memberOf")));
+        verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
     }
 
 }
