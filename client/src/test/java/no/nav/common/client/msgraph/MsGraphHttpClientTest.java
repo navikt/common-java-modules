@@ -198,7 +198,7 @@ public class MsGraphHttpClientTest {
         String navIdent = "A123456";
 
         givenThat(get(urlPathEqualTo("/users"))
-                .withQueryParam("$select", equalTo("azureADObjectId"))
+                .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'A123456'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse()
@@ -267,7 +267,7 @@ public class MsGraphHttpClientTest {
 
         // Mock the first call to get Azure ID from NAV ident
         givenThat(get(urlPathEqualTo("/users"))
-                .withQueryParam("$select", equalTo("azureADObjectId"))
+                .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq '" + navIdent + "'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse()

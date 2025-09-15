@@ -25,7 +25,7 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     private final static List<String> USER_DATA_NAV_IDENT_FIELDS = Collections.singletonList("onPremisesSamAccountName");
 
-    private final static List<String> AZURE_AD_OBJECT_ID_FIELDS = Collections.singletonList("azureADObjectId");
+    private final static List<String> AZURE_AD_OBJECT_ID_FIELDS = Collections.singletonList("id");
 
     private final static List <String> AD_GROUP_DATA_FIELDS = List.of("id", "displayName");
 
@@ -74,9 +74,7 @@ public class MsGraphHttpClient implements MsGraphClient {
     @SneakyThrows
     @Override
     public String hentAzureIdMedNavIdent(String accessToken, String navIdent) {
-        Request request = new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/users") + format("?$select=%s&$filter=onPremisesSamAccountName eq '%s'", String.join(",", AZURE_AD_OBJECT_ID_FIELDS), navIdent)
-        ).header("Authorization", "Bearer " + accessToken).build();
+        Request request = createAzureUserIdRequest(accessToken, navIdent);
         try (Response res = client.newCall(request).execute()) {
             throwIfNotSuccessful(res);
             UserIdResponse userIdResponse = parseJsonResponseOrThrow(res, UserIdResponse.class);
@@ -108,11 +106,9 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
-    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String azureAdObjectId) {
-        String userId = hentAzureIdMedNavIdent(userAccessToken, azureAdObjectId);
-        Request request = new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/users", userId, "memberOf") + format("?$select=%s&$top=999", String.join(",", MsGraphHttpClient.AD_GROUP_DATA_FIELDS))
-        ).header("Authorization", "Bearer " + userAccessToken).build();
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent) {
+        String userId = hentAzureIdMedNavIdent(userAccessToken, navIdent);
+        Request request = createAdGroupsForUserRequest(userAccessToken, userId);
 
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
@@ -136,6 +132,17 @@ public class MsGraphHttpClient implements MsGraphClient {
         ).header("Authorization", "Bearer " + accessToken).build();
     }
 
+    private Request createAzureUserIdRequest(String accessToken, String navIdent) {
+        return new Request.Builder().url(
+                joinPaths(msGraphApiUrl, "/users") + format("?$select=%s&$filter=onPremisesSamAccountName eq '%s'", String.join(",", AZURE_AD_OBJECT_ID_FIELDS), navIdent)
+        ).header("Authorization", "Bearer " + accessToken).build();
+    }
+
+    private Request createAdGroupsForUserRequest(String userAccessToken, String azureAdObjectId) {
+        return new Request.Builder().url(
+                joinPaths(msGraphApiUrl, "/users", azureAdObjectId, "memberOf") + format("?$select=%s&$top=999", String.join(",", AD_GROUP_DATA_FIELDS))
+        ).header("Authorization", "Bearer " + userAccessToken).build();
+    }
     @Override
     public HealthCheckResult checkHealth() {
         return HealthCheckUtils.pingUrl(msGraphApiUrl, client);
