@@ -27,7 +27,7 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     private final static List<String> AZURE_AD_OBJECT_ID_FIELDS = Collections.singletonList("id");
 
-    private final static List <String> AD_GROUP_DATA_FIELDS = List.of("id", "displayName");
+    private final static List<String> AD_GROUP_DATA_FIELDS = List.of("id", "displayName");
 
     private final String msGraphApiUrl;
 
@@ -134,8 +134,10 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     private Request createAzureUserIdRequest(String accessToken, String navIdent) {
         return new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/users") + format("?$select=%s&$filter=onPremisesSamAccountName eq '%s'", String.join(",", AZURE_AD_OBJECT_ID_FIELDS), navIdent)
-        ).header("Authorization", "Bearer " + accessToken).build();
+                        joinPaths(msGraphApiUrl, "/users") + format("?$select=%s&$count=true&$filter=onPremisesSamAccountName eq '%s'", String.join(",", AZURE_AD_OBJECT_ID_FIELDS), navIdent)
+                ).header("Authorization", "Bearer " + accessToken)
+                .header("ConsistencyLevel", "eventual")
+                .build();
     }
 
     private Request createAdGroupsForUserRequest(String userAccessToken, String azureAdObjectId) {
@@ -143,6 +145,7 @@ public class MsGraphHttpClient implements MsGraphClient {
                 joinPaths(msGraphApiUrl, "/users", azureAdObjectId, "memberOf") + format("?$select=%s&$top=999", String.join(",", AD_GROUP_DATA_FIELDS))
         ).header("Authorization", "Bearer " + userAccessToken).build();
     }
+
     @Override
     public HealthCheckResult checkHealth() {
         return HealthCheckUtils.pingUrl(msGraphApiUrl, client);
