@@ -190,6 +190,105 @@ public class MsGraphHttpClientTest {
 
         assertEquals("group-123-id", result);
     }
+    @Test
+    public void hentAzureIdMedNavIdent_skal_hente_id_for_nav_ident() {
+        String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
 
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String navIdent = "A123456";
+
+        givenThat(get(urlPathEqualTo("/users"))
+                .withQueryParam("$select", equalTo("id"))
+                .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'A123456'"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json)));
+
+        MsGraphHttpClient client = new MsGraphHttpClient(baseUrl);
+
+        String result = client.hentAzureIdMedNavIdent("ACCESS_TOKEN", navIdent);
+
+        assertEquals("azure-user-id-123", result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void hentAzureIdMedNavIdent_skal_kaste_exception_naar_bruker_ikke_finnes() {
+        String json = "{\"value\": []}";
+
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String navIdent = "FINNES_IKKE";
+
+        givenThat(get(urlPathEqualTo("/users"))
+                .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'FINNES_IKKE'"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json)));
+
+        MsGraphHttpClient client = new MsGraphHttpClient(baseUrl);
+
+        client.hentAzureIdMedNavIdent("ACCESS_TOKEN", navIdent);
+    }
+
+    @Test
+    public void hentAzureIdMedNavIdent_skal_returnere_foerste_bruker_naar_flere_finnes() {
+        String json = "{\"value\": [{\"id\": \"first-user-id\"}, {\"id\": \"second-user-id\"}]}";
+
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String navIdent = "DUPLICATE";
+
+        givenThat(get(urlPathEqualTo("/users"))
+                .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'DUPLICATE'"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(json)));
+
+        MsGraphHttpClient client = new MsGraphHttpClient(baseUrl);
+
+        String result = client.hentAzureIdMedNavIdent("ACCESS_TOKEN", navIdent);
+
+        assertEquals("first-user-id", result);
+    }
+
+    @Test
+    public void hentAdGroupsForUser_skal_hente_grupper() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String userIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
+        String adGroupsJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ad-groups-response.json");
+        JsonNode root = mapper.readTree(adGroupsJson);
+        List<AdGroupData> expectedGroups = mapper.readValue(root.get("value").toString(),
+                mapper.getTypeFactory().constructCollectionType(List.class, AdGroupData.class));
+
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String navIdent = "A123456";
+        String azureId = "azure-user-id-123";
+
+        // Mock the first call to get Azure ID from NAV ident
+        givenThat(get(urlPathEqualTo("/users"))
+                .withQueryParam("$select", equalTo("id"))
+                .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq '" + navIdent + "'"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(userIdJson)));
+
+        // Mock the second call to get AD groups
+        givenThat(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
+                .withQueryParam("$select", equalTo("id,displayName"))
+                .withQueryParam("$top", equalTo("999"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(adGroupsJson)));
+
+        MsGraphHttpClient client = new MsGraphHttpClient(baseUrl);
+
+        List<AdGroupData> result = client.hentAdGroupsForUser("ACCESS_TOKEN", navIdent);
+
+        assertEquals(expectedGroups, result);
+        verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
+    }
 
 }
