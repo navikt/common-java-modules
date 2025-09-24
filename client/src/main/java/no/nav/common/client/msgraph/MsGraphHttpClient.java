@@ -21,7 +21,12 @@ import static no.nav.common.utils.UrlUtils.joinPaths;
 @Slf4j
 public class MsGraphHttpClient implements MsGraphClient {
 
-    private final static List<String> USER_DATA_FIELDS = List.of("givenName", "surname", "displayName", "mail", "onPremisesSamAccountName", "id");
+    private final static List<String> USER_DATA_FIELDS = List.of("givenName",
+            "surname",
+            "displayName",
+            "mail",
+            "onPremisesSamAccountName",
+            "id");
 
     private final static List<String> USER_DATA_NAV_IDENT_FIELDS = Collections.singletonList("onPremisesSamAccountName");
 
@@ -107,8 +112,14 @@ public class MsGraphHttpClient implements MsGraphClient {
     @SneakyThrows
     @Override
     public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent) {
+        return hentAdGroupsForUser(userAccessToken, navIdent, null);
+    }
+
+    @SneakyThrows
+    @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter) {
         String userId = hentAzureIdMedNavIdent(userAccessToken, navIdent);
-        Request request = createAdGroupsForUserRequest(userAccessToken, userId);
+        Request request = createAdGroupsForUserRequest(msGraphApiUrl, userAccessToken, userId, filter);
 
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
@@ -117,33 +128,56 @@ public class MsGraphHttpClient implements MsGraphClient {
     }
 
     private Request createMeRequest(String userAccessToken, List<String> fields) {
-        return new Request.Builder().url(joinPaths(msGraphApiUrl, "/me") + format("?$select=%s", String.join(",", fields))).header("Authorization", "Bearer " + userAccessToken).build();
+        return new Request.Builder().url(joinPaths(msGraphApiUrl, "/me") + format("?$select=%s",
+                String.join(",", fields))).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
     private Request createUsersRequest(String userAccessToken, String groupId) {
         return new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/groups", groupId, "/members") + format("?$select=%s&$top=999", String.join(",", MsGraphHttpClient.USER_DATA_FIELDS))
+                joinPaths(msGraphApiUrl, "/groups", groupId, "/members") + format("?$select=%s&$top=999",
+                        String.join(",", MsGraphHttpClient.USER_DATA_FIELDS))
         ).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
     private Request createAzureGroupIdRequest(String accessToken, EnhetId enhetId) {
         return new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/groups") + format("?$select=id&$filter=displayName eq '0000-GA-ENHET_%s'", enhetId)
+                joinPaths(msGraphApiUrl, "/groups") + format("?$select=id&$filter=displayName eq '0000-GA-ENHET_%s'",
+                        enhetId)
         ).header("Authorization", "Bearer " + accessToken).build();
     }
 
     private Request createAzureUserIdRequest(String accessToken, String navIdent) {
         return new Request.Builder().url(
-                        joinPaths(msGraphApiUrl, "/users") + format("?$select=%s&$count=true&$filter=onPremisesSamAccountName eq '%s'", String.join(",", AZURE_AD_OBJECT_ID_FIELDS), navIdent)
+                        joinPaths(msGraphApiUrl, "/users") + format(
+                                "?$select=%s&$count=true&$filter=onPremisesSamAccountName eq '%s'",
+                                String.join(",", AZURE_AD_OBJECT_ID_FIELDS),
+                                navIdent)
                 ).header("Authorization", "Bearer " + accessToken)
                 .header("ConsistencyLevel", "eventual")
                 .build();
     }
 
-    private Request createAdGroupsForUserRequest(String userAccessToken, String azureAdObjectId) {
+    public static Request createAdGroupsForUserRequest(String msGraphApiUrl, String userAccessToken, String azureAdObjectId, AdGroupFilter filter) {
+        String filterQuery = switch (filter) {
+            case ENHET -> "&$filter=startswith(displayName,'0000-GA-ENHET_')";
+            case TEMA -> "&$filter=startswith(displayName,'0000-GA-TEMA_')";
+            case null -> null;
+        };
+
+        String queryParams = format("?$select=%s&$count=true&$top=999", String.join(",", AD_GROUP_DATA_FIELDS));
+        if (filterQuery != null) {
+            queryParams += filterQuery;
+        }
+
         return new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/users", azureAdObjectId, "memberOf") + format("?$select=%s&$top=999", String.join(",", AD_GROUP_DATA_FIELDS))
-        ).header("Authorization", "Bearer " + userAccessToken).build();
+                        joinPaths(msGraphApiUrl,
+                                "/users",
+                                azureAdObjectId,
+                                "memberOf")
+                                + queryParams
+                ).header("Authorization", "Bearer " + userAccessToken)
+                .header("ConsistencyLevel", "eventual")
+                .build();
     }
 
     @Override

@@ -100,6 +100,11 @@ public class CachedMsGraphClient implements MsGraphClient {
     }
 
     @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter) {
+        return List.of();
+    }
+
+    @Override
     public HealthCheckResult checkHealth() {
         return msGraphClient.checkHealth();
     }
