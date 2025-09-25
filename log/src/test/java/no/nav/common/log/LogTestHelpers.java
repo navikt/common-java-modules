@@ -3,7 +3,7 @@ package no.nav.common.log;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter2;
+import ch.qos.logback.core.util.StatusPrinter;
 import org.slf4j.LoggerFactory;
 
 import java.net.URL;
@@ -22,8 +22,7 @@ public class LogTestHelpers {
         configurator.setContext(loggerContext);
         configurator.doConfigure(configUrl);
 
-        var statusPrinter = new StatusPrinter2();
-        statusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
+        StatusPrinter.printInCaseOfErrorsOrWarnings(loggerContext);
     }
 
     public static void flushLogs() {

@@ -1,5 +1,6 @@
 package no.nav.common.log;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.codehaus.commons.nullanalysis.NotNull;
@@ -7,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -38,7 +40,7 @@ public class LogbackStdoutJsonTest {
         String logtext = outputStream.toString();
 
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
-        var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
+        var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext, LogLinje.class);
 
         Assert.assertEquals("skal bare vere 2 log lingjer", 2, logLinjes.size());
 
@@ -75,7 +77,7 @@ public class LogbackStdoutJsonTest {
         String logtext = outputStream.toString();
 
         //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
-        var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
+        var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext, LogLinje.class);
 
         Assert.assertEquals("skal være 3 loglingjer (ikke debug)", 3, logLinjes.size());
 
@@ -106,11 +108,36 @@ public class LogbackStdoutJsonTest {
         System.setOut(out);
     }
 
-    private static List<LogLinje> hentLinjerSomStarterMedCurlyBraces(String logtext) {
+    @Test
+    @SneakyThrows
+    public void mdcSkalFungere() {
+        PrintStream out = System.out;
+
+        LogTestHelpers.loadLogbackConfig("/logback-test.xml");
+        ByteArrayOutputStream outputStream = captureSystemOut();
+
+        Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
+
+        MDC.put("korrelasjon_id", "123-abc");
+        String loggtekst = "Hei fra logg";
+
+        log.info(loggtekst);
+
+        LogTestHelpers.flushLogs();
+
+        String logtext = outputStream.toString();
+        List<LogLinjeMDC> logLines = hentLinjerSomStarterMedCurlyBraces(logtext, LogLinjeMDC.class);
+
+        System.setOut(out);
+
+        Assert.assertEquals("123-abc", logLines.getFirst().korrelasjon_id);
+    }
+
+    private static <T extends LogLinje> List<T> hentLinjerSomStarterMedCurlyBraces(String logtext, Class<T> clazz) {
         Gson gson = new Gson();
         return Arrays.stream(logtext.split("\n"))
                 .filter(l -> l.startsWith("{"))
-                .map(l -> gson.fromJson(l, LogLinje.class))
+                .map(l -> gson.fromJson(l, clazz))
                 .toList();
     }
 
