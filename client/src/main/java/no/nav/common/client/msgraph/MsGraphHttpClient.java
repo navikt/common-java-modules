@@ -10,6 +10,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,9 +23,18 @@ import static no.nav.common.utils.UrlUtils.joinPaths;
 @Slf4j
 public class MsGraphHttpClient implements MsGraphClient {
 
-    private final static List<String> USER_DATA_FIELDS = List.of("givenName", "surname", "displayName", "mail", "onPremisesSamAccountName", "id");
+    private final static List<String> USER_DATA_FIELDS = List.of("givenName",
+            "surname",
+            "displayName",
+            "mail",
+            "onPremisesSamAccountName",
+            "id");
 
     private final static List<String> USER_DATA_NAV_IDENT_FIELDS = Collections.singletonList("onPremisesSamAccountName");
+
+    private final static List<String> AZURE_AD_OBJECT_ID_FIELDS = Collections.singletonList("id");
+
+    private final static List<String> AD_GROUP_DATA_FIELDS = List.of("id", "displayName");
 
     private final String msGraphApiUrl;
 
@@ -69,6 +80,23 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
+    public String hentAzureIdMedNavIdent(String accessToken, String navIdent) {
+        Request request = createAzureUserIdRequest(accessToken, navIdent);
+        try (Response res = client.newCall(request).execute()) {
+            throwIfNotSuccessful(res);
+            UserIdResponse userIdResponse = parseJsonResponseOrThrow(res, UserIdResponse.class);
+            if (userIdResponse.value().isEmpty()) {
+                throw new IllegalArgumentException("Fant ikke bruker i Azure AD med navIdent=" + navIdent);
+            }
+            if (userIdResponse.value().size() > 1) {
+                log.warn("Flere enn én bruker i Azure AD med navIdent={}. Returnerer den første.", navIdent);
+            }
+            return userIdResponse.value().getFirst().id().toString();
+        }
+    }
+
+    @SneakyThrows
+    @Override
     public List<UserData> hentUserDataForGroup(String accessToken, String groupId) {
         Request request = createUsersRequest(accessToken, groupId);
         try (Response response = client.newCall(request).execute()) {
@@ -83,20 +111,74 @@ public class MsGraphHttpClient implements MsGraphClient {
         return hentUserDataForGroup(accessToken, groupId);
     }
 
+    @SneakyThrows
+    @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent) {
+        return hentAdGroupsForUser(userAccessToken, navIdent, null);
+    }
+
+    @SneakyThrows
+    @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter) {
+        String userId = hentAzureIdMedNavIdent(userAccessToken, navIdent);
+        Request request = createAdGroupsForUserRequest(msGraphApiUrl, userAccessToken, userId, filter);
+
+        try (Response response = client.newCall(request).execute()) {
+            throwIfNotSuccessful(response);
+            return parseJsonResponseOrThrow(response, AdGroupResponse.class).value();
+        }
+    }
+
+
     private Request createMeRequest(String userAccessToken, List<String> fields) {
-        return new Request.Builder().url(joinPaths(msGraphApiUrl, "/me") + format("?$select=%s", String.join(",", fields))).header("Authorization", "Bearer " + userAccessToken).build();
+        return new Request.Builder().url(joinPaths(msGraphApiUrl, "/me") + format("?$select=%s",
+                String.join(",", fields))).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
     private Request createUsersRequest(String userAccessToken, String groupId) {
         return new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/groups", groupId, "/members") + format("?$select=%s&$top=999", String.join(",", MsGraphHttpClient.USER_DATA_FIELDS))
+                joinPaths(msGraphApiUrl, "/groups", groupId, "/members") + format("?$select=%s&$top=999",
+                        String.join(",", MsGraphHttpClient.USER_DATA_FIELDS))
         ).header("Authorization", "Bearer " + userAccessToken).build();
     }
 
     private Request createAzureGroupIdRequest(String accessToken, EnhetId enhetId) {
         return new Request.Builder().url(
-                joinPaths(msGraphApiUrl, "/groups") + format("?$select=id&$filter=displayName eq '0000-GA-ENHET_%s'", enhetId)
+                joinPaths(msGraphApiUrl, "/groups") + format("?$select=id&$filter=displayName eq '0000-GA-ENHET_%s'",
+                        enhetId)
         ).header("Authorization", "Bearer " + accessToken).build();
+    }
+
+    private Request createAzureUserIdRequest(String accessToken, String navIdent) {
+        String encodedNavIdent = URLEncoder.encode(navIdent, StandardCharsets.UTF_8);
+        return new Request.Builder().url(
+                        joinPaths(msGraphApiUrl, "/users") + format(
+                                "?$select=%s&$count=true&$filter=onPremisesSamAccountName eq '%s'",
+                                String.join(",", AZURE_AD_OBJECT_ID_FIELDS),
+                                encodedNavIdent)
+                ).header("Authorization", "Bearer " + accessToken)
+                .header("ConsistencyLevel", "eventual")
+                .build();
+    }
+
+    public static Request createAdGroupsForUserRequest(String msGraphApiUrl, String userAccessToken, String azureAdObjectId, AdGroupFilter filter) {
+        String filterQuery = (filter == null) ? null :
+                "&$filter=startswith(displayName,'0000-GA-" + filter.name() + "_')";
+
+        String queryParams = format("?$select=%s&$count=true&$top=999", String.join(",", AD_GROUP_DATA_FIELDS));
+        if (filterQuery != null) {
+            queryParams += filterQuery;
+        }
+
+        return new Request.Builder().url(
+                        joinPaths(msGraphApiUrl,
+                                "/users",
+                                azureAdObjectId,
+                                "memberOf")
+                                + queryParams
+                ).header("Authorization", "Bearer " + userAccessToken)
+                .header("ConsistencyLevel", "eventual")
+                .build();
     }
 
     @Override

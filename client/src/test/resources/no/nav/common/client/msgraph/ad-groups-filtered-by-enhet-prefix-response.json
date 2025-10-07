@@ -1,0 +1,16 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#directoryObjects(id,displayName)",
+  "@odata.count": 2,
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.group",
+      "id": "1c249230-c0ec-4a7f-9ac8-f1b265034316",
+      "displayName": "0000-GA-ENHET_0314"
+    },
+    {
+      "@odata.type": "#microsoft.graph.group",
+      "id": "239fac66-de2d-4b92-abe9-bae413d50450",
+      "displayName": "0000-GA-ENHET_0220"
+    }
+  ]
+}

@@ -37,6 +37,21 @@ public class CachedMsGraphClient implements MsGraphClient {
             .maximumSize(10_000)
             .build();
 
+    private final Cache<String, List<AdGroupData>> hentAdGroupsForUserCache = Caffeine.newBuilder()
+            .expireAfterWrite(30, TimeUnit.MINUTES)
+            .maximumSize(10_000)
+            .build();
+
+    private final Cache<String, List<AdGroupData>> hentAdGroupsForUserFilteredCache = Caffeine.newBuilder()
+            .expireAfterWrite(30, TimeUnit.MINUTES)
+            .maximumSize(10_000)
+            .build();
+
+    private final Cache<String, String> hentAzureIdMedNavIdentCache = Caffeine.newBuilder()
+            .expireAfterWrite(12, TimeUnit.HOURS)
+            .maximumSize(20_000)
+            .build();
+
     public CachedMsGraphClient(MsGraphClient msGraphClient) {
         this.msGraphClient = msGraphClient;
     }
@@ -61,6 +76,11 @@ public class CachedMsGraphClient implements MsGraphClient {
         return tryCacheFirst(hentAzureGroupIdCache, enhetId, () -> msGraphClient.hentAzureGroupId(accessToken, enhetId));
     }
 
+    @Override
+    public String hentAzureIdMedNavIdent(String accessToken, String navIdent) {
+        return tryCacheFirst(hentAzureIdMedNavIdentCache, navIdent, () -> msGraphClient.hentAzureIdMedNavIdent(accessToken, navIdent));
+    }
+
     @SneakyThrows
     @Override
     public List<UserData> hentUserDataForGroup(String accessToken, String groupId) {
@@ -77,6 +97,17 @@ public class CachedMsGraphClient implements MsGraphClient {
         }
 
         return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
+    }
+    @SneakyThrows
+    @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String azureAdObjectId) {
+        return tryCacheFirst(hentAdGroupsForUserCache, azureAdObjectId, () -> msGraphClient.hentAdGroupsForUser(userAccessToken, azureAdObjectId));
+    }
+
+    @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter) {
+        String cacheKey = navIdent + "_" + filter;
+        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(userAccessToken, navIdent, filter));
     }
 
     @Override
