@@ -113,15 +113,15 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
-    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent) {
-        return hentAdGroupsForUser(userAccessToken, navIdent, null);
+    public List<AdGroupData> hentAdGroupsForUser(String accessToken, String navIdent) {
+        return hentAdGroupsForUser(accessToken, navIdent, null);
     }
 
     @SneakyThrows
     @Override
-    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter) {
-        String userId = hentAzureIdMedNavIdent(userAccessToken, navIdent);
-        Request request = createAdGroupsForUserRequest(msGraphApiUrl, userAccessToken, userId, filter);
+    public List<AdGroupData> hentAdGroupsForUser(String accessToken, String navIdent, AdGroupFilter filter) {
+        String userId = hentAzureIdMedNavIdent(accessToken, navIdent);
+        Request request = createAdGroupsForUserRequest(msGraphApiUrl, accessToken, userId, filter);
 
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);
@@ -131,8 +131,8 @@ public class MsGraphHttpClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
-    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, AdGroupFilter filter) {
-        Request request = createMeMemberOfRequest(msGraphApiUrl, userAccessToken, filter);
+    public List<AdGroupData> hentAdGroupsForUser(String accessToken, AdGroupFilter filter) {
+        Request request = createMeMemberOfRequest(msGraphApiUrl, accessToken, filter);
 
         try (Response response = client.newCall(request).execute()) {
             throwIfNotSuccessful(response);

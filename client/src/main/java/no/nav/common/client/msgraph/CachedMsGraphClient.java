@@ -71,6 +71,7 @@ public class CachedMsGraphClient implements MsGraphClient {
         return tryCacheFirst(hentOnPremisesSamAccountNameCache, cacheKey, () -> msGraphClient.hentOnPremisesSamAccountName(userAccessToken));
     }
 
+
     @SneakyThrows
     @Override
     public String hentAzureGroupId(String accessToken, EnhetId enhetId) {
@@ -102,21 +103,21 @@ public class CachedMsGraphClient implements MsGraphClient {
 
     @SneakyThrows
     @Override
-    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String azureAdObjectId) {
-        return tryCacheFirst(hentAdGroupsForUserCache, azureAdObjectId, () -> msGraphClient.hentAdGroupsForUser(userAccessToken, azureAdObjectId));
+    public List<AdGroupData> hentAdGroupsForUser(String accessToken, String azureAdObjectId) {
+        return tryCacheFirst(hentAdGroupsForUserCache, azureAdObjectId, () -> msGraphClient.hentAdGroupsForUser(accessToken, azureAdObjectId));
     }
 
     @Override
-    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter) {
+    public List<AdGroupData> hentAdGroupsForUser(String accessToken, String navIdent, AdGroupFilter filter) {
         String cacheKey = navIdent + "_" + filter;
-        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(userAccessToken, navIdent, filter));
+        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(accessToken, navIdent, filter));
     }
 
     @SneakyThrows
     @Override
-    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, AdGroupFilter filter) {
-        String cacheKey = JWTParser.parse(userAccessToken).getJWTClaimsSet().getStringClaim("NAVident") + "_" + filter;
-        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(userAccessToken, filter));
+    public List<AdGroupData> hentAdGroupsForUser(String accessToken, AdGroupFilter filter) {
+        String cacheKey = JWTParser.parse(accessToken).getJWTClaimsSet().getStringClaim("NAVident") + "_" + filter;
+        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(accessToken, filter));
     }
 
     @Override
