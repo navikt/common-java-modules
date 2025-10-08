@@ -333,6 +333,32 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
+    public void hentAdGroupsForUser_med_enhet_filter_skal_hente_grupper_med_enhet_prefiks_me() {
+        String adGroupsJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ad-groups-filtered-by-enhet-prefix-response.json");
+
+        String baseUrl = "http://localhost:" + wireMockRule.port();
+
+        givenThat(get(urlPathEqualTo("/me/memberOf"))
+                .withQueryParam("$select", equalTo("id,displayName"))
+                .withQueryParam("$top", equalTo("999"))
+                .withQueryParam("$filter", equalTo("startswith(displayName,'0000-GA-ENHET_')"))
+                .withHeader("ConsistencyLevel", equalTo("eventual"))
+                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(adGroupsJson)));
+
+        MsGraphClient client = new MsGraphHttpClient(baseUrl);
+
+        List<AdGroupData> expectedResponse = List.of(
+                new AdGroupData(new AzureObjectId("1c249230-c0ec-4a7f-9ac8-f1b265034316"), ("0000-GA-ENHET_0314")),
+                new AdGroupData(new AzureObjectId("239fac66-de2d-4b92-abe9-bae413d50450"), ("0000-GA-ENHET_0220")));
+        List<AdGroupData> actualResponse = client.hentAdGroupsForUser("ACCESS_TOKEN", AdGroupFilter.ENHET);
+        assertEquals(expectedResponse, actualResponse);
+        verify(getRequestedFor(urlPathEqualTo("/me/memberOf")));
+    }
+
+    @Test
     public void hentAdGroupsForUser_med_tema_filter_skal_hente_grupper_med_tema_prefiks() {
         String userIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
         String adGroupsJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ad-groups-filtered-by-tema-prefix-response.json");

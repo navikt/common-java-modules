@@ -24,6 +24,7 @@ public interface MsGraphClient extends HealthCheck {
     List<UserData> hentUserDataForGroup(String accessToken, EnhetId enhetId);
     List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent);
     List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter);
+    List<AdGroupData> hentAdGroupsForUser(String userAccessToken, AdGroupFilter filter);
 
     /**
      * Henter OnPremisesSamAccountName til brukeren.

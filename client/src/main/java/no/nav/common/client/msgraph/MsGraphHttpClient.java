@@ -129,6 +129,16 @@ public class MsGraphHttpClient implements MsGraphClient {
         }
     }
 
+    @SneakyThrows
+    @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, AdGroupFilter filter) {
+        Request request = createMeMemberOfRequest(msGraphApiUrl, userAccessToken, filter);
+
+        try (Response response = client.newCall(request).execute()) {
+            throwIfNotSuccessful(response);
+            return parseJsonResponseOrThrow(response, AdGroupResponse.class).value();
+        }
+    }
 
     private Request createMeRequest(String userAccessToken, List<String> fields) {
         return new Request.Builder().url(joinPaths(msGraphApiUrl, "/me") + format("?$select=%s",
@@ -157,6 +167,23 @@ public class MsGraphHttpClient implements MsGraphClient {
                                 String.join(",", AZURE_AD_OBJECT_ID_FIELDS),
                                 encodedNavIdent)
                 ).header("Authorization", "Bearer " + accessToken)
+                .header("ConsistencyLevel", "eventual")
+                .build();
+    }
+
+    public static Request createMeMemberOfRequest(String msGraphApiUrl, String userAccessToken, AdGroupFilter filter) {
+        String filterQuery = (filter == null) ? null :
+                "&$filter=startswith(displayName,'0000-GA-" + filter.name() + "_')";
+
+        String queryParams = format("?$select=%s&$count=true&$top=999", String.join(",", AD_GROUP_DATA_FIELDS));
+        if (filterQuery != null) {
+            queryParams += filterQuery;
+        }
+
+        return new Request.Builder().url(
+                        joinPaths(msGraphApiUrl, "me/memberOf")
+                                + queryParams
+                ).header("Authorization", "Bearer " + userAccessToken)
                 .header("ConsistencyLevel", "eventual")
                 .build();
     }

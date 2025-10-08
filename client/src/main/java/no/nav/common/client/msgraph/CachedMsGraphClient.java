@@ -6,6 +6,7 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.EnhetId;
+import no.nav.common.utils.AuthUtils;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -98,6 +99,7 @@ public class CachedMsGraphClient implements MsGraphClient {
 
         return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
     }
+
     @SneakyThrows
     @Override
     public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String azureAdObjectId) {
@@ -108,6 +110,13 @@ public class CachedMsGraphClient implements MsGraphClient {
     public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, String navIdent, AdGroupFilter filter) {
         String cacheKey = navIdent + "_" + filter;
         return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(userAccessToken, navIdent, filter));
+    }
+
+    @SneakyThrows
+    @Override
+    public List<AdGroupData> hentAdGroupsForUser(String userAccessToken, AdGroupFilter filter) {
+        String cacheKey = JWTParser.parse(userAccessToken).getJWTClaimsSet().getStringClaim("NAVident") + "_" + filter;
+        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(userAccessToken, filter));
     }
 
     @Override
