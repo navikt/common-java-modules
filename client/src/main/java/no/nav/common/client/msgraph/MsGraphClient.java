@@ -95,7 +95,7 @@ public interface MsGraphClient extends HealthCheck {
      *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/user-list-memberof?view=graph-rest-1.0&tabs=http#permissions-for-the-signed-in-users-direct-memberships">List a user's direct memberships - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
      * </ul>
      *
-     * NB: Denne operasjonen forventer at {@code accessToken} inneholder claimet "NAVident", da dette brukes ifm. caching.
+     * NB: Denne operasjonen forventer at {@code accessToken} inneholder "sub"-claimet, da dette brukes ifm. caching.
      *
      * @param accessToken et access-token
      * @param filter filtrerer hvilke AD-grupper som returneres basert på prefiks

@@ -116,7 +116,13 @@ public class CachedMsGraphClient implements MsGraphClient {
     @SneakyThrows
     @Override
     public List<AdGroupData> hentAdGroupsForUser(String accessToken, AdGroupFilter filter) {
-        String cacheKey = JWTParser.parse(accessToken).getJWTClaimsSet().getStringClaim("NAVident") + "_" + filter;
+        String subjectClaim = JWTParser.parse(accessToken).getJWTClaimsSet().getSubject();
+
+        if(subjectClaim == null || subjectClaim.isEmpty()) {
+            throw new IllegalStateException("Token \"accessToken\" mangler \"sub\"-claim.");
+        }
+
+        String cacheKey = subjectClaim + "_" + filter;
         return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(accessToken, filter));
     }
 
