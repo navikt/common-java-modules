@@ -1,0 +1,21 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#directoryObjects(id,displayName)",
+  "@odata.count": 3,
+  "value": [
+    {
+      "@odata.type": "#microsoft.graph.group",
+      "id": "248c095b-6780-464c-820d-2d7b2ea01ae9",
+      "displayName": "0000-GA-TEMA_PEN"
+    },
+    {
+      "@odata.type": "#microsoft.graph.group",
+      "id": "3b90589a-a04a-43a7-a863-7b9c4983b7cf",
+      "displayName": "0000-GA-TEMA_OKO"
+    },
+    {
+      "@odata.type": "#microsoft.graph.group",
+      "id": "73e61cf7-ffa3-4cdf-996b-bc48f94d9be0",
+      "displayName": "0000-GA-TEMA_UFM"
+    }
+  ]
+}

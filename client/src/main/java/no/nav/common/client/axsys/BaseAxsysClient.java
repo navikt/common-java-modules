@@ -26,21 +26,30 @@ import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
 import static no.nav.common.rest.client.RestUtils.createBearerToken;
 import static no.nav.common.rest.client.RestUtils.throwIfNotSuccessful;
 import static no.nav.common.utils.UrlUtils.joinPaths;
-
+/**
+ * @deprecated Axsys skal fases ut. Vil bli erstattet med funksjonalitet i EntraId {@link no.nav.common.client.msgraph.MsGraphClient}
+ */
+@Deprecated(forRemoval = true)
 abstract class BaseAxsysClient implements AxsysClient {
     private final OkHttpClient client;
     private final String axsysUrl;
     private final AxsysApi apiVersion;
     private final Supplier<String> serviceTokenSupplier;
 
-
+    /**
+     * @deprecated Axsys skal fases ut. Vil bli erstattet med funksjonalitet i EntraId {@link no.nav.common.client.msgraph.MsGraphClient}
+     */
+    @Deprecated(forRemoval = true)
     public BaseAxsysClient(String axsysUrl, AxsysApi apiVersion, Supplier<String> serviceTokenSupplier) {
         this.axsysUrl = axsysUrl;
         this.apiVersion = apiVersion;
         this.serviceTokenSupplier = serviceTokenSupplier;
         this.client = RestClient.baseClient();
     }
-
+    /**
+     * @deprecated Axsys skal fases ut. Vil bli erstattet med funksjonalitet i EntraId {@link no.nav.common.client.msgraph.MsGraphClient}
+     */
+    @Deprecated(forRemoval = true)
     public BaseAxsysClient(String axsysUrl, AxsysApi apiVersion, Supplier<String> serviceTokenSupplier, OkHttpClient client) {
         this.axsysUrl = axsysUrl;
         this.apiVersion = apiVersion;
@@ -88,7 +97,10 @@ abstract class BaseAxsysClient implements AxsysClient {
         }
         return createBearerToken(serviceTokenSupplier.get());
     }
-
+    /**
+     * @deprecated Axsys skal fases ut. Vil bli erstattet med funksjonalitet i EntraId {@link no.nav.common.client.msgraph.MsGraphClient}
+     */
+    @Deprecated
     @Data
     @NoArgsConstructor
     @Accessors(chain = true)
