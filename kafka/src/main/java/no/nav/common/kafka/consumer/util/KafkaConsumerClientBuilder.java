@@ -13,14 +13,13 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static no.nav.common.kafka.consumer.util.ConsumerUtils.deserializeConsumerRecord;
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.toTopicConsumer;
 
 @Slf4j
 public class KafkaConsumerClientBuilder {
 
     private final List<TopicConfig<?, ?>> consumerTopicConfigs = new ArrayList<>();
-    
+
     private Properties properties;
 
     private long pollDurationMs = -1;
@@ -116,15 +115,15 @@ public class KafkaConsumerClientBuilder {
         var consumerRepository = consumerTopicConfig.getConsumerRepository();
 
         TopicConsumer<byte[], byte[]> topicConsumer = (record) -> {
-            ConsumeStatus status = ConsumerUtils.safeConsume(ConsumerUtils.createTopicConsumer(config), record);
+            ConsumerRecord<K, V> deserializedRecord = ConsumerUtils.deserializeConsumerRecord(
+                    record,
+                    config.getKeyDeserializer(),
+                    config.getValueDeserializer()
+            );
+
+            ConsumeStatus status = ConsumerUtils.safeConsume(config.getConsumer(), deserializedRecord);
 
             if (!listeners.isEmpty()) {
-                ConsumerRecord<K, V> deserializedRecord = deserializeConsumerRecord(
-                        record,
-                        config.getKeyDeserializer(),
-                        config.getValueDeserializer()
-                );
-
                 listeners.forEach(listener -> {
                     try {
                         listener.onConsumed(deserializedRecord, status);
@@ -143,7 +142,7 @@ public class KafkaConsumerClientBuilder {
 
         return topicConsumer;
     }
-    
+
     public static class TopicConfig<K, V> {
 
         private final List<TopicConsumerListener<K, V>> listeners = new ArrayList<>();
