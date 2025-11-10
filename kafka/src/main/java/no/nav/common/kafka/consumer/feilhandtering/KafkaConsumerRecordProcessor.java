@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -108,21 +107,17 @@ public class KafkaConsumerRecordProcessor {
                 List<Long> recordsToDelete = new ArrayList<>();
                 Map<TopicPartition, Set<Bytes>> failedOrBackedOffKeys = new HashMap<>();
 
-                records.forEach(r -> {
+                records.forEach(record -> {
                     Set<Bytes> keySet = failedOrBackedOffKeys.get(topicPartition);
 
-                    Bytes keyBytes = Bytes.wrap(r.getKey());
+                    Bytes keyBytes = Bytes.wrap(record.getKey());
 
                     // We cannot process records where a previous record with the same key (and topic+partition) has failed to be consumed
                     if (keySet != null && keyBytes != null && keySet.contains(keyBytes)) {
                         return;
                     }
 
-                    Duration backoffDuration = config.backoffStrategy.getBackoffDuration(r);
-
-                    LocalDateTime now = LocalDateTime.now();
-
-                    if (r.getLastRetry() != null && r.getLastRetry().toLocalDateTime().plus(backoffDuration).isAfter(now)) {
+                    if (shouldBackoff(record)) {
                         if (keyBytes != null) {
                             failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
                         }
@@ -133,7 +128,7 @@ public class KafkaConsumerRecordProcessor {
                     Exception exception = null;
 
                     try {
-                        status = recordConsumer.consume(mapFromStoredRecord(r));
+                        status = recordConsumer.consume(mapFromStoredRecord(record));
                     } catch (Exception e) {
                         exception = e;
                         status = ConsumeStatus.FAILED;
@@ -142,18 +137,18 @@ public class KafkaConsumerRecordProcessor {
                     if (status == ConsumeStatus.OK) {
                         log.info(
                                 "Successfully processed stored record topic={} partition={} offset={} dbId={}",
-                                r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                                record.getTopic(), record.getPartition(), record.getOffset(), record.getId()
                         );
-                        recordsToDelete.add(r.getId());
+                        recordsToDelete.add(record.getId());
                     } else {
                         String message = format(
                                 "Failed to process stored consumer record topic=%s partition=%d offset=%d dbId=%d",
-                                r.getTopic(), r.getPartition(), r.getOffset(), r.getId()
+                                record.getTopic(), record.getPartition(), record.getOffset(), record.getId()
                         );
 
                         log.error(message, exception);
 
-                        kafkaConsumerRepository.incrementRetries(r.getId());
+                        kafkaConsumerRepository.incrementRetries(record.getId());
 
                         if (keyBytes != null) {
                             failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
@@ -163,7 +158,7 @@ public class KafkaConsumerRecordProcessor {
 
                 if (!recordsToDelete.isEmpty()) {
                     kafkaConsumerRepository.deleteRecords(recordsToDelete);
-                    log.info("Stored consumer records deleted " + Arrays.toString(recordsToDelete.toArray()));
+                    log.info("Stored consumer records deleted {}", Arrays.toString(recordsToDelete.toArray()));
                 }
 
             } catch (Exception e) {
@@ -172,6 +167,20 @@ public class KafkaConsumerRecordProcessor {
                 lock.ifPresent(SimpleLock::unlock);
             }
         });
+    }
+
+    private boolean shouldBackoff(StoredConsumerRecord record) {
+        Instant now = Instant.now();
+        Instant nextAttempt = getLastAttempt(record).plus(config.backoffStrategy.getBackoffDuration(record));
+        return now.isBefore(nextAttempt);
+    }
+
+    private Instant getLastAttempt(StoredConsumerRecord record) {
+        if (record.getLastRetry() != null) {
+            return record.getLastRetry().toInstant();
+        } else {
+            return Instant.ofEpochMilli(record.getTimestamp());
+        }
     }
 
     private Optional<SimpleLock> acquireLock(TopicPartition topicPartition) {
