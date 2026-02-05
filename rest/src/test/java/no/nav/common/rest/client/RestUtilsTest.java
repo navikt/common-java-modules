@@ -217,6 +217,15 @@ public class RestUtilsTest {
         RequestBody jsonRequestBody = RestUtils.toJsonRequestBody(payload);
         Assertions.assertThat(jsonRequestBody.contentLength()).isEqualTo(expected.length());
     }
+    @Test
+    public void toJsonRequestBodyWithoutNullValues_skal_serialisere_request_body() throws IOException {
+        HelloWorldPayload payload = new HelloWorldPayload();
+        String expected = "{\"hello\":\"world\"}";
+
+        payload.hello = "world";
+        RequestBody jsonRequestBody = RestUtils.toJsonRequestBodyWithoutNullValues(payload);
+        Assertions.assertThat(jsonRequestBody.contentLength()).isEqualTo(expected.length());
+    }
 
     @Test
     public void createBearerToken_simply_suffixes_token_with_Bearer() {
