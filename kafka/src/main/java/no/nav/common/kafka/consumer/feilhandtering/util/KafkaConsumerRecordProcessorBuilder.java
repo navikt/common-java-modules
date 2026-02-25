@@ -1,5 +1,6 @@
 package no.nav.common.kafka.consumer.feilhandtering.util;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import net.javacrumbs.shedlock.core.LockProvider;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessorConfig;
@@ -34,6 +35,8 @@ public class KafkaConsumerRecordProcessorBuilder {
 
     private List<TopicConsumerConfig<?, ?>> topicConsumerConfigs;
 
+    private MeterRegistry meterRegistry;
+
     private final KafkaConsumerRecordProcessorConfig config = new KafkaConsumerRecordProcessorConfig(
             DEFAULT_ERROR_TIMEOUT,
             DEFAULT_POLL_TIMEOUT,
@@ -43,6 +46,11 @@ public class KafkaConsumerRecordProcessorBuilder {
 
     public static KafkaConsumerRecordProcessorBuilder builder() {
         return new KafkaConsumerRecordProcessorBuilder();
+    }
+
+    public KafkaConsumerRecordProcessorBuilder withMetric(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+        return this;
     }
 
     public KafkaConsumerRecordProcessorBuilder withLockProvider(LockProvider lockProvider) {
@@ -115,7 +123,8 @@ public class KafkaConsumerRecordProcessorBuilder {
                 lockProvider,
                 kafkaConsumerRepository,
                 createTopicConsumers(topicConsumerConfigs),
-                config
+                config,
+                meterRegistry
         );
     }
 }
