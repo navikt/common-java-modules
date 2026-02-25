@@ -1,5 +1,7 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
@@ -35,12 +37,16 @@ public class KafkaConsumerRecordProcessor {
 
     private volatile boolean isRunning;
 
+    private final MeterRegistry meterRegistry;
+
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
             KafkaConsumerRepository kafkaRepository,
             Map<String, TopicConsumer<byte[], byte[]>> topicConsumers,
-            KafkaConsumerRecordProcessorConfig config
+            KafkaConsumerRecordProcessorConfig config,
+            MeterRegistry meterRegistry
     ) {
+        this.meterRegistry = meterRegistry;
         this.lockProvider = lockProvider;
         this.kafkaConsumerRepository = kafkaRepository;
         this.config = config;
@@ -159,6 +165,19 @@ public class KafkaConsumerRecordProcessor {
                 if (!recordsToDelete.isEmpty()) {
                     kafkaConsumerRepository.deleteRecords(recordsToDelete);
                     log.info("Stored consumer records deleted {}", Arrays.toString(recordsToDelete.toArray()));
+                }
+                if (meterRegistry != null && !failedOrBackedOffKeys.isEmpty()) {
+                    try {
+                        var number = failedOrBackedOffKeys.get(topicPartition).size();
+                        Gauge
+                            .builder("kafka_consumer_failed_or_backedoff_messages_in_batch", () -> number)
+                            .description("Number of failed or backed off messages ") // optional
+                            .tags("topic", topicPartition.topic()) // optional
+                            .tags("partition", String.valueOf(topicPartition.partition())) // optional
+                            .register(meterRegistry);
+                    } catch (Exception e) {
+                        log.warn("Failed to update failed-or-backedoff metrics", e);
+                    }
                 }
 
             } catch (Exception e) {
