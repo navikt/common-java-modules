@@ -110,7 +110,6 @@ public class KafkaConsumerClientBuilder {
     }
 
     public static <K, V> TopicConsumer<byte[], byte[]> createTopicConsumer(TopicConfig<K, V> consumerTopicConfig) {
-        var meterRegistry = consumerTopicConfig.meterRegistry;
         var listeners = consumerTopicConfig.getListeners();
         var config = consumerTopicConfig.getConsumerConfig();
         var consumerRepository = consumerTopicConfig.getConsumerRepository();
@@ -138,7 +137,7 @@ public class KafkaConsumerClientBuilder {
         };
 
         if (consumerRepository != null) {
-            return new StoreOnFailureTopicConsumer(topicConsumer, consumerRepository, meterRegistry);
+            return new StoreOnFailureTopicConsumer(topicConsumer, consumerRepository);
         } else {
             return topicConsumer;
         }
@@ -151,8 +150,6 @@ public class KafkaConsumerClientBuilder {
         private TopicConsumerConfig<K, V> consumerConfig;
 
         private KafkaConsumerRepository consumerRepository;
-
-        private MeterRegistry meterRegistry;
 
         public TopicConfig<K, V> withConsumerConfig(TopicConsumerConfig<K, V> consumerConfig) {
             this.consumerConfig = consumerConfig;
@@ -186,7 +183,6 @@ public class KafkaConsumerClientBuilder {
 
         public TopicConfig<K, V> withMetrics(MeterRegistry meterRegistry) {
             listeners.add(new TopicConsumerMetrics<>(meterRegistry));
-            this.meterRegistry = meterRegistry;
             return this;
         }
 
