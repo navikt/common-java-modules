@@ -48,7 +48,7 @@ public class KafkaConsumerRecordProcessorBuilder {
         return new KafkaConsumerRecordProcessorBuilder();
     }
 
-    public KafkaConsumerRecordProcessorBuilder withMetric(MeterRegistry meterRegistry) {
+    public KafkaConsumerRecordProcessorBuilder withMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
         return this;
     }
