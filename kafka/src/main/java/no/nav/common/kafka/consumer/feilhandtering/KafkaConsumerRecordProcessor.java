@@ -188,7 +188,7 @@ public class KafkaConsumerRecordProcessor {
         AtomicInteger gaugeValue = failedMessagesGauges.computeIfAbsent(topicPartition, (ignored) -> {
             List<Tag> tags = new ArrayList<>();
             tags.add(Tag.of("topic", topicPartition.topic()));
-            tags.add(Tag.of("topic", String.valueOf(topicPartition.partition())));
+            tags.add(Tag.of("partition", String.valueOf(topicPartition.partition())));
             return meterRegistry.gauge("kafka_consumer_failed_or_backedoff_messages_in_batch", tags, new AtomicInteger(value));
         });
         if (gaugeValue != null) {
