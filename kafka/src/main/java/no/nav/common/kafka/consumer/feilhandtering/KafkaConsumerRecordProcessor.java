@@ -2,6 +2,7 @@ package no.nav.common.kafka.consumer.feilhandtering;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.mapFromStoredRecord;
@@ -38,6 +40,8 @@ public class KafkaConsumerRecordProcessor {
     private volatile boolean isRunning;
 
     private final MeterRegistry meterRegistry;
+
+    private final Map<TopicPartition, AtomicInteger> failedMessagesGauges = new HashMap<>();
 
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
@@ -166,13 +170,7 @@ public class KafkaConsumerRecordProcessor {
                 }
                 if (meterRegistry != null) {
                     try {
-                        var number = failedOrBackedOffKeys.size();
-                        Gauge
-                            .builder("kafka_consumer_failed_or_backedoff_messages_in_batch", () -> number)
-                            .description("Number of failed or backed off messages ")
-                            .tags("topic", topicPartition.topic())
-                            .tags("partition", String.valueOf(topicPartition.partition()))
-                            .register(meterRegistry);
+                        registerFailedMessagesGaugeForTopic(topicPartition, failedOrBackedOffKeys.size());
                     } catch (Exception e) {
                         log.warn("Failed to update failed-or-backedoff metrics", e);
                     }
@@ -184,6 +182,18 @@ public class KafkaConsumerRecordProcessor {
                 lock.ifPresent(SimpleLock::unlock);
             }
         });
+    }
+
+    private void registerFailedMessagesGaugeForTopic(TopicPartition topicPartition, Integer value) {
+        AtomicInteger gaugeValue = failedMessagesGauges.computeIfAbsent(topicPartition, (ignored) -> {
+            List<Tag> tags = new ArrayList<>();
+            tags.add(Tag.of("topic", topicPartition.topic()));
+            tags.add(Tag.of("topic", String.valueOf(topicPartition.partition())));
+            return meterRegistry.gauge("kafka_consumer_failed_or_backedoff_messages_in_batch", tags, new AtomicInteger(value));
+        });
+        if (gaugeValue != null) {
+            gaugeValue.set(value);
+        }
     }
 
     private boolean shouldBackoff(StoredConsumerRecord record) {
