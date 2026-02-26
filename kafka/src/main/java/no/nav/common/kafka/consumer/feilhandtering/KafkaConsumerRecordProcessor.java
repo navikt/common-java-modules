@@ -111,21 +111,19 @@ public class KafkaConsumerRecordProcessor {
                 TopicConsumer<byte[], byte[]> recordConsumer = topicConsumers.get(topicPartition.topic());
 
                 List<Long> recordsToDelete = new ArrayList<>();
-                Map<TopicPartition, Set<Bytes>> failedOrBackedOffKeys = new HashMap<>();
+                Set<Bytes> failedOrBackedOffKeys = new HashSet<>();
 
                 records.forEach(record -> {
-                    Set<Bytes> keySet = failedOrBackedOffKeys.get(topicPartition);
-
                     Bytes keyBytes = Bytes.wrap(record.getKey());
 
                     // We cannot process records where a previous record with the same key (and topic+partition) has failed to be consumed
-                    if (keySet != null && keyBytes != null && keySet.contains(keyBytes)) {
+                    if (failedOrBackedOffKeys.contains(keyBytes)) {
                         return;
                     }
 
                     if (shouldBackoff(record)) {
                         if (keyBytes != null) {
-                            failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                            failedOrBackedOffKeys.add(keyBytes);
                         }
                         return;
                     }
@@ -157,7 +155,7 @@ public class KafkaConsumerRecordProcessor {
                         kafkaConsumerRepository.incrementRetries(record.getId());
 
                         if (keyBytes != null) {
-                            failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                            failedOrBackedOffKeys.add(keyBytes);
                         }
                     }
                 });
@@ -166,14 +164,14 @@ public class KafkaConsumerRecordProcessor {
                     kafkaConsumerRepository.deleteRecords(recordsToDelete);
                     log.info("Stored consumer records deleted {}", Arrays.toString(recordsToDelete.toArray()));
                 }
-                if (meterRegistry != null && !failedOrBackedOffKeys.isEmpty()) {
+                if (meterRegistry != null) {
                     try {
-                        var number = failedOrBackedOffKeys.get(topicPartition).size();
+                        var number = failedOrBackedOffKeys.size();
                         Gauge
                             .builder("kafka_consumer_failed_or_backedoff_messages_in_batch", () -> number)
-                            .description("Number of failed or backed off messages ") // optional
-                            .tags("topic", topicPartition.topic()) // optional
-                            .tags("partition", String.valueOf(topicPartition.partition())) // optional
+                            .description("Number of failed or backed off messages ")
+                            .tags("topic", topicPartition.topic())
+                            .tags("partition", String.valueOf(topicPartition.partition()))
                             .register(meterRegistry);
                     } catch (Exception e) {
                         log.warn("Failed to update failed-or-backedoff metrics", e);
