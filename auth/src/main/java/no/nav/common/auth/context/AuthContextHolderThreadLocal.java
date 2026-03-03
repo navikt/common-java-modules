@@ -37,11 +37,11 @@ public class AuthContextHolderThreadLocal implements AuthContextHolder {
     }
 
     @Override
-    public <T> T withContext(AuthContext authContext, UnsafeSupplier<T> supplier) {
+    public <T> void withContext(AuthContext authContext, UnsafeSupplier<T> supplier) {
         AuthContext previousContext = CONTEXT_HOLDER.get();
         try {
             CONTEXT_HOLDER.set(authContext);
-            return supplier.get();
+            supplier.get();
         } finally {
             CONTEXT_HOLDER.set(previousContext);
         }
