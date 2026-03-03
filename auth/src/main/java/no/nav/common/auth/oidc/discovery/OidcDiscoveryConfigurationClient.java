@@ -34,7 +34,7 @@ public class OidcDiscoveryConfigurationClient {
 		try (Response response = client.newCall(request).execute()) {
 			return parseJsonResponseOrThrow(response, OidcDiscoveryConfiguration.class);
 		} catch (Exception e) {
-			log.error("Failed to retrieve discovery configuration from " + discoveryUrl, e);
+			log.warn("Failed to retrieve discovery configuration from " + discoveryUrl, e);
 			throw e;
 		}
 	}

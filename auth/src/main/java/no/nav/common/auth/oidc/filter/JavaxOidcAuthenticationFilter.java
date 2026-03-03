@@ -93,10 +93,10 @@ public class JavaxOidcAuthenticationFilter implements Filter {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {
                         logger.info("Token validation failed", exception);
                     } else {
-                        logger.error("Token validation failed", exception);
+                        logger.warn("Token validation failed", exception);
                     }
                 } catch (UserRoleNullException e) {
-                    logger.error("User roll is null");
+                    logger.warn("User roll is null");
                 }
             }
         }

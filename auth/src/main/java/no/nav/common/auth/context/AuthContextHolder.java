@@ -102,7 +102,7 @@ public interface AuthContextHolder {
                     boolean erGyldig = IdentUtils.erGydligNavIdent(navIdent.get());
 
                     if (!erGyldig) {
-                        InternalLogger.log.error("NAV ident er ugyldig: " + navIdent);
+                        InternalLogger.log.warn("NAV ident er ugyldig: " + navIdent);
                     }
 
                     return erGyldig;
