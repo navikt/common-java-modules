@@ -21,7 +21,7 @@ public class CXFMaskTokenLoggingInInterceptorTest {
         event.setHeaders(headers);
 
         assertThat(event.getHeaders()).containsKey("Cookie");
-        interceptor.send(event);
+        interceptor.mask(event);
         assertThat(event.getHeaders()).doesNotContainKey("Cookie");
     }
 

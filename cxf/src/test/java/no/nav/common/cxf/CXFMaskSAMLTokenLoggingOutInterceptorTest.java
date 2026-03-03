@@ -21,7 +21,7 @@ public class CXFMaskSAMLTokenLoggingOutInterceptorTest {
             "</soap:Envelope>"
         );
 
-        interceptor.send(event);
+        interceptor.mask(event);
 
         assertThat(event.getPayload(), not(containsString("secret-token")));
         assertThat(event.getPayload(), containsString("data"));
@@ -38,7 +38,7 @@ public class CXFMaskSAMLTokenLoggingOutInterceptorTest {
             "</soap:Envelope>"
         );
 
-        interceptor.send(event);
+        interceptor.mask(event);
 
         assertThat(event.getPayload(), containsString("secret-token"));
     }
