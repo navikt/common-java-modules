@@ -7,8 +7,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.ext.logging.*;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.policy.EndpointPolicy;
@@ -30,22 +29,14 @@ public class OidcClientWrapper {
         String username = stsConfig.username;
         String password = stsConfig.password;
 
-        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, StsType.ON_BEHALF_OF_WITH_JWT);
+        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password);
         client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
         client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, false);
-        setEndpointPolicyReference(client, "classpath:JwtSTSPolicy.xml");
+        setEndpointPolicyReference(client);
     }
 
-    private static String requireProperty(String key) {
-        String property = System.getProperty(key);
-        if (property == null) {
-            throw new RuntimeException("Required property " + key + " not available.");
-        }
-        return property;
-    }
-
-    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password, StsType stsType) {
-        STSClient stsClient = new NAVOidcSTSClient(bus, stsType);
+    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password) {
+        STSClient stsClient = new NAVOidcSTSClient(bus, StsType.ON_BEHALF_OF_WITH_JWT);
         stsClient.setWsdlLocation("wsdl/ws-trust-1.4-service.wsdl");
         stsClient.setServiceQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceProvider"));
         stsClient.setEndpointQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceSOAP"));
@@ -61,8 +52,7 @@ public class OidcClientWrapper {
             throw new RuntimeException("Failed to set endpoint adress of STSClient", e);
         }
 
-        stsClient.getOutInterceptors().add(new LoggingOutInterceptor());
-        stsClient.getInInterceptors().add(new LoggingInInterceptor());
+        stsClient.getFeatures().add(new LoggingFeature());
 
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -72,15 +62,15 @@ public class OidcClientWrapper {
         return stsClient;
     }
 
-    private static void setEndpointPolicyReference(Client client, String uri) {
-        Policy policy = resolvePolicyReference(client, uri);
+    private static void setEndpointPolicyReference(Client client) {
+        Policy policy = resolvePolicyReference(client);
         setClientEndpointPolicy(client, policy);
     }
 
-    private static Policy resolvePolicyReference(Client client, String uri) {
+    private static Policy resolvePolicyReference(Client client) {
         PolicyBuilder policyBuilder = client.getBus().getExtension(PolicyBuilder.class);
         ReferenceResolver resolver = new RemoteReferenceResolver("", policyBuilder);
-        return resolver.resolveReference(uri);
+        return resolver.resolveReference("classpath:JwtSTSPolicy.xml");
     }
 
     private static void setClientEndpointPolicy(Client client, Policy policy) {

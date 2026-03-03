@@ -5,8 +5,7 @@ import org.apache.cxf.BusException;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.EndpointException;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.ws.addressing.WSAddressingFeature;
@@ -25,24 +24,24 @@ import java.util.HashMap;
 public class STSConfigurationUtil {
 
     public static void configureStsForSystemUserInFSS(Client client, StsConfig stsConfig) {
-        configureSts(client, StsType.SYSTEM_USER_IN_FSS, stsConfig);
+        configureSts(client, stsConfig);
     }
 
-    private static void configureSts(Client client, StsType stsType, StsConfig stsConfig) {
+    private static void configureSts(Client client, StsConfig stsConfig) {
         String location = stsConfig.url;
         String username = stsConfig.username;
         String password = stsConfig.password;
 
         new WSAddressingFeature().initialize(client, client.getBus());
 
-        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, stsType);
+        STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password);
         client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
-        client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, stsType.allowCachingInEndpoint());
-        setEndpointPolicyReference(client, "classpath:stspolicy.xml");
+        client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, StsType.SYSTEM_USER_IN_FSS.allowCachingInEndpoint());
+        setEndpointPolicyReference(client);
     }
 
-    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password, StsType stsType) {
-        NAVOidcSTSClient stsClient = new NAVOidcSTSClient(bus, stsType);
+    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password) {
+        NAVOidcSTSClient stsClient = new NAVOidcSTSClient(bus, StsType.SYSTEM_USER_IN_FSS);
         stsClient.setWsdlLocation("wsdl/ws-trust-1.4-service.wsdl");
         stsClient.setServiceQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceProvider"));
         stsClient.setEndpointQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceSOAP"));
@@ -53,13 +52,12 @@ public class STSConfigurationUtil {
             // Endpoint must be set on clients request context
             // as the wrapping requestcontext is not available
             // when creating the client from WSDL (ref cxf-users mailinglist)
-            stsClient.getClient().getRequestContext().put(Message.ENDPOINT_ADDRESS, location);
+            Client client = stsClient.getClient();
+            client.getRequestContext().put(Message.ENDPOINT_ADDRESS, location);
+            new LoggingFeature().initialize(client, bus);
         } catch (BusException | EndpointException e) {
             throw new RuntimeException("Failed to set endpoint adress of STSClient", e);
         }
-
-        stsClient.getOutInterceptors().add(new LoggingOutInterceptor());
-        stsClient.getInInterceptors().add(new LoggingInInterceptor());
 
 
         HashMap<String, Object> properties = new HashMap<>();
@@ -69,15 +67,15 @@ public class STSConfigurationUtil {
         return stsClient;
     }
 
-    private static void setEndpointPolicyReference(Client client, String uri) {
-        Policy policy = resolvePolicyReference(client, uri);
+    private static void setEndpointPolicyReference(Client client) {
+        Policy policy = resolvePolicyReference(client);
         setClientEndpointPolicy(client, policy);
     }
 
-    private static Policy resolvePolicyReference(Client client, String uri) {
+    private static Policy resolvePolicyReference(Client client) {
         PolicyBuilder policyBuilder = client.getBus().getExtension(PolicyBuilder.class);
         ReferenceResolver resolver = new RemoteReferenceResolver("", policyBuilder);
-        return resolver.resolveReference(uri);
+        return resolver.resolveReference("classpath:stspolicy.xml");
     }
 
     private static void setClientEndpointPolicy(Client client, Policy policy) {
@@ -87,14 +85,6 @@ public class STSConfigurationUtil {
         PolicyEngine policyEngine = client.getBus().getExtension(PolicyEngine.class);
         EndpointPolicy endpointPolicy = policyEngine.getClientEndpointPolicy(endpointInfo, client.getConduit(), null);
         policyEngine.setClientEndpointPolicy(endpointInfo, endpointPolicy.updatePolicy(policy, null));
-    }
-
-    private static String requireProperty(String key) {
-        String property = System.getProperty(key);
-        if (property == null) {
-            throw new RuntimeException("Required property " + key + " not available.");
-        }
-        return property;
     }
 
 }
