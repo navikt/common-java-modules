@@ -67,8 +67,8 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
         <!-- LOGGING -->
-        <slf4j.version>2.0.13</slf4j.version>
-        <logback.version>1.5.25</logback.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <logback.version>1.5.32</logback.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <janino.version>3.1.12</janino.version>
         <logstash-logback.version>7.4</logstash-logback.version>
@@ -79,7 +79,7 @@
         <jsoup.version>1.17.2</jsoup.version>
 
         <!-- COMMON -->
-        <lombok.version>1.18.32</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
 
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
@@ -813,22 +813,6 @@
                                 <id>attach-sources</id>
                                 <goals>
                                     <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.10.1</version>
-                        <configuration>
-                            <source>${java.version}</source>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
