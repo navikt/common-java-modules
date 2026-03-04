@@ -67,7 +67,7 @@
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
         <!-- LOGGING -->
-        <slf4j.version>2.0.13</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <logback.version>1.5.25</logback.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <janino.version>3.1.12</janino.version>
