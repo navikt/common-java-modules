@@ -138,9 +138,9 @@ public class KafkaConsumerClientBuilder {
 
         if (consumerRepository != null) {
             return new StoreOnFailureTopicConsumer(topicConsumer, consumerRepository);
+        } else {
+            return topicConsumer;
         }
-
-        return topicConsumer;
     }
 
     public static class TopicConfig<K, V> {
