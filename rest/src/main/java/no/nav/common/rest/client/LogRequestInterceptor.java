@@ -51,7 +51,7 @@ public class LogRequestInterceptor implements Interceptor {
         } catch (Throwable exception) {
             long timeTakenMs = System.currentTimeMillis() - requestStarted;
 
-            log.error(format("Request failed: method=%s time=%dms url=%s", request.method(), timeTakenMs, url), exception);
+            log.warn(format("Request failed: method=%s time=%dms url=%s", request.method(), timeTakenMs, url), exception);
             throw exception;
         }
     }
