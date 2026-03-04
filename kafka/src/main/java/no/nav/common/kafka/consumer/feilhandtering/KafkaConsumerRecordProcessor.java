@@ -1,5 +1,8 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tag;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
@@ -15,6 +18,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.mapFromStoredRecord;
@@ -35,12 +39,18 @@ public class KafkaConsumerRecordProcessor {
 
     private volatile boolean isRunning;
 
+    private final MeterRegistry meterRegistry;
+
+    private final Map<TopicPartition, AtomicInteger> failedMessagesGauges = new HashMap<>();
+
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
             KafkaConsumerRepository kafkaRepository,
             Map<String, TopicConsumer<byte[], byte[]>> topicConsumers,
-            KafkaConsumerRecordProcessorConfig config
+            KafkaConsumerRecordProcessorConfig config,
+            MeterRegistry meterRegistry
     ) {
+        this.meterRegistry = meterRegistry;
         this.lockProvider = lockProvider;
         this.kafkaConsumerRepository = kafkaRepository;
         this.config = config;
@@ -105,21 +115,19 @@ public class KafkaConsumerRecordProcessor {
                 TopicConsumer<byte[], byte[]> recordConsumer = topicConsumers.get(topicPartition.topic());
 
                 List<Long> recordsToDelete = new ArrayList<>();
-                Map<TopicPartition, Set<Bytes>> failedOrBackedOffKeys = new HashMap<>();
+                Set<Bytes> failedOrBackedOffKeys = new HashSet<>();
 
                 records.forEach(record -> {
-                    Set<Bytes> keySet = failedOrBackedOffKeys.get(topicPartition);
-
                     Bytes keyBytes = Bytes.wrap(record.getKey());
 
                     // We cannot process records where a previous record with the same key (and topic+partition) has failed to be consumed
-                    if (keySet != null && keyBytes != null && keySet.contains(keyBytes)) {
+                    if (failedOrBackedOffKeys.contains(keyBytes)) {
                         return;
                     }
 
                     if (shouldBackoff(record)) {
                         if (keyBytes != null) {
-                            failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                            failedOrBackedOffKeys.add(keyBytes);
                         }
                         return;
                     }
@@ -151,7 +159,7 @@ public class KafkaConsumerRecordProcessor {
                         kafkaConsumerRepository.incrementRetries(record.getId());
 
                         if (keyBytes != null) {
-                            failedOrBackedOffKeys.computeIfAbsent(topicPartition, (_ignored) -> new HashSet<>()).add(keyBytes);
+                            failedOrBackedOffKeys.add(keyBytes);
                         }
                     }
                 });
@@ -160,6 +168,13 @@ public class KafkaConsumerRecordProcessor {
                     kafkaConsumerRepository.deleteRecords(recordsToDelete);
                     log.info("Stored consumer records deleted {}", Arrays.toString(recordsToDelete.toArray()));
                 }
+                if (meterRegistry != null) {
+                    try {
+                        registerFailedMessagesGaugeForTopic(topicPartition, failedOrBackedOffKeys.size());
+                    } catch (Exception e) {
+                        log.warn("Failed to update failed-or-backedoff metrics", e);
+                    }
+                }
 
             } catch (Exception e) {
                 log.error("Unexpected exception caught while processing stored consumer records", e);
@@ -167,6 +182,18 @@ public class KafkaConsumerRecordProcessor {
                 lock.ifPresent(SimpleLock::unlock);
             }
         });
+    }
+
+    private void registerFailedMessagesGaugeForTopic(TopicPartition topicPartition, Integer value) {
+        AtomicInteger gaugeValue = failedMessagesGauges.computeIfAbsent(topicPartition, (ignored) -> {
+            List<Tag> tags = new ArrayList<>();
+            tags.add(Tag.of("topic", topicPartition.topic()));
+            tags.add(Tag.of("partition", String.valueOf(topicPartition.partition())));
+            return meterRegistry.gauge("kafka_consumer_failed_or_backedoff_messages_in_batch", tags, new AtomicInteger(value));
+        });
+        if (gaugeValue != null) {
+            gaugeValue.set(value);
+        }
     }
 
     private boolean shouldBackoff(StoredConsumerRecord record) {
