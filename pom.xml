@@ -79,7 +79,7 @@
         <jsoup.version>1.17.2</jsoup.version>
 
         <!-- COMMON -->
-        <lombok.version>1.18.32</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
 
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
