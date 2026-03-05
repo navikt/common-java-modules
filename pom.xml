@@ -118,7 +118,7 @@
         <wiremock.version>3.0.1</wiremock.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <h2.version>2.2.224</h2.version>
-        <postgres.version>42.7.2</postgres.version>
+        <postgres.version>42.7.10</postgres.version>
         <bytebuddy.version>1.14.12</bytebuddy.version><!-- overstyrer utdatert versjon fra mockito -->
     </properties>
 
