@@ -79,12 +79,12 @@
         <jsoup.version>1.17.2</jsoup.version>
 
         <!-- COMMON -->
-        <lombok.version>1.18.32</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
 
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
         <jakarta.ws.rs-api.version>3.1.0</jakarta.ws.rs-api.version>
-        <spring.version>6.1.21</spring.version>
+        <spring.version>7.0.5</spring.version>
         <jersey.version>3.1.6</jersey.version>
         <jackson.version>2.18.6</jackson.version>
         <jackson-databind.version>2.17.1</jackson-databind.version>
@@ -813,22 +813,6 @@
                                 <id>attach-sources</id>
                                 <goals>
                                     <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.10.1</version>
-                        <configuration>
-                            <source>${java.version}</source>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
