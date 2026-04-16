@@ -113,7 +113,7 @@
         <!-- TEST -->
         <assertj.version>3.25.3</assertj.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <mockito.version>5.1.1</mockito.version>
+        <mockito.version>5.23.0</mockito.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <wiremock.version>3.0.1</wiremock.version>
         <testcontainers.version>1.19.8</testcontainers.version>
