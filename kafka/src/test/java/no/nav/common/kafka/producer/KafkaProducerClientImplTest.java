@@ -13,7 +13,7 @@ public class KafkaProducerClientImplTest {
 
     @Test
     public void should_send_message_with_producer_async() {
-        MockProducer<String, String> mockProducer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
+        MockProducer<String, String> mockProducer = new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
@@ -25,7 +25,7 @@ public class KafkaProducerClientImplTest {
 
     @Test
     public void should_send_message_with_producer_sync() {
-        MockProducer<String, String> mockProducer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
+        MockProducer<String, String> mockProducer = new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
@@ -37,7 +37,7 @@ public class KafkaProducerClientImplTest {
 
     @Test
     public void should_trigger_callback_with_exception_if_producer_is_closed() {
-        MockProducer<String, String> mockProducer = new MockProducer<>(true, new StringSerializer(), new StringSerializer());
+        MockProducer<String, String> mockProducer = new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
