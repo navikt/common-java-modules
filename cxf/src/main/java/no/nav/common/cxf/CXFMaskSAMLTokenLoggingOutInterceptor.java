@@ -1,82 +1,74 @@
 package no.nav.common.cxf;
 
-import org.apache.cxf.common.logging.LogUtils;
-import org.apache.cxf.helpers.IOUtils;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.io.CachedOutputStream;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.InterfaceInfo;
+import org.apache.cxf.ext.logging.LoggingOutInterceptor;
+import org.apache.cxf.ext.logging.event.LogEvent;
+import org.apache.cxf.ext.logging.event.LogEventSender;
+import org.apache.cxf.ext.logging.slf4j.Slf4jVerboseEventSender;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 
-import java.util.logging.Logger;
-
-
 public class CXFMaskSAMLTokenLoggingOutInterceptor extends LoggingOutInterceptor {
+
     private boolean maskerSAMLToken = true;
 
     public CXFMaskSAMLTokenLoggingOutInterceptor() {
         super();
+        this.sender = new MaskingSender(new Slf4jVerboseEventSender());
     }
 
     public CXFMaskSAMLTokenLoggingOutInterceptor(int limit) {
-        super(limit);
-    }
-
-    @Override
-    protected void writePayload(StringBuilder builder, CachedOutputStream cos, String encoding, String contentType, boolean truncated) throws Exception {
-        if(contentType.contains("xml") && maskerSAMLToken) {
-            super.writePayload(builder, getMaskedOutputStream(cos), encoding, contentType, truncated);
-        } else {
-            super.writePayload(builder, cos, encoding, contentType, truncated);
-        }
-    }
-
-    @Override
-    public void handleMessage(Message message) {
-        setupMessageLogger(message);
-        super.handleMessage(message);
+        super();
+        setLimit(limit);
+        this.sender = new MaskingSender(new Slf4jVerboseEventSender());
     }
 
     public void setMaskerSAMLToken(boolean maskerSAMLToken) {
         this.maskerSAMLToken = maskerSAMLToken;
     }
 
-    private void setupMessageLogger(Message message) {
-        EndpointInfo endpoint = message.getExchange().getEndpoint().getEndpointInfo();
-        if (endpoint.getService() != null) {
-            Logger logger = endpoint.getProperty("MessageLogger", Logger.class);
-            if (logger == null) {
-                String serviceName = endpoint.getService().getName().getLocalPart();
-                InterfaceInfo iface = endpoint.getService().getInterface();
-                String portName = endpoint.getName().getLocalPart();
-                String portTypeName = iface.getName().getLocalPart();
-                String logName = CXFMaskSAMLTokenLoggingOutInterceptor.class.getName()
-                        + "." + serviceName + "."
-                        + portName + "." + portTypeName;
-                logger = LogUtils.getL7dLogger(this.getClass(), null, logName);
-                endpoint.setProperty("MessageLogger", logger);
-            }
+    /**
+     * Fjerner SAML-tokens (wsse:Security) fra XML-payloaden i LogEvent-et
+     * før logging. Pakke-privat for direkte testing.
+     */
+    void maskIfEnabled(LogEvent event) {
+        String payload = event.getPayload();
+        String contentType = event.getContentType();
+        if (maskerSAMLToken
+                && payload != null
+                && contentType != null
+                && contentType.contains("xml")) {
+            event.setPayload(removeSAMLTokenFromXML(payload));
         }
-    }
-
-    private CachedOutputStream getMaskedOutputStream(CachedOutputStream cos) throws Exception {
-        String xmlString = IOUtils.toString(cos.getInputStream());
-        CachedOutputStream maskertCos = new CachedOutputStream();
-        maskertCos.write(removeSAMLTokenFromXML(xmlString).getBytes());
-        return maskertCos;
     }
 
     private String removeSAMLTokenFromXML(String xmlString) {
         Document document = Jsoup.parse(xmlString, "", Parser.xmlParser());
-        for(Element element : document.getElementsByTag("soap:header").select("*")) {
-            if(element.tagName().toLowerCase().endsWith(":security")) {
+        for (Element element : document.getElementsByTag("soap:header").select("*")) {
+            if (element.tagName().toLowerCase().endsWith(":security")) {
                 element.remove();
             }
         }
         return document.toString();
+    }
+
+    /**
+     * Wrapper som fjerner SAML-tokens (wsse:Security o.l.) fra SOAP-payloaden
+     * før meldingen blir logget, slik at tokens ikke havner i loggene.
+     */
+    private class MaskingSender implements LogEventSender {
+
+        private final LogEventSender delegate;
+
+        MaskingSender(LogEventSender delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void send(LogEvent event) {
+            maskIfEnabled(event);
+            delegate.send(event);
+        }
     }
 }

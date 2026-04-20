@@ -71,15 +71,15 @@
         <logback.version>1.5.32</logback.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
         <janino.version>3.1.12</janino.version>
-        <logstash-logback.version>7.4</logstash-logback.version>
+        <logstash-logback.version>9.0</logstash-logback.version>
 
         <!-- CXF -->
         <cxf-jaxws-blueprint.version>7.0.1</cxf-jaxws-blueprint.version>
-        <cxf-core.version>4.0.7</cxf-core.version>
-        <jsoup.version>1.17.2</jsoup.version>
+        <cxf-core.version>4.2.0</cxf-core.version>
+        <jsoup.version>1.22.1</jsoup.version>
 
         <!-- COMMON -->
-        <lombok.version>1.18.32</lombok.version>
+        <lombok.version>1.18.44</lombok.version>
 
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.0.0</jakarta.servlet.version>
