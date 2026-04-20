@@ -1,17 +1,23 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import java.util.Arrays;
+import java.util.Collection;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.feilhandtering.util.KafkaConsumerRecordProcessorBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
+import no.nav.common.kafka.spring.OracleJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.utils.DbUtils;
+import no.nav.common.kafka.utils.LocalOracleH2Database;
+import org.awaitility.Awaitility;
 import org.junit.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 
 import javax.sql.DataSource;
 import java.time.Duration;
@@ -20,11 +26,13 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer;
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@RunWith(Parameterized.class)
 public class KafkaConsumerRecordProcessorIntegrationTest {
 
     private final static String TEST_TOPIC_A = "test-topic-a";
@@ -40,16 +48,30 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         });
     }
 
-    @ClassRule
-    public static final PostgreSQLContainer<?> postgreSQLContainer =
-            new PostgreSQLContainer<>("postgres:12-alpine")
-                    .withInitScript("kafka-consumer-record-postgres.sql")
-                    .waitingFor(new HostPortWaitStrategy());
+    public static final PostgreSQLContainer<?> postgreSQLContainer = createPostgresContainer();
 
-    @Before
-    public void setup() {
-        dataSource = createPostgresDataSource(postgreSQLContainer);
-        consumerRepository = new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(dataSource));
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> data() {
+        postgreSQLContainer.start();
+        Awaitility.await().atMost(Duration.ofSeconds(60)).until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
+        DataSource postgres = createPostgresDataSource(postgreSQLContainer);
+        DbUtils.runScript(postgres, "kafka-consumer-record-postgres.sql");
+        PostgresJdbcTemplateConsumerRepository postgresConsumerRepository = new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(postgres));
+
+        DataSource oracle = LocalOracleH2Database.createDatabase();
+        DbUtils.runScript(oracle, "kafka-consumer-record-oracle.sql");
+        DbUtils.runScript(oracle, "oracle-mock.sql");
+        OracleJdbcTemplateConsumerRepository oracleConsumerRepository = new OracleJdbcTemplateConsumerRepository(new JdbcTemplate(oracle));
+
+        return Arrays.asList(
+                new Object[]{"POSTGRES", postgres, postgresConsumerRepository},
+                new Object[]{"ORACLE", oracle, oracleConsumerRepository}
+        );
+    }
+
+    public KafkaConsumerRecordProcessorIntegrationTest(String databaseType, DataSource dataSource, KafkaConsumerRepository consumerRepository) {
+        this.dataSource = dataSource;
+        this.consumerRepository = consumerRepository;
     }
 
     @After

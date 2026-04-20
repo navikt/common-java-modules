@@ -116,7 +116,7 @@
         <mockito.version>5.1.1</mockito.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <wiremock.version>3.0.1</wiremock.version>
-        <testcontainers.version>1.19.8</testcontainers.version>
+        <testcontainers.version>2.0.4</testcontainers.version>
         <h2.version>2.2.224</h2.version>
         <postgres.version>42.7.2</postgres.version>
         <bytebuddy.version>1.14.12</bytebuddy.version><!-- overstyrer utdatert versjon fra mockito -->
@@ -668,13 +668,19 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>kafka</artifactId>
+                <artifactId>testcontainers</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
+                <artifactId>testcontainers-kafka</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-postgresql</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>

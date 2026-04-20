@@ -1,5 +1,7 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import java.util.*;
+import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
@@ -14,23 +16,17 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static no.nav.common.kafka.utils.TestUtils.*;
 import static org.awaitility.Awaitility.await;
@@ -39,21 +35,18 @@ import static org.junit.Assert.assertTrue;
 
 
 public class KafkaProducerRecordProcessorIntegrationTest {
-
     private static final long POLL_TIMEOUT = 100;
-
     private static final long WAIT_TIMEOUT = 500;
 
-    private static final String TEST_TOPIC_A = "test-topic-a";
+    private String testTopicA;
+    private String testTopicB;
 
-    private static final String TEST_TOPIC_B = "test-topic-b";
+    public static KafkaContainer kafka;
+    private static String brokerUrl;
+    private static AdminClient admin;
 
-    @ClassRule
-    public static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
-
-    private DataSource dataSource;
-
-    private KafkaProducerRepository producerRepository;
+    private static DataSource dataSource;
+    private static KafkaProducerRepository producerRepository;
 
     private List<String> sentOnTopicA;
     private List<String> sentOnTopicB;
@@ -62,21 +55,37 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     private TestKafkaProducerClient producerClient;
 
-    @Before
-    public void setup() {
-        String brokerUrl = kafka.getBootstrapServers();
+    @SneakyThrows
+    @BeforeClass
+    public static void setup() {
+        kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
+        kafka.waitingFor(new HostPortWaitStrategy());
+        kafka.start();
+
+        brokerUrl = kafka.getBootstrapServers();
 
         dataSource = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(dataSource, "kafka-producer-record-oracle.sql");
         producerRepository = new OracleJdbcTemplateProducerRepository(new JdbcTemplate(dataSource));
 
-        AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
-        admin.deleteTopics(List.of(TEST_TOPIC_A, TEST_TOPIC_B));
+        admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        admin.close();
+        kafka.stop();
+    }
+
+    @Before
+    public void beforeEach() {
+        producerClient = new TestKafkaProducerClient(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
+        testTopicA = UUID.randomUUID().toString();
+        testTopicB = UUID.randomUUID().toString();
         admin.createTopics(List.of(
-                new NewTopic(TEST_TOPIC_A, 1, (short) 1),
-                new NewTopic(TEST_TOPIC_B, 1, (short) 1)
+                new NewTopic(testTopicA, 1, (short) 1),
+                new NewTopic(testTopicB, 1, (short) 1)
         ));
-        admin.close(); // Apply changes
 
         sentOnTopicA = new ArrayList<>();
         sentOnTopicB = new ArrayList<>();
@@ -84,34 +93,33 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(
-                        TEST_TOPIC_A, r -> {
+                        testTopicA, r -> {
                             sentOnTopicA.add(r.value());
                             return ConsumeStatus.OK;
                         },
-                        TEST_TOPIC_B, r -> {
+                        testTopicB, r -> {
                             sentOnTopicB.add(r.value());
                             return ConsumeStatus.OK;
                         }
                 )
         );
         consumerClient = new KafkaConsumerClientImpl<>(config);
-
-        producerClient = new TestKafkaProducerClient(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
     }
 
     @After
-    public void cleanup() {
+    public void afterEach() {
         DbUtils.cleanupProducer(dataSource);
+        producerClient.close();
     }
 
     @Test
     public void should_send_stored_records_to_kafka() {
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "key1", "value1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "key2", "value2"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "key1", "value3"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "key1", "value1"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "key2", "value2"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "key1", "value3"));
 
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "key1", "value1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "key2", "value2"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "key1", "value1"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "key2", "value2"));
 
         var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
                 .withProducerRepository(producerRepository)
@@ -131,11 +139,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     @Test
     public void should_send_batch_of_records_with_best_effort_of_delivery() {
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-1", "a-1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-2", "a-2"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-3", "a-3"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-1", "b-1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-2", "b-2"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-1", "a-1"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-2", "a-2"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-3", "a-3"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "k-1", "b-1"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "k-2", "b-2"));
 
         // Simulate a producer that fails on the second message to TOPIC_A
         producerClient.setOnSend(producerRecord -> {
@@ -169,11 +177,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     @Test
     public void legacy_constructor_uses_batch_processor() {
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-1", "a-1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-2", "a-2"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-3", "a-3"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-1", "b-1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-2", "b-2"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-1", "a-1"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-2", "a-2"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-3", "a-3"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "k-1", "b-1"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "k-2", "b-2"));
 
         // Simulate a producer that fails on the second message to TOPIC_A
         producerClient.setOnSend(producerRecord -> {
@@ -207,12 +215,12 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     @Test
     public void should_send_records_in_the_stored_record_order_from_the_producer_record_repository() throws InterruptedException {
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-1", "a-1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-1", "b-1"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-2", "a-2"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-2", "b-2"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "k-3", "a-3"));
-        producerRepository.storeRecord(storedRecord(TEST_TOPIC_B, "k-3", "b-3"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-1", "a-1"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "k-1", "b-1"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-2", "a-2"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "k-2", "b-2"));
+        producerRepository.storeRecord(storedRecord(testTopicA, "k-3", "a-3"));
+        producerRepository.storeRecord(storedRecord(testTopicB, "k-3", "b-3"));
 
         // Simulate a producer that fails on the second message to TOPIC_B
         producerClient.setOnSend(producerRecord -> {
@@ -266,7 +274,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         recordProcessor.start();
 
         transactionTemplate.execute(status -> {
-            producerRepository.storeRecord(storedRecord(TEST_TOPIC_A, "value1", "key1"));
+            producerRepository.storeRecord(storedRecord(testTopicA, "value1", "key1"));
             try {
                 Thread.sleep(WAIT_TIMEOUT);
             } catch (InterruptedException ignored) {
