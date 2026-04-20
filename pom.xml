@@ -114,8 +114,8 @@
         <assertj.version>3.27.7</assertj.version>
         <hamcrest.version>3.0</hamcrest.version>
         <mockito.version>5.23.0</mockito.version>
-        <junit.jupiter.version>5.10.2</junit.jupiter.version>
-        <wiremock.version>3.0.1</wiremock.version>
+        <junit.jupiter.version>6.0.3</junit.jupiter.version>
+        <wiremock.version>3.13.2</wiremock.version>
         <testcontainers.version>2.0.4</testcontainers.version>
         <h2.version>2.4.240</h2.version>
         <postgres.version>42.7.10</postgres.version>
@@ -614,8 +614,8 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>com.github.tomakehurst</groupId>
-                <artifactId>wiremock-standalone</artifactId>
+                <groupId>org.wiremock</groupId>
+                <artifactId>wiremock</artifactId>
                 <version>${wiremock.version}</version>
                 <scope>test</scope>
             </dependency>

@@ -1,5 +1,8 @@
 package no.nav.common.client.msgraph;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
@@ -9,9 +12,6 @@ import okhttp3.*;
 import org.junit.Rule;
 import org.junit.Test;
 import com.fasterxml.jackson.core.JsonParseException;
-import wiremock.com.fasterxml.jackson.core.JsonProcessingException;
-import wiremock.com.fasterxml.jackson.databind.JsonNode;
-import wiremock.com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
