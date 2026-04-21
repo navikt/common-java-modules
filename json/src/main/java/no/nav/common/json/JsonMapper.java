@@ -1,34 +1,28 @@
 package no.nav.common.json;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
-import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT;
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
 
 public class JsonMapper {
 
     public static ObjectMapper defaultObjectMapper() {
-        return applyDefaultConfiguration(new ObjectMapper());
+        return applyDefaultConfiguration(tools.jackson.databind.json.JsonMapper.builder().build());
     }
 
     public static ObjectMapper applyDefaultConfiguration(ObjectMapper objectMapper) {
-        objectMapper
-                .registerModule(new Jdk8Module())
-                .registerModule(DateModule.module())
-                .configure(FAIL_ON_UNKNOWN_PROPERTIES, false)
-                .configure(ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-
-        objectMapper.setVisibility(objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
-                .withFieldVisibility(ANY)
-                .withGetterVisibility(NONE)
-                .withSetterVisibility(NONE)
-                .withCreatorVisibility(NONE)
-        );
-
-        return objectMapper;
+        return objectMapper.rebuild()
+                .addModule(DateModule.module())
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, false)
+                .changeDefaultVisibility(v -> v
+                        .withFieldVisibility(Visibility.ANY)
+                        .withGetterVisibility(Visibility.NONE)
+                        .withSetterVisibility(Visibility.NONE)
+                        .withCreatorVisibility(Visibility.NONE))
+                .build();
     }
 
 }

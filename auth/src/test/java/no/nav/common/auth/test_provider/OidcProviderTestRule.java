@@ -1,8 +1,8 @@
 package no.nav.common.auth.test_provider;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -134,7 +134,7 @@ public class OidcProviderTestRule extends ExternalResource {
         @POST
         @Path("/refresh")
         @Produces(MediaType.APPLICATION_JSON)
-        public String refresh(@Context ContainerRequest request) throws JsonProcessingException {
+        public String refresh(@Context ContainerRequest request) throws JacksonException {
             JwtTestTokenIssuer issuer = issuerMap.get(request.getBaseUri().getPort());
             String idToken = issuer.issueTestToken(new JwtTestTokenIssuer.Claims("subject"));
             return jsonMapper.writeValueAsString(new RefreshResult(idToken));

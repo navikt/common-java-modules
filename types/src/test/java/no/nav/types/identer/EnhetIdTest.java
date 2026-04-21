@@ -1,7 +1,7 @@
 package no.nav.types.identer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.EnhetId;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class EnhetIdTest {
     }
 
     @Test
-    public void should_deserialize_json_to_enhetId_field() throws JsonProcessingException {
+    public void should_deserialize_json_to_enhetId_field() throws JacksonException {
         String wrapperJson = "{\"enhetId\":\"1234\"}";
 
         EnhetIdWrapper wrapper = mapper.readValue(wrapperJson, EnhetIdWrapper.class);
@@ -44,7 +44,7 @@ public class EnhetIdTest {
     }
 
     @Test
-    public void should_deserialize_no_enhetId() throws JsonProcessingException {
+    public void should_deserialize_no_enhetId() throws JacksonException {
         String wrapperJson = "{}";
 
         EnhetIdWrapper wrapper = mapper.readValue(wrapperJson, EnhetIdWrapper.class);
@@ -53,7 +53,7 @@ public class EnhetIdTest {
     }
 
     @Test
-    public void should_deserialize_enhetId_wrapper_null() throws JsonProcessingException {
+    public void should_deserialize_enhetId_wrapper_null() throws JacksonException {
         String wrapperJson = "{\"enhetId\":null}";
 
         EnhetIdWrapper wrapper = mapper.readValue(wrapperJson, EnhetIdWrapper.class);
@@ -62,7 +62,7 @@ public class EnhetIdTest {
     }
 
     @Test
-    public void should_deserialize_enhetId_field_null() throws JsonProcessingException {
+    public void should_deserialize_enhetId_field_null() throws JacksonException {
         String nullJson = "null";
 
         EnhetId enhetId = mapper.readValue(nullJson, EnhetId.class);

@@ -1,7 +1,7 @@
 package no.nav.common.yaml;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 import lombok.SneakyThrows;
 import no.nav.common.json.JsonMapper;
 

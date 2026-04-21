@@ -1,8 +1,9 @@
 package no.nav.common.client.msgraph;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
@@ -11,7 +12,6 @@ import no.nav.common.types.identer.EnhetId;
 import okhttp3.*;
 import org.junit.Rule;
 import org.junit.Test;
-import com.fasterxml.jackson.core.JsonParseException;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -74,7 +74,7 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentUserDataForGroup_skal_hente_data_for_gruppe() throws JsonProcessingException {
+    public void hentUserDataForGroup_skal_hente_data_for_gruppe() throws JacksonException {
         ObjectMapper mapper = new ObjectMapper();
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data-for-group.json");
         JsonNode root = mapper.readTree(json);
@@ -94,7 +94,7 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentUserDataForGroup_skal_hente_data_for_enhet() throws JsonProcessingException {
+    public void hentUserDataForGroup_skal_hente_data_for_enhet() throws JacksonException {
         ObjectMapper mapper = new ObjectMapper();
         String groupIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "group-id.json");
         String userDataForGroupJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data-for-group.json");
@@ -132,7 +132,7 @@ public class MsGraphHttpClientTest {
     }
 
 
-    @Test(expected = JsonParseException.class)
+    @Test(expected = StreamReadException.class)
     public void hentUserDataForGroup_skal_kaste_exception_ved_ugyldig_json() {
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
@@ -257,7 +257,7 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentAdGroupsForUser_skal_hente_grupper() throws JsonProcessingException {
+    public void hentAdGroupsForUser_skal_hente_grupper() throws JacksonException {
         ObjectMapper mapper = new ObjectMapper();
         String userIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
         String adGroupsJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ad-groups-response.json");

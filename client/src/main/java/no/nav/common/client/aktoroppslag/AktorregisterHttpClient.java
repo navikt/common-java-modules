@@ -1,6 +1,6 @@
 package no.nav.common.client.aktoroppslag;
 
-import com.fasterxml.jackson.databind.type.MapType;
+import tools.jackson.databind.type.MapType;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.client.aktoroppslag.BrukerIdenter;
