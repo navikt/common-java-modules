@@ -1,8 +1,8 @@
 package no.nav.common.cxf.jetty;
 
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppContext;
 
 public interface JettyCustomizer {
 

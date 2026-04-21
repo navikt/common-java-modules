@@ -10,14 +10,13 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.util.resource.Resource;
-import org.eclipse.jetty.webapp.FragmentConfiguration;
-import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
-import org.eclipse.jetty.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
-import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.webapp.FragmentConfiguration;
+import org.eclipse.jetty.ee11.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.ee11.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.webapp.WebInfConfiguration;
+import org.eclipse.jetty.ee11.webapp.WebXmlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -274,7 +273,8 @@ public final class Jetty {
 
     private Server setupJetty(final Server jetty, JettyBuilder jettyBuilder) {
         if(developmentMode){
-            Resource.setDefaultUseCaches(false);
+            // Jetty 12 fjernet Resource.setDefaultUseCaches; vi setter det direkte på JDK-nivå (samme effekt)
+            java.net.URLConnection.setDefaultUseCaches("file", false);
         }
 
         HttpConfiguration configuration = new HttpConfiguration();

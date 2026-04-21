@@ -1,16 +1,20 @@
 package no.nav.common.cxf;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.io.Content;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.URLResource;
+import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,46 +30,65 @@ public class MockHandler extends ResourceHandler {
 
     public MockHandler(String contextName) {
         this.contextPath = contextName.startsWith("/") ? contextName : "/" + contextName;
-        this.setBaseResource(URLResource.newClassPathResource(PATH_PATH + this.contextPath));
+        this.setBaseResource(ResourceFactory.of(this).newClassLoaderResource(PATH_PATH + this.contextPath));
     }
 
     @Override
-    public void handle(String target, org.eclipse.jetty.server.Request baseRequest, HttpServletRequest request, HttpServletResponse httpServletResponse) throws IOException, ServletException {
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
         long requestNumber = requestCounter.incrementAndGet();
+        String target = Request.getPathInContext(request);
+
         if (contextPath.equals(target)) {
-            Response response = baseRequest.getResponse();
-            response.setContentType("text/plain");
-            response.getWriter().write("mock for: " + contextPath);
-            baseRequest.setHandled(true);
-        } else if (target.startsWith(this.contextPath + "/internal/selftest")) {
-            httpServletResponse.getWriter().write("OK");
-            baseRequest.setHandled(true);
-        } else {
-            if (getResource("/") == null) {
-                throw new IOException("Unable to locate /mockserver in resources. Check your configuration.");
-            }
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/plain;charset=utf-8");
+            Content.Sink.write(response, true, "mock for: " + contextPath, callback);
+            return true;
+        }
 
-            String pathInfo = target.substring(this.contextPath.length()) + "." + baseRequest.getMethod();
+        if (target.startsWith(contextPath + "/internal/selftest")) {
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, "text/plain;charset=utf-8");
+            Content.Sink.write(response, true, "OK", callback);
+            return true;
+        }
 
+        Resource base = getBaseResource();
+        if (base == null || !base.exists()) {
+            throw new IOException("Unable to locate /mockserver in resources. Check your configuration.");
+        }
+
+        String pathInfo = target.substring(contextPath.length()) + "." + request.getMethod();
+        Resource resource = base.resolve(pathInfo);
+
+        if (resource == null || !resource.exists()) {
             for (String extension : EXTENSIONS) {
-                String jsonPath = pathInfo + "." + extension;
-                if (!getResource(pathInfo).exists() && getResource(jsonPath).exists()) {
-                    pathInfo = jsonPath;
+                String candidate = pathInfo + "." + extension;
+                Resource withExt = base.resolve(candidate);
+                if (withExt != null && withExt.exists()) {
+                    pathInfo = candidate;
+                    resource = withExt;
+                    break;
                 }
             }
-
-            baseRequest.setMethod(HttpMethod.GET.name());
-
-            super.handle(target, baseRequest, request, httpServletResponse);
-
-            if (baseRequest.isHandled()) {
-                LOG.info("request #{} {}{}", requestNumber, PATH_PATH, pathInfo);
-            } else {
-                LOG.warn("request #{} {}{} -- NOT FOUND", requestNumber, PATH_PATH, pathInfo);
-                httpServletResponse.setStatus(404);
-                baseRequest.setHandled(true);
-            }
         }
+
+        if (resource == null || !resource.exists()) {
+            LOG.warn("request #{} {}{} -- NOT FOUND", requestNumber, PATH_PATH, pathInfo);
+            Response.writeError(request, response, callback, 404);
+            return true;
+        }
+
+        LOG.info("request #{} {}{}", requestNumber, PATH_PATH, pathInfo);
+
+        String mimeType = MimeTypes.DEFAULTS.getMimeByExtension(pathInfo);
+        if (mimeType != null) {
+            response.getHeaders().put(HttpHeader.CONTENT_TYPE, mimeType);
+        }
+
+        byte[] bytes;
+        try (InputStream in = resource.newInputStream()) {
+            bytes = in.readAllBytes();
+        }
+        response.write(true, ByteBuffer.wrap(bytes), callback);
+        return true;
     }
 
     @SuppressWarnings("unused")
