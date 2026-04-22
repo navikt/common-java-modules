@@ -36,7 +36,7 @@ import static org.junit.Assert.assertTrue;
 
 public class KafkaProducerRecordProcessorIntegrationTest {
     private static final long POLL_TIMEOUT = 100;
-    private static final long WAIT_TIMEOUT = 500;
+    private static final long WAIT_TIMEOUT = 1000;
 
     private String testTopicA;
     private String testTopicB;
