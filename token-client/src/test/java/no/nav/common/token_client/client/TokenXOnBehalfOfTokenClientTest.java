@@ -2,8 +2,8 @@ package no.nav.common.token_client.client;
 
 import no.nav.common.token_client.cache.CaffeineTokenCache;
 import no.nav.common.token_client.test_utils.TokenCreator;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class TokenXOnBehalfOfTokenClientTest {
 
     @AfterEach
     public void shutdown() throws IOException {
-        server.shutdown();
+        server.close();
     }
 
     @Test
@@ -48,10 +48,10 @@ public class TokenXOnBehalfOfTokenClientTest {
 
         RecordedRequest recordedRequest = server.takeRequest();
 
-        Map<String, String> data = parseFormData(recordedRequest.getBody().readUtf8());
+        Map<String, String> data = parseFormData(recordedRequest.getBody().utf8());
 
         assertEquals(accessToken, token);
-        assertEquals("/token", recordedRequest.getPath());
+        assertEquals("/token", recordedRequest.getTarget());
         assertEquals("POST", recordedRequest.getMethod());
         assertEquals("urn:ietf:params:oauth:client-assertion-type:jwt-bearer", data.get("client_assertion_type"));
         assertEquals("test-scope", data.get("audience"));
