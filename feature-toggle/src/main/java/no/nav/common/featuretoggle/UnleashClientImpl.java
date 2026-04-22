@@ -1,21 +1,20 @@
 package no.nav.common.featuretoggle;
 
+import io.getunleash.DefaultUnleash;
+import io.getunleash.Unleash;
+import io.getunleash.UnleashContext;
+import io.getunleash.UnleashException;
+import io.getunleash.event.ClientFeaturesResponse;
+import io.getunleash.event.UnleashSubscriber;
+import io.getunleash.strategy.Strategy;
+import io.getunleash.util.UnleashConfig;
 import lombok.extern.slf4j.Slf4j;
-import no.finn.unleash.DefaultUnleash;
-import no.finn.unleash.Unleash;
-import no.finn.unleash.UnleashContext;
-import no.finn.unleash.UnleashException;
-import no.finn.unleash.event.UnleashSubscriber;
-import no.finn.unleash.repository.FeatureToggleResponse;
-import no.finn.unleash.strategy.Strategy;
-import no.finn.unleash.util.UnleashConfig;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
 
 import java.util.Collections;
 import java.util.List;
 
-import static no.finn.unleash.repository.FeatureToggleResponse.Status.CHANGED;
 import static no.nav.common.featuretoggle.UnleashUtils.resolveUnleashContextFromSubject;
 import static no.nav.common.featuretoggle.UnleashUtils.withDefaultStrategies;
 
@@ -24,7 +23,7 @@ public class UnleashClientImpl implements HealthCheck, UnleashSubscriber, Unleas
 
     private final Unleash defaultUnleash;
 
-    private FeatureToggleResponse.Status lastTogglesFetchedStatus;
+    private ClientFeaturesResponse.Status lastTogglesFetchedStatus;
 
     public UnleashClientImpl(Unleash defaultUnleash) {
         this.defaultUnleash = defaultUnleash;
@@ -64,7 +63,7 @@ public class UnleashClientImpl implements HealthCheck, UnleashSubscriber, Unleas
     }
 
     @Override
-    public void togglesFetched(FeatureToggleResponse toggleResponse) {
+    public void togglesFetched(ClientFeaturesResponse toggleResponse) {
         this.lastTogglesFetchedStatus = toggleResponse.getStatus();
     }
 
@@ -76,10 +75,11 @@ public class UnleashClientImpl implements HealthCheck, UnleashSubscriber, Unleas
     @Override
     public HealthCheckResult checkHealth() {
         try {
-            if (lastTogglesFetchedStatus == CHANGED || lastTogglesFetchedStatus == FeatureToggleResponse.Status.NOT_CHANGED) {
+            if (lastTogglesFetchedStatus == ClientFeaturesResponse.Status.CHANGED || lastTogglesFetchedStatus == ClientFeaturesResponse.Status.NOT_CHANGED) {
                 return HealthCheckResult.healthy();
             } else {
-                return HealthCheckResult.unhealthy(lastTogglesFetchedStatus.toString());
+                return HealthCheckResult.unhealthy(
+                        lastTogglesFetchedStatus == null ? "no status yet" : lastTogglesFetchedStatus.toString());
             }
         } catch (Exception e) {
             log.warn(e.getMessage(), e);

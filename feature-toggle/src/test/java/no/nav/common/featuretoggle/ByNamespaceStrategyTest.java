@@ -1,5 +1,6 @@
 package no.nav.common.featuretoggle;
 
+import io.getunleash.UnleashContext;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -10,11 +11,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByNamespaceStrategyTest {
 
+	private static final UnleashContext EMPTY_CONTEXT = UnleashContext.builder().build();
+
 	private ByNamespaceStrategy byNamespaceStrategy = new ByNamespaceStrategy();
 
 	@Test
 	public void smoketest() {
-		assertThat(byNamespaceStrategy.isEnabled(null)).isFalse();
+		assertThat(byNamespaceStrategy.isEnabled(null, EMPTY_CONTEXT)).isFalse();
 
 		assertDisabled(null, "q0");
 		assertDisabled(null, "");
@@ -47,7 +50,7 @@ public class ByNamespaceStrategyTest {
 			System.setProperty(NAIS_NAMESPACE_PROPERTY_NAME, namespace);
 		}
 
-		assertThat(byNamespaceStrategy.isEnabled(parameters))
+		assertThat(byNamespaceStrategy.isEnabled(parameters, EMPTY_CONTEXT))
 				.describedAs("environment=" + namespace)
 				.isEqualTo(expectedState);
 	}

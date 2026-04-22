@@ -1,8 +1,8 @@
 package no.nav.common.featuretoggle;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import no.finn.unleash.util.UnleashConfig;
-import no.finn.unleash.util.UnleashScheduledExecutor;
+import io.getunleash.util.UnleashConfig;
+import io.getunleash.util.UnleashScheduledExecutor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class UnleashClientImplTest {
         UnleashConfig.Builder configBuilder = UnleashConfig.builder()
                 .appName("test")
                 .unleashAPI("http://localhost:" + wireMockRule.port())
-                .synchronousFetchOnInitialisation(true)
+                .synchronousFetchOnInitialisation(false)
                 .scheduledExecutor(new TestExecutor());
 
         return new UnleashClientImpl(configBuilder, Collections.emptyList());
@@ -85,8 +85,8 @@ public class UnleashClientImplTest {
 
     private static class TestExecutor implements UnleashScheduledExecutor {
         @Override
-        public ScheduledFuture setInterval(Runnable runnable, long l, long l1) throws RejectedExecutionException {
-            return scheduleOnce(runnable);
+        public void setInterval(Runnable runnable, long l, long l1) throws RejectedExecutionException {
+            scheduleOnce(runnable);
         }
 
         @Override
