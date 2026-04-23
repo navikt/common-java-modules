@@ -1,7 +1,7 @@
 package no.nav.types.identer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.NorskIdent;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class NorskIdentTest {
     }
 
     @Test
-    public void should_deserialize_json_to_norsk_ident_field() throws JsonProcessingException {
+    public void should_deserialize_json_to_norsk_ident_field() throws JacksonException {
         String wrapperJson = "{\"norskIdent\":\"123534252\"}";
 
         NorskIdentWrapper wrapper = mapper.readValue(wrapperJson, NorskIdentWrapper.class);
@@ -44,7 +44,7 @@ public class NorskIdentTest {
     }
 
     @Test
-    public void should_deserialize_no_norsk_ident() throws JsonProcessingException {
+    public void should_deserialize_no_norsk_ident() throws JacksonException {
         String wrapperJson = "{}";
 
         NorskIdentWrapper wrapper = mapper.readValue(wrapperJson, NorskIdentWrapper.class);
@@ -53,7 +53,7 @@ public class NorskIdentTest {
     }
 
     @Test
-    public void should_deserialize_norsk_ident_wrapper_null() throws JsonProcessingException {
+    public void should_deserialize_norsk_ident_wrapper_null() throws JacksonException {
         String wrapperJson = "{\"norskIdent\":null}";
 
         NorskIdentWrapper wrapper = mapper.readValue(wrapperJson, NorskIdentWrapper.class);
@@ -62,7 +62,7 @@ public class NorskIdentTest {
     }
 
     @Test
-    public void should_deserialize_norsk_ident_field_null() throws JsonProcessingException {
+    public void should_deserialize_norsk_ident_field_null() throws JacksonException {
         String nullJson = "null";
 
         NorskIdent norskIdent = mapper.readValue(nullJson, NorskIdent.class);

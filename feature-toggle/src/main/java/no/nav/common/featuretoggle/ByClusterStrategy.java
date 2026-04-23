@@ -1,7 +1,7 @@
 package no.nav.common.featuretoggle;
 
-
-import no.finn.unleash.strategy.Strategy;
+import io.getunleash.UnleashContext;
+import io.getunleash.strategy.Strategy;
 import no.nav.common.utils.EnvironmentUtils;
 
 import java.util.Map;
@@ -15,8 +15,8 @@ public class ByClusterStrategy implements Strategy {
 	}
 
 	@Override
-	public boolean isEnabled(Map<String, String> parameters) {
-		return ToggleChecker.isToggleEnabled("cluster", parameters, ByClusterStrategy::isCluster);
+	public boolean isEnabled(Map<String, String> map, UnleashContext unleashContext) {
+		return ToggleChecker.isToggleEnabled("cluster", map, ByClusterStrategy::isCluster);
 	}
 
 	private static boolean isCluster(String toggleClusterName) {

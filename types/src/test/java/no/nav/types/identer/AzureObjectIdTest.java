@@ -1,7 +1,7 @@
 package no.nav.types.identer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AzureObjectId;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class AzureObjectIdTest {
     }
 
     @Test
-    public void should_deserialize_json_to_azureObjectId_field() throws JsonProcessingException {
+    public void should_deserialize_json_to_azureObjectId_field() throws JacksonException {
         String wrapperJson = "{\"azureObjectId\":\"123534252\"}";
 
         AzureObjectIdWrapper wrapper = mapper.readValue(wrapperJson, AzureObjectIdWrapper.class);
@@ -44,7 +44,7 @@ public class AzureObjectIdTest {
     }
 
     @Test
-    public void should_deserialize_no_azureObjectId() throws JsonProcessingException {
+    public void should_deserialize_no_azureObjectId() throws JacksonException {
         String wrapperJson = "{}";
 
         AzureObjectIdWrapper wrapper = mapper.readValue(wrapperJson, AzureObjectIdWrapper.class);
@@ -53,7 +53,7 @@ public class AzureObjectIdTest {
     }
 
     @Test
-    public void should_deserialize_azureObjectId_wrapper_null() throws JsonProcessingException {
+    public void should_deserialize_azureObjectId_wrapper_null() throws JacksonException {
         String wrapperJson = "{\"azureObjectId\":null}";
 
         AzureObjectIdWrapper wrapper = mapper.readValue(wrapperJson, AzureObjectIdWrapper.class);
@@ -62,7 +62,7 @@ public class AzureObjectIdTest {
     }
 
     @Test
-    public void should_deserialize_azureObjectId_field_null() throws JsonProcessingException {
+    public void should_deserialize_azureObjectId_field_null() throws JacksonException {
         String nullJson = "null";
 
         AzureObjectId azureObjectId = mapper.readValue(nullJson, AzureObjectId.class);

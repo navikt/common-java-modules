@@ -1,6 +1,6 @@
 package no.nav.common.sts.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestUtils;
 import no.nav.common.utils.AuthUtils;

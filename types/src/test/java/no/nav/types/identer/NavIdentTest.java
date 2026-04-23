@@ -1,7 +1,7 @@
 package no.nav.types.identer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.NavIdent;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class NavIdentTest {
     }
 
     @Test
-    public void should_deserialize_json_to_navIdent_field() throws JsonProcessingException {
+    public void should_deserialize_json_to_navIdent_field() throws JacksonException {
         String wrapperJson = "{\"navIdent\":\"Z123456\"}";
 
         NavIdentWrapper wrapper = mapper.readValue(wrapperJson, NavIdentWrapper.class);
@@ -44,7 +44,7 @@ public class NavIdentTest {
     }
 
     @Test
-    public void should_deserialize_no_navIdent() throws JsonProcessingException {
+    public void should_deserialize_no_navIdent() throws JacksonException {
         String wrapperJson = "{}";
 
         NavIdentWrapper wrapper = mapper.readValue(wrapperJson, NavIdentWrapper.class);
@@ -53,7 +53,7 @@ public class NavIdentTest {
     }
 
     @Test
-    public void should_deserialize_navIdent_wrapper_null() throws JsonProcessingException {
+    public void should_deserialize_navIdent_wrapper_null() throws JacksonException {
         String wrapperJson = "{\"navIdent\":null}";
 
         NavIdentWrapper wrapper = mapper.readValue(wrapperJson, NavIdentWrapper.class);
@@ -62,7 +62,7 @@ public class NavIdentTest {
     }
 
     @Test
-    public void should_deserialize_navIdent_field_null() throws JsonProcessingException {
+    public void should_deserialize_navIdent_field_null() throws JacksonException {
         String navIdentJson = "null";
 
         NavIdent navIdent = mapper.readValue(navIdentJson, NavIdent.class);

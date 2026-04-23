@@ -1,6 +1,6 @@
 package no.nav.common.token_client.test_utils;
 
-import okhttp3.mockwebserver.MockResponse;
+import mockwebserver3.MockResponse;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -27,9 +27,10 @@ public class RequestUtils {
     public static MockResponse tokenMockResponse(String accessToken) {
         String body = format("{ \"token_type\": \"Bearer\", \"access_token\": \"%s\", \"expires\": 3600 }", accessToken);
 
-        return new MockResponse()
-             .setBody(body)
-             .setHeader("Content-Type", "application/json");
+        return new MockResponse.Builder()
+             .body(body)
+             .addHeader("Content-Type", "application/json")
+             .build();
     }
 
 }

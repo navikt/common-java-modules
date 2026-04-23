@@ -1,12 +1,12 @@
 package no.nav.common.json;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DatabindException;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
@@ -52,7 +52,7 @@ public class JsonUtilsTest {
 
         @Test
         public void circularObject() {
-            assertThatThrownBy(() -> JsonUtils.toJson(new CircularObject())).isInstanceOf(JsonMappingException.class);
+            assertThatThrownBy(() -> JsonUtils.toJson(new CircularObject())).isInstanceOf(DatabindException.class);
         }
     }
 

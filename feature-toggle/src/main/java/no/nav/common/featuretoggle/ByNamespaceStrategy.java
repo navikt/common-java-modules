@@ -1,7 +1,7 @@
 package no.nav.common.featuretoggle;
 
-
-import no.finn.unleash.strategy.Strategy;
+import io.getunleash.UnleashContext;
+import io.getunleash.strategy.Strategy;
 import no.nav.common.utils.EnvironmentUtils;
 
 import java.util.Map;
@@ -14,10 +14,10 @@ public class ByNamespaceStrategy implements Strategy {
 		return "byNamespace";
 	}
 
-	@Override
-	public boolean isEnabled(Map<String, String> parameters) {
-		return ToggleChecker.isToggleEnabled("namespace", parameters, ByNamespaceStrategy::isNamespace);
-	}
+    @Override
+    public boolean isEnabled(Map<String, String> map, UnleashContext unleashContext) {
+        return ToggleChecker.isToggleEnabled("namespace", map, ByNamespaceStrategy::isNamespace);
+    }
 
 	private static boolean isNamespace(String toggleNamespace) {
 		String namespace = EnvironmentUtils.getNamespace().orElse("NO_NAMESPACE");

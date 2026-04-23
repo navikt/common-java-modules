@@ -6,7 +6,7 @@ import lombok.SneakyThrows;
 import no.nav.common.cxf.CXFEndpoint;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.junit.After;
 import org.slf4j.Logger;
 

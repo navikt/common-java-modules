@@ -1,61 +1,59 @@
 package no.nav.common.cxf;
 
-import org.apache.cxf.common.i18n.Exception;
-import org.apache.cxf.endpoint.Endpoint;
-import org.apache.cxf.endpoint.EndpointImpl;
-import org.apache.cxf.message.Exchange;
-import org.apache.cxf.message.ExchangeImpl;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.message.MessageImpl;
-import org.apache.cxf.service.Service;
-import org.apache.cxf.service.ServiceImpl;
-import org.apache.cxf.service.model.EndpointInfo;
-import org.apache.cxf.service.model.InterfaceInfo;
-import org.apache.cxf.service.model.ServiceInfo;
+import org.apache.cxf.ext.logging.event.LogEvent;
 import org.junit.Test;
 
-import javax.xml.namespace.QName;
-import java.util.logging.Logger;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CXFMaskSAMLTokenLoggingOutInterceptorTest {
-    CXFMaskSAMLTokenLoggingOutInterceptor interceptor = new CXFMaskSAMLTokenLoggingOutInterceptor();
+
+    private static final String XML_MED_SAML =
+            "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">"
+                    + "<soap:Header>"
+                    + "<wsse:Security xmlns:wsse=\"wsse-ns\"><Assertion>hemmelig</Assertion></wsse:Security>"
+                    + "</soap:Header>"
+                    + "<soap:Body><ping/></soap:Body>"
+                    + "</soap:Envelope>";
 
     @Test
-    public void handleMessageSkalLeggeTilCustomLogger() throws Exception {
-        Message message = createMessage();
+    public void skalFjerneSecurityHeaderFraXmlPayload() {
+        CXFMaskSAMLTokenLoggingOutInterceptor interceptor = new CXFMaskSAMLTokenLoggingOutInterceptor();
 
-        EndpointInfo endpoint = message.getExchange().getEndpoint().getEndpointInfo();
-        endpoint.setProperty("MessageLogger", null);
+        LogEvent event = new LogEvent();
+        event.setContentType("application/xml");
+        event.setPayload(XML_MED_SAML);
 
-        interceptor.handleMessage(message);
-        assertThat(endpoint.getProperty("MessageLogger", Logger.class).getName(), is(CXFMaskSAMLTokenLoggingOutInterceptor.class.getName() + ".serviceLocal.endpointLocal.ifaceLocal"));
+        interceptor.maskIfEnabled(event);
+
+        assertThat(event.getPayload()).doesNotContain("hemmelig");
+        assertThat(event.getPayload()).doesNotContain("Security");
+        assertThat(event.getPayload()).contains("<ping");
     }
 
-    private Message createMessage() throws Exception {
-        QName serviceName = new QName("serviceUri", "serviceLocal");
-        Service service = new ServiceImpl();
-        ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setName(serviceName);
+    @Test
+    public void skalIkkeMaskereNaarDeaktivert() {
+        CXFMaskSAMLTokenLoggingOutInterceptor interceptor = new CXFMaskSAMLTokenLoggingOutInterceptor();
+        interceptor.setMaskerSAMLToken(false);
 
-        EndpointInfo endpointInfo = new EndpointInfo();
-        endpointInfo.setService(serviceInfo);
-        QName endpointName = new QName("endpointUri", "endpointLocal");
-        endpointInfo.setName(endpointName);
+        LogEvent event = new LogEvent();
+        event.setContentType("application/xml");
+        event.setPayload(XML_MED_SAML);
 
-        Endpoint endpoint = new EndpointImpl(null, service, endpointInfo);
+        interceptor.maskIfEnabled(event);
 
-        Exchange exchange = new ExchangeImpl();
-        exchange.put(Endpoint.class, endpoint);
+        assertThat(event.getPayload()).contains("hemmelig");
+    }
 
-        QName ifaceName = new QName("ifaceUri", "ifaceLocal");
-        InterfaceInfo iface = new InterfaceInfo(serviceInfo, ifaceName);
-        serviceInfo.setInterface(iface);
+    @Test
+    public void skalIkkeMaskereIkkeXmlPayload() {
+        CXFMaskSAMLTokenLoggingOutInterceptor interceptor = new CXFMaskSAMLTokenLoggingOutInterceptor();
 
-        Message message = new MessageImpl();
-        message.setExchange(exchange);
-        return message;
+        LogEvent event = new LogEvent();
+        event.setContentType("application/json");
+        event.setPayload("{\"Security\":\"hemmelig\"}");
+
+        interceptor.maskIfEnabled(event);
+
+        assertThat(event.getPayload()).contains("hemmelig");
     }
 }

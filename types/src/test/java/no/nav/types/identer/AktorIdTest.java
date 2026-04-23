@@ -1,7 +1,7 @@
 package no.nav.types.identer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AktorId;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class AktorIdTest {
     }
 
     @Test
-    public void should_deserialize_json_to_aktorId_field() throws JsonProcessingException {
+    public void should_deserialize_json_to_aktorId_field() throws JacksonException {
         String wrapperJson = "{\"aktorId\":\"123534252\"}";
 
         AktorIdWrapper wrapper = mapper.readValue(wrapperJson, AktorIdWrapper.class);
@@ -44,7 +44,7 @@ public class AktorIdTest {
     }
 
     @Test
-    public void should_deserialize_no_aktorId() throws JsonProcessingException {
+    public void should_deserialize_no_aktorId() throws JacksonException {
         String wrapperJson = "{}";
 
         AktorIdWrapper wrapper = mapper.readValue(wrapperJson, AktorIdWrapper.class);
@@ -53,7 +53,7 @@ public class AktorIdTest {
     }
 
     @Test
-    public void should_deserialize_aktorId_wrapper_null() throws JsonProcessingException {
+    public void should_deserialize_aktorId_wrapper_null() throws JacksonException {
         String wrapperJson = "{\"aktorId\":null}";
 
         AktorIdWrapper wrapper = mapper.readValue(wrapperJson, AktorIdWrapper.class);
@@ -62,7 +62,7 @@ public class AktorIdTest {
     }
 
     @Test
-    public void should_deserialize_aktorId_field_null() throws JsonProcessingException {
+    public void should_deserialize_aktorId_field_null() throws JacksonException {
         String nullJson = "null";
 
         AktorId aktorId = mapper.readValue(nullJson, AktorId.class);

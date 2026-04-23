@@ -1,5 +1,6 @@
 package no.nav.common.featuretoggle;
 
+import io.getunleash.UnleashContext;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -10,11 +11,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ByClusterStrategyTest {
 
+	private static final UnleashContext EMPTY_CONTEXT = UnleashContext.builder().build();
+
 	private ByClusterStrategy byClusterStrategy = new ByClusterStrategy();
 
 	@Test
 	public void smoketest() {
-		assertThat(byClusterStrategy.isEnabled(null)).isFalse();
+		assertThat(byClusterStrategy.isEnabled(null, EMPTY_CONTEXT)).isFalse();
 
 		assertDisabled(null, "preprod-fss");
 		assertDisabled(null, "");
@@ -47,7 +50,7 @@ public class ByClusterStrategyTest {
 			System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, cluster);
 		}
 
-		assertThat(byClusterStrategy.isEnabled(parameters))
+		assertThat(byClusterStrategy.isEnabled(parameters, EMPTY_CONTEXT))
 				.describedAs("environment=" + cluster)
 				.isEqualTo(expectedState);
 	}

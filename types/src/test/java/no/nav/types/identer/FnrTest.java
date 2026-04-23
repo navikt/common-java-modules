@@ -1,7 +1,7 @@
 package no.nav.types.identer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.Fnr;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class FnrTest {
     }
 
     @Test
-    public void should_deserialize_json_to_fnr_field() throws JsonProcessingException {
+    public void should_deserialize_json_to_fnr_field() throws JacksonException {
         String FnrWrapperJson = "{\"fnr\":\"123534252\"}";
 
         FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
@@ -43,7 +43,7 @@ public class FnrTest {
     }
 
     @Test
-    public void should_deserialize_no_fnr() throws JsonProcessingException {
+    public void should_deserialize_no_fnr() throws JacksonException {
         String FnrWrapperJson = "{}";
 
         FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
@@ -52,7 +52,7 @@ public class FnrTest {
     }
 
     @Test
-    public void should_deserialize_fnr_wrapper_null() throws JsonProcessingException {
+    public void should_deserialize_fnr_wrapper_null() throws JacksonException {
         String FnrWrapperJson = "{\"fnr\":null}";
 
         FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
@@ -61,7 +61,7 @@ public class FnrTest {
     }
 
     @Test
-    public void should_deserialize_fnr_field_null() throws JsonProcessingException {
+    public void should_deserialize_fnr_field_null() throws JacksonException {
         String nullJson = "null";
 
         Fnr fnr = mapper.readValue(nullJson, Fnr.class);

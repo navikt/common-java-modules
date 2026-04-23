@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>no.finn.unleash</groupId>
+            <groupId>io.getunleash</groupId>
             <artifactId>unleash-client-java</artifactId>
         </dependency>
 
@@ -43,7 +43,7 @@
             <artifactId>rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
         <dependency>
@@ -66,7 +66,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
+            <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>
             <scope>test</scope>
         </dependency>
@@ -82,12 +82,12 @@
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
+            <artifactId>okhttp-jvm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>mockwebserver</artifactId>
+            <artifactId>mockwebserver3</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

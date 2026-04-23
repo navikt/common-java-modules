@@ -1,14 +1,16 @@
 package no.nav.common.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.StdScalarSerializer;
 
-import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -30,7 +32,8 @@ public class DateModule {
             new DateProvider()
     );
 
-    public static Module module() {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static JacksonModule module() {
         SimpleModule module = new SimpleModule();
         providers.forEach((v) -> {
             module.addSerializer(v.serializer);
@@ -42,8 +45,8 @@ public class DateModule {
     private abstract static class BaseProvider<T> {
 
         private final Class targetClass;
-        private final JsonSerializer<T> serializer;
-        private final JsonDeserializer<T> deSerializer;
+        private final ValueSerializer<T> serializer;
+        private final ValueDeserializer<T> deSerializer;
 
         protected abstract T toValue(ZonedDateTime zonedDateTime);
 
@@ -54,15 +57,15 @@ public class DateModule {
 
             this.serializer = new StdScalarSerializer<T>(targetClass) {
                 @Override
-                public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                public void serialize(T value, JsonGenerator jgen, SerializationContext provider) {
                     jgen.writeString(BaseProvider.this.toString(value));
                 }
             };
 
             this.deSerializer = new StdScalarDeserializer<T>(targetClass) {
                 @Override
-                public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-                    return of(p.getText())
+                public T deserialize(JsonParser p, DeserializationContext ctxt) {
+                    return of(p.getString())
                             .map(BaseProvider.this::fromString)
                             .orElse(null);
                 }

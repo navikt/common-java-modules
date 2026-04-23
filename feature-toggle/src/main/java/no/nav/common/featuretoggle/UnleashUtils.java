@@ -1,7 +1,7 @@
 package no.nav.common.featuretoggle;
 
-import no.finn.unleash.UnleashContext;
-import no.finn.unleash.strategy.Strategy;
+import io.getunleash.UnleashContext;
+import io.getunleash.strategy.Strategy;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.types.identer.Id;
 import no.nav.common.utils.EnvironmentUtils;
