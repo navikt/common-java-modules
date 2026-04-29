@@ -19,6 +19,7 @@ public class JsonMapper {
                 .addModule(new KotlinModule.Builder().build())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, false)
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
                 .changeDefaultVisibility(v -> v
