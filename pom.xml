@@ -102,7 +102,7 @@
         <nimbusds.version>11.37</nimbusds.version>
         <unleash.version>12.2.1</unleash.version>
         <org.json.version>20251224</org.json.version>
-        <jetty.version>12.1.7</jetty.version>
+        <jetty.version>12.1.8</jetty.version>
 
         <!-- KAFKA -->
         <kafka.version>4.1.2</kafka.version>
