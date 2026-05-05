@@ -22,6 +22,7 @@ public class JsonMapper {
                 .configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, false)
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
+                .configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, true)
                 .changeDefaultVisibility(v -> v
                         .withFieldVisibility(Visibility.ANY)
                         .withGetterVisibility(Visibility.NONE)
