@@ -119,7 +119,7 @@
         <testcontainers.version>2.0.5</testcontainers.version>
         <h2.version>2.4.240</h2.version>
         <postgres.version>42.7.10</postgres.version>
-        <bytebuddy.version>1.17.8</bytebuddy.version><!-- overstyrer utdatert versjon fra mockito -->
+        <bytebuddy.version>1.18.8</bytebuddy.version><!-- overstyrer utdatert versjon fra mockito -->
     </properties>
 
 
