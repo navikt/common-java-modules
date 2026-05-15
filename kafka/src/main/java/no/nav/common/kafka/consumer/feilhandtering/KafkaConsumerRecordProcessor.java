@@ -170,7 +170,6 @@ public class KafkaConsumerRecordProcessor {
                 }
                 if (meterRegistry != null) {
                     try {
-                        log.info("Registrerer gauge for topic {} partition {} med verdi {}", topicPartition.topic(), topicPartition.partition(), failedOrBackedOffKeys.size());
                         registerFailedMessagesGaugeForTopic(topicPartition, failedOrBackedOffKeys.size());
                     } catch (Exception e) {
                         log.warn("Failed to update failed-or-backedoff metrics", e);
