@@ -95,6 +95,11 @@ public class KafkaConsumerRecordProcessor {
     }
 
     private void consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
+        // Nullstill alle eksisterende gauges; de som fortsatt er aktive blir overskrevet lenger ned
+        if (meterRegistry != null) {
+            failedMessagesGauges.values().forEach(g -> g.set(0));
+        }
+
         uniquePartitions.forEach(topicPartition -> {
             if (!isRunning) {
                 return;
