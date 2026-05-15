@@ -185,15 +185,20 @@ public class KafkaConsumerRecordProcessor {
     }
 
     private void registerFailedMessagesGaugeForTopic(TopicPartition topicPartition, Integer value) {
-        AtomicInteger gaugeValue = failedMessagesGauges.computeIfAbsent(topicPartition, (ignored) -> {
-            List<Tag> tags = new ArrayList<>();
-            tags.add(Tag.of("topic", topicPartition.topic()));
-            tags.add(Tag.of("partition", String.valueOf(topicPartition.partition())));
-            return meterRegistry.gauge("kafka_consumer_failed_or_backedoff_messages_in_batch", tags, new AtomicInteger(value));
+        AtomicInteger gaugeValue = failedMessagesGauges.computeIfAbsent(topicPartition, tp -> {
+            AtomicInteger holder = new AtomicInteger(value);
+            meterRegistry.find("kafka_consumer_failed_or_backedoff_messages_in_batch")
+                    .tags("topic", tp.topic(), "partition", String.valueOf(tp.partition()))
+                    .gauges()
+                    .forEach(meterRegistry::remove);
+            Gauge.builder("kafka_consumer_failed_or_backedoff_messages_in_batch", holder, AtomicInteger::get)
+                    .tag("topic", tp.topic())
+                    .tag("partition", String.valueOf(tp.partition()))
+                    .strongReference(true)
+                    .register(meterRegistry);
+            return holder;
         });
-        if (gaugeValue != null) {
-            gaugeValue.set(value);
-        }
+        gaugeValue.set(value);
     }
 
     private boolean shouldBackoff(StoredConsumerRecord record) {

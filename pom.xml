@@ -84,19 +84,19 @@
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-        <spring.version>7.0.6</spring.version>
+        <spring.version>7.0.7</spring.version>
         <jersey.version>4.0.2</jersey.version>
         <jackson.version>3.1.2</jackson.version>
         <jackson-annotations.version>2.21</jackson-annotations.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <micrometer.version>1.13.0</micrometer.version>
+        <micrometer.version>1.16.5</micrometer.version>
         <okhttp.version>5.3.2</okhttp.version>
         <prometheus.version>0.16.0</prometheus.version>
         <commons-lang.version>3.20.0</commons-lang.version>
         <commons-io.version>2.22.0</commons-io.version>
         <shedlock.version>7.7.0</shedlock.version>
         <handlebars.version>4.5.0</handlebars.version>
-        <gson.version>2.13.2</gson.version>
+        <gson.version>2.14.0</gson.version>
         <caffeine.version>3.2.3</caffeine.version>
         <bitbucket-jose4.version>0.9.6</bitbucket-jose4.version>
         <nimbusds.version>11.37</nimbusds.version>
@@ -105,7 +105,7 @@
         <jetty.version>12.1.8</jetty.version>
 
         <!-- KAFKA -->
-        <kafka.version>4.1.2</kafka.version>
+        <kafka.version>4.2.0</kafka.version>
         <avro.version>1.12.1</avro.version>
         <avro-serializer.version>8.2.0</avro-serializer.version>
         <json-schema-validation.version>1.14.6</json-schema-validation.version>
@@ -118,8 +118,8 @@
         <wiremock.version>3.13.2</wiremock.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <h2.version>2.4.240</h2.version>
-        <postgres.version>42.7.10</postgres.version>
-        <bytebuddy.version>1.17.8</bytebuddy.version><!-- overstyrer utdatert versjon fra mockito -->
+        <postgres.version>42.7.11</postgres.version>
+        <bytebuddy.version>1.18.8</bytebuddy.version><!-- overstyrer utdatert versjon fra mockito -->
     </properties>
 
 
@@ -722,11 +722,11 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.5.0</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.15.0</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
@@ -782,12 +782,12 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.14</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.6.0</version>
+                <version>1.7.3</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>resolveCiFriendliesOnly</flattenMode>

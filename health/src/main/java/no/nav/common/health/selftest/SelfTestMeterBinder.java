@@ -3,7 +3,7 @@ package no.nav.common.health.selftest;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
-import io.micrometer.core.lang.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
