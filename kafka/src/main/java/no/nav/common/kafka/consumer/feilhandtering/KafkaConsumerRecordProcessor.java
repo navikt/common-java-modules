@@ -95,11 +95,6 @@ public class KafkaConsumerRecordProcessor {
     }
 
     private void consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
-        // Nullstill alle eksisterende gauges; de som fortsatt er aktive blir overskrevet lenger ned
-        if (meterRegistry != null) {
-            failedMessagesGauges.values().forEach(g -> g.set(0));
-        }
-
         uniquePartitions.forEach(topicPartition -> {
             if (!isRunning) {
                 return;
@@ -175,6 +170,7 @@ public class KafkaConsumerRecordProcessor {
                 }
                 if (meterRegistry != null) {
                     try {
+                        log.info("Registrerer gauge for topic {} partition {} med verdi {}", topicPartition.topic(), topicPartition.partition(), failedOrBackedOffKeys.size());
                         registerFailedMessagesGaugeForTopic(topicPartition, failedOrBackedOffKeys.size());
                     } catch (Exception e) {
                         log.warn("Failed to update failed-or-backedoff metrics", e);
