@@ -1,5 +1,8 @@
 package no.nav.common.rest.client;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.json.JsonUtils;
 import okhttp3.MediaType;
@@ -64,4 +67,17 @@ public class RestUtils {
     public static RequestBody toJsonRequestBody(Object obj) {
         return RequestBody.create(MEDIA_TYPE_JSON, JsonUtils.toJson(obj));
     }
-}
+    private static final ObjectMapper NON_NULL_MAPPER = JsonUtils.getMapper()
+            .copy()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+    public static RequestBody toJsonRequestBodyWithoutNullValues(Object obj) {
+        try {
+            String json = obj != null ? NON_NULL_MAPPER.writeValueAsString(obj) : null;
+            assert json != null;
+            log.info("json fra non-null-mapper: {}", json);
+            return RequestBody.create(MEDIA_TYPE_JSON, json);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Klarte ikke å serialisere objekt til JSON", e);
+        }
+}}
