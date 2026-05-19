@@ -2,7 +2,6 @@ package no.nav.common.kafka.consumer.feilhandtering;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tag;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
@@ -18,16 +17,20 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.consumer.util.ConsumerUtils.mapFromStoredRecord;
 
 public class KafkaConsumerRecordProcessor {
 
+    private static final String FAILED_MESSAGES_METRIC = "kafka_consumer_failed_or_backedoff_messages_in_batch";
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private final ExecutorService metricsExecutor = Executors.newSingleThreadExecutor();
 
     private final LockProvider lockProvider;
 
@@ -41,7 +44,8 @@ public class KafkaConsumerRecordProcessor {
 
     private final MeterRegistry meterRegistry;
 
-    private final Map<TopicPartition, AtomicInteger> failedMessagesGauges = new HashMap<>();
+    // Holder den autoritative DB-baserte verdien for hver (topic, partition).
+    private final Map<TopicPartition, AtomicLong> failedMessagesGauges = new HashMap<>();
 
     public KafkaConsumerRecordProcessor(
             LockProvider lockProvider,
@@ -62,6 +66,9 @@ public class KafkaConsumerRecordProcessor {
     public void start() {
         if (!isRunning) {
             executorService.submit(this::recordHandlerLoop);
+            if (meterRegistry != null) {
+                metricsExecutor.submit(this::metricsLoop);
+            }
         }
     }
 
@@ -94,6 +101,57 @@ public class KafkaConsumerRecordProcessor {
         }
     }
 
+    /**
+     * Egen løkke som med jevne mellomrom henter autoritative tall fra databasen og oppdaterer
+     * gauges. Kjører uavhengig av Shedlock-låsen, slik at alle podder rapporterer samme verdi
+     * og metrikken aldri blir "stuck" når låsen flytter seg eller når en partisjon forsvinner
+     * fra arbeidssettet.
+     */
+    void metricsLoop() {
+        List<String> topics = new ArrayList<>(topicConsumers.keySet());
+        while (isRunning) {
+            try {
+                Map<TopicPartition, Long> counts = kafkaConsumerRepository.getFailedRecordCounts(topics);
+
+                // Oppdater eller registrer gauges for partisjoner som har feilede meldinger nå
+                counts.forEach(this::setFailedMessagesGauge);
+
+                // Nullstill alle kjente partisjoner som ikke lenger har feilede meldinger
+                failedMessagesGauges.forEach((tp, holder) -> {
+                    if (!counts.containsKey(tp)) {
+                        holder.set(0L);
+                    }
+                });
+
+                Thread.sleep(config.pollTimeout.toMillis());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            } catch (Exception e) {
+                log.warn("Failed to update failed-or-backedoff metrics", e);
+                try {
+                    Thread.sleep(config.errorTimeout.toMillis());
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+        }
+    }
+
+    private void setFailedMessagesGauge(TopicPartition topicPartition, Long value) {
+        AtomicLong holder = failedMessagesGauges.computeIfAbsent(topicPartition, tp -> {
+            AtomicLong newHolder = new AtomicLong();
+            Gauge.builder(FAILED_MESSAGES_METRIC, newHolder, AtomicLong::get)
+                    .tag("topic", tp.topic())
+                    .tag("partition", String.valueOf(tp.partition()))
+                    .strongReference(true)
+                    .register(meterRegistry);
+            return newHolder;
+        });
+        holder.set(value);
+    }
+
     private void consumeFromTopicPartitions(List<TopicPartition> uniquePartitions) {
         uniquePartitions.forEach(topicPartition -> {
             if (!isRunning) {
@@ -120,7 +178,6 @@ public class KafkaConsumerRecordProcessor {
                 records.forEach(record -> {
                     Bytes keyBytes = Bytes.wrap(record.getKey());
 
-                    // We cannot process records where a previous record with the same key (and topic+partition) has failed to be consumed
                     if (failedOrBackedOffKeys.contains(keyBytes)) {
                         return;
                     }
@@ -168,37 +225,12 @@ public class KafkaConsumerRecordProcessor {
                     kafkaConsumerRepository.deleteRecords(recordsToDelete);
                     log.info("Stored consumer records deleted {}", Arrays.toString(recordsToDelete.toArray()));
                 }
-                if (meterRegistry != null) {
-                    try {
-                        registerFailedMessagesGaugeForTopic(topicPartition, failedOrBackedOffKeys.size());
-                    } catch (Exception e) {
-                        log.warn("Failed to update failed-or-backedoff metrics", e);
-                    }
-                }
-
             } catch (Exception e) {
                 log.error("Unexpected exception caught while processing stored consumer records", e);
             } finally {
                 lock.ifPresent(SimpleLock::unlock);
             }
         });
-    }
-
-    private void registerFailedMessagesGaugeForTopic(TopicPartition topicPartition, Integer value) {
-        AtomicInteger gaugeValue = failedMessagesGauges.computeIfAbsent(topicPartition, tp -> {
-            AtomicInteger holder = new AtomicInteger(value);
-            meterRegistry.find("kafka_consumer_failed_or_backedoff_messages_in_batch")
-                    .tags("topic", tp.topic(), "partition", String.valueOf(tp.partition()))
-                    .gauges()
-                    .forEach(meterRegistry::remove);
-            Gauge.builder("kafka_consumer_failed_or_backedoff_messages_in_batch", holder, AtomicInteger::get)
-                    .tag("topic", tp.topic())
-                    .tag("partition", String.valueOf(tp.partition()))
-                    .strongReference(true)
-                    .register(meterRegistry);
-            return holder;
-        });
-        gaugeValue.set(value);
     }
 
     private boolean shouldBackoff(StoredConsumerRecord record) {

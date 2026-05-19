@@ -3,6 +3,7 @@ package no.nav.common.kafka.consumer.feilhandtering;
 import org.apache.kafka.common.TopicPartition;
 
 import java.util.List;
+import java.util.Map;
 
 public interface KafkaConsumerRepository {
 
@@ -18,4 +19,5 @@ public interface KafkaConsumerRepository {
 
     List<TopicPartition> getTopicPartitions(List<String> topics);
 
+    Map<TopicPartition, Long> getFailedRecordCounts(List<String> topics);
 }
