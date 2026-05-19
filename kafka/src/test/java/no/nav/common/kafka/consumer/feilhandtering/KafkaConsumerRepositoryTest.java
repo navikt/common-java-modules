@@ -251,6 +251,25 @@ public class KafkaConsumerRepositoryTest {
         assertEquals(id2, records.get(0).getId());
     }
 
+    @Test
+    public void should_get_failed_record_counts() {
+        kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value")));
+        long id2 = kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key2", "value")));
+        long id3 = kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 3, "key3", "value")));
+        long id4 = kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 4, "key4", "value")));
+
+        kafkaConsumerRepository.incrementRetries(id2);
+        kafkaConsumerRepository.incrementRetries(id2);
+        kafkaConsumerRepository.incrementRetries(id3);
+        kafkaConsumerRepository.incrementRetries(id4);
+
+        var counts = kafkaConsumerRepository.getFailedRecordCounts(List.of("topic1", "topic2"));
+
+        assertEquals(2, counts.size());
+        assertEquals(1L, counts.get(new TopicPartition("topic1", 1)).longValue());
+        assertEquals(2L, counts.get(new TopicPartition("topic2", 1)).longValue());
+    }
+
     private StoredConsumerRecord mapRecord(ConsumerRecord<String, String> record) {
         return ConsumerUtils.mapToStoredRecord(record, new StringSerializer(), new StringSerializer());
     }

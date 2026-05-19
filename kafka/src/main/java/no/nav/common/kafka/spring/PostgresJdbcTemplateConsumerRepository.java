@@ -8,7 +8,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.ResultSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static no.nav.common.kafka.util.DatabaseConstants.*;
@@ -107,6 +109,28 @@ public class PostgresJdbcTemplateConsumerRepository implements KafkaConsumerRepo
         );
 
         return jdbcTemplate.query(sql, DatabaseUtils::fetchTopicPartitions, toPostgresArray(topics));
+    }
+
+    @SneakyThrows
+    @Override
+    public Map<TopicPartition, Long> getFailedRecordCounts(List<String> topics) {
+        if (topics == null || topics.isEmpty()) {
+            return Map.of();
+        }
+        String sql = format(
+                "SELECT %s, %s, COUNT(*) AS cnt FROM %s " +
+                        "WHERE %s = ANY(?::varchar[]) AND %s > 0 " +
+                        "GROUP BY %s, %s",
+                TOPIC, PARTITION, consumerRecordTable, TOPIC, RETRIES, TOPIC, PARTITION
+        );
+
+        return jdbcTemplate.query(sql, rs -> {
+            Map<TopicPartition, Long> result = new HashMap<>();
+            while (rs.next()) {
+                result.put(new TopicPartition(rs.getString(TOPIC), rs.getInt(PARTITION)), rs.getLong("cnt"));
+            }
+            return result;
+        }, toPostgresArray(topics));
     }
 
 }
