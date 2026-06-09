@@ -7,11 +7,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 
 public class LogbackStdoutJsonTest {
@@ -47,6 +49,33 @@ public class LogbackStdoutJsonTest {
 
         LogLinje skalIkkeBliMaskert = logLinjes.get(1);
         Assert.assertEquals(skalIkkeMaskeres, skalIkkeBliMaskert.message);
+
+        System.setOut(out);
+    }
+
+    @Test
+    @SneakyThrows
+    public void loglinjeSkalInkludereMDCFelter() {
+        PrintStream out = System.out;
+
+        LogTestHelpers.loadLogbackConfig("/logback-test.xml");
+        ByteArrayOutputStream outputStream = captureSystemOut();
+
+        Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
+
+        String mdcKey = UUID.randomUUID().toString();
+        MDC.put(mdcKey, "value");
+        log.info("en random logglinje");
+        MDC.remove(mdcKey);
+
+        LogTestHelpers.flushLogs();
+
+        String logtext = outputStream.toString();
+
+        // da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
+        var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
+        Assert.assertEquals("skal bare vere 1 log lingjer", 1, logLinjes.size());
+        Assert.assertTrue(logtext.contains(mdcKey));
 
         System.setOut(out);
     }
