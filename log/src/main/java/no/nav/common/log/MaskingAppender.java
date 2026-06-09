@@ -10,4 +10,8 @@ public class MaskingAppender extends AsyncAppenderBase<ILoggingEvent> {
         super.append(new MaskedLoggingEvent(iLoggingEvent));
     }
 
+    @Override
+    protected void preprocess(ILoggingEvent eventObject) {
+        eventObject.prepareForDeferredProcessing();
+    }
 }
