@@ -84,7 +84,7 @@
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-        <spring.version>7.0.7</spring.version>
+        <spring.version>7.0.8</spring.version>
         <jersey.version>4.0.2</jersey.version>
         <jackson.version>3.2.0</jackson.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
