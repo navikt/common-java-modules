@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
-    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
-
     <appender name="stdout_json_masked" class="no.nav.common.log.MaskingAppender">
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator>
