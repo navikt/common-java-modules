@@ -104,7 +104,7 @@
         <org.json.version>20260522</org.json.version>
         <jetty.version>12.1.10</jetty.version>
         <!-- KAFKA -->
-        <kafka.version>4.3.0</kafka.version>
+        <kafka.version>4.3.1</kafka.version>
         <avro.version>1.12.1</avro.version>
         <avro-serializer.version>8.2.0</avro-serializer.version>
         <json-schema-validation.version>1.14.6</json-schema-validation.version>
