@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
-    <if condition='isDefined("CXF_SECURE_LOG")'>
+    <condition class="ch.qos.logback.core.boolex.IsPropertyDefinedCondition">
+        <key>CXF_SECURE_LOG</key>
+    </condition>
+    <if>
         <then>
             <logger name="org.apache.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}">
                 <appender-ref ref="secureLog"/>
