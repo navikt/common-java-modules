@@ -66,14 +66,12 @@ public class KafkaConsumerClientBuilder {
         String groupId = properties.getProperty(ConsumerConfig.GROUP_ID_CONFIG);
 
         Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
+        Set<String> seenTopics = new HashSet<>();
 
         consumerTopicConfigs.forEach((consumerTopicConfig) -> {
-            validateConfig(consumerTopicConfig);
+            validateConfig(consumerTopicConfig, seenTopics);
             tagTopicConsumerMetrics(consumerTopicConfig, groupId);
-            consumers.put(
-                    consumerTopicConfig.getConsumerConfig().getTopic(),
-                    createTopicConsumer(consumerTopicConfig)
-            );
+            consumers.put(consumerTopicConfig.getConsumerConfig().getTopic(), createTopicConsumer(consumerTopicConfig));
         });
 
         KafkaConsumerClientConfig<byte[], byte[]> config = new KafkaConsumerClientConfig<>(properties, consumers);
@@ -91,13 +89,17 @@ public class KafkaConsumerClientBuilder {
         return client;
     }
 
-    private static void validateConfig(TopicConfig<?, ?> consumerTopicConfig) {
+    private static void validateConfig(TopicConfig<?, ?> consumerTopicConfig, Set<String> seenTopics) {
         if (consumerTopicConfig.consumerConfig == null) {
             throw new IllegalStateException("Config is missing");
         }
 
         if (consumerTopicConfig.consumerConfig.topic == null) {
             throw new IllegalStateException("Topic is missing");
+        }
+
+        if (!seenTopics.add(consumerTopicConfig.consumerConfig.topic)) {
+            throw new IllegalStateException("Duplicate topic config for topic: " + consumerTopicConfig.consumerConfig.topic);
         }
 
         if (consumerTopicConfig.consumerConfig.keyDeserializer == null) {
