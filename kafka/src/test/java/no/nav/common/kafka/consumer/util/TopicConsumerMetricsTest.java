@@ -56,12 +56,42 @@ public class TopicConsumerMetricsTest {
         assertEquals(4, gauges.get(2).value(), 0);
     }
 
+    @Test
+    public void should_not_produce_duplicate_metrics_when_two_consumers_share_the_same_topic() {
+        MeterRegistry registry = new SimpleMeterRegistry();
+        TopicConsumerMetrics<String, String> consumer1 = new TopicConsumerMetrics<>(registry);
+        consumer1.setConsumerGroupId("group-1");
+        TopicConsumerMetrics<String, String> consumer2 = new TopicConsumerMetrics<>(registry);
+        consumer2.setConsumerGroupId("group-2");
+
+        consumer1.onConsumed(new ConsumerRecord<>("shared-topic", 1, 1L, "", ""), ConsumeStatus.OK);
+        consumer2.onConsumed(new ConsumerRecord<>("shared-topic", 1, 2L, "", ""), ConsumeStatus.OK);
+
+        assertEquals(1, getCountWithGroupId(registry, "shared-topic", 1, ConsumeStatus.OK, "group-1"), 0);
+        assertEquals(1, getCountWithGroupId(registry, "shared-topic", 1, ConsumeStatus.OK, "group-2"), 0);
+
+        List<Gauge> gauges = new ArrayList<>(registry.get(KAFKA_CONSUMER_CONSUMED_OFFSET_GAUGE).gauges());
+        assertEquals(2, gauges.size());
+        assertEquals(1, gauges.stream().filter(g -> "group-1".equals(g.getId().getTag("group_id"))).findFirst().orElseThrow().value(), 0);
+        assertEquals(2, gauges.stream().filter(g -> "group-2".equals(g.getId().getTag("group_id"))).findFirst().orElseThrow().value(), 0);
+    }
+
     private double getCount(MeterRegistry registry, String topic, int partition, ConsumeStatus status) {
         return registry.counter(
                 KAFKA_CONSUMER_STATUS_COUNTER,
                 "topic", topic,
                 "partition", String.valueOf(partition),
                 "status", status.name().toLowerCase()
+        ).count();
+    }
+
+    private double getCountWithGroupId(MeterRegistry registry, String topic, int partition, ConsumeStatus status, String groupId) {
+        return registry.counter(
+                KAFKA_CONSUMER_STATUS_COUNTER,
+                "topic", topic,
+                "partition", String.valueOf(partition),
+                "status", status.name().toLowerCase(),
+                "group_id", groupId
         ).count();
     }
 

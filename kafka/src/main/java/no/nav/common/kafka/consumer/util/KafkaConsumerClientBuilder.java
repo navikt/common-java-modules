@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.*;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.StoreOnFailureTopicConsumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 
@@ -62,10 +63,13 @@ public class KafkaConsumerClientBuilder {
             throw new IllegalStateException("Cannot build kafka consumer without properties");
         }
 
+        String groupId = properties.getProperty(ConsumerConfig.GROUP_ID_CONFIG);
+
         Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
 
         consumerTopicConfigs.forEach((consumerTopicConfig) -> {
             validateConfig(consumerTopicConfig);
+            tagTopicConsumerMetrics(consumerTopicConfig, groupId);
             consumers.put(
                     consumerTopicConfig.getConsumerConfig().getTopic(),
                     createTopicConsumer(consumerTopicConfig)
@@ -106,6 +110,16 @@ public class KafkaConsumerClientBuilder {
 
         if (consumerTopicConfig.consumerConfig.consumer == null) {
             throw new IllegalStateException("Topic consumer is missing");
+        }
+    }
+
+    private static void tagTopicConsumerMetrics(TopicConfig<?, ?> consumerTopicConfig, String groupId) {
+        if (groupId != null) {
+            consumerTopicConfig.getListeners().forEach(listener -> {
+                if (listener instanceof TopicConsumerMetrics<?, ?> metrics) {
+                    metrics.setConsumerGroupId(groupId);
+                }
+            });
         }
     }
 
