@@ -101,7 +101,7 @@
         <bitbucket-jose4.version>0.9.6</bitbucket-jose4.version>
         <nimbusds.version>11.37.2</nimbusds.version>
         <unleash.version>12.2.3</unleash.version>
-        <org.json.version>20260522</org.json.version>
+        <org.json.version>20260719</org.json.version>
         <jetty.version>12.1.11</jetty.version>
         <!-- KAFKA -->
         <kafka.version>4.3.1</kafka.version>
