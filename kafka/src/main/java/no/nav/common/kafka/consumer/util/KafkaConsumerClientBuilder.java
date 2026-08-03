@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.*;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.StoreOnFailureTopicConsumer;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 
@@ -62,14 +63,15 @@ public class KafkaConsumerClientBuilder {
             throw new IllegalStateException("Cannot build kafka consumer without properties");
         }
 
+        String groupId = properties.getProperty(ConsumerConfig.GROUP_ID_CONFIG);
+
         Map<String, TopicConsumer<byte[], byte[]>> consumers = new HashMap<>();
+        Set<String> seenTopics = new HashSet<>();
 
         consumerTopicConfigs.forEach((consumerTopicConfig) -> {
-            validateConfig(consumerTopicConfig);
-            consumers.put(
-                    consumerTopicConfig.getConsumerConfig().getTopic(),
-                    createTopicConsumer(consumerTopicConfig)
-            );
+            validateConfig(consumerTopicConfig, seenTopics);
+            tagTopicConsumerMetrics(consumerTopicConfig, groupId);
+            consumers.put(consumerTopicConfig.getConsumerConfig().getTopic(), createTopicConsumer(consumerTopicConfig));
         });
 
         KafkaConsumerClientConfig<byte[], byte[]> config = new KafkaConsumerClientConfig<>(properties, consumers);
@@ -87,13 +89,17 @@ public class KafkaConsumerClientBuilder {
         return client;
     }
 
-    private static void validateConfig(TopicConfig<?, ?> consumerTopicConfig) {
+    private static void validateConfig(TopicConfig<?, ?> consumerTopicConfig, Set<String> seenTopics) {
         if (consumerTopicConfig.consumerConfig == null) {
             throw new IllegalStateException("Config is missing");
         }
 
         if (consumerTopicConfig.consumerConfig.topic == null) {
             throw new IllegalStateException("Topic is missing");
+        }
+
+        if (!seenTopics.add(consumerTopicConfig.consumerConfig.topic)) {
+            throw new IllegalStateException("Duplicate topic config for topic: " + consumerTopicConfig.consumerConfig.topic);
         }
 
         if (consumerTopicConfig.consumerConfig.keyDeserializer == null) {
@@ -106,6 +112,16 @@ public class KafkaConsumerClientBuilder {
 
         if (consumerTopicConfig.consumerConfig.consumer == null) {
             throw new IllegalStateException("Topic consumer is missing");
+        }
+    }
+
+    private static void tagTopicConsumerMetrics(TopicConfig<?, ?> consumerTopicConfig, String groupId) {
+        if (groupId != null) {
+            consumerTopicConfig.getListeners().forEach(listener -> {
+                if (listener instanceof TopicConsumerMetrics<?, ?> metrics) {
+                    metrics.setConsumerGroupId(groupId);
+                }
+            });
         }
     }
 

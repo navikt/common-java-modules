@@ -214,7 +214,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
 
     @Test
-    public void should_send_records_in_the_stored_record_order_from_the_producer_record_repository() throws InterruptedException {
+    public void should_send_records_in_the_stored_record_order_from_the_producer_record_repository() {
         producerRepository.storeRecord(storedRecord(testTopicA, "k-1", "a-1"));
         producerRepository.storeRecord(storedRecord(testTopicB, "k-1", "b-1"));
         producerRepository.storeRecord(storedRecord(testTopicA, "k-2", "a-2"));
@@ -240,8 +240,8 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         recordProcessor.start();
         consumerClient.start();
 
-        // Wait for all messages to be consumed
-        Thread.sleep(WAIT_TIMEOUT);
+        // Wait for all messages before the failed records to be consumed
+        await().atMost(Duration.ofSeconds(10)).until(() -> sentOnTopicA.size() == 2 && sentOnTopicB.size() == 1);
 
         recordProcessor.close();
         consumerClient.stop();
