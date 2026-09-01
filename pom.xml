@@ -84,12 +84,12 @@
         <!-- MISCELLANEOUS -->
         <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
-        <spring.version>7.0.8</spring.version>
+        <spring.version>7.0.9</spring.version>
         <jersey.version>4.0.2</jersey.version>
         <jackson.version>3.2.2</jackson.version>
         <jackson-annotations.version>2.22</jackson-annotations.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
-        <micrometer.version>1.17.0</micrometer.version>
+        <micrometer.version>1.17.1</micrometer.version>
         <okhttp.version>5.5.0</okhttp.version>
         <prometheus.version>0.16.0</prometheus.version>
         <commons-lang.version>3.20.0</commons-lang.version>
@@ -100,7 +100,7 @@
         <caffeine.version>3.2.4</caffeine.version>
         <bitbucket-jose4.version>0.9.6</bitbucket-jose4.version>
         <nimbusds.version>11.38.2</nimbusds.version>
-        <unleash.version>12.2.3</unleash.version>
+        <unleash.version>12.3.0</unleash.version>
         <org.json.version>20260814</org.json.version>
         <jetty.version>12.1.12</jetty.version>
         <!-- KAFKA -->
