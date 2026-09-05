@@ -52,10 +52,16 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     public KafkaConsumerClientImpl(KafkaConsumerClientConfig<K, V> config) {
         validateConfig(config);
-
         this.config = config;
+        consumer = new KafkaConsumer<>(config.properties);
+        final List<String> topicNames = new ArrayList<>(config.topics.keySet());
+        consumer.subscribe(topicNames, this);
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+    }
+
+    public KafkaConsumer<K, V> getConsumer() {
+        return consumer;
     }
 
     @Override
@@ -63,9 +69,6 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         if (clientState == ClientState.RUNNING) {
             return;
         }
-        final List<String> topicNames = new ArrayList<>(config.topics.keySet());
-        consumer = new KafkaConsumer<>(config.properties);
-        consumer.subscribe(topicNames, this);
 
         clientState = ClientState.RUNNING;
         shutdownLatch = new CountDownLatch(1);
