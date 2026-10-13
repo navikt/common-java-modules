@@ -5,26 +5,35 @@ import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import no.nav.common.token_client.cache.AzureAdOnBehalfOfCacheKeyStrategy;
 import no.nav.common.token_client.cache.TokenCache;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.Optional.ofNullable;
 import static no.nav.common.token_client.utils.TokenClientUtils.*;
-import static no.nav.common.token_client.utils.TokenUtils.getSubject;
 
 @Slf4j
 public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
+    private final AzureAdOnBehalfOfCacheKeyStrategy cacheKeyStrategy;
+
     public AzureAdOnBehalfOfTokenClient(String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
+        this(clientId, tokenEndpointUrl, privateJwk, tokenCache, AzureAdOnBehalfOfCacheKeyStrategy.SCOPE_AND_SUBJECT);
+    }
+
+    public AzureAdOnBehalfOfTokenClient(String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache,
+                                       AzureAdOnBehalfOfCacheKeyStrategy cacheKeyStrategy) {
         super(clientId, tokenEndpointUrl, privateJwk, tokenCache);
+        this.cacheKeyStrategy = Objects.requireNonNull(cacheKeyStrategy, "Cache key strategy is required");
     }
 
     @Override
     public String exchangeOnBehalfOfToken(String tokenScope, String accessToken) {
-        String cacheKey = tokenScope + "-" + getSubject(accessToken);
+        String cacheKey = cacheKeyStrategy.createCacheKey(clientId, tokenEndpoint.toString(), tokenScope, accessToken);
 
         return ofNullable(tokenCache)
                 .map(cache -> cache.getFromCacheOrTryProvider(cacheKey, () -> exchangeToken(tokenScope, accessToken)))

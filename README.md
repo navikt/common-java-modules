@@ -72,6 +72,12 @@ Provides easy-to-use clients which requires minimal configuration for applicatio
 
 [Read more here](token-client/README.md)
 
+### Token client cache Valkey
+Optional shared Valkey cache for `token-client`, allowing pods of the same application to reuse
+Azure AD OBO tokens without adding Valkey dependencies to all token-client users.
+
+[Read more here](token-client-cache-valkey/README.md)
+
 ## Version 1
 This version is tightly coupled to `api-app` and contains many modules that can be considered deprecated after the release of version 2.
 This version will continue to live on the `master` branch until most users of `common-java-modules` has migrated over to version 2.

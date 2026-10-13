@@ -1,6 +1,9 @@
 package no.nav.common.token_client.client;
 
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder;
+import no.nav.common.token_client.cache.AzureAdOnBehalfOfCacheKeyStrategy;
 import no.nav.common.token_client.cache.CaffeineTokenCache;
+import no.nav.common.token_client.cache.TokenCache;
 import no.nav.common.token_client.test_utils.TokenCreator;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static no.nav.common.token_client.test_utils.Constants.TEST_JWK;
 import static no.nav.common.token_client.test_utils.RequestUtils.parseFormData;
@@ -103,6 +107,98 @@ public class AzureAdOnBehalfOfTokenClientTest {
         assertThrows(IllegalArgumentException.class, () -> {
             tokenClient.exchangeOnBehalfOfToken("test-scope", token);
         }, "Unable to get subject, access token is missing subject");
+    }
+
+    @Test
+    public void should_use_subject_keys_by_default_with_injected_cache() {
+        AtomicReference<String> capturedKey = new AtomicReference<>();
+        TokenCache cache = (key, provider) -> {
+            capturedKey.set(key);
+            return "cached-token";
+        };
+        AzureAdOnBehalfOfTokenClient tokenClient = configuredBuilder().withCache(cache).buildOnBehalfOfTokenClient();
+
+        assertEquals("cached-token",
+                tokenClient.exchangeOnBehalfOfToken("test-scope", TokenCreator.instance().createToken("user-1")));
+        assertEquals("test-scope-user-1", capturedKey.get());
+        assertEquals(0, server.getRequestCount());
+    }
+
+    @Test
+    public void should_use_assertion_keys_when_selected_with_injected_cache() {
+        AtomicReference<String> capturedKey = new AtomicReference<>();
+        TokenCache cache = (key, provider) -> {
+            capturedKey.set(key);
+            return "cached-token";
+        };
+        AzureAdOnBehalfOfTokenClient tokenClient = configuredBuilder()
+                .withCache(cache)
+                .withOnBehalfOfCacheKeyStrategy(AzureAdOnBehalfOfCacheKeyStrategy.ASSERTION_HASH)
+                .buildOnBehalfOfTokenClient();
+        String incomingToken = TokenCreator.instance().createToken("user-1");
+
+        assertEquals("cached-token", tokenClient.exchangeOnBehalfOfToken("test-scope", incomingToken));
+        assertTrue(capturedKey.get().matches("azure-obo:v1:[0-9a-f]{64}"));
+        assertFalse(capturedKey.get().contains("user-1"));
+        assertFalse(capturedKey.get().contains("test-scope"));
+        assertEquals(0, server.getRequestCount());
+    }
+
+    @Test
+    public void should_cache_same_assertion_but_separate_assertions_for_same_subject() {
+        String firstToken = TokenCreator.instance().createToken("user-1");
+        String secondToken = TokenCreator.instance().createToken("user-1");
+        String firstOutgoingToken = TokenCreator.instance().createToken("user-1");
+        String secondOutgoingToken = TokenCreator.instance().createToken("user-1");
+        server.enqueue(tokenMockResponse(firstOutgoingToken));
+        server.enqueue(tokenMockResponse(secondOutgoingToken));
+        AzureAdOnBehalfOfTokenClient tokenClient = configuredBuilder()
+                .withOnBehalfOfCacheKeyStrategy(AzureAdOnBehalfOfCacheKeyStrategy.ASSERTION_HASH)
+                .buildOnBehalfOfTokenClient();
+
+        assertEquals(firstOutgoingToken, tokenClient.exchangeOnBehalfOfToken("test-scope", firstToken));
+        assertEquals(firstOutgoingToken, tokenClient.exchangeOnBehalfOfToken("test-scope", firstToken));
+        assertEquals(secondOutgoingToken, tokenClient.exchangeOnBehalfOfToken("test-scope", secondToken));
+        assertEquals(2, server.getRequestCount());
+    }
+
+    @Test
+    public void should_reject_missing_subject_with_assertion_keys() {
+        AzureAdOnBehalfOfTokenClient tokenClient = configuredBuilder()
+                .withOnBehalfOfCacheKeyStrategy(AzureAdOnBehalfOfCacheKeyStrategy.ASSERTION_HASH)
+                .buildOnBehalfOfTokenClient();
+
+        assertThrows(IllegalArgumentException.class, () -> tokenClient.exchangeOnBehalfOfToken(
+                "test-scope", TokenCreator.instance().createToken(null)));
+        assertEquals(0, server.getRequestCount());
+    }
+
+    @Test
+    public void should_allow_disabling_cache_with_assertion_keys() {
+        String outgoingToken = TokenCreator.instance().createToken("user-1");
+        server.enqueue(tokenMockResponse(outgoingToken));
+        server.enqueue(tokenMockResponse(outgoingToken));
+        AzureAdOnBehalfOfTokenClient tokenClient = configuredBuilder()
+                .withCache(null)
+                .withOnBehalfOfCacheKeyStrategy(AzureAdOnBehalfOfCacheKeyStrategy.ASSERTION_HASH)
+                .buildOnBehalfOfTokenClient();
+        String incomingToken = TokenCreator.instance().createToken("user-1");
+
+        assertEquals(outgoingToken, tokenClient.exchangeOnBehalfOfToken("test-scope", incomingToken));
+        assertEquals(outgoingToken, tokenClient.exchangeOnBehalfOfToken("test-scope", incomingToken));
+        assertEquals(2, server.getRequestCount());
+    }
+
+    @Test
+    public void should_reject_null_cache_key_strategy() {
+        assertThrows(NullPointerException.class, () -> configuredBuilder().withOnBehalfOfCacheKeyStrategy(null));
+    }
+
+    private AzureAdTokenClientBuilder configuredBuilder() {
+        return AzureAdTokenClientBuilder.builder()
+                .withClientId("test-id")
+                .withTokenEndpointUrl(server.url("/token").toString())
+                .withPrivateJwk(TEST_JWK);
     }
 
 }

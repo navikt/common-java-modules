@@ -5,13 +5,44 @@ import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
 
 import java.text.ParseException;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.Date;
+import java.util.Objects;
 
 public class TokenUtils {
 
     @SneakyThrows
     public static JWT parseJwtToken(String jwtToken) {
         return JWTParser.parse(jwtToken);
+    }
+
+    /**
+     * Computes cache TTL from the token expiration, minus a safety margin.
+     * Returns zero when the token is expired or within the margin.
+     * This reads claims only; it does not validate the token signature.
+     * @throws IllegalArgumentException if the margin is negative or the expiration is missing or invalid
+     */
+    public static Duration getCachedTokenTtl(JWT jwt, Duration safetyMargin, Clock clock) {
+        Objects.requireNonNull(jwt, "JWT is required");
+        Objects.requireNonNull(safetyMargin, "Safety margin is required");
+        Objects.requireNonNull(clock, "Clock is required");
+        if (safetyMargin.isNegative()) {
+            throw new IllegalArgumentException("Safety margin must not be negative");
+        }
+
+        Date expiration;
+        try {
+            expiration = jwt.getJWTClaimsSet().getExpirationTime();
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Token expiration could not be read");
+        }
+        if (expiration == null) {
+            throw new IllegalArgumentException("Token expiration is required");
+        }
+
+        Duration ttl = Duration.between(clock.instant(), expiration.toInstant().minus(safetyMargin));
+        return ttl.isNegative() ? Duration.ZERO : ttl;
     }
 
     /**

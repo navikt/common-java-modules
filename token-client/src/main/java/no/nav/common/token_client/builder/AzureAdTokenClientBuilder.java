@@ -1,9 +1,12 @@
 package no.nav.common.token_client.builder;
 
+import no.nav.common.token_client.cache.AzureAdOnBehalfOfCacheKeyStrategy;
 import no.nav.common.token_client.cache.CaffeineTokenCache;
 import no.nav.common.token_client.cache.TokenCache;
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient;
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient;
+
+import java.util.Objects;
 
 import static no.nav.common.token_client.utils.env.AzureAdEnvironmentVariables.*;
 
@@ -16,6 +19,8 @@ public class AzureAdTokenClientBuilder {
     private String tokenEndpointUrl;
 
     private TokenCache tokenCache = new CaffeineTokenCache();
+
+    private AzureAdOnBehalfOfCacheKeyStrategy onBehalfOfCacheKeyStrategy = AzureAdOnBehalfOfCacheKeyStrategy.SCOPE_AND_SUBJECT;
 
     private AzureAdTokenClientBuilder() {}
 
@@ -33,6 +38,11 @@ public class AzureAdTokenClientBuilder {
 
     public AzureAdTokenClientBuilder withCache(TokenCache tokenCache) {
         this.tokenCache = tokenCache;
+        return this;
+    }
+
+    public AzureAdTokenClientBuilder withOnBehalfOfCacheKeyStrategy(AzureAdOnBehalfOfCacheKeyStrategy cacheKeyStrategy) {
+        this.onBehalfOfCacheKeyStrategy = Objects.requireNonNull(cacheKeyStrategy, "Cache key strategy is required");
         return this;
     }
 
@@ -58,7 +68,7 @@ public class AzureAdTokenClientBuilder {
 
     public AzureAdOnBehalfOfTokenClient buildOnBehalfOfTokenClient() {
         validate();
-        return new AzureAdOnBehalfOfTokenClient(clientId, tokenEndpointUrl, privateJwk, tokenCache);
+        return new AzureAdOnBehalfOfTokenClient(clientId, tokenEndpointUrl, privateJwk, tokenCache, onBehalfOfCacheKeyStrategy);
     }
 
     private void validate() {
