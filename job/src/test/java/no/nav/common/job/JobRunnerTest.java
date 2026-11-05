@@ -8,6 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 public class JobRunnerTest {
@@ -59,7 +61,7 @@ public class JobRunnerTest {
 
             testLogger.info("test");
 
-            assertEquals("{jobName=test, jobId=id}", testAppender.list.get(0).getMDCPropertyMap().toString());
+            assertEquals(Map.of("jobName", "test", "jobId", "id"), testAppender.list.getFirst().getMDCPropertyMap());
         });
     }
 
