@@ -1,6 +1,5 @@
 package no.nav.common.kafka.consumer.util;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
 
@@ -27,40 +26,71 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     private ScheduledExecutorService executorService;
 
+    private volatile boolean active;
+
+    private boolean cleanupRequired;
+
+    private final long shutdownTimeoutMillis;
+
     public FeatureToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier) {
-        this.kafkaConsumerClient = kafkaConsumerClient;
-        this.isConsumerToggledOffSupplier = isToggledOffSupplier;
-        this.pollTimeoutDuration = DEFAULT_POLL_TIMEOUT;
+        this(kafkaConsumerClient, isToggledOffSupplier, DEFAULT_POLL_TIMEOUT);
     }
 
     public FeatureToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier, Duration pollTimeoutDuration) {
+        this(kafkaConsumerClient, isToggledOffSupplier, pollTimeoutDuration, TimeUnit.SECONDS.toMillis(10));
+    }
+
+    FeatureToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier,
+                                     Duration pollTimeoutDuration, long shutdownTimeoutMillis) {
         this.kafkaConsumerClient = kafkaConsumerClient;
         this.isConsumerToggledOffSupplier = isToggledOffSupplier;
         this.pollTimeoutDuration = pollTimeoutDuration;
+        this.shutdownTimeoutMillis = shutdownTimeoutMillis;
     }
 
     @Override
-    public void start() {
-        boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
-        
-        if (!isRunning() && !isConsumerToggledOff) {
-            kafkaConsumerClient.start();
+    public synchronized void start() {
+        if (active) {
+            return;
         }
-
-        shutAndAwaitExecutor();
-
-        if (executorService == null || executorService.isShutdown()) {
+        if (cleanupRequired) {
+            throw new IllegalStateException("Previous toggle lifecycle has not stopped; call stop() again");
+        }
+        cleanupRequired = true;
+        active = true;
+        try {
+            boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
+            if (!isRunning() && !isConsumerToggledOff) {
+                kafkaConsumerClient.start();
+            }
             executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.scheduleAtFixedRate(this::syncRunningStateWithToggle, pollTimeoutDuration.toMillis(), pollTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
+            executorService.scheduleAtFixedRate(() -> {
+                try {
+                    syncRunningStateWithToggle();
+                } catch (RuntimeException e) {
+                    log.error("Failed to synchronize kafka consumer with feature toggle; will retry", e);
+                }
+            }, pollTimeoutDuration.toMillis(), pollTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (RuntimeException | Error failure) {
+            try {
+                stop();
+            } catch (RuntimeException | Error cleanupFailure) {
+                if (cleanupFailure != failure) {
+                    failure.addSuppressed(cleanupFailure);
+                }
+            }
+            throw failure;
         }
     }
     
     @Override
-    public void stop() {
+    public synchronized void stop() {
+        active = false;
         shutAndAwaitExecutor();
 
-        if (isRunning()) {
+        if (cleanupRequired) {
             kafkaConsumerClient.stop();
+            cleanupRequired = false;
         }
     }
 
@@ -70,23 +100,49 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
     }
 
     private void syncRunningStateWithToggle() {
+        if (!active) {
+            return;
+        }
         boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
+        if (!active) {
+            return;
+        }
         boolean isRunning = isRunning();
+        if (!active) {
+            return;
+        }
 
         if (isConsumerToggledOff && isRunning) {
             log.info("Stopping consumer... Toggle for stopping consumers is on and kafka consumer client is running");
             kafkaConsumerClient.stop();
         } else if (!isConsumerToggledOff && !isRunning) {
             log.info("Starting consumer... Toggle for stopping consumers is off and kafka consumer client is not running");
-            kafkaConsumerClient.start();
+            try {
+                kafkaConsumerClient.start();
+            } catch (RuntimeException | Error failure) {
+                try {
+                    kafkaConsumerClient.stop();
+                } catch (RuntimeException | Error cleanupFailure) {
+                    if (cleanupFailure != failure) {
+                        failure.addSuppressed(cleanupFailure);
+                    }
+                }
+                throw failure;
+            }
         }
     }
 
-    @SneakyThrows
     private void shutAndAwaitExecutor() {
-        if (executorService != null && !executorService.isShutdown()) {
+        if (executorService != null) {
             executorService.shutdown();
-            executorService.awaitTermination(10L, TimeUnit.SECONDS);
+            try {
+                if (!executorService.awaitTermination(shutdownTimeoutMillis, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("Timed out stopping kafka feature toggle scheduler");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Interrupted while stopping kafka feature toggle scheduler", e);
+            }
         }
     }
 }
