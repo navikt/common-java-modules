@@ -18,13 +18,22 @@ import java.util.Set;
  * <p>Starts during context refresh, in list order, and stops in reverse order.
  * The default phase starts after lower-phase infrastructure and stops before it.
  * Use explicit bean dependencies for infrastructure in the same phase.
+ *
+ * <p>STOPPED -> STARTING -> RUNNING -> STOPPING -> STOPPED.
+ * A failed start rolls back through STOPPING. Failed shutdown stays STOPPING and
+ * retains only clients whose cleanup must be retried.
  */
 public final class KafkaConsumerClientLifecycle implements SmartLifecycle, DisposableBean {
 
     private final List<KafkaConsumerClient> clients;
-    private final List<KafkaConsumerClient> startedClients = new ArrayList<>();
+    private final List<KafkaConsumerClient> clientsAwaitingStop = new ArrayList<>();
     private final int phase;
-    private volatile boolean running;
+
+    private enum State {
+        STOPPED, STARTING, RUNNING, STOPPING
+    }
+
+    private volatile State state = State.STOPPED;
 
     public KafkaConsumerClientLifecycle(List<KafkaConsumerClient> clients) {
         this(clients, SmartLifecycle.DEFAULT_PHASE);
@@ -43,40 +52,53 @@ public final class KafkaConsumerClientLifecycle implements SmartLifecycle, Dispo
 
     @Override
     public synchronized void start() {
-        if (running) {
+        if (state == State.RUNNING) {
             return;
         }
-        if (!startedClients.isEmpty()) {
+        if (state != State.STOPPED) {
             throw new IllegalStateException("Previous consumer shutdown is incomplete; call stop() before restarting");
         }
 
+        state = State.STARTING;
         try {
             for (KafkaConsumerClient client : clients) {
                 // Include a failing start: it may have allocated resources before throwing.
-                startedClients.add(client);
+                clientsAwaitingStop.add(client);
                 client.start();
             }
-            running = true;
+            state = State.RUNNING;
         } catch (RuntimeException | Error failure) {
-            try {
-                stop();
-            } catch (RuntimeException | Error cleanupFailure) {
-                if (cleanupFailure != failure) {
-                    failure.addSuppressed(cleanupFailure);
-                }
-            }
+            rollbackStartup(failure);
             throw failure;
         }
     }
 
     @Override
     public synchronized void stop() {
-        running = false;
+        if (state == State.STOPPED) {
+            return;
+        }
+        state = State.STOPPING;
+        stopClientsInReverseOrder();
+        state = State.STOPPED;
+    }
+
+    private void rollbackStartup(Throwable startupFailure) {
+        try {
+            stop();
+        } catch (RuntimeException | Error cleanupFailure) {
+            if (cleanupFailure != startupFailure) {
+                startupFailure.addSuppressed(cleanupFailure);
+            }
+        }
+    }
+
+    private void stopClientsInReverseOrder() {
         Throwable failure = null;
-        for (int i = startedClients.size() - 1; i >= 0; i--) {
+        for (int i = clientsAwaitingStop.size() - 1; i >= 0; i--) {
             try {
-                startedClients.get(i).stop();
-                startedClients.remove(i);
+                clientsAwaitingStop.get(i).stop();
+                clientsAwaitingStop.remove(i);
             } catch (RuntimeException | Error stopFailure) {
                 if (failure == null) {
                     failure = stopFailure;
@@ -110,7 +132,7 @@ public final class KafkaConsumerClientLifecycle implements SmartLifecycle, Dispo
      */
     @Override
     public boolean isRunning() {
-        return running;
+        return state == State.RUNNING;
     }
 
     @Override

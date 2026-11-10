@@ -12,6 +12,10 @@ import java.util.function.Supplier;
 /**
  * {@link KafkaConsumerClient} with support for toggling the consumer on/off based off the result from a {@link Supplier}
  * Use cases for this implementation is for example when there is a need to pause the consumer to change the offset and restart the client.
+ *
+ * <p>STOPPED -> STARTING -> ACTIVE -> STOPPING -> STOPPED.
+ * ACTIVE means the toggle scheduler is enabled, not that the underlying consumer
+ * is polling. Failed startup/shutdown remains STOPPING until cleanup succeeds.
  */
 @Slf4j
 public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
@@ -26,9 +30,11 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     private ScheduledExecutorService executorService;
 
-    private volatile boolean active;
+    private enum State {
+        STOPPED, STARTING, ACTIVE, STOPPING
+    }
 
-    private boolean cleanupRequired;
+    private volatile State state = State.STOPPED;
 
     private final long shutdownTimeoutMillis;
 
@@ -50,48 +56,32 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     @Override
     public synchronized void start() {
-        if (active) {
+        if (state == State.ACTIVE) {
             return;
         }
-        if (cleanupRequired) {
+        if (state != State.STOPPED) {
             throw new IllegalStateException("Previous toggle lifecycle has not stopped; call stop() again");
         }
-        cleanupRequired = true;
-        active = true;
+        state = State.STARTING;
         try {
-            boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
-            if (!isRunning() && !isConsumerToggledOff) {
-                kafkaConsumerClient.start();
-            }
-            executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.scheduleAtFixedRate(() -> {
-                try {
-                    syncRunningStateWithToggle();
-                } catch (RuntimeException e) {
-                    log.error("Failed to synchronize kafka consumer with feature toggle; will retry", e);
-                }
-            }, pollTimeoutDuration.toMillis(), pollTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
+            applyInitialToggle();
+            state = State.ACTIVE;
+            startToggleScheduler();
         } catch (RuntimeException | Error failure) {
-            try {
-                stop();
-            } catch (RuntimeException | Error cleanupFailure) {
-                if (cleanupFailure != failure) {
-                    failure.addSuppressed(cleanupFailure);
-                }
-            }
+            rollbackStartup(failure);
             throw failure;
         }
     }
     
     @Override
     public synchronized void stop() {
-        active = false;
-        shutAndAwaitExecutor();
-
-        if (cleanupRequired) {
-            kafkaConsumerClient.stop();
-            cleanupRequired = false;
+        if (state == State.STOPPED) {
+            return;
         }
+        state = State.STOPPING;
+        stopToggleScheduler();
+        kafkaConsumerClient.stop();
+        state = State.STOPPED;
     }
 
     @Override
@@ -99,16 +89,51 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
         return kafkaConsumerClient.isRunning();
     }
 
+    private void applyInitialToggle() {
+        boolean disabled = isConsumerToggledOffSupplier.get();
+        if (!isRunning() && !disabled) {
+            kafkaConsumerClient.start();
+        }
+    }
+
+    private void startToggleScheduler() {
+        executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(this::pollToggle,
+                pollTimeoutDuration.toMillis(), pollTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    private void rollbackStartup(Throwable startupFailure) {
+        try {
+            stop();
+        } catch (RuntimeException | Error cleanupFailure) {
+            if (cleanupFailure != startupFailure) {
+                startupFailure.addSuppressed(cleanupFailure);
+            }
+        }
+    }
+
+    /**
+     * Scheduler entry point. It never takes the lifecycle monitor: stop() waits
+     * for this task to exit before stopping the underlying client.
+     */
+    private void pollToggle() {
+        try {
+            syncRunningStateWithToggle();
+        } catch (RuntimeException e) {
+            log.error("Failed to synchronize kafka consumer with feature toggle; will retry", e);
+        }
+    }
+
     private void syncRunningStateWithToggle() {
-        if (!active) {
+        if (state != State.ACTIVE) {
             return;
         }
         boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
-        if (!active) {
+        if (state != State.ACTIVE) {
             return;
         }
         boolean isRunning = isRunning();
-        if (!active) {
+        if (state != State.ACTIVE) {
             return;
         }
 
@@ -117,22 +142,26 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
             kafkaConsumerClient.stop();
         } else if (!isConsumerToggledOff && !isRunning) {
             log.info("Starting consumer... Toggle for stopping consumers is off and kafka consumer client is not running");
-            try {
-                kafkaConsumerClient.start();
-            } catch (RuntimeException | Error failure) {
-                try {
-                    kafkaConsumerClient.stop();
-                } catch (RuntimeException | Error cleanupFailure) {
-                    if (cleanupFailure != failure) {
-                        failure.addSuppressed(cleanupFailure);
-                    }
-                }
-                throw failure;
-            }
+            resumeConsumer();
         }
     }
 
-    private void shutAndAwaitExecutor() {
+    private void resumeConsumer() {
+        try {
+            kafkaConsumerClient.start();
+        } catch (RuntimeException | Error startFailure) {
+            try {
+                kafkaConsumerClient.stop();
+            } catch (RuntimeException | Error cleanupFailure) {
+                if (cleanupFailure != startFailure) {
+                    startFailure.addSuppressed(cleanupFailure);
+                }
+            }
+            throw startFailure;
+        }
+    }
+
+    private void stopToggleScheduler() {
         if (executorService != null) {
             executorService.shutdown();
             try {

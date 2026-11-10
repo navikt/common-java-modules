@@ -117,6 +117,92 @@ has been measured or is claimed.
 
 #### Shutdown and compatibility
 
+The architecture is `FeatureToggledKafkaConsumerClient` (policy) →
+`KafkaConsumerClientImpl` (lifecycle controller) → `KafkaConsumerExecution`
+(Kafka access, polling, recovery and cleanup) → `PartitionedRecordProcessor`
+(ordered handlers and processing outcomes).
+
+Each `KafkaConsumerExecution` has one immutable current-state snapshot (phase, owned
+resources and failure), updated under one short
+transition lock. No Kafka operation, initialization, handler, close, or wait runs
+under that lock.
+
+| Execution state | Meaning | Event and origin |
+| --- | --- | --- |
+| `NEW` | Execution allocated; no Kafka resource | Caller begins synchronous initialization → `STARTING` |
+| `STARTING` | Constructing/subscribing and publishing the task | Caller accepts initialized consumer → `CONSUMING`; startup failure rolls back |
+| `CONSUMING` | Polling and processing are enabled | Unexpected polling exit on worker → `RECOVERING`; application caller stop → `SHUTTING_DOWN` |
+| `RECOVERING` | Same worker drains, commits and closes old consumer before replacement | Worker accepts replacement → `CONSUMING`; application caller stop → `SHUTTING_DOWN` |
+| `SHUTTING_DOWN` | Intake disabled; recovery prohibited; worker may still be draining | Caller observes task result **and executor termination** → `STOPPED` or `CLEANUP_REQUIRED` |
+| `CLEANUP_REQUIRED` | Failed startup/close resource remains owned, or startup executor termination is not yet confirmed | Caller retries cleanup after confirming executor termination |
+| `STOPPED` | Executor terminated and no unclosed Kafka consumer | Terminal for this execution; next client start creates a new execution |
+
+`KafkaConsumerClientImpl` has one mutable ownership reference: `activeExecution`,
+an immutable handle containing the execution, polling executor and actual
+`FutureTask<WorkerExit>`. Its synchronized `start()`/`stop()` methods create or retain that handle and clear it
+only after completed cleanup. `isRunning()` is true only in `CONSUMING` or
+`RECOVERING`; `isFullyStopped()` is true only in `STOPPED`.
+The controller initializes Kafka synchronously and `launchPollingThread()` submits
+the task; `execute(initialInput)` is the execution's sole worker entry point.
+The execution has no independent `start()` lifecycle API.
+The task is constructed with its initialized resources as an explicit argument,
+not by reading the mutable wakeup handle when execution begins.
+Its current resources and replacement outcomes are worker-local. The worker never reads the
+client's fields or acquires its lifecycle monitor.
+
+Application shutdown transitions the execution before waking Kafka outside the lock.
+The caller uses bounded `Future.get` and then confirms executor termination with
+the remaining deadline, without interrupting the task or its handlers. Timeout,
+interruption (with interrupt restored), and exceptional task completion are handled
+explicitly. Only after executor termination does the caller take over failed close.
+Polling-loop return, worker-task completion, and completed shutdown are distinct.
+Unexpected polling exit triggers recovery; application shutdown prohibits recovery.
+Replacement consumers are owned before subscribe and checked against shutdown both
+before and after subscription, so late candidates are closed without polling.
+Fatal worker errors are cleaned up and surfaced, not retried as recovery.
+
+`KafkaConsumerExecution` owns **all** subscribe, poll, seek, commit, wakeup, rebalance
+and close operations. It rewinds each batch to its first offsets before dispatch.
+`PartitionedRecordProcessor` has no Kafka consumer or factory reference: it accepts
+records, batch results and a processing-allowed cancellation supplier. It lazily
+creates one dedicated single-thread executor per encountered topic-partition,
+reuses that thread across batches, preserves partition ordering and waits for
+each batch. Different partitions run concurrently; there is no shared handler pool.
+A failed partition skips its later records in that batch; the next committed offset
+is the last successful record's offset plus one. Existing retry/store-on-failure
+handler wrappers are unchanged.
+
+The execution retains the batch **before dispatch**, including when dispatch,
+processing or awaiting fails. Successful offsets remain accessible while in-flight
+handlers finish during drain; they are not lost through a success-only return value.
+Completed batches transfer failed commits to execution-owned pending offsets.
+Normal batches commit after processing. The polling/processing lifetime lexically owns
+its `PartitionedRecordProcessor` in try-with-resources. Its custom, idempotent
+`close()` stops intake and drains accepted processing without interrupting handlers,
+restoring caller interruption afterwards; it neither commits nor closes Kafka.
+It deliberately does not use `ExecutorService.close()`. Batch outcomes remain accessible
+after the scope closes, including on exceptional or fatal exits. The execution then
+commits successful offsets and explicitly closes Kafka. A stuck handler can prevent
+the processor scope from closing; there is no bounded-drain guarantee. Unused processors
+from failed startup are closed by startup rollback before Kafka cleanup.
+A successful Kafka close is
+terminal and idempotent; a failed close leaves the resource owned for retry.
+Startup rollback preserves the startup exception; final processing cleanup preserves
+the commit exception. These are caller-specific error policies, not different ways
+of closing Kafka.
+
+These objects have different lifetimes: the client and toggle wrapper are long-lived;
+one execution spans a `start()`/`stop()` cycle; recovery replaces the Kafka consumer
+and processor within that execution without creating a new polling thread.
+Processor threads are drained before replacement. Resuming after a toggle pause
+creates a new execution. Normal Kafka rebalance callbacks go directly to the execution;
+the public client's listener methods remain only for compatibility, not as part of
+the execution path.
+
+The Spring owner uses `STOPPED -> STARTING -> RUNNING -> STOPPING -> STOPPED`.
+The toggle wrapper uses the same lifecycle with `ACTIVE` instead of `RUNNING`;
+`ACTIVE` means its scheduler is enabled, including when polling is paused.
+
 Repeated lifecycle notifications are serialized and do not duplicate workers.
 `stop(Runnable)` invokes its callback once per successful call, after all owned clients
 have stopped. It propagates failures rather than acknowledging unfinished shutdown.
@@ -130,8 +216,8 @@ failed-record retry, and successful-offset calculation are unchanged. A successf
 also terminates partition/poll workers; restarting creates a fresh poll executor.
 The toggle wrapper first drains its scheduler, then stops the underlying client, so a
 toggle task cannot restart it after completed shutdown.
-Unexpected worker exits still trigger automatic recovery, but now close the old
-session and create a fresh Kafka consumer on the tracked worker instead of resubmitting
+Unexpected processing exits still trigger automatic recovery, but now close the old
+consumer and create a fresh Kafka consumer on the tracked worker instead of resubmitting
 polling against an already closed consumer. Failed startup/close resources remain
 owned until cleanup succeeds. Runtime toggle synchronization failures are logged and
 retried on the next scheduled check instead of silently cancelling all future checks.
@@ -155,8 +241,8 @@ instead of silently reporting success; interruption status is restored.
 Lifecycle calls are serialized, so a stop concurrent with startup first waits for that
 startup call; lock contention is not included in the stop wait budgets.
 Handlers are not forcibly interrupted or discarded. After a timeout, work may continue,
-the callback is not acknowledged, and starting a replacement run is prohibited until
-the old run has terminated. A later stop can retry cleanup. Spring may nevertheless
+the callback is not acknowledged, and starting a replacement execution is prohibited until
+the old execution has terminated and its resources are closed. A later stop can retry cleanup. Spring may nevertheless
 continue destroying dependencies after a shutdown failure. Applications must enforce
 finite timeouts in their handlers/suppliers to guarantee complete shutdown before those
 dependencies disappear. Spring's phase timeout cannot preempt a synchronous `stop()`.
