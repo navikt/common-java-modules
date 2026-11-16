@@ -1,8 +1,9 @@
 package no.nav.common.log;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.status.Status;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
-import org.codehaus.commons.nullanalysis.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -80,7 +81,6 @@ public class LogbackStdoutJsonTest {
         System.setOut(out);
     }
 
-
     @Test
     @SneakyThrows
     public void skal_logge_json_med_logbackStdoutJson() {
@@ -108,7 +108,7 @@ public class LogbackStdoutJsonTest {
 
         Assert.assertEquals("skal være 3 loglingjer (ikke debug)", 3, logLinjes.size());
 
-        LogLinje info = logLinjes.get(0);
+        LogLinje info = logLinjes.getFirst();
         Assert.assertEquals(infoMelding, info.message);
         Assert.assertEquals("INFO", info.level);
 
@@ -131,6 +131,37 @@ public class LogbackStdoutJsonTest {
             Assert.assertNotEquals(0, l.level_value);
         });
 
+        System.setOut(out);
+    }
+
+    @Test
+    @SneakyThrows
+    public void cxf_loggere_skal_bare_logge_feil() {
+        PrintStream out = System.out;
+
+        LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.getStatusManager().clear();
+        LogTestHelpers.loadLogbackConfig("/logback-test.xml");
+        var statuses = loggerContext.getStatusManager().getCopyOfStatusList();
+        Assert.assertTrue(
+                "Uventede advarsler eller feil ved Logback-konfigurasjon: " + statuses,
+                statuses.stream().noneMatch(status -> status.getLevel() >= Status.WARN)
+        );
+        ByteArrayOutputStream outputStream = captureSystemOut();
+
+        Logger cxfLog = LoggerFactory.getLogger("org.apache.cxf.client");
+        Logger commonCxfLog = LoggerFactory.getLogger("no.nav.common.cxf.client");
+        cxfLog.warn("CXF warning");
+        cxfLog.error("CXF error");
+        commonCxfLog.warn("common CXF warning");
+        commonCxfLog.error("common CXF error");
+
+        LogTestHelpers.flushLogs();
+
+        var logLinjes = hentLinjerSomStarterMedCurlyBraces(outputStream.toString());
+        Assert.assertEquals(2, logLinjes.size());
+        Assert.assertEquals("CXF error", logLinjes.get(0).message);
+        Assert.assertEquals("common CXF error", logLinjes.get(1).message);
 
         System.setOut(out);
     }
@@ -143,7 +174,6 @@ public class LogbackStdoutJsonTest {
                 .toList();
     }
 
-    @NotNull
     private static ByteArrayOutputStream captureSystemOut() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));

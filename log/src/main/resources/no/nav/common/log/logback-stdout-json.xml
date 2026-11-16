@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <included>
     <appender name="stdout_json_masked" class="no.nav.common.log.MaskingAppender">
-        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>
-                    return level != ERROR &amp;&amp; (logger.contains("org.apache.cxf") || logger.contains("no.nav.common.cxf"));
-                </expression>
-            </evaluator>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
+        <filter class="no.nav.common.log.CxfNonErrorStdoutFilter"/>
         <appender-ref ref="consoleAppender"/>
     </appender>
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <!-- Prometheus metrikker for antall ganger logget per nivå -->
+    <!-- Sannsynligvis legacy: Simpleclient-appender for loggtelling per nivå. Avklar forbruk før eventuell fjerning. -->
     <appender name="metrics" class="io.prometheus.client.logback.InstrumentedAppender"/>
 
     <root level="${ROOT_LOG_LEVEL:-INFO}">
@@ -24,7 +16,7 @@
         <appender-ref ref="metrics"/>
     </root>
 
-    <!-- Logger cookies dersom den ikke parses riktig, noe vi ikke ønsker -->
+    <!-- Tomcat-spesifikk demping av Cookie-parserlogger. Ikke relevant for apper som bruker Jetty. -->
     <logger name="org.apache.tomcat.util.http.parser.Cookie" level="OFF" />
 
     <logger name="org.apache" level="INFO"/>

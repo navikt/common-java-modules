@@ -70,7 +70,6 @@
         <slf4j.version>2.0.20</slf4j.version>
         <logback.version>1.6.6</logback.version>
         <logback-syslog4j.version>1.0.0</logback-syslog4j.version>
-        <janino.version>3.1.12</janino.version>
         <logstash-logback.version>9.0</logstash-logback.version>
 
         <!-- CXF -->
@@ -423,12 +422,6 @@
                 <groupId>com.papertrailapp</groupId>
                 <artifactId>logback-syslog4j</artifactId>
                 <version>${logback-syslog4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.janino</groupId>
-                <artifactId>janino</artifactId>
-                <version>${janino.version}</version>
-                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>net.logstash.logback</groupId>

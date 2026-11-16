@@ -49,11 +49,6 @@
             <artifactId>logstash-logback-encoder</artifactId>
         </dependency>
 
-        <!-- kreves for betinget konfigurasjon av logback -->
-        <dependency>
-            <groupId>org.codehaus.janino</groupId>
-            <artifactId>janino</artifactId>
-        </dependency>
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_logback</artifactId>

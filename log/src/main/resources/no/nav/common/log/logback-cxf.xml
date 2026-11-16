@@ -5,13 +5,15 @@
     </condition>
     <if>
         <then>
-            <logger name="org.apache.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}">
+            <logger name="org.apache.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}" additivity="false">
                 <appender-ref ref="secureLog"/>
                 <appender-ref ref="stdout_json_masked"/>
+                <appender-ref ref="metrics"/>
             </logger>
-            <logger name="no.nav.common.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}">
+            <logger name="no.nav.common.cxf" level="${CXF_SECURE_LOG_LEVEL:-INFO}" additivity="false">
                 <appender-ref ref="secureLog"/>
                 <appender-ref ref="stdout_json_masked"/>
+                <appender-ref ref="metrics"/>
             </logger>
         </then>
     </if>
