@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 import static java.lang.String.format;
 
@@ -34,7 +35,15 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     private final Logger log = LoggerFactory.getLogger(KafkaConsumerClientImpl.class);
 
-    private final ExecutorService pollExecutor = Executors.newSingleThreadExecutor();
+    private ExecutorService pollExecutor;
+
+    private final long shutdownTimeoutMillis;
+
+    private final Object consumerLock = new Object();
+
+    private final Supplier<KafkaConsumer<K, V>> consumerFactory;
+
+    private volatile boolean consumerCleanupRequired;
 
     private final Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new ConcurrentHashMap<>();
 
@@ -46,51 +55,89 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     private volatile CountDownLatch processedRecordsLatch;
 
-    private volatile CountDownLatch shutdownLatch;
-
     private KafkaConsumer<K, V> consumer;
 
     public KafkaConsumerClientImpl(KafkaConsumerClientConfig<K, V> config) {
+        this(config, TimeUnit.SECONDS.toMillis(10));
+    }
+
+    KafkaConsumerClientImpl(KafkaConsumerClientConfig<K, V> config, long shutdownTimeoutMillis) {
+        this(config, shutdownTimeoutMillis, () -> new KafkaConsumer<>(config.properties));
+    }
+
+    KafkaConsumerClientImpl(KafkaConsumerClientConfig<K, V> config, long shutdownTimeoutMillis,
+                           Supplier<KafkaConsumer<K, V>> consumerFactory) {
         validateConfig(config);
 
         this.config = config;
+        this.shutdownTimeoutMillis = shutdownTimeoutMillis;
+        this.consumerFactory = consumerFactory;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
     @Override
-    public void start() {
+    public synchronized void start() {
         if (clientState == ClientState.RUNNING) {
             return;
         }
-        final List<String> topicNames = new ArrayList<>(config.topics.keySet());
-        consumer = new KafkaConsumer<>(config.properties);
-        consumer.subscribe(topicNames, this);
-
-        clientState = ClientState.RUNNING;
-        shutdownLatch = new CountDownLatch(1);
-
-        log.info("Starting kafka consumer client...");
-
-        pollExecutor.submit(this::consumeTopics);
+        if (pollExecutor != null && !pollExecutor.isTerminated()) {
+            throw new IllegalStateException("Previous kafka consumer run has not terminated; call stop() again");
+        }
+        if (consumerCleanupRequired) {
+            throw new IllegalStateException("Previous kafka consumer has not closed; call stop() again");
+        }
+        try {
+            openConsumer(false);
+            pollExecutor = Executors.newSingleThreadExecutor();
+            clientState = ClientState.RUNNING;
+            log.info("Starting kafka consumer client...");
+            pollExecutor.submit(this::consumeTopics);
+        } catch (RuntimeException | Error failure) {
+            clientState = ClientState.NOT_RUNNING;
+            if (pollExecutor != null) {
+                pollExecutor.shutdown();
+            }
+            closeConsumerAfterFailure(failure);
+            throw failure;
+        }
     }
 
     @Override
-    public void stop() {
-        if (clientState != ClientState.RUNNING) {
+    public synchronized void stop() {
+        if ((pollExecutor == null || pollExecutor.isTerminated()) && !consumerCleanupRequired) {
             return;
         }
 
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(shutdownTimeoutMillis);
+        boolean wasRunning = clientState == ClientState.RUNNING;
         clientState = ClientState.NOT_RUNNING;
+        if (pollExecutor != null) {
+            pollExecutor.shutdown();
+        }
 
         log.info("Stopping kafka consumer client...");
 
         try {
-            consumer.wakeup(); // Will abort an ongoing consumer.poll()
-            shutdownLatch.await(10, TimeUnit.SECONDS);
+            if (wasRunning) {
+                synchronized (consumerLock) {
+                    if (consumerCleanupRequired) {
+                        consumer.wakeup(); // Will abort an ongoing consumer.poll()
+                    }
+                }
+            }
+            if (pollExecutor != null && !pollExecutor.awaitTermination(
+                    Math.max(0, deadline - System.nanoTime()), TimeUnit.NANOSECONDS)) {
+                throw new IllegalStateException("Timed out stopping kafka consumer client; processing may still be in progress");
+            }
+            if (consumerCleanupRequired) {
+                closeConsumer(Duration.ofNanos(Math.min(TimeUnit.SECONDS.toNanos(3),
+                        Math.max(0, deadline - System.nanoTime()))));
+            }
             log.info("Kafka consumer client stopped");
         } catch (InterruptedException e) {
-            log.error("Failed to stop kafka consumer client gracefully", e);
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while stopping kafka consumer client", e);
         }
     }
 
@@ -116,6 +163,46 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
     }
 
     private void consumeTopics() {
+        try {
+            while (clientState == ClientState.RUNNING) {
+                consumeSession();
+                if (clientState == ClientState.RUNNING) {
+                    log.warn("Unexpected failure while kafka consumer client was running. Restarting...");
+                }
+                boolean opened = false;
+                while (clientState == ClientState.RUNNING && !opened) {
+                    try {
+                        if (consumerCleanupRequired) {
+                            closeConsumer(Duration.ofSeconds(3));
+                        }
+                        if (clientState == ClientState.RUNNING) {
+                            openConsumer(true);
+                            opened = true;
+                        }
+                    } catch (RuntimeException | Error failure) {
+                        closeConsumerAfterFailure(failure);
+                        log.error("Failed to restart kafka consumer client", failure);
+                        if (failure instanceof Error) {
+                            throw (Error) failure;
+                        }
+                    }
+                }
+            }
+        } finally {
+            try {
+                if (consumerCleanupRequired) {
+                    closeConsumer(Duration.ofSeconds(3));
+                }
+            } catch (Exception e) {
+                log.error("Failed to close kafka consumer client", e);
+            } finally {
+                clientState = ClientState.NOT_RUNNING;
+                pollExecutor.shutdown();
+            }
+        }
+    }
+
+    private void consumeSession() {
 
         final Map<TopicPartition, ExecutorService> topicConsumptionExecutors = new HashMap<>();
 
@@ -223,17 +310,58 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         } finally {
             try {
                 topicConsumptionExecutors.forEach(((topicPartition, executorService) -> executorService.shutdown()));
-                commitCurrentOffsets();
-                consumer.close(Duration.ofSeconds(3));
+                // Never close/commit while an in-flight handler may still update its offset.
+                boolean interrupted = false;
+                for (ExecutorService executor : topicConsumptionExecutors.values()) {
+                    while (!executor.isTerminated()) {
+                        try {
+                            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+                        } catch (InterruptedException e) {
+                            interrupted = true;
+                        }
+                    }
+                }
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+                try {
+                    commitCurrentOffsets();
+                } catch (RuntimeException | Error failure) {
+                    closeConsumerAfterFailure(failure);
+                    throw failure;
+                }
+                closeConsumer(Duration.ofSeconds(3));
             } catch (Exception e) {
                 log.error("Failed to shutdown kafka consumer client properly", e);
-            } finally {
-                shutdownLatch.countDown();
+            }
+        }
+    }
 
-                if (clientState == ClientState.RUNNING) {
-                    log.warn("Unexpected failure while kafka consumer client was running. Restarting...");
-                    pollExecutor.submit(this::consumeTopics);
-                }
+    private void openConsumer(boolean restarting) {
+        KafkaConsumer<K, V> nextConsumer = consumerFactory.get();
+        synchronized (consumerLock) {
+            consumer = nextConsumer;
+            consumerCleanupRequired = true;
+        }
+        if (!restarting || clientState == ClientState.RUNNING) {
+            nextConsumer.subscribe(new ArrayList<>(config.topics.keySet()), this);
+        }
+    }
+
+    private void closeConsumer(Duration timeout) {
+        consumer.close(timeout);
+        consumerCleanupRequired = false;
+    }
+
+    private void closeConsumerAfterFailure(Throwable failure) {
+        if (!consumerCleanupRequired) {
+            return;
+        }
+        try {
+            closeConsumer(Duration.ofSeconds(3));
+        } catch (RuntimeException | Error cleanupFailure) {
+            if (cleanupFailure != failure) {
+                failure.addSuppressed(cleanupFailure);
             }
         }
     }
