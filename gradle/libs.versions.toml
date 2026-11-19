@@ -17,10 +17,10 @@ jakarta-servlet = "6.1.0"
 jakarta-ws-rs-api = "4.0.0"
 spring = "7.0.10"
 jersey = "4.0.2"
-jetty = "12.1.14"
+jetty = "12.1.15"
 
 # JSON og serialisering
-jackson = "3.1.7"
+jackson = "3.3.0"
 jackson2 = "2.23.0"
 jackson-annotations = "2.23"
 kotlin = "2.4.21"
@@ -32,16 +32,16 @@ json-schema-validation = "1.14.6"
 
 # Klienter og integrasjoner
 okhttp = "5.5.1"
-nimbusds = "11.38.2"
+nimbusds = "11.39"
 bitbucket-jose4 = "0.9.7"
 unleash = "12.3.2"
 kafka = "4.4.0"
 
 # Hjelpebiblioteker
 jsoup = "1.24.1"
-commons-lang = "3.21.0"
+commons-lang = "3.22.0"
 commons-io = "2.22.0"
-shedlock = "7.10.1"
+shedlock = "7.11.0"
 handlebars = "4.5.8"
 caffeine = "3.3.1"
 lombok = "1.18.48"
@@ -59,7 +59,7 @@ awaitility = "4.3.0"
 system-rules = "1.19.0"
 
 # Disse slås opp dynamisk av build-logic for Maven-POM-er eller verktøyversjoner.
-commons-collections4 = "4.5.0"
+commons-collections4 = "4.6.0"
 fastinfoset = "2.1.1"
 istack = "4.2.0"
 jaxb-api = "2.4.0-b180830.0359"
