@@ -4,9 +4,12 @@ Updated: 2026-11-19.
 
 ## Status
 
-Gradle 9.9.1 and Java 21 replace the source-tree Maven build for all 20
-modules. Gradle still publishes Maven-compatible artifacts, including the
-POM-only `mor-pom`.
+Gradle 9.9.1 and Java 21 replaced the source-tree Maven build for 20 modules.
+The later removal of `abac` leaves 19 modules in new builds and publications.
+Previously published `abac` versions remain available to pinned consumers.
+The migration measurements below describe the original 20-module build.
+Gradle still publishes Maven-compatible artifacts, including the POM-only
+`mor-pom`; its managed common-module list follows the included projects.
 
 The documented final regression beta is **`4.2026.11.19_00.29-1b245c98c320-beta`**,
 tagged at `1b245c98c320d5ed34148e3994aa72ac85abb7f5`.
@@ -72,10 +75,10 @@ Jackson 3 is **3.1.7**, matching Spring Boot 4.1.2. Jackson 2 is 2.23.0,
 shared annotations are 2.23, and Kotlin stdlib/reflect are 2.4.21.
 No Spring Boot BOM was added to the library build.
 
-The root `.gitignore` now has 19 rules instead of 86. Build-output rules remain
+The migration reduced the root `.gitignore` to 19 rules from 86. Build-output rules remain
 anchored so source packages named `build` stay visible. Legacy root/module
 `target/` directories and `.flattened-pom.xml` are also ignored. The JSP
-exclusion remains limited to `abac`.
+exclusion was removed along with `abac`.
 
 Managed-only Jackson 2 and Kotlin artifacts have catalog aliases with
 `version.ref`, so dependency-update tooling can associate them with their
@@ -309,15 +312,19 @@ Ordinary releases do not activate the optional Javadoc profile.
 Use JDK 21 and Docker for the library integration tests. A fresh run without
 build-cache reuse, including rerunning tasks in the included build:
 
-Keep `org.gradle.parallel=false` in `gradle.properties`: the `abac` tests are
-unstable when module test tasks run in parallel. `maxParallelForks=1` limits
-forks within a test task but does not prevent different modules from running
-at the same time. Do not re-enable parallel task execution until the `abac`
-tests have been made safe for it and verified with parallel builds.
-
 ```shell
 ./gradlew clean build --no-build-cache --rerun-tasks
 ```
+
+With `abac` removed, `org.gradle.parallel=true` enables concurrent module
+tasks. `maxParallelForks=1` still limits forks within each test task, not
+across modules. Kafka integration tests require a working Docker
+configuration.
+
+A fresh parallel `build --continue --no-build-cache --rerun-tasks` failed only
+at `:kafka:test` (seven tests) because the local Docker configuration could
+not be read. The same build with `-x :kafka:test` passed. Kafka tests have
+not been verified in parallel with a working Docker configuration.
 
 Artifact generation and release-task inspection without publication:
 

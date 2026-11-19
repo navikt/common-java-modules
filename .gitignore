@@ -18,5 +18,3 @@
 .flattened-pom.xml
 
 .DS_Store
-
-/abac/**/*.jsp

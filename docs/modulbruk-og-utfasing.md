@@ -1,8 +1,9 @@
 # Modulbruk og mulige utfasinger
 
-Kartlegging per 19. november 2026. Dette er et utvalg konsumenter, ikke en
-fullstendig oversikt over Nav-repoer. Ingen modul er klar for sletting bare
-fordi den mangler treff i dette utvalget.
+Kartlegging per 19. november 2026, før `abac` ble tatt ut av bygget. Dette er
+et utvalg konsumenter, ikke en fullstendig oversikt over Nav-repoer. De 19
+øvrige modulene beholdes. Manglende treff alene er ikke grunnlag for å
+fjerne flere moduler.
 
 ## Undersøkte lokale konsumenter
 
@@ -30,18 +31,18 @@ deklarerer `nais` med en fellesversjon datert 16.11.2026.
 Dette er datoer i versjonsnumrene, ikke verifiserte datoer for siste
 commit i disse repoene.
 
-## Vurdering av de 20 modulene
+## Vurdering av de opprinnelige 20 modulene
 
 | Vurdering | Moduler | Grunnlag |
 |---|---|---|
-| Undersøk utfasing først | `abac` | Den eneste direkte deklarasjonen som er bekreftet her, er i [`tiltak-varsel-ikke-i-bruk`](https://github.com/navikt/tiltak-varsel-ikke-i-bruk/blob/main/pom.xml), låst til en versjon fra mai 2020. Repoet er ifølge bruker ikke oppdatert på fem år. Andre konsumenter er ikke utelukket. |
+| Tas ut av ny publisering | `abac` | Den eneste direkte deklarasjonen som er bekreftet her, er i [`tiltak-varsel-ikke-i-bruk`](https://github.com/navikt/tiltak-varsel-ikke-i-bruk/blob/main/pom.xml), låst til en versjon fra mai 2020. Repoet er ifølge bruker ikke oppdatert på fem år. Andre konsumenter er ikke utelukket; gamle publiserte versjoner må forbli tilgjengelige. |
 | Ikke slett på grunnlag av få direkte treff | `cxf`, `test`, `sts`, `nais` | Alle har bekreftet bruk. `cxf`-funnet bruker eldre publiseringskoordinater; `test` brukes som testavhengighet. `sts` og `nais` har konsumenter med versjoner fra november 2026. |
 | Ikke regn som ubrukte | `json`, `yaml` | Flere moduler eksporterer `json` som intern API-avhengighet. [`nais`](../nais/build.gradle.kts) eksporterer `yaml`, slik at `yaml` også brukes indirekte. |
 | Behold ut fra påvist direkte bruk | `audit-log`, `auth`, `client`, `feature-toggle`, `kafka`, `log`, `job`, `metrics`, `rest`, `health`, `types`, `util`, `token-client` | Direkte deklarasjoner er funnet i de undersøkte konsumentene. |
 
 Tilgang til bred GitHub-metadata var begrenset under kartleggingen. Kodesøk
 i indekserte filer og de lokale repoene kan verken gi en fullstendig opptelling
-av alle Nav-konsumenter eller bevise at en modul ikke brukes. Avklar
-`abac`-bruken med relevante konsumenteiere og undersøk også private og
-genererte bygg før eventuell stopp i publisering. Behold tidligere publiserte
-versjoner tilgjengelige for eldre konsumenter.
+av alle Nav-konsumenter eller bevise at en modul ikke brukes. Fjerningen
+stopper nye `abac`-utgivelser, ikke bruken av gamle artefakter. Konsumenter
+som skal oppdatere til en ny fellesversjon, må avklare hvordan de erstatter
+`abac` uten å miste tilgangskontroll.
