@@ -113,14 +113,19 @@ Other useful commands:
 ```
 
 Unqualified task names run matching tasks in the root project and all modules.
-An explicit path such as `:publish` or `:check` runs only the root task.
+An explicit path such as `:check` runs only the root task; the root project
+has no `:publish` task.
 
 Coordinates remain `no.nav.common:<module>`. The default development version
 is `1-SNAPSHOT`; override it with `-Prevision=<version>`. Existing Maven consumer
 examples above remain valid.
 
 Gradle is the sole active build. Source-tree Maven POMs have been removed;
-Gradle still publishes Maven-compatible POMs for consumers. See
+Gradle still publishes Maven-compatible module POMs for consumers. New
+releases do not include `no.nav.common:mor-pom`; previously published
+versions remain available. Maven projects that inherit `mor-pom` or import
+it for dependency management must choose another parent or manage versions
+directly before moving to a release without it. See
 [the migration and validation report](docs/gradle-migration.md) for compatibility
 decisions, known limitations, and the rollout/rollback checklist.
 

@@ -1,15 +1,19 @@
 # Maven to Gradle migration
 
-Updated: 2026-11-19.
-
 ## Status
 
 Gradle 9.9.1 and Java 21 replaced the source-tree Maven build for 20 modules.
 The later removal of `abac` leaves 19 modules in new builds and publications.
 Previously published `abac` versions remain available to pinned consumers.
 The migration measurements below describe the original 20-module build.
-Gradle still publishes Maven-compatible artifacts, including the POM-only
-`mor-pom`; its managed common-module list follows the included projects.
+The current build configures Maven-compatible publications for the 19 remaining
+modules, but no longer creates or publishes the POM-only `mor-pom`. Previously
+published parent versions remain available; their inherited properties and
+dependency management do not apply to the standalone module POMs.
+No use of `no.nav.common:mor-pom` was confirmed in the searched local builds
+or indexed Nav repositories. Private, generated, or unindexed consumers have
+not been ruled out. Confirm ownership and notify consumers before releasing
+without a new parent version; see [the release checklist](../build-logic/fjerne-mor-pom.md).
 
 The documented final regression beta is **`4.2026.11.19_00.29-1b245c98c320-beta`**,
 tagged at `1b245c98c320d5ed34148e3994aa72ac85abb7f5`.
@@ -52,8 +56,9 @@ repositories. `DEPENDENCY-REVIEW.md` remains unchanged.
 The included build keeps convention tests and Maven compatibility together.
 Compatibility code lives in `no.nav.common.build.maven`; module scripts keep
 the `no.nav.common.build.mavenOptional` import.
-The final beta separates Lombok/Mockito tooling from Maven metadata processing
-and simplifies parent/module POM generation. No publication contract was removed.
+The final beta separated Lombok/Mockito tooling from Maven metadata processing
+and simplified parent/module POM generation. No publication contract was removed
+in that beta; removing `abac` and then `mor-pom` narrows subsequent releases.
 
 Module POMs have **no parent reference**, explicit effective dependencies,
 and only module-specific managed constraints, not the full parent dependency
@@ -62,16 +67,16 @@ variants. The compatibility action adds Maven
 `provided`/`test` entries, management, and Kafka's repository. Gradle module
 metadata is not published, so consumers resolve the POM contract.
 
-`mor-pom` preserves public properties, dependency management, and Maven
-build/profile inheritance from
-`build-logic/src/main/kotlin/no/nav/common/build/MavenParentCompatibility.kt`; Gradle does not run
-those Maven plugins. The aggregation `<modules>` section is omitted.
-Its historical `revision=1-SNAPSHOT` and `${project.version}` management
-remain: a child with its own version manages common modules at that child
-version, not the parent's release version. Parent fixtures deliberately
-share the common release version; arbitrary child versions need overrides.
+The historical `mor-pom` versions preserved public properties, dependency
+management, and Maven build/profile inheritance. Their managed common-module
+versions used `${project.version}`: a child with its own version managed common
+modules at the child's version, not the parent's release version. The parent
+fixtures below deliberately shared the common release version; arbitrary
+child versions required overrides. This inheritance is not provided by the
+current build or by module POMs.
 
-Jackson 3 is **3.1.7**, matching Spring Boot 4.1.2. Jackson 2 is 2.23.0,
+For the tested final beta, Jackson 3 was **3.1.7**, matching Spring Boot 4.1.2.
+The current catalog has Jackson 3 at 3.3.0. Jackson 2 is 2.23.0,
 shared annotations are 2.23, and Kotlin stdlib/reflect are 2.4.21.
 No Spring Boot BOM was added to the library build.
 
@@ -292,7 +297,9 @@ were changed to hide overlaps.
 The test job runs `./gradlew --no-daemon --console=plain build`.
 `build` includes `check`, whose root task includes `build-logic:check`.
 Dry runs of `check build` and `build` select the same 339 tasks.
-Only the release job, gated by `needs: test`, publishes the 21 coordinates.
+Only the release job, gated by `needs: test`, publishes the coordinates
+(21 during the original migration, 20 after `abac` removal, and 19 modules
+when this change is released).
 The registry is `https://maven.pkg.github.com/navikt/common-java-modules`.
 All action references are SHA-pinned; Gradle caching uses `setup-gradle`.
 Release permissions remain `contents: write` and `packages: write`.
@@ -334,7 +341,8 @@ Artifact generation and release-task inspection without publication:
 ```
 
 Unqualified tasks select the root and matching module tasks; `:build` or
-`:check` selects only the root task. Results are in
+`:check` selects only the root task. The root project no longer has a
+`:publish` task. Results are in
 `build/test-results/test`, `build/reports/tests/test`, and optional
 `build/reports/jacoco/test`. Dependency snapshots are in
 `build/reports/dependencies`; update reports are in `build/dependencyUpdates`.
@@ -351,7 +359,7 @@ JUnit's API Guardian annotations are omitted.
 Affected `compileTestJava` tasks: `audit-log`, `json`, `token-client`, `yaml`.
 Add the annotations only for test compilation. Acceptance requires fresh
 warning-free compilation of those four source sets, preserved runtime
-dependency availability, unchanged runtime graphs, and unchanged 21 POMs.
+dependency availability, unchanged runtime graphs, and unchanged module POMs.
 No fix has been implemented.
 
 ### Other review and follow-up items
@@ -361,9 +369,10 @@ No fix has been implemented.
   Explicit `contents: read` would avoid those defaults; this is pre-existing.
 - Optional Maven and Gradle Javadoc builds fail on the same 42 existing
   errors in `MsGraphClient.java`. Fix separately; do not disable doclint.
-- Structural cleanup of the Maven compatibility layer is included in the
-  final beta. Removing `mor-pom`, repeated management, or scope rules would
-  still require a separate contract decision and renewed POM/classpath comparisons.
+- Structural cleanup of the Maven compatibility layer was included in the
+  final beta. The later removal of new `mor-pom` publications is a separate
+  contract change. Removing repeated management or scope rules still requires
+  a contract decision and renewed POM/classpath comparisons.
 
 ## Privacy and rollback
 
