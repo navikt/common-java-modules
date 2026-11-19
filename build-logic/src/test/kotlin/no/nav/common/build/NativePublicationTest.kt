@@ -126,7 +126,8 @@ class NativePublicationTest {
                 assertTrue(selectedTasks.contains(":$module:publicationArtifacts SKIPPED"))
                 assertTrue(selectedTasks.contains(":$module:dependencyUpdates SKIPPED"))
             }
-            assertTrue(selectedTasks.contains(":generatePomFileForMorPomPublication SKIPPED"))
+            assertTrue(selectedTasks.contains(":publicationArtifacts SKIPPED"))
+            assertFalse(selectedTasks.contains(":generatePomFileForMorPomPublication"))
             val compile = File(directory, "gradleConsumer/build/compile-dependencies")
             val tests = File(directory, "gradleConsumer/build/test-dependencies")
             assertTrue(File(compile, "fixture/Marker.class").isFile, "Gradle API consumer must see producer's classes")

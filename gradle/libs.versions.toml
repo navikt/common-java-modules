@@ -97,9 +97,6 @@ jakarta-ws-rs-api = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = 
 jersey-container-servlet = { module = "org.glassfish.jersey.containers:jersey-container-servlet", version.ref = "jersey" }
 jersey-hk2 = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref = "jersey" }
 jersey-server = { module = "org.glassfish.jersey.core:jersey-server", version.ref = "jersey" }
-# Arvede Maven-pins som ikke deklareres direkte av Gradle-modulene.
-jersey-media-json-jackson = { module = "org.glassfish.jersey.media:jersey-media-json-jackson", version.ref = "jersey" }
-jersey-apache-connector = { module = "org.glassfish.jersey.connectors:jersey-apache-connector", version.ref = "jersey" }
 spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring" }
 spring-test = { module = "org.springframework:spring-test", version.ref = "spring" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
@@ -126,7 +123,6 @@ org-json = { module = "org.json:json", version.ref = "org-json" }
 
 # Logging og observability
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "slf4j" }
 # Brukes både direkte og som managed constraint i nav.common-library.
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
