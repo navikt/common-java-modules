@@ -9,7 +9,7 @@ pluginManagement {
 rootProject.name = "common-java-modules"
 
 include(
-    "abac", "audit-log", "auth", "client", "cxf", "feature-toggle", "json",
+    "audit-log", "auth", "client", "cxf", "feature-toggle", "json",
     "kafka", "log", "job", "metrics", "rest", "sts", "health", "test",
     "types", "util", "yaml", "nais", "token-client",
 )
