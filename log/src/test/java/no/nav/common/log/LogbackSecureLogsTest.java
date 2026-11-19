@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogbackSecureLogsTest {
 
-    private static final String SECURELOGS_DIR = "./target/securelogs";
+    private static final String SECURELOGS_DIR = "./build/securelogs";
     public static final String HEMMELIG_MELDING = "Hemmelig melding med fnr: 10108000398";
 
     @Rule
