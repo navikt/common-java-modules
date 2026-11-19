@@ -26,9 +26,7 @@ public class CxfCertificateValidationDisabler implements Feature {
 
     @SneakyThrows
     static void init() {
-        File target = new File("target");
-        target.mkdirs();
-        File cxfFile = new File(target, "cxf.xml");
+        File cxfFile = PrivateTestFiles.create("cxf-", ".xml");
         try (FileOutputStream output = new FileOutputStream(cxfFile)) {
             IOUtils.copy(CxfCertificateValidationDisabler.class.getResourceAsStream("/cxf.xml"), output);
         }

@@ -1,15 +1,22 @@
-
 *.idea
 *.iml
 *.ipr
 *.iws
 *.log
-.flattened-pom.xml
 .checkstyle
 .classpath
 .pmd
 .project
 .settings
-target
+.gradle/
+.kotlin/
+# Keep source packages named build visible.
+/build/
+/*/build/
+/target/
+/*/target/
+.flattened-pom.xml
 
 .DS_Store
+
+/abac/**/*.jsp

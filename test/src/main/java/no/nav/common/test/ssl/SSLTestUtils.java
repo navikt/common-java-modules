@@ -47,7 +47,7 @@ public class SSLTestUtils {
 
     @SneakyThrows
     public static void setupKeyAndTrustStore() {
-        File tempFile = File.createTempFile("dummy", ".jks");
+        File tempFile = PrivateTestFiles.create("dummy", ".jks");
         try (FileOutputStream output = new FileOutputStream(tempFile)) {
             org.apache.commons.io.IOUtils.copy(SSLTestUtils.class.getResourceAsStream("/dummy.jks"), output);
         }

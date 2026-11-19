@@ -1,0 +1,187 @@
+[versions]
+java-version = "21"
+
+# Logging og observability
+slf4j = "2.0.20"
+logback = "1.6.6"
+logback-syslog4j = "1.0.0"
+janino = "3.1.12"
+logstash-logback = "9.0"
+micrometer = "1.17.2"
+prometheus = "0.16.0"
+
+# Web og applikasjonsrammeverk
+cxf-jaxws-blueprint = "7.0.1"
+cxf-core = "4.2.4"
+jakarta-servlet = "6.1.0"
+jakarta-ws-rs-api = "4.0.0"
+spring = "7.0.10"
+jersey = "4.0.2"
+jetty = "12.1.14"
+
+# JSON og serialisering
+jackson = "3.1.7"
+jackson2 = "2.23.0"
+jackson-annotations = "2.23"
+kotlin = "2.4.21"
+gson = "2.15.0"
+org-json = "20260814"
+avro = "1.12.2"
+avro-serializer = "8.2.0"
+json-schema-validation = "1.14.6"
+
+# Klienter og integrasjoner
+okhttp = "5.5.1"
+nimbusds = "11.38.2"
+bitbucket-jose4 = "0.9.7"
+unleash = "12.3.2"
+kafka = "4.4.0"
+
+# Hjelpebiblioteker
+jsoup = "1.24.1"
+commons-lang = "3.21.0"
+commons-io = "2.22.0"
+shedlock = "7.10.1"
+handlebars = "4.5.8"
+caffeine = "3.3.1"
+lombok = "1.18.48"
+
+# Testverktøy
+assertj = "3.27.7"
+hamcrest = "3.0"
+mockito = "5.24.0"
+junit-jupiter = "6.1.3"
+wiremock = "3.13.2"
+testcontainers = "2.0.5"
+h2 = "2.5.252"
+postgres = "42.7.14"
+awaitility = "4.3.0"
+system-rules = "1.19.0"
+
+# Disse slås opp dynamisk av build-logic for Maven-POM-er eller verktøyversjoner.
+commons-collections4 = "4.5.0"
+fastinfoset = "2.1.1"
+istack = "4.2.0"
+jaxb-api = "2.4.0-b180830.0359"
+jaxb-runtime = "4.0.9"
+bytebuddy = "1.18.17"
+jacoco = "0.8.16"
+
+# Gradle-plugins
+versions-plugin = "0.67.0"
+
+[libraries]
+
+# Versjoner som build-logic bruker uten avhengighetsdeklarasjoner i modulene.
+# Aliasene under brukes også som managed constraints i nav.common-library for å speile Maven dependencyManagement.
+# Vedlikehold gjøres her: oppdater versjonene i [versions], behold aliasene stabile.
+commons-collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "commons-collections4" }
+fastinfoset = { module = "com.sun.xml.fastinfoset:FastInfoset", version.ref = "fastinfoset" }
+istack = { module = "com.sun.istack:istack-commons-runtime", version.ref = "istack" }
+jaxb-api = { module = "javax.xml.bind:jaxb-api", version.ref = "jaxb-api" }
+jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-runtime" }
+# Jackson 2 holdes styrt for konsumenter som fortsatt har transitive avhengigheter på com.fasterxml.jackson.
+jackson2-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson2" }
+jackson2-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson2" }
+jackson2-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv", version.ref = "jackson2" }
+jackson2-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8", version.ref = "jackson2" }
+# Kotlin-/Byte Buddy-pins og logback klassisk provider brukes som managed constraints.
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+bytebuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "bytebuddy" }
+jacoco-core = { module = "org.jacoco:org.jacoco.core", version.ref = "jacoco" }
+
+# Web og applikasjonsrammeverk
+jakarta-servlet = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "jakarta-servlet" }
+jakarta-ws-rs-api = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "jakarta-ws-rs-api" }
+jersey-container-servlet = { module = "org.glassfish.jersey.containers:jersey-container-servlet", version.ref = "jersey" }
+jersey-hk2 = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref = "jersey" }
+jersey-server = { module = "org.glassfish.jersey.core:jersey-server", version.ref = "jersey" }
+# Arvede Maven-pins som ikke deklareres direkte av Gradle-modulene.
+jersey-media-json-jackson = { module = "org.glassfish.jersey.media:jersey-media-json-jackson", version.ref = "jersey" }
+jersey-apache-connector = { module = "org.glassfish.jersey.connectors:jersey-apache-connector", version.ref = "jersey" }
+spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring" }
+spring-test = { module = "org.springframework:spring-test", version.ref = "spring" }
+spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
+
+# HTTP- og identitetsklienter
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver3", version.ref = "okhttp" }
+oauth2-oidc-sdk = { module = "com.nimbusds:oauth2-oidc-sdk", version.ref = "nimbusds" }
+okhttp = { module = "com.squareup.okhttp3:okhttp-jvm", version.ref = "okhttp" }
+jose4j = { module = "org.bitbucket.b_c:jose4j", version.ref = "bitbucket-jose4" }
+unleash = { module = "io.getunleash:unleash-client-java", version.ref = "unleash" }
+
+# JSON og serialisering
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson-annotations" }
+jackson-core = { module = "tools.jackson.core:jackson-core", version.ref = "jackson" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-provider = { module = "tools.jackson.jakarta.rs:jackson-jakarta-rs-json-provider", version.ref = "jackson" }
+jackson-xmlbind = { module = "tools.jackson.module:jackson-module-jakarta-xmlbind-annotations", version.ref = "jackson" }
+jackson-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+json-schema = { module = "com.github.erosb:everit-json-schema", version.ref = "json-schema-validation" }
+# Holdes også som managed constraint for transitiv oppløsning i Kafka-relaterte grafer.
+org-json = { module = "org.json:json", version.ref = "org-json" }
+
+# Logging og observability
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "slf4j" }
+# Brukes både direkte og som managed constraint i nav.common-library.
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
+logback-syslog4j = { module = "com.papertrailapp:logback-syslog4j", version.ref = "logback-syslog4j" }
+logstash-logback = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-logback" }
+janino = { module = "org.codehaus.janino:janino", version.ref = "janino" }
+prometheus-logback = { module = "io.prometheus:simpleclient_logback", version.ref = "prometheus" }
+micrometer = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
+
+# Kafka og relaterte biblioteker
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
+avro = { module = "org.apache.avro:avro", version.ref = "avro" }
+avro-serializer = { module = "io.confluent:kafka-avro-serializer", version.ref = "avro-serializer" }
+testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", version.ref = "testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
+
+# CXF og Jetty
+jetty-annotations = { module = "org.eclipse.jetty.ee11:jetty-ee11-annotations", version.ref = "jetty" }
+jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "jetty" }
+jetty-servlet = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlet", version.ref = "jetty" }
+jetty-webapp = { module = "org.eclipse.jetty.ee11:jetty-ee11-webapp", version.ref = "jetty" }
+cxf-bindings-soap = { module = "org.apache.cxf:cxf-rt-bindings-soap", version.ref = "cxf-core" }
+cxf-core = { module = "org.apache.cxf:cxf-core", version.ref = "cxf-core" }
+cxf-features-logging = { module = "org.apache.cxf:cxf-rt-features-logging", version.ref = "cxf-core" }
+cxf-frontend-jaxws = { module = "org.apache.cxf:cxf-rt-frontend-jaxws", version.ref = "cxf-core" }
+cxf-frontend-simple = { module = "org.apache.cxf:cxf-rt-frontend-simple", version.ref = "cxf-core" }
+cxf-jaxws-blueprint = { module = "org.apache.servicemix.examples:cxf-jaxws-blueprint", version.ref = "cxf-jaxws-blueprint" }
+cxf-transports-http = { module = "org.apache.cxf:cxf-rt-transports-http", version.ref = "cxf-core" }
+cxf-ws-policy = { module = "org.apache.cxf:cxf-rt-ws-policy", version.ref = "cxf-core" }
+cxf-ws-security = { module = "org.apache.cxf:cxf-rt-ws-security", version.ref = "cxf-core" }
+
+# Testverktøy og databaser
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+junit-vintage = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit-jupiter" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit-jupiter" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit-jupiter" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+hamcrest-core = { module = "org.hamcrest:hamcrest-core", version.ref = "hamcrest" }
+hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "hamcrest" }
+wiremock = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres" }
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
+system-rules = { module = "com.github.stefanbirkner:system-rules", version.ref = "system-rules" }
+
+# Andre hjelpebiblioteker
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+shedlock = { module = "net.javacrumbs.shedlock:shedlock-core", version.ref = "shedlock" }
+handlebars = { module = "com.github.jknack:handlebars", version.ref = "handlebars" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+commons-lang = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang" }
+
+[plugins]
+versions = { id = "io.github.ben-manes.versions", version.ref = "versions-plugin" }

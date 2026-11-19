@@ -1,6 +1,7 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
@@ -20,8 +21,8 @@ import org.junit.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
@@ -41,8 +42,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     private String testTopicA;
     private String testTopicB;
 
-    public static KafkaContainer kafka;
-    private static String brokerUrl;
+    public static ConfluentKafkaContainer kafka;
     private static AdminClient admin;
 
     private static DataSource dataSource;
@@ -58,11 +58,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     @SneakyThrows
     @BeforeClass
     public static void setup() {
-        kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
+        kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
         kafka.waitingFor(new HostPortWaitStrategy());
         kafka.start();
 
-        brokerUrl = kafka.getBootstrapServers();
+        String brokerUrl = kafka.getBootstrapServers();
 
         dataSource = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(dataSource, "kafka-producer-record-oracle.sql");
@@ -87,8 +87,8 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 new NewTopic(testTopicB, 1, (short) 1)
         ));
 
-        sentOnTopicA = new ArrayList<>();
-        sentOnTopicB = new ArrayList<>();
+        sentOnTopicA = new CopyOnWriteArrayList<>();
+        sentOnTopicB = new CopyOnWriteArrayList<>();
 
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
@@ -162,9 +162,15 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
         recordProcessor.start();
         consumerClient.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> sentOnTopicB.size() == 2);
-        recordProcessor.close();
-        consumerClient.stop();
+        try {
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+                assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
+                assertEquals(Set.of("b-1", "b-2"), Set.copyOf(sentOnTopicB));
+            });
+        } finally {
+            recordProcessor.close();
+            consumerClient.stop();
+        }
 
         // We expect most of the messages to have been sent
         assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
@@ -199,9 +205,15 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
         recordProcessor.start();
         consumerClient.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> sentOnTopicB.size() == 2);
-        recordProcessor.close();
-        consumerClient.stop();
+        try {
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+                assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
+                assertEquals(Set.of("b-1", "b-2"), Set.copyOf(sentOnTopicB));
+            });
+        } finally {
+            recordProcessor.close();
+            consumerClient.stop();
+        }
 
         // We expect most of the messages to have been sent
         assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));

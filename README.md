@@ -36,7 +36,7 @@ repositories {
 
 Etter dette er gjort kan man legge til de modulene som man trenger, eksemplet nedenfor viser hvordan man trekker inn **token-client**-modulen:
 For å finne siste release versjon av common-java-modules, se https://github.com/navikt/common-java-modules/releases.
-Versjonene er på følgende format: `YYYY.MM.DD_HH.mm-SHA`
+Versjonene er på følgende format: `4.YYYY.MM.DD_HH.mm-<12-tegns SHA>` (med `-beta` for betaversjoner).
 
 Maven:
 ```xml
@@ -83,16 +83,46 @@ Version 2 removes all of the deprecated modules from version 1 (including `api-a
 ## Checking for new dependency versions
 
 ```shell
-mvn versions:display-dependency-updates
+./gradlew dependencyUpdates
 ```
 
 ## Building the libraries
 
-In order to build `common-java-modules`, run from the root directory:
+Use JDK 21 and the checked-in Gradle 9.9.1 wrapper. Docker must be running for
+the Kafka/PostgreSQL integration tests. Run from the root directory:
 
 ```shell
-mvn clean install
+./gradlew clean build
 ```
+
+For the local Maven repository equivalent of the old `mvn clean install`,
+run `./gradlew clean build publishToMavenLocal`. This is not needed for
+normal builds and must not be used when publication is prohibited.
+
+Other useful commands:
+
+```shell
+# Build all main/test/source archives and publication POMs, without publishing.
+./gradlew publicationArtifacts
+
+# Equivalent of the optional Maven coverage profile.
+./gradlew -Pcoverage check jacocoTestReport
+
+# Equivalent of the optional Maven release/Javadoc profile.
+./gradlew -Prelease publicationArtifacts
+```
+
+Unqualified task names run matching tasks in the root project and all modules.
+An explicit path such as `:publish` or `:check` runs only the root task.
+
+Coordinates remain `no.nav.common:<module>`. The default development version
+is `1-SNAPSHOT`; override it with `-Prevision=<version>`. Existing Maven consumer
+examples above remain valid.
+
+Gradle is the sole active build. Source-tree Maven POMs have been removed;
+Gradle still publishes Maven-compatible POMs for consumers. See
+[the migration and validation report](docs/gradle-migration.md) for compatibility
+decisions, known limitations, and the rollout/rollback checklist.
 
 ### Contact
 

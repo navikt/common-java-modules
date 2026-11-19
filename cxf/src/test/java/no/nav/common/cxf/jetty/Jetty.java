@@ -376,15 +376,19 @@ public final class Jetty {
         return getFileSource("src/test/resources");
     }
 
-    private static File getFileSource(String filesource) {
-        File baseDir = null;
+    static File getFileSource(String filesource) {
         try {
             File classesDir = new File(Jetty.class.getResource("/").toURI());
-            baseDir = new File(classesDir, "../../").getCanonicalFile();
-        } catch (URISyntaxException | IOException e) {
-            LOG.error("Krasjet under opprettelsen av {}", filesource, e);
+            for (File baseDir = classesDir; baseDir != null; baseDir = baseDir.getParentFile()) {
+                File source = new File(baseDir, filesource);
+                if (source.isDirectory()) {
+                    return source;
+                }
+            }
+            throw new IllegalStateException("Fant ikke " + filesource + " fra " + classesDir);
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("Kunne ikke finne " + filesource, e);
         }
-        return new File(baseDir, filesource);
     }
 
     private static void loadPropertiesFile(String propertyFile) throws IOException {
