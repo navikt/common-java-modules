@@ -11,24 +11,28 @@ POM-only `mor-pom`.
 The documented final regression beta is **`4.2026.11.19_00.29-1b245c98c320-beta`**,
 tagged at `1b245c98c320d5ed34148e3994aa72ac85abb7f5`.
 
-A newer beta, **`4.2026.11.19_15.03-d64cef2c94bf-beta`**, is later published and
-used for ongoing consumer regression reruns.
+A later beta, **`4.2026.11.19_15.03-d64cef2c94bf-beta`**, was used for the
+consumer regression reruns documented below. The latest tested beta is
+**`4.2026.11.19_21.37-c369876f3d8f-beta`**.
 
-All five consumers now use this beta. Fresh agent builds retain all 1,963
-baseline case outcomes and exception types, but remain **not green** because
-of the same environment/initialization failures.
+All five local consumer overrides now point to the 21.37 beta. User builds
+passed for `pto-admin`, `veilarbaktivitet`, and `amt-stottetjenester`.
+`veilarboppfolging` is not green because embedded PostgreSQL startup failed
+in the inspected run; the user reports varying failures across reruns.
+`familie-oppdrag-backend` is not green: 125 tests, 1 failure, and 5 errors,
+the same counts as before, without a case-by-case comparison.
 
 The previous `4.2026.11.18_22.15-84cd67e68844-beta` had four green Gradle
 builds and six unchanged Maven baseline failures in the user's environment.
-Final-beta user reruns pass for all four Gradle consumers. AMT passes with
-the local test-only readiness change described below. The final-beta Maven
-user run matches all six known baseline failures. All five consumer
-evaluations are complete; the Maven full build remains not green.
+The earlier 15.03-beta user reruns passed for all four Gradle consumers.
+AMT passed with the local test-only readiness change described below. The
+15.03-beta Maven user run matched all six known baseline failures; its full
+build was not green. These results are historical, not the 21.37-beta outcome.
 
-The agent did not publish remotely, install into Maven local, create a
-commit/release/tag, or dispatch a workflow. Consumer version overrides are
-local changes in their respective repositories. `DEPENDENCY-REVIEW.md`
-remains unchanged.
+During the earlier migration verification, the agent did not publish
+remotely, run Maven install, create a commit/release/tag, or dispatch a
+workflow. Consumer version overrides are local changes in their respective
+repositories. `DEPENDENCY-REVIEW.md` remains unchanged.
 
 ## Build and publication contract
 
@@ -114,7 +118,38 @@ requests, or every API/integration.
 
 ## Consumer results
 
-All consumer overrides now use `4.2026.11.19_15.03-d64cef2c94bf-beta`.
+### Latest beta: 21.37
+
+The user ran consumer builds with
+`4.2026.11.19_21.37-c369876f3d8f-beta`:
+
+| Consumer | User build result |
+|---|---|
+| `pto-admin` | `:api:clean :api:build --no-build-cache` succeeded in 14s. |
+| `veilarbaktivitet` | `clean build --no-build-cache` succeeded in 1m 57s. |
+| `veilarboppfolging` | Repeated builds were not consistently green. The inspected report has 561 tests, 32 failures, and 0 skipped. Embedded PostgreSQL did not start within 10 seconds; subsequent failures in that run could not initialize `LocalDatabaseSingleton`. The user reports that the failures vary between reruns. No test code was changed. |
+| `amt-stottetjenester` | `clean build --no-build-cache` succeeded in 2m 8s. |
+| `familie-oppdrag-backend` | `mvn clean verify -Dmaven.antrun.skip=true` failed with 125 tests, 1 failure, 5 errors, and 0 skipped. Counts match the previous user run; individual failures were not compared. |
+
+The published POMs were downloaded through Maven, not built or installed
+from local source. The `mor-pom` has 108 managed dependency entries,
+including `tools.jackson.core:jackson-databind` managed through
+`jackson.version=3.1.7`. The `log` module POM has 14 module-specific managed
+entries and does not inherit the entire parent management. Maven's dependency
+tree for `familie-oppdrag-backend` selects all six common modules at the
+21.37 beta. Gradle `dependencyInsight` resolves Jackson databind 3.1.7 on
+the inspected runtime classpath in each of the four Gradle consumers.
+These checks do not prove full dependency-management parity for every
+consumer configuration. `veilarbaktivitet` still selects an older transitive
+`audit-log`, and AMT's `amt-person-service` still selects the older transitive
+`rest` version documented below; a catalog version does not force alignment
+of an entire group.
+
+### Earlier beta: 15.03
+
+All consumer overrides used `4.2026.11.19_15.03-d64cef2c94bf-beta`
+for the following earlier checks.
+
 Fresh classpath/tree snapshots were captured with the 22.15 beta before
 updating the overrides. No selected dependency changes beyond the common
 release version were found. Earlier comparisons included intentional
