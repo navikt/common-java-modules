@@ -274,6 +274,12 @@ Ordinary releases do not activate the optional Javadoc profile.
 Use JDK 21 and Docker for the library integration tests. A fresh run without
 build-cache reuse, including rerunning tasks in the included build:
 
+Keep `org.gradle.parallel=false` in `gradle.properties`: the `abac` tests are
+unstable when module test tasks run in parallel. `maxParallelForks=1` limits
+forks within a test task but does not prevent different modules from running
+at the same time. Do not re-enable parallel task execution until the `abac`
+tests have been made safe for it and verified with parallel builds.
+
 ```shell
 ./gradlew clean build --no-build-cache --rerun-tasks
 ```
