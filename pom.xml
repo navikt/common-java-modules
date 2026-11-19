@@ -86,23 +86,23 @@
         <jakarta.ws.rs-api.version>4.0.0</jakarta.ws.rs-api.version>
         <spring.version>7.0.10</spring.version>
         <jersey.version>4.0.2</jersey.version>
-        <jackson.version>3.2.4</jackson.version>
-        <jackson-annotations.version>2.22</jackson-annotations.version>
+        <jackson.version>3.3.0</jackson.version>
+        <jackson-annotations.version>2.23</jackson-annotations.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <micrometer.version>1.17.2</micrometer.version>
         <okhttp.version>5.5.1</okhttp.version>
         <prometheus.version>0.16.0</prometheus.version>
-        <commons-lang.version>3.21.0</commons-lang.version>
+        <commons-lang.version>3.22.0</commons-lang.version>
         <commons-io.version>2.22.0</commons-io.version>
-        <shedlock.version>7.10.1</shedlock.version>
+        <shedlock.version>7.11.0</shedlock.version>
         <handlebars.version>4.5.8</handlebars.version>
         <gson.version>2.15.0</gson.version>
         <caffeine.version>3.3.1</caffeine.version>
         <bitbucket-jose4.version>0.9.7</bitbucket-jose4.version>
-        <nimbusds.version>11.38.2</nimbusds.version>
+        <nimbusds.version>11.39</nimbusds.version>
         <unleash.version>12.3.2</unleash.version>
         <org.json.version>20260814</org.json.version>
-        <jetty.version>12.1.14</jetty.version>
+        <jetty.version>12.1.15</jetty.version>
         <!-- KAFKA -->
         <kafka.version>4.4.0</kafka.version>
         <avro.version>1.12.2</avro.version>
@@ -786,7 +786,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.8.0</version>
+                <version>1.9.0</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>resolveCiFriendliesOnly</flattenMode>
