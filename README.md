@@ -154,16 +154,15 @@ decisions, known limitations, and the rollout/rollback checklist.
 
 ## CI follow-up
 
-Pull requests do not currently run the Gradle build or tests automatically.
-[Test and release](.github/workflows/main.yml) runs `./gradlew build` on pushes
-to `main`, after merge. The
+[Test and release](.github/workflows/main.yml) runs `./gradlew build` for pull
+requests and pushes to `main`, including tests and Spotless checks. Only pushes
+to `main` can publish a release, after the build succeeds. The
 [beta-release workflow](.github/workflows/package-feature-branch.yml) runs tests
 when started manually (`workflow_dispatch`), then publishes a beta release.
 
-- [ ] Run `./gradlew build` automatically for pull requests, including tests and
-  Spotless checks. Use a separate PR workflow or add a `pull_request` trigger to
-  the existing workflow. If sharing the workflow, restrict the release job to
-  pushes to `main` so pull requests cannot publish releases.
+- [x] Run `./gradlew build` automatically for pull requests, including tests and
+  Spotless checks. Restrict the release job to pushes to `main` so pull requests
+  cannot publish releases.
 
 ## Security follow-up
 
