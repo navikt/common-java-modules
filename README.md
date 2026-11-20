@@ -152,6 +152,22 @@ directly before moving to a release without it. See
 [the migration and validation report](docs/gradle-migration.md) for compatibility
 decisions, known limitations, and the rollout/rollback checklist.
 
+## Security follow-up
+
+Track these scanner findings separately from the formatting changes. The alerts
+do not establish that sensitive data has been logged or exposed.
+
+- [ ] Review logging and exception messages in `AzureAdMachineToMachineTokenClient`,
+  `AzureAdOnBehalfOfTokenClient`, and `TokenXOnBehalfOfTokenClient` in `token-client`.
+  Replace complete OAuth error responses with explicitly allowed fields, such as
+  the error code. Add regression tests that ensure tokens and sensitive values
+  are absent from logs and exception messages. Do not assume that
+  `getErrorObject()` returns only safe content.
+- [ ] Review `TrustAllX509TrustManager` and `SSLTestUtils` in the `test` module.
+  Map their usage, including use outside tests. Prefer test certificates and a
+  dedicated truststore over disabled certificate validation. Avoid global TLS
+  changes and document any remaining test-only exceptions.
+
 ### Contact
 
 For questions, create an issue on the Github repository.
