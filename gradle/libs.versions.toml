@@ -5,7 +5,6 @@ java-version = "21"
 slf4j = "2.0.20"
 logback = "1.6.6"
 logback-syslog4j = "1.0.0"
-janino = "3.1.12"
 logstash-logback = "9.0"
 micrometer = "1.17.2"
 prometheus = "0.16.0"
@@ -130,7 +129,6 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-syslog4j = { module = "com.papertrailapp:logback-syslog4j", version.ref = "logback-syslog4j" }
 logstash-logback = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-logback" }
-janino = { module = "org.codehaus.janino:janino", version.ref = "janino" }
 prometheus-logback = { module = "io.prometheus:simpleclient_logback", version.ref = "prometheus" }
 micrometer = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 

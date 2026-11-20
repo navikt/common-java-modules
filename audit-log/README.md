@@ -85,9 +85,13 @@ i **#auditlogging-arcsight** for å bekrefte at loggene har blitt motatt.
 Dersom du kjører opp appen din lokalt og tester endepunkter som har implementert audit-logging så kan du få en feilmelding i konsollen om at du ikke klarer å nå serveren som tar i mot log-statements fra appen din. Det kan derfor være ønskelig å logge lokalt til stdout. Slik kan du gjøre det for en Ktor-applikasjon.
 
 I logback.xml benytter du deg av en if-else og sjekker om miljøvariabelen `NAIS_CLUSTER_NAME` er definert. Hvis den er definert så inkluderer du en `logback-nais.xml`. Dette er logback-filen du bruker i dev og prod til vanlig. Dersom `NAIS_CLUSTER_NAME` ikke er definert inkluderer du en `logback-local.xml` som logger til stdout.
+Eksemplet krever Logback 1.5.20 eller nyere og bruker ikke Janino.
 ```xml
 <configuration>
-    <if condition='isDefined("NAIS_CLUSTER_NAME")'>
+    <condition class="ch.qos.logback.core.boolex.IsPropertyDefinedCondition">
+        <key>NAIS_CLUSTER_NAME</key>
+    </condition>
+    <if>
         <then>
             <include resource="logback-nais.xml"/>
         </then>

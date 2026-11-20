@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.SneakyThrows;
-import org.codehaus.commons.nullanalysis.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -105,7 +104,7 @@ public class LogbackStdoutJsonTest {
 
         Assert.assertEquals("skal være 3 loglingjer (ikke debug)", 3, logLinjes.size());
 
-        LogLinje info = logLinjes.get(0);
+        LogLinje info = logLinjes.getFirst();
         Assert.assertEquals(infoMelding, info.message);
         Assert.assertEquals("INFO", info.level);
 
@@ -139,7 +138,6 @@ public class LogbackStdoutJsonTest {
                 .toList();
     }
 
-    @NotNull
     private static ByteArrayOutputStream captureSystemOut() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStream));
