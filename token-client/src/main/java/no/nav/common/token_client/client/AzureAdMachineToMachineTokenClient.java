@@ -8,7 +8,6 @@ import static no.nav.common.token_client.utils.TokenClientUtils.signedClientAsse
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
 import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
@@ -17,10 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import no.nav.common.token_client.cache.TokenCache;
 
-@Slf4j
 public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient implements MachineToMachineTokenClient {
 
     public AzureAdMachineToMachineTokenClient(
@@ -50,16 +47,7 @@ public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient impl
                 null,
                 additionalClaims(tokenScope));
 
-        TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
-
-        if (!response.indicatesSuccess()) {
-            TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error(
-                    "Failed to fetch AzureAD M2M token for scope={}. Error: {}",
-                    tokenScope,
-                    tokenErrorResponse.toJSONObject().toString());
-            throw new RuntimeException("Failed to fetch AzureAD M2M token for scope=" + tokenScope);
-        }
+        TokenResponse response = parseTokenResponse(request.toHTTPRequest().send(), "AzureAD M2M token request");
 
         AccessTokenResponse successResponse = response.toSuccessResponse();
 

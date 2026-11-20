@@ -47,7 +47,7 @@ repositories. `DEPENDENCY-REVIEW.md` remains unchanged.
 |---|---|
 | Coordinates | Keep `no.nav.common:<module>`. Default version is `1-SNAPSHOT`; `-Prevision=<version>` replaces Maven's `-Drevision=<version>`. |
 | Java | Java 21 toolchain and `--release 21`. Lombok remains provided, with explicit main/test annotation processors. |
-| Conventions | Included `build-logic` build with `nav.common-root`, `nav.common-library`, `nav.common-dependency-management`, and `nav.common-publishing`. |
+| Conventions | Included `build-logic` build with `nav.common-root`, `nav.common-java`, `nav.common-library`, and `nav.common-publishing`. |
 | Dependencies | Module declarations stay local; versions are in `gradle/libs.versions.toml`. Compile/API, runtime, provided, optional, test, exclusions, and test-JAR semantics are preserved. |
 | Archives | Main, `tests`, `sources`, and `test-sources` JARs retain embedded Maven descriptors and implementation/Java metadata. ZIP ordering/timestamps are reproducible, not byte-identical to Maven. |
 | Tests | Jupiter and Vintage retain Surefire naming conventions. Mockito uses an explicit test JVM agent. |
@@ -347,28 +347,65 @@ Unqualified tasks select the root and matching module tasks; `:build` or
 `build/reports/jacoco/test`. Dependency snapshots are in
 `build/reports/dependencies`; update reports are in `build/dependencyUpdates`.
 
-### API Guardian warnings (separate PR)
+### API Guardian annotations
 
-`warning: unknown enum constant Status.STABLE` comes from missing
+`warning: unknown enum constant Status.STABLE` came from missing
 `org.apiguardian.api.API$Status`. The Maven-compatible test compile
 classpath selects `java-runtime` variants to include runtime dependencies;
 JUnit's API Guardian annotations are omitted.
-`dependencyInsight` confirms missing
-`org.apiguardian:apiguardian-api:1.1.2`.
+The build now adds `org.apiguardian:apiguardian-api:1.1.2` through an isolated
+`testCompileAnnotations` configuration inherited only by `testCompileOnly`.
+The annotations are not included in runtime configurations or published POMs.
 
-Affected `compileTestJava` tasks: `audit-log`, `json`, `token-client`, `yaml`.
-Add the annotations only for test compilation. Acceptance requires fresh
-warning-free compilation of those four source sets, preserved runtime
-dependency availability, unchanged runtime graphs, and unchanged module POMs.
-No fix has been implemented.
+Fresh `compileTestJava` runs for `audit-log`, `json`, `token-client`, and `yaml`
+no longer report the API Guardian warnings. The publication regression fixture
+checks annotation compilation, runtime isolation, POM omission, and
+configuration-cache reuse.
+
+### Javadoc compatibility
+
+The malformed anchors and inline links in `MsGraphClient.java` are fixed,
+including escaped ampersands in query strings. The `client:javadoc` task now
+completes with doclint enabled. Existing missing-comment and missing-tag
+warnings remain; no Java behavior or doclint settings changed.
+
+### TLS test helpers
+
+The `test` module no longer disables certificate or hostname verification.
+`SSLTestUtils.createSSLContext(KeyStore)` uses only the supplied truststore.
+The no-argument overload trusts only the bundled `dummy.crt` test certificate,
+exported from the server fixture `dummy.jks`. Loading client trust requires
+neither the fixture's private key nor its keystore password.
+`TEST_SSL_SOCKET_FACTORY` also enables HTTPS endpoint identification.
+The bundled certificate contains a `localhost` SAN and is a public test fixture,
+not a certificate or private key for production use.
+
+The old `TrustAllX509TrustManager`, `TrustAllSSLSocketFactory`,
+`TRUST_ALL_SSL_SOCKET_FACTORY`, and `ALLOW_ALL_HOSTNAME_VERIFIER` signatures
+remain deprecated adapters. Despite their historical names, they now validate
+certificates or hostnames. They do not provide a validation bypass.
+
+**Breaking behavior change:** `disableCertificateChecks()`,
+`setupKeyAndTrustStore()`, and `CertificateCheckDisabler.contextInitialized()`
+throw `UnsupportedOperationException`. Replace them with TLS settings on the
+individual test client. Load a server's test keystore directly rather than
+setting JVM-wide `javax.net.ssl.*` properties.
+`CxfCertificateValidationDisabler` now configures only the supplied CXF bus or
+client with fixture trust and hostname verification. It no longer changes a
+default bus or disables SAML validation.
+
+Repository usage was mapped in the published `test` helpers, the
+`test/src/main/resources/cxf.xml` feature configuration, and the CXF test
+fixtures. `CreateSslConnector` now loads its fixture directly, and the existing
+ignored STS integration test uses its own bus. External consumers were not
+comprehensively searched. Tests cover trusted and untrusted certificates,
+hostname mismatches, the legacy adapters, and unchanged JVM TLS defaults.
 
 ### Other review and follow-up items
 
 - Review `pto-admin`'s production/test Jackson mismatch noted above.
 - Test jobs still inherit repository/organization token permissions.
   Explicit `contents: read` would avoid those defaults; this is pre-existing.
-- Optional Maven and Gradle Javadoc builds fail on the same 42 existing
-  errors in `MsGraphClient.java`. Fix separately; do not disable doclint.
 - Structural cleanup of the Maven compatibility layer was included in the
   final beta. The later removal of new `mor-pom` publications is a separate
   contract change. Removing repeated management or scope rules still requires
