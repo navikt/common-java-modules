@@ -9,7 +9,6 @@ dependencies {
     api(libs.logback.core)
     api(libs.logback.syslog4j)
     api(libs.logstash.logback)
-    runtimeOnly(libs.janino)
     runtimeOnly(libs.prometheus.logback)
     testImplementation(libs.junit.vintage)
     testImplementation(libs.mockito)

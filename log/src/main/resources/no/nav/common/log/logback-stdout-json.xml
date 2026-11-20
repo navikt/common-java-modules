@@ -2,11 +2,7 @@
 <included>
     <appender name="stdout_json_masked" class="no.nav.common.log.MaskingAppender">
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
-            <evaluator>
-                <expression>
-                    return level != ERROR &amp;&amp; (logger.contains("org.apache.cxf") || logger.contains("no.nav.common.cxf"));
-                </expression>
-            </evaluator>
+            <evaluator class="no.nav.common.log.CxfNonErrorEventEvaluator"/>
             <onMatch>DENY</onMatch>
             <onMismatch>NEUTRAL</onMismatch>
         </filter>
