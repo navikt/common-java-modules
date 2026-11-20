@@ -24,8 +24,7 @@ public class Fnr extends EksternBrukerId {
         return new Fnr(fnrStr);
     }
 
-    public static boolean isValid(String fnrStr){
+    public static boolean isValid(String fnrStr) {
         return fnrStr.matches("\\d{11}");
     }
-
 }

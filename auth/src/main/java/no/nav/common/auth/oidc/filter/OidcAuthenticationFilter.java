@@ -1,14 +1,28 @@
 package no.nav.common.auth.oidc.filter;
 
+import static no.nav.common.auth.utils.CookieUtils.cookieDomain;
+import static no.nav.common.auth.utils.CookieUtils.dateToCookieMaxAge;
+import static no.nav.common.auth.utils.TokenUtils.expiresWithin;
+import static no.nav.common.auth.utils.TokenUtils.hasMatchingAudience;
+import static no.nav.common.auth.utils.TokenUtils.hasMatchingIssuer;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.openid.connect.sdk.validators.BadJWTExceptions;
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
@@ -17,16 +31,6 @@ import no.nav.common.auth.oidc.UserRoleNullException;
 import no.nav.common.auth.utils.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.common.auth.utils.CookieUtils.cookieDomain;
-import static no.nav.common.auth.utils.CookieUtils.dateToCookieMaxAge;
-import static no.nav.common.auth.utils.TokenUtils.*;
-
 
 public class OidcAuthenticationFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(OidcAuthenticationFilter.class);
@@ -82,9 +86,10 @@ public class OidcAuthenticationFilter implements Filter {
 
                     AuthContext authContext = new AuthContext(userRole, jwtToken);
 
-                    AuthContextHolderThreadLocal.instance().withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
+                    AuthContextHolderThreadLocal.instance()
+                            .withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
-                } catch ( ParseException | JOSEException | BadJOSEException exception) {
+                } catch (ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {
                         logger.info("Token validation failed", exception);
                     } else {
@@ -100,9 +105,10 @@ public class OidcAuthenticationFilter implements Filter {
     }
 
     private void addNewIdTokenCookie(
-            OidcAuthenticatorConfig oidcConfig, JWT jwtToken, HttpServletRequest request, HttpServletResponse response
-    ) throws ParseException {
-        String cookieDomain = oidcConfig.refreshedCookieDomain != null ? oidcConfig.refreshedCookieDomain : cookieDomain(request);
+            OidcAuthenticatorConfig oidcConfig, JWT jwtToken, HttpServletRequest request, HttpServletResponse response)
+            throws ParseException {
+        String cookieDomain =
+                oidcConfig.refreshedCookieDomain != null ? oidcConfig.refreshedCookieDomain : cookieDomain(request);
         String cookiePath = oidcConfig.refreshedCookiePath != null ? oidcConfig.refreshedCookiePath : "/";
         Date cookieExpiration = jwtToken.getJWTClaimsSet().getExpirationTime();
 
@@ -112,13 +118,13 @@ public class OidcAuthenticationFilter implements Filter {
                 cookieDomain,
                 cookiePath,
                 dateToCookieMaxAge(cookieExpiration),
-                request.isSecure()
-        );
+                request.isSecure());
 
         response.addCookie(newIdCookie);
     }
 
-    private Optional<String> refreshIdTokenIfNecessary(JWT token, OidcAuthenticator authenticator, HttpServletRequest request) {
+    private Optional<String> refreshIdTokenIfNecessary(
+            JWT token, OidcAuthenticator authenticator, HttpServletRequest request) {
         boolean needsToBeRefreshed = hasMatchingIssuer(token, authenticator.tokenValidator.getIssuer())
                 && expiresWithin(token, CHECK_EXPIRES_WITHIN);
 
@@ -127,7 +133,8 @@ public class OidcAuthenticationFilter implements Filter {
 
             if (maybeRefreshToken.isPresent() && authenticator.config.refreshUrl != null) {
                 try {
-                    return Optional.of(tokenRefreshClient.refreshIdToken(authenticator.config.refreshUrl, maybeRefreshToken.get()));
+                    return Optional.of(tokenRefreshClient.refreshIdToken(
+                            authenticator.config.refreshUrl, maybeRefreshToken.get()));
                 } catch (Exception e) {
                     logger.error("Unable to refresh id token", e);
                     return Optional.empty();
@@ -140,5 +147,4 @@ public class OidcAuthenticationFilter implements Filter {
 
     @Override
     public void destroy() {}
-
 }

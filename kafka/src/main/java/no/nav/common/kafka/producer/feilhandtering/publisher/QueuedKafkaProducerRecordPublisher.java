@@ -1,13 +1,12 @@
 package no.nav.common.kafka.producer.feilhandtering.publisher;
 
+import java.util.ArrayList;
+import java.util.List;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class QueuedKafkaProducerRecordPublisher implements KafkaProducerRecordPublisher {
 

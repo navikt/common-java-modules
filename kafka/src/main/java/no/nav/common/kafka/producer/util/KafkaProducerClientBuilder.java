@@ -1,11 +1,10 @@
 package no.nav.common.kafka.producer.util;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Properties;
 import lombok.NonNull;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
-
-import java.util.Properties;
 
 public class KafkaProducerClientBuilder<K, V> {
 
@@ -81,5 +80,4 @@ public class KafkaProducerClientBuilder<K, V> {
 
         return producerClient;
     }
-
 }

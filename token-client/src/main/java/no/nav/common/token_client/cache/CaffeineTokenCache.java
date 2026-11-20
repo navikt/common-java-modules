@@ -1,20 +1,19 @@
 package no.nav.common.token_client.cache;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.nimbusds.jwt.JWT;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
 import static no.nav.common.token_client.utils.TokenUtils.expiresWithin;
 import static no.nav.common.token_client.utils.TokenUtils.parseJwtToken;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.nimbusds.jwt.JWT;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
 public class CaffeineTokenCache implements TokenCache {
 
-    private final static long DEFAULT_EXPIRE_BEFORE_REFRESH_MS = 30 * 1000; // 30 seconds
+    private static final long DEFAULT_EXPIRE_BEFORE_REFRESH_MS = 30 * 1000; // 30 seconds
 
-    private final static long DEFAULT_EXPIRE_AFTER_WRITE_MS = 60 * 60 * 1000; // 1 hour
+    private static final long DEFAULT_EXPIRE_AFTER_WRITE_MS = 60 * 60 * 1000; // 1 hour
 
     private final long expireBeforeRefreshMs;
 
@@ -43,5 +42,4 @@ public class CaffeineTokenCache implements TokenCache {
 
         return token.getParsedString();
     }
-
 }

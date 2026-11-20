@@ -4,13 +4,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.LoggerContextVO;
-import org.slf4j.Marker;
-import org.slf4j.event.KeyValuePair;
-
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Marker;
+import org.slf4j.event.KeyValuePair;
 
 public class MaskedLoggingEvent implements ILoggingEvent {
     private final ILoggingEvent iLoggingEvent;
@@ -47,7 +46,6 @@ public class MaskedLoggingEvent implements ILoggingEvent {
     public String getFormattedMessage() {
         return mask(iLoggingEvent.getFormattedMessage());
     }
-
 
     @Override
     public String getLoggerName() {
@@ -124,11 +122,9 @@ public class MaskedLoggingEvent implements ILoggingEvent {
         iLoggingEvent.prepareForDeferredProcessing();
     }
 
-
     private static class MaskedMap extends HashMap<String, String> {
         private MaskedMap(Map<String, String> map) {
             map.forEach((k, v) -> MaskedMap.this.put(k, mask(v)));
         }
     }
-
 }

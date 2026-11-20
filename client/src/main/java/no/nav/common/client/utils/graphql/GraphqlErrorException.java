@@ -18,5 +18,4 @@ public class GraphqlErrorException extends RuntimeException {
     public List<GraphqlError> getErrors() {
         return errors;
     }
-
 }

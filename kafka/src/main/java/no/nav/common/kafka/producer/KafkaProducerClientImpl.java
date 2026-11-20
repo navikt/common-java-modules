@@ -1,5 +1,8 @@
 package no.nav.common.kafka.producer;
 
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import lombok.SneakyThrows;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
@@ -7,10 +10,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> {
 
@@ -42,7 +41,7 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
 
     @Override
     public Future<RecordMetadata> send(ProducerRecord<K, V> record) {
-       return send(record, null);
+        return send(record, null);
     }
 
     @Override
@@ -65,7 +64,11 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
     private Callback wrapWithLog(Callback callback) {
         return (metadata, exception) -> {
             if (metadata != null) {
-                log.info("Record was sent topic={} partition={} offset={}", metadata.topic(), metadata.partition(), metadata.offset());
+                log.info(
+                        "Record was sent topic={} partition={} offset={}",
+                        metadata.topic(),
+                        metadata.partition(),
+                        metadata.offset());
             } else if (exception != null) {
                 log.error("Failed to send record", exception);
             }
@@ -75,5 +78,4 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
             }
         };
     }
-
 }

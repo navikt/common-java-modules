@@ -1,11 +1,10 @@
 package no.nav.common.kafka.producer;
 
+import java.time.Duration;
+import java.util.Properties;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.util.Properties;
 
 /**
  * Adds graceful shutdown to {@link KafkaProducer}}
@@ -31,5 +30,4 @@ public class GracefulKafkaProducer<K, V> extends KafkaProducer<K, V> {
             log.error("Failed to shut down kafka producer gracefully", e);
         }
     }
-
 }

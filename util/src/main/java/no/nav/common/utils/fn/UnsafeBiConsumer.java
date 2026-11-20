@@ -1,8 +1,7 @@
 package no.nav.common.utils.fn;
 
-import lombok.SneakyThrows;
-
 import java.util.function.BiConsumer;
+import lombok.SneakyThrows;
 
 @FunctionalInterface
 public interface UnsafeBiConsumer<T, U> extends BiConsumer<T, U> {
@@ -12,6 +11,6 @@ public interface UnsafeBiConsumer<T, U> extends BiConsumer<T, U> {
     default void accept(T t, U u) {
         unsafeAccept(t, u);
     }
-    void unsafeAccept(T t, U u) throws Throwable;
 
+    void unsafeAccept(T t, U u) throws Throwable;
 }

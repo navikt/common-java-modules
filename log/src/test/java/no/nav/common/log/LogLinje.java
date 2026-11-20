@@ -6,8 +6,10 @@ public class LogLinje {
 
     @SerializedName("@timestamp")
     public String timestamp;
+
     @SerializedName("@version")
     public String version;
+
     public String message;
     public String logger_name;
     public String thread_name;

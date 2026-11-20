@@ -1,15 +1,14 @@
 package no.nav.common.log;
 
-import org.junit.Test;
-import org.slf4j.MDC;
+import static no.nav.common.log.LogUtils.runWithMDCContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static no.nav.common.log.LogUtils.runWithMDCContext;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.Test;
+import org.slf4j.MDC;
 
 public class LogUtilsTest {
 
@@ -24,11 +23,12 @@ public class LogUtilsTest {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         new Thread(() -> {
-            runWithMDCContext(contextMap, () -> {
-                mdcValueRef.set(MDC.get("TEST"));
-                countDownLatch.countDown();
-            });
-        }).start();
+                    runWithMDCContext(contextMap, () -> {
+                        mdcValueRef.set(MDC.get("TEST"));
+                        countDownLatch.countDown();
+                    });
+                })
+                .start();
 
         countDownLatch.await();
 
@@ -45,16 +45,16 @@ public class LogUtilsTest {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
         new Thread(() -> {
-            runWithMDCContext(contextMap, () -> {
-                MDC.put("TEST1", "hello1");
-            });
-            mdcValueRef.set(MDC.get("TEST1"));
-            countDownLatch.countDown();
-        }).start();
+                    runWithMDCContext(contextMap, () -> {
+                        MDC.put("TEST1", "hello1");
+                    });
+                    mdcValueRef.set(MDC.get("TEST1"));
+                    countDownLatch.countDown();
+                })
+                .start();
 
         countDownLatch.await();
 
         assertNull(mdcValueRef.get());
     }
-
 }

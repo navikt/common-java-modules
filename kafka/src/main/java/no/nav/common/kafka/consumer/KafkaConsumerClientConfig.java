@@ -1,12 +1,11 @@
 package no.nav.common.kafka.consumer;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import static no.nav.common.kafka.consumer.KafkaConsumerClientImpl.DEFAULT_POLL_DURATION_MS;
 
 import java.util.Map;
 import java.util.Properties;
-
-import static no.nav.common.kafka.consumer.KafkaConsumerClientImpl.DEFAULT_POLL_DURATION_MS;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @AllArgsConstructor
 @Data
@@ -23,5 +22,4 @@ public class KafkaConsumerClientConfig<K, V> {
         this.topics = topics;
         this.pollDurationMs = DEFAULT_POLL_DURATION_MS;
     }
-
 }

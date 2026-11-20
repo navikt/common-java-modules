@@ -7,7 +7,7 @@ package no.nav.common.sts;
 @Deprecated
 public class MsGraphTokenProvider implements TokenProvider {
 
-    private final static String MS_GRAPH_SCOPE = "https://graph.microsoft.com/.default";
+    private static final String MS_GRAPH_SCOPE = "https://graph.microsoft.com/.default";
 
     private final ScopedTokenProvider scopedTokenProvider;
 
@@ -19,5 +19,4 @@ public class MsGraphTokenProvider implements TokenProvider {
     public String getToken() {
         return scopedTokenProvider.getToken(MS_GRAPH_SCOPE);
     }
-
 }

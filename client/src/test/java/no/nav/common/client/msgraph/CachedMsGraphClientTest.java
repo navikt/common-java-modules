@@ -1,16 +1,20 @@
 package no.nav.common.client.msgraph;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import java.util.List;
 import no.nav.common.types.identer.AzureObjectId;
 import no.nav.common.types.identer.EnhetId;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
 
 public class CachedMsGraphClientTest {
 
@@ -82,9 +86,7 @@ public class CachedMsGraphClientTest {
     }
 
     private String createJwtToken(String subject) {
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(subject)
-                .build();
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(subject).build();
 
         return new PlainJWT(claimsSet).serialize();
     }

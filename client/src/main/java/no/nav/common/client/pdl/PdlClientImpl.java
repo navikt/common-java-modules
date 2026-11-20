@@ -1,5 +1,12 @@
 package no.nav.common.client.pdl;
 
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
+import static no.nav.common.rest.client.RestUtils.createBearerToken;
+import static no.nav.common.utils.UrlUtils.joinPaths;
+
+import java.util.function.Supplier;
 import lombok.SneakyThrows;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.client.utils.graphql.GraphqlResponse;
@@ -12,14 +19,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import java.util.function.Supplier;
-
-import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
-import static no.nav.common.rest.client.RestUtils.createBearerToken;
-import static no.nav.common.utils.UrlUtils.joinPaths;
 
 public class PdlClientImpl implements PdlClient {
 
@@ -44,7 +43,12 @@ public class PdlClientImpl implements PdlClient {
      *                          OBS: Hvis systembruker token blir brukt så vil ikke PDL gjøre tilgangskontroll på requestet.
      * @param consumerTokenSupplier supplier av systembruker tokens for applikasjonen som gjør requests mot PDL
      */
-    public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier, String behandlingsnummer) {
+    public PdlClientImpl(
+            String pdlUrl,
+            Tema tema,
+            Supplier<String> userTokenSupplier,
+            Supplier<String> consumerTokenSupplier,
+            String behandlingsnummer) {
         this.pdlUrl = pdlUrl;
         this.pdlTema = tema;
         this.userTokenSupplier = userTokenSupplier;
@@ -55,11 +59,16 @@ public class PdlClientImpl implements PdlClient {
 
     // Deprecated fordi alle skal sende med behandlingsnummer til PDL
     @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
-    public PdlClientImpl(String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
+    public PdlClientImpl(
+            String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
         this(pdlUrl, tema, userTokenSupplier, consumerTokenSupplier, "");
     }
 
-    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier, String behandlingsnummer) {
+    public PdlClientImpl(
+            String pdlUrl,
+            Supplier<String> userTokenSupplier,
+            Supplier<String> consumerTokenSupplier,
+            String behandlingsnummer) {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, behandlingsnummer);
     }
 
@@ -78,7 +87,6 @@ public class PdlClientImpl implements PdlClient {
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier) {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, "");
     }
-
 
     @Override
     @SneakyThrows
@@ -111,5 +119,4 @@ public class PdlClientImpl implements PdlClient {
     public HealthCheckResult checkHealth() {
         return HealthCheckUtils.pingUrl(joinPaths(pdlUrl, "/internal/health/liveness"), client);
     }
-
 }

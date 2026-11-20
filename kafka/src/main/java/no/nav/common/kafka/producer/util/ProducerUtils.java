@@ -12,11 +12,11 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 public class ProducerUtils {
 
-    public final static Serializer<byte[]> BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
+    public static final Serializer<byte[]> BYTE_ARRAY_SERIALIZER = new ByteArraySerializer();
 
-    public final static Serializer<String> STRING_SERIALIZER = new StringSerializer();
+    public static final Serializer<String> STRING_SERIALIZER = new StringSerializer();
 
-    public final static Serializer<Object> JSON_SERIALIZER = new JsonSerializer<>();
+    public static final Serializer<Object> JSON_SERIALIZER = new JsonSerializer<>();
 
     private ProducerUtils() {}
 
@@ -40,7 +40,8 @@ public class ProducerUtils {
         return serializeRecord(record, STRING_SERIALIZER, JSON_SERIALIZER);
     }
 
-    public static <K, V> ProducerRecord<byte[], byte[]> serializeRecord(ProducerRecord<K, V> record, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
+    public static <K, V> ProducerRecord<byte[], byte[]> serializeRecord(
+            ProducerRecord<K, V> record, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
         byte[] key = keySerializer.serialize(record.topic(), record.key());
         byte[] value = valueSerializer.serialize(record.topic(), record.value());
 
@@ -51,7 +52,8 @@ public class ProducerUtils {
         return mapToStoredRecord(record, BYTE_ARRAY_SERIALIZER, BYTE_ARRAY_SERIALIZER);
     }
 
-    public static <K, V> StoredProducerRecord mapToStoredRecord(ProducerRecord<K, V> record, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
+    public static <K, V> StoredProducerRecord mapToStoredRecord(
+            ProducerRecord<K, V> record, Serializer<K> keySerializer, Serializer<V> valueSerializer) {
         byte[] key = keySerializer.serialize(record.topic(), record.key());
         byte[] value = valueSerializer.serialize(record.topic(), record.value());
         String headersJson = KafkaUtils.headersToJson(record.headers());
@@ -62,14 +64,6 @@ public class ProducerUtils {
     public static ProducerRecord<byte[], byte[]> mapFromStoredRecord(StoredProducerRecord record) {
         Headers headers = KafkaUtils.jsonToHeaders(record.getHeadersJson());
 
-        return new ProducerRecord<>(
-                record.getTopic(),
-                null,
-                null,
-                record.getKey(),
-                record.getValue(),
-                headers
-        );
+        return new ProducerRecord<>(record.getTopic(), null, null, record.getKey(), record.getValue(), headers);
     }
-
 }

@@ -33,7 +33,8 @@ public class NAVOidcSTSClient extends STSClient {
     }
 
     @Override
-    public SecurityToken requestSecurityToken(String appliesTo, String action, String requestType, String binaryExchange) throws Exception {
+    public SecurityToken requestSecurityToken(
+            String appliesTo, String action, String requestType, String binaryExchange) throws Exception {
         ensureTokenStoreExists();
 
         String userId = getUserId();
@@ -60,7 +61,8 @@ public class NAVOidcSTSClient extends STSClient {
         } else {
             return AuthContextHolderThreadLocal.instance()
                     .getIdTokenString()
-                    .orElseThrow(() -> new IllegalStateException("Finner ingen sso token som kan bli cache-nøkkel for brukerens SAML-token"));
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Finner ingen sso token som kan bli cache-nøkkel for brukerens SAML-token"));
         }
     }
 
@@ -79,7 +81,8 @@ public class NAVOidcSTSClient extends STSClient {
     private synchronized void createTokenStore() {
         if (tokenStore == null) {
             logger.debug("Creating tokenStore");
-            tokenStore = new MemoryTokenStoreFactory().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
+            tokenStore =
+                    new MemoryTokenStoreFactory().newTokenStore(SecurityConstants.TOKEN_STORE_CACHE_INSTANCE, message);
         }
     }
 }

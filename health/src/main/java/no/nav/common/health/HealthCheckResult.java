@@ -29,7 +29,7 @@ public class HealthCheckResult {
     }
 
     public static HealthCheckResult healthy() {
-        return new HealthCheckResult(true,null, null);
+        return new HealthCheckResult(true, null, null);
     }
 
     public boolean isHealthy() {
@@ -53,5 +53,4 @@ public class HealthCheckResult {
     public Optional<Throwable> getError() {
         return Optional.ofNullable(error);
     }
-
 }

@@ -1,11 +1,9 @@
 package no.nav.common.utils;
 
-import org.junit.Test;
-
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import org.junit.Test;
 
 public class ExceptionUtilsTest {
 
@@ -19,5 +17,4 @@ public class ExceptionUtilsTest {
         assertThat(ExceptionUtils.getRootCause(new RuntimeException(new IllegalStateException(new IOException()))))
                 .isExactlyInstanceOf(IOException.class);
     }
-
 }

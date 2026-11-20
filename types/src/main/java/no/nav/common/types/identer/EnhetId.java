@@ -16,5 +16,4 @@ public class EnhetId extends Id {
     public static EnhetId of(String enhetId) {
         return new EnhetId(enhetId);
     }
-
 }

@@ -1,11 +1,10 @@
 package no.nav.common.kafka.producer.feilhandtering.util;
 
+import java.util.List;
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor;
-import no.nav.common.kafka.producer.feilhandtering.publisher.KafkaProducerRecordPublisher;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
-
-import java.util.List;
+import no.nav.common.kafka.producer.feilhandtering.publisher.KafkaProducerRecordPublisher;
 
 public class KafkaProducerRecordProcessorBuilder {
 
@@ -26,8 +25,7 @@ public class KafkaProducerRecordProcessorBuilder {
     private int recordsBatchSize = DEFAULT_RECORDS_BATCH_SIZE;
     private boolean registerShutdownHook = DEFAULT_REGISTER_SHUTDOWN_HOOK;
 
-    private KafkaProducerRecordProcessorBuilder() {
-    }
+    private KafkaProducerRecordProcessorBuilder() {}
 
     public static KafkaProducerRecordProcessorBuilder builder() {
         return new KafkaProducerRecordProcessorBuilder();
@@ -38,7 +36,8 @@ public class KafkaProducerRecordProcessorBuilder {
         return this;
     }
 
-    public KafkaProducerRecordProcessorBuilder withRecordPublisher(KafkaProducerRecordPublisher kafkaProducerRecordPublisher) {
+    public KafkaProducerRecordProcessorBuilder withRecordPublisher(
+            KafkaProducerRecordPublisher kafkaProducerRecordPublisher) {
         this.kafkaProducerRecordPublisher = kafkaProducerRecordPublisher;
         return this;
     }
@@ -84,11 +83,13 @@ public class KafkaProducerRecordProcessorBuilder {
         }
 
         if (leaderElectionClient == null) {
-            throw new IllegalStateException("Cannot build kafka producer record processor without leaderElectionClient");
+            throw new IllegalStateException(
+                    "Cannot build kafka producer record processor without leaderElectionClient");
         }
 
         if (kafkaProducerRecordPublisher == null) {
-            throw new IllegalStateException("Cannot build kafka producer record processor without kafkaProducerRecordPublisher");
+            throw new IllegalStateException(
+                    "Cannot build kafka producer record processor without kafkaProducerRecordPublisher");
         }
 
         return new KafkaProducerRecordProcessor(
@@ -100,7 +101,6 @@ public class KafkaProducerRecordProcessorBuilder {
                 producerRepository,
                 kafkaProducerRecordPublisher,
                 leaderElectionClient,
-                topicWhitelist
-        );
+                topicWhitelist);
     }
 }

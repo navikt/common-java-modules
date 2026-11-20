@@ -1,18 +1,25 @@
 package no.nav.common.client.nom;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.exactly;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
+import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
+import static org.junit.Assert.assertEquals;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import java.util.ArrayList;
+import java.util.List;
 import no.nav.common.client.TestUtils;
 import no.nav.common.types.identer.NavIdent;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
-import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
-import static org.junit.Assert.assertEquals;
 
 public class NomClientImplTest {
 
@@ -25,7 +32,8 @@ public class NomClientImplTest {
     public void skal_lage_riktig_request_og_parse_response() {
         String apiUrl = "http://localhost:" + wireMockRule.port();
         String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-request.json");
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
+        String graphqlJsonResponse =
+                TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
 
         VeilederNavn veilederNavn1 = new VeilederNavn()
                 .setNavIdent(NavIdent.of("Z1234"))
@@ -47,18 +55,10 @@ public class NomClientImplTest {
                 .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
                 .withHeader("Authorization", equalTo("Bearer SERVICE_TOKEN"))
                 .withRequestBody(equalToJson(graphqlJsonRequest))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(graphqlJsonResponse))
-        );
+                .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
 
         List<VeilederNavn> veilederNavnList = nomClient.finnNavn(
-                List.of(
-                        veilederNavn1.navIdent,
-                        veilederNavn2.navIdent,
-                        identTilVeilederSomIkkeFinnes
-                )
-        );
+                List.of(veilederNavn1.navIdent, veilederNavn2.navIdent, identTilVeilederSomIkkeFinnes));
 
         assertEquals(2, veilederNavnList.size());
         assertEquals(veilederNavn1, veilederNavnList.get(0));
@@ -68,15 +68,13 @@ public class NomClientImplTest {
     @Test
     public void skal_batche_requests_mot_nom() {
         String apiUrl = "http://localhost:" + wireMockRule.port();
-        String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
+        String graphqlJsonResponse =
+                TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
 
         NomClientImpl nomClient = new NomClientImpl(apiUrl, () -> "SERVICE_TOKEN");
 
         givenThat(post(urlEqualTo("/graphql"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(graphqlJsonResponse))
-        );
+                .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
 
         List<NavIdent> navIdenter = new ArrayList<>();
         for (int i = 0; i < 420; i++) {
@@ -87,6 +85,4 @@ public class NomClientImplTest {
 
         verify(exactly(5), postRequestedFor(urlEqualTo("/graphql")));
     }
-
-
 }

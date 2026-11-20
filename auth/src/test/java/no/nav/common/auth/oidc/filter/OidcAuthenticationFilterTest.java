@@ -1,9 +1,31 @@
 package no.nav.common.auth.oidc.filter;
 
-import jakarta.servlet.*;
+import static java.util.Collections.singletonList;
+import static no.nav.common.auth.Constants.AZURE_AD_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.auth.Constants.OPEN_AM_ID_TOKEN_COOKIE_NAME;
+import static no.nav.common.auth.Constants.REFRESH_TOKEN_COOKIE_NAME;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
@@ -15,34 +37,25 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.Collections.singletonList;
-import static no.nav.common.auth.Constants.*;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
 public class OidcAuthenticationFilterTest {
 
-    private final static String NAIS_STS_ID = "oidc-provider-test-rule-nais-sts";
-    private final static String AZURE_AD_ID = "oidc-provider-test-rule-aad";
-    private final static String OPEN_AM_ID = "oidc-provider-test-rule-aad";
+    private static final String NAIS_STS_ID = "oidc-provider-test-rule-nais-sts";
+    private static final String AZURE_AD_ID = "oidc-provider-test-rule-aad";
+    private static final String OPEN_AM_ID = "oidc-provider-test-rule-aad";
 
-    private final static JwtTestTokenIssuerConfig naisStsIssuerConfig = JwtTestTokenIssuerConfig.builder()
+    private static final JwtTestTokenIssuerConfig naisStsIssuerConfig = JwtTestTokenIssuerConfig.builder()
             .id(NAIS_STS_ID)
             .issuer(NAIS_STS_ID)
             .audience(NAIS_STS_ID)
             .build();
 
-    private final static JwtTestTokenIssuerConfig azureAdIssuerConfig = JwtTestTokenIssuerConfig.builder()
+    private static final JwtTestTokenIssuerConfig azureAdIssuerConfig = JwtTestTokenIssuerConfig.builder()
             .id(AZURE_AD_ID)
             .issuer(AZURE_AD_ID)
             .audience(AZURE_AD_ID)
             .build();
 
-    private final static JwtTestTokenIssuerConfig openAMIssuerConfig = JwtTestTokenIssuerConfig.builder()
+    private static final JwtTestTokenIssuerConfig openAMIssuerConfig = JwtTestTokenIssuerConfig.builder()
             .id(OPEN_AM_ID)
             .issuer(OPEN_AM_ID)
             .audience(OPEN_AM_ID)
@@ -56,7 +69,6 @@ public class OidcAuthenticationFilterTest {
 
     @Rule
     public OidcProviderTestRule openAMOidcProviderRule = new OidcProviderTestRule(openAMIssuerConfig);
-
 
     private OidcAuthenticatorConfig naisStsAuthenticatorConfig;
 
@@ -100,17 +112,14 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void should_set_auth_context() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig)));
 
         authenticationFilter.init(config("/abc"));
 
-        String srvveilarbtestToken = naisStsOidcProviderRule.getToken(
-                new JwtTestTokenIssuer.Claims("srvveilarbtest")
-                        .setClaim("aud", List.of(NAIS_STS_ID, "srvveilarbtest"))
-                        .setClaim("azp", "srvveilarbtest")
-        );
+        String srvveilarbtestToken = naisStsOidcProviderRule.getToken(new JwtTestTokenIssuer.Claims("srvveilarbtest")
+                .setClaim("aud", List.of(NAIS_STS_ID, "srvveilarbtest"))
+                .setClaim("azp", "srvveilarbtest"));
 
         HttpServletRequest servletRequest = request("/hello");
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
@@ -119,13 +128,16 @@ public class OidcAuthenticationFilterTest {
         FilterChain filterChain = spy(new FilterChain() {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response) {
-                assertEquals(srvveilarbtestToken, AuthContextHolderThreadLocal.instance().requireIdTokenString());
-                assertEquals(UserRole.SYSTEM, AuthContextHolderThreadLocal.instance().requireRole());
+                assertEquals(
+                        srvveilarbtestToken,
+                        AuthContextHolderThreadLocal.instance().requireIdTokenString());
+                assertEquals(
+                        UserRole.SYSTEM, AuthContextHolderThreadLocal.instance().requireRole());
             }
         });
 
         when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + srvveilarbtestToken);
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{});
+        when(servletRequest.getCookies()).thenReturn(new Cookie[] {});
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
@@ -135,9 +147,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void srvveilarbtestIsAuthorized() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig)));
 
         authenticationFilter.init(config("/abc"));
 
@@ -145,11 +156,9 @@ public class OidcAuthenticationFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
-        String srvveilarbtestToken = naisStsOidcProviderRule.getToken(
-                new JwtTestTokenIssuer.Claims("srvveilarbtest")
-                        .setClaim("aud", List.of(NAIS_STS_ID, "srvveilarbtest"))
-                        .setClaim("azp", "srvveilarbtest")
-        );
+        String srvveilarbtestToken = naisStsOidcProviderRule.getToken(new JwtTestTokenIssuer.Claims("srvveilarbtest")
+                .setClaim("aud", List.of(NAIS_STS_ID, "srvveilarbtest"))
+                .setClaim("azp", "srvveilarbtest"));
 
         when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + srvveilarbtestToken);
 
@@ -161,9 +170,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void srvveilarbdemoIsAuthorized() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig)));
 
         authenticationFilter.init(config("/abc"));
 
@@ -171,11 +179,9 @@ public class OidcAuthenticationFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
-        String srvveilarbdemoToken = naisStsOidcProviderRule.getToken(
-                new JwtTestTokenIssuer.Claims("srvveilarbdemo")
-                        .setClaim("aud", List.of(NAIS_STS_ID, "srvveilarbdemo"))
-                        .setClaim("azp", "srvveilarbdemo")
-        );
+        String srvveilarbdemoToken = naisStsOidcProviderRule.getToken(new JwtTestTokenIssuer.Claims("srvveilarbdemo")
+                .setClaim("aud", List.of(NAIS_STS_ID, "srvveilarbdemo"))
+                .setClaim("azp", "srvveilarbdemo"));
 
         when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + srvveilarbdemoToken);
 
@@ -187,9 +193,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void srvunknownIsNotAuthorized() {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(naisStsAuthenticatorConfig)));
 
         authenticationFilter.init(config("/abc"));
 
@@ -197,11 +202,9 @@ public class OidcAuthenticationFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
-        String srvunknownToken = naisStsOidcProviderRule.getToken(
-                new JwtTestTokenIssuer.Claims("srvunknown")
-                        .setClaim("aud", List.of(NAIS_STS_ID, "srvunknown"))
-                        .setClaim("azp", "srvunknown")
-        );
+        String srvunknownToken = naisStsOidcProviderRule.getToken(new JwtTestTokenIssuer.Claims("srvunknown")
+                .setClaim("aud", List.of(NAIS_STS_ID, "srvunknown"))
+                .setClaim("azp", "srvunknown"));
 
         when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + srvunknownToken);
 
@@ -212,9 +215,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void returns401IfMissingToken() {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)));
 
         authenticationFilter.init(config("/abc"));
 
@@ -222,7 +224,7 @@ public class OidcAuthenticationFilterTest {
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
         FilterChain filterChain = mock(FilterChain.class);
 
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{});
+        when(servletRequest.getCookies()).thenReturn(new Cookie[] {});
 
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
@@ -231,16 +233,15 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void returns401IfWrongToken() {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)));
 
         authenticationFilter.init(config("/abc"));
 
         HttpServletRequest servletRequest = request("/hello");
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, openAMOidcProviderRule.getToken(claims))
+        when(servletRequest.getCookies()).thenReturn(new Cookie[] {
+            new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, openAMOidcProviderRule.getToken(claims))
         });
 
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
@@ -253,9 +254,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void authorizedRequestIsForwarded() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)));
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         String token = azureAdOidcProviderRule.getToken(claims);
@@ -264,9 +264,8 @@ public class OidcAuthenticationFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         HttpServletRequest servletRequest = request("/hello");
 
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)
-        });
+        when(servletRequest.getCookies())
+                .thenReturn(new Cookie[] {new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)});
 
         authenticationFilter.init(config("/abc"));
 
@@ -278,12 +277,9 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void authorizedRequestIsForwardedWithMultipleAuthenticators() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                Arrays.asList(
-                        OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig),
-                        OidcAuthenticator.fromConfig(openAMAuthenticatorConfig)
-                )
-        );
+        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(Arrays.asList(
+                OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig),
+                OidcAuthenticator.fromConfig(openAMAuthenticatorConfig)));
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         String token = azureAdOidcProviderRule.getToken(claims);
@@ -292,9 +288,8 @@ public class OidcAuthenticationFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         HttpServletRequest servletRequest = request("/hello");
 
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)
-        });
+        when(servletRequest.getCookies())
+                .thenReturn(new Cookie[] {new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)});
 
         authenticationFilter.init(config("/abc"));
 
@@ -306,9 +301,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void shouldNotRefreshTokenWhenNotExpired() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)));
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         String token = azureAdOidcProviderRule.getToken(claims);
@@ -317,9 +311,8 @@ public class OidcAuthenticationFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         HttpServletRequest servletRequest = request("/hello");
 
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)
-        });
+        when(servletRequest.getCookies())
+                .thenReturn(new Cookie[] {new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token)});
 
         authenticationFilter.init(config("/abc"));
 
@@ -332,9 +325,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void shouldRefreshTokenWhenSoonToBeExpired() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfig)));
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         long threeMinutesFuture = (System.currentTimeMillis() + (1000 * 60 * 3)) / 1000;
@@ -346,9 +338,9 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
 
         when(servletRequest.getServerName()).thenReturn("test.local");
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token),
-                new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
+        when(servletRequest.getCookies()).thenReturn(new Cookie[] {
+            new Cookie(azureAdAuthenticatorConfig.idTokenCookieName, token),
+            new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
         });
 
         authenticationFilter.init(config("/abc"));
@@ -363,8 +355,7 @@ public class OidcAuthenticationFilterTest {
     @Test
     public void shouldRefreshWithCorrectCookieDomainAndPath() throws IOException, ServletException {
         OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfigCookieOverride))
-        );
+                singletonList(OidcAuthenticator.fromConfig(azureAdAuthenticatorConfigCookieOverride)));
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         long threeMinutesFuture = (System.currentTimeMillis() + (1000 * 60 * 3)) / 1000;
@@ -376,9 +367,16 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
 
         when(servletRequest.getServerName()).thenReturn("test.local");
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                CookieUtils.createCookie(azureAdAuthenticatorConfigCookieOverride.idTokenCookieName, token, "overridden.local", "/overriddenpath", 0, false),
-                CookieUtils.createCookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token", "overridden.local", "/overriddenpath", 0, false)
+        when(servletRequest.getCookies()).thenReturn(new Cookie[] {
+            CookieUtils.createCookie(
+                    azureAdAuthenticatorConfigCookieOverride.idTokenCookieName,
+                    token,
+                    "overridden.local",
+                    "/overriddenpath",
+                    0,
+                    false),
+            CookieUtils.createCookie(
+                    REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token", "overridden.local", "/overriddenpath", 0, false)
         });
 
         authenticationFilter.init(config("/abc"));
@@ -398,9 +396,8 @@ public class OidcAuthenticationFilterTest {
 
     @Test
     public void shouldNotRefreshTokenIfExpiredWhenMissingConfig() throws IOException, ServletException {
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(openAMAuthenticatorConfig))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(openAMAuthenticatorConfig)));
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         long threeMinutesFuture = (System.currentTimeMillis() + (1000 * 60 * 3)) / 1000;
@@ -412,9 +409,8 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
 
         when(servletRequest.getServerName()).thenReturn("test.local");
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(OPEN_AM_ID_TOKEN_COOKIE_NAME, token),
-                new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
+        when(servletRequest.getCookies()).thenReturn(new Cookie[] {
+            new Cookie(OPEN_AM_ID_TOKEN_COOKIE_NAME, token), new Cookie(REFRESH_TOKEN_COOKIE_NAME, "my-refresh-token")
         });
 
         authenticationFilter.init(config("/abc"));
@@ -436,9 +432,8 @@ public class OidcAuthenticationFilterTest {
                 .withIdTokenCookieName(azureAdAuthenticatorConfig.idTokenCookieName)
                 .withRefreshTokenCookieName(azureAdAuthenticatorConfig.refreshTokenCookieName);
 
-        OidcAuthenticationFilter authenticationFilter = new OidcAuthenticationFilter(
-                singletonList(OidcAuthenticator.fromConfig(config))
-        );
+        OidcAuthenticationFilter authenticationFilter =
+                new OidcAuthenticationFilter(singletonList(OidcAuthenticator.fromConfig(config)));
 
         JwtTestTokenIssuer.Claims claims = new JwtTestTokenIssuer.Claims("me");
         String token = azureAdOidcProviderRule.getToken(claims);
@@ -447,9 +442,7 @@ public class OidcAuthenticationFilterTest {
         FilterChain filterChain = mock(FilterChain.class);
         HttpServletRequest servletRequest = request("/hello");
 
-        when(servletRequest.getCookies()).thenReturn(new Cookie[]{
-                new Cookie(config.idTokenCookieName, token)
-        });
+        when(servletRequest.getCookies()).thenReturn(new Cookie[] {new Cookie(config.idTokenCookieName, token)});
 
         authenticationFilter.init(config("/abc"));
 
@@ -472,5 +465,4 @@ public class OidcAuthenticationFilterTest {
         when(filterConfig.getServletContext()).thenReturn(servletContext);
         return filterConfig;
     }
-
 }

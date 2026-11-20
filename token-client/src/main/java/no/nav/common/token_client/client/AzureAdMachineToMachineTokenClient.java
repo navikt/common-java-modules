@@ -1,23 +1,30 @@
 package no.nav.common.token_client.client;
 
-import com.nimbusds.oauth2.sdk.*;
+import static java.util.Optional.ofNullable;
+import static no.nav.common.token_client.utils.TokenClientUtils.clientAssertionClaims;
+import static no.nav.common.token_client.utils.TokenClientUtils.clientAssertionHeader;
+import static no.nav.common.token_client.utils.TokenClientUtils.signedClientAssertion;
+
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.TokenErrorResponse;
+import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.token_client.cache.TokenCache;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Optional.ofNullable;
-import static no.nav.common.token_client.utils.TokenClientUtils.*;
-
 @Slf4j
 public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient implements MachineToMachineTokenClient {
 
-    public AzureAdMachineToMachineTokenClient(String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
+    public AzureAdMachineToMachineTokenClient(
+            String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
         super(clientId, tokenEndpointUrl, privateJwk, tokenCache);
     }
 
@@ -33,8 +40,7 @@ public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient impl
         PrivateKeyJWT signedJwt = signedClientAssertion(
                 clientAssertionHeader(privateJwkKeyId),
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
-                assertionSigner
-        );
+                assertionSigner);
 
         TokenRequest request = new TokenRequest(
                 tokenEndpoint,
@@ -42,14 +48,16 @@ public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient impl
                 new ClientCredentialsGrant(),
                 new Scope(tokenScope),
                 null,
-                additionalClaims(tokenScope)
-        );
+                additionalClaims(tokenScope));
 
         TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
 
         if (!response.indicatesSuccess()) {
             TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error("Failed to fetch AzureAD M2M token for scope={}. Error: {}", tokenScope, tokenErrorResponse.toJSONObject().toString());
+            log.error(
+                    "Failed to fetch AzureAD M2M token for scope={}. Error: {}",
+                    tokenScope,
+                    tokenErrorResponse.toJSONObject().toString());
             throw new RuntimeException("Failed to fetch AzureAD M2M token for scope=" + tokenScope);
         }
 
@@ -66,5 +74,4 @@ public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient impl
 
         return customParams;
     }
-
 }

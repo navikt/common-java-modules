@@ -1,17 +1,16 @@
 package no.nav.common.job.leader_election;
 
-import lombok.extern.slf4j.Slf4j;
-import net.javacrumbs.shedlock.core.LockConfiguration;
-import net.javacrumbs.shedlock.core.LockProvider;
-import net.javacrumbs.shedlock.core.SimpleLock;
-import no.nav.common.utils.EnvironmentUtils;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import net.javacrumbs.shedlock.core.LockConfiguration;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.core.SimpleLock;
+import no.nav.common.utils.EnvironmentUtils;
 
 /**
  * Leader election implemented with [ShedLock](https://github.com/lukas-krecan/ShedLock).
@@ -20,19 +19,20 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ShedLockLeaderElectionClient implements LeaderElectionClient {
 
-    private final static String LOCK_NAME = "leader-election";
+    private static final String LOCK_NAME = "leader-election";
 
-    private final static Duration LOCK_AT_MOST_FOR = Duration.ofMinutes(10);
+    private static final Duration LOCK_AT_MOST_FOR = Duration.ofMinutes(10);
 
-    private final static Duration LOCK_AT_LEAST_FOR = Duration.ofSeconds(10);
+    private static final Duration LOCK_AT_LEAST_FOR = Duration.ofSeconds(10);
 
-    private final static long CHECK_LOCK_INTERVAL_IN_SECONDS = 60;
+    private static final long CHECK_LOCK_INTERVAL_IN_SECONDS = 60;
 
-    // The clock skew is strictly speaking not necessary since we only compare timestamps that has been made by this class.
+    // The clock skew is strictly speaking not necessary since we only compare timestamps that has been made by this
+    // class.
     // We still add a tiny skew to prevent problems from happening when checking a lock that is just about to expire.
-    private final static int CLOCK_SKEW_SECONDS = 5;
+    private static final int CLOCK_SKEW_SECONDS = 5;
 
-    private final static int EXPIRATION_THRESHOLD_SECONDS = 3 * 60; // 3 minutes
+    private static final int EXPIRATION_THRESHOLD_SECONDS = 3 * 60; // 3 minutes
 
     private final LockProvider lockProvider;
 
@@ -89,7 +89,10 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
         Instant lockAboutToExpire = lockExpiration.minusSeconds(EXPIRATION_THRESHOLD_SECONDS);
 
         if (now.isAfter(lockAboutToExpire)) {
-            log.info("Extending lock which is about to expire. ExtendLockThreshold={} LockExpiresAt={}", lockAboutToExpire, lockExpiration);
+            log.info(
+                    "Extending lock which is about to expire. ExtendLockThreshold={} LockExpiresAt={}",
+                    lockAboutToExpire,
+                    lockExpiration);
 
             try {
                 Optional<SimpleLock> maybeLock = lock.extend(LOCK_AT_MOST_FOR, LOCK_AT_LEAST_FOR);
@@ -101,7 +104,9 @@ public class ShedLockLeaderElectionClient implements LeaderElectionClient {
                     log.warn("Unable to extend lock");
                 }
             } catch (UnsupportedOperationException uoe) {
-                log.error("ShedLock leader election is being used with a lock provider that does not support lock extension", uoe);
+                log.error(
+                        "ShedLock leader election is being used with a lock provider that does not support lock extension",
+                        uoe);
             } catch (Exception e) {
                 log.error("Caught exception when extending leader election lock", e);
             }

@@ -3,7 +3,6 @@ package no.nav.common.kafka.producer.feilhandtering;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-
 @AllArgsConstructor
 @Data
 public class StoredProducerRecord {

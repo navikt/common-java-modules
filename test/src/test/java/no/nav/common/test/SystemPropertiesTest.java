@@ -1,18 +1,19 @@
 package no.nav.common.test;
 
-import no.nav.common.test.SystemProperties.NotFound;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.io.ByteArrayInputStream;
-
 import static java.lang.System.getProperty;
 import static no.nav.common.test.SystemProperties.setTemporaryProperty;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
 
+import java.io.ByteArrayInputStream;
+import no.nav.common.test.SystemProperties.NotFound;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class SystemPropertiesTest {
 
@@ -60,8 +61,8 @@ public class SystemPropertiesTest {
                             assertThat(getProperty(TEST_PROP), equalTo("c"));
                             throw new TestException();
                         });
-                    }
-            ).isInstanceOf(TestException.class);
+                    })
+                    .isInstanceOf(TestException.class);
 
             assertThat(getProperty(TEST_PROP), equalTo("a"));
         });
@@ -77,9 +78,8 @@ public class SystemPropertiesTest {
         System.clearProperty(TEST_PROP);
         assertThat(getProperty(TEST_PROP), nullValue());
         setTemporaryProperty(TEST_PROP, null, () -> {
-            //noop
+            // noop
         });
         assertThat(getProperty(TEST_PROP), nullValue());
     }
-
 }

@@ -1,12 +1,15 @@
 package no.nav.common.utils;
 
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import no.nav.common.utils.fn.UnsafeBiConsumer;
 import no.nav.common.utils.fn.UnsafeConsumer;
 import no.nav.common.utils.fn.UnsafeFunction;
 import no.nav.common.utils.fn.UnsafeSupplier;
-
-import java.util.Optional;
-import java.util.function.*;
 
 public class FunctionalUtils {
 
@@ -26,8 +29,8 @@ public class FunctionalUtils {
         return function;
     }
 
-    public static <A, B, R> Function<A, Optional<R>> combineOptional(Optional<B> optionalB, BiFunction<A, B, R> biConsumer) {
+    public static <A, B, R> Function<A, Optional<R>> combineOptional(
+            Optional<B> optionalB, BiFunction<A, B, R> biConsumer) {
         return a -> optionalB.map(b -> biConsumer.apply(a, b));
     }
-
 }

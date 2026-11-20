@@ -1,12 +1,11 @@
 package no.nav.common.json;
 
+import java.io.InputStream;
+import java.util.List;
 import lombok.SneakyThrows;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.type.CollectionType;
-
-import java.io.InputStream;
-import java.util.List;
 
 public class JsonUtils {
 
@@ -54,5 +53,4 @@ public class JsonUtils {
     private static CollectionType listType(Class<?> valueClass) {
         return objectMapper.getTypeFactory().constructCollectionType(List.class, valueClass);
     }
-
 }

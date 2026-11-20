@@ -1,10 +1,13 @@
 package no.nav.common.metrics;
 
+import static no.nav.common.utils.EnvironmentUtils.requireApplicationName;
+import static no.nav.common.utils.EnvironmentUtils.requireClusterName;
+import static no.nav.common.utils.EnvironmentUtils.requireNamespace;
+import static no.nav.common.utils.EnvironmentUtils.resolveHostName;
+
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
-
-import static no.nav.common.utils.EnvironmentUtils.*;
 
 @With
 @Value
@@ -74,5 +77,4 @@ public class SensuConfig {
                 .cleanupOnShutdown(true)
                 .build();
     }
-
 }

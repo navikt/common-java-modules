@@ -1,9 +1,8 @@
 package no.nav.common.kafka.producer.feilhandtering.publisher;
 
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
-
 import java.io.Closeable;
 import java.util.List;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 
 public interface KafkaProducerRecordPublisher extends Closeable {
 
@@ -12,5 +11,4 @@ public interface KafkaProducerRecordPublisher extends Closeable {
      * and should be deleted from the database.
      */
     List<Long> publishStoredRecords(List<StoredProducerRecord> records);
-
 }

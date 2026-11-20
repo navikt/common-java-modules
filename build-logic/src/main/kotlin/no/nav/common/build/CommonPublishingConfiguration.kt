@@ -126,7 +126,7 @@ private fun Project.registerPomScopedDependencies(
     configurationName: String,
     scope: String,
     include: (ModuleDependency) -> Boolean = { true },
-): Unit {
+) {
     val publicationVersion = version.toString()
     configurations.named(configurationName).configure {
         fun captureDependency(dependency: Any) {

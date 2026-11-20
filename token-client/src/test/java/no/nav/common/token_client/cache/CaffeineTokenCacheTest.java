@@ -1,12 +1,11 @@
 package no.nav.common.token_client.cache;
 
-import no.nav.common.token_client.test_utils.TokenCreator;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import no.nav.common.token_client.test_utils.TokenCreator;
+import org.junit.jupiter.api.Test;
 
 public class CaffeineTokenCacheTest {
 
@@ -44,5 +43,4 @@ public class CaffeineTokenCacheTest {
 
         assertEquals(2, counter.get());
     }
-
 }

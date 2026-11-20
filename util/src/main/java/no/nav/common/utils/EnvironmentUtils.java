@@ -1,18 +1,17 @@
 package no.nav.common.utils;
 
-import lombok.SneakyThrows;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.stream.Collectors.joining;
+import static no.nav.common.utils.StringUtils.nullOrEmpty;
+import static no.nav.common.utils.StringUtils.of;
 
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.joining;
-import static no.nav.common.utils.StringUtils.nullOrEmpty;
-import static no.nav.common.utils.StringUtils.of;
+import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnvironmentUtils {
 
@@ -68,17 +67,19 @@ public class EnvironmentUtils {
         return getOptionalProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME);
     }
 
-
     public static String requireApplicationName() {
-        return getApplicationName().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_APP_NAME_PROPERTY_NAME)));
+        return getApplicationName()
+                .orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_APP_NAME_PROPERTY_NAME)));
     }
 
     public static String requireNamespace() {
-        return getNamespace().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_NAMESPACE_PROPERTY_NAME)));
+        return getNamespace()
+                .orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_NAMESPACE_PROPERTY_NAME)));
     }
 
     public static String requireClusterName() {
-        return getClusterName().orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_CLUSTER_NAME_PROPERTY_NAME)));
+        return getClusterName()
+                .orElseThrow(() -> new IllegalStateException(createErrorMessage(NAIS_CLUSTER_NAME_PROPERTY_NAME)));
     }
 
     @SneakyThrows
@@ -90,7 +91,8 @@ public class EnvironmentUtils {
         if (otherPropertyNames == null) {
             return "mangler property: " + propertyName;
         } else {
-            String properties = Stream.concat(Stream.of(propertyName), Stream.of(otherPropertyNames)).collect(joining(", "));
+            String properties = Stream.concat(Stream.of(propertyName), Stream.of(otherPropertyNames))
+                    .collect(joining(", "));
             return "fant ingen av propertyene: " + properties;
         }
     }
@@ -110,5 +112,4 @@ public class EnvironmentUtils {
             return "*******";
         }
     }
-
 }

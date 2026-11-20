@@ -8,5 +8,4 @@ public interface MDCConstants {
     String MDC_REQUEST_ID = "requestId";
     String MDC_JOB_ID = "jobId";
     String MDC_JOB_NAME = "jobName";
-
 }

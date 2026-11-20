@@ -1,6 +1,10 @@
 package no.nav.common.test.auth;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
@@ -22,7 +26,8 @@ public class TestAuthContextFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
-        AuthContextHolderThreadLocal.instance().withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
+        AuthContextHolderThreadLocal.instance()
+                .withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
     }
 
     @Override
@@ -30,5 +35,4 @@ public class TestAuthContextFilter implements Filter {
 
     @Override
     public void destroy() {}
-
 }

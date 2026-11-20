@@ -1,19 +1,18 @@
 package no.nav.common.client.aktoroppslag;
 
+import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import no.nav.common.health.HealthCheckResult;
-import no.nav.common.types.identer.AktorId;
-import no.nav.common.types.identer.EksternBrukerId;
-import no.nav.common.types.identer.Fnr;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
+import no.nav.common.health.HealthCheckResult;
+import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.EksternBrukerId;
+import no.nav.common.types.identer.Fnr;
 
 public class CachedAktorOppslagClient implements AktorOppslagClient {
 
@@ -29,8 +28,7 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
             AktorOppslagClient aktorOppslagClient,
             Cache<AktorId, Fnr> hentFnrCache,
             Cache<Fnr, AktorId> hentAktorIdCache,
-            Cache<EksternBrukerId, BrukerIdenter> hentIdenterCache
-    ) {
+            Cache<EksternBrukerId, BrukerIdenter> hentIdenterCache) {
         this.aktorOppslagClient = aktorOppslagClient;
         this.hentFnrCache = hentFnrCache;
         this.hentAktorIdCache = hentAktorIdCache;
@@ -125,5 +123,4 @@ public class CachedAktorOppslagClient implements AktorOppslagClient {
     public HealthCheckResult checkHealth() {
         return aktorOppslagClient.checkHealth();
     }
-
 }

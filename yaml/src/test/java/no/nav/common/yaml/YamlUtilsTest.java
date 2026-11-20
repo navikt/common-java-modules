@@ -1,16 +1,13 @@
 package no.nav.common.yaml;
 
-
-import lombok.EqualsAndHashCode;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import lombok.EqualsAndHashCode;
+import org.junit.jupiter.api.Test;
 
 public class YamlUtilsTest {
-
 
     @Test
     public void toFromYaml() {
@@ -34,5 +31,4 @@ public class YamlUtilsTest {
         private boolean aBoolean;
         private List<String> list;
     }
-
 }

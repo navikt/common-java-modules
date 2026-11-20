@@ -1,6 +1,15 @@
 package no.nav.common.sts.utils;
 
-import tools.jackson.databind.JsonNode;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static jakarta.ws.rs.core.HttpHeaders.CACHE_CONTROL;
+import static jakarta.ws.rs.core.HttpHeaders.COOKIE;
+import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Optional;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.rest.client.RestUtils;
 import no.nav.common.utils.AuthUtils;
@@ -10,28 +19,21 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static jakarta.ws.rs.core.HttpHeaders.CACHE_CONTROL;
-import static jakarta.ws.rs.core.HttpHeaders.COOKIE;
-import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
+import tools.jackson.databind.JsonNode;
 
 public class OpenAmUtils {
 
-    private static final String authenticateUri = "json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice";
+    private static final String authenticateUri =
+            "json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice";
 
-    // The full URL should look something like this: https://isso-q.adeo.no/isso/json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice
+    // The full URL should look something like this:
+    // https://isso-q.adeo.no/isso/json/authenticate?authIndexType=service&authIndexValue=adminconsoleservice
     private static String lagHentSessionTokenUrl(String authorizationUrl) {
         return authorizationUrl.replace("oauth2/authorize", authenticateUri);
     }
 
-    public static String getSessionToken(Credentials systemUserCredentials, String authorizationUrl, OkHttpClient client) throws IOException {
+    public static String getSessionToken(
+            Credentials systemUserCredentials, String authorizationUrl, OkHttpClient client) throws IOException {
         String sessionTokenUrl = lagHentSessionTokenUrl(authorizationUrl);
 
         Request request = new Request.Builder()
@@ -55,37 +57,42 @@ public class OpenAmUtils {
         }
     }
 
-    public static String getAuthorizationCode(String openAmAuthorizeUrl, String sessionToken, String clientId, String redirectUri, OkHttpClient client) throws IOException {
+    public static String getAuthorizationCode(
+            String openAmAuthorizeUrl, String sessionToken, String clientId, String redirectUri, OkHttpClient client)
+            throws IOException {
         String cookie = "nav-isso=" + sessionToken;
         String encodedRedirectUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
-        String fullUrl = openAmAuthorizeUrl + String.format("?response_type=code&scope=openid&client_id=%s&redirect_uri=%s", clientId, encodedRedirectUri);
+        String fullUrl = openAmAuthorizeUrl
+                + String.format(
+                        "?response_type=code&scope=openid&client_id=%s&redirect_uri=%s", clientId, encodedRedirectUri);
 
-        Request request = new Request.Builder()
-                .url(fullUrl)
-                .header(COOKIE, cookie)
-                .build();
+        Request request =
+                new Request.Builder().url(fullUrl).header(COOKIE, cookie).build();
 
         try (Response response = client.newCall(request).execute()) {
-            if(response.code() != 302) {
-                throw new RuntimeException("Feil ved henting av authorization code, fikk status: " + response.code() + " forventet 302");
+            if (response.code() != 302) {
+                throw new RuntimeException(
+                        "Feil ved henting av authorization code, fikk status: " + response.code() + " forventet 302");
             }
 
             String redirectLocation = response.header("Location");
             String queryParams = redirectLocation.substring(redirectLocation.indexOf("?") + 1);
 
             return Arrays.stream(queryParams.split("&"))
-                    .filter( s -> s.contains("code="))
-                    .map(s -> s.replace("code=",""))
+                    .filter(s -> s.contains("code="))
+                    .map(s -> s.replace("code=", ""))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Fant ikke authorization code i: " + redirectLocation));
         }
     }
 
-
     public static String exchangeCodeForToken(
-            String authorizationCode, String tokenUrl, String redirectUri,
-            Credentials issoRpCredentials, OkHttpClient client
-    ) throws IOException {
+            String authorizationCode,
+            String tokenUrl,
+            String redirectUri,
+            Credentials issoRpCredentials,
+            OkHttpClient client)
+            throws IOException {
         String urlEncodedRedirectUri = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8);
         String data = "grant_type=authorization_code"
                 + "&realm=/"
@@ -94,14 +101,17 @@ public class OpenAmUtils {
 
         Request request = new Request.Builder()
                 .url(tokenUrl)
-                .header(AUTHORIZATION, AuthUtils.basicCredentials(issoRpCredentials.username, issoRpCredentials.password))
+                .header(
+                        AUTHORIZATION,
+                        AuthUtils.basicCredentials(issoRpCredentials.username, issoRpCredentials.password))
                 .header(CACHE_CONTROL, "no-cache")
                 .post(RequestBody.create(MediaType.get("application/x-www-form-urlencoded"), data))
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if(response.code() != 200) {
-                throw new RuntimeException("Feil ved utveksling av code mot token, fikk status: " + response.code() + " forventet 200");
+            if (response.code() != 200) {
+                throw new RuntimeException(
+                        "Feil ved utveksling av code mot token, fikk status: " + response.code() + " forventet 200");
             }
 
             Optional<String> jsonStr = RestUtils.getBodyStr(response);
@@ -116,5 +126,4 @@ public class OpenAmUtils {
                     .orElseThrow(() -> new IllegalStateException("Fant ikke 'id_token' i responsen"));
         }
     }
-
 }

@@ -1,5 +1,11 @@
 package no.nav.common.test.ssl;
 
+import static java.lang.System.setProperty;
+import static java.util.Optional.ofNullable;
+import static org.apache.cxf.ws.security.SecurityConstants.SAML2_TOKEN_VALIDATOR;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.Bus;
@@ -12,13 +18,6 @@ import org.apache.cxf.interceptor.InterceptorProvider;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.wss4j.dom.validate.Validator;
-
-import java.io.File;
-import java.io.FileOutputStream;
-
-import static java.lang.System.setProperty;
-import static java.util.Optional.ofNullable;
-import static org.apache.cxf.ws.security.SecurityConstants.SAML2_TOKEN_VALIDATOR;
 
 public class CxfCertificateValidationDisabler implements Feature {
 
@@ -69,9 +68,10 @@ public class CxfCertificateValidationDisabler implements Feature {
         }
 
         private void configureHttpConduit(Object beanInstance) {
-            if(beanInstance instanceof HTTPConduit){
+            if (beanInstance instanceof HTTPConduit) {
                 HTTPConduit httpConduit = (URLConnectionHTTPConduit) beanInstance;
-                TLSClientParameters tlsClientParameters = ofNullable(httpConduit.getTlsClientParameters()).orElseGet(TLSClientParameters::new);
+                TLSClientParameters tlsClientParameters =
+                        ofNullable(httpConduit.getTlsClientParameters()).orElseGet(TLSClientParameters::new);
                 tlsClientParameters.setDisableCNCheck(true);
                 tlsClientParameters.setHostnameVerifier(SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER);
                 tlsClientParameters.setSSLSocketFactory(SSLTestUtils.TRUST_ALL_SSL_SOCKET_FACTORY);

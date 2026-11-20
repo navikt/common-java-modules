@@ -8,12 +8,12 @@ import org.apache.cxf.interceptor.AttachmentInInterceptor;
 import org.apache.cxf.interceptor.AttachmentOutInterceptor;
 import org.apache.cxf.interceptor.InterceptorProvider;
 
-
 public class LoggingFeatureUtenBinaryOgUtenSamlTokenLogging extends AbstractFeature {
 
     private static final int DEFAULT_LIMIT = AbstractLoggingInterceptor.DEFAULT_LIMIT;
     private static final LoggingInInterceptor IN = new LoggingInInterceptor();
-    private static final CXFMaskSAMLTokenLoggingOutInterceptor OUT = new CXFMaskSAMLTokenLoggingOutInterceptor(DEFAULT_LIMIT);
+    private static final CXFMaskSAMLTokenLoggingOutInterceptor OUT =
+            new CXFMaskSAMLTokenLoggingOutInterceptor(DEFAULT_LIMIT);
 
     static {
         IN.setLimit(DEFAULT_LIMIT);
@@ -21,8 +21,7 @@ public class LoggingFeatureUtenBinaryOgUtenSamlTokenLogging extends AbstractFeat
         OUT.addAfter(AttachmentOutInterceptor.class.getName());
     }
 
-    public LoggingFeatureUtenBinaryOgUtenSamlTokenLogging() {
-    }
+    public LoggingFeatureUtenBinaryOgUtenSamlTokenLogging() {}
 
     public LoggingFeatureUtenBinaryOgUtenSamlTokenLogging(boolean maskerSAMLToken) {
         OUT.setMaskerSAMLToken(maskerSAMLToken);

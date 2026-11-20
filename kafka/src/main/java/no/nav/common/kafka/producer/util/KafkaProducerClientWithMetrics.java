@@ -3,6 +3,10 @@ package no.nav.common.kafka.producer.util;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 import org.apache.kafka.clients.producer.Callback;
@@ -10,16 +14,11 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-
 public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient<K, V> {
 
-    public final static String KAFKA_PRODUCER_STATUS_COUNTER = "kafka_producer_status";
+    public static final String KAFKA_PRODUCER_STATUS_COUNTER = "kafka_producer_status";
 
-    public final static String KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE = "kafka_producer_current_offset";
+    public static final String KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE = "kafka_producer_current_offset";
 
     private final KafkaProducerClient<K, V> client;
 
@@ -91,30 +90,30 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
     private void updateLatestOffset(RecordMetadata metadata) {
         String key = metadata.topic() + "-" + metadata.partition();
 
-        long currentOffset = metadata.hasOffset()
-                ? metadata.offset()
-                : 0;
+        long currentOffset = metadata.hasOffset() ? metadata.offset() : 0;
 
         currentOffsetMap.put(key, currentOffset);
 
-        currentOffsetGaugeMap.computeIfAbsent(key, (k) ->
-                Gauge.builder(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE, () -> {
-                    Long offset = currentOffsetMap.get(key);
-                    return offset != null ? offset : 0;
-                })
-                .tag("topic", metadata.topic())
-                .tag("partition", String.valueOf(metadata.partition()))
-                .register(meterRegistry));
+        currentOffsetGaugeMap.computeIfAbsent(
+                key,
+                (k) -> Gauge.builder(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE, () -> {
+                            Long offset = currentOffsetMap.get(key);
+                            return offset != null ? offset : 0;
+                        })
+                        .tag("topic", metadata.topic())
+                        .tag("partition", String.valueOf(metadata.partition()))
+                        .register(meterRegistry));
     }
 
     private void incrementRecordCount(ProducerRecord<K, V> record, boolean failed) {
         String key = record.topic() + "-" + failed;
-        statusCounterMap.computeIfAbsent(key, (k) ->
-                Counter.builder(KAFKA_PRODUCER_STATUS_COUNTER)
-                        .tag("topic", record.topic())
-                        .tag("status", failed ? "failed" : "ok")
-                        .register(meterRegistry))
+        statusCounterMap
+                .computeIfAbsent(
+                        key,
+                        (k) -> Counter.builder(KAFKA_PRODUCER_STATUS_COUNTER)
+                                .tag("topic", record.topic())
+                                .tag("status", failed ? "failed" : "ok")
+                                .register(meterRegistry))
                 .increment();
     }
-
 }

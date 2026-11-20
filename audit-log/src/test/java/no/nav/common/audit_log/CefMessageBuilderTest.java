@@ -1,17 +1,16 @@
 package no.nav.common.audit_log;
 
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_SOURCE_USER_ID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.HashMap;
+import java.util.Map;
 import no.nav.common.audit_log.cef.AuthorizationDecision;
 import no.nav.common.audit_log.cef.CefMessage;
 import no.nav.common.audit_log.cef.CefMessageEvent;
 import no.nav.common.audit_log.cef.CefMessageSeverity;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_SOURCE_USER_ID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CefMessageBuilderTest {
 
@@ -32,8 +31,7 @@ public class CefMessageBuilderTest {
                 CefMessageEvent.ACCESS.type,
                 "NAV-ansatt har gjort oppslag på bruker",
                 CefMessageSeverity.INFO.name(),
-                extensions
-        );
+                extensions);
 
         CefMessage newMessage = CefMessage.builder()
                 .applicationName("my-application")
@@ -94,10 +92,7 @@ public class CefMessageBuilderTest {
     @Test
     public void should_throw_if_missing_data() {
         assertThrows(NullPointerException.class, () -> {
-            CefMessage.builder()
-                    .applicationName("my-application")
-                    .build();
+            CefMessage.builder().applicationName("my-application").build();
         });
     }
-
 }

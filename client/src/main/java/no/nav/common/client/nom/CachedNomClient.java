@@ -1,15 +1,14 @@
 package no.nav.common.client.nom;
 
+import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import no.nav.common.health.HealthCheckResult;
-import no.nav.common.types.identer.NavIdent;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
+import no.nav.common.health.HealthCheckResult;
+import no.nav.common.types.identer.NavIdent;
 
 public class CachedNomClient implements NomClient {
 
@@ -64,5 +63,4 @@ public class CachedNomClient implements NomClient {
     public HealthCheckResult checkHealth() {
         return nomClient.checkHealth();
     }
-
 }

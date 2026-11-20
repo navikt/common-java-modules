@@ -1,21 +1,26 @@
 package no.nav.common.cxf;
 
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
+
 public class CXFClientInvocationHandlerTest {
 
-    private StsConfig stsConfig = StsConfig.builder().url("https://dummy.sts.url").username("dummyUsername").password("dummyPassword").build();
+    private StsConfig stsConfig = StsConfig.builder()
+            .url("https://dummy.sts.url")
+            .username("dummyUsername")
+            .password("dummyPassword")
+            .build();
 
     @Test
     public void shouldReturnTheExceptionTypeTheConsumerIsExpecting() throws Throwable {
@@ -85,5 +90,4 @@ public class CXFClientInvocationHandlerTest {
             super(message);
         }
     }
-
 }

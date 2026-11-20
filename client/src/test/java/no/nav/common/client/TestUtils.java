@@ -1,11 +1,10 @@
 package no.nav.common.client;
 
-import lombok.SneakyThrows;
-
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import lombok.SneakyThrows;
 
 public class TestUtils {
 
@@ -17,14 +16,10 @@ public class TestUtils {
     }
 
     public static String readTestResourceFileWithoutWhitespace(String fileName) {
-       return removeWhitespace(readTestResourceFile(fileName));
+        return removeWhitespace(readTestResourceFile(fileName));
     }
 
     public static String removeWhitespace(String str) {
-        return str
-                .replaceAll(" ", "")
-                .replaceAll("\t", "")
-                .replaceAll("\n", "")
-                .replaceAll("\r", "");
+        return str.replaceAll(" ", "").replaceAll("\t", "").replaceAll("\n", "").replaceAll("\r", "");
     }
 }

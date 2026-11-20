@@ -118,13 +118,15 @@ class PublishedPomConsumerTest {
             assertTrue(published.any { it.name == "producer-4.test-test-sources.jar" })
             assertTrue(published.none { it.extension == "module" })
 
-            val pom = DocumentBuilderFactory.newInstance()
+            val pom = DocumentBuilderFactory
+                .newInstance()
                 .newDocumentBuilder()
                 .parse(File(directory, "build/fixture-repository/no/nav/common/producer/4.test/producer-4.test.pom"))
                 .documentElement
             val dependencies = (0 until pom.childNodes.length)
                 .map { pom.childNodes.item(it) }
                 .single { it.nodeName == "dependencies" } as Element
+
             fun entry(artifact: String): Element = (0 until dependencies.childNodes.length)
                 .mapNotNull { dependencies.childNodes.item(it) as? Element }
                 .single { it.getElementsByTagName("artifactId").item(0).textContent == artifact }

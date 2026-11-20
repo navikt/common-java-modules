@@ -1,11 +1,10 @@
 package no.nav.common.kafka.producer;
 
+import java.util.concurrent.Future;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-
-import java.util.concurrent.Future;
 
 public interface KafkaProducerClient<K, V> {
 
@@ -18,5 +17,4 @@ public interface KafkaProducerClient<K, V> {
     Future<RecordMetadata> send(ProducerRecord<K, V> record, Callback callback);
 
     Producer<K, V> getProducer();
-
 }

@@ -13,5 +13,4 @@ public class SelftTestCheckResult {
     HealthCheckResult checkResult;
 
     long timeUsed;
-
 }

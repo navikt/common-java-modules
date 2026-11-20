@@ -1,5 +1,19 @@
 package no.nav.common.kafka.producer;
 
+import static no.nav.common.kafka.utils.TestUtils.KAFKA_IMAGE;
+import static no.nav.common.kafka.utils.TestUtils.kafkaTestConsumerProperties;
+import static no.nav.common.kafka.utils.TestUtils.kafkaTestProducerProperties;
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
@@ -12,23 +26,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TimeoutException;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.utility.DockerImageName;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static no.nav.common.kafka.utils.TestUtils.*;
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 
 public class KafkaProducerClientImplIntegrationTest {
 
@@ -56,12 +61,12 @@ public class KafkaProducerClientImplIntegrationTest {
         admin.close();
         kafka.stop();
     }
+
     @Before
     public void beforeEach() {
         producerClient = new KafkaProducerClientImpl<>(kafkaTestProducerProperties(brokerUrl));
         testTopic = UUID.randomUUID().toString();
         admin.createTopics(List.of(new NewTopic(testTopic, 1, (short) 1)));
-
     }
 
     @After
@@ -73,19 +78,16 @@ public class KafkaProducerClientImplIntegrationTest {
     public void should_produce_record() {
         AtomicReference<ConsumerRecord<String, String>> recordRef = new AtomicReference<>();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(brokerUrl),
-                Map.of(testTopic, (record) -> {
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
+                new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
                     recordRef.set(record);
                     return ConsumeStatus.OK;
-                })
-        ));
-
+                })));
 
         consumerClient.start();
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"));
 
-        await().atMost(Duration.ofSeconds(10)).until( () -> recordRef.get() != null);
+        await().atMost(Duration.ofSeconds(10)).until(() -> recordRef.get() != null);
         consumerClient.stop();
 
         ConsumerRecord<String, String> record = recordRef.get();
@@ -98,13 +100,11 @@ public class KafkaProducerClientImplIntegrationTest {
     public void should_produce_multiple_records() {
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(brokerUrl),
-                Map.of(testTopic, (record) -> {
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
+                new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
                     counter.incrementAndGet();
                     return ConsumeStatus.OK;
-                })
-        ));
+                })));
 
         consumerClient.start();
 
@@ -114,39 +114,34 @@ public class KafkaProducerClientImplIntegrationTest {
         producerClient.send(new ProducerRecord<>(testTopic, null, "value"));
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"));
 
-
-
-        await().atMost(Duration.ofSeconds(10)).until( () -> counter.get() == 5);
+        await().atMost(Duration.ofSeconds(10)).until(() -> counter.get() == 5);
         consumerClient.stop();
-
     }
 
     @Test
     public void should_produce_record_sync() throws InterruptedException {
         AtomicInteger counter = new AtomicInteger();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(new KafkaConsumerClientConfig<>(
-                kafkaTestConsumerProperties(brokerUrl),
-                Map.of(testTopic, (record) -> {
+        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
+                new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
                     counter.incrementAndGet();
                     return ConsumeStatus.OK;
-                })
-        ));
-
+                })));
 
         consumerClient.start();
         producerClient.sendSync(new ProducerRecord<>(testTopic, "key", "value"));
 
-        await().atMost(Duration.ofSeconds(10)).until( () -> counter.get() == 1);
+        await().atMost(Duration.ofSeconds(10)).until(() -> counter.get() == 1);
 
         consumerClient.stop();
-
     }
 
     @Test
     public void should_throw_exception_when_fail_to_send_sync() {
 
-        assertThrows(ExecutionException.class, () -> producerClient.sendSync(new ProducerRecord<>("invalidTopicPartition", 999,"key", "value")));
+        assertThrows(
+                ExecutionException.class,
+                () -> producerClient.sendSync(new ProducerRecord<>("invalidTopicPartition", 999, "key", "value")));
     }
 
     @Test
@@ -154,7 +149,9 @@ public class KafkaProducerClientImplIntegrationTest {
 
         AtomicReference<Exception> exceptionRef = new AtomicReference<>();
 
-        producerClient.send(new ProducerRecord<>("invalidTopicPartition", 999, "key", "value"), (metadata, exception) -> exceptionRef.set(exception));
+        producerClient.send(
+                new ProducerRecord<>("invalidTopicPartition", 999, "key", "value"),
+                (metadata, exception) -> exceptionRef.set(exception));
 
         await().atMost(Duration.ofSeconds(10)).until(() -> exceptionRef.get() != null);
 
@@ -176,7 +173,6 @@ public class KafkaProducerClientImplIntegrationTest {
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"), callback);
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"), callback);
 
-
         assertEquals(2, counter.get());
     }
 
@@ -184,8 +180,8 @@ public class KafkaProducerClientImplIntegrationTest {
     public void should_throw_exception_when_sending_after_closed() {
         producerClient.close();
 
-        assertThrows(ExecutionException.class, () -> producerClient.sendSync(new ProducerRecord<>(testTopic, "key", "value")));
+        assertThrows(
+                ExecutionException.class,
+                () -> producerClient.sendSync(new ProducerRecord<>(testTopic, "key", "value")));
     }
-
-
 }

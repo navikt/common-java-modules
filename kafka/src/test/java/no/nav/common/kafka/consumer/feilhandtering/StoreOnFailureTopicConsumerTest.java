@@ -1,13 +1,18 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 public class StoreOnFailureTopicConsumerTest {
 
@@ -16,9 +21,11 @@ public class StoreOnFailureTopicConsumerTest {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
         TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
+        StoreOnFailureTopicConsumer storeOnFailureConsumer =
+                new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
+        ConsumerRecord<byte[], byte[]> record =
+                new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(false);
         when(consumer.consume(any())).thenReturn(ConsumeStatus.OK);
@@ -34,7 +41,8 @@ public class StoreOnFailureTopicConsumerTest {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
         TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
+        StoreOnFailureTopicConsumer storeOnFailureConsumer =
+                new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
         ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, null, "value".getBytes());
 
@@ -51,9 +59,11 @@ public class StoreOnFailureTopicConsumerTest {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
         TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
+        StoreOnFailureTopicConsumer storeOnFailureConsumer =
+                new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
+        ConsumerRecord<byte[], byte[]> record =
+                new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(true);
         when(consumer.consume(any())).thenReturn(ConsumeStatus.OK);
@@ -69,9 +79,11 @@ public class StoreOnFailureTopicConsumerTest {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
         TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
+        StoreOnFailureTopicConsumer storeOnFailureConsumer =
+                new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
+        ConsumerRecord<byte[], byte[]> record =
+                new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(false);
         when(consumer.consume(any())).thenReturn(ConsumeStatus.FAILED);
@@ -87,9 +99,11 @@ public class StoreOnFailureTopicConsumerTest {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
         TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
 
-        StoreOnFailureTopicConsumer storeOnFailureConsumer = new StoreOnFailureTopicConsumer(consumer, consumerRepository);
+        StoreOnFailureTopicConsumer storeOnFailureConsumer =
+                new StoreOnFailureTopicConsumer(consumer, consumerRepository);
 
-        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
+        ConsumerRecord<byte[], byte[]> record =
+                new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         when(consumerRepository.hasRecordWithKey(any(), anyInt(), any())).thenReturn(false);
         when(consumer.consume(any())).thenThrow(new RuntimeException());
@@ -99,5 +113,4 @@ public class StoreOnFailureTopicConsumerTest {
         verify(consumer, times(1)).consume(any());
         verify(consumerRepository, times(1)).storeRecord(any());
     }
-
 }

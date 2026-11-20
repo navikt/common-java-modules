@@ -1,14 +1,13 @@
 package no.nav.common.log;
 
+import static java.util.Objects.requireNonNull;
+
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter2;
-import org.slf4j.LoggerFactory;
-
 import java.net.URL;
-
-import static java.util.Objects.requireNonNull;
+import org.slf4j.LoggerFactory;
 
 public class LogTestHelpers {
     public static void loadLogbackConfig(String path) throws JoranException {

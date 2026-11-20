@@ -16,5 +16,4 @@ public class AktorId extends EksternBrukerId {
     public static AktorId of(String aktorIdStr) {
         return new AktorId(aktorIdStr);
     }
-
 }

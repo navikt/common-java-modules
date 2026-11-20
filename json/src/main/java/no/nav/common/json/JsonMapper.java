@@ -10,11 +10,13 @@ import tools.jackson.module.kotlin.KotlinModule;
 public class JsonMapper {
 
     public static ObjectMapper defaultObjectMapper() {
-        return applyDefaultConfiguration(tools.jackson.databind.json.JsonMapper.builder().build());
+        return applyDefaultConfiguration(
+                tools.jackson.databind.json.JsonMapper.builder().build());
     }
 
     public static ObjectMapper applyDefaultConfiguration(ObjectMapper objectMapper) {
-        return objectMapper.rebuild()
+        return objectMapper
+                .rebuild()
                 .addModule(DateModule.module())
                 .addModule(new KotlinModule.Builder().build())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -23,12 +25,10 @@ public class JsonMapper {
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, false)
                 .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, true)
                 .configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, true)
-                .changeDefaultVisibility(v -> v
-                        .withFieldVisibility(Visibility.ANY)
+                .changeDefaultVisibility(v -> v.withFieldVisibility(Visibility.ANY)
                         .withGetterVisibility(Visibility.NONE)
                         .withSetterVisibility(Visibility.NONE)
                         .withCreatorVisibility(Visibility.NONE))
                 .build();
     }
-
 }

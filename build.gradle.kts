@@ -1,6 +1,31 @@
 plugins {
     id("nav.common-root")
     alias(libs.plugins.versions)
+    alias(libs.plugins.spotless)
+}
+
+repositories {
+    mavenCentral()
+}
+
+spotless {
+    java {
+        target("*/src/*/java/**/*.java")
+        palantirJavaFormat()
+        forbidWildcardImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    kotlin {
+        target("build-logic/src/**/*.kt")
+        ktlint().setEditorConfigPath(file("build-logic/.editorconfig").path)
+    }
+
+    kotlinGradle {
+        target("*.gradle.kts", "*/build.gradle.kts", "build-logic/settings.gradle.kts")
+        ktlint().setEditorConfigPath(file("build-logic/.editorconfig").path)
+    }
 }
 
 tasks.named<Wrapper>("wrapper") {

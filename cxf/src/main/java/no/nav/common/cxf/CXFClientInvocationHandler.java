@@ -1,17 +1,16 @@
 package no.nav.common.cxf;
 
+import static java.lang.System.getProperty;
+import static java.util.Optional.ofNullable;
+
 import jakarta.xml.ws.BindingProvider;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.http.HTTPConduit;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import static java.lang.System.getProperty;
-import static java.util.Optional.ofNullable;
 
 class CXFClientInvocationHandler<T> implements InvocationHandler {
 
@@ -94,7 +93,8 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
 
     private static void disableCNCheckIfConfigured(Client client) {
         HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
-        TLSClientParameters tlsClientParameters = ofNullable(httpConduit.getTlsClientParameters()).orElseGet(TLSClientParameters::new);
+        TLSClientParameters tlsClientParameters =
+                ofNullable(httpConduit.getTlsClientParameters()).orElseGet(TLSClientParameters::new);
         if (Boolean.valueOf(getProperty("disable.ssl.cn.check", "false"))) {
             tlsClientParameters.setDisableCNCheck(true);
         }
@@ -118,5 +118,4 @@ class CXFClientInvocationHandler<T> implements InvocationHandler {
             this.oidcClient = oidcClient;
         }
     }
-
 }

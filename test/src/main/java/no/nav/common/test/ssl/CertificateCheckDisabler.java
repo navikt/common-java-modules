@@ -18,5 +18,4 @@ public class CertificateCheckDisabler implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent sce) {
         // ignore in test
     }
-
 }

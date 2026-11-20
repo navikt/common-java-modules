@@ -1,10 +1,18 @@
 package no.nav.common.rest.client;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import java.io.IOException;
+import java.net.UnknownHostException;
 import no.nav.common.log.MDCConstants;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,12 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class LogRequestInterceptorTest {
     @Rule
@@ -56,7 +58,8 @@ public class LogRequestInterceptorTest {
             assertThat(response.code()).isEqualTo(200);
             assertThat(filterAppender.list).hasSize(1);
             assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getLevel() == Level.DEBUG);
-            assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
+            assertThat(filterAppender.list)
+                    .allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
         }
     }
 
@@ -75,7 +78,8 @@ public class LogRequestInterceptorTest {
             assertThat(response.code()).isEqualTo(500);
             assertThat(filterAppender.list).hasSize(1);
             assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getLevel() == Level.WARN);
-            assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
+            assertThat(filterAppender.list)
+                    .allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
         }
     }
 
@@ -84,17 +88,15 @@ public class LogRequestInterceptorTest {
         OkHttpClient client = RestClient.baseClient();
         MDC.put(MDCConstants.MDC_CALL_ID, "CALL_ID");
 
-        Request request = new Request.Builder()
-                .url("http://illegalurl:9999")
-                .build();
-
+        Request request = new Request.Builder().url("http://illegalurl:9999").build();
 
         //noinspection EmptyTryBlock
         try (Response ignored = client.newCall(request).execute()) {
         } catch (UnknownHostException e) {
             assertThat(filterAppender.list).hasSize(1);
             assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getLevel() == Level.ERROR);
-            assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
+            assertThat(filterAppender.list)
+                    .allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
         }
     }
 
@@ -112,8 +114,10 @@ public class LogRequestInterceptorTest {
         try (Response response = client.newCall(request).execute()) {
             assertThat(response.code()).isEqualTo(200);
             assertThat(filterAppender.list).hasSize(1);
-            assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getMessage().contains("url=http://localhost"));
-            assertThat(filterAppender.list).allMatch(iLoggingEvent -> ! iLoggingEvent.getMessage().contains("queryparm"));
+            assertThat(filterAppender.list)
+                    .allMatch(iLoggingEvent -> iLoggingEvent.getMessage().contains("url=http://localhost"));
+            assertThat(filterAppender.list)
+                    .allMatch(iLoggingEvent -> !iLoggingEvent.getMessage().contains("queryparm"));
         }
     }
 }

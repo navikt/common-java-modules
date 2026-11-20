@@ -1,13 +1,12 @@
 package no.nav.common.client.aktoroppslag;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
-
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Midlertidig klient for å toggle mellom bruk av Aktørregisteret og PDL som kilde for aktøroppslag.
@@ -23,8 +22,7 @@ public class ToggledAktorOppslagClient implements AktorOppslagClient {
     public ToggledAktorOppslagClient(
             AktorregisterHttpClient aktorregisterOppslagClient,
             PdlAktorOppslagClient pdlAktorOppslagClient,
-            Supplier<Boolean> brukPdlAktorOppslag
-    ) {
+            Supplier<Boolean> brukPdlAktorOppslag) {
         this.aktorregisterOppslagClient = aktorregisterOppslagClient;
         this.pdlAktorOppslagClient = pdlAktorOppslagClient;
         this.brukPdlAktorOppslag = brukPdlAktorOppslag;
@@ -63,5 +61,4 @@ public class ToggledAktorOppslagClient implements AktorOppslagClient {
     private AktorOppslagClient getClient() {
         return brukPdlAktorOppslag.get() ? pdlAktorOppslagClient : aktorregisterOppslagClient;
     }
-
 }

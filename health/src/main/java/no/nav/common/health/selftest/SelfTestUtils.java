@@ -1,28 +1,22 @@
 package no.nav.common.health.selftest;
 
-import no.nav.common.health.HealthCheckResult;
-import no.nav.common.health.HealthCheckUtils;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import no.nav.common.health.HealthCheckResult;
+import no.nav.common.health.HealthCheckUtils;
 
 public class SelfTestUtils {
 
     public static List<SelftTestCheckResult> checkAll(List<SelfTestCheck> checks) {
-        return checks.stream()
-                .map(SelfTestUtils::performSelftTestCheck)
-                .collect(Collectors.toList());
+        return checks.stream().map(SelfTestUtils::performSelftTestCheck).collect(Collectors.toList());
     }
-
 
     /**
      * Utfører helsesjekker i parallell. Vær obs på at dette kan gi uventet resultat i forket tråd når sjekker bruker
      * class loading, f.eks. CXFClient.
      */
     public static List<SelftTestCheckResult> checkAllParallel(List<SelfTestCheck> checks) {
-        return checks.parallelStream()
-                .map(SelfTestUtils::performSelftTestCheck)
-                .collect(Collectors.toList());
+        return checks.parallelStream().map(SelfTestUtils::performSelftTestCheck).collect(Collectors.toList());
     }
 
     public static SelfTestStatus toStatus(SelftTestCheckResult result) {
@@ -51,9 +45,8 @@ public class SelfTestUtils {
     }
 
     public static SelfTestStatus aggregateStatus(List<SelftTestCheckResult> checkResults) {
-        List<SelfTestStatus> statuses = checkResults.stream()
-                .map(SelfTestUtils::toStatus)
-                .collect(Collectors.toList());
+        List<SelfTestStatus> statuses =
+                checkResults.stream().map(SelfTestUtils::toStatus).collect(Collectors.toList());
 
         boolean hasError = statuses.stream().anyMatch(s -> s == SelfTestStatus.ERROR);
         boolean hasWarning = statuses.stream().anyMatch(s -> s == SelfTestStatus.WARNING);
@@ -74,5 +67,4 @@ public class SelfTestUtils {
 
         return new SelftTestCheckResult(check, result, timeUsed);
     }
-
 }

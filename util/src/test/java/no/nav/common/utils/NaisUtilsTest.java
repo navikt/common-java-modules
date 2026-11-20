@@ -1,20 +1,19 @@
 package no.nav.common.utils;
 
-import lombok.SneakyThrows;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static no.nav.common.utils.NaisUtils.CONFIG_MAPS_BASE_PATH_PROPERTY_NAME;
+import static no.nav.common.utils.NaisUtils.SECRETS_BASE_PATH_PROPERTY_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
-
-import static no.nav.common.utils.NaisUtils.CONFIG_MAPS_BASE_PATH_PROPERTY_NAME;
-import static no.nav.common.utils.NaisUtils.SECRETS_BASE_PATH_PROPERTY_NAME;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import lombok.SneakyThrows;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class NaisUtilsTest {
 
@@ -66,7 +65,6 @@ public class NaisUtilsTest {
 
         Map<String, String> configMap = NaisUtils.readConfigMap("configMap");
 
-
         assertThat(configMap).containsOnlyKeys("KEY_1", "KEY_2", "KEY_3");
         assertThat(configMap.get("KEY_1")).isEqualTo("VALUE 1");
         assertThat(configMap.get("KEY_2")).isEqualTo("VALUE 2");
@@ -98,11 +96,9 @@ public class NaisUtilsTest {
         writeFile("configMaps/configMap/KEY_2", "VALUE 2");
         writeFile("configMaps/configMap/KEY_3", "VALUE 3");
 
-
         assertThatThrownBy(() -> NaisUtils.readConfigMap("configMap", "KEY_1", "KEY_4"))
                 .hasMessage("Fant ikke key KEY_4 i config map configMap");
     }
-
 
     @SneakyThrows
     private void createFolder(String... folderNames) {

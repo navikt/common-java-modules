@@ -1,33 +1,35 @@
 package no.nav.common.kafka.producer.util;
 
-import io.micrometer.core.instrument.Gauge;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-import org.apache.kafka.clients.CommonClientConfigs;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.KafkaAdminClient;
-import org.apache.kafka.clients.admin.NewTopic;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.*;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
-import org.testcontainers.utility.DockerImageName;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import static no.nav.common.kafka.producer.util.KafkaProducerClientWithMetrics.KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE;
 import static no.nav.common.kafka.producer.util.KafkaProducerClientWithMetrics.KAFKA_PRODUCER_STATUS_COUNTER;
 import static no.nav.common.kafka.utils.TestUtils.KAFKA_IMAGE;
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestProducerProperties;
 import static org.junit.Assert.assertEquals;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.KafkaAdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.utility.DockerImageName;
+
 public class KafkaProducerWithClientMetricsTest {
 
-    private final static String TEST_TOPIC_A = "test-topic-a";
+    private static final String TEST_TOPIC_A = "test-topic-a";
 
-    private final static String TEST_TOPIC_B = "test-topic-b";
+    private static final String TEST_TOPIC_B = "test-topic-b";
 
     private static KafkaContainer kafka;
 
@@ -49,11 +51,7 @@ public class KafkaProducerWithClientMetricsTest {
 
         AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
         admin.deleteTopics(List.of(TEST_TOPIC_A, TEST_TOPIC_B));
-        admin.createTopics(List.of(
-                new NewTopic(TEST_TOPIC_A, 1, (short) 1),
-                new NewTopic(TEST_TOPIC_B, 1, (short) 1)
-                )
-        );
+        admin.createTopics(List.of(new NewTopic(TEST_TOPIC_A, 1, (short) 1), new NewTopic(TEST_TOPIC_B, 1, (short) 1)));
         admin.close(); // Apply changes
     }
 
@@ -61,7 +59,8 @@ public class KafkaProducerWithClientMetricsTest {
     public void should_register_status_counter_ok_metric() throws InterruptedException {
         MeterRegistry registry = new SimpleMeterRegistry();
 
-        KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
+        KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(
+                kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
 
         metricsClient.send(new ProducerRecord<>(TEST_TOPIC_A, "value"));
         metricsClient.send(new ProducerRecord<>(TEST_TOPIC_A, "value"));
@@ -80,7 +79,8 @@ public class KafkaProducerWithClientMetricsTest {
     public void should_register_status_counter_failed_metric() {
         MeterRegistry registry = new SimpleMeterRegistry();
 
-        KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
+        KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(
+                kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
 
         metricsClient.close();
 
@@ -99,7 +99,8 @@ public class KafkaProducerWithClientMetricsTest {
     public void should_register_current_offset_metric() {
         MeterRegistry registry = new SimpleMeterRegistry();
 
-        KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
+        KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(
+                kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
 
         metricsClient.send(new ProducerRecord<>(TEST_TOPIC_A, "value"));
         metricsClient.send(new ProducerRecord<>(TEST_TOPIC_A, "value"));
@@ -110,18 +111,15 @@ public class KafkaProducerWithClientMetricsTest {
 
         metricsClient.close();
 
-        List<Gauge> gauges = new ArrayList<>(registry.get(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE).gauges());
+        List<Gauge> gauges = new ArrayList<>(
+                registry.get(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE).gauges());
 
         assertEquals(2, gauges.get(0).value(), 0);
         assertEquals(1, gauges.get(1).value(), 0);
     }
 
     private double getStatusCount(MeterRegistry registry, String topic, boolean failed) {
-        return registry.counter(
-                KAFKA_PRODUCER_STATUS_COUNTER,
-                "topic", topic,
-                "status", failed ? "failed" : "ok"
-        ).count();
+        return registry.counter(KAFKA_PRODUCER_STATUS_COUNTER, "topic", topic, "status", failed ? "failed" : "ok")
+                .count();
     }
-
 }

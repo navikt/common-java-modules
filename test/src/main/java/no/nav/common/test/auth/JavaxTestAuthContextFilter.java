@@ -27,7 +27,8 @@ public class JavaxTestAuthContextFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) {
-        AuthContextHolderThreadLocal.instance().withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
+        AuthContextHolderThreadLocal.instance()
+                .withContext(authContext, () -> filterChain.doFilter(servletRequest, servletResponse));
     }
 
     @Override
@@ -35,5 +36,4 @@ public class JavaxTestAuthContextFilter implements Filter {
 
     @Override
     public void destroy() {}
-
 }

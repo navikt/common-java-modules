@@ -12,5 +12,4 @@ public interface UnsafeRunnable extends Runnable {
     default void run() {
         runUnsafe();
     }
-
 }

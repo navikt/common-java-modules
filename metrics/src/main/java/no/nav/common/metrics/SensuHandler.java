@@ -1,10 +1,8 @@
 package no.nav.common.metrics;
 
-import lombok.extern.slf4j.Slf4j;
-import no.nav.common.utils.MathUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import static java.lang.String.format;
+import static no.nav.common.metrics.SensuConfig.SENSU_MIN_BATCH_TIME;
+import static no.nav.common.metrics.SensuConfig.SENSU_MIN_QUEUE_SIZE;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -17,10 +15,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import static java.lang.String.format;
-import static no.nav.common.metrics.SensuConfig.SENSU_MIN_BATCH_TIME;
-import static no.nav.common.metrics.SensuConfig.SENSU_MIN_QUEUE_SIZE;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.common.utils.MathUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 @Slf4j
 public class SensuHandler {
@@ -70,7 +69,8 @@ public class SensuHandler {
                     writeToSensu(jsonObject, socket);
                     log.info("Successfully flushed metrics after shutdown. Metrics sent: " + reports.size());
                 } catch (Exception e) {
-                    log.error("Failed to flush metrics after shutdown. Metrics that were not sent: " + reports.size(), e);
+                    log.error(
+                            "Failed to flush metrics after shutdown. Metrics that were not sent: " + reports.size(), e);
                 }
             }
         }));
@@ -99,7 +99,9 @@ public class SensuHandler {
 
                         reportQueue.drainTo(reports, sensuConfig.getBatchSize() - 1);
                         float percentFull = (reportQueue.size() / (float) sensuConfig.getQueueSize()) * 100;
-                        log.info(format("Metrics still in queue: %d \tQueue full: %.2f%% \tMetrics sent: %d", reportQueue.size(), percentFull, reports.size()));
+                        log.info(format(
+                                "Metrics still in queue: %d \tQueue full: %.2f%% \tMetrics sent: %d",
+                                reportQueue.size(), percentFull, reports.size()));
 
                         String influxOutput = StringUtils.join(reports, "\n");
                         JSONObject jsonObject = createJSON(influxOutput);
@@ -108,23 +110,30 @@ public class SensuHandler {
                             writeToSensu(jsonObject, socket);
                         } catch (IOException e) {
                             reportQueue.addAll(reports); // Legger tilbake i køen
-                            log.warn("Noe gikk feil med tilkoblingen til Sensu socket: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+                            log.warn(
+                                    "Noe gikk feil med tilkoblingen til Sensu socket: {} - {}",
+                                    e.getClass().getSimpleName(),
+                                    e.getMessage());
                             if (!isShutDown) {
-                                Thread.sleep(sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med feilmeldinger) om noe ikke virker
+                                Thread.sleep(
+                                        sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med
+                                // feilmeldinger) om noe ikke virker
                             }
                         }
                     }
 
                     if (!isShutDown) {
-                        long batchTime = calculateBatchTime(reportQueue.size(), sensuConfig.getQueueSize(), SENSU_MIN_BATCH_TIME, sensuConfig.getMaxBatchTime());
+                        long batchTime = calculateBatchTime(
+                                reportQueue.size(),
+                                sensuConfig.getQueueSize(),
+                                SENSU_MIN_BATCH_TIME,
+                                sensuConfig.getMaxBatchTime());
                         Thread.sleep(batchTime);
                     }
                 } catch (InterruptedException e) {
                     log.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
                 }
-
             }
-
         }
     }
 
@@ -136,7 +145,8 @@ public class SensuHandler {
     }
 
     private BufferedWriter connectToSensu(Socket socket) throws IOException {
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(sensuConfig.getSensuHost(), sensuConfig.getSensuPort());
+        InetSocketAddress inetSocketAddress =
+                new InetSocketAddress(sensuConfig.getSensuHost(), sensuConfig.getSensuPort());
         socket.connect(inetSocketAddress, sensuConfig.getConnectTimeout());
         return new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
@@ -163,9 +173,14 @@ public class SensuHandler {
             return;
         }
 
-        boolean result = reportQueue.offer(output); // Thread-safe måte å legge til i køen på, returnerer false i stedet for å blokkere om køen er full
+        boolean result = reportQueue.offer(
+                output); // Thread-safe måte å legge til i køen på, returnerer false i stedet for å blokkere om køen er
+        // full
 
-        if (!result && (System.currentTimeMillis() - queueSisteGangFullTimestamp > 1000 * 60)) { // Unngår å spamme loggen om køen er full over lengre tid (f. eks. Sensu er nede)
+        if (!result
+                && (System.currentTimeMillis() - queueSisteGangFullTimestamp
+                        > 1000 * 60)) { // Unngår å spamme loggen om køen er full over lengre tid (f. eks. Sensu er
+            // nede)
             log.error("Sensu-køen har vært full, ikke alle metrikker har blitt sendt til Sensu");
             queueSisteGangFullTimestamp = System.currentTimeMillis();
         }

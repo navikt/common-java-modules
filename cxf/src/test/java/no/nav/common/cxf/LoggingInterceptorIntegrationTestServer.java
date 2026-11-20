@@ -1,8 +1,13 @@
 package no.nav.common.cxf;
 
+import static java.lang.System.setProperty;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
+import java.util.Collections;
+import java.util.List;
 import no.nav.common.cxf.jetty.JettyTestServer;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.Cookie;
@@ -17,12 +22,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.List;
-
-import static java.lang.System.setProperty;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
 
@@ -73,25 +72,23 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
     }
 
     private void sendRequest(String url) {
-       OkHttpClient client = RestClient.baseClientBuilder().cookieJar(new CookieJar() {
-            @Override
-            public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
+        OkHttpClient client = RestClient.baseClientBuilder()
+                .cookieJar(new CookieJar() {
+                    @Override
+                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {}
 
-            }
-
-            @Override
-            public List<Cookie> loadForRequest(HttpUrl url) {
-                return Collections.singletonList(
-                    new Cookie.Builder()
-                            .domain("test.local")
-                            .name("ID_token")
-                            .value("SUPERHEMMELIG")
-                            .httpOnly()
-                            .secure()
-                            .build()
-                );
-            }
-        }).build();
+                    @Override
+                    public List<Cookie> loadForRequest(HttpUrl url) {
+                        return Collections.singletonList(new Cookie.Builder()
+                                .domain("test.local")
+                                .name("ID_token")
+                                .value("SUPERHEMMELIG")
+                                .httpOnly()
+                                .secure()
+                                .build());
+                    }
+                })
+                .build();
 
         Request request = new Request.Builder()
                 .url(url + "?wsdl")
@@ -100,7 +97,7 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
 
         try (Response response = client.newCall(request).execute()) {
 
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

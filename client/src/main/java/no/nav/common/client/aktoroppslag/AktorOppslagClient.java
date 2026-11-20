@@ -1,13 +1,12 @@
 package no.nav.common.client.aktoroppslag;
 
+import java.util.List;
+import java.util.Map;
 import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
-
-import java.util.List;
-import java.util.Map;
 
 public interface AktorOppslagClient extends HealthCheck {
 
@@ -49,5 +48,4 @@ public interface AktorOppslagClient extends HealthCheck {
      * @return gjeldende og historiske fnr og aktør id
      */
     BrukerIdenter hentIdenter(EksternBrukerId brukerId);
-
 }

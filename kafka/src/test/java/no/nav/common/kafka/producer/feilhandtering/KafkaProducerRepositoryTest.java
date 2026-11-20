@@ -1,5 +1,15 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateProducerRepository;
@@ -16,17 +26,6 @@ import org.junit.runners.Parameterized;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
-import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-
 @RunWith(Parameterized.class)
 public class KafkaProducerRepositoryTest {
 
@@ -38,16 +37,17 @@ public class KafkaProducerRepositoryTest {
         DataSource postgres = createPostgresDataSource(postgreSQLContainer);
 
         DbUtils.runScript(postgres, "kafka-producer-record-postgres.sql");
-        PostgresJdbcTemplateProducerRepository postgresProducerRepository = new PostgresJdbcTemplateProducerRepository(new JdbcTemplate(postgres));
+        PostgresJdbcTemplateProducerRepository postgresProducerRepository =
+                new PostgresJdbcTemplateProducerRepository(new JdbcTemplate(postgres));
 
         DataSource oracle = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(oracle, "kafka-producer-record-oracle.sql");
-        OracleJdbcTemplateProducerRepository oracleProducerRepository = new OracleJdbcTemplateProducerRepository(new JdbcTemplate(oracle));
+        OracleJdbcTemplateProducerRepository oracleProducerRepository =
+                new OracleJdbcTemplateProducerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
-                new Object[]{"POSTGRES", postgres, postgresProducerRepository},
-                new Object[]{"ORACLE", oracle, oracleProducerRepository}
-        );
+                new Object[] {"POSTGRES", postgres, postgresProducerRepository},
+                new Object[] {"ORACLE", oracle, oracleProducerRepository});
     }
 
     @AfterClass
@@ -60,7 +60,8 @@ public class KafkaProducerRepositoryTest {
     private final KafkaProducerRepository kafkaProducerRepository;
 
     // databaseType must be sent as a parameter for the name to show up when running the tests
-    public KafkaProducerRepositoryTest(String databaseType, DataSource dataSource, KafkaProducerRepository kafkaProducerRepository) {
+    public KafkaProducerRepositoryTest(
+            String databaseType, DataSource dataSource, KafkaProducerRepository kafkaProducerRepository) {
         this.dataSource = dataSource;
         this.kafkaProducerRepository = kafkaProducerRepository;
     }
@@ -72,28 +73,28 @@ public class KafkaProducerRepositoryTest {
 
     @Test
     public void should_insert_producer_record() {
-        ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key","value");
+        ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
         long id = kafkaProducerRepository.storeRecord(mapRecord(record));
         assertEquals(1, id);
     }
 
     @Test
     public void should_insert_producer_record_with_null_value() {
-        ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key",null);
+        ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", null);
         long id = kafkaProducerRepository.storeRecord(mapRecord(record));
         assertEquals(1, id);
     }
 
     @Test
     public void should_insert_producer_record_with_null_key() {
-        ProducerRecord<String, String> record = new ProducerRecord<>("topic", null,"value");
+        ProducerRecord<String, String> record = new ProducerRecord<>("topic", null, "value");
         long id = kafkaProducerRepository.storeRecord(mapRecord(record));
         assertEquals(1, id);
     }
 
     @Test
     public void should_retrieve_record() {
-        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic1", 1, "key","value");
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("topic1", 1, "key", "value");
         producerRecord.headers().add(new RecordHeader("header1", "test".getBytes()));
 
         kafkaProducerRepository.storeRecord(mapRecord(producerRecord));
@@ -109,16 +110,15 @@ public class KafkaProducerRepositoryTest {
 
     @Test
     public void should_retrieve_records_in_order() {
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key",null)));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", null,"value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", null)));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", null, "value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
 
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(10);
 
-        List<StoredProducerRecord> sortedRecords = records
-                .stream()
+        List<StoredProducerRecord> sortedRecords = records.stream()
                 .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
                 .collect(Collectors.toList());
 
@@ -129,11 +129,11 @@ public class KafkaProducerRepositoryTest {
 
     @Test
     public void should_retrieve_records_with_limit() {
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
 
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key",null)));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", null)));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
 
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(3);
 
@@ -142,12 +142,12 @@ public class KafkaProducerRepositoryTest {
 
     @Test
     public void should_retrieve_records_with_topic() {
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key", "value")));
 
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key",null)));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic3", "key","value")));
-        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic4", "key","value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key", null)));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic3", "key", "value")));
+        kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic4", "key", "value")));
 
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(5, List.of("topic1", "topic3"));
 
@@ -156,11 +156,11 @@ public class KafkaProducerRepositoryTest {
 
     @Test
     public void should_delete_records() {
-        long id1 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key1","value1")));
-        long id2 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key2","value2")));
-        long id3 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key3","value3")));
-        long id4 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key3",null)));
-        long id5 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", null,"value5")));
+        long id1 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key1", "value1")));
+        long id2 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic1", "key2", "value2")));
+        long id3 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key3", "value3")));
+        long id4 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", "key3", null)));
+        long id5 = kafkaProducerRepository.storeRecord(mapRecord(new ProducerRecord<>("topic2", null, "value5")));
 
         kafkaProducerRepository.deleteRecords(List.of(id1, id3, id4, id5));
 
@@ -173,5 +173,4 @@ public class KafkaProducerRepositoryTest {
     private static StoredProducerRecord mapRecord(ProducerRecord<String, String> record) {
         return ProducerUtils.mapToStoredRecord(record, new StringSerializer(), new StringSerializer());
     }
-
 }

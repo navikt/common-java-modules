@@ -1,9 +1,21 @@
 package no.nav.common.client.aktoroppslag;
 
-import tools.jackson.databind.type.MapType;
+import static java.lang.String.valueOf;
+import static java.util.stream.Collectors.toList;
+import static no.nav.common.rest.client.RestUtils.getBodyStr;
+import static no.nav.common.utils.UrlUtils.joinPaths;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.client.aktoroppslag.BrukerIdenter;
 import no.nav.common.client.aktorregister.AktorregisterClient;
 import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.health.HealthCheckResult;
@@ -17,21 +29,13 @@ import no.nav.common.types.identer.Id;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static java.lang.String.valueOf;
-import static java.util.stream.Collectors.toList;
-import static no.nav.common.rest.client.RestUtils.getBodyStr;
-import static no.nav.common.utils.UrlUtils.joinPaths;
+import tools.jackson.databind.type.MapType;
 
 @Slf4j
 public class AktorregisterHttpClient implements AktorregisterClient {
 
-    private final static MapType mapType = JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
+    private static final MapType mapType =
+            JsonUtils.getMapper().getTypeFactory().constructMapType(HashMap.class, String.class, IdentData.class);
 
     private final String aktorregisterUrl;
     private final String aktorregisterIsAliveUrl;
@@ -42,7 +46,8 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     private final OkHttpClient client;
 
-    public AktorregisterHttpClient(String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
+    public AktorregisterHttpClient(
+            String aktorregisterUrl, String consumingApplication, Supplier<String> tokenSupplier) {
         this.aktorregisterUrl = aktorregisterUrl;
         this.aktorregisterIsAliveUrl = resolveIsAliveUrl(aktorregisterUrl);
         this.consumingApplication = consumingApplication;
@@ -66,16 +71,12 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         Map<String, IdentData> oppslagMap = hentIdenter(aktorIdListe, Identgruppe.AktoerId, true);
         Map<AktorId, Fnr> aktorIdToFnrMap = new HashMap<>();
 
-        oppslagMap
-                .entrySet()
-                .stream()
-                .map(this::tilIdentOppslag)
-                .forEach(oppslag -> {
-                    AktorId aktorId = AktorId.of(oppslag.getIdentTilRegister());
-                    Optional<Fnr> maybeFnr = oppslag.getIdentFraRegister().map(Fnr::of);
+        oppslagMap.entrySet().stream().map(this::tilIdentOppslag).forEach(oppslag -> {
+            AktorId aktorId = AktorId.of(oppslag.getIdentTilRegister());
+            Optional<Fnr> maybeFnr = oppslag.getIdentFraRegister().map(Fnr::of);
 
-                    maybeFnr.ifPresent(fnr -> aktorIdToFnrMap.put(aktorId, fnr));
-                });
+            maybeFnr.ifPresent(fnr -> aktorIdToFnrMap.put(aktorId, fnr));
+        });
 
         return aktorIdToFnrMap;
     }
@@ -86,16 +87,12 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         Map<String, IdentData> oppslagMap = hentIdenter(fnrListe, Identgruppe.AktoerId, true);
         Map<Fnr, AktorId> fnrToAktorIdMap = new HashMap<>();
 
-        oppslagMap
-                .entrySet()
-                .stream()
-                .map(this::tilIdentOppslag)
-                .forEach(oppslag -> {
-                    Fnr fnr = Fnr.of(oppslag.getIdentTilRegister());
-                    Optional<AktorId> maybeAktorId = oppslag.getIdentFraRegister().map(AktorId::of);
+        oppslagMap.entrySet().stream().map(this::tilIdentOppslag).forEach(oppslag -> {
+            Fnr fnr = Fnr.of(oppslag.getIdentTilRegister());
+            Optional<AktorId> maybeAktorId = oppslag.getIdentFraRegister().map(AktorId::of);
 
-                    maybeAktorId.ifPresent(aktorId -> fnrToAktorIdMap.put(fnr, aktorId));
-                });
+            maybeAktorId.ifPresent(aktorId -> fnrToAktorIdMap.put(fnr, aktorId));
+        });
 
         return fnrToAktorIdMap;
     }
@@ -103,11 +100,10 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     @SneakyThrows
     @Override
     public List<AktorId> hentAktorIder(Fnr fnr) {
-        return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId, false)
-                .entrySet()
-                .stream()
+        return hentIdenter(Collections.singletonList(fnr), Identgruppe.AktoerId, false).entrySet().stream()
                 .flatMap(e -> Optional.ofNullable(e.getValue().identer)
-                        .orElseThrow(() -> new RuntimeException("Aktør registeret feilet og fant ikke identer på bruker"))
+                        .orElseThrow(
+                                () -> new RuntimeException("Aktør registeret feilet og fant ikke identer på bruker"))
                         .stream()
                         .filter(i -> i.identgruppe == Identgruppe.AktoerId && i.ident != null)
                         .map(i -> AktorId.of(i.ident)))
@@ -125,23 +121,36 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
         IdentData identData = stringIdentDataMap.get(brukerId.get());
         var norskeIdenter = identData.identer.stream()
-                .filter(ident -> Identgruppe.NorskIdent.equals(ident.identgruppe)).collect(toList());
+                .filter(ident -> Identgruppe.NorskIdent.equals(ident.identgruppe))
+                .collect(toList());
         var aktorIder = identData.identer.stream()
-                .filter(ident -> Identgruppe.AktoerId.equals(ident.identgruppe)).collect(toList());
+                .filter(ident -> Identgruppe.AktoerId.equals(ident.identgruppe))
+                .collect(toList());
 
         return new BrukerIdenter(
-                norskeIdenter.stream().filter(ident -> ident.gjeldende).findFirst().map(ident -> Fnr.of(ident.ident)).orElseThrow(),
-                aktorIder.stream().filter(ident -> ident.gjeldende).findFirst().map(ident -> AktorId.of(ident.ident)).orElseThrow(),
-                norskeIdenter.stream().filter(ident -> !ident.gjeldende).map(ident -> Fnr.of(ident.ident)).collect(toList()),
-                aktorIder.stream().filter(ident -> !ident.gjeldende).map(ident -> AktorId.of(ident.ident)).collect(toList())
-        );
+                norskeIdenter.stream()
+                        .filter(ident -> ident.gjeldende)
+                        .findFirst()
+                        .map(ident -> Fnr.of(ident.ident))
+                        .orElseThrow(),
+                aktorIder.stream()
+                        .filter(ident -> ident.gjeldende)
+                        .findFirst()
+                        .map(ident -> AktorId.of(ident.ident))
+                        .orElseThrow(),
+                norskeIdenter.stream()
+                        .filter(ident -> !ident.gjeldende)
+                        .map(ident -> Fnr.of(ident.ident))
+                        .collect(toList()),
+                aktorIder.stream()
+                        .filter(ident -> !ident.gjeldende)
+                        .map(ident -> AktorId.of(ident.ident))
+                        .collect(toList()));
     }
 
     @SneakyThrows
     private String hentEnkeltIdent(EksternBrukerId eksternBrukerId, Identgruppe identgruppe) {
-        return hentIdenter(Collections.singletonList(eksternBrukerId), identgruppe, true)
-                .entrySet()
-                .stream()
+        return hentIdenter(Collections.singletonList(eksternBrukerId), identgruppe, true).entrySet().stream()
                 .filter(this::filtrerIkkeGjeldendeIdent)
                 .findFirst()
                 .flatMap(e -> finnGjeldendeIdent(e.getValue().identer))
@@ -178,15 +187,13 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
     private IdentOppslag tilIdentOppslag(Map.Entry<String, IdentData> identEntry) {
         Optional<Ident> gjeldendeIdent = finnGjeldendeIdent(identEntry.getValue().identer);
-        return new IdentOppslag(identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
+        return new IdentOppslag(
+                identEntry.getKey(), gjeldendeIdent.map(i -> i.ident).orElse(null));
     }
 
-
     private Map<String, IdentData> hentIdenter(
-            List<? extends EksternBrukerId> eksternBrukerIdList,
-            Identgruppe identgruppe,
-            boolean gjeldende
-    ) throws IOException {
+            List<? extends EksternBrukerId> eksternBrukerIdList, Identgruppe identgruppe, boolean gjeldende)
+            throws IOException {
 
         String personidenter = eksternBrukerIdList.stream().map(Id::get).collect(Collectors.joining(","));
         String requestUrl = createRequestUrl(aktorregisterUrl, identgruppe, gjeldende);
@@ -203,10 +210,8 @@ public class AktorregisterHttpClient implements AktorregisterClient {
 
             if (response.code() >= 300) {
                 String responseStr = getBodyStr(response).orElse("");
-                throw new RuntimeException(
-                        String.format("Fikk uventet status %d fra %s. Respons: %s",
-                                response.code(), request, responseStr)
-                );
+                throw new RuntimeException(String.format(
+                        "Fikk uventet status %d fra %s. Respons: %s", response.code(), request, responseStr));
             }
 
             Optional<String> jsonStr = getBodyStr(response);
@@ -228,7 +233,8 @@ public class AktorregisterHttpClient implements AktorregisterClient {
     }
 
     enum Identgruppe {
-        NorskIdent, AktoerId
+        NorskIdent,
+        AktoerId
     }
 
     private static class IdentData {
@@ -236,7 +242,6 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         public List<Ident> identer;
 
         public String feilmelding;
-
     }
 
     private static class Ident {
@@ -246,7 +251,6 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         public Identgruppe identgruppe;
 
         public boolean gjeldende;
-
     }
 
     private static class IdentOppslag {
@@ -273,7 +277,6 @@ public class AktorregisterHttpClient implements AktorregisterClient {
         public Optional<String> getIdentFraRegister() {
             return Optional.ofNullable(identFraRegister);
         }
-
     }
 
     private String resolveIsAliveUrl(String apiUrl) {

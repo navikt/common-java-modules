@@ -1,15 +1,15 @@
 package no.nav.common.auth.oidc.discovery;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class OidcDiscoveryConfigurationClientTest {
 
-    private final static JwtTestTokenIssuerConfig issuerConfig = JwtTestTokenIssuerConfig.builder()
+    private static final JwtTestTokenIssuerConfig issuerConfig = JwtTestTokenIssuerConfig.builder()
             .id("oidc-provider-test-rule-aadb2c")
             .issuer("oidc-provider-test-rule-aadb2c")
             .audience("oidc-provider-test-rule")
@@ -32,5 +32,4 @@ public class OidcDiscoveryConfigurationClientTest {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
         client.fetchDiscoveryConfiguration("http://not-a-real-host.test/discovery");
     }
-
 }

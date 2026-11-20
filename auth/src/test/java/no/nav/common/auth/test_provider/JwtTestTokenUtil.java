@@ -1,9 +1,8 @@
 package no.nav.common.auth.test_provider;
 
-import org.jose4j.jwk.JsonWebKeySet;
-
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import org.jose4j.jwk.JsonWebKeySet;
 
 public class JwtTestTokenUtil {
 
@@ -14,5 +13,4 @@ public class JwtTestTokenUtil {
     public static String getKeySetJson(JwtTestTokenIssuer... issuers) {
         return new JsonWebKeySet(Arrays.stream(issuers).map(x -> x.key).collect(Collectors.toList())).toJson();
     }
-
 }

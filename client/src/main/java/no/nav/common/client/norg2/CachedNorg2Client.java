@@ -1,14 +1,13 @@
 package no.nav.common.client.norg2;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import no.nav.common.health.HealthCheckResult;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import static java.util.Optional.ofNullable;
 import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import no.nav.common.health.HealthCheckResult;
 
 public class CachedNorg2Client implements Norg2Client {
 
@@ -23,7 +22,6 @@ public class CachedNorg2Client implements Norg2Client {
             .expireAfterWrite(12, TimeUnit.HOURS)
             .maximumSize(1000)
             .build();
-
 
     private final Cache<String, Enhet> hentEnhetFraOmradeCache = Caffeine.newBuilder()
             .expireAfterWrite(12, TimeUnit.HOURS)
@@ -48,9 +46,10 @@ public class CachedNorg2Client implements Norg2Client {
     public Enhet hentTilhorendeEnhet(String geografiskOmrade, Diskresjonskode diskresjonskode, boolean skjermet) {
         return tryCacheFirst(
                 hentEnhetFraOmradeCache,
-                geografiskOmrade + ofNullable(diskresjonskode).map(Diskresjonskode::name).orElse("") + skjermet,
-                () -> norg2Client.hentTilhorendeEnhet(geografiskOmrade, diskresjonskode, skjermet)
-        );
+                geografiskOmrade
+                        + ofNullable(diskresjonskode).map(Diskresjonskode::name).orElse("")
+                        + skjermet,
+                () -> norg2Client.hentTilhorendeEnhet(geografiskOmrade, diskresjonskode, skjermet));
     }
 
     @Override

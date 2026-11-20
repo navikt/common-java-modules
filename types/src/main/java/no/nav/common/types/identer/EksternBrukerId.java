@@ -3,7 +3,9 @@ package no.nav.common.types.identer;
 public abstract class EksternBrukerId extends Id {
 
     public enum Type {
-        FNR, AKTOR_ID, NORSK_IDENT
+        FNR,
+        AKTOR_ID,
+        NORSK_IDENT
     }
 
     EksternBrukerId(String id) {
@@ -21,5 +23,4 @@ public abstract class EksternBrukerId extends Id {
 
         throw new IllegalStateException("Ukjent EksternBrukerId.Type");
     }
-
 }

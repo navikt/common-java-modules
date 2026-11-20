@@ -1,21 +1,25 @@
 package no.nav.common.rest.filter;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import no.nav.common.log.MDCConstants;
-import no.nav.common.utils.IdUtils;
-import org.slf4j.MDC;
-
-import java.io.IOException;
-import java.util.Optional;
-
 import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static no.nav.common.utils.IdUtils.generateId;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.common.log.MDCConstants;
+import no.nav.common.utils.IdUtils;
+import org.slf4j.MDC;
 
 @Slf4j
 public class LogRequestFilter implements Filter {
@@ -37,7 +41,7 @@ public class LogRequestFilter implements Filter {
     private final boolean exposeErrorDetails;
 
     public LogRequestFilter(String applicationName) {
-       this(applicationName, false);
+        this(applicationName, false);
     }
 
     public LogRequestFilter(String applicationName, boolean exposeErrorDetails) {
@@ -50,7 +54,8 @@ public class LogRequestFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
             throw new ServletException("LogRequestFilter supports only HTTP requests");
         }
@@ -68,12 +73,11 @@ public class LogRequestFilter implements Filter {
 
             String consumerId = resolveConsumerId(httpRequest);
             String callId = resolveCallId(httpRequest);
-            String userId = resolveUserId(httpRequest)
-                    .orElseGet(() -> {
-                        String newUserId = generateId();
-                        createUserIdCookie(newUserId, httpResponse);
-                        return newUserId;
-                    });
+            String userId = resolveUserId(httpRequest).orElseGet(() -> {
+                String newUserId = generateId();
+                createUserIdCookie(newUserId, httpResponse);
+                return newUserId;
+            });
 
             MDC.put(MDCConstants.MDC_CALL_ID, callId);
             MDC.put(MDCConstants.MDC_USER_ID, userId);
@@ -87,12 +91,9 @@ public class LogRequestFilter implements Filter {
 
             long timeTakenMs = System.currentTimeMillis() - requestStarted;
 
-            String requestLogMsg = format("IN status=%s method=%s time=%dms url=%s",
-                    httpResponse.getStatus(),
-                    httpRequest.getMethod(),
-                    timeTakenMs,
-                    httpRequest.getRequestURL()
-            );
+            String requestLogMsg = format(
+                    "IN status=%s method=%s time=%dms url=%s",
+                    httpResponse.getStatus(), httpRequest.getMethod(), timeTakenMs, httpRequest.getRequestURL());
 
             int statusCode = httpResponse.getStatus();
             if (statusCode >= 200 && statusCode < 300) {
@@ -111,17 +112,13 @@ public class LogRequestFilter implements Filter {
     }
 
     private void filterChainWithErrorHandling(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws IOException {
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException {
         try {
             filterChain.doFilter(request, response);
         } catch (Throwable e) {
-            String requestLogMsg = format("Uncaught exception processing request IN method=%s url=%s",
-                    request.getMethod(),
-                    request.getRequestURL()
-            );
+            String requestLogMsg = format(
+                    "Uncaught exception processing request IN method=%s url=%s",
+                    request.getMethod(), request.getRequestURL());
             log.error(requestLogMsg, e);
 
             if (response.isCommitted()) {
@@ -162,16 +159,15 @@ public class LogRequestFilter implements Filter {
     }
 
     private static Optional<String> resolveUserId(HttpServletRequest httpRequest) {
-        return ofNullable(httpRequest.getCookies())
-                .flatMap(cookies -> {
-                    for (Cookie cookie : cookies) {
-                        if (RANDOM_USER_ID_COOKIE_NAME.equals(cookie.getName())) {
-                            return ofNullable(cookie.getValue());
-                        }
-                    }
+        return ofNullable(httpRequest.getCookies()).flatMap(cookies -> {
+            for (Cookie cookie : cookies) {
+                if (RANDOM_USER_ID_COOKIE_NAME.equals(cookie.getName())) {
+                    return ofNullable(cookie.getValue());
+                }
+            }
 
-                    return empty();
-                });
+            return empty();
+        });
     }
 
     @Override

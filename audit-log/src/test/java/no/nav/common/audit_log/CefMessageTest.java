@@ -1,16 +1,18 @@
 package no.nav.common.audit_log;
 
-import no.nav.common.audit_log.cef.CefMessage;
-import no.nav.common.audit_log.cef.CefMessageEvent;
-import no.nav.common.audit_log.cef.CefMessageSeverity;
-import org.junit.jupiter.api.Test;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_DESTINATION_USER_ID;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_END_TIME;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_SOURCE_USER_ID;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_SPROC;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static no.nav.common.audit_log.cef.CefMessageExtensionFields.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import no.nav.common.audit_log.cef.CefMessage;
+import no.nav.common.audit_log.cef.CefMessageEvent;
+import no.nav.common.audit_log.cef.CefMessageSeverity;
+import org.junit.jupiter.api.Test;
 
 public class CefMessageTest {
 
@@ -30,10 +32,10 @@ public class CefMessageTest {
                 CefMessageEvent.ACCESS.type,
                 "NAV-ansatt har gjort oppslag på bruker",
                 CefMessageSeverity.INFO.name(),
-                extension
-        );
+                extension);
 
-        String expectedStr = "CEF:0|my-application|AuditLogger|1.0|audit:access|NAV-ansatt har gjort oppslag på bruker|INFO|sproc=0bfe8d02-93d9-4530-99ac-3debae410769 duid=12345678900 end=1654185299215 suid=Z12345";
+        String expectedStr =
+                "CEF:0|my-application|AuditLogger|1.0|audit:access|NAV-ansatt har gjort oppslag på bruker|INFO|sproc=0bfe8d02-93d9-4530-99ac-3debae410769 duid=12345678900 end=1654185299215 suid=Z12345";
 
         assertEquals(expectedStr, cefMessage.toString());
     }
@@ -48,8 +50,7 @@ public class CefMessageTest {
                 CefMessageEvent.ACCESS.type,
                 "Info | om eventet",
                 CefMessageSeverity.INFO.name(),
-                Collections.emptyMap()
-        );
+                Collections.emptyMap());
 
         String expectedStr = "CEF:0|my-application|audit \\\\ Logger|1.0|audit:access|Info \\| om eventet|INFO|";
 
@@ -72,12 +73,11 @@ public class CefMessageTest {
                 CefMessageEvent.ACCESS.type,
                 "Info om eventet",
                 CefMessageSeverity.INFO.name(),
-                extension
-        );
+                extension);
 
-        String expectedStr = "CEF:0|my-application|auditLogger|1.0|audit:access|Info om eventet|INFO|sproc=multi \\n line string duid=test\\\\value end=3478329423 suid=test\\=hello";
+        String expectedStr =
+                "CEF:0|my-application|auditLogger|1.0|audit:access|Info om eventet|INFO|sproc=multi \\n line string duid=test\\\\value end=3478329423 suid=test\\=hello";
 
         assertEquals(expectedStr, cefMessage.toString());
     }
-
 }

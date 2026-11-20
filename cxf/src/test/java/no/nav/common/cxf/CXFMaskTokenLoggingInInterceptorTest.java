@@ -1,12 +1,11 @@
 package no.nav.common.cxf;
 
-import org.apache.cxf.ext.logging.event.LogEvent;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.cxf.ext.logging.event.LogEvent;
+import org.junit.Test;
 
 public class CXFMaskTokenLoggingInInterceptorTest {
 

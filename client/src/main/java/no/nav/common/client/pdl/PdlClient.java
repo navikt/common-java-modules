@@ -25,5 +25,4 @@ public interface PdlClient extends HealthCheck {
      * @return parsed graphql response with the data type specified
      */
     <D extends GraphqlResponse> D request(GraphqlRequest<?> graphqlRequest, Class<D> graphqlResponseClass);
-
 }

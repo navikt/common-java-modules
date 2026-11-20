@@ -1,7 +1,20 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
-import java.util.*;
+import static no.nav.common.kafka.utils.TestUtils.KAFKA_IMAGE;
+import static no.nav.common.kafka.utils.TestUtils.kafkaTestByteProducerProperties;
+import static no.nav.common.kafka.utils.TestUtils.kafkaTestConsumerProperties;
+import static org.awaitility.Awaitility.await;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.sql.DataSource;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
@@ -17,23 +30,17 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
-
-import javax.sql.DataSource;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-
-import static no.nav.common.kafka.utils.TestUtils.*;
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 
 public class KafkaProducerRecordProcessorIntegrationTest {
     private static final long POLL_TIMEOUT = 100;
@@ -82,10 +89,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         producerClient = new TestKafkaProducerClient(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
         testTopicA = UUID.randomUUID().toString();
         testTopicB = UUID.randomUUID().toString();
-        admin.createTopics(List.of(
-                new NewTopic(testTopicA, 1, (short) 1),
-                new NewTopic(testTopicB, 1, (short) 1)
-        ));
+        admin.createTopics(List.of(new NewTopic(testTopicA, 1, (short) 1), new NewTopic(testTopicB, 1, (short) 1)));
 
         sentOnTopicA = new CopyOnWriteArrayList<>();
         sentOnTopicB = new CopyOnWriteArrayList<>();
@@ -93,16 +97,16 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         KafkaConsumerClientConfig<String, String> config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(
-                        testTopicA, r -> {
-                            sentOnTopicA.add(r.value());
-                            return ConsumeStatus.OK;
-                        },
-                        testTopicB, r -> {
-                            sentOnTopicB.add(r.value());
-                            return ConsumeStatus.OK;
-                        }
-                )
-        );
+                        testTopicA,
+                                r -> {
+                                    sentOnTopicA.add(r.value());
+                                    return ConsumeStatus.OK;
+                                },
+                        testTopicB,
+                                r -> {
+                                    sentOnTopicB.add(r.value());
+                                    return ConsumeStatus.OK;
+                                }));
         consumerClient = new KafkaConsumerClientImpl<>(config);
     }
 
@@ -197,11 +201,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             }
         });
 
-        var recordProcessor = new KafkaProducerRecordProcessor(
-                producerRepository,
-                producerClient,
-                () -> true
-        );
+        var recordProcessor = new KafkaProducerRecordProcessor(producerRepository, producerClient, () -> true);
 
         recordProcessor.start();
         consumerClient.start();
@@ -223,7 +223,6 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         List<StoredProducerRecord> records = producerRepository.getRecords(10);
         assertEquals(5, records.size());
     }
-
 
     @Test
     public void should_send_records_in_the_stored_record_order_from_the_producer_record_repository() {
@@ -270,9 +269,9 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         assertEquals("b-3", new String(records.get(2).getValue(), StandardCharsets.UTF_8));
     }
 
-
     @Test
-    public void should_not_send_records_to_kafka_stored_in_a_transaction_that_gets_rolled_back() throws InterruptedException {
+    public void should_not_send_records_to_kafka_stored_in_a_transaction_that_gets_rolled_back()
+            throws InterruptedException {
         TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
 
         var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
@@ -301,14 +300,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         assertEquals(0, sentOnTopicA.size());
     }
 
-
     private StoredProducerRecord storedRecord(String topic, String key, String value) {
-        return new StoredProducerRecord(
-                topic,
-                key.getBytes(),
-                value.getBytes(),
-                "[]"
-        );
+        return new StoredProducerRecord(topic, key.getBytes(), value.getBytes(), "[]");
     }
-
 }

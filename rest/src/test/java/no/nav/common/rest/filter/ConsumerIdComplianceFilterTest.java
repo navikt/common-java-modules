@@ -1,15 +1,18 @@
 package no.nav.common.rest.filter;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import static org.mockito.Mockito.*;
+import org.junit.Test;
 
 public class ConsumerIdComplianceFilterTest {
 
@@ -47,7 +50,8 @@ public class ConsumerIdComplianceFilterTest {
     }
 
     @Test
-    public void should_forward_if_request_has_consumer_id_and_enforcing_compliance() throws IOException, ServletException {
+    public void should_forward_if_request_has_consumer_id_and_enforcing_compliance()
+            throws IOException, ServletException {
         var filter = new ConsumerIdComplianceFilter(true);
 
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -61,5 +65,4 @@ public class ConsumerIdComplianceFilterTest {
         verifyNoInteractions(response);
         verify(chain, times(1)).doFilter(request, response);
     }
-
 }

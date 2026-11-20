@@ -22,10 +22,11 @@ public class ToUrl implements Function<Integer, URL> {
     @Override
     public URL apply(Integer port) {
         try {
-            if(System.getProperty(JETTY_PRINT_LOCALHOST) != null) {
+            if (System.getProperty(JETTY_PRINT_LOCALHOST) != null) {
                 return URI.create(scheme + "://localhost:" + port + path).toURL();
             }
-            return URI.create(scheme + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port + path).toURL();
+            return URI.create(scheme + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port + path)
+                    .toURL();
         } catch (MalformedURLException | UnknownHostException e) {
             throw new RuntimeException(e);
         }

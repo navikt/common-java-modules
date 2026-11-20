@@ -15,5 +15,4 @@ public class GraphqlRequestBuilder<V> {
     public GraphqlRequest<V> buildRequest(V variables) {
         return new GraphqlRequest<>(graphqlRequestStr, variables);
     }
-
 }

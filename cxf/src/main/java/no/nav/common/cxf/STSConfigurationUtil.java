@@ -1,5 +1,7 @@
 package no.nav.common.cxf;
 
+import java.util.HashMap;
+import javax.xml.namespace.QName;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusException;
 import org.apache.cxf.endpoint.Client;
@@ -19,9 +21,6 @@ import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.cxf.ws.security.trust.STSClient;
 import org.apache.neethi.Policy;
 
-import javax.xml.namespace.QName;
-import java.util.HashMap;
-
 public class STSConfigurationUtil {
 
     public static void configureStsForSystemUserInFSS(Client client, StsConfig stsConfig) {
@@ -37,15 +36,19 @@ public class STSConfigurationUtil {
 
         STSClient stsClient = createBasicSTSClient(client.getBus(), location, username, password, stsType);
         client.getRequestContext().put(SecurityConstants.STS_CLIENT, stsClient);
-        client.getRequestContext().put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, stsType.allowCachingInEndpoint());
+        client.getRequestContext()
+                .put(SecurityConstants.CACHE_ISSUED_TOKEN_IN_ENDPOINT, stsType.allowCachingInEndpoint());
         setEndpointPolicyReference(client, "classpath:stspolicy.xml");
     }
 
-    private static STSClient createBasicSTSClient(Bus bus, String location, String username, String password, StsType stsType) {
+    private static STSClient createBasicSTSClient(
+            Bus bus, String location, String username, String password, StsType stsType) {
         NAVOidcSTSClient stsClient = new NAVOidcSTSClient(bus, stsType);
         stsClient.setWsdlLocation("wsdl/ws-trust-1.4-service.wsdl");
-        stsClient.setServiceQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceProvider"));
-        stsClient.setEndpointQName(new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceSOAP"));
+        stsClient.setServiceQName(
+                new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceProvider"));
+        stsClient.setEndpointQName(
+                new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512/wsdl", "SecurityTokenServiceSOAP"));
         stsClient.setEnableAppliesTo(false);
         stsClient.setAllowRenewing(false);
 
@@ -60,7 +63,6 @@ public class STSConfigurationUtil {
 
         stsClient.getOutInterceptors().add(new LoggingOutInterceptor());
         stsClient.getInInterceptors().add(new LoggingInInterceptor());
-
 
         HashMap<String, Object> properties = new HashMap<>();
         properties.put(SecurityConstants.USERNAME, username);
@@ -96,5 +98,4 @@ public class STSConfigurationUtil {
         }
         return property;
     }
-
 }

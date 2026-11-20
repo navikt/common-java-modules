@@ -1,5 +1,8 @@
 package no.nav.common.kafka.util;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,10 +12,6 @@ import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.header.internals.RecordHeaders;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class KafkaUtils {
 
@@ -33,8 +32,7 @@ public class KafkaUtils {
             return new RecordHeaders();
         }
 
-        List<Header> headers = JsonUtils.fromJsonArray(headersJson, KafkaHeader.class)
-                .stream()
+        List<Header> headers = JsonUtils.fromJsonArray(headersJson, KafkaHeader.class).stream()
                 .map(header -> new RecordHeader(header.getKey(), header.getValue()))
                 .collect(Collectors.toList());
 

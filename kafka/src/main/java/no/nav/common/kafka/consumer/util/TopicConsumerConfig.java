@@ -18,5 +18,4 @@ public class TopicConsumerConfig<K, V> {
     Deserializer<V> valueDeserializer;
 
     TopicConsumer<K, V> consumer;
-
 }

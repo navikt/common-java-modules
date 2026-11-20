@@ -51,5 +51,4 @@ public class StringUtils {
         int fromIndexBounded = Math.max(0, Math.min(fromIndex, length));
         return string.substring(fromIndexBounded, Math.max(fromIndexBounded, Math.min(toIndex, length)));
     }
-
 }

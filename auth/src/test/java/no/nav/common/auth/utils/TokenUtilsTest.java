@@ -1,22 +1,19 @@
 package no.nav.common.auth.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
-import org.junit.Test;
-
 import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class TokenUtilsTest {
 
-    private final static int FIVE_MINUTES = 1000 * 60 * 5;
+    private static final int FIVE_MINUTES = 1000 * 60 * 5;
 
     private JWTClaimsSet createClaimsSet(long exp) {
-        return new JWTClaimsSet.Builder()
-                .expirationTime(new Date(exp))
-                .build();
+        return new JWTClaimsSet.Builder().expirationTime(new Date(exp)).build();
     }
 
     @Test
@@ -49,5 +46,4 @@ public class TokenUtilsTest {
 
         assertThat(TokenUtils.expiresWithin(jwt, FIVE_MINUTES)).isTrue();
     }
-
 }

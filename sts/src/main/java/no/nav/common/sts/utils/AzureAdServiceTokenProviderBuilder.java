@@ -1,12 +1,14 @@
 package no.nav.common.sts.utils;
 
+import static no.nav.common.sts.utils.AzureAdEnvironmentVariables.AZURE_APP_CLIENT_ID;
+import static no.nav.common.sts.utils.AzureAdEnvironmentVariables.AZURE_APP_CLIENT_SECRET;
+import static no.nav.common.sts.utils.AzureAdEnvironmentVariables.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT;
+
 import no.nav.common.sts.AzureAdScopedTokenProvider;
 import no.nav.common.sts.AzureAdServiceTokenProvider;
 import no.nav.common.sts.CachedScopedTokenProvider;
 import no.nav.common.sts.ScopedTokenProvider;
 import no.nav.common.utils.EnvironmentUtils;
-
-import static no.nav.common.sts.utils.AzureAdEnvironmentVariables.*;
 
 /**
  * Deprecated: Succeeded by token-client module
@@ -28,8 +30,10 @@ public class AzureAdServiceTokenProviderBuilder {
 
     public AzureAdServiceTokenProviderBuilder withEnvironmentDefaults() {
         clientId = EnvironmentUtils.getOptionalProperty(AZURE_APP_CLIENT_ID).orElse(null);
-        clientSecret = EnvironmentUtils.getOptionalProperty(AZURE_APP_CLIENT_SECRET).orElse(null);
-        tokenEndpointUrl = EnvironmentUtils.getOptionalProperty(AZURE_OPENID_CONFIG_TOKEN_ENDPOINT).orElse(null);
+        clientSecret =
+                EnvironmentUtils.getOptionalProperty(AZURE_APP_CLIENT_SECRET).orElse(null);
+        tokenEndpointUrl = EnvironmentUtils.getOptionalProperty(AZURE_OPENID_CONFIG_TOKEN_ENDPOINT)
+                .orElse(null);
 
         return this;
     }
@@ -62,9 +66,9 @@ public class AzureAdServiceTokenProviderBuilder {
             throw new IllegalStateException("Token endpoint URL is required");
         }
 
-        ScopedTokenProvider scopedTokenProvider = new AzureAdScopedTokenProvider(clientId, clientSecret, tokenEndpointUrl);
+        ScopedTokenProvider scopedTokenProvider =
+                new AzureAdScopedTokenProvider(clientId, clientSecret, tokenEndpointUrl);
 
         return new AzureAdServiceTokenProvider(new CachedScopedTokenProvider(scopedTokenProvider));
     }
-
 }

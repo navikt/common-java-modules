@@ -1,14 +1,13 @@
 package no.nav.common.nais;
 
-import org.junit.Test;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class NaisYamlUtilsTest {
     private static final String base = "src/test/resources/";
@@ -67,7 +66,6 @@ public class NaisYamlUtilsTest {
 
         assertThat(config.spec.ingresses).hasSize(2);
 
-
         assertThat(config.spec.vault.enabled).isEqualTo(false);
         assertThat(config.spec.vault.sidecar).isEqualTo(false);
         assertThat(config.spec.vault.paths).hasSize(1);
@@ -114,10 +112,8 @@ public class NaisYamlUtilsTest {
 
     @Test
     public void getTemplatedConfig_handles_null() {
-        NaisYamlUtils.NaiseratorSpec config = NaisYamlUtils.getTemplatedConfig(
-                base + "min-nais-templated-example.yaml",
-                null
-        );
+        NaisYamlUtils.NaiseratorSpec config =
+                NaisYamlUtils.getTemplatedConfig(base + "min-nais-templated-example.yaml", null);
 
         assertThat(config.metadata.namespace).isEqualTo("default");
         assertThat(config.spec.image).isNull();
@@ -140,10 +136,8 @@ public class NaisYamlUtilsTest {
         context.put("ingresses", ingresses);
         context.put("env", env);
 
-        NaisYamlUtils.NaiseratorSpec config = NaisYamlUtils.getTemplatedConfig(
-                base + "min-nais-templated-example.yaml",
-                context
-        );
+        NaisYamlUtils.NaiseratorSpec config =
+                NaisYamlUtils.getTemplatedConfig(base + "min-nais-templated-example.yaml", context);
 
         assertThat(config.metadata.namespace).isEqualTo(namespace);
         assertThat(config.spec.image).isEqualTo(image);

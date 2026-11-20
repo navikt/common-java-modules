@@ -1,13 +1,12 @@
 package no.nav.common.cxf;
 
-import org.junit.Test;
-
-import java.lang.reflect.InvocationTargetException;
-
 import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+
+import java.lang.reflect.InvocationTargetException;
+import org.junit.Test;
 
 public class InstanceSwitcherTest {
 
@@ -77,10 +76,10 @@ public class InstanceSwitcherTest {
         clearProperty(nokkel);
     }
 
-    private  ClassV1 createClassV1(){
+    private ClassV1 createClassV1() {
         return new ClassV1() {
             @Override
-            public String doSomething(){
+            public String doSomething() {
                 return "originalklasse";
             }
 
@@ -96,7 +95,7 @@ public class InstanceSwitcherTest {
         };
     }
 
-    private ClassV1 createClassV1Mock(){
+    private ClassV1 createClassV1Mock() {
         return new ClassV1() {
             @Override
             public String doSomething() {
@@ -104,20 +103,18 @@ public class InstanceSwitcherTest {
             }
 
             @Override
-            public void simulererInvokationTargetException() {
-
-            }
+            public void simulererInvokationTargetException() {}
 
             @Override
-            public void simulererIllegalAccessException() {
-
-            }
+            public void simulererIllegalAccessException() {}
         };
     }
 
     private interface ClassV1 {
         String doSomething();
+
         void simulererInvokationTargetException() throws InvocationTargetException;
+
         void simulererIllegalAccessException() throws IllegalAccessException;
     }
 }

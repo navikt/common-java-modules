@@ -1,11 +1,15 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 
 public class StoreRecordTopicConsumerTest {
 
@@ -15,7 +19,8 @@ public class StoreRecordTopicConsumerTest {
 
         StoreRecordTopicConsumer storeRecordTopicConsumer = new StoreRecordTopicConsumer(consumerRepository);
 
-        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
+        ConsumerRecord<byte[], byte[]> record =
+                new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         assertEquals(ConsumeStatus.OK, storeRecordTopicConsumer.consume(record));
         verify(consumerRepository, times(1)).storeRecord(any());
@@ -29,10 +34,9 @@ public class StoreRecordTopicConsumerTest {
 
         StoreRecordTopicConsumer storeRecordTopicConsumer = new StoreRecordTopicConsumer(consumerRepository);
 
-        ConsumerRecord<byte[], byte[]> record = new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
+        ConsumerRecord<byte[], byte[]> record =
+                new ConsumerRecord<>("topic", 1, 1, "key".getBytes(), "value".getBytes());
 
         assertEquals(ConsumeStatus.FAILED, storeRecordTopicConsumer.consume(record));
     }
-
-
 }

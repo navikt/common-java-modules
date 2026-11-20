@@ -6,5 +6,4 @@ package no.nav.common.sts;
 public interface ServiceToServiceTokenProvider {
 
     String getServiceToken(String serviceName, String namespace, String cluster);
-
 }

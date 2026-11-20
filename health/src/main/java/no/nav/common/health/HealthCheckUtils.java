@@ -1,20 +1,17 @@
 package no.nav.common.health;
 
+import static java.lang.String.format;
+
+import java.util.List;
+import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.util.List;
-import java.util.Optional;
-
-import static java.lang.String.format;
-
 public class HealthCheckUtils {
 
     public static HealthCheckResult pingUrl(String url, OkHttpClient client) {
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        Request request = new Request.Builder().url(url).build();
 
         return pingUrl(request, client);
     }
@@ -22,7 +19,8 @@ public class HealthCheckUtils {
     public static HealthCheckResult pingUrl(Request request, OkHttpClient client) {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                return HealthCheckResult.unhealthy(format("Helsesjekk feilet mot %s. Fikk uventet status %d", request.url(), response.code()));
+                return HealthCheckResult.unhealthy(
+                        format("Helsesjekk feilet mot %s. Fikk uventet status %d", request.url(), response.code()));
             }
 
             return HealthCheckResult.healthy();
@@ -56,5 +54,4 @@ public class HealthCheckUtils {
 
         return Optional.empty();
     }
-
 }

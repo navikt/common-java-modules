@@ -1,9 +1,8 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.sql.Timestamp;
 
 @AllArgsConstructor
 @Data
@@ -19,7 +18,8 @@ public class StoredConsumerRecord {
     private final Timestamp lastRetry;
     private final long timestamp;
 
-    public StoredConsumerRecord(String topic, int partition, long offset, byte[] key, byte[] value, String headersJson, long timestamp) {
+    public StoredConsumerRecord(
+            String topic, int partition, long offset, byte[] key, byte[] value, String headersJson, long timestamp) {
         this.id = -1;
         this.topic = topic;
         this.partition = partition;

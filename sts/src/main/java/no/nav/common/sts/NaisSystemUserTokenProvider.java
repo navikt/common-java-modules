@@ -1,5 +1,12 @@
 package no.nav.common.sts;
 
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static no.nav.common.rest.client.RestUtils.getBodyStr;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
+import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
+import static no.nav.common.utils.AuthUtils.basicCredentials;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
@@ -13,13 +20,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static no.nav.common.rest.client.RestUtils.getBodyStr;
-import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
-import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
-import static no.nav.common.utils.AuthUtils.basicCredentials;
 
 /**
  * Retrieves system user tokens from NAIS Security Token Service
@@ -49,7 +49,8 @@ public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
         this.client = RestClient.baseClient();
     }
 
-    public NaisSystemUserTokenProvider(String tokenEndpoint, String srvUsername, String srvPassword, OkHttpClient client) {
+    public NaisSystemUserTokenProvider(
+            String tokenEndpoint, String srvUsername, String srvPassword, OkHttpClient client) {
         this.tokenEndpoint = tokenEndpoint;
         this.srvUsername = srvUsername;
         this.srvPassword = srvPassword;
@@ -79,10 +80,13 @@ public class NaisSystemUserTokenProvider implements SystemUserTokenProvider {
         try (Response response = client.newCall(request).execute()) {
             if (response.code() >= 300) {
                 String responseStr = getBodyStr(response).orElse("");
-                throw new RuntimeException(String.format("Received unexpected status %d when requesting access token for system user. Response: %s", response.code(), responseStr));
+                throw new RuntimeException(String.format(
+                        "Received unexpected status %d when requesting access token for system user. Response: %s",
+                        response.code(), responseStr));
             }
 
-            ClientCredentialsResponse credentialsResponse = parseJsonResponseOrThrow(response, ClientCredentialsResponse.class);
+            ClientCredentialsResponse credentialsResponse =
+                    parseJsonResponseOrThrow(response, ClientCredentialsResponse.class);
             return JWTParser.parse(credentialsResponse.accessToken);
         } catch (Exception e) {
             log.error("Failed to fetch system user token from " + targetUrl, e);

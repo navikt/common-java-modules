@@ -1,17 +1,21 @@
 package no.nav.common.client.aktoroppslag;
 
-import no.nav.common.types.identer.AktorId;
-import no.nav.common.types.identer.Fnr;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import no.nav.common.types.identer.AktorId;
+import no.nav.common.types.identer.Fnr;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class CachedAktorOppslagClientTest {
 
@@ -79,7 +83,6 @@ public class CachedAktorOppslagClientTest {
 
         ArgumentCaptor<List<AktorId>> captor = ArgumentCaptor.forClass(List.class);
 
-
         Map<AktorId, Fnr> mapping1 = new HashMap<>();
         mapping1.put(aktorId1, fnr1);
         mapping1.put(aktorId2, fnr2);
@@ -95,7 +98,6 @@ public class CachedAktorOppslagClientTest {
         assertEquals(fnr2, oppslag1.get(aktorId2));
         assertEquals(fnr3, oppslag1.get(aktorId3));
         assertEquals(aktorIdList1, captor.getValue());
-
 
         Map<AktorId, Fnr> mapping2 = new HashMap<>();
         mapping2.put(aktorId2, fnr2);
@@ -154,13 +156,11 @@ public class CachedAktorOppslagClientTest {
         Fnr fnr3 = Fnr.of("fnr3");
         Fnr fnr4 = Fnr.of("fnr4");
 
-
         AktorOppslagClient mockedClient = mock(AktorOppslagClient.class);
 
         CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
 
         ArgumentCaptor<List<Fnr>> captor = ArgumentCaptor.forClass(List.class);
-
 
         Map<Fnr, AktorId> mapping1 = new HashMap<>();
         mapping1.put(fnr1, aktorId1);
@@ -177,7 +177,6 @@ public class CachedAktorOppslagClientTest {
         assertEquals(aktorId2, oppslag1.get(fnr2));
         assertEquals(aktorId3, oppslag1.get(fnr3));
         assertEquals(fnrList1, captor.getValue());
-
 
         Map<Fnr, AktorId> mapping2 = new HashMap<>();
         mapping2.put(fnr2, aktorId2);
@@ -233,14 +232,12 @@ public class CachedAktorOppslagClientTest {
                 brukerId1,
                 AktorId.of("aktorId1"),
                 asList(Fnr.of("fnr12"), Fnr.of("fnr13")),
-                asList(AktorId.of("aktorId12"))
-        );
+                asList(AktorId.of("aktorId12")));
         BrukerIdenter brukerIdenter2 = new BrukerIdenter(
                 Fnr.of("fnr2"),
                 brukerId2,
                 asList(Fnr.of("fnr22"), Fnr.of("fnr23")),
-                asList(AktorId.of("aktorId22"), AktorId.of("aktorId23"))
-        );
+                asList(AktorId.of("aktorId22"), AktorId.of("aktorId23")));
 
         AktorOppslagClient mockedClient = mock(AktorOppslagClient.class);
 

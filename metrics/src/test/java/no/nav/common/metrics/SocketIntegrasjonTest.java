@@ -1,19 +1,20 @@
 package no.nav.common.metrics;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static no.nav.common.metrics.TestUtil.lesLinjeFraSocket;
+import static no.nav.common.metrics.TestUtil.lesUtAlleMeldingerSendtPaSocket;
+import static no.nav.common.metrics.TestUtil.sensuHandlerForTest;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static no.nav.common.metrics.TestUtil.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.fail;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SocketIntegrasjonTest {
 
@@ -34,17 +35,17 @@ public class SocketIntegrasjonTest {
     @Test
     public void senderJsonOverSocket() throws Exception {
         new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(50); // Vente på socketen er klar
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                sensuHandler.report("data123");
-            }
-        }).start();
-
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(50); // Vente på socketen er klar
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        sensuHandler.report("data123");
+                    }
+                })
+                .start();
 
         String linje = lesLinjeFraSocket(serverSocket);
 

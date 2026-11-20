@@ -1,11 +1,10 @@
 package no.nav.common.kafka.consumer.util.deserializer;
 
-import org.apache.kafka.common.serialization.Deserializer;
+import static no.nav.common.json.JsonUtils.fromJsonArray;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static no.nav.common.json.JsonUtils.fromJsonArray;
+import org.apache.kafka.common.serialization.Deserializer;
 
 public class JsonArrayDeserializer<T> implements Deserializer<List<T>> {
 
@@ -25,5 +24,4 @@ public class JsonArrayDeserializer<T> implements Deserializer<List<T>> {
 
         return fromJsonArray(dataStr, dataClass);
     }
-
 }

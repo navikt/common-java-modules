@@ -7,14 +7,12 @@ import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-
 @Slf4j
 public class AuthContextRule implements MethodRule {
 
     private AuthContext authContext;
 
-    public AuthContextRule() {
-    }
+    public AuthContextRule() {}
 
     public AuthContextRule(AuthContext authContext) {
         this.authContext = authContext;

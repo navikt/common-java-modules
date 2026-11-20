@@ -1,14 +1,13 @@
 package no.nav.common.job;
 
+import static java.lang.String.format;
+
+import java.util.concurrent.CompletableFuture;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.log.MDCConstants;
 import no.nav.common.utils.IdUtils;
 import no.nav.common.utils.fn.UnsafeRunnable;
 import org.slf4j.MDC;
-
-import java.util.concurrent.CompletableFuture;
-
-import static java.lang.String.format;
 
 @Slf4j
 public class JobRunner {
@@ -70,5 +69,4 @@ public class JobRunner {
     public static void runAsync(String jobName, String jobId, UnsafeRunnable runnable) {
         CompletableFuture.runAsync(() -> run(jobName, jobId, runnable));
     }
-
 }

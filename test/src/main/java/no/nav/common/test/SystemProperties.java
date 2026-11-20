@@ -1,15 +1,13 @@
 package no.nav.common.test;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.io.IOUtils.closeQuietly;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-
-import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.io.IOUtils.closeQuietly;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SystemProperties {
 
@@ -70,7 +68,5 @@ public final class SystemProperties {
         }
     }
 
-    private SystemProperties() {
-    }
-
+    private SystemProperties() {}
 }

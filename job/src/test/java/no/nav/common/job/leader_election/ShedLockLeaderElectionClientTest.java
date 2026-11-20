@@ -1,18 +1,19 @@
 package no.nav.common.job.leader_election;
 
-import net.javacrumbs.shedlock.core.LockProvider;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.*;
+import net.javacrumbs.shedlock.core.LockProvider;
+import org.junit.Test;
 
 public class ShedLockLeaderElectionClientTest {
 
     @Test
     public void should_acquire_lock_for_one_client_and_deny_the_other() throws InterruptedException {
-       AtomicInteger counter = new AtomicInteger();
+        AtomicInteger counter = new AtomicInteger();
 
         LockProvider provider = lockConfiguration -> {
             if (counter.incrementAndGet() > 1) {
@@ -36,5 +37,4 @@ public class ShedLockLeaderElectionClientTest {
 
         assertEquals(2, counter.get()); // Clients should only increment once
     }
-
 }

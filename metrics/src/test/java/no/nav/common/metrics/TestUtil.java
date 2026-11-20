@@ -1,5 +1,9 @@
 package no.nav.common.metrics;
 
+import static no.nav.common.metrics.SensuConfig.DEFAULT_SENSU_BATCH_SIZE;
+import static no.nav.common.metrics.SensuConfig.DEFAULT_SENSU_CONNECT_TIMEOUT;
+import static no.nav.common.metrics.SensuConfig.DEFAULT_SENSU_QUEUE_SIZE;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,8 +13,6 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static no.nav.common.metrics.SensuConfig.*;
 
 public class TestUtil {
 
@@ -25,7 +27,6 @@ public class TestUtil {
 
         return meldinger;
     }
-
 
     public static String lesLinjeFraSocket(ServerSocket serverSocket) throws IOException {
         try {
@@ -68,5 +69,4 @@ public class TestUtil {
                 .cleanupOnShutdown(true)
                 .build();
     }
-
 }

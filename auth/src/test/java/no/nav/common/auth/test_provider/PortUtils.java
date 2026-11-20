@@ -1,9 +1,9 @@
 package no.nav.common.auth.test_provider;
 
-import javax.net.ServerSocketFactory;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Random;
+import javax.net.ServerSocketFactory;
 
 public class PortUtils {
 
@@ -12,7 +12,6 @@ public class PortUtils {
     private static final int MAX_PORT = 65535;
 
     private static Random random = new Random();
-
 
     public static int findAvailablePort() {
         return findAvailablePort(MIN_PORT, MAX_PORT);
@@ -25,7 +24,8 @@ public class PortUtils {
 
     private static boolean isPortAvailable(int port) {
         try {
-            ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket(port, 1, InetAddress.getByName("localhost"));
+            ServerSocket serverSocket =
+                    ServerSocketFactory.getDefault().createServerSocket(port, 1, InetAddress.getByName("localhost"));
             serverSocket.close();
             return true;
         } catch (Exception ignored) {
@@ -43,10 +43,8 @@ public class PortUtils {
             }
             candidatePort = findRandomPort(minPort, maxPort);
             searchCounter++;
-        }
-        while (!isPortAvailable(candidatePort));
+        } while (!isPortAvailable(candidatePort));
 
         return candidatePort;
     }
-
 }

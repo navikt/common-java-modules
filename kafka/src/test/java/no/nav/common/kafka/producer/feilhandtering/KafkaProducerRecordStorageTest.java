@@ -1,13 +1,19 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class KafkaProducerRecordStorageTest {
 
@@ -45,8 +51,7 @@ public class KafkaProducerRecordStorageTest {
 
         assertThrows(
                 IllegalStateException.class,
-                () -> producerRecordStorage.store(ProducerUtils.serializeStringRecord(new ProducerRecord<>("topic", "key", "value")))
-        );
+                () -> producerRecordStorage.store(
+                        ProducerUtils.serializeStringRecord(new ProducerRecord<>("topic", "key", "value"))));
     }
-
 }

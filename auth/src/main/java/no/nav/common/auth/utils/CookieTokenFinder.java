@@ -2,7 +2,6 @@ package no.nav.common.auth.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Optional;
 
 public class CookieTokenFinder implements TokenFinder {
@@ -15,8 +14,6 @@ public class CookieTokenFinder implements TokenFinder {
 
     @Override
     public Optional<String> findToken(HttpServletRequest request) {
-        return CookieUtils.getCookie(cookieName, request)
-                .map(Cookie::getValue);
+        return CookieUtils.getCookie(cookieName, request).map(Cookie::getValue);
     }
-
 }

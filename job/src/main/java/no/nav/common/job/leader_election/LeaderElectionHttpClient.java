@@ -1,5 +1,8 @@
 package no.nav.common.job.leader_election;
 
+import static java.lang.String.format;
+
+import java.net.InetAddress;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.json.JsonUtils;
@@ -10,14 +13,10 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-
-import static java.lang.String.format;
-
 @Slf4j
 public class LeaderElectionHttpClient implements LeaderElectionClient {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(LeaderElectionHttpClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LeaderElectionHttpClient.class);
 
     private final OkHttpClient client;
 
@@ -30,14 +29,14 @@ public class LeaderElectionHttpClient implements LeaderElectionClient {
     public boolean isLeader() {
         String electorPath = EnvironmentUtils.getRequiredProperty("ELECTOR_PATH");
 
-        Request request = new Request.Builder()
-                .url("http://" + electorPath)
-                .get()
-                .build();
+        Request request =
+                new Request.Builder().url("http://" + electorPath).get().build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                LOGGER.error(format("Received unexpected status from leader election sidecar %d:%s", response.code(), response.message()));
+                LOGGER.error(format(
+                        "Received unexpected status from leader election sidecar %d:%s",
+                        response.code(), response.message()));
                 return false;
             }
 
@@ -49,5 +48,4 @@ public class LeaderElectionHttpClient implements LeaderElectionClient {
             return false;
         }
     }
-
 }

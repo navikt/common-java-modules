@@ -1,8 +1,8 @@
 package no.nav.common.metrics;
 
-import java.util.Map;
-
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import java.util.Map;
 
 public class InfluxClient implements MetricsClient {
 
@@ -34,7 +34,8 @@ public class InfluxClient implements MetricsClient {
     }
 
     @Override
-    public void report(String eventName, Map<String, Object> fields, Map<String, String> tags, long timestampInMilliseconds) {
+    public void report(
+            String eventName, Map<String, Object> fields, Map<String, String> tags, long timestampInMilliseconds) {
         tags.putIfAbsent("application", sensuConfig.getApplication());
         tags.putIfAbsent("hostname", sensuConfig.getHostname());
         tags.putIfAbsent("cluster", sensuConfig.getCluster());
@@ -44,5 +45,4 @@ public class InfluxClient implements MetricsClient {
         String output = InfluxUtils.createInfluxLineProtocolPayload(eventName, tags, fields, timestamp);
         sensuHandler.report(output);
     }
-
 }

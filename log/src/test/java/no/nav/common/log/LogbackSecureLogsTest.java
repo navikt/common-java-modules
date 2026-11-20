@@ -1,6 +1,12 @@
 package no.nav.common.log;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.gson.Gson;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Optional;
 import lombok.SneakyThrows;
 import org.junit.Rule;
 import org.junit.Test;
@@ -9,25 +15,16 @@ import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-
 public class LogbackSecureLogsTest {
 
     private static final String SECURELOGS_DIR = "./build/securelogs";
     public static final String HEMMELIG_MELDING = "Hemmelig melding med fnr: 10108000398";
 
     @Rule
-    public final ProvideSystemProperty securelogsDir
-            = new ProvideSystemProperty("SECURELOGS_DIR", SECURELOGS_DIR);
+    public final ProvideSystemProperty securelogsDir = new ProvideSystemProperty("SECURELOGS_DIR", SECURELOGS_DIR);
+
     @Rule
-    public final RestoreSystemProperties restoreSystemProperties
-            = new RestoreSystemProperties();
+    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 
     @Test
     @SneakyThrows

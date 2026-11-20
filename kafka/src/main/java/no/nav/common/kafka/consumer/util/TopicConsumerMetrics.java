@@ -3,11 +3,10 @@ package no.nav.common.kafka.consumer.util;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
-import no.nav.common.kafka.consumer.ConsumeStatus;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import no.nav.common.kafka.consumer.ConsumeStatus;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 /**
  * Consumer listener which adds a consumption status metric for each topic + partition
@@ -17,9 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
 
-    public final static String KAFKA_CONSUMER_STATUS_COUNTER = "kafka_consumer_status";
+    public static final String KAFKA_CONSUMER_STATUS_COUNTER = "kafka_consumer_status";
 
-    public final static String KAFKA_CONSUMER_CONSUMED_OFFSET_GAUGE = "kafka_consumer_consumed_offset";
+    public static final String KAFKA_CONSUMER_CONSUMED_OFFSET_GAUGE = "kafka_consumer_consumed_offset";
 
     private final MeterRegistry meterRegistry;
 
@@ -43,16 +42,18 @@ public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
     public void onConsumed(ConsumerRecord<K, V> record, ConsumeStatus status) {
         String statusMapKey = String.format("%s-%d-%s-%s", record.topic(), record.partition(), status, consumerGroupId);
 
-        statusCounterMap.computeIfAbsent(statusMapKey, (k) -> {
-            Counter.Builder builder = Counter.builder(KAFKA_CONSUMER_STATUS_COUNTER)
-                    .tag("topic", record.topic())
-                    .tag("partition", String.valueOf(record.partition()))
-                    .tag("status", status.name().toLowerCase());
-            if (consumerGroupId != null) {
-                builder.tag("group_id", consumerGroupId);
-            }
-            return builder.register(meterRegistry);
-        }).increment();
+        statusCounterMap
+                .computeIfAbsent(statusMapKey, (k) -> {
+                    Counter.Builder builder = Counter.builder(KAFKA_CONSUMER_STATUS_COUNTER)
+                            .tag("topic", record.topic())
+                            .tag("partition", String.valueOf(record.partition()))
+                            .tag("status", status.name().toLowerCase());
+                    if (consumerGroupId != null) {
+                        builder.tag("group_id", consumerGroupId);
+                    }
+                    return builder.register(meterRegistry);
+                })
+                .increment();
 
         if (status == ConsumeStatus.OK) {
             String offsetMapKey = String.format("%s-%d-%s", record.topic(), record.partition(), consumerGroupId);
@@ -74,5 +75,4 @@ public class TopicConsumerMetrics<K, V> implements TopicConsumerListener<K, V> {
             });
         }
     }
-
 }

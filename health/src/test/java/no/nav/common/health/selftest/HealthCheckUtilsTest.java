@@ -1,14 +1,17 @@
 package no.nav.common.health.selftest;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static org.junit.Assert.assertTrue;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.health.HealthCheckUtils;
 import okhttp3.OkHttpClient;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertTrue;
 
 public class HealthCheckUtilsTest {
 
@@ -40,5 +43,4 @@ public class HealthCheckUtilsTest {
         HealthCheckResult result = HealthCheckUtils.pingUrl("http://localhost:1234", new OkHttpClient());
         assertTrue(result.isUnhealthy());
     }
-
 }

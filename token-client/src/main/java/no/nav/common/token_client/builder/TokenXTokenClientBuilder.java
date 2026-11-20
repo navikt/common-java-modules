@@ -1,12 +1,14 @@
 package no.nav.common.token_client.builder;
 
+import static no.nav.common.token_client.utils.env.TokenXEnvironmentvariables.TOKEN_X_CLIENT_ID;
+import static no.nav.common.token_client.utils.env.TokenXEnvironmentvariables.TOKEN_X_PRIVATE_JWK;
+import static no.nav.common.token_client.utils.env.TokenXEnvironmentvariables.TOKEN_X_WELL_KNOWN_URL;
+
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import no.nav.common.token_client.cache.CaffeineTokenCache;
 import no.nav.common.token_client.cache.TokenCache;
 import no.nav.common.token_client.client.TokenXOnBehalfOfTokenClient;
 import no.nav.common.token_client.utils.OidcDiscoveryClient;
-
-import static no.nav.common.token_client.utils.env.TokenXEnvironmentvariables.*;
 
 public class TokenXTokenClientBuilder {
 
@@ -57,7 +59,8 @@ public class TokenXTokenClientBuilder {
 
         OIDCProviderMetadata oidcProviderMetadata = OidcDiscoveryClient.fetchDiscoveryMetadata(discoveryUrl);
 
-        return new TokenXOnBehalfOfTokenClient(clientId, oidcProviderMetadata.getTokenEndpointURI().toString(), privateJwk, tokenCache);
+        return new TokenXOnBehalfOfTokenClient(
+                clientId, oidcProviderMetadata.getTokenEndpointURI().toString(), privateJwk, tokenCache);
     }
 
     private void validate() {
@@ -73,5 +76,4 @@ public class TokenXTokenClientBuilder {
             throw new IllegalStateException("Discovery URL is required");
         }
     }
-
 }

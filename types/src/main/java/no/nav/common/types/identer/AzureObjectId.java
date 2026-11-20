@@ -16,5 +16,4 @@ public class AzureObjectId extends InternBrukerId {
     public static AzureObjectId of(String azureAdId) {
         return new AzureObjectId(azureAdId);
     }
-
 }

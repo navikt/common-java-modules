@@ -10,5 +10,4 @@ public class EnumUtils {
                 .filter(e -> e.name().equals(name))
                 .findAny();
     }
-
 }

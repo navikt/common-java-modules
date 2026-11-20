@@ -1,8 +1,7 @@
 package no.nav.common.utils.fn;
 
-import lombok.SneakyThrows;
-
 import java.util.function.Consumer;
+import lombok.SneakyThrows;
 
 @FunctionalInterface
 public interface UnsafeConsumer<T> extends Consumer<T> {
@@ -12,6 +11,6 @@ public interface UnsafeConsumer<T> extends Consumer<T> {
     default void accept(T t) {
         unsafeAccept(t);
     }
-    void unsafeAccept(T t) throws Throwable;
 
+    void unsafeAccept(T t) throws Throwable;
 }

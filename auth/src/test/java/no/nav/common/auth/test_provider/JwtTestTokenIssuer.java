@@ -1,5 +1,10 @@
 package no.nav.common.auth.test_provider;
 
+import static no.nav.common.utils.AssertUtils.assertNotNull;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.SneakyThrows;
 import org.jose4j.jwk.JsonWebKeySet;
 import org.jose4j.jwk.RsaJsonWebKey;
@@ -8,12 +13,6 @@ import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.ReservedClaimNames;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static no.nav.common.utils.AssertUtils.assertNotNull;
 
 public class JwtTestTokenIssuer {
 
@@ -75,6 +74,5 @@ public class JwtTestTokenIssuer {
             map.put(name, value);
             return this;
         }
-
     }
 }

@@ -69,6 +69,7 @@ jacoco = "0.8.16"
 
 # Gradle-plugins
 versions-plugin = "0.67.0"
+spotless = "8.11.0"
 
 [libraries]
 
@@ -181,3 +182,4 @@ commons-lang = { module = "org.apache.commons:commons-lang3", version.ref = "com
 
 [plugins]
 versions = { id = "io.github.ben-manes.versions", version.ref = "versions-plugin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

@@ -1,10 +1,9 @@
 package no.nav.common.client.aktorregister;
 
+import java.util.List;
 import no.nav.common.client.aktoroppslag.AktorOppslagClient;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.Fnr;
-
-import java.util.List;
 
 public interface AktorregisterClient extends AktorOppslagClient {
 
@@ -15,5 +14,4 @@ public interface AktorregisterClient extends AktorOppslagClient {
      * @return liste med alle aktørider som bruker har hatt
      */
     List<AktorId> hentAktorIder(Fnr fnr);
-
 }

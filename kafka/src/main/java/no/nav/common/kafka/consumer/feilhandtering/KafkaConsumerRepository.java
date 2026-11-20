@@ -1,9 +1,8 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
-import org.apache.kafka.common.TopicPartition;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.kafka.common.TopicPartition;
 
 public interface KafkaConsumerRepository {
 

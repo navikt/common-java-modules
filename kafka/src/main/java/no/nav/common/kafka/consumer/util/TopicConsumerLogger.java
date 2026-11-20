@@ -17,10 +17,17 @@ public class TopicConsumerLogger<K, V> implements TopicConsumerListener<K, V> {
     @Override
     public void onConsumed(ConsumerRecord<K, V> record, ConsumeStatus status) {
         if (status == ConsumeStatus.OK) {
-            log.info("Consumed record topic={} partition={} offset={}", record.topic(), record.partition(), record.offset());
+            log.info(
+                    "Consumed record topic={} partition={} offset={}",
+                    record.topic(),
+                    record.partition(),
+                    record.offset());
         } else {
-            log.error("Failed to consume record topic={} partition={} offset={}", record.topic(), record.partition(), record.offset());
+            log.error(
+                    "Failed to consume record topic={} partition={} offset={}",
+                    record.topic(),
+                    record.partition(),
+                    record.offset());
         }
     }
-
 }

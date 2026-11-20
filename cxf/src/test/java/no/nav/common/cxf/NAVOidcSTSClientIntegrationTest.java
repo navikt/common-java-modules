@@ -1,18 +1,21 @@
 package no.nav.common.cxf;
 
-import no.nav.common.auth.context.UserRole;
-import no.nav.common.cxf.jetty.Jetty;
-import no.nav.common.test.auth.AuthTestUtils;
-import org.apache.servicemix.examples.cxf.HelloWorld;
-import org.junit.*;
-import org.slf4j.Logger;
-
-import java.net.ConnectException;
-
 import static no.nav.common.cxf.jetty.JettyTestServer.findFreePort;
 import static no.nav.common.test.ssl.SSLTestUtils.disableCertificateChecks;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.slf4j.LoggerFactory.getLogger;
+
+import java.net.ConnectException;
+import no.nav.common.auth.context.UserRole;
+import no.nav.common.cxf.jetty.Jetty;
+import no.nav.common.test.auth.AuthTestUtils;
+import org.apache.servicemix.examples.cxf.HelloWorld;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.slf4j.Logger;
 
 public class NAVOidcSTSClientIntegrationTest {
 
@@ -50,7 +53,11 @@ public class NAVOidcSTSClientIntegrationTest {
     @Test
     @Ignore
     public void cache_sts_token_for_hver_bruker_og_stsType() throws Exception {
-        StsConfig stsConfig = StsConfig.builder().url(stsUrl).username("username").password("password").build();
+        StsConfig stsConfig = StsConfig.builder()
+                .url(stsUrl)
+                .username("username")
+                .password("password")
+                .build();
 
         HelloWorld tjenesteA = new CXFClient<>(HelloWorld.class)
                 .address(url("tjeneste-a"))
@@ -80,7 +87,7 @@ public class NAVOidcSTSClientIntegrationTest {
         ping(tjenesteC);
         ping(tjenesteC);
 
-//        setEksternOpenAmToken("openam1");
+        //        setEksternOpenAmToken("openam1");
 
         ping(tjenesteD);
         ping(tjenesteD);
@@ -96,16 +103,19 @@ public class NAVOidcSTSClientIntegrationTest {
         ping(tjenesteC);
         ping(tjenesteC);
 
-//        setEksternOpenAmToken("openam2");
+        //        setEksternOpenAmToken("openam2");
 
         ping(tjenesteD);
         ping(tjenesteD);
 
-        assertThat(stsHandler.getRequestCount()).isEqualTo(
-                        1 + // 1 systemSAML
-                        2 + // oidc-tokens
-                        2   // openam-tokens
-        );
+        assertThat(stsHandler.getRequestCount())
+                .isEqualTo(
+                        1
+                                + // 1 systemSAML
+                                2
+                                + // oidc-tokens
+                                2 // openam-tokens
+                        );
     }
 
     private void setOidcToken(String subject) {
@@ -124,5 +134,4 @@ public class NAVOidcSTSClientIntegrationTest {
     private String url(String tjenesteNavn) {
         return "https://localhost:1234/path/for/" + tjenesteNavn;
     }
-
 }

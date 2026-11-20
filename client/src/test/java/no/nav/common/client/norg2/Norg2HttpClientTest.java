@@ -1,17 +1,21 @@
 package no.nav.common.client.norg2;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import java.util.List;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.List;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class Norg2HttpClientTest {
 
@@ -26,11 +30,8 @@ public class Norg2HttpClientTest {
         Enhet jsonEnhet = JsonUtils.fromJson(json, Enhet.class);
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get("/api/v1/enhet/1234")
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(
+                get("/api/v1/enhet/1234").willReturn(aResponse().withStatus(200).withBody(json)));
 
         NorgHttp2Client client = new NorgHttp2Client(baseUrl);
 
@@ -44,10 +45,7 @@ public class Norg2HttpClientTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/enhet?enhetStatusListe=AKTIV")
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
         NorgHttp2Client client = new NorgHttp2Client(baseUrl);
         List<Enhet> alleEnheter = client.alleAktiveEnheter();
@@ -64,10 +62,7 @@ public class Norg2HttpClientTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/enhet/navkontor/030105")
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
         NorgHttp2Client client = new NorgHttp2Client(baseUrl);
         CachedNorg2Client cachedClient = new CachedNorg2Client(client);
@@ -82,10 +77,7 @@ public class Norg2HttpClientTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         givenThat(get("/api/v1/enhet/navkontor/030105?disk=SPFO&skjermet=true")
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
         NorgHttp2Client client = new NorgHttp2Client(baseUrl);
 
@@ -102,5 +94,4 @@ public class Norg2HttpClientTest {
         assertTrue(client.checkHealth().isHealthy());
         verify(getRequestedFor(urlEqualTo("/internal/health/readiness")));
     }
-
 }

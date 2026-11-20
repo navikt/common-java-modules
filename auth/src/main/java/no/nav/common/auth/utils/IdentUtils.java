@@ -12,5 +12,4 @@ public class IdentUtils {
         if (navIdentStr == null) return false;
         return navIdentStr.matches("^[A-Z]\\d{6}$");
     }
-
 }

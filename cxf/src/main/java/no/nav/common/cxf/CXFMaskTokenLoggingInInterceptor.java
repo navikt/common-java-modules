@@ -1,12 +1,11 @@
 package no.nav.common.cxf;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.cxf.ext.logging.LoggingInInterceptor;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.apache.cxf.ext.logging.event.LogEventSender;
 import org.apache.cxf.ext.logging.slf4j.Slf4jVerboseEventSender;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class CXFMaskTokenLoggingInInterceptor extends LoggingInInterceptor {
 

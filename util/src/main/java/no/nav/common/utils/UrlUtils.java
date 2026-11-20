@@ -12,7 +12,8 @@ public class UrlUtils {
         return createServiceUrl(appName, EnvironmentUtils.requireNamespace(), withAppContextPath);
     }
 
-    public static String createServiceUrl(@NonNull String appName, @NonNull String namespace, boolean withAppContextPath) {
+    public static String createServiceUrl(
+            @NonNull String appName, @NonNull String namespace, boolean withAppContextPath) {
         String contextPath = withAppContextPath ? "/" + appName : "";
         return String.format("http://%s.%s.svc.nais.local%s", appName, namespace, contextPath);
     }
@@ -49,7 +50,8 @@ public class UrlUtils {
         return String.format("https://%s.dev.adeo.no%s", appName, contextPath);
     }
 
-    public static String createNaisPreprodIngressUrl(@NonNull String appName, @NonNull String environment, boolean withAppContextPath) {
+    public static String createNaisPreprodIngressUrl(
+            @NonNull String appName, @NonNull String environment, boolean withAppContextPath) {
         String contextPath = withAppContextPath ? "/" + appName : "";
         return String.format("https://%s-%s.nais.preprod.local%s", appName, environment, contextPath);
     }
@@ -81,10 +83,12 @@ public class UrlUtils {
             if (path == null || path.isEmpty() || "/".equals(path)) {
                 continue;
             }
-            sb.append(lastEndsWithSlash ? path.startsWith("/") ? path.substring(1) : path : path.contains("://") ? path : startMedSlash(path));
+            sb.append(
+                    lastEndsWithSlash
+                            ? path.startsWith("/") ? path.substring(1) : path
+                            : path.contains("://") ? path : startMedSlash(path));
             lastEndsWithSlash = path.endsWith("/");
         }
         return sb.length() == 0 ? "/" : sb.toString();
     }
-
 }

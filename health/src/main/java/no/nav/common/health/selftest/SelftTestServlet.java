@@ -1,16 +1,15 @@
 package no.nav.common.health.selftest;
 
+import static no.nav.common.health.selftest.SelfTestUtils.aggregateStatus;
+import static no.nav.common.health.selftest.SelfTestUtils.checkAll;
+
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import no.nav.common.utils.EnvironmentUtils;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static no.nav.common.health.selftest.SelfTestUtils.aggregateStatus;
-import static no.nav.common.health.selftest.SelfTestUtils.checkAll;
+import no.nav.common.utils.EnvironmentUtils;
 
 public class SelftTestServlet extends HttpServlet {
 
@@ -33,5 +32,4 @@ public class SelftTestServlet extends HttpServlet {
         resp.setContentType("text/html");
         resp.getWriter().write(html);
     }
-
 }

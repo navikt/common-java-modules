@@ -86,6 +86,29 @@ Version 2 removes all of the deprecated modules from version 1 (including `api-a
 ./gradlew dependencyUpdates
 ```
 
+## Code formatting
+
+Spotless runs Palantir Java Format for Java and ktlint for Kotlin and Gradle
+Kotlin DSL files. Run from the repository root:
+
+```shell
+./gradlew spotlessCheck
+./gradlew spotlessApply
+```
+
+`spotlessCheck` reports formatting differences without changing source files.
+`spotlessApply` formats all targeted files, including main/test Java sources,
+the Kotlin sources in `build-logic`, and Gradle Kotlin DSL scripts.
+Kotlin formatting uses the existing `build-logic/.editorconfig`.
+Formatter versions follow the pinned Spotless plugin version.
+Java wildcard imports, including static wildcard imports, fail the formatting
+check. Use explicit imports. The root `.editorconfig` also configures IntelliJ
+to prefer explicit Java imports.
+
+`spotlessCheck` runs automatically as part of `check` and `build`. Formatting
+violations fail the build. Run `./gradlew spotlessApply` and commit the formatting
+changes before pushing.
+
 ## Building the libraries
 
 Use JDK 21 and the checked-in Gradle 9.9.1 wrapper. Docker must be running for

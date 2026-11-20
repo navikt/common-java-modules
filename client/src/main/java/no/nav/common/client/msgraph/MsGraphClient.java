@@ -1,9 +1,8 @@
 package no.nav.common.client.msgraph;
 
+import java.util.List;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.types.identer.EnhetId;
-
-import java.util.List;
 
 /**
  * Klient som henter ut data fra Microsoft til Graph API.

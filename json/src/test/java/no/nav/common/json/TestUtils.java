@@ -1,9 +1,9 @@
 package no.nav.common.json;
 
-import tools.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import lombok.SneakyThrows;
+import tools.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("unused")
 public class TestUtils {
@@ -18,5 +18,4 @@ public class TestUtils {
     public static void assertEqualJsonArray(String forventetRespons, String response) {
         assertEqualJson(forventetRespons, response);
     }
-
 }

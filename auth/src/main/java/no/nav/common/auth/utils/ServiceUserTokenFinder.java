@@ -1,7 +1,6 @@
 package no.nav.common.auth.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Optional;
 
 /**
@@ -20,5 +19,4 @@ public class ServiceUserTokenFinder implements TokenFinder {
 
         return Optional.empty();
     }
-
 }
