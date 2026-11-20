@@ -9,5 +9,4 @@ public class GraphqlNoDataException extends RuntimeException {
     public GraphqlNoDataException(String message) {
         super(message);
     }
-
 }

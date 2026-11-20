@@ -1,17 +1,31 @@
 package no.nav.common.kafka.consumer;
 
+import static java.lang.String.format;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
-
-import static java.lang.String.format;
 
 /**
  * An abstracted client which uses {@link KafkaConsumer} to poll records.
@@ -29,7 +43,8 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
     private static final long POLL_ERROR_TIMEOUT_MS = 5000;
 
     private enum ClientState {
-        RUNNING, NOT_RUNNING
+        RUNNING,
+        NOT_RUNNING
     }
 
     private final Logger log = LoggerFactory.getLogger(KafkaConsumerClientImpl.class);
@@ -163,8 +178,8 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                     TopicConsumer<K, V> topicConsumer = config.topics.get(topic);
 
                     // Creates a single thread to consume each topic + partition sequentially
-                    ExecutorService executor = topicConsumptionExecutors
-                            .computeIfAbsent(topicPartition, (tp) -> Executors.newSingleThreadExecutor());
+                    ExecutorService executor = topicConsumptionExecutors.computeIfAbsent(
+                            topicPartition, (tp) -> Executors.newSingleThreadExecutor());
 
                     executor.submit(() -> {
                         try {
@@ -177,7 +192,8 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
                                  The finally-clause will make sure that the processed records counter is incremented.
                             */
-                            if (clientState == ClientState.NOT_RUNNING || revokedOrFailedPartitions.contains(topicPartition)) {
+                            if (clientState == ClientState.NOT_RUNNING
+                                    || revokedOrFailedPartitions.contains(topicPartition)) {
                                 return;
                             }
 
@@ -185,11 +201,11 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
                             if (status == ConsumeStatus.OK) {
                                 /*
-                                    From KafkaConsumer.commitSync documentation:
+                                   From KafkaConsumer.commitSync documentation:
 
-                                    The committed offset should be the next message your application will consume, i.e.
-                                    lastProcessedMessageOffset + 1.
-                                 */
+                                   The committed offset should be the next message your application will consume, i.e.
+                                   lastProcessedMessageOffset + 1.
+                                */
                                 OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset() + 1);
                                 offsetsToCommit.put(topicPartition, offsetAndMetadata);
                             } else {
@@ -198,8 +214,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                         } catch (Exception e) {
                             String msg = format(
                                     "Unexpected error occurred while processing consumer record. topic=%s partition=%d offset=%d",
-                                    topic, record.partition(), record.offset()
-                            );
+                                    topic, record.partition(), record.offset());
                             log.error(msg, e);
                         } finally {
                             processedRecordsLatch.countDown();
@@ -272,8 +287,8 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
             } catch (IllegalStateException e) {
                 log.warn(
                         "Unable to seek to topicPartition={} offset={}. The TopicPartition is not assigned to this consumer",
-                        topicPartition, offsetAndMetadata.offset()
-                );
+                        topicPartition,
+                        offsetAndMetadata.offset());
             }
         });
     }
@@ -291,5 +306,4 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
             throw new IllegalArgumentException(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG + " must be false!");
         }
     }
-
 }

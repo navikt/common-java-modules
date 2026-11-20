@@ -10,19 +10,17 @@ import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.validators.IDTokenValidator;
-import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
-import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
-
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfiguration;
+import no.nav.common.auth.oidc.discovery.OidcDiscoveryConfigurationClient;
 
 public class OidcTokenValidator {
 
-    private final static JWSAlgorithm JWS_ALGORITHM = JWSAlgorithm.RS256;
+    private static final JWSAlgorithm JWS_ALGORITHM = JWSAlgorithm.RS256;
 
     // Mapping between clientId and validator
     private final HashMap<String, IDTokenValidator> validators;
@@ -36,7 +34,8 @@ public class OidcTokenValidator {
         issuer = config.issuer;
         validators = new HashMap<>();
 
-        clientIds.forEach((id) -> validators.put(id, createValidator(config.issuer, config.jwksUri, JWS_ALGORITHM, id)));
+        clientIds.forEach(
+                (id) -> validators.put(id, createValidator(config.issuer, config.jwksUri, JWS_ALGORITHM, id)));
     }
 
     public IDTokenClaimsSet validate(JWT idToken) throws BadJOSEException, JOSEException, ParseException {
@@ -45,9 +44,9 @@ public class OidcTokenValidator {
         List<String> tokenAudiences = claims.getAudience();
 
         /*
-         Tokens that have more than 1 audience should also have the AZP claim.
-         Nimbus will check that tokens with multiple audiences will have an AZP claim that matches one of the audiences.
-         */
+        Tokens that have more than 1 audience should also have the AZP claim.
+        Nimbus will check that tokens with multiple audiences will have an AZP claim that matches one of the audiences.
+        */
         if (tokenAudiences.size() > 1) {
             clientId = claims.getStringClaim("azp");
         } else {
@@ -71,14 +70,15 @@ public class OidcTokenValidator {
         return issuer;
     }
 
-    private IDTokenValidator createValidator(String issuerUrl, String jwksUrl, JWSAlgorithm algorithm, String clientId) {
+    private IDTokenValidator createValidator(
+            String issuerUrl, String jwksUrl, JWSAlgorithm algorithm, String clientId) {
         Issuer issuer = new Issuer(issuerUrl);
         ClientID clientID = new ClientID(clientId);
         try {
-            return new IDTokenValidator(issuer, clientID, algorithm, URI.create(jwksUrl).toURL());
+            return new IDTokenValidator(
+                    issuer, clientID, algorithm, URI.create(jwksUrl).toURL());
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Invalid jwks URL " + jwksUrl);
         }
     }
-
 }

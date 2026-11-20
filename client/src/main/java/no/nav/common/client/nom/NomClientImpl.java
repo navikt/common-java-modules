@@ -1,5 +1,18 @@
 package no.nav.common.client.nom;
 
+import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
+import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static no.nav.common.log.LogUtils.runWithMDCContext;
+import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
+import static no.nav.common.rest.client.RestUtils.createBearerToken;
+import static no.nav.common.utils.UrlUtils.joinPaths;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.Value;
@@ -21,24 +34,10 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.slf4j.MDC;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
-import static jakarta.ws.rs.core.HttpHeaders.AUTHORIZATION;
-import static no.nav.common.log.LogUtils.runWithMDCContext;
-import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
-import static no.nav.common.rest.client.RestUtils.createBearerToken;
-import static no.nav.common.utils.UrlUtils.joinPaths;
-
 @Slf4j
 public class NomClientImpl implements NomClient {
 
-    private final static int NOM_MAX_BATCH_SIZE = 100;
+    private static final int NOM_MAX_BATCH_SIZE = 100;
 
     private final GraphqlRequestBuilder<RessursQuery.Variables> ressurserQueryRequestBuilder =
             new GraphqlRequestBuilder<>("nom/ressurser.graphql");
@@ -76,15 +75,15 @@ public class NomClientImpl implements NomClient {
     public List<VeilederNavn> finnNavn(List<NavIdent> navIdenter) {
         Map<String, String> contextMap = MDC.getCopyOfContextMap();
 
-        return CollectionUtils.partition(navIdenter, NOM_MAX_BATCH_SIZE)
-                .parallelStream()
+        return CollectionUtils.partition(navIdenter, NOM_MAX_BATCH_SIZE).parallelStream()
                 .flatMap((identBatch) -> runWithMDCContext(contextMap, () -> hentNavnTilIdenter(identBatch).stream()))
                 .collect(Collectors.toList());
     }
 
     @SneakyThrows
     private List<VeilederNavn> hentNavnTilIdenter(List<NavIdent> navIdenter) {
-        GraphqlRequest<RessursQuery.Variables> gqlRequest = ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
+        GraphqlRequest<RessursQuery.Variables> gqlRequest =
+                ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
 
         Request request = new Request.Builder()
                 .url(joinPaths(nomApiUrl, "/graphql"))
@@ -108,7 +107,6 @@ public class NomClientImpl implements NomClient {
         }
     }
 
-
     private List<VeilederNavn> mapTilVeilederNavn(RessursQuery.Response graphqlResponse) {
         List<RessursQuery.ResponseData.RessurserItem> ressurser = graphqlResponse.getData().ressurser;
         List<VeilederNavn> veilederNavnListe = new ArrayList<>(ressurser.size());
@@ -116,7 +114,10 @@ public class NomClientImpl implements NomClient {
         ressurser.forEach(ressursItem -> {
             RessursQuery.ResponseData.RessurserItem.Ressurs ressurs = ressursItem.ressurs;
 
-            if (ressurs == null || ressurs.visningsNavn == null || ressurs.fornavn == null || ressurs.etternavn == null ) {
+            if (ressurs == null
+                    || ressurs.visningsNavn == null
+                    || ressurs.fornavn == null
+                    || ressurs.etternavn == null) {
                 log.warn("Fant ikke navn til veileder med ident: {}", ressursItem.id);
                 return;
             }
@@ -160,12 +161,8 @@ public class NomClientImpl implements NomClient {
                     String visningsNavn;
                     String fornavn;
                     String etternavn;
-
-
                 }
             }
-
         }
     }
-
 }

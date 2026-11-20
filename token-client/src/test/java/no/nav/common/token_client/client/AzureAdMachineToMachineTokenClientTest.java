@@ -1,21 +1,20 @@
 package no.nav.common.token_client.client;
 
-import no.nav.common.token_client.cache.CaffeineTokenCache;
-import no.nav.common.token_client.test_utils.TokenCreator;
-import mockwebserver3.MockWebServer;
-import mockwebserver3.RecordedRequest;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.Map;
-
 import static no.nav.common.token_client.test_utils.Constants.TEST_JWK;
 import static no.nav.common.token_client.test_utils.RequestUtils.parseFormData;
 import static no.nav.common.token_client.test_utils.RequestUtils.tokenMockResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.io.IOException;
+import java.util.Map;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
+import no.nav.common.token_client.cache.CaffeineTokenCache;
+import no.nav.common.token_client.test_utils.TokenCreator;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class AzureAdMachineToMachineTokenClientTest {
 
@@ -39,11 +38,7 @@ public class AzureAdMachineToMachineTokenClientTest {
         server.enqueue(tokenMockResponse(accessToken));
 
         AzureAdMachineToMachineTokenClient tokenClient = new AzureAdMachineToMachineTokenClient(
-                "test-id",
-                server.url("/token").toString(),
-                TEST_JWK,
-                new CaffeineTokenCache()
-        );
+                "test-id", server.url("/token").toString(), TEST_JWK, new CaffeineTokenCache());
 
         String token = tokenClient.createMachineToMachineToken("test-scope");
 
@@ -67,11 +62,7 @@ public class AzureAdMachineToMachineTokenClientTest {
         server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("test-2")));
 
         AzureAdMachineToMachineTokenClient tokenClient = new AzureAdMachineToMachineTokenClient(
-                "test-id",
-                server.url("/token").toString(),
-                TEST_JWK,
-                new CaffeineTokenCache()
-        );
+                "test-id", server.url("/token").toString(), TEST_JWK, new CaffeineTokenCache());
 
         tokenClient.createMachineToMachineToken("test-scope");
         tokenClient.createMachineToMachineToken("test-scope");
@@ -82,6 +73,4 @@ public class AzureAdMachineToMachineTokenClientTest {
 
         assertEquals(2, server.getRequestCount());
     }
-
-
 }

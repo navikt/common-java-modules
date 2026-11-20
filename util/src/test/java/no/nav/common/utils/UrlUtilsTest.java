@@ -1,13 +1,24 @@
 package no.nav.common.utils;
 
-import org.junit.Test;
-
 import static no.nav.common.utils.EnvironmentUtils.NAIS_CLUSTER_NAME_PROPERTY_NAME;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
-import static no.nav.common.utils.UrlUtils.*;
+import static no.nav.common.utils.UrlUtils.createAppAdeoPreprodIngressUrl;
+import static no.nav.common.utils.UrlUtils.createAppAdeoProdIngressUrl;
+import static no.nav.common.utils.UrlUtils.createDevAdeoIngressUrl;
+import static no.nav.common.utils.UrlUtils.createDevInternalIngressUrl;
+import static no.nav.common.utils.UrlUtils.createInternalIngressUrl;
+import static no.nav.common.utils.UrlUtils.createNaisAdeoIngressUrl;
+import static no.nav.common.utils.UrlUtils.createNaisPreprodIngressUrl;
+import static no.nav.common.utils.UrlUtils.createProdInternalIngressUrl;
+import static no.nav.common.utils.UrlUtils.createServiceUrl;
+import static no.nav.common.utils.UrlUtils.joinPaths;
+import static no.nav.common.utils.UrlUtils.sluttMedSlash;
+import static no.nav.common.utils.UrlUtils.startMedSlash;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class UrlUtilsTest {
 
@@ -79,12 +90,15 @@ public class UrlUtilsTest {
 
     @Test
     public void createNaisPreprodIngressUrl__should_create_ingress_with_context_path() {
-        assertEquals(createNaisPreprodIngressUrl("veilarbtest",  "q1", true), "https://veilarbtest-q1.nais.preprod.local/veilarbtest");
+        assertEquals(
+                createNaisPreprodIngressUrl("veilarbtest", "q1", true),
+                "https://veilarbtest-q1.nais.preprod.local/veilarbtest");
     }
 
     @Test
     public void createNaisPreprodIngressUrl__should_create_ingress_without_context_path() {
-        assertEquals(createNaisPreprodIngressUrl("veilarbtest", "q1", false), "https://veilarbtest-q1.nais.preprod.local");
+        assertEquals(
+                createNaisPreprodIngressUrl("veilarbtest", "q1", false), "https://veilarbtest-q1.nais.preprod.local");
     }
 
     @Test
@@ -103,26 +117,24 @@ public class UrlUtilsTest {
         assertThat(startMedSlash("/abc")).isEqualTo("/abc");
     }
 
-
     @Test
     public void test_joinPaths() {
         assertThat(joinPaths(null)).isEqualTo("/");
-        assertThat(joinPaths(null,null,null)).isEqualTo("/");
-        assertThat(joinPaths("/","","/","/")).isEqualTo("/");
-        assertThat(joinPaths("abc","def")).isEqualTo("/abc/def");
-        assertThat(joinPaths("/abc","def")).isEqualTo("/abc/def");
-        assertThat(joinPaths("abc/","def")).isEqualTo("/abc/def");
-        assertThat(joinPaths("abc","/def")).isEqualTo("/abc/def");
-        assertThat(joinPaths("abc","def/")).isEqualTo("/abc/def/");
-        assertThat(joinPaths("/abc/","/def/")).isEqualTo("/abc/def/");
-        assertThat(joinPaths("/abc/","","/def/")).isEqualTo("/abc/def/");
-        assertThat(joinPaths("/abc/","/","/def/")).isEqualTo("/abc/def/");
-        assertThat(joinPaths("http://","abc","def")).isEqualTo("http://abc/def");
-        assertThat(joinPaths("http://abc","def","ghi")).isEqualTo("http://abc/def/ghi");
-        assertThat(joinPaths("http://abc/","/def","ghi")).isEqualTo("http://abc/def/ghi");
-        assertThat(joinPaths("http://abc/","def","ghi")).isEqualTo("http://abc/def/ghi");
-        assertThat(joinPaths("http://abc/","def/","ghi")).isEqualTo("http://abc/def/ghi");
-        assertThat(joinPaths("ftp://","/abc","def")).isEqualTo("ftp://abc/def");
+        assertThat(joinPaths(null, null, null)).isEqualTo("/");
+        assertThat(joinPaths("/", "", "/", "/")).isEqualTo("/");
+        assertThat(joinPaths("abc", "def")).isEqualTo("/abc/def");
+        assertThat(joinPaths("/abc", "def")).isEqualTo("/abc/def");
+        assertThat(joinPaths("abc/", "def")).isEqualTo("/abc/def");
+        assertThat(joinPaths("abc", "/def")).isEqualTo("/abc/def");
+        assertThat(joinPaths("abc", "def/")).isEqualTo("/abc/def/");
+        assertThat(joinPaths("/abc/", "/def/")).isEqualTo("/abc/def/");
+        assertThat(joinPaths("/abc/", "", "/def/")).isEqualTo("/abc/def/");
+        assertThat(joinPaths("/abc/", "/", "/def/")).isEqualTo("/abc/def/");
+        assertThat(joinPaths("http://", "abc", "def")).isEqualTo("http://abc/def");
+        assertThat(joinPaths("http://abc", "def", "ghi")).isEqualTo("http://abc/def/ghi");
+        assertThat(joinPaths("http://abc/", "/def", "ghi")).isEqualTo("http://abc/def/ghi");
+        assertThat(joinPaths("http://abc/", "def", "ghi")).isEqualTo("http://abc/def/ghi");
+        assertThat(joinPaths("http://abc/", "def/", "ghi")).isEqualTo("http://abc/def/ghi");
+        assertThat(joinPaths("ftp://", "/abc", "def")).isEqualTo("ftp://abc/def");
     }
-
 }

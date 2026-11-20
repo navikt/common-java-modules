@@ -15,5 +15,4 @@ public class NorskIdent extends EksternBrukerId {
     public static NorskIdent of(String ident) {
         return new NorskIdent(ident);
     }
-
 }

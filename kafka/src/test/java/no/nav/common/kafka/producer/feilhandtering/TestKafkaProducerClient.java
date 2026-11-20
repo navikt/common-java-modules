@@ -1,5 +1,9 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.producer.GracefulKafkaProducer;
 import no.nav.common.kafka.producer.KafkaProducerClient;
@@ -7,12 +11,6 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-
-import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.function.Consumer;
-
 
 class TestKafkaProducerClient implements KafkaProducerClient<byte[], byte[]> {
 

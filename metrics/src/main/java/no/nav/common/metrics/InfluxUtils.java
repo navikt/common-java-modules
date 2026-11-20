@@ -1,12 +1,13 @@
 package no.nav.common.metrics;
 
-import java.util.Map;
-
 import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
+
+import java.util.Map;
 
 public class InfluxUtils {
 
-    public static String createInfluxLineProtocolPayload(String metricName, Map<String, String> tags, Map<String, Object> fields, long metricTimestamp) {
+    public static String createInfluxLineProtocolPayload(
+            String metricName, Map<String, String> tags, Map<String, Object> fields, long metricTimestamp) {
         String tagsString = convertTagsToCSVString(tags);
         String fieldsString = convertFieldsToCSVString(fields);
 
@@ -42,5 +43,4 @@ public class InfluxUtils {
     private static String createStringValue(Object value) {
         return "\"" + value + "\"";
     }
-
 }

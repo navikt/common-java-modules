@@ -1,13 +1,13 @@
 package no.nav.types.identer;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.EnhetId;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class EnhetIdTest {
 
@@ -85,5 +85,4 @@ public class EnhetIdTest {
             return enhetId;
         }
     }
-
 }

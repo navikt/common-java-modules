@@ -1,18 +1,17 @@
 package no.nav.common.cxf;
 
-import jakarta.xml.ws.handler.Handler;
-import org.apache.cxf.interceptor.Interceptor;
-import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.ws.addressing.WSAddressingFeature;
+import static java.util.Arrays.asList;
 
-import javax.xml.namespace.QName;
+import jakarta.xml.ws.handler.Handler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static java.util.Arrays.asList;
+import javax.xml.namespace.QName;
+import org.apache.cxf.interceptor.Interceptor;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.ws.addressing.WSAddressingFeature;
 
 public class CXFClient<T> {
 
@@ -55,7 +54,6 @@ public class CXFClient<T> {
         return this;
     }
 
-
     public CXFClient<T> withProperty(String key, Object value) {
         factoryBean.getProperties().put(key, value);
         return this;
@@ -89,7 +87,8 @@ public class CXFClient<T> {
     }
 
     @SafeVarargs
-    public final CXFClient<T> withOutInterceptor(Interceptor<? extends Message> interceptor, Interceptor<? extends Message>... moreInterceptors) {
+    public final CXFClient<T> withOutInterceptor(
+            Interceptor<? extends Message> interceptor, Interceptor<? extends Message>... moreInterceptors) {
         List<Interceptor<? extends Message>> outInterceptors = factoryBean.getOutInterceptors();
         outInterceptors.add(interceptor);
         outInterceptors.addAll(asList(moreInterceptors));
@@ -100,9 +99,7 @@ public class CXFClient<T> {
         factoryBean.getFeatures().add(new TimeoutFeature(receiveTimeout, connectionTimeout));
         return (T) Proxy.newProxyInstance(
                 Thread.currentThread().getContextClassLoader(),
-                new Class[]{serviceClass},
-                new CXFClientInvocationHandler(this)
-        );
+                new Class[] {serviceClass},
+                new CXFClientInvocationHandler(this));
     }
-
 }

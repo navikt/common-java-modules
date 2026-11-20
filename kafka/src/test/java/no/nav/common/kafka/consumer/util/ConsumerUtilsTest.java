@@ -1,11 +1,11 @@
 package no.nav.common.kafka.consumer.util;
 
+import static org.junit.Assert.assertEquals;
+
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.TopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ConsumerUtilsTest {
 
@@ -17,5 +17,4 @@ public class ConsumerUtilsTest {
 
         assertEquals(ConsumeStatus.FAILED, ConsumerUtils.safeConsume(consumer, record));
     }
-
 }

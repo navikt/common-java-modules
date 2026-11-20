@@ -16,5 +16,4 @@ public class NavIdent extends InternBrukerId {
     public static NavIdent of(String navIdent) {
         return new NavIdent(navIdent);
     }
-
 }

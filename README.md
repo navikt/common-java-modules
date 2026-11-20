@@ -86,6 +86,29 @@ Version 2 removes all of the deprecated modules from version 1 (including `api-a
 ./gradlew dependencyUpdates
 ```
 
+## Code formatting
+
+Spotless runs Palantir Java Format for Java and ktlint for Kotlin and Gradle
+Kotlin DSL files. Run from the repository root:
+
+```shell
+./gradlew spotlessCheck
+./gradlew spotlessApply
+```
+
+`spotlessCheck` reports formatting differences without changing source files.
+`spotlessApply` formats all targeted files, including main/test Java sources,
+the Kotlin sources in `build-logic`, and Gradle Kotlin DSL scripts.
+Kotlin formatting uses the existing `build-logic/.editorconfig`.
+Formatter versions follow the pinned Spotless plugin version.
+Java wildcard imports, including static wildcard imports, fail the formatting
+check. Use explicit imports. The root `.editorconfig` also configures IntelliJ
+to prefer explicit Java imports.
+
+`spotlessCheck` runs automatically as part of `check` and `build`. Formatting
+violations fail the build. Run `./gradlew spotlessApply` and commit the formatting
+changes before pushing.
+
 ## Building the libraries
 
 Use JDK 21 and the checked-in Gradle 9.9.1 wrapper. Docker must be running for
@@ -128,6 +151,35 @@ it for dependency management must choose another parent or manage versions
 directly before moving to a release without it. See
 [the migration and validation report](docs/gradle-migration.md) for compatibility
 decisions, known limitations, and the rollout/rollback checklist.
+
+## CI follow-up
+
+Pull requests do not currently run the Gradle build or tests automatically.
+[Test and release](.github/workflows/main.yml) runs `./gradlew build` on pushes
+to `main`, after merge. The
+[beta-release workflow](.github/workflows/package-feature-branch.yml) runs tests
+when started manually (`workflow_dispatch`), then publishes a beta release.
+
+- [ ] Run `./gradlew build` automatically for pull requests, including tests and
+  Spotless checks. Use a separate PR workflow or add a `pull_request` trigger to
+  the existing workflow. If sharing the workflow, restrict the release job to
+  pushes to `main` so pull requests cannot publish releases.
+
+## Security follow-up
+
+Track these scanner findings separately from the formatting changes. The alerts
+do not establish that sensitive data has been logged or exposed.
+
+- [ ] Review logging and exception messages in `AzureAdMachineToMachineTokenClient`,
+  `AzureAdOnBehalfOfTokenClient`, and `TokenXOnBehalfOfTokenClient` in `token-client`.
+  Replace complete OAuth error responses with explicitly allowed fields, such as
+  the error code. Add regression tests that ensure tokens and sensitive values
+  are absent from logs and exception messages. Do not assume that
+  `getErrorObject()` returns only safe content.
+- [ ] Review `TrustAllX509TrustManager` and `SSLTestUtils` in the `test` module.
+  Map their usage, including use outside tests. Prefer test certificates and a
+  dedicated truststore over disabled certificate validation. Avoid global TLS
+  changes and document any remaining test-only exceptions.
 
 ### Contact
 

@@ -12,5 +12,4 @@ public interface TokenCache {
      * @return JWT token
      */
     String getFromCacheOrTryProvider(String cacheKey, Supplier<String> tokenProvider);
-
 }

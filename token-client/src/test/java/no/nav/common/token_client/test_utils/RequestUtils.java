@@ -1,14 +1,13 @@
 package no.nav.common.token_client.test_utils;
 
-import mockwebserver3.MockResponse;
+import static java.lang.String.format;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.lang.String.format;
+import mockwebserver3.MockResponse;
 
 public class RequestUtils {
 
@@ -25,12 +24,12 @@ public class RequestUtils {
     }
 
     public static MockResponse tokenMockResponse(String accessToken) {
-        String body = format("{ \"token_type\": \"Bearer\", \"access_token\": \"%s\", \"expires\": 3600 }", accessToken);
+        String body =
+                format("{ \"token_type\": \"Bearer\", \"access_token\": \"%s\", \"expires\": 3600 }", accessToken);
 
         return new MockResponse.Builder()
-             .body(body)
-             .addHeader("Content-Type", "application/json")
-             .build();
+                .body(body)
+                .addHeader("Content-Type", "application/json")
+                .build();
     }
-
 }

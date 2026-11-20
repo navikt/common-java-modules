@@ -1,13 +1,14 @@
 package no.nav.common.yaml;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.dataformat.yaml.YAMLFactory;
 import lombok.SneakyThrows;
 import no.nav.common.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 
 public class YamlUtils {
 
-    private static final ObjectMapper objectMapper = JsonMapper.applyDefaultConfiguration(new ObjectMapper(new YAMLFactory()));
+    private static final ObjectMapper objectMapper =
+            JsonMapper.applyDefaultConfiguration(new ObjectMapper(new YAMLFactory()));
 
     @SneakyThrows
     public static <T> T fromYaml(String yaml, Class<T> targetClass) {
@@ -18,5 +19,4 @@ public class YamlUtils {
     public static String toYaml(Object value) {
         return objectMapper.writeValueAsString(value);
     }
-
 }

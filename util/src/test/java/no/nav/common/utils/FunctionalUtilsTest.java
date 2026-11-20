@@ -1,15 +1,15 @@
 package no.nav.common.utils;
 
-import lombok.Builder;
-import lombok.Value;
-import org.junit.Test;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static no.nav.common.utils.FunctionalUtils.combineOptional;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.Optional;
-
-import static java.util.Optional.*;
-import static no.nav.common.utils.FunctionalUtils.combineOptional;
-import static org.assertj.core.api.Assertions.assertThat;
+import lombok.Builder;
+import lombok.Value;
+import org.junit.Test;
 
 public class FunctionalUtilsTest {
 
@@ -20,15 +20,15 @@ public class FunctionalUtilsTest {
         Optional<String> emptyString = empty();
 
         assertThat(of(TestObject.builder())
-                .flatMap(combineOptional(aBoolean, TestObject.TestObjectBuilder::aBoolean))
-                .flatMap(combineOptional(string, TestObject.TestObjectBuilder::string))
-                .map(TestObject.TestObjectBuilder::build)
-        ).hasValue(new TestObject(true, "string"));
+                        .flatMap(combineOptional(aBoolean, TestObject.TestObjectBuilder::aBoolean))
+                        .flatMap(combineOptional(string, TestObject.TestObjectBuilder::string))
+                        .map(TestObject.TestObjectBuilder::build))
+                .hasValue(new TestObject(true, "string"));
 
         assertThat(of(TestObject.builder())
-                .flatMap(combineOptional(aBoolean, TestObject.TestObjectBuilder::aBoolean))
-                .flatMap(combineOptional(emptyString, TestObject.TestObjectBuilder::string))
-        ).isEmpty();
+                        .flatMap(combineOptional(aBoolean, TestObject.TestObjectBuilder::aBoolean))
+                        .flatMap(combineOptional(emptyString, TestObject.TestObjectBuilder::string)))
+                .isEmpty();
     }
 
     @SuppressWarnings("unused")
@@ -60,5 +60,4 @@ public class FunctionalUtilsTest {
         private boolean aBoolean;
         private String string;
     }
-
 }

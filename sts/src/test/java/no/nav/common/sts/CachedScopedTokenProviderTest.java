@@ -1,21 +1,25 @@
 package no.nav.common.sts;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
-import org.junit.Test;
-
 import java.util.Date;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import org.junit.Test;
 
 public class CachedScopedTokenProviderTest {
 
     @Test
     public void should_cache_tokens_with_same_scope() {
-        String accessToken = new PlainJWT(
-                new JWTClaimsSet.Builder().expirationTime(new Date(System.currentTimeMillis() + 100_000)).build()
-        ).serialize();
+        String accessToken = new PlainJWT(new JWTClaimsSet.Builder()
+                        .expirationTime(new Date(System.currentTimeMillis() + 100_000))
+                        .build())
+                .serialize();
 
         ScopedTokenProvider provider = mock(ScopedTokenProvider.class);
 
@@ -37,9 +41,10 @@ public class CachedScopedTokenProviderTest {
 
     @Test
     public void should_not_cache_expired_token() {
-        String accessToken = new PlainJWT(
-                new JWTClaimsSet.Builder().expirationTime(new Date(System.currentTimeMillis() + 59_000)).build()
-        ).serialize();
+        String accessToken = new PlainJWT(new JWTClaimsSet.Builder()
+                        .expirationTime(new Date(System.currentTimeMillis() + 59_000))
+                        .build())
+                .serialize();
 
         ScopedTokenProvider provider = mock(ScopedTokenProvider.class);
 
@@ -54,5 +59,4 @@ public class CachedScopedTokenProviderTest {
 
         verify(provider, times(2)).getToken(eq(scope));
     }
-
 }

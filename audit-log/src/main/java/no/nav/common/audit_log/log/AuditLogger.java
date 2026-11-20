@@ -17,5 +17,4 @@ public interface AuditLogger {
      * @param message the raw message that will be written to the audit log
      */
     void log(String message);
-
 }

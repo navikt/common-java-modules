@@ -1,5 +1,19 @@
 package no.nav.common.json;
 
+import static java.time.LocalTime.NOON;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+import static no.nav.common.utils.StringUtils.of;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
@@ -11,26 +25,11 @@ import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 
-import java.time.*;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-
-import static java.time.LocalTime.NOON;
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-import static no.nav.common.utils.StringUtils.of;
-
 public class DateModule {
 
     public static final ZoneId DEFAULT_ZONE = ZoneId.of("Europe/Paris");
     private static final List<BaseProvider> providers = List.of(
-            new LocalDateProvider(),
-            new LocalDateTimeProvider(),
-            new ZonedDateTimeProvider(),
-            new DateProvider()
-    );
+            new LocalDateProvider(), new LocalDateTimeProvider(), new ZonedDateTimeProvider(), new DateProvider());
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static JacksonModule module() {
@@ -65,18 +64,13 @@ public class DateModule {
             this.deSerializer = new StdScalarDeserializer<T>(targetClass) {
                 @Override
                 public T deserialize(JsonParser p, DeserializationContext ctxt) {
-                    return of(p.getString())
-                            .map(BaseProvider.this::fromString)
-                            .orElse(null);
+                    return of(p.getString()).map(BaseProvider.this::fromString).orElse(null);
                 }
             };
         }
 
         public T fromString(String value) {
-            return of(value)
-                    .map(ZonedDateTime::parse)
-                    .map(this::toValue)
-                    .orElse(null);
+            return of(value).map(ZonedDateTime::parse).map(this::toValue).orElse(null);
         }
 
         public String toString(T value) {
@@ -103,16 +97,12 @@ public class DateModule {
 
         @Override
         public LocalDate fromString(String value) {
-            return of(value)
-                    .filter(this::isLocalDate)
-                    .map(LocalDate::parse)
-                    .orElseGet(() -> super.fromString(value));
+            return of(value).filter(this::isLocalDate).map(LocalDate::parse).orElseGet(() -> super.fromString(value));
         }
 
         private boolean isLocalDate(String dateString) {
             return YYYY_MM_DD_PATTERN.matcher(dateString.trim()).matches();
         }
-
     }
 
     private static class LocalDateTimeProvider extends BaseProvider<LocalDateTime> {
@@ -133,9 +123,7 @@ public class DateModule {
 
         @Override
         public LocalDateTime fromString(String value) {
-            return of(value)
-                    .flatMap(this::tryParseLocalDateTime)
-                    .orElseGet(() -> super.fromString(value));
+            return of(value).flatMap(this::tryParseLocalDateTime).orElseGet(() -> super.fromString(value));
         }
 
         private Optional<LocalDateTime> tryParseLocalDateTime(String dateString) {
@@ -179,6 +167,5 @@ public class DateModule {
         protected ZonedDateTime from(Date value) {
             return ZonedDateTime.ofInstant(Instant.ofEpochMilli(value.getTime()), DEFAULT_ZONE);
         }
-
     }
 }

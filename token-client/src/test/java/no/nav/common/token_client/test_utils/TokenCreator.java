@@ -8,10 +8,9 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import lombok.SneakyThrows;
-
 import java.util.Date;
 import java.util.UUID;
+import lombok.SneakyThrows;
 
 public class TokenCreator {
 
@@ -23,9 +22,7 @@ public class TokenCreator {
 
     @SneakyThrows
     private TokenCreator() {
-        rsaJWK = new RSAKeyGenerator(2048)
-                .keyID(UUID.randomUUID().toString())
-                .generate();
+        rsaJWK = new RSAKeyGenerator(2048).keyID(UUID.randomUUID().toString()).generate();
 
         signer = new RSASSASigner(rsaJWK);
     }
@@ -45,7 +42,9 @@ public class TokenCreator {
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
+                new JWSHeader.Builder(JWSAlgorithm.RS256)
+                        .keyID(rsaJWK.getKeyID())
+                        .build(),
                 claimsSet);
 
         signedJWT.sign(signer);
@@ -59,5 +58,4 @@ public class TokenCreator {
 
         return tokenCreator;
     }
-
 }

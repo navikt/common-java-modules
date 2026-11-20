@@ -3,9 +3,8 @@ package no.nav.common.health.selftest;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.MeterBinder;
-import org.jspecify.annotations.NonNull;
-
 import java.util.List;
+import org.jspecify.annotations.NonNull;
 
 public class SelfTestMeterBinder implements MeterBinder {
 
@@ -30,10 +29,9 @@ public class SelfTestMeterBinder implements MeterBinder {
     }
 
     private int getAggregateResult() {
-        List<SelftTestCheckResult> selftTestCheckResults =
-                runChecksInParallel ?
-                        SelfTestUtils.checkAllParallel(selfTestChecks.getSelfTestChecks()) :
-                        SelfTestUtils.checkAll(selfTestChecks.getSelfTestChecks());
+        List<SelftTestCheckResult> selftTestCheckResults = runChecksInParallel
+                ? SelfTestUtils.checkAllParallel(selfTestChecks.getSelfTestChecks())
+                : SelfTestUtils.checkAll(selfTestChecks.getSelfTestChecks());
         SelfTestStatus selfTestStatus = SelfTestUtils.aggregateStatus(selftTestCheckResults);
         return selfTestStatus.statusKode;
     }

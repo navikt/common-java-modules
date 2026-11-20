@@ -7,5 +7,4 @@ public enum StsType {
     public boolean allowCachingInEndpoint() {
         return this == SYSTEM_USER_IN_FSS;
     }
-
 }

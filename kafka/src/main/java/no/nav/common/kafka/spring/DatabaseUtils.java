@@ -1,19 +1,27 @@
 package no.nav.common.kafka.spring;
 
-import lombok.SneakyThrows;
-import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
-import org.apache.kafka.common.TopicPartition;
-import org.springframework.jdbc.core.JdbcTemplate;
+import static java.lang.String.format;
+import static no.nav.common.kafka.util.DatabaseConstants.HEADERS_JSON;
+import static no.nav.common.kafka.util.DatabaseConstants.ID;
+import static no.nav.common.kafka.util.DatabaseConstants.KEY;
+import static no.nav.common.kafka.util.DatabaseConstants.LAST_RETRY;
+import static no.nav.common.kafka.util.DatabaseConstants.PARTITION;
+import static no.nav.common.kafka.util.DatabaseConstants.RECORD_OFFSET;
+import static no.nav.common.kafka.util.DatabaseConstants.RECORD_TIMESTAMP;
+import static no.nav.common.kafka.util.DatabaseConstants.RETRIES;
+import static no.nav.common.kafka.util.DatabaseConstants.TOPIC;
+import static no.nav.common.kafka.util.DatabaseConstants.VALUE;
 
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
-import static no.nav.common.kafka.util.DatabaseConstants.*;
+import lombok.SneakyThrows;
+import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
+import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
+import org.apache.kafka.common.TopicPartition;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class DatabaseUtils {
 
@@ -53,7 +61,8 @@ public class DatabaseUtils {
                 Timestamp lastRetry = resultSet.getTimestamp(LAST_RETRY);
                 long timestamp = resultSet.getLong(RECORD_TIMESTAMP);
 
-                records.add(new StoredConsumerRecord(id, topic, partition, offset, key, value, headersJson, retries, lastRetry, timestamp));
+                records.add(new StoredConsumerRecord(
+                        id, topic, partition, offset, key, value, headersJson, retries, lastRetry, timestamp));
             }
 
             return records;
@@ -94,7 +103,7 @@ public class DatabaseUtils {
     public static String inClause(int number) {
         StringBuilder sb = new StringBuilder();
         sb.append("IN (");
-        for (int i = 0; i < number; i++ ) {
+        for (int i = 0; i < number; i++) {
             sb.append("?");
             if (i < number - 1) {
                 sb.append(",");

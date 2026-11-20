@@ -1,8 +1,8 @@
 package no.nav.common.sts;
 
-import lombok.extern.slf4j.Slf4j;
-
 import static java.lang.String.format;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Deprecated: Succeeded by token-client module
@@ -32,5 +32,4 @@ public class AzureAdServiceTokenProvider implements ServiceToServiceTokenProvide
     private static String createServiceIdentifier(String serviceName, String namespace, String cluster) {
         return format("%s.%s.%s", cluster, namespace, serviceName);
     }
-
 }

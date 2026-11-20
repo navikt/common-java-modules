@@ -7,5 +7,4 @@ public interface KafkaConsumerClient {
     void stop();
 
     boolean isRunning();
-
 }

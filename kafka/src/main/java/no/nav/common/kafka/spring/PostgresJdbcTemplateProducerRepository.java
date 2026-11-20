@@ -1,16 +1,21 @@
 package no.nav.common.kafka.spring;
 
+import static java.lang.String.format;
+import static no.nav.common.kafka.spring.DatabaseUtils.incrementAndGetPostgresSequence;
+import static no.nav.common.kafka.spring.DatabaseUtils.toPostgresArray;
+import static no.nav.common.kafka.util.DatabaseConstants.HEADERS_JSON;
+import static no.nav.common.kafka.util.DatabaseConstants.ID;
+import static no.nav.common.kafka.util.DatabaseConstants.KEY;
+import static no.nav.common.kafka.util.DatabaseConstants.PRODUCER_RECORD_ID_SEQ;
+import static no.nav.common.kafka.util.DatabaseConstants.PRODUCER_RECORD_TABLE;
+import static no.nav.common.kafka.util.DatabaseConstants.TOPIC;
+import static no.nav.common.kafka.util.DatabaseConstants.VALUE;
+
+import java.util.List;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.util.List;
-
-import static java.lang.String.format;
-import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.spring.DatabaseUtils.incrementAndGetPostgresSequence;
-import static no.nav.common.kafka.spring.DatabaseUtils.toPostgresArray;
 
 public class PostgresJdbcTemplateProducerRepository implements KafkaProducerRepository {
 
@@ -32,18 +37,11 @@ public class PostgresJdbcTemplateProducerRepository implements KafkaProducerRepo
     public long storeRecord(StoredProducerRecord record) {
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?)",
-                producerRecordTable, ID, TOPIC, KEY, VALUE, HEADERS_JSON
-        );
+                producerRecordTable, ID, TOPIC, KEY, VALUE, HEADERS_JSON);
 
         long id = incrementAndGetPostgresSequence(jdbcTemplate, PRODUCER_RECORD_ID_SEQ);
 
-        jdbcTemplate.update(
-                sql,
-                id,
-                record.getTopic(),
-                record.getKey(),
-                record.getValue(),
-                record.getHeadersJson());
+        jdbcTemplate.update(sql, id, record.getTopic(), record.getKey(), record.getValue(), record.getHeadersJson());
 
         return id;
     }
@@ -59,10 +57,7 @@ public class PostgresJdbcTemplateProducerRepository implements KafkaProducerRepo
     @SneakyThrows
     @Override
     public List<StoredProducerRecord> getRecords(int maxMessages) {
-        String sql = format(
-                "SELECT * FROM %s ORDER BY %s LIMIT %d",
-                producerRecordTable, ID, maxMessages
-        );
+        String sql = format("SELECT * FROM %s ORDER BY %s LIMIT %d", producerRecordTable, ID, maxMessages);
 
         return jdbcTemplate.query(sql, DatabaseUtils::fetchProducerRecords);
     }
@@ -72,10 +67,8 @@ public class PostgresJdbcTemplateProducerRepository implements KafkaProducerRepo
     public List<StoredProducerRecord> getRecords(int maxMessages, List<String> topics) {
         String sql = format(
                 "SELECT * FROM %s WHERE %s = ANY(?::varchar[]) ORDER BY %s LIMIT %d",
-                producerRecordTable, TOPIC, ID, maxMessages
-        );
+                producerRecordTable, TOPIC, ID, maxMessages);
 
         return jdbcTemplate.query(sql, DatabaseUtils::fetchProducerRecords, toPostgresArray(topics));
     }
-
 }

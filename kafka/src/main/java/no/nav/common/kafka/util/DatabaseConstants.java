@@ -18,5 +18,4 @@ public class DatabaseConstants {
     public static final String LAST_RETRY = "LAST_RETRY";
     public static final String PARTITION = "PARTITION";
     public static final String RECORD_TIMESTAMP = "RECORD_TIMESTAMP";
-
 }

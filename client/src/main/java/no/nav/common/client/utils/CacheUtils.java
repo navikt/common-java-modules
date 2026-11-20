@@ -1,7 +1,6 @@
 package no.nav.common.client.utils;
 
 import com.github.benmanes.caffeine.cache.Cache;
-
 import java.util.function.Supplier;
 
 public class CacheUtils {
@@ -23,5 +22,4 @@ public class CacheUtils {
 
         return value;
     }
-
 }

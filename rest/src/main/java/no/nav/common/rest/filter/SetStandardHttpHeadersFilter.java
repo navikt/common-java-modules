@@ -3,7 +3,7 @@ package no.nav.common.rest.filter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetStandardHttpHeadersFilter extends SetHeaderFilter  {
+public class SetStandardHttpHeadersFilter extends SetHeaderFilter {
 
     private static final Map<String, String> NO_CACHE_HEADERS = new HashMap<>();
 
@@ -28,5 +28,4 @@ public class SetStandardHttpHeadersFilter extends SetHeaderFilter  {
     public SetStandardHttpHeadersFilter() {
         super(STANDARD_HEADERS);
     }
-
 }

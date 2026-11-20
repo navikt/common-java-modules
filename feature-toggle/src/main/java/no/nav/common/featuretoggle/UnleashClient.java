@@ -8,5 +8,4 @@ public interface UnleashClient extends HealthCheck {
     boolean isEnabled(String toggleName);
 
     boolean isEnabled(String toggleName, UnleashContext unleashContext);
-
 }

@@ -1,5 +1,10 @@
 package no.nav.common.auth.oidc.filter;
 
+import static no.nav.common.auth.utils.CookieUtils.dateToCookieMaxAge;
+import static no.nav.common.auth.utils.TokenUtils.expiresWithin;
+import static no.nav.common.auth.utils.TokenUtils.hasMatchingAudience;
+import static no.nav.common.auth.utils.TokenUtils.hasMatchingIssuer;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWT;
@@ -13,6 +18,10 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import no.nav.common.auth.context.UserRole;
@@ -21,16 +30,6 @@ import no.nav.common.auth.oidc.UserRoleNullException;
 import no.nav.common.auth.utils.JavaxCookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.common.auth.utils.CookieUtils.dateToCookieMaxAge;
-import static no.nav.common.auth.utils.TokenUtils.expiresWithin;
-import static no.nav.common.auth.utils.TokenUtils.hasMatchingAudience;
-import static no.nav.common.auth.utils.TokenUtils.hasMatchingIssuer;
 
 @Deprecated
 public class JavaxOidcAuthenticationFilter implements Filter {
@@ -87,9 +86,10 @@ public class JavaxOidcAuthenticationFilter implements Filter {
 
                     AuthContext authContext = new AuthContext(userRole, jwtToken);
 
-                    AuthContextHolderThreadLocal.instance().withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
+                    AuthContextHolderThreadLocal.instance()
+                            .withContext(authContext, () -> chain.doFilter(servletRequest, servletResponse));
                     return;
-                } catch ( ParseException | JOSEException | BadJOSEException exception) {
+                } catch (ParseException | JOSEException | BadJOSEException exception) {
                     if (exception == BadJWTExceptions.EXPIRED_EXCEPTION) {
                         logger.info("Token validation failed", exception);
                     } else {
@@ -105,9 +105,14 @@ public class JavaxOidcAuthenticationFilter implements Filter {
     }
 
     private void addNewIdTokenCookie(
-            JavaxOidcAuthenticatorConfig oidcConfig, JWT jwtToken, HttpServletRequest request, HttpServletResponse response
-    ) throws ParseException {
-        String cookieDomain = oidcConfig.refreshedCookieDomain != null ? oidcConfig.refreshedCookieDomain : JavaxCookieUtils.cookieDomain(request);
+            JavaxOidcAuthenticatorConfig oidcConfig,
+            JWT jwtToken,
+            HttpServletRequest request,
+            HttpServletResponse response)
+            throws ParseException {
+        String cookieDomain = oidcConfig.refreshedCookieDomain != null
+                ? oidcConfig.refreshedCookieDomain
+                : JavaxCookieUtils.cookieDomain(request);
         String cookiePath = oidcConfig.refreshedCookiePath != null ? oidcConfig.refreshedCookiePath : "/";
         Date cookieExpiration = jwtToken.getJWTClaimsSet().getExpirationTime();
 
@@ -117,13 +122,13 @@ public class JavaxOidcAuthenticationFilter implements Filter {
                 cookieDomain,
                 cookiePath,
                 dateToCookieMaxAge(cookieExpiration),
-                request.isSecure()
-        );
+                request.isSecure());
 
         response.addCookie(newIdCookie);
     }
 
-    private Optional<String> refreshIdTokenIfNecessary(JWT token, JavaxOidcAuthenticator authenticator, HttpServletRequest request) {
+    private Optional<String> refreshIdTokenIfNecessary(
+            JWT token, JavaxOidcAuthenticator authenticator, HttpServletRequest request) {
         boolean needsToBeRefreshed = hasMatchingIssuer(token, authenticator.tokenValidator.getIssuer())
                 && expiresWithin(token, CHECK_EXPIRES_WITHIN);
 
@@ -132,7 +137,8 @@ public class JavaxOidcAuthenticationFilter implements Filter {
 
             if (maybeRefreshToken.isPresent() && authenticator.config.refreshUrl != null) {
                 try {
-                    return Optional.of(tokenRefreshClient.refreshIdToken(authenticator.config.refreshUrl, maybeRefreshToken.get()));
+                    return Optional.of(tokenRefreshClient.refreshIdToken(
+                            authenticator.config.refreshUrl, maybeRefreshToken.get()));
                 } catch (Exception e) {
                     logger.error("Unable to refresh id token", e);
                     return Optional.empty();
@@ -145,5 +151,4 @@ public class JavaxOidcAuthenticationFilter implements Filter {
 
     @Override
     public void destroy() {}
-
 }

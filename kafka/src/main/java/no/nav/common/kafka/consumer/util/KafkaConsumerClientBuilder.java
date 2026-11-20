@@ -1,20 +1,29 @@
 package no.nav.common.kafka.consumer.util;
 
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.toTopicConsumer;
+
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import no.nav.common.kafka.consumer.*;
+import no.nav.common.kafka.consumer.ConsumeStatus;
+import no.nav.common.kafka.consumer.KafkaConsumerClient;
+import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
+import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
+import no.nav.common.kafka.consumer.TopicConsumer;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.StoreOnFailureTopicConsumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import static no.nav.common.kafka.consumer.util.ConsumerUtils.toTopicConsumer;
 
 @Slf4j
 public class KafkaConsumerClientBuilder {
@@ -99,7 +108,8 @@ public class KafkaConsumerClientBuilder {
         }
 
         if (!seenTopics.add(consumerTopicConfig.consumerConfig.topic)) {
-            throw new IllegalStateException("Duplicate topic config for topic: " + consumerTopicConfig.consumerConfig.topic);
+            throw new IllegalStateException(
+                    "Duplicate topic config for topic: " + consumerTopicConfig.consumerConfig.topic);
         }
 
         if (consumerTopicConfig.consumerConfig.keyDeserializer == null) {
@@ -132,10 +142,7 @@ public class KafkaConsumerClientBuilder {
 
         TopicConsumer<byte[], byte[]> topicConsumer = (record) -> {
             ConsumerRecord<K, V> deserializedRecord = ConsumerUtils.deserializeConsumerRecord(
-                    record,
-                    config.getKeyDeserializer(),
-                    config.getValueDeserializer()
-            );
+                    record, config.getKeyDeserializer(), config.getValueDeserializer());
 
             ConsumeStatus status = ConsumerUtils.safeConsume(config.getConsumer(), deserializedRecord);
 
@@ -176,8 +183,7 @@ public class KafkaConsumerClientBuilder {
                 String topic,
                 Deserializer<K> keyDeserializer,
                 Deserializer<V> valueDeserializer,
-                TopicConsumer<K, V> consumer
-        ) {
+                TopicConsumer<K, V> consumer) {
             this.consumerConfig = new TopicConsumerConfig<>(topic, keyDeserializer, valueDeserializer, consumer);
             return this;
         }
@@ -186,9 +192,9 @@ public class KafkaConsumerClientBuilder {
                 String topic,
                 Deserializer<K> keyDeserializer,
                 Deserializer<V> valueDeserializer,
-                Consumer<ConsumerRecord<K, V>> consumer
-        ) {
-            this.consumerConfig = new TopicConsumerConfig<>(topic, keyDeserializer, valueDeserializer, toTopicConsumer(consumer));
+                Consumer<ConsumerRecord<K, V>> consumer) {
+            this.consumerConfig =
+                    new TopicConsumerConfig<>(topic, keyDeserializer, valueDeserializer, toTopicConsumer(consumer));
             return this;
         }
 
@@ -228,7 +234,5 @@ public class KafkaConsumerClientBuilder {
         public KafkaConsumerRepository getConsumerRepository() {
             return consumerRepository;
         }
-
     }
-
 }

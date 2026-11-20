@@ -1,9 +1,9 @@
 package no.nav.common.auth.utils;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 public class IdentUtilsTest {
 
@@ -30,5 +30,4 @@ public class IdentUtilsTest {
         assertFalse(IdentUtils.erGydligNavIdent("Ø123456"));
         assertFalse(IdentUtils.erGydligNavIdent("Å123456"));
     }
-
 }

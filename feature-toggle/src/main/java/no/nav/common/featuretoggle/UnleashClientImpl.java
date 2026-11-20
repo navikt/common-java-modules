@@ -1,5 +1,8 @@
 package no.nav.common.featuretoggle;
 
+import static no.nav.common.featuretoggle.UnleashUtils.resolveUnleashContextFromSubject;
+import static no.nav.common.featuretoggle.UnleashUtils.withDefaultStrategies;
+
 import io.getunleash.DefaultUnleash;
 import io.getunleash.Unleash;
 import io.getunleash.UnleashContext;
@@ -8,15 +11,11 @@ import io.getunleash.event.ClientFeaturesResponse;
 import io.getunleash.event.UnleashSubscriber;
 import io.getunleash.strategy.Strategy;
 import io.getunleash.util.UnleashConfig;
+import java.util.Collections;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.health.HealthCheck;
 import no.nav.common.health.HealthCheckResult;
-
-import java.util.Collections;
-import java.util.List;
-
-import static no.nav.common.featuretoggle.UnleashUtils.resolveUnleashContextFromSubject;
-import static no.nav.common.featuretoggle.UnleashUtils.withDefaultStrategies;
 
 @Slf4j
 public class UnleashClientImpl implements HealthCheck, UnleashSubscriber, UnleashClient {
@@ -45,9 +44,7 @@ public class UnleashClientImpl implements HealthCheck, UnleashSubscriber, Unleas
     }
 
     UnleashClientImpl(UnleashConfig.Builder builder, List<Strategy> additionalStrategies) {
-        UnleashConfig config = builder
-                .subscriber(this)
-                .build();
+        UnleashConfig config = builder.subscriber(this).build();
 
         this.defaultUnleash = new DefaultUnleash(config, withDefaultStrategies(additionalStrategies));
     }
@@ -75,7 +72,8 @@ public class UnleashClientImpl implements HealthCheck, UnleashSubscriber, Unleas
     @Override
     public HealthCheckResult checkHealth() {
         try {
-            if (lastTogglesFetchedStatus == ClientFeaturesResponse.Status.CHANGED || lastTogglesFetchedStatus == ClientFeaturesResponse.Status.NOT_CHANGED) {
+            if (lastTogglesFetchedStatus == ClientFeaturesResponse.Status.CHANGED
+                    || lastTogglesFetchedStatus == ClientFeaturesResponse.Status.NOT_CHANGED) {
                 return HealthCheckResult.healthy();
             } else {
                 return HealthCheckResult.unhealthy(

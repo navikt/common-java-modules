@@ -2,10 +2,9 @@ package no.nav.common.token_client.utils;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
-import lombok.SneakyThrows;
-
 import java.text.ParseException;
 import java.util.Date;
+import lombok.SneakyThrows;
 
 public class TokenUtils {
 
@@ -56,5 +55,4 @@ public class TokenUtils {
             throw new IllegalArgumentException("Unable to get subject, access token is invalid");
         }
     }
-
 }

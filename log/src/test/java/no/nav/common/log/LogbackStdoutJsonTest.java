@@ -1,6 +1,11 @@
 package no.nav.common.log;
 
 import com.google.gson.Gson;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import lombok.SneakyThrows;
 import org.codehaus.commons.nullanalysis.NotNull;
 import org.junit.Assert;
@@ -8,13 +13,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
 
 public class LogbackStdoutJsonTest {
 
@@ -39,7 +37,7 @@ public class LogbackStdoutJsonTest {
 
         String logtext = outputStream.toString();
 
-        //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
+        // da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
         var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
 
         Assert.assertEquals("skal bare vere 2 log lingjer", 2, logLinjes.size());
@@ -80,7 +78,6 @@ public class LogbackStdoutJsonTest {
         System.setOut(out);
     }
 
-
     @Test
     @SneakyThrows
     public void skal_logge_json_med_logbackStdoutJson() {
@@ -103,7 +100,7 @@ public class LogbackStdoutJsonTest {
 
         String logtext = outputStream.toString();
 
-        //da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
+        // da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
         var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
 
         Assert.assertEquals("skal være 3 loglingjer (ikke debug)", 3, logLinjes.size());
@@ -120,7 +117,7 @@ public class LogbackStdoutJsonTest {
         Assert.assertEquals(errorMelding, error.message);
         Assert.assertEquals("ERROR", error.level);
 
-        //verifiser at ingen av feltene i logLingje er null
+        // verifiser at ingen av feltene i logLingje er null
         logLinjes.forEach(l -> {
             Assert.assertNotNull(l.timestamp);
             Assert.assertNotNull(l.version);
@@ -130,7 +127,6 @@ public class LogbackStdoutJsonTest {
             Assert.assertNotNull(l.level);
             Assert.assertNotEquals(0, l.level_value);
         });
-
 
         System.setOut(out);
     }

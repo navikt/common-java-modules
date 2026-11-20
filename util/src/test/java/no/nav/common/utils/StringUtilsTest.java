@@ -1,15 +1,15 @@
 package no.nav.common.utils;
 
-import org.junit.Test;
-
 import static no.nav.common.utils.StringUtils.notNullOrEmpty;
 import static no.nav.common.utils.StringUtils.nullOrEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.Test;
+
 public class StringUtilsTest {
 
     @Test
-    public void notNullOrEmpty_(){
+    public void notNullOrEmpty_() {
         assertThat(notNullOrEmpty(null)).isFalse();
         assertThat(notNullOrEmpty("")).isFalse();
         assertThat(notNullOrEmpty(" ")).isFalse();
@@ -18,7 +18,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void nullOrEmpty_(){
+    public void nullOrEmpty_() {
         assertThat(nullOrEmpty(null)).isTrue();
         assertThat(nullOrEmpty("")).isTrue();
         assertThat(nullOrEmpty(" ")).isTrue();
@@ -27,7 +27,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void toString_(){
+    public void toString_() {
         assertThat(StringUtils.toString(null)).isEqualTo("");
         assertThat(StringUtils.toString("a")).isEqualTo("a");
     }
@@ -47,11 +47,10 @@ public class StringUtilsTest {
         assertThat(StringUtils.substring(null, 5, 10)).isEqualTo("");
         assertThat(StringUtils.substring("", 5, 1)).isEqualTo("");
         assertThat(StringUtils.substring("abc", 5, 10)).isEqualTo("");
-        assertThat(StringUtils.substring("abc", 1,3)).isEqualTo("bc");
-        assertThat(StringUtils.substring("abc", 1,10)).isEqualTo("bc");
+        assertThat(StringUtils.substring("abc", 1, 3)).isEqualTo("bc");
+        assertThat(StringUtils.substring("abc", 1, 10)).isEqualTo("bc");
         assertThat(StringUtils.substring("abc", 0)).isEqualTo("abc");
-        assertThat(StringUtils.substring("abc", -10,50)).isEqualTo("abc");
-        assertThat(StringUtils.substring("abc", -10,-50)).isEqualTo("");
+        assertThat(StringUtils.substring("abc", -10, 50)).isEqualTo("abc");
+        assertThat(StringUtils.substring("abc", -10, -50)).isEqualTo("");
     }
-
 }

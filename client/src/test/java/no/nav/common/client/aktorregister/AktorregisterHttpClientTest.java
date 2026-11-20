@@ -1,8 +1,25 @@
 package no.nav.common.client.aktorregister;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.AnythingPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import no.nav.common.client.TestUtils;
 import no.nav.common.client.aktoroppslag.AktorregisterHttpClient;
 import no.nav.common.client.aktoroppslag.BrukerIdenter;
@@ -11,15 +28,6 @@ import no.nav.common.types.identer.Fnr;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
 
 public class AktorregisterHttpClientTest {
 
@@ -53,11 +61,7 @@ public class AktorregisterHttpClientTest {
     public void hentAktorId__skal_hente_aktor_id_for_fnr() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         assertEquals(klient.hentAktorId(FNR_1), AKTOR_ID_1);
     }
@@ -66,11 +70,7 @@ public class AktorregisterHttpClientTest {
     public void hentAktorIdBolk__skal_hente_flere_aktor_id_for_fnr() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-multiple.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Map<Fnr, AktorId> identOppslag = klient.hentAktorIdBolk(Arrays.asList(FNR_1, FNR_2, FNR_3));
 
@@ -80,16 +80,11 @@ public class AktorregisterHttpClientTest {
         assertNull(identOppslag.get(FNR_3));
     }
 
-
     @Test
     public void hentFnr__skal_hente_fnr_for_aktor_id() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-single.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         assertEquals(klient.hentFnr(AKTOR_ID_1), FNR_1);
     }
@@ -98,11 +93,7 @@ public class AktorregisterHttpClientTest {
     public void hentAktorIder__skal_hente_flere_fnr_for_aktor_id() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-multiple-aktorid.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         List<AktorId> identOppslag = klient.hentAktorIder(FNR_1);
 
@@ -115,11 +106,7 @@ public class AktorregisterHttpClientTest {
     public void hentFnrBolk__skal_hente_flere_fnr_for_aktor_ider() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-multiple.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Map<AktorId, Fnr> identOppslag = klient.hentFnrBolk(Arrays.asList(AKTOR_ID_1, AKTOR_ID_2, AKTOR_ID_3));
 
@@ -133,36 +120,26 @@ public class AktorregisterHttpClientTest {
     public void hentAktorId__skal_bruke_korrekt_url_for_aktor_id() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-single.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         klient.hentAktorId(FNR_1);
 
         verify(getRequestedFor(urlPathEqualTo("/identer"))
                 .withQueryParam("gjeldende", new EqualToPattern("true"))
-                .withQueryParam("identgruppe", new EqualToPattern("AktoerId"))
-        );
+                .withQueryParam("identgruppe", new EqualToPattern("AktoerId")));
     }
 
     @Test
     public void hentFnr__skal_bruke_korrekt_url_for_fnr() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         klient.hentFnr(AKTOR_ID_1);
 
         verify(getRequestedFor(urlPathEqualTo("/identer"))
                 .withQueryParam("gjeldende", new EqualToPattern("true"))
-                .withQueryParam("identgruppe", new EqualToPattern("NorskIdent"))
-        );
+                .withQueryParam("identgruppe", new EqualToPattern("NorskIdent")));
     }
 
     @Test
@@ -175,10 +152,7 @@ public class AktorregisterHttpClientTest {
                 .withHeader("Nav-Call-Id", new AnythingPattern())
                 .withHeader("Nav-Consumer-Id", new EqualToPattern(testApplication))
                 .withHeader("Nav-Personidenter", new EqualToPattern(fnr.get()))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
         BrukerIdenter brukerIdenter = klient.hentIdenter(fnr);
 
@@ -186,8 +160,7 @@ public class AktorregisterHttpClientTest {
                 Fnr.of("33333"),
                 AktorId.of("55555"),
                 asList(Fnr.of("22222"), Fnr.of("44444")),
-                asList(AktorId.of("11111"))
-        );
+                asList(AktorId.of("11111")));
 
         assertEquals(forventet, brukerIdenter);
     }
@@ -196,11 +169,7 @@ public class AktorregisterHttpClientTest {
     public void skal_legge_til_headers() {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         klient.hentFnr(AKTOR_ID_1);
 
@@ -208,8 +177,7 @@ public class AktorregisterHttpClientTest {
                 .withHeader("Authorization", new EqualToPattern("Bearer " + dummyAuthToken))
                 .withHeader("Nav-Call-Id", new AnythingPattern())
                 .withHeader("Nav-Consumer-Id", new EqualToPattern(testApplication))
-                .withHeader("Nav-Personidenter", new EqualToPattern(AKTOR_ID_1.get()))
-        );
+                .withHeader("Nav-Personidenter", new EqualToPattern(AKTOR_ID_1.get())));
     }
 
     @Test
@@ -219,5 +187,4 @@ public class AktorregisterHttpClientTest {
         assertTrue(klient.checkHealth().isHealthy());
         verify(getRequestedFor(urlEqualTo("/internal/isAlive")));
     }
-
 }

@@ -35,10 +35,7 @@ public class CXFMaskSAMLTokenLoggingOutInterceptor extends LoggingOutInterceptor
     void maskIfEnabled(LogEvent event) {
         String payload = event.getPayload();
         String contentType = event.getContentType();
-        if (maskerSAMLToken
-                && payload != null
-                && contentType != null
-                && contentType.contains("xml")) {
+        if (maskerSAMLToken && payload != null && contentType != null && contentType.contains("xml")) {
             event.setPayload(removeSAMLTokenFromXML(payload));
         }
     }

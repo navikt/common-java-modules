@@ -1,13 +1,13 @@
 package no.nav.types.identer;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AzureObjectId;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class AzureObjectIdTest {
 
@@ -16,7 +16,8 @@ public class AzureObjectIdTest {
     @Test
     public void should_serialize_azureObjectId_to_json_field() {
         AzureObjectIdWrapper wrapper = new AzureObjectIdWrapper(AzureObjectId.of("123534252"));
-        assertEquals("{\"azureObjectId\":\"123534252\"}", mapper.valueToTree(wrapper).toString());
+        assertEquals(
+                "{\"azureObjectId\":\"123534252\"}", mapper.valueToTree(wrapper).toString());
     }
 
     @Test
@@ -85,5 +86,4 @@ public class AzureObjectIdTest {
             return azureObjectId;
         }
     }
-
 }

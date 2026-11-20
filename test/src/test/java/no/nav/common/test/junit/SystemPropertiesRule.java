@@ -1,12 +1,11 @@
 package no.nav.common.test.junit;
 
+import java.util.Properties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
-
-import java.util.Properties;
 
 @Slf4j
 public class SystemPropertiesRule implements MethodRule {
@@ -38,5 +37,4 @@ public class SystemPropertiesRule implements MethodRule {
         System.setProperty(name, value);
         return this;
     }
-
 }

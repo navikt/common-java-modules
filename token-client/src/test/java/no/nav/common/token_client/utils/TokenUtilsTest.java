@@ -1,23 +1,20 @@
 package no.nav.common.token_client.utils;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.PlainJWT;
-import org.junit.jupiter.api.Test;
-
-import java.util.Date;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import java.util.Date;
+import org.junit.jupiter.api.Test;
+
 public class TokenUtilsTest {
 
-    private final static int FIVE_MINUTES = 1000 * 60 * 5;
+    private static final int FIVE_MINUTES = 1000 * 60 * 5;
 
     private JWTClaimsSet createClaimsSet(long exp) {
-        return new JWTClaimsSet.Builder()
-                .expirationTime(new Date(exp))
-                .build();
+        return new JWTClaimsSet.Builder().expirationTime(new Date(exp)).build();
     }
 
     @Test
@@ -50,5 +47,4 @@ public class TokenUtilsTest {
 
         assertTrue(TokenUtils.expiresWithin(jwt, FIVE_MINUTES));
     }
-
 }

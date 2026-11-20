@@ -1,23 +1,22 @@
 package no.nav.common.auth.utils;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.Optional;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 public class UserTokenFinderTest {
 
-    private final static String OPENAM_ID = "oidc-provider-test-rule-openam";
+    private static final String OPENAM_ID = "oidc-provider-test-rule-openam";
 
-    private final static JwtTestTokenIssuerConfig openAmIssuerConfig = JwtTestTokenIssuerConfig.builder()
+    private static final JwtTestTokenIssuerConfig openAmIssuerConfig = JwtTestTokenIssuerConfig.builder()
             .id(OPENAM_ID)
             .issuer(OPENAM_ID)
             .audience(OPENAM_ID)
@@ -42,7 +41,7 @@ public class UserTokenFinderTest {
     public void should_return_empty_for_service_user() {
         String token = openAmOidcProviderRule.getToken(new JwtTestTokenIssuer.Claims("Z123456"));
 
-        HttpServletRequest servletRequest =  mock(HttpServletRequest.class);
+        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
         when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + token);
 
         Optional<String> maybeToken = new UserTokenFinder().findToken(servletRequest);
@@ -52,12 +51,11 @@ public class UserTokenFinderTest {
 
     @Test
     public void should_return_empty_for_missing_auth_header() {
-        HttpServletRequest servletRequest =  mock(HttpServletRequest.class);
+        HttpServletRequest servletRequest = mock(HttpServletRequest.class);
         when(servletRequest.getHeader("Authorization")).thenReturn(null);
 
         Optional<String> maybeToken = new ServiceUserTokenFinder().findToken(servletRequest);
 
         assertTrue(maybeToken.isEmpty());
     }
-
 }

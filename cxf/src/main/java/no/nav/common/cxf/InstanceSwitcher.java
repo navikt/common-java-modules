@@ -1,15 +1,14 @@
 package no.nav.common.cxf;
 
-import org.slf4j.Logger;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import static java.lang.Boolean.valueOf;
 import static java.lang.System.getProperty;
 import static java.lang.reflect.Proxy.newProxyInstance;
 import static org.slf4j.LoggerFactory.getLogger;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import org.slf4j.Logger;
 
 public final class InstanceSwitcher implements InvocationHandler {
 
@@ -34,9 +33,8 @@ public final class InstanceSwitcher implements InvocationHandler {
 
         return (T) newProxyInstance(
                 InstanceSwitcher.class.getClassLoader(),
-                new Class[]{type},
-                new InstanceSwitcher(defaultInstance, alternative, key)
-        );
+                new Class[] {type},
+                new InstanceSwitcher(defaultInstance, alternative, key));
     }
 
     @Override
@@ -50,13 +48,14 @@ public final class InstanceSwitcher implements InvocationHandler {
                 return method.invoke(alternative, args);
             }
             return method.invoke(defaultInstance, args);
-        } catch(InvocationTargetException exception){
+        } catch (InvocationTargetException exception) {
             LOG.info("invokasjon feiler, kaster reell exception", exception);
             throw exception.getCause();
-        }catch (IllegalAccessException exception) {
+        } catch (IllegalAccessException exception) {
             throw new RuntimeException("Problemer med invokering av metode", exception);
         }
     }
+
     public String getTargetClassName() {
         return alternative.getClass().getName().split("\\$")[0];
     }

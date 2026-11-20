@@ -1,12 +1,14 @@
 package no.nav.types.identer;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.Fnr;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class FnrTest {
 
@@ -95,5 +97,4 @@ public class FnrTest {
             return fnr;
         }
     }
-
 }

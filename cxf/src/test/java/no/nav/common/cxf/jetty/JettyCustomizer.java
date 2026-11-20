@@ -6,11 +6,9 @@ import org.eclipse.jetty.server.Server;
 
 public interface JettyCustomizer {
 
-    default void customize(HttpConfiguration httpConfiguration) {
-    }
-    default void customize(Server server){
-    }
-    default void customize(WebAppContext webAppContext){
-    }
+    default void customize(HttpConfiguration httpConfiguration) {}
 
+    default void customize(Server server) {}
+
+    default void customize(WebAppContext webAppContext) {}
 }

@@ -1,14 +1,13 @@
 package no.nav.common.auth.oidc.filter;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Wither;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.auth.utils.JavaxAuthHeaderTokenFinder;
 import no.nav.common.auth.utils.JavaxTokenFinder;
-
-import java.util.Collections;
-import java.util.List;
 
 @Wither
 @NoArgsConstructor
@@ -19,7 +18,8 @@ public class JavaxOidcAuthenticatorConfig {
     // OIDC discovery URL
     public String discoveryUrl;
 
-    // Is used to validate the audience claim (if the token has multiple audiences and the AZP claim is set, then AZP will also be validated against this list of IDs)
+    // Is used to validate the audience claim (if the token has multiple audiences and the AZP claim is set, then AZP
+    // will also be validated against this list of IDs)
     public List<String> clientIds;
 
     // What type of user is being authenticated
@@ -46,10 +46,7 @@ public class JavaxOidcAuthenticatorConfig {
     public String refreshedCookiePath;
 
     public boolean isValid() {
-        return discoveryUrl != null
-                && clientIds != null
-                && userRoleResolver != null
-                && idTokenFinder != null;
+        return discoveryUrl != null && clientIds != null && userRoleResolver != null && idTokenFinder != null;
     }
 
     public JavaxOidcAuthenticatorConfig withClientId(String clientId) {
@@ -61,5 +58,4 @@ public class JavaxOidcAuthenticatorConfig {
         this.userRoleResolver = jwt -> userRole;
         return this;
     }
-
 }

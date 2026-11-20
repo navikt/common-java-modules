@@ -1,11 +1,13 @@
 package no.nav.common.token_client.builder;
 
+import static no.nav.common.token_client.utils.env.AzureAdEnvironmentVariables.AZURE_APP_CLIENT_ID;
+import static no.nav.common.token_client.utils.env.AzureAdEnvironmentVariables.AZURE_APP_JWK;
+import static no.nav.common.token_client.utils.env.AzureAdEnvironmentVariables.AZURE_OPENID_CONFIG_TOKEN_ENDPOINT;
+
 import no.nav.common.token_client.cache.CaffeineTokenCache;
 import no.nav.common.token_client.cache.TokenCache;
 import no.nav.common.token_client.client.AzureAdMachineToMachineTokenClient;
 import no.nav.common.token_client.client.AzureAdOnBehalfOfTokenClient;
-
-import static no.nav.common.token_client.utils.env.AzureAdEnvironmentVariables.*;
 
 public class AzureAdTokenClientBuilder {
 
@@ -74,5 +76,4 @@ public class AzureAdTokenClientBuilder {
             throw new IllegalStateException("Token endpoint URL is required");
         }
     }
-
 }

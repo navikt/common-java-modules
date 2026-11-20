@@ -1,12 +1,10 @@
 package no.nav.common.kafka.consumer.feilhandtering.backoff;
 
-import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
-import no.nav.common.kafka.consumer.feilhandtering.backoff.LinearBackoffStrategy;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
-
-import static org.junit.Assert.assertEquals;
+import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
+import org.junit.Test;
 
 public class LinearRetryBackoffTest {
 
@@ -25,18 +23,6 @@ public class LinearRetryBackoffTest {
     }
 
     private StoredConsumerRecord createTestRecord(int retries) {
-        return new StoredConsumerRecord(
-                1L,
-                "",
-                1,
-                1L,
-                null,
-                null,
-                "",
-                retries,
-                null,
-                1L
-        );
+        return new StoredConsumerRecord(1L, "", 1, 1L, null, null, "", retries, null, 1L);
     }
-
 }

@@ -1,7 +1,23 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import static java.lang.String.format;
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.mapFromStoredRecord;
+
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
@@ -11,16 +27,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.utils.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static java.lang.String.format;
-import static no.nav.common.kafka.consumer.util.ConsumerUtils.mapFromStoredRecord;
 
 public class KafkaConsumerRecordProcessor {
 
@@ -52,8 +58,7 @@ public class KafkaConsumerRecordProcessor {
             KafkaConsumerRepository kafkaRepository,
             Map<String, TopicConsumer<byte[], byte[]>> topicConsumers,
             KafkaConsumerRecordProcessorConfig config,
-            MeterRegistry meterRegistry
-    ) {
+            MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
         this.lockProvider = lockProvider;
         this.kafkaConsumerRepository = kafkaRepository;
@@ -167,8 +172,8 @@ public class KafkaConsumerRecordProcessor {
                     return;
                 }
 
-                List<StoredConsumerRecord> records = kafkaConsumerRepository
-                        .getRecords(topicPartition.topic(), topicPartition.partition(), config.recordBatchSize);
+                List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
+                        topicPartition.topic(), topicPartition.partition(), config.recordBatchSize);
 
                 TopicConsumer<byte[], byte[]> recordConsumer = topicConsumers.get(topicPartition.topic());
 
@@ -202,14 +207,15 @@ public class KafkaConsumerRecordProcessor {
                     if (status == ConsumeStatus.OK) {
                         log.info(
                                 "Successfully processed stored record topic={} partition={} offset={} dbId={}",
-                                record.getTopic(), record.getPartition(), record.getOffset(), record.getId()
-                        );
+                                record.getTopic(),
+                                record.getPartition(),
+                                record.getOffset(),
+                                record.getId());
                         recordsToDelete.add(record.getId());
                     } else {
                         String message = format(
                                 "Failed to process stored consumer record topic=%s partition=%d offset=%d dbId=%d",
-                                record.getTopic(), record.getPartition(), record.getOffset(), record.getId()
-                        );
+                                record.getTopic(), record.getPartition(), record.getOffset(), record.getId());
 
                         log.error(message, exception);
 
@@ -249,8 +255,8 @@ public class KafkaConsumerRecordProcessor {
 
     private Optional<SimpleLock> acquireLock(TopicPartition topicPartition) {
         String name = "kcrp-" + topicPartition.topic() + "-" + topicPartition.partition();
-        LockConfiguration configuration = new LockConfiguration(Instant.now(), name, Duration.ofMinutes(5), Duration.ofSeconds(5));
+        LockConfiguration configuration =
+                new LockConfiguration(Instant.now(), name, Duration.ofMinutes(5), Duration.ofSeconds(5));
         return lockProvider.lock(configuration);
     }
-
 }

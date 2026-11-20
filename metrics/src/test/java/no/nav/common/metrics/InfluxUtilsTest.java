@@ -1,12 +1,11 @@
 package no.nav.common.metrics;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 public class InfluxUtilsTest {
     private String metricName;
@@ -58,7 +57,6 @@ public class InfluxUtilsTest {
         assertEquals("metric,tag=something value1=1,value2=2,value3=3 1111", payload);
     }
 
-
     @Test
     public void enumValuesAreFormattedAsStrings() {
         tags.put("tag", "something");
@@ -78,7 +76,8 @@ public class InfluxUtilsTest {
 
         String payload = InfluxUtils.createInfluxLineProtocolPayload(metricName, tags, values, timeStamp);
 
-        assertEquals("metric,tag=something value1=\"test object formatted\",value2=\"test object formatted\" 1111", payload);
+        assertEquals(
+                "metric,tag=something value1=\"test object formatted\",value2=\"test object formatted\" 1111", payload);
     }
 
     @Test
@@ -104,5 +103,4 @@ public class InfluxUtilsTest {
             return "test object formatted";
         }
     }
-
 }

@@ -1,8 +1,7 @@
 package no.nav.common.client.norg2;
 
-import no.nav.common.health.HealthCheck;
-
 import java.util.List;
+import no.nav.common.health.HealthCheck;
 
 public interface Norg2Client extends HealthCheck {
 
@@ -20,6 +19,8 @@ public interface Norg2Client extends HealthCheck {
     Enhet hentTilhorendeEnhet(String geografiskOmrade, Diskresjonskode diskresjonskode, boolean skjermet);
 
     enum Diskresjonskode {
-        SPFO, SPSF, ANY
+        SPFO,
+        SPSF,
+        ANY
     }
 }

@@ -1,6 +1,6 @@
 package no.nav.common.health.selftest;
 
-public enum  SelfTestStatus {
+public enum SelfTestStatus {
     OK(0),
     WARNING(2),
     ERROR(1);

@@ -1,15 +1,15 @@
 package no.nav.common.kafka.util;
 
+import java.util.Properties;
 import no.nav.common.utils.Credentials;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.util.Properties;
-
 public class KafkaPropertiesPreset {
 
-    public static Properties onPremDefaultConsumerProperties(String consumerGroupId, String kafkaBrokersUrl, Credentials credentials) {
+    public static Properties onPremDefaultConsumerProperties(
+            String consumerGroupId, String kafkaBrokersUrl, Credentials credentials) {
         return KafkaPropertiesBuilder.consumerBuilder()
                 .withBaseProperties()
                 .withConsumerGroupId(consumerGroupId)
@@ -19,7 +19,8 @@ public class KafkaPropertiesPreset {
                 .build();
     }
 
-    public static Properties onPremDefaultProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
+    public static Properties onPremDefaultProducerProperties(
+            String producerId, String kafkaBrokersUrl, Credentials credentials) {
         return KafkaPropertiesBuilder.producerBuilder()
                 .withBaseProperties()
                 .withProducerId(producerId)
@@ -29,7 +30,8 @@ public class KafkaPropertiesPreset {
                 .build();
     }
 
-    public static Properties onPremByteProducerProperties(String producerId, String kafkaBrokersUrl, Credentials credentials) {
+    public static Properties onPremByteProducerProperties(
+            String producerId, String kafkaBrokersUrl, Credentials credentials) {
         return KafkaPropertiesBuilder.producerBuilder()
                 .withBaseProperties()
                 .withProducerId(producerId)
@@ -38,7 +40,6 @@ public class KafkaPropertiesPreset {
                 .withSerializers(ByteArraySerializer.class, ByteArraySerializer.class)
                 .build();
     }
-
 
     public static Properties aivenDefaultConsumerProperties(String consumerGroupId) {
         return KafkaPropertiesBuilder.consumerBuilder()
@@ -69,5 +70,4 @@ public class KafkaPropertiesPreset {
                 .withSerializers(ByteArraySerializer.class, ByteArraySerializer.class)
                 .build();
     }
-
 }

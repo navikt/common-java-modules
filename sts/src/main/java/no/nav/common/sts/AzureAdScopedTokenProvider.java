@@ -1,15 +1,19 @@
 package no.nav.common.sts;
 
-import com.nimbusds.oauth2.sdk.*;
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.TokenErrorResponse;
+import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-
-import java.net.URI;
 
 /**
  * Provides access tokens from Azure Ad through OAuth 2.0 credentials flow
@@ -43,7 +47,10 @@ public class AzureAdScopedTokenProvider implements ScopedTokenProvider {
 
         if (!response.indicatesSuccess()) {
             TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error("Failed to fetch service token for {}. Error: {}", scope, tokenErrorResponse.toJSONObject().toString());
+            log.error(
+                    "Failed to fetch service token for {}. Error: {}",
+                    scope,
+                    tokenErrorResponse.toJSONObject().toString());
             throw new RuntimeException("Failed to fetch service token for " + scope);
         }
 
@@ -52,5 +59,4 @@ public class AzureAdScopedTokenProvider implements ScopedTokenProvider {
 
         return accessToken.getValue();
     }
-
 }

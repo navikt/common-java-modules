@@ -2,16 +2,15 @@ package no.nav.common.test.auth;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
+import java.util.Map;
 import no.nav.common.auth.context.AuthContext;
 import no.nav.common.auth.context.UserRole;
 
-import java.util.Map;
-
 public class AuthTestUtils {
 
-    public final static String TEST_AUDIENCE = "test-audience";
+    public static final String TEST_AUDIENCE = "test-audience";
 
-    public final static String TEST_ISSUER = "https://testIssuer.test";
+    public static final String TEST_ISSUER = "https://testIssuer.test";
 
     public static AuthContext createAuthContext(UserRole role, String subject) {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -43,5 +42,4 @@ public class AuthTestUtils {
 
         return new AuthContext(role, new PlainJWT(claimsSet));
     }
-
 }

@@ -1,24 +1,31 @@
 package no.nav.common.token_client.client;
 
+import static java.util.Optional.ofNullable;
+import static no.nav.common.token_client.utils.TokenClientUtils.clientAssertionClaims;
+import static no.nav.common.token_client.utils.TokenClientUtils.clientAssertionHeader;
+import static no.nav.common.token_client.utils.TokenClientUtils.signedClientAssertion;
+import static no.nav.common.token_client.utils.TokenUtils.getSubject;
+
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.*;
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.JWTBearerGrant;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.TokenErrorResponse;
+import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.token_client.cache.TokenCache;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Optional.ofNullable;
-import static no.nav.common.token_client.utils.TokenClientUtils.*;
-import static no.nav.common.token_client.utils.TokenUtils.getSubject;
-
 @Slf4j
 public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
-    public AzureAdOnBehalfOfTokenClient(String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
+    public AzureAdOnBehalfOfTokenClient(
+            String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
         super(clientId, tokenEndpointUrl, privateJwk, tokenCache);
     }
 
@@ -36,8 +43,7 @@ public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements
         PrivateKeyJWT signedJwt = signedClientAssertion(
                 clientAssertionHeader(privateJwkKeyId),
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
-                assertionSigner
-        );
+                assertionSigner);
 
         TokenRequest request = new TokenRequest(
                 tokenEndpoint,
@@ -45,14 +51,16 @@ public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements
                 new JWTBearerGrant(SignedJWT.parse(accessToken)),
                 new Scope(tokenScope),
                 null,
-                additionalOboClaims(tokenScope, accessToken)
-        );
+                additionalOboClaims(tokenScope, accessToken));
 
         TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
 
         if (!response.indicatesSuccess()) {
             TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error("Failed to fetch AzureAD OBO token for scope={}. Error: {}", tokenScope, tokenErrorResponse.toJSONObject().toString());
+            log.error(
+                    "Failed to fetch AzureAD OBO token for scope={}. Error: {}",
+                    tokenScope,
+                    tokenErrorResponse.toJSONObject().toString());
             throw new RuntimeException("Failed to fetch AzureAD OBO token for scope=" + tokenScope);
         }
 
@@ -70,5 +78,4 @@ public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements
 
         return customParams;
     }
-
 }

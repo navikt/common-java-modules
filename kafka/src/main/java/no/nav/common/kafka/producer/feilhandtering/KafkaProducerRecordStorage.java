@@ -24,5 +24,4 @@ public class KafkaProducerRecordStorage {
             throw e;
         }
     }
-
 }

@@ -1,11 +1,10 @@
 package no.nav.common.kafka.consumer.util.deserializer;
 
+import java.nio.charset.StandardCharsets;
 import no.nav.common.json.JsonUtils;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.everit.json.schema.Schema;
 import org.json.JSONObject;
-
-import java.nio.charset.StandardCharsets;
 
 public class JsonValidationDeserializer<T> implements Deserializer<T> {
 
@@ -35,5 +34,4 @@ public class JsonValidationDeserializer<T> implements Deserializer<T> {
         JSONObject jsonObject = new JSONObject(jsonStr);
         schema.validate(jsonObject);
     }
-
 }

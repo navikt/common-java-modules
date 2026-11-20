@@ -1,8 +1,8 @@
 package no.nav.common.utils;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class MathUtilsTest {
 
@@ -22,5 +22,4 @@ public class MathUtilsTest {
         assertEquals(25, MathUtils.clamp(25, 20, 30));
         assertEquals(30, MathUtils.clamp(40, 20, 30));
     }
-
 }

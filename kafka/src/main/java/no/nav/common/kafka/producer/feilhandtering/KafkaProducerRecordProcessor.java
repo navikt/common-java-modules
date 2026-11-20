@@ -1,5 +1,9 @@
 package no.nav.common.kafka.producer.feilhandtering;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import no.nav.common.job.leader_election.LeaderElectionClient;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.feilhandtering.publisher.BatchedKafkaProducerRecordPublisher;
@@ -7,11 +11,6 @@ import no.nav.common.kafka.producer.feilhandtering.publisher.KafkaProducerRecord
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class KafkaProducerRecordProcessor {
 
@@ -39,8 +38,7 @@ public class KafkaProducerRecordProcessor {
             KafkaProducerRepository producerRepository,
             KafkaProducerRecordPublisher kafkaProducerRecordPublisher,
             LeaderElectionClient leaderElectionClient,
-            List<String> topicWhitelist
-    ) {
+            List<String> topicWhitelist) {
         this.errorTimeoutMs = errorTimeoutMs;
         this.pollTimeoutMs = pollTimeoutMs;
         this.waitingForLeaderTimeoutMs = waitingForLeaderTimeoutMs;
@@ -59,8 +57,7 @@ public class KafkaProducerRecordProcessor {
             KafkaProducerRepository producerRepository,
             KafkaProducerClient<byte[], byte[]> producerClient,
             LeaderElectionClient leaderElectionClient,
-            List<String> topicWhitelist
-    ) {
+            List<String> topicWhitelist) {
         this(
                 KafkaProducerRecordProcessorBuilder.DEFAULT_ERROR_TIMEOUT_MS,
                 KafkaProducerRecordProcessorBuilder.DEFAULT_POLL_TIMEOUT_MS,
@@ -70,15 +67,13 @@ public class KafkaProducerRecordProcessor {
                 producerRepository,
                 new BatchedKafkaProducerRecordPublisher(producerClient),
                 leaderElectionClient,
-                topicWhitelist
-        );
+                topicWhitelist);
     }
 
     public KafkaProducerRecordProcessor(
             KafkaProducerRepository producerRepository,
             KafkaProducerClient<byte[], byte[]> producerClient,
-            LeaderElectionClient leaderElectionClient
-    ) {
+            LeaderElectionClient leaderElectionClient) {
         this(producerRepository, producerClient, leaderElectionClient, null);
     }
 

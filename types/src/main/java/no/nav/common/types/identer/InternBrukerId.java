@@ -3,7 +3,8 @@ package no.nav.common.types.identer;
 public abstract class InternBrukerId extends Id {
 
     public enum Type {
-        NAV_IDENT, AZURE_AD
+        NAV_IDENT,
+        AZURE_AD
     }
 
     InternBrukerId(String id) {
@@ -19,5 +20,4 @@ public abstract class InternBrukerId extends Id {
 
         throw new IllegalStateException("Ukjent InternBrukerId.Type");
     }
-
 }

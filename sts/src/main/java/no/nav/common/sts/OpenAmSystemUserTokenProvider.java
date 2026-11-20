@@ -1,5 +1,7 @@
 package no.nav.common.sts;
 
+import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import lombok.SneakyThrows;
@@ -9,8 +11,6 @@ import no.nav.common.rest.client.RestClient;
 import no.nav.common.sts.utils.OpenAmUtils;
 import no.nav.common.utils.Credentials;
 import okhttp3.OkHttpClient;
-
-import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
 
 /**
  * Retrieves system user tokens through OpenAM
@@ -45,7 +45,8 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
             password: <secret>
         }
     */
-    public OpenAmSystemUserTokenProvider(String discoveryUrl, String redirectUrl, Credentials issoRpCredentials, Credentials systemUserCredentials) {
+    public OpenAmSystemUserTokenProvider(
+            String discoveryUrl, String redirectUrl, Credentials issoRpCredentials, Credentials systemUserCredentials) {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
         OidcDiscoveryConfiguration configuration = client.fetchDiscoveryConfiguration(discoveryUrl);
 
@@ -60,9 +61,12 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
     }
 
     public OpenAmSystemUserTokenProvider(
-            String tokenUrl, String authorizationUrl, String redirectUrl,
-            Credentials issoRpCredentials, Credentials systemUserCredentials, OkHttpClient client
-    ) {
+            String tokenUrl,
+            String authorizationUrl,
+            String redirectUrl,
+            Credentials issoRpCredentials,
+            Credentials systemUserCredentials,
+            OkHttpClient client) {
         this.tokenUrl = tokenUrl;
         this.authorizationUrl = authorizationUrl;
         this.redirectUrl = redirectUrl;
@@ -83,10 +87,11 @@ public class OpenAmSystemUserTokenProvider implements SystemUserTokenProvider {
     @SneakyThrows
     private JWT fetchSystemUserToken() {
         String openAmSessionToken = OpenAmUtils.getSessionToken(systemUserCredentials, authorizationUrl, client);
-        String authorizationCode = OpenAmUtils.getAuthorizationCode(authorizationUrl, openAmSessionToken, issoRpCredentials.username, redirectUrl, client);
-        String token = OpenAmUtils.exchangeCodeForToken(authorizationCode, tokenUrl, redirectUrl, issoRpCredentials, client);
+        String authorizationCode = OpenAmUtils.getAuthorizationCode(
+                authorizationUrl, openAmSessionToken, issoRpCredentials.username, redirectUrl, client);
+        String token =
+                OpenAmUtils.exchangeCodeForToken(authorizationCode, tokenUrl, redirectUrl, issoRpCredentials, client);
 
         return JWTParser.parse(token);
     }
-
 }

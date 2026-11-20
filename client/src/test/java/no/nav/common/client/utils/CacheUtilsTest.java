@@ -1,20 +1,19 @@
 package no.nav.common.client.utils;
 
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.junit.Test;
-
 import java.util.function.Supplier;
-
-import static org.mockito.Mockito.*;
+import org.junit.Test;
 
 public class CacheUtilsTest {
 
     @Test
     public void skal_cache_for_samme_key() {
-        Cache<String, String> cache = Caffeine.newBuilder()
-                .maximumSize(5)
-                .build();
+        Cache<String, String> cache = Caffeine.newBuilder().maximumSize(5).build();
 
         // Cannot spy on lambdas
         Supplier<String> supplier = spy(new Supplier<String>() {
@@ -32,9 +31,7 @@ public class CacheUtilsTest {
 
     @Test
     public void skal_ikke_cache_for_forskjellig_keys() {
-        Cache<String, String> cache = Caffeine.newBuilder()
-                .maximumSize(5)
-                .build();
+        Cache<String, String> cache = Caffeine.newBuilder().maximumSize(5).build();
 
         // Cannot spy on lambdas
         Supplier<String> supplier = spy(new Supplier<String>() {
@@ -52,9 +49,7 @@ public class CacheUtilsTest {
 
     @Test
     public void skal_ikke_cache_null() {
-        Cache<String, String> cache = Caffeine.newBuilder()
-                .maximumSize(5)
-                .build();
+        Cache<String, String> cache = Caffeine.newBuilder().maximumSize(5).build();
 
         // Cannot spy on lambdas
         Supplier<String> supplier = spy(new Supplier<String>() {
@@ -69,5 +64,4 @@ public class CacheUtilsTest {
 
         verify(supplier, times(2)).get();
     }
-
 }

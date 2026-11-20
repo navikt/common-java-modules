@@ -5,5 +5,8 @@ package no.nav.common.client.pdl;
  * https://navikt.github.io/pdl/index-intern.html#_kobling_mellom_tema_og_oppysningstyper
  */
 public enum Tema {
-    GEN, PEN, KTR, SUP
+    GEN,
+    PEN,
+    KTR,
+    SUP
 }

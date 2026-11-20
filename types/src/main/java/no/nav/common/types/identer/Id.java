@@ -47,5 +47,4 @@ public class Id {
     public static Id of(String id) {
         return new Id(id);
     }
-
 }

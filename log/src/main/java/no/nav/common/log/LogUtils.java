@@ -1,11 +1,10 @@
 package no.nav.common.log;
 
+import java.util.Map;
 import no.nav.common.utils.fn.UnsafeRunnable;
 import no.nav.common.utils.fn.UnsafeSupplier;
 import org.slf4j.MDC;
 import org.slf4j.spi.MDCAdapter;
-
-import java.util.Map;
 
 public class LogUtils {
 
@@ -37,5 +36,4 @@ public class LogUtils {
             }
         }
     }
-
 }

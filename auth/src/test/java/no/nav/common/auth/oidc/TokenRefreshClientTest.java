@@ -1,15 +1,15 @@
 package no.nav.common.auth.oidc;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
-
 public class TokenRefreshClientTest {
 
-    private final static JwtTestTokenIssuerConfig issuerConfig = JwtTestTokenIssuerConfig.builder()
+    private static final JwtTestTokenIssuerConfig issuerConfig = JwtTestTokenIssuerConfig.builder()
             .id("oidc-provider-test-rule-aadb2c")
             .issuer("oidc-provider-test-rule-aadb2c")
             .audience("oidc-provider-test-rule")
@@ -30,5 +30,4 @@ public class TokenRefreshClientTest {
         TokenRefreshClient refreshClient = new TokenRefreshClient();
         refreshClient.refreshIdToken("http://not-a-real-host.test/refresh", "refresh-token");
     }
-
 }

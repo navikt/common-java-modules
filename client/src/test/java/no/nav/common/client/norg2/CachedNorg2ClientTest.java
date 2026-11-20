@@ -1,9 +1,15 @@
 package no.nav.common.client.norg2;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Mockito.*;
 
 public class CachedNorg2ClientTest {
 
@@ -15,9 +21,11 @@ public class CachedNorg2ClientTest {
         client = mock(NorgHttp2Client.class);
         cachedClient = new CachedNorg2Client(client);
     }
+
     @Test
     public void hentTilhorendeEnhet__bruker_cache() {
-        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, true)).thenReturn(new Enhet());
+        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, true))
+                .thenReturn(new Enhet());
 
         cachedClient.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, true);
         cachedClient.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, true);
@@ -27,9 +35,12 @@ public class CachedNorg2ClientTest {
 
     @Test
     public void hentTilhorendeEnhet__bruker_alle_parameter_i_cache_key() {
-        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, true)).thenReturn(new Enhet());
-        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, false)).thenReturn(new Enhet());
-        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPSF, false)).thenReturn(new Enhet());
+        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, true))
+                .thenReturn(new Enhet());
+        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPFO, false))
+                .thenReturn(new Enhet());
+        when(client.hentTilhorendeEnhet("A", Norg2Client.Diskresjonskode.SPSF, false))
+                .thenReturn(new Enhet());
         when(client.hentTilhorendeEnhet("A", null, false)).thenReturn(new Enhet());
         when(client.hentTilhorendeEnhet("B", null, false)).thenReturn(new Enhet());
 

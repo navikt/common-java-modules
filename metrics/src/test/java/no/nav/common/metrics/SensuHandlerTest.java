@@ -1,16 +1,15 @@
 package no.nav.common.metrics;
 
-import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SensuHandlerTest {
 
@@ -34,12 +33,10 @@ public class SensuHandlerTest {
         sensuHandler.report("testOutput");
         Thread.sleep(500); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt
 
-        final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
+        final JSONObject forventet = new JSONObject(
+                "{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
         assertTrue(jsonObjectAtomicReference.get().similar(forventet));
-
-
     }
-
 
     @Test
     public void senderDataPaNyNarSocketConnectionFeiler() throws Exception {
@@ -59,9 +56,12 @@ public class SensuHandlerTest {
         };
 
         sensuHandler.report("testOutput");
-        Thread.sleep(1100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt (1000ms delay pga feilende kall + litt)
+        Thread.sleep(
+                1100); // "Socketen" kjører i annen tråd, venter til vi kan anta den har gjort sitt (1000ms delay pga
+        // feilende kall + litt)
 
-        final JSONObject forventet = new JSONObject("{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
+        final JSONObject forventet = new JSONObject(
+                "{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
         assertTrue(jsonObjectAtomicReference.get().similar(forventet));
     }
 
@@ -71,5 +71,4 @@ public class SensuHandlerTest {
         assertEquals(100, SensuHandler.calculateBatchTime(10000, 10000, 100, 1000));
         assertEquals(1000, SensuHandler.calculateBatchTime(0, 10000, 100, 1000));
     }
-
 }

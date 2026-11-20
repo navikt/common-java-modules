@@ -1,8 +1,7 @@
 package no.nav.common.health.selftest;
 
-import lombok.SneakyThrows;
-import no.nav.common.health.HealthCheckResult;
-import no.nav.common.utils.EnvironmentUtils;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.joining;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -13,35 +12,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.joining;
+import lombok.SneakyThrows;
+import no.nav.common.health.HealthCheckResult;
+import no.nav.common.utils.EnvironmentUtils;
 
 public class SelftestHtmlGenerator {
 
-    private final static String htmlTemplate = readResourceFile("/selftest/SelfTestPage.html");
+    private static final String htmlTemplate = readResourceFile("/selftest/SelfTestPage.html");
 
     public static String generate(List<SelftTestCheckResult> checkResults) {
         return generate(checkResults, EnvironmentUtils.resolveHostName(), LocalDateTime.now());
     }
 
     public static String generate(List<SelftTestCheckResult> checkResults, String host, LocalDateTime timestamp) {
-        List<String> tabellrader = checkResults
-                .stream()
-                .map(SelftestHtmlGenerator::lagTabellrad)
-                .collect(Collectors.toList());
+        List<String> tabellrader =
+                checkResults.stream().map(SelftestHtmlGenerator::lagTabellrad).collect(Collectors.toList());
 
-        List<String> feilendeKomponenter = checkResults
-                .stream()
+        List<String> feilendeKomponenter = checkResults.stream()
                 .filter(cr -> cr.checkResult.isUnhealthy() && cr.selfTestCheck.isCritical())
                 .map(cr -> cr.selfTestCheck.getDescription().replaceAll(",", "."))
                 .collect(Collectors.toList());
 
         String html = htmlTemplate;
-        html = html.replace("${aggregertStatus}", getStatusNavnElement(SelfTestUtils.aggregateStatus(checkResults), "span"));
+        html = html.replace(
+                "${aggregertStatus}", getStatusNavnElement(SelfTestUtils.aggregateStatus(checkResults), "span"));
         html = html.replace("${resultater}", String.join("\n", tabellrader));
         html = html.replace("${host}", "Host: " + host);
-        html = html.replace("${generert-tidspunkt}", timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        html = html.replace(
+                "${generert-tidspunkt}", timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         // SiteScope forventer å finne en tag med id="driftsMelding" som inneholder feilede komponenter
         html = html.replace("${feilende-komponenter}", String.join(", ", feilendeKomponenter));
@@ -74,8 +72,7 @@ public class SelftestHtmlGenerator {
                 kritisk,
                 result.timeUsed + " ms",
                 result.selfTestCheck.getDescription(),
-                getFeilmelding(result.checkResult)
-        );
+                getFeilmelding(result.checkResult));
     }
 
     private static String getFeilmelding(HealthCheckResult checkResult) {
@@ -103,8 +100,7 @@ public class SelftestHtmlGenerator {
         String row = Arrays.stream(tdContents)
                 .map(o -> ofNullable(o).map(Object::toString).orElse(""))
                 .collect(joining("</td><td>"));
-        return "<tr><td>" + row +  "</td></tr>\n";
-
+        return "<tr><td>" + row + "</td></tr>\n";
     }
 
     @SneakyThrows

@@ -1,5 +1,19 @@
 package no.nav.common.kafka.consumer.feilhandtering;
 
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
+import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import javax.sql.DataSource;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import no.nav.common.kafka.spring.OracleJdbcTemplateConsumerRepository;
@@ -21,17 +35,6 @@ import org.junit.runners.Parameterized;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-import javax.sql.DataSource;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresContainer;
-import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
-import static org.junit.Assert.*;
-
 @RunWith(Parameterized.class)
 @Slf4j
 public class KafkaConsumerRepositoryTest {
@@ -41,20 +44,23 @@ public class KafkaConsumerRepositoryTest {
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         postgreSQLContainer.start();
-        Awaitility.await().atMost(Duration.ofSeconds(60)).until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(60))
+                .until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
         DataSource postgres = createPostgresDataSource(postgreSQLContainer);
         DbUtils.runScript(postgres, "kafka-consumer-record-postgres.sql");
-        PostgresJdbcTemplateConsumerRepository postgresConsumerRepository = new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(postgres));
+        PostgresJdbcTemplateConsumerRepository postgresConsumerRepository =
+                new PostgresJdbcTemplateConsumerRepository(new JdbcTemplate(postgres));
 
         DataSource oracle = LocalOracleH2Database.createDatabase();
         DbUtils.runScript(oracle, "kafka-consumer-record-oracle.sql");
         DbUtils.runScript(oracle, "oracle-mock.sql");
-        OracleJdbcTemplateConsumerRepository oracleConsumerRepository = new OracleJdbcTemplateConsumerRepository(new JdbcTemplate(oracle));
+        OracleJdbcTemplateConsumerRepository oracleConsumerRepository =
+                new OracleJdbcTemplateConsumerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
-                new Object[]{"POSTGRES", postgres, postgresConsumerRepository},
-                new Object[]{"ORACLE", oracle, oracleConsumerRepository}
-        );
+                new Object[] {"POSTGRES", postgres, postgresConsumerRepository},
+                new Object[] {"ORACLE", oracle, oracleConsumerRepository});
     }
 
     private final DataSource dataSource;
@@ -62,7 +68,8 @@ public class KafkaConsumerRepositoryTest {
     private final KafkaConsumerRepository kafkaConsumerRepository;
 
     // databaseType must be sent as a parameter for the name to show up when running the tests
-    public KafkaConsumerRepositoryTest(String databaseType, DataSource dataSource, KafkaConsumerRepository kafkaConsumerRepository) {
+    public KafkaConsumerRepositoryTest(
+            String databaseType, DataSource dataSource, KafkaConsumerRepository kafkaConsumerRepository) {
         this.dataSource = dataSource;
         this.kafkaConsumerRepository = kafkaConsumerRepository;
     }
@@ -124,16 +131,12 @@ public class KafkaConsumerRepositoryTest {
                 "key",
                 "value",
                 headers,
-                leaderEpoch
-        );
+                leaderEpoch);
 
         kafkaConsumerRepository.storeRecord(mapRecord(consumerRecord));
 
-        StoredConsumerRecord record = kafkaConsumerRepository.getRecords(
-                "topic1",
-                1,
-                5
-        ).get(0);
+        StoredConsumerRecord record =
+                kafkaConsumerRepository.getRecords("topic1", 1, 5).get(0);
 
         assertEquals(1, record.getId());
         assertEquals("topic1", record.getTopic());
@@ -152,14 +155,9 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value")));
 
-        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
-                "topic1",
-                1,
-                5
-        );
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords("topic1", 1, 5);
 
-        List<StoredConsumerRecord> sortedRecords = records
-                .stream()
+        List<StoredConsumerRecord> sortedRecords = records.stream()
                 .sorted((r1, r2) -> (int) (r1.getOffset() - r2.getOffset())) // Sort offset ascending
                 .toList();
 
@@ -175,11 +173,7 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 3, "key", "value")));
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 4, "key", "value")));
 
-        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
-                "topic1",
-                1,
-                3
-        );
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords("topic1", 1, 3);
 
         assertEquals(3, records.size());
     }
@@ -205,11 +199,7 @@ public class KafkaConsumerRepositoryTest {
         kafkaConsumerRepository.incrementRetries(id);
         kafkaConsumerRepository.incrementRetries(id);
 
-        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
-                "topic1",
-                1,
-                3
-        );
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords("topic1", 1, 3);
 
         assertEquals(2, records.get(0).getRetries());
         assertNotNull(records.get(0).getLastRetry());
@@ -241,11 +231,7 @@ public class KafkaConsumerRepositoryTest {
 
         kafkaConsumerRepository.deleteRecords(List.of(id1, id3));
 
-        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords(
-                "topic1",
-                1,
-                5
-        );
+        List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords("topic1", 1, 5);
 
         assertEquals(1, records.size());
         assertEquals(id2, records.get(0).getId());
@@ -254,9 +240,12 @@ public class KafkaConsumerRepositoryTest {
     @Test
     public void should_get_failed_record_counts() {
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value")));
-        long id2 = kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key2", "value")));
-        long id3 = kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 3, "key3", "value")));
-        long id4 = kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 4, "key4", "value")));
+        long id2 =
+                kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key2", "value")));
+        long id3 =
+                kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 3, "key3", "value")));
+        long id4 =
+                kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 4, "key4", "value")));
 
         kafkaConsumerRepository.incrementRetries(id2);
         kafkaConsumerRepository.incrementRetries(id2);
@@ -273,5 +262,4 @@ public class KafkaConsumerRepositoryTest {
     private StoredConsumerRecord mapRecord(ConsumerRecord<String, String> record) {
         return ConsumerUtils.mapToStoredRecord(record, new StringSerializer(), new StringSerializer());
     }
-
 }

@@ -15,5 +15,4 @@ public interface OnBehalfOfTokenClient {
      * @return JWT access token
      */
     String exchangeOnBehalfOfToken(String tokenScope, String accessToken);
-
 }

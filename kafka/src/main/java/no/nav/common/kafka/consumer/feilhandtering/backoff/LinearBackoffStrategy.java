@@ -1,9 +1,8 @@
 package no.nav.common.kafka.consumer.feilhandtering.backoff;
 
+import java.time.Duration;
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
 import no.nav.common.utils.MathUtils;
-
-import java.time.Duration;
 
 /**
  * Linear backoff strategy. Returns a duration between "minBackoffSeconds" and "maxBackoffSeconds" based on how many previous retries
@@ -49,5 +48,4 @@ public class LinearBackoffStrategy implements BackoffStrategy {
 
         return Duration.ofSeconds(secondsBackoff);
     }
-
 }

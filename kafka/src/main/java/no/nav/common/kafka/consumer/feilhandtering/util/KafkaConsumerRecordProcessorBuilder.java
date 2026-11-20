@@ -1,33 +1,32 @@
 package no.nav.common.kafka.consumer.feilhandtering.util;
 
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.createTopicConsumers;
+import static no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure;
+
 import io.micrometer.core.instrument.MeterRegistry;
+import java.time.Duration;
+import java.util.List;
 import net.javacrumbs.shedlock.core.LockProvider;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessorConfig;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
-import no.nav.common.kafka.consumer.feilhandtering.backoff.LinearBackoffStrategy;
 import no.nav.common.kafka.consumer.feilhandtering.backoff.BackoffStrategy;
+import no.nav.common.kafka.consumer.feilhandtering.backoff.LinearBackoffStrategy;
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 
-import java.time.Duration;
-import java.util.List;
-
-import static no.nav.common.kafka.consumer.util.ConsumerUtils.createTopicConsumers;
-import static no.nav.common.kafka.consumer.util.ConsumerUtils.findConsumerConfigsWithStoreOnFailure;
-
 public class KafkaConsumerRecordProcessorBuilder {
 
-    private final static Duration DEFAULT_ERROR_TIMEOUT = Duration.ofMinutes(5);
-    private final static Duration DEFAULT_POLL_TIMEOUT = Duration.ofMinutes(1);
-    private final static int DEFAULT_RECORDS_BATCH_SIZE = 100;
-    private final static BackoffStrategy DEFAULT_RETRY_BACKOFF_STRATEGY = new LinearBackoffStrategy(
+    private static final Duration DEFAULT_ERROR_TIMEOUT = Duration.ofMinutes(5);
+    private static final Duration DEFAULT_POLL_TIMEOUT = Duration.ofMinutes(1);
+    private static final int DEFAULT_RECORDS_BATCH_SIZE = 100;
+    private static final BackoffStrategy DEFAULT_RETRY_BACKOFF_STRATEGY = new LinearBackoffStrategy(
             0,
             12 * 60 * 60, // Max 12 hours backoff
             144 // Each failed retry will add 5 additional minutes before retrying again
-    );
+            );
 
-    private KafkaConsumerRecordProcessorBuilder() { }
+    private KafkaConsumerRecordProcessorBuilder() {}
 
     private LockProvider lockProvider;
 
@@ -38,11 +37,7 @@ public class KafkaConsumerRecordProcessorBuilder {
     private MeterRegistry meterRegistry;
 
     private final KafkaConsumerRecordProcessorConfig config = new KafkaConsumerRecordProcessorConfig(
-            DEFAULT_ERROR_TIMEOUT,
-            DEFAULT_POLL_TIMEOUT,
-            DEFAULT_RECORDS_BATCH_SIZE,
-            DEFAULT_RETRY_BACKOFF_STRATEGY
-    );
+            DEFAULT_ERROR_TIMEOUT, DEFAULT_POLL_TIMEOUT, DEFAULT_RECORDS_BATCH_SIZE, DEFAULT_RETRY_BACKOFF_STRATEGY);
 
     public static KafkaConsumerRecordProcessorBuilder builder() {
         return new KafkaConsumerRecordProcessorBuilder();
@@ -58,21 +53,23 @@ public class KafkaConsumerRecordProcessorBuilder {
         return this;
     }
 
-    public KafkaConsumerRecordProcessorBuilder withKafkaConsumerRepository(KafkaConsumerRepository kafkaConsumerRepository) {
+    public KafkaConsumerRecordProcessorBuilder withKafkaConsumerRepository(
+            KafkaConsumerRepository kafkaConsumerRepository) {
         this.kafkaConsumerRepository = kafkaConsumerRepository;
         return this;
     }
 
-    public KafkaConsumerRecordProcessorBuilder withConsumerConfigs(List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
+    public KafkaConsumerRecordProcessorBuilder withConsumerConfigs(
+            List<TopicConsumerConfig<?, ?>> topicConsumerConfigs) {
         this.topicConsumerConfigs = topicConsumerConfigs;
         return this;
     }
 
-    public KafkaConsumerRecordProcessorBuilder withTopicConfigs(List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs) {
+    public KafkaConsumerRecordProcessorBuilder withTopicConfigs(
+            List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs) {
         this.topicConsumerConfigs = findConsumerConfigsWithStoreOnFailure(topicConfigs);
         return this;
     }
-
 
     public KafkaConsumerRecordProcessorBuilder withErrorTimeout(Duration errorTimeout) {
         this.config.setErrorTimeout(errorTimeout);
@@ -100,7 +97,8 @@ public class KafkaConsumerRecordProcessorBuilder {
         }
 
         if (kafkaConsumerRepository == null) {
-            throw new IllegalStateException("Cannot build kafka consumer record processor without kafkaConsumerRepository");
+            throw new IllegalStateException(
+                    "Cannot build kafka consumer record processor without kafkaConsumerRepository");
         }
 
         if (topicConsumerConfigs == null) {
@@ -116,7 +114,8 @@ public class KafkaConsumerRecordProcessorBuilder {
         }
 
         if (config.getBackoffStrategy() == null) {
-            throw new IllegalStateException("Cannot build kafka consumer record processor without config.retryBackoffStrategy");
+            throw new IllegalStateException(
+                    "Cannot build kafka consumer record processor without config.retryBackoffStrategy");
         }
 
         return new KafkaConsumerRecordProcessor(
@@ -124,7 +123,6 @@ public class KafkaConsumerRecordProcessorBuilder {
                 kafkaConsumerRepository,
                 createTopicConsumers(topicConsumerConfigs),
                 config,
-                meterRegistry
-        );
+                meterRegistry);
     }
 }

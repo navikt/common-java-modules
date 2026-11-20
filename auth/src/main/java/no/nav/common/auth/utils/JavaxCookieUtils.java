@@ -3,7 +3,6 @@ package no.nav.common.auth.utils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.UriInfo;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
@@ -13,19 +12,17 @@ public class JavaxCookieUtils {
 
     public static Optional<Cookie> getCookie(String cookieName, HttpServletRequest request) {
         return Optional.ofNullable(request.getCookies())
-                .flatMap(cookies -> Arrays
-                        .stream(cookies)
+                .flatMap(cookies -> Arrays.stream(cookies)
                         .filter(cookie -> cookie.getName().equals(cookieName) && cookie.getValue() != null)
-                        .findFirst()
-                );
+                        .findFirst());
     }
 
     public static Optional<String> getCookieValue(String cookieName, HttpServletRequest request) {
-        return getCookie(cookieName, request)
-                .map(Cookie::getValue);
+        return getCookie(cookieName, request).map(Cookie::getValue);
     }
 
-    public static Cookie createCookie(String name, String value, String domain, String path, int maxAge, boolean secure) {
+    public static Cookie createCookie(
+            String name, String value, String domain, String path, int maxAge, boolean secure) {
         Cookie newCookie = new Cookie(name, value);
         newCookie.setDomain(domain);
         newCookie.setPath(path);
@@ -57,5 +54,4 @@ public class JavaxCookieUtils {
         long deltaTime = date.getTime() - System.currentTimeMillis();
         return (int) deltaTime / 1000;
     }
-
 }

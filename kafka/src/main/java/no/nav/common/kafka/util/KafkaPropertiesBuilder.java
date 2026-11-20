@@ -1,5 +1,12 @@
 package no.nav.common.kafka.util;
 
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.KAFKA_BROKERS;
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.KAFKA_CREDSTORE_PASSWORD;
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.KAFKA_KEYSTORE_PATH;
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.KAFKA_TRUSTSTORE_PATH;
+import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
+
+import java.util.Properties;
 import no.nav.common.utils.Credentials;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -9,19 +16,14 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
 
-import java.util.Properties;
-
-import static no.nav.common.kafka.util.KafkaEnvironmentVariables.*;
-import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
-
 public class KafkaPropertiesBuilder {
 
-    public final static int DEFAULT_MAX_POLL_RECORDS = 500;
+    public static final int DEFAULT_MAX_POLL_RECORDS = 500;
 
     // Kafka 4.4-dokumentasjonen oppgir standardverdien for connections.max.idle.ms til 540000 ms (9 minutter).
     private static final int DEFAULT_CONNECTIONS_MAX_IDLE_MS = 540_000;
 
-    public final static long DEFAULT_LINGER_MS = 500;
+    public static final long DEFAULT_LINGER_MS = 500;
 
     public static ConsumerPropertiesBuilder consumerBuilder() {
         return new ConsumerPropertiesBuilder();
@@ -53,7 +55,10 @@ public class KafkaPropertiesBuilder {
         public T withOnPremAuth(Credentials credentials) {
             properties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
             properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-            properties.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + credentials.username + "\" password=\"" + credentials.password + "\";");
+            properties.put(
+                    SaslConfigs.SASL_JAAS_CONFIG,
+                    "org.apache.kafka.common.security.plain.PlainLoginModule required username=\""
+                            + credentials.username + "\" password=\"" + credentials.password + "\";");
             return (T) this;
         }
 
@@ -88,7 +93,6 @@ public class KafkaPropertiesBuilder {
 
             return properties;
         }
-
     }
 
     public static class ProducerPropertiesBuilder extends BasePropertiesBuilder<ProducerPropertiesBuilder> {
@@ -110,7 +114,8 @@ public class KafkaPropertiesBuilder {
             return this;
         }
 
-        public <K extends Serializer<?>, V extends Serializer<?>> ProducerPropertiesBuilder withSerializers(Class<K> keySerializerClass, Class<V> valueSerializerClass) {
+        public <K extends Serializer<?>, V extends Serializer<?>> ProducerPropertiesBuilder withSerializers(
+                Class<K> keySerializerClass, Class<V> valueSerializerClass) {
             properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializerClass);
             properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializerClass);
             return this;
@@ -128,7 +133,6 @@ public class KafkaPropertiesBuilder {
 
             return super.build();
         }
-
     }
 
     public static class ConsumerPropertiesBuilder extends BasePropertiesBuilder<ConsumerPropertiesBuilder> {
@@ -182,7 +186,8 @@ public class KafkaPropertiesBuilder {
             return this;
         }
 
-        public <K extends Deserializer<?>, V extends Deserializer<?>> ConsumerPropertiesBuilder withDeserializers(Class<K> keyDeserializerClass, Class<V> valueDeserializerClass) {
+        public <K extends Deserializer<?>, V extends Deserializer<?>> ConsumerPropertiesBuilder withDeserializers(
+                Class<K> keyDeserializerClass, Class<V> valueDeserializerClass) {
             properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializerClass);
             properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializerClass);
             return this;
@@ -217,7 +222,8 @@ public class KafkaPropertiesBuilder {
                 throw new IllegalStateException(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG + " must be an integer");
             }
 
-            int maxWaitForEachBatch = Integer.parseInt(configuredPollInterval.toString().trim());
+            int maxWaitForEachBatch =
+                    Integer.parseInt(configuredPollInterval.toString().trim());
             if (maxWaitForEachBatch > DEFAULT_CONNECTIONS_MAX_IDLE_MS) {
                 // Hold forbindelsen til group coordinator åpen minst like lenge som poll-intervallet under rebalance.
                 properties.put(CommonClientConfigs.CONNECTIONS_MAX_IDLE_MS_CONFIG, maxWaitForEachBatch);

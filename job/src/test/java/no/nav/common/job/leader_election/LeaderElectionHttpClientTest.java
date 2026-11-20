@@ -1,17 +1,19 @@
 package no.nav.common.job.leader_election;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class LeaderElectionHttpClientTest {
 
@@ -50,10 +52,7 @@ public class LeaderElectionHttpClientTest {
     private void isLeader(boolean value) {
         String name = value ? hostName : "not leader";
 
-        givenThat(get(urlEqualTo("/"))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody("{\"name\": \"" + name + "\"}"))
-        );
+        givenThat(
+                get(urlEqualTo("/")).willReturn(aResponse().withStatus(200).withBody("{\"name\": \"" + name + "\"}")));
     }
 }

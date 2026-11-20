@@ -1,10 +1,9 @@
 package no.nav.common.kafka.consumer.util.deserializer;
 
-import org.apache.kafka.common.serialization.Deserializer;
+import static no.nav.common.json.JsonUtils.fromJson;
 
 import java.nio.charset.StandardCharsets;
-
-import static no.nav.common.json.JsonUtils.fromJson;
+import org.apache.kafka.common.serialization.Deserializer;
 
 public class JsonObjectDeserializer<T> implements Deserializer<T> {
 
@@ -24,5 +23,4 @@ public class JsonObjectDeserializer<T> implements Deserializer<T> {
 
         return fromJson(dataStr, dataClass);
     }
-
 }

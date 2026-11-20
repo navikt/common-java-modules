@@ -1,5 +1,9 @@
 package no.nav.common.auth.oidc;
 
+import static no.nav.common.rest.client.RestUtils.getBodyStr;
+import static no.nav.common.rest.client.RestUtils.parseJsonResponseOrThrow;
+import static no.nav.common.rest.client.RestUtils.toJsonRequestBody;
+
 import lombok.SneakyThrows;
 import no.nav.common.rest.client.RestClient;
 import okhttp3.OkHttpClient;
@@ -8,11 +12,9 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static no.nav.common.rest.client.RestUtils.*;
-
 public class TokenRefreshClient {
 
-    private final static Logger log = LoggerFactory.getLogger(TokenRefreshClient.class);
+    private static final Logger log = LoggerFactory.getLogger(TokenRefreshClient.class);
 
     private final OkHttpClient client;
 
@@ -35,10 +37,9 @@ public class TokenRefreshClient {
 
             if (response.code() >= 300) {
                 String responseStr = getBodyStr(response).orElse("");
-                throw new RuntimeException(
-                        String.format("Received unexpected status %d from %s when refreshing id token. Response: %s",
-                                response.code(), refreshUrl, responseStr)
-                );
+                throw new RuntimeException(String.format(
+                        "Received unexpected status %d from %s when refreshing id token. Response: %s",
+                        response.code(), refreshUrl, responseStr));
             }
 
             return parseJsonResponseOrThrow(response, RefreshIdTokenResponse.class).idToken;
@@ -52,6 +53,7 @@ public class TokenRefreshClient {
         public String refreshToken;
 
         public RefreshIdTokenRequest() {}
+
         public RefreshIdTokenRequest(String refreshToken) {
             this.refreshToken = refreshToken;
         }
@@ -61,9 +63,9 @@ public class TokenRefreshClient {
         public String idToken;
 
         public RefreshIdTokenResponse() {}
+
         public RefreshIdTokenResponse(String idToken) {
             this.idToken = idToken;
         }
     }
-
 }

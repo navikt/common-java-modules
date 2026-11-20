@@ -1,20 +1,21 @@
 package no.nav.common.token_client.client;
 
-import no.nav.common.token_client.cache.CaffeineTokenCache;
-import no.nav.common.token_client.test_utils.TokenCreator;
-import mockwebserver3.MockWebServer;
-import mockwebserver3.RecordedRequest;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.util.Map;
-
 import static no.nav.common.token_client.test_utils.Constants.TEST_JWK;
 import static no.nav.common.token_client.test_utils.RequestUtils.parseFormData;
 import static no.nav.common.token_client.test_utils.RequestUtils.tokenMockResponse;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.io.IOException;
+import java.util.Map;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.RecordedRequest;
+import no.nav.common.token_client.cache.CaffeineTokenCache;
+import no.nav.common.token_client.test_utils.TokenCreator;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TokenXOnBehalfOfTokenClientTest {
 
@@ -38,13 +39,10 @@ public class TokenXOnBehalfOfTokenClientTest {
         server.enqueue(tokenMockResponse(accessToken));
 
         TokenXOnBehalfOfTokenClient tokenClient = new TokenXOnBehalfOfTokenClient(
-                "test-id",
-                server.url("/token").toString(),
-                TEST_JWK,
-                new CaffeineTokenCache()
-        );
+                "test-id", server.url("/token").toString(), TEST_JWK, new CaffeineTokenCache());
 
-        String token = tokenClient.exchangeOnBehalfOfToken("test-scope", TokenCreator.instance().createToken("test"));
+        String token = tokenClient.exchangeOnBehalfOfToken(
+                "test-scope", TokenCreator.instance().createToken("test"));
 
         RecordedRequest recordedRequest = server.takeRequest();
 
@@ -60,7 +58,6 @@ public class TokenXOnBehalfOfTokenClientTest {
         assertNotNull(data.get("client_assertion"));
     }
 
-
     @Test
     public void should_cache_request() {
         server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("user-1")));
@@ -68,11 +65,7 @@ public class TokenXOnBehalfOfTokenClientTest {
         server.enqueue(tokenMockResponse(TokenCreator.instance().createToken("user-2")));
 
         TokenXOnBehalfOfTokenClient tokenClient = new TokenXOnBehalfOfTokenClient(
-                "test-id",
-                server.url("/token").toString(),
-                TEST_JWK,
-                new CaffeineTokenCache()
-        );
+                "test-id", server.url("/token").toString(), TEST_JWK, new CaffeineTokenCache());
 
         String token1 = TokenCreator.instance().createToken("user-1");
         String token2 = TokenCreator.instance().createToken("user-2");
@@ -93,17 +86,15 @@ public class TokenXOnBehalfOfTokenClientTest {
     @Test
     public void should_throw_exception_if_subject_missing() {
         TokenXOnBehalfOfTokenClient tokenClient = new TokenXOnBehalfOfTokenClient(
-                "test-id",
-                server.url("/token").toString(),
-                TEST_JWK,
-                new CaffeineTokenCache()
-        );
+                "test-id", server.url("/token").toString(), TEST_JWK, new CaffeineTokenCache());
 
         String token = TokenCreator.instance().createToken(null);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            tokenClient.exchangeOnBehalfOfToken("test-scope", token);
-        }, "Unable to get subject, access token is missing subject");
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> {
+                    tokenClient.exchangeOnBehalfOfToken("test-scope", token);
+                },
+                "Unable to get subject, access token is missing subject");
     }
-
 }

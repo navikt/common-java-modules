@@ -1,8 +1,7 @@
 package no.nav.common.client.utils.graphql;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class GraphqlError {

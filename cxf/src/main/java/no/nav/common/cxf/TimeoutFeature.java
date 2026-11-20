@@ -18,15 +18,14 @@ public class TimeoutFeature extends AbstractFeature {
     private int receiveTimeout = DEFAULT_RECEIVE_TIMEOUT;
     private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
 
-    public TimeoutFeature() {
-    }
+    public TimeoutFeature() {}
 
     public TimeoutFeature(int receiveTimeout, int connectionTimeout) {
-		this.receiveTimeout = receiveTimeout;
-		this.connectionTimeout = connectionTimeout;
-	}
+        this.receiveTimeout = receiveTimeout;
+        this.connectionTimeout = connectionTimeout;
+    }
 
-	@Override
+    @Override
     public void initialize(Client client, Bus bus) {
         Conduit conduit = client.getConduit();
         if (conduit instanceof HTTPConduit) {

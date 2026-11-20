@@ -1,6 +1,15 @@
 package no.nav.common.rest.client;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static java.util.function.Predicate.isEqual;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import java.io.IOException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,13 +21,6 @@ import okhttp3.Response;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.io.IOException;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static java.util.function.Predicate.isEqual;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 public class RestUtilsTest {
 
@@ -32,7 +34,6 @@ public class RestUtilsTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
 
-
     @SneakyThrows
     @Test
     public void getBodyStr__skal_returnere_body() {
@@ -40,16 +41,15 @@ public class RestUtilsTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "{ \"hello\": \"world\" }";
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
-            Assertions.assertThat(RestUtils.getBodyStr(response)).isPresent().get().isEqualTo(json);
+            Assertions.assertThat(RestUtils.getBodyStr(response))
+                    .isPresent()
+                    .get()
+                    .isEqualTo(json);
         }
     }
 
@@ -64,16 +64,15 @@ public class RestUtilsTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "{ \"hello\": \"world\" }";
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
-            Assertions.assertThat(RestUtils.parseJsonResponse(response, HelloWorldPayload.class)).isPresent().get().isEqualTo(expected);
+            Assertions.assertThat(RestUtils.parseJsonResponse(response, HelloWorldPayload.class))
+                    .isPresent()
+                    .get()
+                    .isEqualTo(expected);
         }
     }
 
@@ -85,16 +84,14 @@ public class RestUtilsTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "";
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
-            assertThrows(IllegalStateException.class, () -> RestUtils.parseJsonResponseOrThrow(response, HelloWorldPayload.class));
+            assertThrows(
+                    IllegalStateException.class,
+                    () -> RestUtils.parseJsonResponseOrThrow(response, HelloWorldPayload.class));
         }
     }
 
@@ -109,19 +106,15 @@ public class RestUtilsTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "[{\"hello\": \"world\"}, {\"hello\": \"world\"}]";
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
-            Assertions.assertThat(
-                            RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class))
+            Assertions.assertThat(RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class))
                     .isPresent()
-                    .get().asList()
+                    .get()
+                    .asList()
                     .hasSize(2)
                     .allMatch(isEqual(expected));
         }
@@ -138,19 +131,16 @@ public class RestUtilsTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "";
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Request request = new Request.Builder().url(baseUrl).build();
 
         try (Response response = client.newCall(request).execute()) {
-            assertThrows(IllegalStateException.class, () -> RestUtils.parseJsonResponseArrayOrThrow(response, HelloWorldPayload.class));
+            assertThrows(
+                    IllegalStateException.class,
+                    () -> RestUtils.parseJsonResponseArrayOrThrow(response, HelloWorldPayload.class));
         }
     }
-
 
     @SneakyThrows
     @Test
@@ -158,10 +148,7 @@ public class RestUtilsTest {
         OkHttpClient client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(204))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(204)));
 
         Request request = new Request.Builder().url(baseUrl).build();
 
@@ -176,11 +163,7 @@ public class RestUtilsTest {
         OkHttpClient client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(204)
-                        .withBody(""))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(204).withBody("")));
 
         Request request = new Request.Builder().url(baseUrl).build();
 
@@ -195,11 +178,7 @@ public class RestUtilsTest {
         OkHttpClient client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(anyUrl())
-                .willReturn(aResponse()
-                        .withStatus(404)
-                        .withBody(""))
-        );
+        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(404).withBody("")));
 
         Request request = new Request.Builder().url(baseUrl).build();
 

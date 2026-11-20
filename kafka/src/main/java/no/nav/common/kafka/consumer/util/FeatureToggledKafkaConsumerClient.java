@@ -1,14 +1,13 @@
 package no.nav.common.kafka.consumer.util;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import no.nav.common.kafka.consumer.KafkaConsumerClient;
-
 import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import no.nav.common.kafka.consumer.KafkaConsumerClient;
 
 /**
  * {@link KafkaConsumerClient} with support for toggling the consumer on/off based off the result from a {@link Supplier}
@@ -17,7 +16,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
-    private final static Duration DEFAULT_POLL_TIMEOUT = Duration.ofMinutes(1);
+    private static final Duration DEFAULT_POLL_TIMEOUT = Duration.ofMinutes(1);
 
     private final KafkaConsumerClient kafkaConsumerClient;
 
@@ -27,13 +26,17 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
     private ScheduledExecutorService executorService;
 
-    public FeatureToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier) {
+    public FeatureToggledKafkaConsumerClient(
+            KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier) {
         this.kafkaConsumerClient = kafkaConsumerClient;
         this.isConsumerToggledOffSupplier = isToggledOffSupplier;
         this.pollTimeoutDuration = DEFAULT_POLL_TIMEOUT;
     }
 
-    public FeatureToggledKafkaConsumerClient(KafkaConsumerClient kafkaConsumerClient, Supplier<Boolean> isToggledOffSupplier, Duration pollTimeoutDuration) {
+    public FeatureToggledKafkaConsumerClient(
+            KafkaConsumerClient kafkaConsumerClient,
+            Supplier<Boolean> isToggledOffSupplier,
+            Duration pollTimeoutDuration) {
         this.kafkaConsumerClient = kafkaConsumerClient;
         this.isConsumerToggledOffSupplier = isToggledOffSupplier;
         this.pollTimeoutDuration = pollTimeoutDuration;
@@ -42,7 +45,7 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
     @Override
     public void start() {
         boolean isConsumerToggledOff = isConsumerToggledOffSupplier.get();
-        
+
         if (!isRunning() && !isConsumerToggledOff) {
             kafkaConsumerClient.start();
         }
@@ -51,10 +54,14 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
 
         if (executorService == null || executorService.isShutdown()) {
             executorService = Executors.newSingleThreadScheduledExecutor();
-            executorService.scheduleAtFixedRate(this::syncRunningStateWithToggle, pollTimeoutDuration.toMillis(), pollTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
+            executorService.scheduleAtFixedRate(
+                    this::syncRunningStateWithToggle,
+                    pollTimeoutDuration.toMillis(),
+                    pollTimeoutDuration.toMillis(),
+                    TimeUnit.MILLISECONDS);
         }
     }
-    
+
     @Override
     public void stop() {
         shutAndAwaitExecutor();
@@ -77,7 +84,8 @@ public class FeatureToggledKafkaConsumerClient implements KafkaConsumerClient {
             log.info("Stopping consumer... Toggle for stopping consumers is on and kafka consumer client is running");
             kafkaConsumerClient.stop();
         } else if (!isConsumerToggledOff && !isRunning) {
-            log.info("Starting consumer... Toggle for stopping consumers is off and kafka consumer client is not running");
+            log.info(
+                    "Starting consumer... Toggle for stopping consumers is off and kafka consumer client is not running");
             kafkaConsumerClient.start();
         }
     }

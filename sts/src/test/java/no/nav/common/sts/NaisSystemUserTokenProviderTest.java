@@ -1,17 +1,20 @@
 package no.nav.common.sts;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import no.nav.common.rest.client.RestClient;
 import org.junit.Rule;
 import org.junit.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static java.lang.String.format;
-import static org.junit.Assert.assertEquals;
-
 public class NaisSystemUserTokenProviderTest {
 
-    private final static String ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+    private static final String ACCESS_TOKEN =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
@@ -22,13 +25,10 @@ public class NaisSystemUserTokenProviderTest {
         String json = format("{ \"access_token\": \"%s\", \"expires\": 3600 }", ACCESS_TOKEN);
 
         givenThat(get("/?grant_type=client_credentials&scope=openid")
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withBody(json))
-        );
+                .willReturn(aResponse().withStatus(200).withBody(json)));
 
-        NaisSystemUserTokenProvider provider = new NaisSystemUserTokenProvider(baseUrl, "username", "password", RestClient.baseClient());
+        NaisSystemUserTokenProvider provider =
+                new NaisSystemUserTokenProvider(baseUrl, "username", "password", RestClient.baseClient());
         assertEquals(provider.getSystemUserToken(), ACCESS_TOKEN);
     }
-
 }

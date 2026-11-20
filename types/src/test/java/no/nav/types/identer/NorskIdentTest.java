@@ -1,13 +1,13 @@
 package no.nav.types.identer;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.NorskIdent;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class NorskIdentTest {
 
@@ -16,7 +16,8 @@ public class NorskIdentTest {
     @Test
     public void should_serialize_norsk_ident_to_json_field() {
         NorskIdentWrapper wrapper = new NorskIdentWrapper(NorskIdent.of("123534252"));
-        assertEquals("{\"norskIdent\":\"123534252\"}", mapper.valueToTree(wrapper).toString());
+        assertEquals(
+                "{\"norskIdent\":\"123534252\"}", mapper.valueToTree(wrapper).toString());
     }
 
     @Test
@@ -69,7 +70,7 @@ public class NorskIdentTest {
 
         assertNull(norskIdent);
     }
-    
+
     private static class NorskIdentWrapper {
         public NorskIdent norskIdent;
 
@@ -85,5 +86,4 @@ public class NorskIdentTest {
             return norskIdent;
         }
     }
-    
 }

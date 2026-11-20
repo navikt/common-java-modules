@@ -13,5 +13,4 @@ public class JsonSerializer<T> implements Serializer<T> {
 
         return JsonUtils.toJson(data).getBytes();
     }
-
 }

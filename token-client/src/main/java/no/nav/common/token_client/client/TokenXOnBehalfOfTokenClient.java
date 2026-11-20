@@ -1,26 +1,32 @@
 package no.nav.common.token_client.client;
 
-import com.nimbusds.oauth2.sdk.*;
+import static java.util.Optional.ofNullable;
+import static no.nav.common.token_client.utils.TokenClientUtils.clientAssertionClaims;
+import static no.nav.common.token_client.utils.TokenClientUtils.clientAssertionHeader;
+import static no.nav.common.token_client.utils.TokenClientUtils.signedClientAssertion;
+import static no.nav.common.token_client.utils.TokenUtils.getSubject;
+
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.TokenErrorResponse;
+import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.TokenTypeURI;
 import com.nimbusds.oauth2.sdk.tokenexchange.TokenExchangeGrant;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.token_client.cache.TokenCache;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Optional.ofNullable;
-import static no.nav.common.token_client.utils.TokenClientUtils.*;
-import static no.nav.common.token_client.utils.TokenUtils.getSubject;
-
 @Slf4j
 public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
-    public TokenXOnBehalfOfTokenClient(String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
+    public TokenXOnBehalfOfTokenClient(
+            String clientId, String tokenEndpointUrl, String privateJwk, TokenCache tokenCache) {
         super(clientId, tokenEndpointUrl, privateJwk, tokenCache);
     }
 
@@ -38,8 +44,7 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
         PrivateKeyJWT signedJwt = signedClientAssertion(
                 clientAssertionHeader(privateJwkKeyId),
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
-                assertionSigner
-        );
+                assertionSigner);
 
         TokenRequest request = new TokenRequest(
                 tokenEndpoint,
@@ -47,14 +52,16 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
                 new TokenExchangeGrant(new BearerAccessToken(accessToken), TokenTypeURI.ACCESS_TOKEN),
                 new Scope(tokenScope),
                 null,
-                additionalClaims(tokenScope, accessToken)
-        );
+                additionalClaims(tokenScope, accessToken));
 
         TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
 
         if (!response.indicatesSuccess()) {
             TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error("Failed to fetch TokenX OBO for scope={}. Error: {}", tokenScope, tokenErrorResponse.toJSONObject().toString());
+            log.error(
+                    "Failed to fetch TokenX OBO for scope={}. Error: {}",
+                    tokenScope,
+                    tokenErrorResponse.toJSONObject().toString());
             throw new RuntimeException("Failed to fetch TokenX OBO token for scope=" + tokenScope);
         }
 
@@ -71,5 +78,4 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
 
         return customParams;
     }
-
 }

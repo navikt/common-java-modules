@@ -30,5 +30,4 @@ public class JsonValidationSerializer<T> implements Serializer<T> {
         JSONObject jsonObject = new JSONObject(jsonStr);
         schema.validate(jsonObject);
     }
-
 }

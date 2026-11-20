@@ -1,26 +1,16 @@
 package no.nav.common.cxf.jetty;
 
+import static jakarta.servlet.DispatcherType.REQUEST;
+import static java.lang.System.setProperty;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static org.apache.commons.io.FilenameUtils.getBaseName;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.ForwardedRequestCustomizer;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.ee11.servlet.FilterHolder;
-import org.eclipse.jetty.ee11.webapp.FragmentConfiguration;
-import org.eclipse.jetty.ee11.webapp.JettyWebXmlConfiguration;
-import org.eclipse.jetty.ee11.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.ee11.webapp.WebAppContext;
-import org.eclipse.jetty.ee11.webapp.WebInfConfiguration;
-import org.eclipse.jetty.ee11.webapp.WebXmlConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,15 +23,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-
-import static jakarta.servlet.DispatcherType.REQUEST;
-import static java.lang.System.setProperty;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static org.apache.commons.io.FilenameUtils.getBaseName;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
+import javax.sql.DataSource;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.webapp.FragmentConfiguration;
+import org.eclipse.jetty.ee11.webapp.JettyWebXmlConfiguration;
+import org.eclipse.jetty.ee11.webapp.MetaInfConfiguration;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.webapp.WebInfConfiguration;
+import org.eclipse.jetty.ee11.webapp.WebXmlConfiguration;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.ForwardedRequestCustomizer;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.StatisticsHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Brukes til å starte opp en embedded Jetty-server, både synkront og asynkront.
@@ -77,7 +75,6 @@ public final class Jetty {
         private List<JettyCustomizer> customizers = new ArrayList<>();
         private boolean disableAnnotationScanning;
         private boolean disableStatistics;
-
 
         public final JettyBuilder war(File warPath) {
             this.war = warPath;
@@ -123,7 +120,7 @@ public final class Jetty {
             return this;
         }
 
-        //To enable CSRF etc.
+        // To enable CSRF etc.
         public final JettyBuilder setDeploymentMode() {
             this.developmentMode = false;
             return this;
@@ -188,7 +185,6 @@ public final class Jetty {
             this.disableAnnotationScanning = true;
             return this;
         }
-
     }
 
     private final int port;
@@ -204,8 +200,6 @@ public final class Jetty {
     private final String extraClasspath;
     private final List<Filter> filters;
 
-
-
     public final Runnable stop = new Runnable() {
         @Override
         public void run() {
@@ -220,11 +214,11 @@ public final class Jetty {
     };
 
     private static final String[] CONFIGURATION_CLASSES = {
-            WebInfConfiguration.class.getName(),
-            WebXmlConfiguration.class.getName(),
-            MetaInfConfiguration.class.getName(),
-            FragmentConfiguration.class.getName(),
-            JettyWebXmlConfiguration.class.getName(),
+        WebInfConfiguration.class.getName(),
+        WebXmlConfiguration.class.getName(),
+        MetaInfConfiguration.class.getName(),
+        FragmentConfiguration.class.getName(),
+        JettyWebXmlConfiguration.class.getName(),
     };
 
     private Jetty(String warPath, JettyBuilder builder) throws IOException {
@@ -238,7 +232,7 @@ public final class Jetty {
         this.filters = builder.filters;
         this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
-        this.server = setupJetty(new Server(),builder);
+        this.server = setupJetty(new Server(), builder);
         this.developmentMode = builder.developmentMode;
     }
 
@@ -262,17 +256,20 @@ public final class Jetty {
         }
 
         Map<String, String> initParams = webAppContext.getInitParams();
-        if(developmentMode) {
-            initParams.put("org.eclipse.jetty.servlet.Default.useFileMappedBuffer", "false"); // ikke hold filer i minne slik at de låses i windoze
+        if (developmentMode) {
+            initParams.put(
+                    "org.eclipse.jetty.servlet.Default.useFileMappedBuffer",
+                    "false"); // ikke hold filer i minne slik at de låses i windoze
         }
         initParams.put("org.eclipse.jetty.servlet.Default.etags", "true");
-        initParams.put("org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
+        initParams.put(
+                "org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
         webAppContext.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", CLASSPATH_PATTERN);
         return webAppContext;
     }
 
     private Server setupJetty(final Server jetty, JettyBuilder jettyBuilder) {
-        if(developmentMode){
+        if (developmentMode) {
             // Jetty 12 fjernet Resource.setDefaultUseCaches; vi setter det direkte på JDK-nivå (samme effekt)
             java.net.URLConnection.setDefaultUseCaches("file", false);
         }
@@ -305,7 +302,7 @@ public final class Jetty {
         jettyBuilder.customizers.forEach(customizer -> customizer.customize(context));
         jetty.setHandler(context);
 
-        if(!jettyBuilder.disableStatistics){
+        if (!jettyBuilder.disableStatistics) {
             addStatisticsHandler(jetty);
         }
         jettyBuilder.customizers.forEach(customizer -> customizer.customize(jetty));
@@ -318,26 +315,24 @@ public final class Jetty {
         statisticsHandler.setHandler(server.getHandler());
         server.setHandler(statisticsHandler);
 
-//        CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
-//        JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
-//        server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
-//
-//            @Override
-//            public void lifeCycleStarting(LifeCycle event) {
-//                jettyStatisticsCollector.register(collectorRegistry);
-//            }
-//
-//            @Override
-//            public void lifeCycleStopped(LifeCycle event) {
-//                collectorRegistry.unregister(jettyStatisticsCollector);
-//            }
-//        });
+        //        CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
+        //        JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
+        //        server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
+        //
+        //            @Override
+        //            public void lifeCycleStarting(LifeCycle event) {
+        //                jettyStatisticsCollector.register(collectorRegistry);
+        //            }
+        //
+        //            @Override
+        //            public void lifeCycleStopped(LifeCycle event) {
+        //                collectorRegistry.unregister(jettyStatisticsCollector);
+        //            }
+        //        });
     }
 
     public Jetty start() {
-        return startAnd(() -> {
-
-        });
+        return startAnd(() -> {});
     }
 
     public Jetty startAnd(Runnable doWhenStarted) {
@@ -411,8 +406,7 @@ public final class Jetty {
                 }
 
                 @Override
-                public void contextDestroyed(ServletContextEvent sce) {
-                }
+                public void contextDestroyed(ServletContextEvent sce) {}
             });
         }
     }

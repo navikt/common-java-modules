@@ -3,10 +3,9 @@ package no.nav.common.token_client.client;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
+import java.net.URI;
 import lombok.SneakyThrows;
 import no.nav.common.token_client.cache.TokenCache;
-
-import java.net.URI;
 
 public abstract class AbstractTokenClient {
 
@@ -31,5 +30,4 @@ public abstract class AbstractTokenClient {
         privateJwkKeyId = rsaKey.getKeyID();
         assertionSigner = new RSASSASigner(rsaKey);
     }
-
 }

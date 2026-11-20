@@ -1,18 +1,16 @@
 package no.nav.common.client.msgraph;
 
+import static java.lang.String.format;
+import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWTParser;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import no.nav.common.health.HealthCheckResult;
 import no.nav.common.types.identer.EnhetId;
-import no.nav.common.utils.AuthUtils;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import static java.lang.String.format;
-import static no.nav.common.client.utils.CacheUtils.tryCacheFirst;
 
 public class CachedMsGraphClient implements MsGraphClient {
 
@@ -68,25 +66,32 @@ public class CachedMsGraphClient implements MsGraphClient {
     @Override
     public String hentOnPremisesSamAccountName(String userAccessToken) {
         String cacheKey = JWTParser.parse(userAccessToken).getJWTClaimsSet().getSubject();
-        return tryCacheFirst(hentOnPremisesSamAccountNameCache, cacheKey, () -> msGraphClient.hentOnPremisesSamAccountName(userAccessToken));
+        return tryCacheFirst(
+                hentOnPremisesSamAccountNameCache,
+                cacheKey,
+                () -> msGraphClient.hentOnPremisesSamAccountName(userAccessToken));
     }
-
 
     @SneakyThrows
     @Override
     public String hentAzureGroupId(String accessToken, EnhetId enhetId) {
-        return tryCacheFirst(hentAzureGroupIdCache, enhetId, () -> msGraphClient.hentAzureGroupId(accessToken, enhetId));
+        return tryCacheFirst(
+                hentAzureGroupIdCache, enhetId, () -> msGraphClient.hentAzureGroupId(accessToken, enhetId));
     }
 
     @Override
     public String hentAzureIdMedNavIdent(String accessToken, String navIdent) {
-        return tryCacheFirst(hentAzureIdMedNavIdentCache, navIdent, () -> msGraphClient.hentAzureIdMedNavIdent(accessToken, navIdent));
+        return tryCacheFirst(
+                hentAzureIdMedNavIdentCache,
+                navIdent,
+                () -> msGraphClient.hentAzureIdMedNavIdent(accessToken, navIdent));
     }
 
     @SneakyThrows
     @Override
     public List<UserData> hentUserDataForGroup(String accessToken, String groupId) {
-        return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
+        return tryCacheFirst(
+                hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
     }
 
     @SneakyThrows
@@ -98,19 +103,26 @@ public class CachedMsGraphClient implements MsGraphClient {
             throw new RuntimeException(format("Fant ingen groupId for enhet %s", enhetId));
         }
 
-        return tryCacheFirst(hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
+        return tryCacheFirst(
+                hentUserDataForGroupCache, groupId, () -> msGraphClient.hentUserDataForGroup(accessToken, groupId));
     }
 
     @SneakyThrows
     @Override
     public List<AdGroupData> hentAdGroupsForUser(String accessToken, String azureAdObjectId) {
-        return tryCacheFirst(hentAdGroupsForUserCache, azureAdObjectId, () -> msGraphClient.hentAdGroupsForUser(accessToken, azureAdObjectId));
+        return tryCacheFirst(
+                hentAdGroupsForUserCache,
+                azureAdObjectId,
+                () -> msGraphClient.hentAdGroupsForUser(accessToken, azureAdObjectId));
     }
 
     @Override
     public List<AdGroupData> hentAdGroupsForUser(String accessToken, String navIdent, AdGroupFilter filter) {
         String cacheKey = navIdent + "_" + filter;
-        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(accessToken, navIdent, filter));
+        return tryCacheFirst(
+                hentAdGroupsForUserFilteredCache,
+                cacheKey,
+                () -> msGraphClient.hentAdGroupsForUser(accessToken, navIdent, filter));
     }
 
     @SneakyThrows
@@ -118,17 +130,19 @@ public class CachedMsGraphClient implements MsGraphClient {
     public List<AdGroupData> hentAdGroupsForUser(String accessToken, AdGroupFilter filter) {
         String subjectClaim = JWTParser.parse(accessToken).getJWTClaimsSet().getSubject();
 
-        if(subjectClaim == null || subjectClaim.isEmpty()) {
+        if (subjectClaim == null || subjectClaim.isEmpty()) {
             throw new IllegalStateException("Token \"accessToken\" mangler \"sub\"-claim.");
         }
 
         String cacheKey = subjectClaim + "_" + filter;
-        return tryCacheFirst(hentAdGroupsForUserFilteredCache, cacheKey, () -> msGraphClient.hentAdGroupsForUser(accessToken, filter));
+        return tryCacheFirst(
+                hentAdGroupsForUserFilteredCache,
+                cacheKey,
+                () -> msGraphClient.hentAdGroupsForUser(accessToken, filter));
     }
 
     @Override
     public HealthCheckResult checkHealth() {
         return msGraphClient.checkHealth();
     }
-
 }

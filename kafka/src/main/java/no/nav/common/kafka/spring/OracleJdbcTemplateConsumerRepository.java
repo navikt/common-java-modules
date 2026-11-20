@@ -1,21 +1,31 @@
 package no.nav.common.kafka.spring;
 
+import static java.lang.String.format;
+import static no.nav.common.kafka.spring.DatabaseUtils.inClause;
+import static no.nav.common.kafka.spring.DatabaseUtils.incrementAndGetOracleSequence;
+import static no.nav.common.kafka.util.DatabaseConstants.CONSUMER_RECORD_ID_SEQ;
+import static no.nav.common.kafka.util.DatabaseConstants.CONSUMER_RECORD_TABLE;
+import static no.nav.common.kafka.util.DatabaseConstants.HEADERS_JSON;
+import static no.nav.common.kafka.util.DatabaseConstants.ID;
+import static no.nav.common.kafka.util.DatabaseConstants.KEY;
+import static no.nav.common.kafka.util.DatabaseConstants.LAST_RETRY;
+import static no.nav.common.kafka.util.DatabaseConstants.PARTITION;
+import static no.nav.common.kafka.util.DatabaseConstants.RECORD_OFFSET;
+import static no.nav.common.kafka.util.DatabaseConstants.RECORD_TIMESTAMP;
+import static no.nav.common.kafka.util.DatabaseConstants.RETRIES;
+import static no.nav.common.kafka.util.DatabaseConstants.TOPIC;
+import static no.nav.common.kafka.util.DatabaseConstants.VALUE;
+
+import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository;
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.lang.String.format;
-import static no.nav.common.kafka.util.DatabaseConstants.*;
-import static no.nav.common.kafka.spring.DatabaseUtils.inClause;
-import static no.nav.common.kafka.spring.DatabaseUtils.incrementAndGetOracleSequence;
 
 public class OracleJdbcTemplateConsumerRepository implements KafkaConsumerRepository {
 
@@ -37,8 +47,7 @@ public class OracleJdbcTemplateConsumerRepository implements KafkaConsumerReposi
     public long storeRecord(StoredConsumerRecord record) {
         String sql = format(
                 "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                consumerRecordTable, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP
-        );
+                consumerRecordTable, ID, TOPIC, PARTITION, RECORD_OFFSET, KEY, VALUE, HEADERS_JSON, RECORD_TIMESTAMP);
 
         long id = incrementAndGetOracleSequence(jdbcTemplate, CONSUMER_RECORD_ID_SEQ);
 
@@ -73,8 +82,7 @@ public class OracleJdbcTemplateConsumerRepository implements KafkaConsumerReposi
     public boolean hasRecordWithKey(String topic, int partition, byte[] key) {
         String sql = format(
                 "SELECT %s FROM %s WHERE %s = ? AND %s = ? AND dbms_lob.compare(%s, ?) = 0 FETCH NEXT 1 ROWS ONLY",
-                ID, consumerRecordTable, TOPIC, PARTITION, KEY
-        );
+                ID, consumerRecordTable, TOPIC, PARTITION, KEY);
 
         return jdbcTemplate.query(sql, ResultSet::next, topic, partition, key);
     }
@@ -84,8 +92,7 @@ public class OracleJdbcTemplateConsumerRepository implements KafkaConsumerReposi
     public List<StoredConsumerRecord> getRecords(String topic, int partition, int maxRecords) {
         String sql = format(
                 "SELECT * FROM %s WHERE %s = ? AND %s = ? ORDER BY %s FETCH NEXT %d ROWS ONLY",
-                consumerRecordTable, TOPIC, PARTITION, RECORD_OFFSET, maxRecords
-        );
+                consumerRecordTable, TOPIC, PARTITION, RECORD_OFFSET, maxRecords);
 
         return jdbcTemplate.query(sql, DatabaseUtils::fetchConsumerRecords, topic, partition);
     }
@@ -95,8 +102,7 @@ public class OracleJdbcTemplateConsumerRepository implements KafkaConsumerReposi
     public void incrementRetries(long id) {
         String sql = format(
                 "UPDATE %s SET %s = %s + 1, %s = CURRENT_TIMESTAMP WHERE %s = ?",
-                consumerRecordTable, RETRIES, RETRIES, LAST_RETRY, ID
-        );
+                consumerRecordTable, RETRIES, RETRIES, LAST_RETRY, ID);
 
         jdbcTemplate.update(sql, id);
     }
@@ -106,8 +112,10 @@ public class OracleJdbcTemplateConsumerRepository implements KafkaConsumerReposi
     public List<TopicPartition> getTopicPartitions(List<String> topics) {
         String sql = format(
                 "SELECT DISTINCT %s, %s FROM %s WHERE %s " + inClause(topics.size()),
-                TOPIC, PARTITION, consumerRecordTable, TOPIC
-        );
+                TOPIC,
+                PARTITION,
+                consumerRecordTable,
+                TOPIC);
 
         return jdbcTemplate.query(sql, DatabaseUtils::fetchTopicPartitions, topics.toArray());
     }
@@ -119,18 +127,25 @@ public class OracleJdbcTemplateConsumerRepository implements KafkaConsumerReposi
             return Map.of();
         }
         String sql = format(
-                "SELECT %s, %s, COUNT(*) AS cnt FROM %s " +
-                        "WHERE %s " + inClause(topics.size()) + " AND %s > 0 " +
-                        "GROUP BY %s, %s",
-                TOPIC, PARTITION, consumerRecordTable, TOPIC, RETRIES, TOPIC, PARTITION
-        );
+                "SELECT %s, %s, COUNT(*) AS cnt FROM %s " + "WHERE %s " + inClause(topics.size()) + " AND %s > 0 "
+                        + "GROUP BY %s, %s",
+                TOPIC,
+                PARTITION,
+                consumerRecordTable,
+                TOPIC,
+                RETRIES,
+                TOPIC,
+                PARTITION);
 
-        return jdbcTemplate.query(sql, rs -> {
-            Map<TopicPartition, Long> result = new HashMap<>();
-            while (rs.next()) {
-                result.put(new TopicPartition(rs.getString(TOPIC), rs.getInt(PARTITION)), rs.getLong("cnt"));
-            }
-            return result;
-        }, topics.toArray());
+        return jdbcTemplate.query(
+                sql,
+                rs -> {
+                    Map<TopicPartition, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(new TopicPartition(rs.getString(TOPIC), rs.getInt(PARTITION)), rs.getLong("cnt"));
+                    }
+                    return result;
+                },
+                topics.toArray());
     }
 }

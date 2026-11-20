@@ -1,9 +1,8 @@
 package no.nav.common.utils;
 
-import lombok.SneakyThrows;
-
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import lombok.SneakyThrows;
 
 public class FileUtils {
 
@@ -18,5 +17,4 @@ public class FileUtils {
             return new String(resourceStream.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
-
 }

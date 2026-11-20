@@ -3,7 +3,6 @@ package no.nav.common.health;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -25,5 +24,4 @@ public class HealthCheckServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_ACCEPTED);
         }
     }
-
 }

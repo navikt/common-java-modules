@@ -1,16 +1,5 @@
 package no.nav.common.featuretoggle;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import io.getunleash.util.UnleashConfig;
-import io.getunleash.util.UnleashScheduledExecutor;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import java.util.Collections;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledFuture;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
@@ -23,11 +12,20 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import io.getunleash.util.UnleashConfig;
+import io.getunleash.util.UnleashScheduledExecutor;
+import java.util.Collections;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledFuture;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+
 public class UnleashClientImplTest {
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort(),false);
-
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort(), false);
 
     @Before
     public void setup() {
@@ -35,8 +33,7 @@ public class UnleashClientImplTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody("{}"))
-        );
+                        .withBody("{}")));
 
         createService();
     }
@@ -62,8 +59,7 @@ public class UnleashClientImplTest {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody("{\"features\":[]}"))
-        );
+                        .withBody("{\"features\":[]}")));
         UnleashClientImpl unleashClientImpl = createService();
         assertThat(unleashClientImpl.checkHealth().isHealthy()).isTrue();
     }
@@ -73,9 +69,7 @@ public class UnleashClientImplTest {
         UnleashClientImpl unleashClientImpl = createService();
 
         asList(404, 500).forEach(errorStatus -> {
-            givenThat(get(urlEqualTo("/client/features"))
-                    .willReturn(aResponse().withStatus(errorStatus))
-            );
+            givenThat(get(urlEqualTo("/client/features")).willReturn(aResponse().withStatus(errorStatus)));
             assertThat(unleashClientImpl.checkHealth().isHealthy()).isFalse();
         });
 
@@ -95,5 +89,4 @@ public class UnleashClientImplTest {
             return mock(ScheduledFuture.class);
         }
     }
-
 }

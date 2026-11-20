@@ -1,17 +1,19 @@
 package no.nav.common.utils;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static java.lang.System.setProperty;
-import static no.nav.common.utils.EnvironmentUtils.*;
+import static no.nav.common.utils.EnvironmentUtils.NAIS_CLUSTER_NAME_PROPERTY_NAME;
+import static no.nav.common.utils.EnvironmentUtils.NAIS_NAMESPACE_PROPERTY_NAME;
 import static no.nav.common.utils.EnvironmentUtils.Type.PUBLIC;
 import static no.nav.common.utils.EnvironmentUtils.Type.SECRET;
+import static no.nav.common.utils.EnvironmentUtils.getOptionalProperty;
+import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Before;
+import org.junit.Test;
 
 public class EnvironmentUtilsTest {
 
@@ -144,6 +146,4 @@ public class EnvironmentUtilsTest {
     public void resolveHostname() {
         assertThat(EnvironmentUtils.resolveHostName()).isNotEmpty();
     }
-
-
 }

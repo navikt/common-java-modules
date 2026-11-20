@@ -1,19 +1,19 @@
 package no.nav.common.kafka.producer;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.kafka.clients.producer.MockProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Test;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.junit.Assert.assertEquals;
-
 public class KafkaProducerClientImplTest {
 
     @Test
     public void should_send_message_with_producer_async() {
-        MockProducer<String, String> mockProducer = new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
+        MockProducer<String, String> mockProducer =
+                new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
@@ -25,7 +25,8 @@ public class KafkaProducerClientImplTest {
 
     @Test
     public void should_send_message_with_producer_sync() {
-        MockProducer<String, String> mockProducer = new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
+        MockProducer<String, String> mockProducer =
+                new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
@@ -37,7 +38,8 @@ public class KafkaProducerClientImplTest {
 
     @Test
     public void should_trigger_callback_with_exception_if_producer_is_closed() {
-        MockProducer<String, String> mockProducer = new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
+        MockProducer<String, String> mockProducer =
+                new MockProducer<>(true, null, new StringSerializer(), new StringSerializer());
         KafkaProducerClientImpl<String, String> client = new KafkaProducerClientImpl<>(mockProducer);
 
         ProducerRecord<String, String> record = new ProducerRecord<>("topic", "key", "value");
@@ -50,5 +52,4 @@ public class KafkaProducerClientImplTest {
 
         assertEquals(IllegalStateException.class, exceptionRef.get().getClass());
     }
-
 }

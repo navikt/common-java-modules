@@ -6,10 +6,9 @@ package no.nav.common.token_client.utils.env;
  */
 public class TokenXEnvironmentvariables {
 
-    public final static String TOKEN_X_WELL_KNOWN_URL = "TOKEN_X_WELL_KNOWN_URL";
+    public static final String TOKEN_X_WELL_KNOWN_URL = "TOKEN_X_WELL_KNOWN_URL";
 
-    public final static String TOKEN_X_CLIENT_ID = "TOKEN_X_CLIENT_ID";
+    public static final String TOKEN_X_CLIENT_ID = "TOKEN_X_CLIENT_ID";
 
-    public final static String TOKEN_X_PRIVATE_JWK = "TOKEN_X_PRIVATE_JWK";
-
+    public static final String TOKEN_X_PRIVATE_JWK = "TOKEN_X_PRIVATE_JWK";
 }

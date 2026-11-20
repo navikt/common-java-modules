@@ -1,6 +1,6 @@
 package no.nav.common.utils;
 
-import lombok.SneakyThrows;
+import static java.lang.String.format;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.lang.String.format;
+import lombok.SneakyThrows;
 
 public class NaisUtils {
 
@@ -24,10 +23,9 @@ public class NaisUtils {
     public static String CONFIG_MAPS_BASE_PATH_PROPERTY_NAME = "CONFIG_BASE_MAPS_PATH";
     private static String DEFAULT_CONFIG_MAPS_PATH = "/var/run/configmaps";
 
-    public static Credentials getCredentials(String secretName,
-                                             String usernameFileName,
-                                             String passwordFileName) {
-        String credentialsBasePath = EnvironmentUtils.getOptionalProperty(SECRETS_BASE_PATH_PROPERTY_NAME).orElse(DEFAULT_SECRETS_BASE_PATH);
+    public static Credentials getCredentials(String secretName, String usernameFileName, String passwordFileName) {
+        String credentialsBasePath = EnvironmentUtils.getOptionalProperty(SECRETS_BASE_PATH_PROPERTY_NAME)
+                .orElse(DEFAULT_SECRETS_BASE_PATH);
         Path path = Paths.get(credentialsBasePath, secretName);
         String username = getFileContent(path.resolve(usernameFileName));
         String password = getFileContent(path.resolve(passwordFileName));
@@ -43,13 +41,11 @@ public class NaisUtils {
         return getFileContent(Paths.get(path));
     }
 
-
     public static String getFileContent(Path path) {
         return Optional.of(path)
                 .filter(Files::isRegularFile)
                 .map(NaisUtils::readAllLines)
-                .flatMap(lines ->
-                        lines.stream().reduce((a, b) -> a + "\n" + b))
+                .flatMap(lines -> lines.stream().reduce((a, b) -> a + "\n" + b))
                 .orElseThrow(() -> new IllegalStateException(format("Fant ikke fil %s", path.toString())));
     }
 
@@ -72,7 +68,8 @@ public class NaisUtils {
 
     @SneakyThrows
     public static Map<String, String> readConfigMap(String configMap) {
-        String configMapsPath = EnvironmentUtils.getOptionalProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME).orElse(DEFAULT_CONFIG_MAPS_PATH);
+        String configMapsPath = EnvironmentUtils.getOptionalProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME)
+                .orElse(DEFAULT_CONFIG_MAPS_PATH);
         Path path = Paths.get(configMapsPath, configMap);
         Stream<Path> files = Files.walk(path, 1).filter(Files::isRegularFile);
 
@@ -82,11 +79,11 @@ public class NaisUtils {
     public static Map<String, String> readConfigMap(String configMap, String... keys) {
         Map<String, String> configMapMap = readConfigMap(configMap);
 
-        return Arrays.stream(keys).map(key ->
-                Optional.ofNullable(configMapMap.get(key))
+        return Arrays.stream(keys)
+                .map(key -> Optional.ofNullable(configMapMap.get(key))
                         .map(value -> Pair.of(key, value))
-                        .orElseThrow(() ->
-                                new IllegalStateException(String.format("Fant ikke key %s i config map %s", key, configMap))))
+                        .orElseThrow(() -> new IllegalStateException(
+                                String.format("Fant ikke key %s i config map %s", key, configMap))))
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
     }
 }

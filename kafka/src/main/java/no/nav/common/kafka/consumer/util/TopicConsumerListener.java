@@ -11,5 +11,4 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 public interface TopicConsumerListener<K, V> {
 
     void onConsumed(ConsumerRecord<K, V> record, ConsumeStatus status);
-
 }

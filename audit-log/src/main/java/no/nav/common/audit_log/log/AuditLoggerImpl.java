@@ -1,10 +1,10 @@
 package no.nav.common.audit_log.log;
 
+import static no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME;
+
 import no.nav.common.audit_log.cef.CefMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME;
 
 public class AuditLoggerImpl implements AuditLogger {
 
@@ -27,5 +27,4 @@ public class AuditLoggerImpl implements AuditLogger {
     public void log(String message) {
         log.info(message);
     }
-
 }

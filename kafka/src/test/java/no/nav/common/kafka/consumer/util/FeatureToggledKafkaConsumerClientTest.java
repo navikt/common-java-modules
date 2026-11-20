@@ -1,13 +1,16 @@
 package no.nav.common.kafka.consumer.util;
 
-import no.nav.common.kafka.consumer.KafkaConsumerClient;
-import org.junit.Test;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import java.util.function.Supplier;
-
-import static org.awaitility.Awaitility.*;
-import static org.mockito.Mockito.*;
+import no.nav.common.kafka.consumer.KafkaConsumerClient;
+import org.junit.Test;
 
 public class FeatureToggledKafkaConsumerClientTest {
 
@@ -19,20 +22,18 @@ public class FeatureToggledKafkaConsumerClientTest {
         when(consumerClient.isRunning()).thenReturn(false);
         when(toggleForStoppingConsumersSupplier.get()).thenReturn(false);
 
-        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
-
+        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(
+                consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
         toggledClient.start();
 
         when(consumerClient.isRunning()).thenReturn(true);
 
-
         toggledClient.stop();
 
         when(consumerClient.isRunning()).thenReturn(false);
 
-
-        await().ignoreExceptions().atMost(Duration.ofMillis(1000)).until( () -> {
+        await().ignoreExceptions().atMost(Duration.ofMillis(1000)).until(() -> {
             verify(consumerClient, atLeastOnce()).start();
             return true;
         });
@@ -46,7 +47,8 @@ public class FeatureToggledKafkaConsumerClientTest {
 
         when(consumerClient.isRunning()).thenReturn(false);
 
-        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
+        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(
+                consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
         toggledClient.start();
 
@@ -54,12 +56,11 @@ public class FeatureToggledKafkaConsumerClientTest {
 
         when(toggleForStoppingConsumersSupplier.get()).thenReturn(true);
 
-        await().ignoreExceptions().atMost(Duration.ofMillis(1000)).until( () -> {
+        await().ignoreExceptions().atMost(Duration.ofMillis(1000)).until(() -> {
             verify(consumerClient, atLeastOnce()).stop();
             return true;
         });
         toggledClient.stop();
-
     }
 
     @Test
@@ -70,17 +71,17 @@ public class FeatureToggledKafkaConsumerClientTest {
 
         when(consumerClient.isRunning()).thenReturn(false);
 
-        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
+        FeatureToggledKafkaConsumerClient toggledClient = new FeatureToggledKafkaConsumerClient(
+                consumerClient, toggleForStoppingConsumersSupplier, Duration.ofMillis(10));
 
         toggledClient.start();
 
         when(consumerClient.isRunning()).thenReturn(true);
 
-        await().ignoreExceptions().atMost(Duration.ofMillis(1000)).until( () -> {
+        await().ignoreExceptions().atMost(Duration.ofMillis(1000)).until(() -> {
             verify(consumerClient, never()).stop();
             return true;
         });
         toggledClient.stop();
     }
-
 }

@@ -1,6 +1,14 @@
 package no.nav.common.cxf;
 
-
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Base64;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import no.nav.common.auth.context.AuthContextHolderThreadLocal;
 import org.apache.cxf.ws.security.trust.delegation.DelegationCallback;
 import org.slf4j.Logger;
@@ -9,16 +17,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Base64;
 
 public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
 
@@ -58,17 +56,15 @@ public class OnBehalfOfWithOidcCallbackHandler implements CallbackHandler {
         return document.getDocumentElement();
     }
 
-
     private static String getOnBehalfOfString() {
         String idToken = AuthContextHolderThreadLocal.instance().requireIdTokenString();
         String base64Token = Base64.getEncoder().encodeToString(idToken.getBytes());
-        return "<wsse:BinarySecurityToken" +
-                " EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\"" +
-                " ValueType=\"urn:ietf:params:oauth:token-type:jwt\"" +
-                " xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\"" +
-                ">"
+        return "<wsse:BinarySecurityToken"
+                + " EncodingType=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary\""
+                + " ValueType=\"urn:ietf:params:oauth:token-type:jwt\""
+                + " xmlns:wsse=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd\""
+                + ">"
                 + base64Token
                 + "</wsse:BinarySecurityToken>";
     }
-
 }

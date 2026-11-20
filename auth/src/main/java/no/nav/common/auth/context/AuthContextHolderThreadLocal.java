@@ -1,12 +1,11 @@
 package no.nav.common.auth.context;
 
+import static java.util.Optional.ofNullable;
+
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.utils.fn.UnsafeRunnable;
 import no.nav.common.utils.fn.UnsafeSupplier;
-
-import java.util.Optional;
-
-import static java.util.Optional.ofNullable;
 
 @Slf4j
 public class AuthContextHolderThreadLocal implements AuthContextHolder {
@@ -56,5 +55,4 @@ public class AuthContextHolderThreadLocal implements AuthContextHolder {
     public void setContext(AuthContext authContext) {
         CONTEXT_HOLDER.set(authContext);
     }
-
 }

@@ -1,11 +1,14 @@
 package no.nav.common.audit_log.cef;
 
+import static java.lang.String.format;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_DESTINATION_USER_ID;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_END_TIME;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_SOURCE_USER_ID;
+import static no.nav.common.audit_log.cef.CefMessageExtensionFields.FIELD_SPROC;
+import static no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import static java.lang.String.format;
-import static no.nav.common.audit_log.cef.CefMessageExtensionFields.*;
-import static no.nav.common.audit_log.log.AuditLoggerConstants.AUDIT_LOGGER_NAME;
 
 public class CefMessageBuilder {
     private int version = 0;
@@ -102,8 +105,7 @@ public class CefMessageBuilder {
      * @return the builder
      */
     public CefMessageBuilder flexString(int position, String label, String value) {
-        if (position < 1 || position > 2)
-            throw new IllegalArgumentException("position must be either 1 or 2");
+        if (position < 1 || position > 2) throw new IllegalArgumentException("position must be either 1 or 2");
 
         extension.put(format("flexString%dLabel", position), label);
         extension.put("flexString" + position, value);
@@ -137,20 +139,12 @@ public class CefMessageBuilder {
      * @return the builder
      */
     public CefMessageBuilder authorizationDecision(AuthorizationDecision decision) {
-        return this.severity(authDecisionToSeverity(decision)).flexString(1, "Decision",  authDecisionToStr(decision));
+        return this.severity(authDecisionToSeverity(decision)).flexString(1, "Decision", authDecisionToStr(decision));
     }
 
     public CefMessage build() {
         return new CefMessage(
-                version,
-                deviceVendor,
-                deviceProduct,
-                deviceVersion,
-                signatureId,
-                name,
-                severity,
-                extension
-        );
+                version, deviceVendor, deviceProduct, deviceVersion, signatureId, name, severity, extension);
     }
 
     private String authDecisionToStr(AuthorizationDecision decision) {
@@ -174,5 +168,4 @@ public class CefMessageBuilder {
                 throw new IllegalArgumentException("Unable to find severity for unknown decision " + decision.name());
         }
     }
-
 }

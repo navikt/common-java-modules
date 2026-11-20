@@ -1,12 +1,11 @@
 package no.nav.common.utils;
 
-import org.junit.Test;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import org.junit.Test;
 
 public class CollectionUtilsTest {
     @Test
@@ -19,5 +18,3 @@ public class CollectionUtilsTest {
         assertThat(partitionedList.size()).isEqualTo(11);
     }
 }
-
-

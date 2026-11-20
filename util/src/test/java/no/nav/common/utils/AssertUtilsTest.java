@@ -1,12 +1,11 @@
 package no.nav.common.utils;
 
-import org.junit.Test;
-
 import static no.nav.common.utils.AssertUtils.assertNotNull;
 import static no.nav.common.utils.AssertUtils.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.Test;
 
 public class AssertUtilsTest {
 
@@ -21,5 +20,4 @@ public class AssertUtilsTest {
         assertThat(assertTrue(true)).isTrue();
         assertThatThrownBy(() -> assertTrue(false)).isExactlyInstanceOf(IllegalStateException.class);
     }
-
 }

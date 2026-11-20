@@ -1,24 +1,28 @@
 package no.nav.common.rest.filter;
 
+import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
-import org.slf4j.MDC;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.MDC;
 
 public class LogFilterTest {
 
@@ -37,14 +41,18 @@ public class LogFilterTest {
 
     @Test
     public void smoketest() throws ServletException, IOException {
-        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 1"));
-        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 2"));
-        logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 3"));
+        logRequestFilter.doFilter(
+                httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 1"));
+        logRequestFilter.doFilter(
+                httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 2"));
+        logRequestFilter.doFilter(
+                httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 3"));
     }
 
     @Test
     public void cleanupOfMDCContext() throws ServletException, IOException {
-        Map<String, String> initialContextMap = Optional.ofNullable(MDC.getCopyOfContextMap()).orElseGet(HashMap::new);
+        Map<String, String> initialContextMap =
+                Optional.ofNullable(MDC.getCopyOfContextMap()).orElseGet(HashMap::new);
         logRequestFilter.doFilter(httpServletRequest, httpServletResponse, (request, response) -> {});
         assertThat(initialContextMap).isEqualTo(MDC.getCopyOfContextMap());
     }
@@ -74,5 +82,4 @@ public class LogFilterTest {
     private void fail() {
         throw new IllegalStateException();
     }
-
 }

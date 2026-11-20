@@ -194,6 +194,7 @@ class NativePublicationTest {
                 artifact: String,
                 type: String = "",
             ) = dependencies.single { it.text("artifactId") == artifact && it.text("type") == type }
+
             fun dependencyWithScope(
                 artifact: String,
                 scope: String,

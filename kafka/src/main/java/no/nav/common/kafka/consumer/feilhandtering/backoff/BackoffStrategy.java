@@ -1,9 +1,8 @@
 package no.nav.common.kafka.consumer.feilhandtering.backoff;
 
+import java.time.Duration;
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRecordProcessor;
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
-
-import java.time.Duration;
 
 /**
  * Decides how long {@link KafkaConsumerRecordProcessor} should back off when retrying consumption of stored kafka records.
@@ -12,5 +11,4 @@ import java.time.Duration;
 public interface BackoffStrategy {
 
     Duration getBackoffDuration(StoredConsumerRecord record);
-
 }

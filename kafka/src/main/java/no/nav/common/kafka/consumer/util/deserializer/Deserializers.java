@@ -1,13 +1,21 @@
 package no.nav.common.kafka.consumer.util.deserializer;
 
-import org.apache.kafka.common.serialization.*;
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.KAFKA_SCHEMA_REGISTRY;
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.KAFKA_SCHEMA_REGISTRY_PASSWORD;
+import static no.nav.common.kafka.util.KafkaEnvironmentVariables.KAFKA_SCHEMA_REGISTRY_USER;
+import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import static no.nav.common.kafka.util.KafkaEnvironmentVariables.*;
-import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
+import org.apache.kafka.common.serialization.Deserializer;
+import org.apache.kafka.common.serialization.DoubleDeserializer;
+import org.apache.kafka.common.serialization.FloatDeserializer;
+import org.apache.kafka.common.serialization.IntegerDeserializer;
+import org.apache.kafka.common.serialization.LongDeserializer;
+import org.apache.kafka.common.serialization.ShortDeserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.UUIDDeserializer;
 
 public class Deserializers {
 
@@ -62,5 +70,4 @@ public class Deserializers {
 
         return new AvroDeserializer<>(schemaRegistryUrl, username, password);
     }
-
 }

@@ -11,5 +11,4 @@ public class SelfTestCheck {
     boolean isCritical;
 
     HealthCheck check;
-
 }

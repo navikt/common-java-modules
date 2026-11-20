@@ -13,5 +13,4 @@ public interface MachineToMachineTokenClient {
      * @return JWT access token
      */
     String createMachineToMachineToken(String tokenScope);
-
 }

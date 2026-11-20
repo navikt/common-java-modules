@@ -1,26 +1,25 @@
 package no.nav.common.auth.test_provider;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.SneakyThrows;
 import lombok.Value;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
+import org.eclipse.jetty.server.Server;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.rules.ExternalResource;
-
-import java.util.HashMap;
-import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.jakarta.rs.json.JacksonXmlBindJsonProvider;
 
 public class OidcProviderTestRule extends ExternalResource {
 
@@ -65,17 +64,14 @@ public class OidcProviderTestRule extends ExternalResource {
         httpServer = new Server(port);
         httpServer.setHandler(contextHandler);
 
-        ServletHolder servletHolder =
-                new ServletHolder(
-                        new ServletContainer(
-                                new ResourceConfig(OidcProviderServlet.class, JacksonXmlBindJsonProvider.class)));
+        ServletHolder servletHolder = new ServletHolder(
+                new ServletContainer(new ResourceConfig(OidcProviderServlet.class, JacksonXmlBindJsonProvider.class)));
 
         servletHolder.setInitOrder(0);
         contextHandler.addServlet(servletHolder, "/*");
 
         httpServer.start();
     }
-
 
     private void stopServer() throws Exception {
         issuerConfigMap.remove(port);
@@ -85,7 +81,6 @@ public class OidcProviderTestRule extends ExternalResource {
             httpServer.stop();
         }
     }
-
 
     public String getToken(JwtTestTokenIssuer.Claims claims) {
         return issuer.issueTestToken(claims);
@@ -111,7 +106,6 @@ public class OidcProviderTestRule extends ExternalResource {
         return "http://localhost:" + port;
     }
 
-
     @Path("/")
     public static class OidcProviderServlet {
 
@@ -119,7 +113,8 @@ public class OidcProviderTestRule extends ExternalResource {
         @Path("/discovery")
         @Produces(MediaType.APPLICATION_JSON)
         public IssuerMetaData discovery(@Context ContainerRequest request) {
-            JwtTestTokenIssuerConfig config = issuerConfigMap.get(request.getBaseUri().getPort());
+            JwtTestTokenIssuerConfig config =
+                    issuerConfigMap.get(request.getBaseUri().getPort());
             return new IssuerMetaData(config.issuer, request.getBaseUri().toString() + "jwks");
         }
 

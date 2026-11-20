@@ -1,7 +1,15 @@
 package no.nav.common.cxf.jetty;
 
+import static java.lang.String.format;
+import static java.lang.System.setProperty;
+import static org.apache.cxf.staxutils.StaxUtils.ALLOW_INSECURE_PARSER;
+import static org.mockito.Mockito.mock;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
+import java.net.ServerSocket;
+import java.net.URI;
 import lombok.SneakyThrows;
 import no.nav.common.cxf.CXFEndpoint;
 import org.apache.cxf.BusFactory;
@@ -9,15 +17,6 @@ import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.junit.After;
 import org.slf4j.Logger;
-
-import java.net.ServerSocket;
-import java.net.URI;
-
-import static java.lang.String.format;
-import static java.lang.System.setProperty;
-import static org.apache.cxf.staxutils.StaxUtils.ALLOW_INSECURE_PARSER;
-import static org.mockito.Mockito.mock;
-import static org.slf4j.LoggerFactory.getLogger;
 
 public abstract class JettyTestServer {
 
@@ -48,7 +47,8 @@ public abstract class JettyTestServer {
         jetty.context.addServlet(new ServletHolder(new CxfServlet(serviceClass, service)), "/*");
         jetty.start();
 
-        String uri = URI.create(format("http://localhost:%d", port) + CONTEXT_PATH + SERVICE_PATH).toString();
+        String uri = URI.create(format("http://localhost:%d", port) + CONTEXT_PATH + SERVICE_PATH)
+                .toString();
 
         LOG.info("{} is running at {}", serviceClass, uri);
         return uri;
@@ -87,7 +87,5 @@ public abstract class JettyTestServer {
                     .address(SERVICE_PATH)
                     .create();
         }
-
     }
-
 }

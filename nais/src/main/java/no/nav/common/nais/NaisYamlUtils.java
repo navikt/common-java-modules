@@ -1,19 +1,18 @@
 package no.nav.common.nais;
 
+import static java.util.Collections.emptyList;
+
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import lombok.SneakyThrows;
 import no.nav.common.utils.NaisUtils;
 import no.nav.common.yaml.YamlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-
-import static java.util.Collections.emptyList;
 
 public class NaisYamlUtils {
     public static class NaiseratorSpec {
@@ -142,10 +141,8 @@ public class NaisYamlUtils {
     }
 
     public static void loadFromYaml(NaiseratorSpec yaml, Properties target) {
-        List<NaiseratorSpec.EnvProperty> env = Optional.ofNullable(yaml)
-                .map((e) -> e.spec)
-                .map((s) -> s.env)
-                .orElse(emptyList());
+        List<NaiseratorSpec.EnvProperty> env =
+                Optional.ofNullable(yaml).map((e) -> e.spec).map((s) -> s.env).orElse(emptyList());
 
         env.forEach((property) -> {
             String name = property.name;

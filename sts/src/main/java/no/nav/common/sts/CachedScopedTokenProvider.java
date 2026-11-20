@@ -1,13 +1,12 @@
 package no.nav.common.sts;
 
+import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
-import lombok.SneakyThrows;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static no.nav.common.sts.utils.StsTokenUtils.tokenNeedsRefresh;
+import lombok.SneakyThrows;
 
 public class CachedScopedTokenProvider implements ScopedTokenProvider {
 
@@ -31,5 +30,4 @@ public class CachedScopedTokenProvider implements ScopedTokenProvider {
 
         return token.getParsedString();
     }
-
 }
