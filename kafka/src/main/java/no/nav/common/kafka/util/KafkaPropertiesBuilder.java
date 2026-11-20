@@ -217,7 +217,7 @@ public class KafkaPropertiesBuilder {
                 throw new IllegalStateException(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG + " must be an integer");
             }
 
-            int maxWaitForEachBatch = Integer.parseInt(configuredPollInterval.toString());
+            int maxWaitForEachBatch = Integer.parseInt(configuredPollInterval.toString().trim());
             if (maxWaitForEachBatch > DEFAULT_CONNECTIONS_MAX_IDLE_MS) {
                 // Hold forbindelsen til group coordinator åpen minst like lenge som poll-intervallet under rebalance.
                 properties.put(CommonClientConfigs.CONNECTIONS_MAX_IDLE_MS_CONFIG, maxWaitForEachBatch);
