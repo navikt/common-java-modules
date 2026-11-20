@@ -1,6 +1,6 @@
 # Common Java Modules
 
-[![Build status](https://github.com/navikt/common-java-modules/workflows/Test%20and%20release/badge.svg)](https://github.com/navikt/common-java-modules/workflows/Test%20and%20release/badge.svg)
+[![Build status](https://github.com/navikt/common-java-modules/actions/workflows/main.yml/badge.svg)](https://github.com/navikt/common-java-modules/actions/workflows/main.yml)
 
 Felles Java moduler som løser vanlige problemer som f.eks kafka, token exchange, logging, observability etc...
 
@@ -72,13 +72,17 @@ Provides easy-to-use clients which requires minimal configuration for applicatio
 
 [Read more here](token-client/README.md)
 
-## Version 1
-This version is tightly coupled to `api-app` and contains many modules that can be considered deprecated after the release of version 2.
-This version will continue to live on the `master` branch until most users of `common-java-modules` has migrated over to version 2.
-If possible, no new features should be added to version 1.
+## Versions and compatibility
 
-## Version 2
-Version 2 removes all of the deprecated modules from version 1 (including `api-app`) and aims to provide framework agnostic modules that can be used in any application.
+The active development branch is `main`, and current releases use the `4.` prefix.
+The build publishes 19 framework-agnostic library modules. Version 1 included
+`api-app`; version 2 removed that coupling. Those versions describe historical
+APIs, not the current branch layout.
+
+New releases no longer publish `abac` or `mor-pom`. Previously published
+versions remain available. See [module usage and retirement](docs/modulbruk-og-utfasing.md)
+and [the parent retirement checklist](build-logic/fjerne-mor-pom.md) before
+upgrading consumers that depend on either artifact.
 
 ## Checking for new dependency versions
 
@@ -154,7 +158,7 @@ decisions, known limitations, and the rollout/rollback checklist.
 
 ## CI follow-up
 
-[Test and release](.github/workflows/main.yml) runs `./gradlew build` for pull
+[CI](.github/workflows/main.yml) runs `./gradlew build` for pull
 requests and pushes to `main`, including tests and Spotless checks. Only pushes
 to `main` can publish a release, after the build succeeds. The
 [beta-release workflow](.github/workflows/package-feature-branch.yml) runs tests
@@ -169,16 +173,20 @@ when started manually (`workflow_dispatch`), then publishes a beta release.
 Track these scanner findings separately from the formatting changes. The alerts
 do not establish that sensitive data has been logged or exposed.
 
-- [ ] Review logging and exception messages in `AzureAdMachineToMachineTokenClient`,
-  `AzureAdOnBehalfOfTokenClient`, and `TokenXOnBehalfOfTokenClient` in `token-client`.
-  Replace complete OAuth error responses with explicitly allowed fields, such as
-  the error code. Add regression tests that ensure tokens and sensitive values
-  are absent from logs and exception messages. Do not assume that
-  `getErrorObject()` returns only safe content.
-- [ ] Review `TrustAllX509TrustManager` and `SSLTestUtils` in the `test` module.
-  Map their usage, including use outside tests. Prefer test certificates and a
-  dedicated truststore over disabled certificate validation. Avoid global TLS
-  changes and document any remaining test-only exceptions.
+- [x] Limit OAuth failure output in `AzureAdMachineToMachineTokenClient`,
+  `AzureAdOnBehalfOfTokenClient`, and `TokenXOnBehalfOfTokenClient` to a fixed
+  operation name, HTTP status, and allowlisted error code. Response descriptions,
+  arbitrary error codes, scopes, and parser exception details are not logged or
+  included in the resulting exception. Regression tests cover all three clients.
+- [x] Replace trust-all behavior in the `test` module with explicit certificate
+  trust and hostname verification. Legacy adapters retain their signatures but
+  now validate certificates. Global TLS configuration methods fail explicitly
+  instead of changing JVM defaults.
+
+**Breaking change for test consumers:** replace calls to
+`disableCertificateChecks()`, `setupKeyAndTrustStore()`, and the
+`CertificateCheckDisabler` servlet listener with client-local TLS configuration.
+See [the TLS test-helper migration](docs/gradle-migration.md#tls-test-helpers).
 
 ### Contact
 

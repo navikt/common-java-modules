@@ -35,7 +35,13 @@ class NativePublicationTest {
                 .writeText("package fixture; public class Marker {}")
             File(directory, "producer/src/test/java/fixture").mkdirs()
             File(directory, "producer/src/test/java/fixture/TestData.java")
-                .writeText("package fixture; public class TestData {}")
+                .writeText(
+                    """
+                    package fixture;
+                    @org.apiguardian.api.API(status = org.apiguardian.api.API.Status.STABLE)
+                    public class TestData {}
+                    """.trimIndent(),
+                )
             File(directory, "gradleConsumer").mkdirs()
             File(directory, "gradleConsumer/build.gradle.kts").writeText(
                 """
@@ -51,6 +57,10 @@ class NativePublicationTest {
                 tasks.register<Copy>("copyTestDependencies") {
                     from(configurations["testRuntimeClasspath"])
                     into(layout.buildDirectory.dir("test-dependencies"))
+                }
+                tasks.register<Copy>("copyTestCompileDependencies") {
+                    from(configurations["testCompileClasspath"])
+                    into(layout.buildDirectory.dir("test-compile-dependencies"))
                 }
                 """.trimIndent(),
             )
@@ -84,6 +94,13 @@ class NativePublicationTest {
                 }
                 check(configurations["apiElements"].allDependencies.none { it.name == "micrometer-core" })
                 check(configurations["runtimeElements"].allDependencies.none { it.name == "micrometer-core" })
+                check(configurations["testCompileClasspath"].allDependencies.any { it.name == "apiguardian-api" })
+                listOf("compileClasspath", "runtimeClasspath", "testRuntimeClasspath", "apiElements", "runtimeElements")
+                    .forEach { name ->
+                        check(configurations[name].allDependencies.none { it.name == "apiguardian-api" })
+                    }
+                check(!configurations["testCompileAnnotations"].isCanBeResolved)
+                check(!configurations["testCompileAnnotations"].isCanBeConsumed)
                 listOf("annotationProcessor", "testAnnotationProcessor").forEach { name ->
                     check(configurations[name].dependencies.single().name == "lombok")
                 }
@@ -104,6 +121,7 @@ class NativePublicationTest {
                     ":consumer:sourcesJar",
                     ":gradleConsumer:copyCompileDependencies",
                     ":gradleConsumer:copyTestDependencies",
+                    ":gradleConsumer:copyTestCompileDependencies",
                     "-Prevision=4.test",
                     "--configuration-cache",
                     "--stacktrace",
@@ -130,6 +148,19 @@ class NativePublicationTest {
             assertFalse(selectedTasks.contains(":generatePomFileForMorPomPublication"))
             val compile = File(directory, "gradleConsumer/build/compile-dependencies")
             val tests = File(directory, "gradleConsumer/build/test-dependencies")
+            val testCompile = File(directory, "gradleConsumer/build/test-compile-dependencies")
+            val apiGuardianVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("apiguardian")
+            val apiGuardianJar = "apiguardian-api-$apiGuardianVersion.jar"
+            assertTrue(File(testCompile, apiGuardianJar).isFile)
+            assertFalse(File(compile, apiGuardianJar).exists())
+            assertFalse(File(tests, apiGuardianJar).exists())
+            listOf("consumer", "producer").forEach { module ->
+                assertFalse(
+                    File(directory, "$module/build/publications/mavenJava/pom-default.xml")
+                        .readText()
+                        .contains("apiguardian-api"),
+                )
+            }
             assertTrue(File(compile, "fixture/Marker.class").isFile, "Gradle API consumer must see producer's classes")
             assertFalse(File(compile, "fixture/TestData.class").exists())
             assertTrue(

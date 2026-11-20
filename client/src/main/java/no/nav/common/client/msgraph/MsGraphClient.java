@@ -6,9 +6,9 @@ import no.nav.common.types.identer.EnhetId;
 
 /**
  * Klient som henter ut data fra Microsoft til Graph API.
- * Se <a href="https://docs.microsoft.com/en-us/graph/overview" /> for mer informasjon.
- * Kan også testes ut med egen bruker: <a href="https://developer.microsoft.com/en-us/graph/graph-explorer" />.
- * URLen til APIet er pr dags dato: <a href="https://graph.microsoft.com/v1.0" />.
+ * Se <a href="https://docs.microsoft.com/en-us/graph/overview">Microsoft Graph</a> for mer informasjon.
+ * Kan også testes ut med egen bruker: <a href="https://developer.microsoft.com/en-us/graph/graph-explorer">Graph Explorer</a>.
+ * URLen til APIet er pr dags dato: <a href="https://graph.microsoft.com/v1.0">https://graph.microsoft.com/v1.0</a>.
  */
 public interface MsGraphClient extends HealthCheck {
 
@@ -27,7 +27,7 @@ public interface MsGraphClient extends HealthCheck {
      * {@code accessToken} kan representere enten en autentisert bruker (OBO) eller et system (M2M), men forutsetter at riktige
      * tilganger er konfigurert. Denne operasjonen krever følgende tilganger (permissions) i Entra ID:
      * <ul>
-     *     <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&tabs=http#permissions">List group members - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
+     *     <li><a href="https://learn.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&amp;tabs=http#permissions">List group members - Microsoft Graph v1.0 | Microsoft Learn</a></li>
      * </ul>
      *
      * @param accessToken et access token
@@ -43,7 +43,7 @@ public interface MsGraphClient extends HealthCheck {
      * {@code accessToken} kan representere enten en autentisert bruker (OBO) eller et system (M2M), men forutsetter at riktige
      * tilganger er konfigurert. Denne operasjonen krever følgende tilganger (permissions) i Entra ID:
      *  <ul>
-     *     <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&tabs=http#permissions">List group members - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
+     *     <li><a href="https://learn.microsoft.com/en-us/graph/api/group-list-members?view=graph-rest-1.0&amp;tabs=http#permissions">List group members - Microsoft Graph v1.0 | Microsoft Learn</a></li>
      * </ul>
      *
      * @param accessToken et access token
@@ -58,8 +58,8 @@ public interface MsGraphClient extends HealthCheck {
      * {@code accessToken} kan representere enten en autentisert bruker (OBO) eller et system (M2M), men forutsetter at riktige
      * tilganger er konfigurert. Denne operasjonen krever følgende tilganger (permissions) i Entra ID:
      * <ul>
-     *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&tabs=http#permissions">List users - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
-     *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/user-list-memberof?view=graph-rest-1.0&tabs=http#permissions">List a user's direct memberships - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
+     *   <li><a href="https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&amp;tabs=http#permissions">List users - Microsoft Graph v1.0 | Microsoft Learn</a></li>
+     *   <li><a href="https://learn.microsoft.com/en-us/graph/api/user-list-memberof?view=graph-rest-1.0&amp;tabs=http#permissions">List a user's direct memberships - Microsoft Graph v1.0 | Microsoft Learn</a></li>
      * </ul>
      *
      * @param accessToken et access-token
@@ -74,8 +74,8 @@ public interface MsGraphClient extends HealthCheck {
      * {@code accessToken} kan representere enten en autentisert bruker (OBO) eller et system (M2M), men forutsetter at riktige
      * tilganger er konfigurert. Denne operasjonen krever følgende tilganger (permissions) i Entra ID:
      * <ul>
-     *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&tabs=http#permissions">List users - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
-     *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/user-list-memberof?view=graph-rest-1.0&tabs=http#permissions">List a user's direct memberships - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
+     *   <li><a href="https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&amp;tabs=http#permissions">List users - Microsoft Graph v1.0 | Microsoft Learn</a></li>
+     *   <li><a href="https://learn.microsoft.com/en-us/graph/api/user-list-memberof?view=graph-rest-1.0&amp;tabs=http#permissions">List a user's direct memberships - Microsoft Graph v1.0 | Microsoft Learn</a></li>
      * </ul>
      *
      * @param accessToken et access-token
@@ -91,7 +91,7 @@ public interface MsGraphClient extends HealthCheck {
      * {@code accessToken} representere en autentisert bruker (OBO), men forutsetter at riktige
      * tilganger er konfigurert. Denne operasjonen krever følgende tilganger (permissions) i Entra ID:
      * <ul>
-     *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/user-list-memberof?view=graph-rest-1.0&tabs=http#permissions-for-the-signed-in-users-direct-memberships">List a user's direct memberships - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
+     *   <li><a href="https://learn.microsoft.com/en-us/graph/api/user-list-memberof?view=graph-rest-1.0&amp;tabs=http#permissions-for-the-signed-in-users-direct-memberships">List a user's direct memberships - Microsoft Graph v1.0 | Microsoft Learn</a></li>
      * </ul>
      *
      * NB: Denne operasjonen forventer at {@code accessToken} inneholder "sub"-claimet, da dette brukes ifm. caching.
@@ -117,7 +117,7 @@ public interface MsGraphClient extends HealthCheck {
      * {@code accessToken} kan representere enten en autentisert bruker (OBO) eller et system (M2M), men forutsetter at riktige
      * tilganger er konfigurert. Denne operasjonen krever følgende tilganger (permissions) i Entra ID:
      * <ul>
-     *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/group-list?view=graph-rest-1.0&tabs=http#permissions">List groups - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
+     *   <li><a href="https://learn.microsoft.com/en-us/graph/api/group-list?view=graph-rest-1.0&amp;tabs=http#permissions">List groups - Microsoft Graph v1.0 | Microsoft Learn</a></li>
      * </ul>
      *
      * @param accessToken et access-token
@@ -132,7 +132,7 @@ public interface MsGraphClient extends HealthCheck {
      * {@code accessToken} kan representere enten en autentisert bruker (OBO) eller et system (M2M), men forutsetter at riktige
      * tilganger er konfigurert. Denne operasjonen krever følgende tilganger (permissions) i Entra ID:
      * <ul>
-     *   <li>{@link <a href="https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&tabs=http#permissions">List users - Microsoft Graph v1.0 | Microsoft Learn</a>})</li>
+     *   <li><a href="https://learn.microsoft.com/en-us/graph/api/user-list?view=graph-rest-1.0&amp;tabs=http#permissions">List users - Microsoft Graph v1.0 | Microsoft Learn</a></li>
      * </ul>
      *
      * @param accessToken et access-token

@@ -45,3 +45,12 @@ TokenXOnBehalfOfTokenClient tokenClient = TokenXTokenClientBuilder.builder()
 
 String accessToken = tokenClient.exchangeOnBehalfOfToken("<cluster>:<namespace>:<application>", "<access_token>"); 
 ```
+
+### Failed token requests
+
+OAuth failures log and throw an exception containing only the operation name,
+HTTP status, and a known OAuth error code. Unknown codes become
+`unrecognized_error`; responses that cannot be parsed use `invalid_response`.
+The clients omit response bodies, descriptions, scopes, and parser exception
+details because an identity provider can echo sensitive request data in them.
+Token requests and caching are unchanged.

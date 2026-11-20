@@ -1,7 +1,7 @@
 package no.nav.common.cxf.jetty;
 
 import java.util.function.Function;
-import no.nav.common.utils.EnvironmentUtils;
+import no.nav.common.test.ssl.SSLTestUtils;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -25,8 +25,8 @@ class CreateSslConnector implements Function<Integer, ServerConnector> {
     public ServerConnector apply(Integer sslPort) {
 
         SslContextFactory.Server factory = new SslContextFactory.Server();
-        factory.setKeyStorePath(EnvironmentUtils.getRequiredProperty("javax.net.ssl.trustStore"));
-        factory.setKeyStorePassword(EnvironmentUtils.getRequiredProperty("javax.net.ssl.trustStorePassword"));
+        factory.setKeyStorePath(SSLTestUtils.class.getResource("/dummy.jks").toExternalForm());
+        factory.setKeyStorePassword("password");
 
         HttpConfiguration httpsConfiguration = new HttpConfiguration(baseConfiguration);
         httpsConfiguration.setSecureScheme("https");

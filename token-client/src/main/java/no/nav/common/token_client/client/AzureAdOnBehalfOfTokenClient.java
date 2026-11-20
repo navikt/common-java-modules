@@ -10,7 +10,6 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.JWTBearerGrant;
 import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
@@ -18,10 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import no.nav.common.token_client.cache.TokenCache;
 
-@Slf4j
 public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
     public AzureAdOnBehalfOfTokenClient(
@@ -53,16 +50,7 @@ public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements
                 null,
                 additionalOboClaims(tokenScope, accessToken));
 
-        TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
-
-        if (!response.indicatesSuccess()) {
-            TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error(
-                    "Failed to fetch AzureAD OBO token for scope={}. Error: {}",
-                    tokenScope,
-                    tokenErrorResponse.toJSONObject().toString());
-            throw new RuntimeException("Failed to fetch AzureAD OBO token for scope=" + tokenScope);
-        }
+        TokenResponse response = parseTokenResponse(request.toHTTPRequest().send(), "AzureAD OBO token request");
 
         AccessTokenResponse successResponse = response.toSuccessResponse();
 

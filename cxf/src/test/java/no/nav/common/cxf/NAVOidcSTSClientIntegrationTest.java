@@ -1,36 +1,38 @@
 package no.nav.common.cxf;
 
 import static no.nav.common.cxf.jetty.JettyTestServer.findFreePort;
-import static no.nav.common.test.ssl.SSLTestUtils.disableCertificateChecks;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.ConnectException;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.cxf.jetty.Jetty;
 import no.nav.common.test.auth.AuthTestUtils;
+import no.nav.common.test.ssl.CxfCertificateValidationDisabler;
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.servicemix.examples.cxf.HelloWorld;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.Logger;
 
+@Slf4j
 public class NAVOidcSTSClientIntegrationTest {
 
-    private static final Logger LOG = getLogger(NAVOidcSTSClientIntegrationTest.class);
-
     private Jetty stsMock;
-    private MockHandler stsHandler = new MockHandler("sts");
+    private final MockHandler stsHandler = new MockHandler("sts");
     private String stsUrl;
+    private Bus testBus;
 
     @Rule
     public AuthContextRule authContextRule = new AuthContextRule();
 
     @Before
     public void setup() {
-        disableCertificateChecks();
+        testBus = BusFactory.newInstance().createBus();
+        new CxfCertificateValidationDisabler().initialize(testBus);
         int port = findFreePort();
         Jetty jetty = Jetty.usingWar()
                 .at("sts")
@@ -42,36 +44,37 @@ public class NAVOidcSTSClientIntegrationTest {
         jetty.start();
         stsMock = jetty;
         stsUrl = String.format("https://localhost:%s/sts/NAVOidcSTSClientIntegrationTest", port);
-        LOG.info("sts-url: {}", stsUrl);
+        log.info("sts-url: {}", stsUrl);
     }
 
     @After
     public void cleanup() {
         stsMock.stop.run();
+        testBus.shutdown(true);
     }
 
     @Test
     @Ignore
-    public void cache_sts_token_for_hver_bruker_og_stsType() throws Exception {
+    public void cache_sts_token_for_hver_bruker_og_stsType() {
         StsConfig stsConfig = StsConfig.builder()
                 .url(stsUrl)
                 .username("username")
                 .password("password")
                 .build();
 
-        HelloWorld tjenesteA = new CXFClient<>(HelloWorld.class)
+        HelloWorld tjenesteA = testClient()
                 .address(url("tjeneste-a"))
                 .configureStsForSystemUser(stsConfig)
                 .build();
-        HelloWorld tjenesteB = new CXFClient<>(HelloWorld.class)
+        HelloWorld tjenesteB = testClient()
                 .address(url("tjeneste-b"))
                 .configureStsForSubject(stsConfig)
                 .build();
-        HelloWorld tjenesteC = new CXFClient<>(HelloWorld.class)
+        HelloWorld tjenesteC = testClient()
                 .address(url("tjeneste-c"))
                 .configureStsForSubject(stsConfig)
                 .build();
-        HelloWorld tjenesteD = new CXFClient<>(HelloWorld.class)
+        HelloWorld tjenesteD = testClient()
                 .address(url("tjeneste-d"))
                 .configureStsForSubject(stsConfig)
                 .build();
@@ -122,12 +125,18 @@ public class NAVOidcSTSClientIntegrationTest {
         authContextRule.setAuthContext(AuthTestUtils.createAuthContext(UserRole.EKSTERN, subject));
     }
 
+    private CXFClient<HelloWorld> testClient() {
+        CXFClient<HelloWorld> client = new CXFClient<>(HelloWorld.class);
+        client.factoryBean.setBus(testBus);
+        return client;
+    }
+
     private void ping(HelloWorld aktoer_v2PortType) {
         try {
             aktoer_v2PortType.sayHi("hi");
         } catch (Throwable e) {
             assertThat(e).hasRootCauseInstanceOf(ConnectException.class);
-            LOG.warn("ping feilet: {}", e.getMessage());
+            log.warn("ping feilet: {}", e.getMessage());
         }
     }
 

@@ -1,4 +1,4 @@
-name: Test and release
+name: CI
 
 on:
   pull_request:
@@ -38,7 +38,7 @@ jobs:
         run: ./gradlew --no-daemon --console=plain build
 
   create-release:
-    name: Create new release
+    name: Publish release (main only)
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: write

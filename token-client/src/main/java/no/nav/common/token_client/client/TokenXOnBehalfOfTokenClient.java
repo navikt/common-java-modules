@@ -8,7 +8,6 @@ import static no.nav.common.token_client.utils.TokenUtils.getSubject;
 
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
@@ -19,10 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import no.nav.common.token_client.cache.TokenCache;
 
-@Slf4j
 public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
     public TokenXOnBehalfOfTokenClient(
@@ -54,16 +51,7 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
                 null,
                 additionalClaims(tokenScope, accessToken));
 
-        TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
-
-        if (!response.indicatesSuccess()) {
-            TokenErrorResponse tokenErrorResponse = response.toErrorResponse();
-            log.error(
-                    "Failed to fetch TokenX OBO for scope={}. Error: {}",
-                    tokenScope,
-                    tokenErrorResponse.toJSONObject().toString());
-            throw new RuntimeException("Failed to fetch TokenX OBO token for scope=" + tokenScope);
-        }
+        TokenResponse response = parseTokenResponse(request.toHTTPRequest().send(), "TokenX OBO token request");
 
         AccessTokenResponse successResponse = response.toSuccessResponse();
 

@@ -97,6 +97,18 @@ internal fun Project.configureLibraryRepositories() {
 
 /** Konfigurerer testoppdagelse, JUnit, JaCoCo og Javadoc for bibliotekmoduler. */
 internal fun Project.configureLibraryTests() {
+    // Annotasjonene trengs bare ved testkompilering og skal ikke publiseres i Maven-POM-en.
+    val testCompileAnnotations = configurations.create("testCompileAnnotations") {
+        isCanBeConsumed = false
+        isCanBeResolved = false
+    }
+    configurations.named("testCompileOnly") {
+        extendsFrom(testCompileAnnotations)
+    }
+    dependencies.add(
+        testCompileAnnotations.name,
+        "org.apiguardian:apiguardian-api:${libraryVersion("apiguardian")}",
+    )
     dependencies.add(
         "testRuntimeOnly",
         "org.junit.platform:junit-platform-launcher:${libraryVersion("junit.jupiter")}",
