@@ -18,6 +18,9 @@ public class KafkaPropertiesBuilder {
 
     public final static int DEFAULT_MAX_POLL_RECORDS = 500;
 
+    // Kafka 4.4-dokumentasjonen oppgir standardverdien for connections.max.idle.ms til 540000 ms (9 minutter).
+    private static final int DEFAULT_CONNECTIONS_MAX_IDLE_MS = 540_000;
+
     public final static long DEFAULT_LINGER_MS = 500;
 
     public static ConsumerPropertiesBuilder consumerBuilder() {
@@ -92,6 +95,7 @@ public class KafkaPropertiesBuilder {
 
         /**
          * Optional id used for logging by kafka
+         *
          * @param producerId the name of the instance that is producing records
          * @return the producer properties builder
          */
@@ -129,8 +133,28 @@ public class KafkaPropertiesBuilder {
 
     public static class ConsumerPropertiesBuilder extends BasePropertiesBuilder<ConsumerPropertiesBuilder> {
 
+        private boolean idleTimeoutExplicitlyConfigured;
+
         public ConsumerPropertiesBuilder withConsumerGroupId(String consumerGroupId) {
             properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroupId);
+            return this;
+        }
+
+        @Override
+        public ConsumerPropertiesBuilder withProp(String key, Object value) {
+            super.withProp(key, value);
+            if (CommonClientConfigs.CONNECTIONS_MAX_IDLE_MS_CONFIG.equals(key)) {
+                idleTimeoutExplicitlyConfigured = true;
+            }
+            return this;
+        }
+
+        @Override
+        public ConsumerPropertiesBuilder withProps(Properties properties) {
+            super.withProps(properties);
+            if (properties.containsKey(CommonClientConfigs.CONNECTIONS_MAX_IDLE_MS_CONFIG)) {
+                idleTimeoutExplicitlyConfigured = true;
+            }
             return this;
         }
 
@@ -146,13 +170,15 @@ public class KafkaPropertiesBuilder {
 
         /**
          * Sets how many records can be consumed for each batch when polling, and how long kafka will wait between each poll before marking the client as failed.
-         * @param maxRecordsPrBatch max number of records that will be consumed for each batch
+         *
+         * @param maxRecordsPrBatch   max number of records that will be consumed for each batch
          * @param maxWaitForEachBatch how long kafka will wait for the consumer to finish each batch
          * @return the consumer properties builder
          */
         public ConsumerPropertiesBuilder withPollProperties(int maxRecordsPrBatch, int maxWaitForEachBatch) {
             properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxRecordsPrBatch);
             properties.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, maxWaitForEachBatch);
+            synchronizeIdleTimeoutWithPollInterval();
             return this;
         }
 
@@ -163,6 +189,8 @@ public class KafkaPropertiesBuilder {
         }
 
         public Properties build() {
+            synchronizeIdleTimeoutWithPollInterval();
+
             Object keyDeserializer = properties.get(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG);
             Object valueDeserializer = properties.get(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG);
 
@@ -175,6 +203,27 @@ public class KafkaPropertiesBuilder {
             return super.build();
         }
 
-    }
+        private void synchronizeIdleTimeoutWithPollInterval() {
+            if (idleTimeoutExplicitlyConfigured) {
+                return;
+            }
 
+            Object configuredPollInterval = properties.get(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG);
+            if (configuredPollInterval == null) {
+                return;
+            }
+
+            if (!(configuredPollInterval instanceof Number || configuredPollInterval instanceof String)) {
+                throw new IllegalStateException(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG + " must be an integer");
+            }
+
+            int maxWaitForEachBatch = Integer.parseInt(configuredPollInterval.toString());
+            if (maxWaitForEachBatch > DEFAULT_CONNECTIONS_MAX_IDLE_MS) {
+                // Hold forbindelsen til group coordinator åpen minst like lenge som poll-intervallet under rebalance.
+                properties.put(CommonClientConfigs.CONNECTIONS_MAX_IDLE_MS_CONFIG, maxWaitForEachBatch);
+            } else {
+                properties.remove(CommonClientConfigs.CONNECTIONS_MAX_IDLE_MS_CONFIG);
+            }
+        }
+    }
 }
