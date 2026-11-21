@@ -1,7 +1,7 @@
 plugins { id("nav.common-library") }
 
 dependencies {
-    api(libs.slf4j.api)
+    implementation(libs.slf4j.api)
     runtimeOnly(libs.jcl.over.slf4j)
     compileOnly(libs.lombok)
     testImplementation(libs.junit.vintage)

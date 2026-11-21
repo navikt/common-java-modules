@@ -6,7 +6,7 @@ dependencies {
     api(libs.okhttp)
     api(libs.oauth2.oidc.sdk)
     compileOnly(libs.lombok)
-    api(libs.jakarta.servlet)
+    runtimeOnly(libs.jakarta.servlet)
     testImplementation(libs.junit.vintage)
     testImplementation(libs.mockito)
     testImplementation(libs.assertj)

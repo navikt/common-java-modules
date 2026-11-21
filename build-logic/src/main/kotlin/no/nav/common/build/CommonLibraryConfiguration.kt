@@ -61,7 +61,7 @@ internal fun Project.configureJavaArtifacts() {
         isCanBeConsumed = true
         isCanBeResolved = false
         // Delte testklasser konsumeres i dette bygget, uavhengig av Maven-klassifiserte artefakter.
-        extendsFrom(configurations.named("api").get(), configurations.named("runtimeOnly").get())
+        extendsFrom(configurations.named("implementation").get(), configurations.named("runtimeOnly").get())
         outgoing.artifact(testsJar)
     }
 

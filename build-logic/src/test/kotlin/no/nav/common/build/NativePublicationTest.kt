@@ -29,7 +29,12 @@ class NativePublicationTest {
             File("../gradle/libs.versions.toml").copyTo(File(directory, "gradle/libs.versions.toml"))
             File(directory, "build.gradle.kts").writeText("""plugins { id("nav.common-root") }""")
             File(directory, "producer").mkdirs()
-            File(directory, "producer/build.gradle.kts").writeText("""plugins { id("nav.common-library") }""")
+            File(directory, "producer/build.gradle.kts").writeText(
+                """
+                plugins { id("nav.common-library") }
+                dependencies { implementation(libs.commons.io) }
+                """.trimIndent(),
+            )
             File(directory, "producer/src/main/java/fixture").mkdirs()
             File(directory, "producer/src/main/java/fixture/Marker.java")
                 .writeText("package fixture; public class Marker {}")
@@ -149,6 +154,11 @@ class NativePublicationTest {
             val compile = File(directory, "gradleConsumer/build/compile-dependencies")
             val tests = File(directory, "gradleConsumer/build/test-dependencies")
             val testCompile = File(directory, "gradleConsumer/build/test-compile-dependencies")
+            val commonsIoVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("commons-io")
+            val commonsIoJar = "commons-io-$commonsIoVersion.jar"
+            assertFalse(File(compile, commonsIoJar).exists())
+            assertTrue(File(testCompile, commonsIoJar).isFile)
+            assertTrue(File(tests, commonsIoJar).isFile)
             val apiGuardianVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("apiguardian")
             val apiGuardianJar = "apiguardian-api-$apiGuardianVersion.jar"
             assertTrue(File(testCompile, apiGuardianJar).isFile)

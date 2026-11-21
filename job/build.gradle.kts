@@ -4,7 +4,7 @@ dependencies {
     api(project(":json"))
     api(project(":log"))
     api(project(":util"))
-    api(libs.okhttp)
+    implementation(libs.okhttp)
     compileOnly(libs.lombok)
     api(libs.shedlock)
     testImplementation(libs.junit.vintage)

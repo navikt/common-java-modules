@@ -59,8 +59,9 @@ Ingen modul bruker `nav.common-publishing` direkte.
 
 ## Publiseringskontrakt
 
-Modulene publiserer `mavenJava` fra Java-komponenten. `api` og `runtimeOnly`
-gir vanlige POM-avhengigheter. `mavenOptional()` gir en Maven-optional avhengighet
+Modulene publiserer `mavenJava` fra Java-komponenten. `api` gir `compile`-scope,
+mens `implementation` og `runtimeOnly` gir `runtime`-scope i POM-en.
+`mavenOptional()` gir en Maven-optional avhengighet
 uten å eksponere den på Gradle-konsumenters klassebane. `compileOnly` legges til
 med `provided`-scope, og testavhengigheter med `test`-scope.
 `testsJar` og `testSourcesJar` publiseres med klassifikatorene `tests` og `test-sources`.
@@ -72,6 +73,35 @@ Rotprosjektet publiserer ikke lenger `mor-pom`. Modul-POM-ene har ingen parent
 og beholder sine egne avhengigheter og constraints. Eldre publiserte
 `mor-pom`-versjoner er fortsatt tilgjengelige. Avklar ukjente konsumenter før
 en release uten ny parent; se [release-sjekklisten](fjerne-mor-pom.md).
+
+### Valg av dependency-scope
+
+| Deklarasjon | Bruk |
+|---|---|
+| `api` | Avhengighetens typer inngår i offentlige eller beskyttede signaturer, inkludert arv, generiske typer og Lombok-genererte metoder. Eksisterende API-eksporter mellom common-moduler beholdes også av hensyn til konsumentene. |
+| `implementation` | Bibliotekets kildekode bruker avhengigheten internt, uten at typene inngår i det offentlige API-et. |
+| `runtimeOnly` | Avhengigheten trengs ved kjøring, for eksempel fra XML-konfigurasjon eller refleksjon, men ikke ved kompilering av biblioteket. |
+| `compileOnly` | Eksisterende provided-kontrakter og kompilering med Lombok. |
+| `compileOnly` med `mavenOptional()` | Valgfrie integrasjoner der konsumenten fortsatt må velge den eksterne avhengigheten selv. |
+
+En intern avhengighet skal ikke flyttes til `runtimeOnly` dersom kildekoden
+trenger den ved kompilering. Bruk `implementation` for å skjule slike typer fra
+konsumentens compile-klassebane uten å fjerne dem fra runtime.
+Eksisterende runtime-avhengigheter beholdes også når ingen kildekode importerer
+dem. Å fjerne dem er en egen kontraktsendring, ikke en del av scope-oppryddingen.
+
+Endringer fra `api` til `implementation` eller `runtimeOnly` endrer
+konsumentkontrakten. En konsument som importerer den skjulte avhengigheten
+direkte, må deklarere den selv. Ikke endre offentlige Java-signaturer for å
+skjule flere avhengigheter i samme endring.
+Oppryddingen i #686 gjelder derfor tredjepartsavhengigheter, ikke eksisterende
+`api(project(...))`-deklarasjoner. Disse eksportene brukes også utenfor
+bibliotekenes egne signaturer, blant annet for `JsonUtils`, `MDCConstants` og
+`UrlUtils`. Å fjerne dem krever en egen migrering av konsumentene.
+
+Interne `testArtifacts` arver `implementation` (som inkluderer `api`) og
+`runtimeOnly`, slik at delte test-JAR-er beholder sine runtime-avhengigheter
+når en modul slutter å eksportere dem som API.
 
 ## Avhengigheter og versjoner
 
