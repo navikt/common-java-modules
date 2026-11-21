@@ -18,7 +18,7 @@ tasks.named<Test>("test") {
 }
 
 dependencies {
-    api(libs.slf4j.api)
+    implementation(libs.slf4j.api)
     api(libs.kafka.clients)
     api(libs.shedlock)
     compileOnly(libs.avro) { mavenOptional() }

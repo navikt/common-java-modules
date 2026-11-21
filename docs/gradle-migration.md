@@ -89,6 +89,76 @@ Managed-only Jackson 2 and Kotlin artifacts have catalog aliases with
 `version.ref`, so dependency-update tooling can associate them with their
 version pins. These aliases do not add module dependencies or change versions.
 
+## Dependency scope audit (#686)
+
+The migration preserved dependency scopes. The follow-up for
+[#686](https://github.com/navikt/common-java-modules/issues/686) audits all
+19 remaining modules and moves 38 existing third-party POM dependencies from
+`compile` to `runtime`. All existing API exports between common modules are
+retained. Two explicit JAX-RS dependencies preserve `auth`'s public `UriInfo`
+type and `client`'s internal HTTP-header imports when `rest` stops exporting
+JAX-RS. The number of direct `compile` declarations falls from 108 to 71.
+The `types` and `health` modules keep their existing scopes.
+
+Dependencies used by library source code internally use `implementation`,
+not `runtimeOnly`. Both publish as Maven `runtime`; only `implementation`
+is available when compiling the library itself. Public/protected API types
+remain exposed, including inherited types, generic arguments, annotations,
+and Lombok-generated signatures. Existing optional/provided contracts,
+versions, exclusions, logging bridges, and runtime artifacts are retained.
+
+**Compatibility boundary:** The broader proposal also hid dependencies between
+common modules. That candidate caused new compilation failures in `pto-admin`,
+`veilarbaktivitet`, `veilarboppfolging`, `kafka-manager`,
+`amt-stottetjenester`, and `poao-tilgang`. Missing types included `JsonUtils`,
+`JsonMapper`, `MDCConstants`, and `UrlUtils`. Those common-module scope changes
+were withdrawn rather than requiring consumer migrations in this change.
+No public Java signatures change. The remaining third-party scope changes
+still narrow compile classpaths; consumers importing those third-party types
+need their own declarations. This is a partial implementation of #686, not a
+claim that every internal dependency can now be hidden.
+
+All 19 modules' production and test sources compile. Public/protected bytecode
+analysis against exported API dependencies and existing compile-only contracts
+finds no unresolved API types. Resolved runtime, test-compile, and test-runtime
+coordinates match the pre-audit snapshots for every module. The published-POM
+fixture compiles and executes a standalone consumer while keeping internal
+implementation/runtime dependencies off its compile classpath.
+Internal `testArtifacts` now inherit `implementation` as well as `runtimeOnly`;
+the regression fixture covers their retained implementation dependencies.
+
+Production/test compilation succeeds in all 21 repositories from the original
+build-file consumer inventory, plus `poao-tilgang` (22 consumers in total):
+`pto-admin`, `veilarbaktivitet`, `veilarboppfolging`,
+`amt-stottetjenester`, `kafka-manager`, `amt-deltakelser`,
+`familie-oppdrag-backend`, `poao-tilgang`, `mulighetsrommet`,
+`modiacontextholder`, `modia-robot-api`, `dp-audit-logger`, `dp-stpeter`,
+`meldekortservice`, `paw-arbeidssokerregisteret-api`, `please`,
+`rekrutteringsbistand-kandidatvarsel-api`,
+`rekrutteringsbistand-kandidatsok-api`, `rekrutteringstreff-backend`,
+`tilbakekreving`, `toi-rapids-and-rivers`, and `veilarbapi`.
+The PAW, rekrutteringstreff, and TOI monorepo runs target the consuming
+`schema-registry`, `apps:rekrutteringstreff-api`, and
+`apps:toi-synlighetsmotor` modules and their compilation prerequisites.
+
+Both original-scope and conservative-scope POMs pass these compilation targets
+with identical library bytecode. This isolates scope compatibility, not every
+intervening library change since each consumer's pinned release.
+The 20 Gradle consumers retain all 220 resolved runtime/test-runtime graphs
+after normalizing only the common candidate version. `meldekortservice`'s
+compile-classpath coordinates, which feed its fat JAR, are also unchanged.
+
+Consumer source and build declarations are unchanged. Dependency-lock updates
+use isolated copies. Verification-only wiring orders Modia GraphQL generation,
+uses package mirrors, and preserves settings-only repository definitions.
+The PAW run uses Nav's public package mirror instead of GitHub Packages
+credentials. DP compilation-triggered formatting tasks are excluded to avoid
+rewriting source files. All eleven newly cloned consumer working trees are
+clean after the checks.
+These are compilation and dependency-graph checks, not full consumer test-suite
+results. Catalog-only references and consumers outside the historical build-file
+inventory, apart from `poao-tilgang`, are not covered.
+
 ## Verification
 
 Migration checks used a fresh Maven predecessor and isolated/sequential
@@ -328,10 +398,14 @@ tasks. `maxParallelForks=1` still limits forks within each test task, not
 across modules. Kafka integration tests require a working Docker
 configuration.
 
-A fresh parallel `build --continue --no-build-cache --rerun-tasks` failed only
-at `:kafka:test` (seven tests) because the local Docker configuration could
-not be read. The same build with `-x :kafka:test` passed. Kafka tests have
-not been verified in parallel with a working Docker configuration.
+An earlier agent run of parallel
+`build --continue --no-build-cache --rerun-tasks` failed only at `:kafka:test`
+(seven tests) because the local Docker configuration could not be read.
+The same build with `-x :kafka:test` passed.
+
+- [x] The user confirmed on 21 November 2026 that all tests pass locally,
+  including the Kafka tests. The Docker-related follow-up is closed.
+  The exact command and parallel-execution details of that run were not recorded.
 
 Artifact generation and release-task inspection without publication:
 

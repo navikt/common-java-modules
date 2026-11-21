@@ -84,6 +84,13 @@ versions remain available. See [module usage and retirement](docs/modulbruk-og-u
 and [the parent retirement checklist](build-logic/fjerne-mor-pom.md) before
 upgrading consumers that depend on either artifact.
 
+The dependency scope cleanup preserves existing API exports between common
+modules. Internal third-party dependencies use `implementation` or `runtimeOnly`
+where their types are not part of the public API. Runtime dependencies remain
+available; dependency versions and optional/provided contracts are unchanged.
+See [the dependency scope policy](build-logic/README.md#valg-av-dependency-scope)
+for the distinction between API, implementation, runtime, and optional dependencies.
+
 ## Checking for new dependency versions
 
 ```shell

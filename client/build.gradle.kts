@@ -2,14 +2,15 @@ plugins { id("nav.common-library") }
 
 dependencies {
     compileOnly(libs.lombok)
-    api(libs.oauth2.oidc.sdk)
+    implementation(libs.oauth2.oidc.sdk)
     api(libs.okhttp)
     api(project(":rest"))
+    implementation(libs.jakarta.ws.rs.api)
     api(project(":health"))
     api(project(":types"))
     api(project(":util"))
     testImplementation(project(path = ":test", configuration = "testArtifacts"))
-    api(libs.slf4j.api)
+    implementation(libs.slf4j.api)
     api(libs.caffeine)
     testImplementation(libs.junit.vintage)
     testImplementation(libs.mockito)

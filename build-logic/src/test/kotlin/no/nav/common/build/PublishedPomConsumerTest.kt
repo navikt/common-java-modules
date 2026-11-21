@@ -12,21 +12,27 @@ import javax.xml.parsers.DocumentBuilderFactory
 /** Tester avhengigheter slik en ekstern Gradle-konsument leser dem fra publiserte POM-er. */
 class PublishedPomConsumerTest {
     @Test
-    fun `publisert Java-komponent eksporterer api og runtime men ikke optional eller compile-only avhengigheter`() {
+    fun `publisert Java-komponent skiller api fra interne og valgfrie avhengigheter`() {
         // Arrange
         val directory = File("build/publication-tests/${UUID.randomUUID()}").absoluteFile.apply { mkdirs() }
         try {
             File(directory, "settings.gradle.kts").writeText(
                 """
                 rootProject.name = "fixture"
-                include("producer", "apiDependency", "runtimeDependency", "optionalDependency", "providedDependency")
+                include("producer", "apiDependency", "implementationDependency", "runtimeDependency", "optionalDependency", "providedDependency")
                 """.trimIndent(),
             )
             File(directory, "gradle").mkdirs()
             File("../gradle/libs.versions.toml").copyTo(File(directory, "gradle/libs.versions.toml"))
             File(directory, "build.gradle.kts").writeText("""plugins { id("nav.common-root") }""")
 
-            listOf("apiDependency", "runtimeDependency", "optionalDependency", "providedDependency").forEach { name ->
+            listOf(
+                "apiDependency",
+                "implementationDependency",
+                "runtimeDependency",
+                "optionalDependency",
+                "providedDependency",
+            ).forEach { name ->
                 module(directory, name)
                 val source = File(directory, "$name/src/main/java/fixture/${name}Marker.java")
                 source.parentFile.mkdirs()
@@ -38,9 +44,23 @@ class PublishedPomConsumerTest {
                 """
                 dependencies {
                     api(project(":apiDependency"))
+                    implementation(project(":implementationDependency"))
                     runtimeOnly(project(":runtimeDependency"))
                     compileOnly(project(":providedDependency"))
                     compileOnly(project(":optionalDependency")) { mavenOptional() }
+                }
+                """.trimIndent(),
+            )
+            val producerSource = File(directory, "producer/src/main/java/fixture/Producer.java")
+            producerSource.parentFile.mkdirs()
+            producerSource.writeText(
+                """
+                package fixture;
+                public class Producer extends apiDependencyMarker {
+                    public String markers() throws ClassNotFoundException {
+                        return new implementationDependencyMarker().getClass().getSimpleName()
+                            + ":" + Class.forName("fixture.runtimeDependencyMarker").getSimpleName();
+                    }
                 }
                 """.trimIndent(),
             )
@@ -56,6 +76,7 @@ class PublishedPomConsumerTest {
                 .withArguments(
                     ":producer:publishMavenJavaPublicationToFixtureRepository",
                     ":apiDependency:publishMavenJavaPublicationToFixtureRepository",
+                    ":implementationDependency:publishMavenJavaPublicationToFixtureRepository",
                     ":runtimeDependency:publishMavenJavaPublicationToFixtureRepository",
                     ":optionalDependency:publishMavenJavaPublicationToFixtureRepository",
                     ":providedDependency:publishMavenJavaPublicationToFixtureRepository",
@@ -87,16 +108,32 @@ class PublishedPomConsumerTest {
                     from(configurations["testRuntimeClasspath"])
                     into(layout.buildDirectory.dir("tests"))
                 }
+                tasks.register<JavaExec>("runConsumer") {
+                    classpath = sourceSets.main.get().runtimeClasspath
+                    mainClass.set("fixture.Consumer")
+                }
                 """.trimIndent(),
             )
             val source = File(consumer, "src/main/java/fixture/Consumer.java")
             source.parentFile.mkdirs()
-            source.writeText("package fixture; public class Consumer extends apiDependencyMarker {}")
+            source.writeText(
+                """
+                package fixture;
+                public class Consumer extends Producer {
+                    public static void main(String[] args) throws ClassNotFoundException {
+                        String markers = new Consumer().markers();
+                        if (!markers.equals("implementationDependencyMarker:runtimeDependencyMarker")) {
+                            throw new AssertionError(markers);
+                        }
+                    }
+                }
+                """.trimIndent(),
+            )
             GradleRunner
                 .create()
                 .withProjectDir(consumer)
                 .withTestKitDir(File("build/test-kit").absoluteFile)
-                .withArguments("compileJava", "copyCompile", "copyRuntime", "copyTests", "--offline")
+                .withArguments("compileJava", "runConsumer", "copyCompile", "copyRuntime", "copyTests", "--offline")
                 .build()
 
             fun artifacts(configuration: String): Set<String> = File(consumer, "build/$configuration")
@@ -108,7 +145,12 @@ class PublishedPomConsumerTest {
             // Assert
             assertEquals(setOf("producer-4.test.jar", "apiDependency-4.test.jar"), artifacts("compile"))
             assertEquals(
-                setOf("producer-4.test.jar", "apiDependency-4.test.jar", "runtimeDependency-4.test.jar"),
+                setOf(
+                    "producer-4.test.jar",
+                    "apiDependency-4.test.jar",
+                    "implementationDependency-4.test.jar",
+                    "runtimeDependency-4.test.jar",
+                ),
                 artifacts("runtime"),
             )
             val tests = artifacts("tests")
@@ -133,6 +175,9 @@ class PublishedPomConsumerTest {
             assertEquals("true", entry("optionalDependency").getElementsByTagName("optional").item(0).textContent)
             assertEquals("compile", entry("optionalDependency").getElementsByTagName("scope").item(0).textContent)
             assertEquals("provided", entry("providedDependency").getElementsByTagName("scope").item(0).textContent)
+            assertEquals("compile", entry("apiDependency").getElementsByTagName("scope").item(0).textContent)
+            assertEquals("runtime", entry("implementationDependency").getElementsByTagName("scope").item(0).textContent)
+            assertEquals("runtime", entry("runtimeDependency").getElementsByTagName("scope").item(0).textContent)
         } finally {
             directory.deleteRecursively()
         }
