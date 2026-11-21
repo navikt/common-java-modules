@@ -13,7 +13,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import org.apache.kafka.clients.consumer.CloseOptions;
@@ -172,7 +171,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                     // Gjenbrukes mellom pollinger og avsluttes samlet i finally-blokken.
                     //noinspection resource
                     ExecutorService executor = topicConsumptionExecutors.computeIfAbsent(
-                        topicPartition, (tp) -> Executors.newSingleThreadExecutor());
+                            topicPartition, (tp) -> Executors.newSingleThreadExecutor());
 
                     executor.submit(() -> {
                         try {
@@ -186,7 +185,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                                  The finally-clause will make sure that the processed records counter is incremented.
                             */
                             if (clientState == ClientState.NOT_RUNNING
-                                || revokedOrFailedPartitions.contains(topicPartition)) {
+                                    || revokedOrFailedPartitions.contains(topicPartition)) {
                                 return;
                             }
 
@@ -206,11 +205,11 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                             }
                         } catch (Exception e) {
                             log.error(
-                                "Unexpected error occurred while processing consumer record. topic={} partition={} offset={}",
-                                topic,
-                                record.partition(),
-                                record.offset(),
-                                e);
+                                    "Unexpected error occurred while processing consumer record. topic={} partition={} offset={}",
+                                    topic,
+                                    record.partition(),
+                                    record.offset(),
+                                    e);
                         } finally {
                             processedRecordsLatch.countDown();
                         }
@@ -282,9 +281,9 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                 consumer.seek(topicPartition, offsetAndMetadata);
             } catch (IllegalStateException e) {
                 log.warn(
-                    "Unable to seek to topicPartition={} offset={}. The TopicPartition is not assigned to this consumer",
-                    topicPartition,
-                    offsetAndMetadata.offset());
+                        "Unable to seek to topicPartition={} offset={}. The TopicPartition is not assigned to this consumer",
+                        topicPartition,
+                        offsetAndMetadata.offset());
             }
         });
     }

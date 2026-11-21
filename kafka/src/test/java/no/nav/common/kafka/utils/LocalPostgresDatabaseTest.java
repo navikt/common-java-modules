@@ -7,9 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.sql.Connection;
-
 import org.junit.Test;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
@@ -46,7 +44,7 @@ public class LocalPostgresDatabaseTest {
         // Act
         HikariDataSource dataSource = LocalPostgresDatabase.createPostgresDataSource(container);
         try (dataSource;
-             Connection connection = dataSource.getConnection()) {
+                Connection connection = dataSource.getConnection()) {
             // Assert
             assertTrue(connection.isValid(1));
         }

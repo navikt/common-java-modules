@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
-
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -31,7 +30,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -100,7 +98,7 @@ public class SSLTestUtilsTest {
 
         // Act
         try (var socket = (SSLSocket)
-            factory.createSocket("localhost", server.getAddress().getPort())) {
+                factory.createSocket("localhost", server.getAddress().getPort())) {
             socket.setSoTimeout(5000);
             socket.startHandshake();
 
@@ -111,7 +109,7 @@ public class SSLTestUtilsTest {
         }
         // Act & Assert
         try (var socket = (SSLSocket)
-            factory.createSocket("127.0.0.1", server.getAddress().getPort())) {
+                factory.createSocket("127.0.0.1", server.getAddress().getPort())) {
             socket.setSoTimeout(5000);
             assertThrows(SSLHandshakeException.class, socket::startHandshake);
         }
@@ -147,7 +145,7 @@ public class SSLTestUtilsTest {
 
         // Act
         int responseStatus =
-            status("localhost", SSLTestUtils.createSSLContext(trustStore).getSocketFactory());
+                status("localhost", SSLTestUtils.createSSLContext(trustStore).getSocketFactory());
 
         // Assert
         assertEquals(200, responseStatus);
@@ -227,7 +225,7 @@ public class SSLTestUtilsTest {
         assertThrows(UnsupportedOperationException.class, SSLTestUtils::setupKeyAndTrustStore);
         assertThrows(UnsupportedOperationException.class, CxfCertificateValidationDisabler::init);
         assertThrows(
-            UnsupportedOperationException.class, () -> new CertificateCheckDisabler().contextInitialized(null));
+                UnsupportedOperationException.class, () -> new CertificateCheckDisabler().contextInitialized(null));
 
         // Assert
         assertSame(defaultContext, SSLContext.getDefault());
@@ -254,9 +252,9 @@ public class SSLTestUtilsTest {
 
     private int status(String hostname, SSLSocketFactory factory) throws Exception {
         var connection = (HttpsURLConnection)
-            URI.create("https://" + hostname + ":" + server.getAddress().getPort() + "/")
-                .toURL()
-                .openConnection();
+                URI.create("https://" + hostname + ":" + server.getAddress().getPort() + "/")
+                        .toURL()
+                        .openConnection();
         connection.setSSLSocketFactory(factory);
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
@@ -268,7 +266,7 @@ public class SSLTestUtilsTest {
     }
 
     private X509Certificate[] certificateChain(String resource) throws Exception {
-        return new X509Certificate[]{(X509Certificate) keyStore(resource).getCertificate("selfsigned")};
+        return new X509Certificate[] {(X509Certificate) keyStore(resource).getCertificate("selfsigned")};
     }
 
     private KeyStore keyStore(String resource) throws Exception {

@@ -10,11 +10,9 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -99,8 +97,8 @@ public class RestUtilsTest {
         // Act & Assert
         try (Response response = client.newCall(request).execute()) {
             assertThrows(
-                IllegalStateException.class,
-                () -> RestUtils.parseJsonResponseOrThrow(response, HelloWorldPayload.class));
+                    IllegalStateException.class,
+                    () -> RestUtils.parseJsonResponseOrThrow(response, HelloWorldPayload.class));
         }
     }
 
@@ -122,15 +120,15 @@ public class RestUtilsTest {
         // Act
         try (Response response = client.newCall(request).execute()) {
             Optional<List<HelloWorldPayload>> body =
-                RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class);
+                    RestUtils.parseJsonArrayResponse(response, HelloWorldPayload.class);
 
             // Assert
             Assertions.assertThat(body)
-                .isPresent()
-                .get()
-                .asInstanceOf(list(HelloWorldPayload.class))
-                .hasSize(2)
-                .allMatch(isEqual(expected));
+                    .isPresent()
+                    .get()
+                    .asInstanceOf(list(HelloWorldPayload.class))
+                    .hasSize(2)
+                    .allMatch(isEqual(expected));
         }
     }
 
@@ -149,8 +147,8 @@ public class RestUtilsTest {
         // Act & Assert
         try (Response response = client.newCall(request).execute()) {
             assertThrows(
-                IllegalStateException.class,
-                () -> RestUtils.parseJsonResponseArrayOrThrow(response, HelloWorldPayload.class));
+                    IllegalStateException.class,
+                    () -> RestUtils.parseJsonResponseArrayOrThrow(response, HelloWorldPayload.class));
         }
     }
 

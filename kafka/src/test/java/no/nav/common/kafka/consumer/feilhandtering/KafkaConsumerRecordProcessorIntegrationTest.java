@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.DataSource;
-
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.core.SimpleLock;
@@ -45,8 +43,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     private final KafkaConsumerRepository consumerRepository;
 
     private static Optional<SimpleLock> lock(LockConfiguration lockConfiguration) {
-        return Optional.of(() -> {
-        });
+        return Optional.of(() -> {});
     }
 
     public static final PostgreSQLContainer postgreSQLContainer = createPostgresTestContainer();
@@ -56,8 +53,8 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     public static Collection<Object[]> data() {
         postgreSQLContainer.start();
         Awaitility.await()
-            .atMost(Duration.ofSeconds(60))
-            .until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
+                .atMost(Duration.ofSeconds(60))
+                .until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
 
         postgresDataSource = createPostgresDataSource(postgreSQLContainer);
         DataSource postgres = postgresDataSource;
@@ -70,16 +67,16 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         var oracleConsumerRepository = new OracleJdbcTemplateConsumerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
-            new Object[]{"POSTGRES", postgres, postgresConsumerRepository},
-            new Object[]{"ORACLE", oracle, oracleConsumerRepository});
+                new Object[] {"POSTGRES", postgres, postgresConsumerRepository},
+                new Object[] {"ORACLE", oracle, oracleConsumerRepository});
     }
 
     // JUnit sender databaseetiketten som et argument, selv om den bare brukes i testnavnet.
     @SuppressWarnings("java:S1172")
     public KafkaConsumerRecordProcessorIntegrationTest(
-        @SuppressWarnings("unused") String databaseType,
-        DataSource dataSource,
-        KafkaConsumerRepository consumerRepository) {
+            @SuppressWarnings("unused") String databaseType,
+            DataSource dataSource,
+            KafkaConsumerRepository consumerRepository) {
         this.dataSource = dataSource;
         this.consumerRepository = consumerRepository;
     }
@@ -103,27 +100,26 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     @Test
     public void should_consume_stored_records() {
         // Arrange
-        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {
-        });
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
 
         var counterTopicA = new AtomicInteger();
         var counterTopicB = new AtomicInteger();
 
         List<TopicConsumerConfig<?, ?>> configs = List.of(
-            new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterTopicA.incrementAndGet();
-                return ConsumeStatus.OK;
-            }),
-            new TopicConsumerConfig<>(TEST_TOPIC_B, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterTopicB.incrementAndGet();
-                return ConsumeStatus.OK;
-            }));
+                new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterTopicA.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }),
+                new TopicConsumerConfig<>(TEST_TOPIC_B, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterTopicB.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }));
 
         var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
-            .withLockProvider(lockProvider)
-            .withKafkaConsumerRepository(consumerRepository)
-            .withConsumerConfigs(configs)
-            .build();
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 2, 1, "key2", "value"));
@@ -146,27 +142,26 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     @Test
     public void should_support_multiple_consumers_for_the_same_topic() {
         // Arrange
-        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {
-        });
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
 
         var counterConsumer1 = new AtomicInteger();
         var counterConsumer2 = new AtomicInteger();
 
         List<TopicConsumerConfig<?, ?>> configs = List.of(
-            new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterConsumer1.incrementAndGet();
-                return ConsumeStatus.OK;
-            }),
-            new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterConsumer2.incrementAndGet();
-                return ConsumeStatus.OK;
-            }));
+                new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterConsumer1.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }),
+                new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterConsumer2.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }));
 
         var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
-            .withLockProvider(lockProvider)
-            .withKafkaConsumerRepository(consumerRepository)
-            .withConsumerConfigs(configs)
-            .build();
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value1"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 2, 1, "key2", "value2"));
@@ -187,8 +182,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         // Arrange
         LockProvider lockProvider = lockConfiguration -> {
             if (lockConfiguration.getName().contains(TEST_TOPIC_B)) {
-                return Optional.of((SimpleLock) () -> {
-                });
+                return Optional.of((SimpleLock) () -> {});
             }
 
             return Optional.empty();
@@ -198,20 +192,20 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         var counterTopicB = new AtomicInteger();
 
         List<TopicConsumerConfig<?, ?>> configs = List.of(
-            new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterTopicA.incrementAndGet();
-                return ConsumeStatus.OK;
-            }),
-            new TopicConsumerConfig<>(TEST_TOPIC_B, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterTopicB.incrementAndGet();
-                return ConsumeStatus.OK;
-            }));
+                new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterTopicA.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }),
+                new TopicConsumerConfig<>(TEST_TOPIC_B, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterTopicB.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }));
 
         var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
-            .withLockProvider(lockProvider)
-            .withKafkaConsumerRepository(consumerRepository)
-            .withConsumerConfigs(configs)
-            .build();
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 2, 1, "key2", "value"));
@@ -241,16 +235,16 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         var counterTopicA = new AtomicInteger();
 
         List<TopicConsumerConfig<?, ?>> configs = List.of(
-            new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterTopicA.incrementAndGet();
-                return ConsumeStatus.OK;
-            }));
+                new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterTopicA.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }));
 
         var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
-            .withLockProvider(lockProvider)
-            .withKafkaConsumerRepository(consumerRepository)
-            .withConsumerConfigs(configs)
-            .build();
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, null, "value1"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 2, null, "value2"));
@@ -267,22 +261,21 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     @Test
     public void should_consume_records_if_backoff_expired() {
         // Arrange
-        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {
-        });
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
         var counterTopicA = new AtomicInteger();
 
         List<TopicConsumerConfig<?, ?>> configs = List.of(
-            new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterTopicA.incrementAndGet();
-                return ConsumeStatus.OK;
-            }));
+                new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterTopicA.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }));
 
         var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
-            .withLockProvider(lockProvider)
-            .withKafkaConsumerRepository(consumerRepository)
-            .withConsumerConfigs(configs)
-            .withBackoffStrategy((r) -> Duration.ofSeconds(-1))
-            .build();
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .withBackoffStrategy((r) -> Duration.ofSeconds(-1))
+                .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 2, "key1", "value"));
@@ -302,22 +295,21 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     @Test
     public void should_not_consume_records_if_backoff_not_expired() throws InterruptedException {
         // Arrange
-        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {
-        });
+        LockProvider lockProvider = lockConfiguration -> Optional.of(() -> {});
         var counterTopicA = new AtomicInteger();
 
         List<TopicConsumerConfig<?, ?>> configs = List.of(
-            new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
-                counterTopicA.incrementAndGet();
-                return ConsumeStatus.OK;
-            }));
+                new TopicConsumerConfig<>(TEST_TOPIC_A, stringDeserializer(), stringDeserializer(), (record) -> {
+                    counterTopicA.incrementAndGet();
+                    return ConsumeStatus.OK;
+                }));
 
         var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
-            .withLockProvider(lockProvider)
-            .withKafkaConsumerRepository(consumerRepository)
-            .withConsumerConfigs(configs)
-            .withBackoffStrategy((r) -> Duration.ofHours(1))
-            .build();
+                .withLockProvider(lockProvider)
+                .withKafkaConsumerRepository(consumerRepository)
+                .withConsumerConfigs(configs)
+                .withBackoffStrategy((r) -> Duration.ofHours(1))
+                .build();
 
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 1, "key1", "value"));
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 2, "key1", "value"));
@@ -337,12 +329,12 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
     private StoredConsumerRecord storedRecord(String topic, int partition, long offset, String key, String value) {
         return new StoredConsumerRecord(
-            topic,
-            partition,
-            offset,
-            key != null ? key.getBytes() : null,
-            value.getBytes(),
-            "[]",
-            System.currentTimeMillis());
+                topic,
+                partition,
+                offset,
+                key != null ? key.getBytes() : null,
+                value.getBytes(),
+                "[]",
+                System.currentTimeMillis());
     }
 }

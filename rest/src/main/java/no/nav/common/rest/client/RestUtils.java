@@ -6,7 +6,6 @@ import static java.util.Optional.of;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.json.JsonUtils;
 import okhttp3.MediaType;
@@ -25,8 +24,8 @@ public class RestUtils {
     public static void throwIfNotSuccessful(Response response) {
         if (!response.isSuccessful()) {
             String message = String.format(
-                "Uventet status %d ved kall mot mot %s",
-                response.code(), response.request().url());
+                    "Uventet status %d ved kall mot mot %s",
+                    response.code(), response.request().url());
             log.warn(message);
             throw new RuntimeException(message);
         }
@@ -42,18 +41,18 @@ public class RestUtils {
     }
 
     public static <T> Optional<List<T>> parseJsonArrayResponse(Response response, Class<T> classOfT)
-        throws IOException {
+            throws IOException {
         return getBodyStr(response).map(bodyStr -> JsonUtils.fromJsonArray(bodyStr, classOfT));
     }
 
     public static <T> T parseJsonResponseOrThrow(Response response, Class<T> classOfT) throws IOException {
         return parseJsonResponse(response, classOfT)
-            .orElseThrow(() -> new IllegalStateException("Unable to parse JSON object from response body"));
+                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON object from response body"));
     }
 
     public static <T> List<T> parseJsonResponseArrayOrThrow(Response response, Class<T> classOfT) throws IOException {
         return parseJsonArrayResponse(response, classOfT)
-            .orElseThrow(() -> new IllegalStateException("Unable to parse JSON array from response body"));
+                .orElseThrow(() -> new IllegalStateException("Unable to parse JSON array from response body"));
     }
 
     public static RequestBody toJsonRequestBody(Object obj) {

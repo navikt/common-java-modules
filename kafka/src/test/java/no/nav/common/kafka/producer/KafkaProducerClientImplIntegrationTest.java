@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
 import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
@@ -80,10 +79,10 @@ public class KafkaProducerClientImplIntegrationTest {
         AtomicReference<ConsumerRecord<String, String>> recordRef = new AtomicReference<>();
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
-            new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
-                recordRef.set(record);
-                return ConsumeStatus.OK;
-            })));
+                new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
+                    recordRef.set(record);
+                    return ConsumeStatus.OK;
+                })));
 
         // Act
         consumerClient.start();
@@ -105,10 +104,10 @@ public class KafkaProducerClientImplIntegrationTest {
         var counter = new AtomicInteger();
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
-            new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
-                counter.incrementAndGet();
-                return ConsumeStatus.OK;
-            })));
+                new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
+                    counter.incrementAndGet();
+                    return ConsumeStatus.OK;
+                })));
 
         // Act
         consumerClient.start();
@@ -130,10 +129,10 @@ public class KafkaProducerClientImplIntegrationTest {
         var counter = new AtomicInteger();
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
-            new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
-                counter.incrementAndGet();
-                return ConsumeStatus.OK;
-            })));
+                new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
+                    counter.incrementAndGet();
+                    return ConsumeStatus.OK;
+                })));
 
         // Act
         consumerClient.start();
@@ -162,8 +161,8 @@ public class KafkaProducerClientImplIntegrationTest {
 
         // Act
         producerClient.send(
-            new ProducerRecord<>("invalidTopicPartition", 999, "key", "value"),
-            (metadata, exception) -> exceptionRef.set(exception));
+                new ProducerRecord<>("invalidTopicPartition", 999, "key", "value"),
+                (metadata, exception) -> exceptionRef.set(exception));
 
         await().atMost(Duration.ofSeconds(10)).until(() -> exceptionRef.get() != null);
 
@@ -199,7 +198,7 @@ public class KafkaProducerClientImplIntegrationTest {
 
         // Act & Assert
         assertThrows(
-            ExecutionException.class,
-            () -> producerClient.sendSync(new ProducerRecord<>(testTopic, "key", "value")));
+                ExecutionException.class,
+                () -> producerClient.sendSync(new ProducerRecord<>(testTopic, "key", "value")));
     }
 }

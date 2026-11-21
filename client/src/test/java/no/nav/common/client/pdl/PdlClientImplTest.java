@@ -13,9 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-
 import java.util.List;
-
 import lombok.Value;
 import no.nav.common.client.TestUtils;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
@@ -43,13 +41,13 @@ public class PdlClientImplTest {
         String behandlingsnummer = "B123";
 
         givenThat(post(urlEqualTo("/graphql"))
-            .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
-            .withHeader("Authorization", equalTo("Bearer " + userToken))
-            .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
-            .withHeader("Tema", equalTo("GEN"))
-            .withHeader("behandlingsnummer", equalTo(behandlingsnummer))
-            .withRequestBody(equalToJson(graphqlJsonRequest))
-            .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
+                .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
+                .withHeader("Authorization", equalTo("Bearer " + userToken))
+                .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
+                .withHeader("Tema", equalTo("GEN"))
+                .withHeader("behandlingsnummer", equalTo(behandlingsnummer))
+                .withRequestBody(equalToJson(graphqlJsonRequest))
+                .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
 
         var pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken, behandlingsnummer);
 
@@ -64,9 +62,9 @@ public class PdlClientImplTest {
     public void request__skal_lage_request_og_parse_response() {
         // Arrange
         String graphqlQuery =
-            TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-identer-query.graphql");
+                TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-identer-query.graphql");
         String graphqlJsonRequest =
-            TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "graphql-request.json");
+                TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "graphql-request.json");
 
         String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response.json");
 
@@ -75,13 +73,13 @@ public class PdlClientImplTest {
         String consumerToken = "CONSUMER_TOKEN";
 
         givenThat(post(urlEqualTo("/graphql"))
-            .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
-            .withHeader("Authorization", equalTo("Bearer " + userToken))
-            .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
-            .withHeader("Tema", equalTo("GEN"))
-            .withHeader("behandlingsnummer", equalTo(""))
-            .withRequestBody(equalToJson(graphqlJsonRequest))
-            .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
+                .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
+                .withHeader("Authorization", equalTo("Bearer " + userToken))
+                .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
+                .withHeader("Tema", equalTo("GEN"))
+                .withHeader("behandlingsnummer", equalTo(""))
+                .withRequestBody(equalToJson(graphqlJsonRequest))
+                .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
 
         var pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken, "");
 
@@ -92,9 +90,9 @@ public class PdlClientImplTest {
 
         // Assert
         String fetchedIdent = graphqlResponse.getData().hentIdenter.identer.stream()
-            .findFirst()
-            .orElseThrow()
-            .ident;
+                .findFirst()
+                .orElseThrow()
+                .ident;
 
         assertEquals("8974923", fetchedIdent);
     }
@@ -103,19 +101,19 @@ public class PdlClientImplTest {
     public void request__skal_parse_error_response() {
         // Arrange
         String graphqlErrorJsonResponse =
-            TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response-error.json");
+                TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response-error.json");
 
         String apiUrl = "http://localhost:" + wireMockRule.port();
         String userToken = "USER_TOKEN";
         String consumerToken = "CONSUMER_TOKEN";
 
         givenThat(post(urlEqualTo("/graphql"))
-            .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
-            .withHeader("Authorization", equalTo("Bearer " + userToken))
-            .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
-            .withHeader("Tema", equalTo("GEN"))
-            .withHeader("behandlingsnummer", equalTo(""))
-            .willReturn(aResponse().withStatus(200).withBody(graphqlErrorJsonResponse)));
+                .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
+                .withHeader("Authorization", equalTo("Bearer " + userToken))
+                .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
+                .withHeader("Tema", equalTo("GEN"))
+                .withHeader("behandlingsnummer", equalTo(""))
+                .willReturn(aResponse().withStatus(200).withBody(graphqlErrorJsonResponse)));
 
         var pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken, "");
 

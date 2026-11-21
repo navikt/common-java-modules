@@ -4,7 +4,6 @@ import static no.nav.common.cxf.jetty.JettyTestServer.findFreePort;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.net.ConnectException;
-
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.cxf.jetty.Jetty;
@@ -36,11 +35,11 @@ public class NAVOidcSTSClientIntegrationTest {
         new CxfCertificateValidationDisabler().initialize(testBus);
         int port = findFreePort();
         Jetty jetty = Jetty.usingWar()
-            .at("sts")
-            .port(findFreePort())
-            .sslPort(port)
-            .overrideWebXml()
-            .buildJetty();
+                .at("sts")
+                .port(findFreePort())
+                .sslPort(port)
+                .overrideWebXml()
+                .buildJetty();
         jetty.server.setHandler(stsHandler);
         jetty.start();
         stsMock = jetty;
@@ -59,27 +58,27 @@ public class NAVOidcSTSClientIntegrationTest {
     public void cache_sts_token_for_hver_bruker_og_stsType() {
         // Arrange
         var stsConfig = StsConfig.builder()
-            .url(stsUrl)
-            .username("username")
-            .password("password")
-            .build();
+                .url(stsUrl)
+                .username("username")
+                .password("password")
+                .build();
 
         HelloWorld tjenesteA = testClient()
-            .address(url("tjeneste-a"))
-            .configureStsForSystemUser(stsConfig)
-            .build();
+                .address(url("tjeneste-a"))
+                .configureStsForSystemUser(stsConfig)
+                .build();
         HelloWorld tjenesteB = testClient()
-            .address(url("tjeneste-b"))
-            .configureStsForSubject(stsConfig)
-            .build();
+                .address(url("tjeneste-b"))
+                .configureStsForSubject(stsConfig)
+                .build();
         HelloWorld tjenesteC = testClient()
-            .address(url("tjeneste-c"))
-            .configureStsForSubject(stsConfig)
-            .build();
+                .address(url("tjeneste-c"))
+                .configureStsForSubject(stsConfig)
+                .build();
         HelloWorld tjenesteD = testClient()
-            .address(url("tjeneste-d"))
-            .configureStsForSubject(stsConfig)
-            .build();
+                .address(url("tjeneste-d"))
+                .configureStsForSubject(stsConfig)
+                .build();
 
         setOidcToken("jwt1");
 
@@ -116,13 +115,13 @@ public class NAVOidcSTSClientIntegrationTest {
 
         // Assert
         assertThat(stsHandler.getRequestCount())
-            .isEqualTo(
-                1
-                    + // 1 systemSAML
-                    2
-                    + // oidc-tokens
-                    2 // openam-tokens
-            );
+                .isEqualTo(
+                        1
+                                + // 1 systemSAML
+                                2
+                                + // oidc-tokens
+                                2 // openam-tokens
+                        );
     }
 
     private void setOidcToken(String subject) {

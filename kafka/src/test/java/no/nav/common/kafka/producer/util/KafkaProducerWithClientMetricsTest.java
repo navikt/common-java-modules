@@ -9,11 +9,9 @@ import static org.junit.Assert.assertEquals;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
@@ -61,7 +59,7 @@ public class KafkaProducerWithClientMetricsTest {
         MeterRegistry registry = new SimpleMeterRegistry();
 
         KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(
-            kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
+                kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
 
         // Act
         metricsClient.send(new ProducerRecord<>(TEST_TOPIC_A, "value"));
@@ -84,7 +82,7 @@ public class KafkaProducerWithClientMetricsTest {
         MeterRegistry registry = new SimpleMeterRegistry();
 
         KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(
-            kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
+                kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
 
         metricsClient.close();
 
@@ -107,7 +105,7 @@ public class KafkaProducerWithClientMetricsTest {
         MeterRegistry registry = new SimpleMeterRegistry();
 
         KafkaProducerClientWithMetrics<String, String> metricsClient = new KafkaProducerClientWithMetrics<>(
-            kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
+                kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
 
         // Act
         metricsClient.send(new ProducerRecord<>(TEST_TOPIC_A, "value"));
@@ -121,7 +119,7 @@ public class KafkaProducerWithClientMetricsTest {
 
         // Assert
         List<Gauge> gauges = new ArrayList<>(
-            registry.get(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE).gauges());
+                registry.get(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE).gauges());
 
         assertEquals(2, gauges.get(0).value(), 0);
         assertEquals(1, gauges.get(1).value(), 0);
@@ -129,6 +127,6 @@ public class KafkaProducerWithClientMetricsTest {
 
     private double getStatusCount(MeterRegistry registry, String topic, boolean failed) {
         return registry.counter(KAFKA_PRODUCER_STATUS_COUNTER, "topic", topic, "status", failed ? "failed" : "ok")
-            .count();
+                .count();
     }
 }

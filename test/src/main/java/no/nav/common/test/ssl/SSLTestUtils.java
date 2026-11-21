@@ -11,7 +11,6 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
 import org.apache.cxf.transport.https.httpclient.DefaultHostnameVerifier;
 
 public class SSLTestUtils {
@@ -38,8 +37,7 @@ public class SSLTestUtils {
     @Deprecated
     public static final HostnameVerifier ALLOW_ALL_HOSTNAME_VERIFIER = TEST_HOSTNAME_VERIFIER;
 
-    private SSLTestUtils() {
-    }
+    private SSLTestUtils() {}
 
     public static SSLContext createSSLContext() {
         return createSSLContext(fixtureTrustStore());
@@ -105,7 +103,7 @@ public class SSLTestUtils {
             var trustStore = KeyStore.getInstance("JKS");
             trustStore.load(null, null);
             trustStore.setCertificateEntry(
-                "localhost", CertificateFactory.getInstance("X.509").generateCertificate(input));
+                    "localhost", CertificateFactory.getInstance("X.509").generateCertificate(input));
             return trustStore;
         } catch (GeneralSecurityException | IOException e) {
             throw new IllegalStateException("Kunne ikke laste tillitslageret for test", e);

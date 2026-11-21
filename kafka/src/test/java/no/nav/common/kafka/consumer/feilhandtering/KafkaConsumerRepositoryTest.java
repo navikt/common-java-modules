@@ -9,14 +9,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
-
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
 import no.nav.common.kafka.spring.OracleJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
@@ -48,8 +46,8 @@ public class KafkaConsumerRepositoryTest {
     public static Collection<Object[]> data() {
         postgreSQLContainer.start();
         Awaitility.await()
-            .atMost(Duration.ofSeconds(60))
-            .until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
+                .atMost(Duration.ofSeconds(60))
+                .until(() -> postgreSQLContainer.isCreated() && postgreSQLContainer.isRunning());
         postgresDataSource = createPostgresDataSource(postgreSQLContainer);
         DataSource postgres = postgresDataSource;
         DbUtils.runScript(postgres, "kafka-consumer-record-postgres.sql");
@@ -61,8 +59,8 @@ public class KafkaConsumerRepositoryTest {
         var oracleConsumerRepository = new OracleJdbcTemplateConsumerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
-            new Object[]{"POSTGRES", postgres, postgresConsumerRepository},
-            new Object[]{"ORACLE", oracle, oracleConsumerRepository});
+                new Object[] {"POSTGRES", postgres, postgresConsumerRepository},
+                new Object[] {"ORACLE", oracle, oracleConsumerRepository});
     }
 
     private final DataSource dataSource;
@@ -72,9 +70,9 @@ public class KafkaConsumerRepositoryTest {
     // JUnit sender databaseetiketten som et argument, selv om den bare brukes i testnavnet.
     @SuppressWarnings("java:S1172")
     public KafkaConsumerRepositoryTest(
-        @SuppressWarnings("unused") String databaseType,
-        DataSource dataSource,
-        KafkaConsumerRepository kafkaConsumerRepository) {
+            @SuppressWarnings("unused") String databaseType,
+            DataSource dataSource,
+            KafkaConsumerRepository kafkaConsumerRepository) {
         this.dataSource = dataSource;
         this.kafkaConsumerRepository = kafkaConsumerRepository;
     }
@@ -145,23 +143,23 @@ public class KafkaConsumerRepositoryTest {
         var headers = new RecordHeaders().add(new RecordHeader("header1", "test".getBytes()));
         Optional<Integer> leaderEpoch = Optional.empty();
         var consumerRecord = new ConsumerRecord<>(
-            "topic1",
-            1,
-            2,
-            now,
-            TimestampType.CREATE_TIME,
-            ConsumerRecord.NULL_SIZE,
-            ConsumerRecord.NULL_SIZE,
-            "key",
-            "value",
-            headers,
-            leaderEpoch);
+                "topic1",
+                1,
+                2,
+                now,
+                TimestampType.CREATE_TIME,
+                ConsumerRecord.NULL_SIZE,
+                ConsumerRecord.NULL_SIZE,
+                "key",
+                "value",
+                headers,
+                leaderEpoch);
 
         kafkaConsumerRepository.storeRecord(mapRecord(consumerRecord));
 
         // Act
-        StoredConsumerRecord storedRecord = kafkaConsumerRepository
-            .getRecords("topic1", 1, 5).getFirst();
+        StoredConsumerRecord storedRecord =
+                kafkaConsumerRepository.getRecords("topic1", 1, 5).getFirst();
 
         // Assert
         assertEquals(1, storedRecord.getId());
@@ -187,8 +185,8 @@ public class KafkaConsumerRepositoryTest {
 
         // Assert
         List<StoredConsumerRecord> sortedRecords = records.stream()
-            .sorted((r1, r2) -> (int) (r1.getOffset() - r2.getOffset())) // Sort offset ascending
-            .toList();
+                .sorted((r1, r2) -> (int) (r1.getOffset() - r2.getOffset())) // Sort offset ascending
+                .toList();
 
         for (int i = 0; i < records.size(); i++) {
             assertEquals(records.get(i), sortedRecords.get(i));
@@ -287,11 +285,11 @@ public class KafkaConsumerRepositoryTest {
         // Arrange
         kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 1, "key", "value")));
         long id2 =
-            kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key2", "value")));
+                kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic1", 1, 2, "key2", "value")));
         long id3 =
-            kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 3, "key3", "value")));
+                kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 3, "key3", "value")));
         long id4 =
-            kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 4, "key4", "value")));
+                kafkaConsumerRepository.storeRecord(mapRecord(new ConsumerRecord<>("topic2", 1, 4, "key4", "value")));
 
         kafkaConsumerRepository.incrementRetries(id2);
         kafkaConsumerRepository.incrementRetries(id2);

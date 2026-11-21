@@ -7,7 +7,6 @@ import static no.nav.common.rest.client.RestUtils.createBearerToken;
 import static no.nav.common.utils.UrlUtils.joinPaths;
 
 import java.util.function.Supplier;
-
 import lombok.SneakyThrows;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.client.utils.graphql.GraphqlResponse;
@@ -38,11 +37,11 @@ public class PdlClientImpl implements PdlClient {
      * @param consumerTokenSupplier supplier av systembruker tokens for applikasjonen som gjør requests mot PDL
      */
     public PdlClientImpl(
-        String pdlUrl,
-        Tema tema,
-        Supplier<String> userTokenSupplier,
-        Supplier<String> consumerTokenSupplier,
-        String behandlingsnummer) {
+            String pdlUrl,
+            Tema tema,
+            Supplier<String> userTokenSupplier,
+            Supplier<String> consumerTokenSupplier,
+            String behandlingsnummer) {
         this.pdlUrl = pdlUrl;
         this.pdlTema = tema;
         this.userTokenSupplier = userTokenSupplier;
@@ -52,10 +51,10 @@ public class PdlClientImpl implements PdlClient {
     }
 
     public PdlClientImpl(
-        String pdlUrl,
-        Supplier<String> userTokenSupplier,
-        Supplier<String> consumerTokenSupplier,
-        String behandlingsnummer) {
+            String pdlUrl,
+            Supplier<String> userTokenSupplier,
+            Supplier<String> consumerTokenSupplier,
+            String behandlingsnummer) {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, behandlingsnummer);
     }
 
@@ -67,12 +66,12 @@ public class PdlClientImpl implements PdlClient {
     @SneakyThrows
     public String rawRequest(String gqlRequestJson) {
         var request = new Request.Builder()
-            .url(joinPaths(pdlUrl, "/graphql"))
-            .header(ACCEPT, MEDIA_TYPE_JSON.toString())
-            .header(AUTHORIZATION, createBearerToken(userTokenSupplier.get()))
-            .header("Tema", pdlTema.name())
-            .header("behandlingsnummer", behandlingsnummer)
-            .post(RequestBody.create(gqlRequestJson, MEDIA_TYPE_JSON));
+                .url(joinPaths(pdlUrl, "/graphql"))
+                .header(ACCEPT, MEDIA_TYPE_JSON.toString())
+                .header(AUTHORIZATION, createBearerToken(userTokenSupplier.get()))
+                .header("Tema", pdlTema.name())
+                .header("behandlingsnummer", behandlingsnummer)
+                .post(RequestBody.create(gqlRequestJson, MEDIA_TYPE_JSON));
         if (consumerTokenSupplier != null) {
             request.header("Nav-Consumer-Token", createBearerToken(consumerTokenSupplier.get()));
         }
@@ -80,7 +79,7 @@ public class PdlClientImpl implements PdlClient {
         try (Response response = client.newCall(request.build()).execute()) {
             RestUtils.throwIfNotSuccessful(response);
             return RestUtils.getBodyStr(response)
-                .orElseThrow(() -> new IllegalStateException("Body is missing from PDL response"));
+                    .orElseThrow(() -> new IllegalStateException("Body is missing from PDL response"));
         }
     }
 

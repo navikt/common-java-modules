@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
@@ -84,8 +83,8 @@ public class KafkaConsumerClientTest {
         var counter = new AtomicInteger();
 
         var config = new KafkaConsumerClientConfig<>(
-            kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
-            Map.of(testTopicA, consumerWithCounterAndSleep(counter, 0)));
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
+                Map.of(testTopicA, consumerWithCounterAndSleep(counter, 0)));
 
         producer.send(new ProducerRecord<>(testTopicA, "key1", "value1"));
         producer.send(new ProducerRecord<>(testTopicA, "key1", "value2"));
@@ -140,9 +139,9 @@ public class KafkaConsumerClientTest {
 
         // Slow consumer (100ms wait)
         var config = new KafkaConsumerClientConfig<>(
-            kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
-            Map.of(testTopicA, consumerWithCounterAndSleep(counter, 100)),
-            10);
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
+                Map.of(testTopicA, consumerWithCounterAndSleep(counter, 100)),
+                10);
 
         var consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
@@ -166,15 +165,15 @@ public class KafkaConsumerClientTest {
         String multiPartitionTopic = "multi-partition-topic";
 
         AdminClient admin = KafkaAdminClient.create(
-            Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()));
+                Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()));
         admin.createTopics(List.of(new NewTopic(multiPartitionTopic, 2, (short) 1)));
         admin.close(); // Apply changes
 
         var counter = new AtomicInteger();
 
         var config = new KafkaConsumerClientConfig<>(
-            kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
-            Map.of(multiPartitionTopic, consumerWithCounterAndSleep(counter, 0)));
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
+                Map.of(multiPartitionTopic, consumerWithCounterAndSleep(counter, 0)));
 
         producer.send(new ProducerRecord<>(multiPartitionTopic, 0, "key1", "value1"));
         producer.send(new ProducerRecord<>(multiPartitionTopic, 0, "key1", "value2"));
@@ -207,10 +206,10 @@ public class KafkaConsumerClientTest {
         var maxRecordOffsetB = new AtomicLong(-1);
 
         var config = new KafkaConsumerClientConfig<>(
-            kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
-            Map.of(
-                testTopicA, consumerWithCounterAndSleep(messagesReadCounterA, 0),
-                testTopicB, failOnOffsetConsumer(maxRecordOffsetB, messagesReadCounterB, 2)));
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
+                Map.of(
+                        testTopicA, consumerWithCounterAndSleep(messagesReadCounterA, 0),
+                        testTopicB, failOnOffsetConsumer(maxRecordOffsetB, messagesReadCounterB, 2)));
 
         var consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
@@ -274,14 +273,14 @@ public class KafkaConsumerClientTest {
         long pollDurationMillis = 200L;
 
         var config1 = new KafkaConsumerClientConfig<>(
-            kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
-            Map.of(testTopicA, consumerWithCounterAndSleep(counter1, 10)),
-            pollDurationMillis);
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
+                Map.of(testTopicA, consumerWithCounterAndSleep(counter1, 10)),
+                pollDurationMillis);
 
         var config2 = new KafkaConsumerClientConfig<>(
-            kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
-            Map.of(testTopicA, consumerWithCounterAndSleep(counter2, 0)),
-            pollDurationMillis);
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
+                Map.of(testTopicA, consumerWithCounterAndSleep(counter2, 0)),
+                pollDurationMillis);
 
         var consumerClient1 = new KafkaConsumerClientImpl<>(config1);
         var consumerClient2 = new KafkaConsumerClientImpl<>(config2);
@@ -314,11 +313,11 @@ public class KafkaConsumerClientTest {
         var counter2 = new AtomicInteger();
 
         var config = new KafkaConsumerClientConfig<>(
-            kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
-            Map.of(
-                testTopicA, consumerWithCounterAndSleep(counter1, 0),
-                testTopicB, consumerWithCounterAndSleep(counter2, 0)),
-            10);
+                kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
+                Map.of(
+                        testTopicA, consumerWithCounterAndSleep(counter1, 0),
+                        testTopicB, consumerWithCounterAndSleep(counter2, 0)),
+                10);
 
         for (int i = 0; i < 5; i++) {
             producer.send(new ProducerRecord<>(testTopicA, "key1", "value" + i));
@@ -339,7 +338,7 @@ public class KafkaConsumerClientTest {
     private OffsetAndMetadata getCommittedOffsets(String topic, int partition) {
         var topicPartition = new TopicPartition(topic, partition);
         Map<TopicPartition, OffsetAndMetadata> committed =
-            commitChecker.committed(Set.of(topicPartition), Duration.ofSeconds(1));
+                commitChecker.committed(Set.of(topicPartition), Duration.ofSeconds(1));
         return committed.get(topicPartition);
     }
 
@@ -364,7 +363,7 @@ public class KafkaConsumerClientTest {
     }
 
     private TopicConsumer<String, String> failOnOffsetConsumer(
-        AtomicLong maxRecord, AtomicInteger counter, int offset) {
+            AtomicLong maxRecord, AtomicInteger counter, int offset) {
         return record -> {
             counter.incrementAndGet();
             maxRecord.set(Math.max(maxRecord.get(), record.offset()));

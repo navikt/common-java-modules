@@ -3,10 +3,8 @@ package no.nav.common.token_client.utils;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-
 import java.io.IOException;
 import java.net.URI;
-
 import lombok.SneakyThrows;
 
 public class OidcDiscoveryClient {
@@ -25,7 +23,7 @@ public class OidcDiscoveryClient {
 
         if (httpResponse.getStatusCode() != 200) {
             throw new IOException("Couldn't download OpenID Provider metadata from " + configURL + ": Status code "
-                + httpResponse.getStatusCode());
+                    + httpResponse.getStatusCode());
         }
 
         var jsonObject = httpResponse.getBodyAsJSONObject();

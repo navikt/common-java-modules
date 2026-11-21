@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import mockwebserver3.MockResponse;
 
 public class RequestUtils {
@@ -28,11 +27,12 @@ public class RequestUtils {
     }
 
     public static MockResponse tokenMockResponse(String accessToken) {
-        String body = format("{ \"token_type\": \"Bearer\", \"access_token\": \"%s\", \"expires\": 3600 }", accessToken);
+        String body =
+                format("{ \"token_type\": \"Bearer\", \"access_token\": \"%s\", \"expires\": 3600 }", accessToken);
 
         return new MockResponse.Builder()
-            .body(body)
-            .addHeader("Content-Type", "application/json")
-            .build();
+                .body(body)
+                .addHeader("Content-Type", "application/json")
+                .build();
     }
 }

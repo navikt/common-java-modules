@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 
 class RequestUtilsTest {
@@ -40,8 +39,8 @@ class RequestUtilsTest {
 
         // Assert
         assertEquals(
-            Map.of("subject_token", List.of("abc=def"), "empty", List.of(""), "scope", List.of("test scope")),
-            encodedData);
+                Map.of("subject_token", List.of("abc=def"), "empty", List.of(""), "scope", List.of("test scope")),
+                encodedData);
         assertEquals(Map.of("subject_token", List.of("abc=def")), unencodedData);
     }
 }

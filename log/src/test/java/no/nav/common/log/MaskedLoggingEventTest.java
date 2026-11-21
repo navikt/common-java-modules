@@ -3,9 +3,7 @@ package no.nav.common.log;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
-
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -82,9 +80,9 @@ public class MaskedLoggingEventTest {
 
         // Assert
         assertThat(mdc)
-            .isEqualTo(maskedEvent.getMDCPropertyMap())
-            .containsEntry("ident", MASKED_FNR)
-            .containsEntry("requestId", "request-1");
+                .isEqualTo(maskedEvent.getMDCPropertyMap())
+                .containsEntry("ident", MASKED_FNR)
+                .containsEntry("requestId", "request-1");
     }
 
     private void assertMasked(String string) {

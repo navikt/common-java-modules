@@ -6,12 +6,10 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import com.zaxxer.hikari.HikariDataSource;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.sql.DataSource;
-
 import no.nav.common.kafka.producer.util.ProducerUtils;
 import no.nav.common.kafka.spring.OracleJdbcTemplateProducerRepository;
 import no.nav.common.kafka.spring.PostgresJdbcTemplateProducerRepository;
@@ -48,8 +46,8 @@ public class KafkaProducerRepositoryTest {
         var oracleProducerRepository = new OracleJdbcTemplateProducerRepository(new JdbcTemplate(oracle));
 
         return Arrays.asList(
-            new Object[]{"POSTGRES", postgres, postgresProducerRepository},
-            new Object[]{"ORACLE", oracle, oracleProducerRepository});
+                new Object[] {"POSTGRES", postgres, postgresProducerRepository},
+                new Object[] {"ORACLE", oracle, oracleProducerRepository});
     }
 
     @AfterClass
@@ -69,9 +67,9 @@ public class KafkaProducerRepositoryTest {
     // JUnit sender databaseetiketten som et argument, selv om den bare brukes i testnavnet.
     @SuppressWarnings("java:S1172")
     public KafkaProducerRepositoryTest(
-        @SuppressWarnings("unused") String databaseType,
-        DataSource dataSource,
-        KafkaProducerRepository kafkaProducerRepository) {
+            @SuppressWarnings("unused") String databaseType,
+            DataSource dataSource,
+            KafkaProducerRepository kafkaProducerRepository) {
         this.dataSource = dataSource;
         this.kafkaProducerRepository = kafkaProducerRepository;
     }
@@ -120,7 +118,8 @@ public class KafkaProducerRepositoryTest {
         kafkaProducerRepository.storeRecord(mapRecord(producerRecord));
 
         // Act
-        StoredProducerRecord storedRecord = kafkaProducerRepository.getRecords(10).getFirst();
+        StoredProducerRecord storedRecord =
+                kafkaProducerRepository.getRecords(10).getFirst();
 
         // Assert
         assertEquals(1, storedRecord.getId());
@@ -144,8 +143,8 @@ public class KafkaProducerRepositoryTest {
 
         // Assert
         List<StoredProducerRecord> sortedRecords = records.stream()
-            .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
-            .toList();
+                .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
+                .toList();
 
         for (int i = 0; i < records.size(); i++) {
             assertEquals(records.get(i), sortedRecords.get(i));
