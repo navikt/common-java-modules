@@ -37,7 +37,17 @@ String accessToken = tokenClient.exchangeOnBehalfOfToken("api://<cluster>.<names
 
 ### Exchanging TokenX on-behalf-of token
 
-When running on NAIS and the application is configured with TokenX:
+`TokenXOnBehalfOfTokenClient` and `TokenXTokenClientBuilder` are deprecated
+with `forRemoval = true`, marking them for future removal. Existing token exchange
+and caching behavior are unchanged.
+
+For Nais applications, migrate to [Texas token exchange](https://docs.nais.io/auth/tokenx/how-to/consume/).
+Send a `POST` to `NAIS_TOKEN_EXCHANGE_ENDPOINT` with `identity_provider=tokenx`,
+the existing audience as `target`, and the inbound access token as `user_token`.
+Use `application/json` or `application/x-www-form-urlencoded` as the content type.
+Read the exchanged token from the response's `access_token` field.
+
+The example below is retained for existing users running on Nais with TokenX enabled:
 ```java
 TokenXOnBehalfOfTokenClient tokenClient = TokenXTokenClientBuilder.builder()
         .withNaisDefaults()

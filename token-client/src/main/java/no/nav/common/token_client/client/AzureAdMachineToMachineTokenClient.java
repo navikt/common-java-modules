@@ -39,18 +39,16 @@ public class AzureAdMachineToMachineTokenClient extends AbstractTokenClient impl
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
                 assertionSigner);
 
-        TokenRequest request = new TokenRequest(
-                tokenEndpoint,
-                signedJwt,
-                new ClientCredentialsGrant(),
-                new Scope(tokenScope),
-                null,
-                additionalClaims(tokenScope));
+        var requestBuilder = new TokenRequest.Builder(tokenEndpoint, signedJwt, new ClientCredentialsGrant())
+                .scope(new Scope(tokenScope));
 
+        additionalClaims(tokenScope)
+                .forEach((name, values) -> requestBuilder.customParameter(name, values.toArray(String[]::new)));
+
+        TokenRequest request = requestBuilder.build();
         TokenResponse response = parseTokenResponse(request.toHTTPRequest().send(), "AzureAD M2M token request");
 
         AccessTokenResponse successResponse = response.toSuccessResponse();
-
         AccessToken accessToken = successResponse.getTokens().getAccessToken();
 
         return accessToken.getValue();

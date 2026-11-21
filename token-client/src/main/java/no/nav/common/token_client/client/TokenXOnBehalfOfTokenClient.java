@@ -20,6 +20,11 @@ import java.util.Map;
 import lombok.SneakyThrows;
 import no.nav.common.token_client.cache.TokenCache;
 
+/**
+ * @deprecated Bruk Texas via {@code NAIS_TOKEN_EXCHANGE_ENDPOINT} for TokenX-utveksling i Nais.
+ *     Se <a href="https://docs.nais.io/auth/tokenx/how-to/consume/">TokenX-veiledningen</a>.
+ */
+@Deprecated(forRemoval = true)
 public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
     public TokenXOnBehalfOfTokenClient(
@@ -43,13 +48,14 @@ public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements 
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
                 assertionSigner);
 
-        TokenRequest request = new TokenRequest(
-                tokenEndpoint,
-                signedJwt,
-                new TokenExchangeGrant(new BearerAccessToken(accessToken), TokenTypeURI.ACCESS_TOKEN),
-                new Scope(tokenScope),
-                null,
-                additionalClaims(tokenScope, accessToken));
+        var requestBuilder = new TokenRequest.Builder(
+                        tokenEndpoint,
+                        signedJwt,
+                        new TokenExchangeGrant(new BearerAccessToken(accessToken), TokenTypeURI.ACCESS_TOKEN))
+                .scope(new Scope(tokenScope));
+        additionalClaims(tokenScope, accessToken)
+                .forEach((name, values) -> requestBuilder.customParameter(name, values.toArray(String[]::new)));
+        TokenRequest request = requestBuilder.build();
 
         TokenResponse response = parseTokenResponse(request.toHTTPRequest().send(), "TokenX OBO token request");
 

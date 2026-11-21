@@ -21,26 +21,19 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class PdlClientImpl implements PdlClient {
-
     private static final Tema DEFAULT_TEMA = Tema.GEN;
-
     private final String pdlUrl;
-
     private final Tema pdlTema;
-
     private final OkHttpClient client;
-
     private final Supplier<String> userTokenSupplier;
-
     private final Supplier<String> consumerTokenSupplier;
-
     private final String behandlingsnummer;
 
     /**
-     * @param pdlUrl URL til PDL
-     * @param tema hvilket tema som skal benyttes i requests mot PDL
-     * @param userTokenSupplier supplier for tokens som brukes i Authorization header. Kan enten være systembruker eller ekstern/intern.
-     *                          OBS: Hvis systembruker token blir brukt så vil ikke PDL gjøre tilgangskontroll på requestet.
+     * @param pdlUrl                URL til PDL
+     * @param tema                  hvilket tema som skal benyttes i requests mot PDL
+     * @param userTokenSupplier     supplier for tokens som brukes i Authorization header. Kan enten være systembruker eller ekstern/intern.
+     *                              OBS: Hvis systembruker token blir brukt så vil ikke PDL gjøre tilgangskontroll på requestet.
      * @param consumerTokenSupplier supplier av systembruker tokens for applikasjonen som gjør requests mot PDL
      */
     public PdlClientImpl(
@@ -57,13 +50,6 @@ public class PdlClientImpl implements PdlClient {
         this.behandlingsnummer = behandlingsnummer;
     }
 
-    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
-    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
-    public PdlClientImpl(
-            String pdlUrl, Tema tema, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
-        this(pdlUrl, tema, userTokenSupplier, consumerTokenSupplier, "");
-    }
-
     public PdlClientImpl(
             String pdlUrl,
             Supplier<String> userTokenSupplier,
@@ -72,26 +58,14 @@ public class PdlClientImpl implements PdlClient {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, behandlingsnummer);
     }
 
-    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
-    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
-    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
-        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, consumerTokenSupplier, "");
-    }
-
     public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier, String behandlingsnummer) {
         this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, behandlingsnummer);
-    }
-
-    // Deprecated fordi alle skal sende med behandlingsnummer til PDL
-    @Deprecated(since = "3.2023.10.18_13.28-58db82ecb1a5", forRemoval = true)
-    public PdlClientImpl(String pdlUrl, Supplier<String> userTokenSupplier) {
-        this(pdlUrl, DEFAULT_TEMA, userTokenSupplier, null, "");
     }
 
     @Override
     @SneakyThrows
     public String rawRequest(String gqlRequestJson) {
-        Request.Builder request = new Request.Builder()
+        var request = new Request.Builder()
                 .url(joinPaths(pdlUrl, "/graphql"))
                 .header(ACCEPT, MEDIA_TYPE_JSON.toString())
                 .header(AUTHORIZATION, createBearerToken(userTokenSupplier.get()))
@@ -110,7 +84,7 @@ public class PdlClientImpl implements PdlClient {
     }
 
     @Override
-    public <D extends GraphqlResponse> D request(GraphqlRequest<?> graphqlRequest, Class<D> graphqlResponseClass) {
+    public <D extends GraphqlResponse<?>> D request(GraphqlRequest<?> graphqlRequest, Class<D> graphqlResponseClass) {
         String graphqlJsonResponse = rawRequest(JsonUtils.toJson(graphqlRequest));
         return JsonUtils.fromJson(graphqlJsonResponse, graphqlResponseClass);
     }

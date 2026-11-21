@@ -11,7 +11,6 @@ import no.nav.common.json.JsonUtils;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 @Slf4j
 public class RestUtils {
@@ -33,14 +32,7 @@ public class RestUtils {
     }
 
     public static Optional<String> getBodyStr(Response response) throws IOException {
-        ResponseBody body = response.body();
-
-        if (body == null) {
-            return empty();
-        }
-
-        String bodyStr = body.string();
-
+        String bodyStr = response.body().string();
         return bodyStr.isBlank() ? empty() : of(bodyStr);
     }
 
@@ -64,6 +56,6 @@ public class RestUtils {
     }
 
     public static RequestBody toJsonRequestBody(Object obj) {
-        return RequestBody.create(MEDIA_TYPE_JSON, JsonUtils.toJson(obj));
+        return RequestBody.create(JsonUtils.toJson(obj), MEDIA_TYPE_JSON);
     }
 }

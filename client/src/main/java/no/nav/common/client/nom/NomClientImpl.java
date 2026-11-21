@@ -15,7 +15,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.SneakyThrows;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.client.utils.graphql.GraphqlRequestBuilder;
@@ -36,16 +35,13 @@ import org.slf4j.MDC;
 
 @Slf4j
 public class NomClientImpl implements NomClient {
-
     private static final int NOM_MAX_BATCH_SIZE = 100;
 
     private final GraphqlRequestBuilder<RessursQuery.Variables> ressurserQueryRequestBuilder =
             new GraphqlRequestBuilder<>("nom/ressurser.graphql");
 
     private final String nomApiUrl;
-
     private final OkHttpClient client;
-
     private final Supplier<String> serviceTokenSupplier;
 
     public NomClientImpl(String nomApiUrl, Supplier<String> serviceTokenSupplier) {
@@ -54,6 +50,7 @@ public class NomClientImpl implements NomClient {
         this.client = RestClient.baseClient();
     }
 
+    @SuppressWarnings("unused")
     public NomClientImpl(String nomApiUrl, Supplier<String> serviceTokenSupplier, OkHttpClient client) {
         this.nomApiUrl = nomApiUrl;
         this.serviceTokenSupplier = serviceTokenSupplier;
@@ -68,7 +65,7 @@ public class NomClientImpl implements NomClient {
             throw new IllegalStateException("Fant ikke navn for NAV-ident: " + navIdent);
         }
 
-        return veilederNavn.get(0);
+        return veilederNavn.getFirst();
     }
 
     @Override
@@ -85,11 +82,11 @@ public class NomClientImpl implements NomClient {
         GraphqlRequest<RessursQuery.Variables> gqlRequest =
                 ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
 
-        Request request = new Request.Builder()
+        var request = new Request.Builder()
                 .url(joinPaths(nomApiUrl, "/graphql"))
                 .header(ACCEPT, MEDIA_TYPE_JSON.toString())
                 .header(AUTHORIZATION, createBearerToken(serviceTokenSupplier.get()))
-                .post(RequestBody.create(MEDIA_TYPE_JSON, JsonUtils.toJson(gqlRequest)))
+                .post(RequestBody.create(JsonUtils.toJson(gqlRequest), MEDIA_TYPE_JSON))
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -122,7 +119,7 @@ public class NomClientImpl implements NomClient {
                 return;
             }
 
-            VeilederNavn veilederNavn = new VeilederNavn()
+            var veilederNavn = new VeilederNavn()
                     .setNavIdent(ressurs.navIdent)
                     .setVisningsNavn(ressurs.visningsNavn)
                     .setFornavn(ressurs.fornavn)
@@ -141,10 +138,7 @@ public class NomClientImpl implements NomClient {
 
     @Data
     static class RessursQuery {
-        @Value
-        static class Variables {
-            List<NavIdent> identer;
-        }
+        record Variables(List<NavIdent> identer) {}
 
         static class Response extends GraphqlResponse<ResponseData> {}
 

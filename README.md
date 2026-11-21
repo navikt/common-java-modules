@@ -70,6 +70,9 @@ High-level abstractions built on-top of `org.apache.kafka.kafka-clients` to prev
 OAuth2 token clients which can be used with Azure AD and TokenX for machine-to-machine and on-behalf-of flows when sending requests between applications. 
 Provides easy-to-use clients which requires minimal configuration for applications running on NAIS.
 
+The TokenX client and builder are deprecated. For Nais applications, migrate to
+[Texas token exchange](token-client/README.md#exchanging-tokenx-on-behalf-of-token).
+
 [Read more here](token-client/README.md)
 
 ## Versions and compatibility
@@ -90,6 +93,42 @@ where their types are not part of the public API. Runtime dependencies remain
 available; dependency versions and optional/provided contracts are unchanged.
 See [the dependency scope policy](build-logic/README.md#valg-av-dependency-scope)
 for the distinction between API, implementation, runtime, and optional dependencies.
+
+### Removed legacy authentication APIs
+
+New releases no longer include the deprecated `Javax*` authentication helpers in
+`auth` and `test`. Use their counterparts without the `Javax` prefix.
+The legacy STS classes `AzureAdScopedTokenProvider`, `AzureAdServiceTokenProvider`,
+`MsGraphTokenProvider`, `AzureAdServiceTokenProviderBuilder`, and
+`sts.utils.AzureAdEnvironmentVariables` have also been removed. Use
+[`token-client`](token-client/README.md) for Azure AD tokens and environment constants.
+The OpenAM classes `OpenAmSystemUserTokenProvider` and `OpenAmUtils` are removed too.
+
+These removals break source and binary compatibility for callers of those APIs.
+Consumers that cannot migrate must pin an older published version.
+Existing published versions remain available. Oracle repositories, CXF integration,
+and `NaisSystemUserTokenProvider` are retained.
+
+### Removed legacy PDL constructors
+
+The three deprecated `PdlClientImpl` constructors without `behandlingsnummer`
+have been removed. Pass the treatment number explicitly to a remaining constructor.
+This breaks source and binary compatibility for callers of the removed constructors.
+Consumers that cannot migrate must pin an older published version.
+
+### Remaining SSL compatibility cleanup
+
+The `test` module still includes deprecated SSL compatibility APIs. Candidates
+for removal are `SSLTestUtils.disableCertificateChecks()`,
+`SSLTestUtils.setupKeyAndTrustStore()`, and `CertificateCheckDisabler`, which
+reject global TLS changes, plus the `TRUST_ALL_SSL_SOCKET_FACTORY` and
+`ALLOW_ALL_HOSTNAME_VERIFIER` aliases in `SSLTestUtils`.
+
+`TrustAllSSLSocketFactory` and `CxfCertificateValidationDisabler` have misleading
+names but are still used internally. Replacing them must preserve certificate
+and hostname validation, including the CXF XML configuration and tests.
+These APIs have not been removed. Future removals will break source and binary
+compatibility for their callers.
 
 ## Checking for new dependency versions
 

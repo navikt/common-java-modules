@@ -203,12 +203,14 @@ class NativePublicationTest {
                 .single()
                 .direct("dependency")
             val managedCoordinates = managed.map { "${it.text("groupId")}:${it.text("artifactId")}" }.toSet()
+            assertFalse(managedCoordinates.contains("javax.xml.bind:jaxb-api"))
             assertTrue(
                 managedCoordinates.containsAll(
                     setOf(
                         "example:transitive",
                         "ch.qos.logback:logback-classic",
                         "org.json:json",
+                        "org.glassfish.jaxb:jaxb-runtime",
                         "com.fasterxml.jackson.core:jackson-databind",
                         "net.bytebuddy:byte-buddy",
                     ),

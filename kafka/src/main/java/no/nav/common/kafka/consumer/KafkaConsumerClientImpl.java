@@ -1,7 +1,5 @@
 package no.nav.common.kafka.consumer;
 
-import static java.lang.String.format;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +13,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import no.nav.common.kafka.consumer.util.ConsumerUtils;
+import org.apache.kafka.clients.consumer.CloseOptions;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -24,8 +24,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An abstracted client which uses {@link KafkaConsumer} to poll records.
@@ -36,10 +34,10 @@ import org.slf4j.LoggerFactory;
  * @param <K> topic key
  * @param <V> topic value
  */
+@Slf4j
 public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, ConsumerRebalanceListener {
 
     public static final long DEFAULT_POLL_DURATION_MS = 1000;
-
     private static final long POLL_ERROR_TIMEOUT_MS = 5000;
 
     private enum ClientState {
@@ -47,29 +45,19 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         NOT_RUNNING
     }
 
-    private final Logger log = LoggerFactory.getLogger(KafkaConsumerClientImpl.class);
-
     private final ExecutorService pollExecutor = Executors.newSingleThreadExecutor();
-
     private final Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new ConcurrentHashMap<>();
-
     private final Set<TopicPartition> revokedOrFailedPartitions = ConcurrentHashMap.newKeySet();
-
     private final KafkaConsumerClientConfig<K, V> config;
-
     private volatile ClientState clientState = ClientState.NOT_RUNNING;
-
     private volatile CountDownLatch processedRecordsLatch;
-
     private volatile CountDownLatch shutdownLatch;
 
     private KafkaConsumer<K, V> consumer;
 
     public KafkaConsumerClientImpl(KafkaConsumerClientConfig<K, V> config) {
         validateConfig(config);
-
         this.config = config;
-
         Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
@@ -85,7 +73,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         clientState = ClientState.RUNNING;
         shutdownLatch = new CountDownLatch(1);
 
-        log.info("Starting kafka consumer client...");
+        log.info("Starting Kafka consumer client...");
 
         pollExecutor.submit(this::consumeTopics);
     }
@@ -98,14 +86,17 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
         clientState = ClientState.NOT_RUNNING;
 
-        log.info("Stopping kafka consumer client...");
+        log.info("Stopping Kafka consumer client...");
 
         try {
             consumer.wakeup(); // Will abort an ongoing consumer.poll()
-            shutdownLatch.await(10, TimeUnit.SECONDS);
-            log.info("Kafka consumer client stopped");
+            if (shutdownLatch.await(10, TimeUnit.SECONDS)) {
+                log.info("Kafka consumer client stopped");
+            } else {
+                log.warn("Kafka consumer client did not stop within 10 seconds");
+            }
         } catch (InterruptedException e) {
-            log.error("Failed to stop kafka consumer client gracefully", e);
+            log.error("Failed to stop Kafka consumer client gracefully", e);
         }
     }
 
@@ -116,26 +107,24 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
 
     @Override
     public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-        log.info("Partitions has been revoked from consumer: " + Arrays.toString(partitions.toArray()));
+        log.info("Partitions has been revoked from consumer: {}", Arrays.toString(partitions.toArray()));
         revokedOrFailedPartitions.addAll(partitions);
         try {
             commitCurrentOffsets();
         } catch (Exception e) {
-            log.error("Failed to commit offsets when partitions were revoked: " + offsetsToCommit, e);
+            log.error("Failed to commit offsets when partitions were revoked: {}", offsetsToCommit, e);
         }
     }
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-        log.info("New partitions has been assigned to the consumer: " + Arrays.toString(partitions.toArray()));
+        log.info("New partitions has been assigned to the consumer: {}", Arrays.toString(partitions.toArray()));
     }
 
     private void consumeTopics() {
-
         final Map<TopicPartition, ExecutorService> topicConsumptionExecutors = new HashMap<>();
 
         try {
-
             while (clientState == ClientState.RUNNING) {
                 ConsumerRecords<K, V> records;
 
@@ -145,10 +134,12 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                 try {
                     records = consumer.poll(Duration.ofMillis(config.pollDurationMs));
                 } catch (WakeupException e) {
-                    log.info("Polling was cancelled by wakeup(). Stopping kafka consumer client...");
+                    log.info("Polling was cancelled by wakeup(). Stopping Kafka consumer client...");
                     return;
                 } catch (Exception e) {
                     log.error("Exception occurred during polling of records. Waiting before trying again", e);
+                    // Fast pause etter pollingfeil hindrer en tett løkke med nye forsøk.
+                    //noinspection BusyWait
                     Thread.sleep(POLL_ERROR_TIMEOUT_MS);
                     continue;
                 }
@@ -173,11 +164,12 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                 for (ConsumerRecord<K, V> record : records) {
                     String topic = record.topic();
 
-                    TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
+                    var topicPartition = new TopicPartition(record.topic(), record.partition());
 
                     TopicConsumer<K, V> topicConsumer = config.topics.get(topic);
 
-                    // Creates a single thread to consume each topic + partition sequentially
+                    // Gjenbrukes mellom pollinger og avsluttes samlet i finally-blokken.
+                    //noinspection resource
                     ExecutorService executor = topicConsumptionExecutors.computeIfAbsent(
                             topicPartition, (tp) -> Executors.newSingleThreadExecutor());
 
@@ -206,21 +198,24 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                                    The committed offset should be the next message your application will consume, i.e.
                                    lastProcessedMessageOffset + 1.
                                 */
-                                OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset() + 1);
+                                var offsetAndMetadata = new OffsetAndMetadata(record.offset() + 1);
                                 offsetsToCommit.put(topicPartition, offsetAndMetadata);
                             } else {
                                 revokedOrFailedPartitions.add(topicPartition);
                             }
                         } catch (Exception e) {
-                            String msg = format(
-                                    "Unexpected error occurred while processing consumer record. topic=%s partition=%d offset=%d",
-                                    topic, record.partition(), record.offset());
-                            log.error(msg, e);
+                            log.error(
+                                    "Unexpected error occurred while processing consumer record. topic={} partition={} offset={}",
+                                    topic,
+                                    record.partition(),
+                                    record.offset(),
+                                    e);
                         } finally {
                             processedRecordsLatch.countDown();
                         }
                     });
                 }
+
                 log.debug("ProcessedRecordsLatch.await start");
                 var awaitStart = System.currentTimeMillis();
                 processedRecordsLatch.await();
@@ -230,7 +225,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
                     commitCurrentOffsets();
                 } catch (Exception e) {
                     // If we fail to commit offsets then continue polling records
-                    log.error("Failed to commit offsets: " + offsetsToCommit, e);
+                    log.error("Failed to commit offsets: {}", offsetsToCommit, e);
                 }
             }
         } catch (Exception e) {
@@ -239,14 +234,14 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
             try {
                 topicConsumptionExecutors.forEach(((topicPartition, executorService) -> executorService.shutdown()));
                 commitCurrentOffsets();
-                consumer.close(Duration.ofSeconds(3));
+                consumer.close(CloseOptions.timeout(Duration.ofSeconds(3)));
             } catch (Exception e) {
                 log.error("Failed to shutdown kafka consumer client properly", e);
             } finally {
                 shutdownLatch.countDown();
 
                 if (clientState == ClientState.RUNNING) {
-                    log.warn("Unexpected failure while kafka consumer client was running. Restarting...");
+                    log.warn("Unexpected failure while Kafka consumer client was running. Restarting...");
                     pollExecutor.submit(this::consumeTopics);
                 }
             }
@@ -258,7 +253,7 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
             safeSeek(offsetsToCommit);
 
             consumer.commitSync(offsetsToCommit, Duration.ofSeconds(3));
-            log.info("Offsets committed: " + offsetsToCommit);
+            log.info("Offsets committed: {}", offsetsToCommit);
             offsetsToCommit.clear();
         }
     }
@@ -267,8 +262,8 @@ public class KafkaConsumerClientImpl<K, V> implements KafkaConsumerClient, Consu
         Map<TopicPartition, OffsetAndMetadata> offsetMap = new HashMap<>();
 
         records.forEach(record -> {
-            TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
-            OffsetAndMetadata offsetAndMetadata = new OffsetAndMetadata(record.offset());
+            var topicPartition = new TopicPartition(record.topic(), record.partition());
+            var offsetAndMetadata = new OffsetAndMetadata(record.offset());
 
             OffsetAndMetadata storedOffset = offsetMap.get(topicPartition);
 

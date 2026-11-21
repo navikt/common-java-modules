@@ -4,21 +4,24 @@ import static java.lang.String.format;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import mockwebserver3.MockResponse;
 
 public class RequestUtils {
 
-    public static Map<String, String> parseFormData(String formData) {
-        Map<String, String> data = new HashMap<>();
+    public static Map<String, List<String>> parseFormData(String formData) {
+        Map<String, List<String>> data = new HashMap<>();
         String[] values = formData.split("&");
 
-        Arrays.stream(values).forEach(v -> {
-            String[] keyValue = v.split("=");
-            data.put(keyValue[0], URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8));
-        });
+        for (String value : values) {
+            String[] keyValue = value.split("=", 2);
+            String key = URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
+            String decodedValue = URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+            data.computeIfAbsent(key, ignored -> new ArrayList<>()).add(decodedValue);
+        }
 
         return data;
     }

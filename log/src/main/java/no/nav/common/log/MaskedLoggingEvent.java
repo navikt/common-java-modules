@@ -82,7 +82,11 @@ public class MaskedLoggingEvent implements ILoggingEvent {
         return new MaskedMap(iLoggingEvent.getMDCPropertyMap());
     }
 
+    /**
+     * @deprecated Bruk {@link #getMDCPropertyMap()}.
+     */
     @Override
+    @Deprecated
     public Map<String, String> getMdc() {
         return new MaskedMap(iLoggingEvent.getMDCPropertyMap());
     }

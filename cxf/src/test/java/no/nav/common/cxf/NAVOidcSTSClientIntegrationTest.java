@@ -20,7 +20,6 @@ import org.junit.Test;
 
 @Slf4j
 public class NAVOidcSTSClientIntegrationTest {
-
     private Jetty stsMock;
     private final MockHandler stsHandler = new MockHandler("sts");
     private String stsUrl;
@@ -30,6 +29,7 @@ public class NAVOidcSTSClientIntegrationTest {
     public AuthContextRule authContextRule = new AuthContextRule();
 
     @Before
+    @SuppressWarnings("deprecation") // STS-integrasjonen bruker den beholdte CXF-bussadapteren.
     public void setup() {
         testBus = BusFactory.newInstance().createBus();
         new CxfCertificateValidationDisabler().initialize(testBus);
@@ -56,7 +56,8 @@ public class NAVOidcSTSClientIntegrationTest {
     @Test
     @Ignore
     public void cache_sts_token_for_hver_bruker_og_stsType() {
-        StsConfig stsConfig = StsConfig.builder()
+        // Arrange
+        var stsConfig = StsConfig.builder()
                 .url(stsUrl)
                 .username("username")
                 .password("password")
@@ -81,6 +82,7 @@ public class NAVOidcSTSClientIntegrationTest {
 
         setOidcToken("jwt1");
 
+        // Act
         ping(tjenesteA);
         ping(tjenesteA);
 
@@ -111,6 +113,7 @@ public class NAVOidcSTSClientIntegrationTest {
         ping(tjenesteD);
         ping(tjenesteD);
 
+        // Assert
         assertThat(stsHandler.getRequestCount())
                 .isEqualTo(
                         1
@@ -126,7 +129,7 @@ public class NAVOidcSTSClientIntegrationTest {
     }
 
     private CXFClient<HelloWorld> testClient() {
-        CXFClient<HelloWorld> client = new CXFClient<>(HelloWorld.class);
+        var client = new CXFClient<>(HelloWorld.class);
         client.factoryBean.setBus(testBus);
         return client;
     }

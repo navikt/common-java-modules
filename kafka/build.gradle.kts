@@ -35,6 +35,7 @@ dependencies {
     api(libs.json.schema) { exclude(group = "commons-logging", module = "commons-logging") }
     testImplementation(project(":log"))
     testImplementation(libs.postgresql)
+    testImplementation(libs.hikari)
     testImplementation(libs.h2)
     testImplementation(libs.testcontainers.core)
     testImplementation(libs.testcontainers.kafka)

@@ -6,8 +6,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Data;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.client.pdl.PdlClient;
 import no.nav.common.client.pdl.PdlClientImpl;
@@ -20,11 +18,8 @@ import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
 
-@Slf4j
 public class PdlAktorOppslagClient implements AktorOppslagClient {
-
     private static final String IDENT_GRUPPE_AKTORID = "AKTORID";
-
     private static final String IDENT_GRUPPE_FOLKEREGISTERIDENT = "FOLKEREGISTERIDENT";
 
     private final GraphqlRequestBuilder<HentIdentVariables> hentAktorIdRequestBuilder =
@@ -41,13 +36,15 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
 
     private final PdlClient pdlClient;
 
+    @SuppressWarnings("unused")
     public PdlAktorOppslagClient(
             String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
-        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, userTokenSupplier, consumerTokenSupplier);
+        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, userTokenSupplier, consumerTokenSupplier, "");
     }
 
+    @SuppressWarnings("unused")
     public PdlAktorOppslagClient(String pdlUrl, Supplier<String> azureAdTokenSupplier) {
-        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, azureAdTokenSupplier, null);
+        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, azureAdTokenSupplier, null, "");
     }
 
     public PdlAktorOppslagClient(PdlClient pdlClient) {
@@ -169,7 +166,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
 
     private static IdentPair mergeIdenterTilPair(
             List<HentIdenterBolkResponse.HentIdenterBolkResponseData.IdenterResponseData.IdentData> brukerIdenter) {
-        IdentPair identPair = new IdentPair();
+        var identPair = new IdentPair();
 
         brukerIdenter.forEach(ident -> {
             switch (ident.gruppe) {
@@ -193,21 +190,16 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
         Fnr fnr;
     }
 
-    @Value
-    private static class HentIdentVariables {
-        String ident;
-    }
+    private record HentIdentVariables(String ident) {}
 
-    @Value
-    private static class HentIdentBolkVariables<T extends EksternBrukerId> {
-        List<T> identer;
-    }
+    private record HentIdentBolkVariables<T extends EksternBrukerId>(List<T> identer) {}
 
     protected static class HentIdenterResponse extends GraphqlResponse<HentIdenterResponse.HentIdenterResponseData> {
         private static class HentIdenterResponseData {
             IdenterResponseData hentIdenter;
 
             private static class IdenterResponseData {
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Fylles av Jackson ved deserialisering.
                 List<IdenterResponseData.IdentData> identer;
 
                 private static class IdentData {
@@ -222,9 +214,11 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
     protected static class HentIdenterBolkResponse
             extends GraphqlResponse<HentIdenterBolkResponse.HentIdenterBolkResponseData> {
         private static class HentIdenterBolkResponseData {
+            @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Fylles av Jackson ved deserialisering.
             List<IdenterResponseData> hentIdenterBolk;
 
             private static class IdenterResponseData {
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Fylles av Jackson ved deserialisering.
                 List<IdentData> identer;
 
                 private static class IdentData {

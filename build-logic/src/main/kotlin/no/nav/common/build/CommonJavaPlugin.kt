@@ -33,7 +33,6 @@ private val MANAGED_CONSTRAINT_ALIASES = listOf(
     "commons-collections4",
     "fastinfoset",
     "istack",
-    "jaxb-api",
     "jaxb-runtime",
     "jackson2-core",
     "jackson2-databind",

@@ -31,13 +31,13 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 public class KafkaProducerClientImplIntegrationTest {
 
-    public static KafkaContainer kafka;
+    public static ConfluentKafkaContainer kafka;
     private static String brokerUrl;
     private static AdminClient admin;
 
@@ -47,12 +47,11 @@ public class KafkaProducerClientImplIntegrationTest {
     @SneakyThrows
     @BeforeClass
     public static void setup() {
-        kafka = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
+        kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
         kafka.waitingFor(new HostPortWaitStrategy());
         kafka.start();
 
         brokerUrl = kafka.getBootstrapServers();
-
         admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
     }
 
@@ -76,6 +75,7 @@ public class KafkaProducerClientImplIntegrationTest {
 
     @Test
     public void should_produce_record() {
+        // Arrange
         AtomicReference<ConsumerRecord<String, String>> recordRef = new AtomicReference<>();
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
@@ -84,12 +84,14 @@ public class KafkaProducerClientImplIntegrationTest {
                     return ConsumeStatus.OK;
                 })));
 
+        // Act
         consumerClient.start();
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"));
 
         await().atMost(Duration.ofSeconds(10)).until(() -> recordRef.get() != null);
         consumerClient.stop();
 
+        // Assert
         ConsumerRecord<String, String> record = recordRef.get();
         assertEquals(testTopic, record.topic());
         assertEquals("key", record.key());
@@ -98,7 +100,8 @@ public class KafkaProducerClientImplIntegrationTest {
 
     @Test
     public void should_produce_multiple_records() {
-        AtomicInteger counter = new AtomicInteger();
+        // Arrange
+        var counter = new AtomicInteger();
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
                 new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
@@ -106,6 +109,7 @@ public class KafkaProducerClientImplIntegrationTest {
                     return ConsumeStatus.OK;
                 })));
 
+        // Act
         consumerClient.start();
 
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"));
@@ -114,13 +118,15 @@ public class KafkaProducerClientImplIntegrationTest {
         producerClient.send(new ProducerRecord<>(testTopic, null, "value"));
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"));
 
+        // Assert
         await().atMost(Duration.ofSeconds(10)).until(() -> counter.get() == 5);
         consumerClient.stop();
     }
 
     @Test
-    public void should_produce_record_sync() throws InterruptedException {
-        AtomicInteger counter = new AtomicInteger();
+    public void should_produce_record_sync() {
+        // Arrange
+        var counter = new AtomicInteger();
 
         KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
                 new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
@@ -128,9 +134,11 @@ public class KafkaProducerClientImplIntegrationTest {
                     return ConsumeStatus.OK;
                 })));
 
+        // Act
         consumerClient.start();
         producerClient.sendSync(new ProducerRecord<>(testTopic, "key", "value"));
 
+        // Assert
         await().atMost(Duration.ofSeconds(10)).until(() -> counter.get() == 1);
 
         consumerClient.stop();
@@ -138,29 +146,34 @@ public class KafkaProducerClientImplIntegrationTest {
 
     @Test
     public void should_throw_exception_when_fail_to_send_sync() {
+        // Arrange
+        var producerRecord = new ProducerRecord<>("invalidTopicPartition", 999, "key", "value");
 
-        assertThrows(
-                ExecutionException.class,
-                () -> producerClient.sendSync(new ProducerRecord<>("invalidTopicPartition", 999, "key", "value")));
+        // Act & Assert
+        assertThrows(ExecutionException.class, () -> producerClient.sendSync(producerRecord));
     }
 
     @Test
     public void should_execute_callback_with_exception_when_fail_to_send() {
 
+        // Arrange
         AtomicReference<Exception> exceptionRef = new AtomicReference<>();
 
+        // Act
         producerClient.send(
                 new ProducerRecord<>("invalidTopicPartition", 999, "key", "value"),
                 (metadata, exception) -> exceptionRef.set(exception));
 
         await().atMost(Duration.ofSeconds(10)).until(() -> exceptionRef.get() != null);
 
+        // Assert
         assertEquals(TimeoutException.class, exceptionRef.get().getClass());
     }
 
     @Test
     public void should_execute_callback_with_exception_when_sending_after_closed() {
-        AtomicInteger counter = new AtomicInteger();
+        // Arrange
+        var counter = new AtomicInteger();
 
         Callback callback = (metadata, exception) -> {
             if (exception != null) {
@@ -170,16 +183,20 @@ public class KafkaProducerClientImplIntegrationTest {
 
         producerClient.close();
 
+        // Act
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"), callback);
         producerClient.send(new ProducerRecord<>(testTopic, "key", "value"), callback);
 
+        // Assert
         assertEquals(2, counter.get());
     }
 
     @Test
     public void should_throw_exception_when_sending_after_closed() {
+        // Arrange
         producerClient.close();
 
+        // Act & Assert
         assertThrows(
                 ExecutionException.class,
                 () -> producerClient.sendSync(new ProducerRecord<>(testTopic, "key", "value")));

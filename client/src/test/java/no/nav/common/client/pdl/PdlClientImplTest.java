@@ -31,31 +31,36 @@ public class PdlClientImplTest {
 
     @Test
     public void rawRequest__skal_lage_riktig_request_og_forwarde_respons() {
+        // Arrange
         String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-request.json");
         String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response.json");
 
         String apiUrl = "http://localhost:" + wireMockRule.port();
         String userToken = "USER_TOKEN";
         String consumerToken = "CONSUMER_TOKEN";
+        String behandlingsnummer = "B123";
 
         givenThat(post(urlEqualTo("/graphql"))
                 .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
                 .withHeader("Authorization", equalTo("Bearer " + userToken))
                 .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
                 .withHeader("Tema", equalTo("GEN"))
-                .withHeader("behandlingsnummer", equalTo(""))
+                .withHeader("behandlingsnummer", equalTo(behandlingsnummer))
                 .withRequestBody(equalToJson(graphqlJsonRequest))
                 .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
 
-        PdlClientImpl pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken);
+        var pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken, behandlingsnummer);
 
+        // Act
         String jsonResponse = pdlClient.rawRequest(graphqlJsonRequest);
 
+        // Assert
         assertEquals(graphqlJsonResponse, jsonResponse);
     }
 
     @Test
     public void request__skal_lage_request_og_parse_response() {
+        // Arrange
         String graphqlQuery =
                 TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-identer-query.graphql");
         String graphqlJsonRequest =
@@ -76,12 +81,14 @@ public class PdlClientImplTest {
                 .withRequestBody(equalToJson(graphqlJsonRequest))
                 .willReturn(aResponse().withStatus(200).withBody(graphqlJsonResponse)));
 
-        PdlClientImpl pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken);
+        var pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken, "");
 
-        GraphqlRequest<HentIdentVariables> request = new GraphqlRequest<>(graphqlQuery, new HentIdentVariables("123"));
+        var request = new GraphqlRequest<>(graphqlQuery, new HentIdentVariables("123"));
 
+        // Act
         HentIdenterResponse graphqlResponse = pdlClient.request(request, HentIdenterResponse.class);
 
+        // Assert
         String fetchedIdent = graphqlResponse.getData().hentIdenter.identer.stream()
                 .findFirst()
                 .orElseThrow()
@@ -92,6 +99,7 @@ public class PdlClientImplTest {
 
     @Test
     public void request__skal_parse_error_response() {
+        // Arrange
         String graphqlErrorJsonResponse =
                 TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response-error.json");
 
@@ -107,13 +115,15 @@ public class PdlClientImplTest {
                 .withHeader("behandlingsnummer", equalTo(""))
                 .willReturn(aResponse().withStatus(200).withBody(graphqlErrorJsonResponse)));
 
-        PdlClientImpl pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken);
+        var pdlClient = new PdlClientImpl(apiUrl, Tema.GEN, () -> userToken, () -> consumerToken, "");
 
-        GraphqlRequest<HentIdentVariables> request = new GraphqlRequest<>("some query", new HentIdentVariables("123"));
+        var request = new GraphqlRequest<>("some query", new HentIdentVariables("123"));
 
+        // Act
         HentIdenterResponse graphqlResponse = pdlClient.request(request, HentIdenterResponse.class);
 
-        EqualToJsonPattern isErrorEqualPattern = new EqualToJsonPattern(graphqlErrorJsonResponse, false, false);
+        // Assert
+        var isErrorEqualPattern = new EqualToJsonPattern(graphqlErrorJsonResponse, false, false);
 
         assertTrue(isErrorEqualPattern.match(JsonUtils.toJson(graphqlResponse)).isExactMatch());
     }
@@ -129,6 +139,7 @@ public class PdlClientImplTest {
             HentIdenterResponse.HentIdenterResponseData.IdenterResponseData hentIdenter;
 
             private static class IdenterResponseData {
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Fylles av Jackson ved deserialisering.
                 List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> identer;
 
                 private static class IdentData {
