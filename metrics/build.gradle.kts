@@ -8,6 +8,5 @@ dependencies {
     implementation(libs.commons.lang)
     compileOnly(libs.lombok)
     testImplementation(libs.junit.vintage)
-    testImplementation(libs.mockito)
     testImplementation(libs.hamcrest.core)
 }

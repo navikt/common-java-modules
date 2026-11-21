@@ -9,6 +9,5 @@ dependencies {
     runtimeOnly(libs.jakarta.servlet)
     testImplementation(libs.junit.vintage)
     testImplementation(libs.mockito)
-    testImplementation(libs.assertj)
     testImplementation(libs.wiremock)
 }

@@ -8,8 +8,5 @@ dependencies {
     runtimeOnly(libs.jcl.over.slf4j)
     compileOnly(libs.lombok)
     testImplementation(libs.junit.vintage)
-    testImplementation(libs.mockito)
     testImplementation(libs.assertj)
-    testImplementation(libs.hamcrest.core)
-    testImplementation(project(":test"))
 }
