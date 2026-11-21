@@ -9,8 +9,5 @@ dependencies {
     compileOnly(libs.lombok)
     compileOnly(libs.micrometer) { mavenOptional() }
     testImplementation(libs.junit.vintage)
-    testImplementation(libs.assertj)
-    testImplementation(libs.mockito)
-    testImplementation(libs.hamcrest.library)
     testImplementation(libs.wiremock)
 }

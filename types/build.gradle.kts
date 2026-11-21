@@ -5,6 +5,4 @@ dependencies {
     testImplementation(libs.junit.vintage)
     testImplementation(project(":json"))
     testImplementation(libs.jackson.databind)
-    testImplementation(libs.mockito)
-    testImplementation(libs.hamcrest.library)
 }

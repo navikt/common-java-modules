@@ -8,7 +8,6 @@ dependencies {
     api(project(":types"))
     api(project(":json"))
     api(project(":rest"))
-    runtimeOnly(libs.jackson.core)
     runtimeOnly(libs.jakarta.ws.rs.api)
     implementation(libs.slf4j.api)
     compileOnly(libs.lombok)

@@ -159,6 +159,22 @@ These are compilation and dependency-graph checks, not full consumer test-suite
 results. Catalog-only references and consumers outside the historical build-file
 inventory, apart from `poao-tilgang`, are not covered.
 
+## Unused dependency cleanup
+
+A separate cleanup removes 15 unused test declarations: Mockito from seven
+modules, Hamcrest from four, AssertJ from two, JAX-RS from `log`, and the
+`test` project dependency from `nais`.
+
+Two redundant runtime declarations are also removed: `logback-core` from
+`token-client` and `jackson-core` from `feature-toggle`. Both remain available
+transitively through `logback-classic` and `json`, respectively. Production
+compile/runtime coordinates are unchanged in all ten affected modules.
+
+Existing common-module API exports, the runtime Logback provider in
+`token-client`, and the runtime JAX-RS dependency in `rest` are unchanged.
+The consumer results above describe the scope audit; consumer builds were
+not rerun for this cleanup.
+
 ## Verification
 
 Migration checks used a fresh Maven predecessor and isolated/sequential

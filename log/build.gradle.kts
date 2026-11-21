@@ -11,9 +11,7 @@ dependencies {
     runtimeOnly(libs.logstash.logback)
     runtimeOnly(libs.prometheus.logback)
     testImplementation(libs.junit.vintage)
-    testImplementation(libs.mockito)
     testImplementation(libs.assertj)
-    testImplementation(libs.jakarta.ws.rs.api)
     testImplementation(libs.gson)
     testImplementation(libs.system.rules)
 }

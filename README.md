@@ -163,6 +163,21 @@ directly before moving to a release without it. See
 [the migration and validation report](docs/gradle-migration.md) for compatibility
 decisions, known limitations, and the rollout/rollback checklist.
 
+## Dependency follow-up
+
+Unused test declarations and redundant runtime declarations have been removed.
+See [the dependency cleanup](docs/gradle-migration.md#unused-dependency-cleanup).
+The following runtime changes remain separate consumer-compatibility work:
+
+- [ ] Review the runtime Logback provider in
+  [`token-client`](token-client/build.gradle.kts). Move Logback to test scope for
+  `TokenErrorResponseTest` only after confirming that consuming applications
+  supply their own SLF4J provider.
+- [ ] Assess removal of the runtime `jakarta.ws.rs-api` dependency in
+  [`rest`](rest/build.gradle.kts). The module does not use it in its own code or
+  configuration. Identify any consumer runtime usage and migrate affected
+  consumers before removing it.
+
 ## CI follow-up
 
 [CI](.github/workflows/main.yml) runs `./gradlew build` for pull
