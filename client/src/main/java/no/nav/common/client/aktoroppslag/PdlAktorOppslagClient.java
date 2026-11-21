@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import lombok.Data;
-import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import no.nav.common.client.aktorregister.IngenGjeldendeIdentException;
 import no.nav.common.client.pdl.PdlClient;
 import no.nav.common.client.pdl.PdlClientImpl;
@@ -20,34 +19,33 @@ import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.EksternBrukerId;
 import no.nav.common.types.identer.Fnr;
 
-@Slf4j
 public class PdlAktorOppslagClient implements AktorOppslagClient {
-
     private static final String IDENT_GRUPPE_AKTORID = "AKTORID";
-
     private static final String IDENT_GRUPPE_FOLKEREGISTERIDENT = "FOLKEREGISTERIDENT";
 
     private final GraphqlRequestBuilder<HentIdentVariables> hentAktorIdRequestBuilder =
-            new GraphqlRequestBuilder<>("pdl/hent-gjeldende-aktorid.graphql");
+        new GraphqlRequestBuilder<>("pdl/hent-gjeldende-aktorid.graphql");
 
     private final GraphqlRequestBuilder<HentIdentVariables> hentFnrRequestBuilder =
-            new GraphqlRequestBuilder<>("pdl/hent-gjeldende-fnr.graphql");
+        new GraphqlRequestBuilder<>("pdl/hent-gjeldende-fnr.graphql");
 
     private final GraphqlRequestBuilder<HentIdentVariables> hentIdenterMedHistorikkRequestBuilder =
-            new GraphqlRequestBuilder<>("pdl/hent-identer-med-hist.graphql");
+        new GraphqlRequestBuilder<>("pdl/hent-identer-med-hist.graphql");
 
     private final GraphqlRequestBuilder<HentIdentBolkVariables<?>> hentIdentBolkRequestBuilder =
-            new GraphqlRequestBuilder<>("pdl/hent-gjeldende-ident-bolk.graphql");
+        new GraphqlRequestBuilder<>("pdl/hent-gjeldende-ident-bolk.graphql");
 
     private final PdlClient pdlClient;
 
+    @SuppressWarnings("unused")
     public PdlAktorOppslagClient(
-            String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
-        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, userTokenSupplier, consumerTokenSupplier);
+        String pdlUrl, Supplier<String> userTokenSupplier, Supplier<String> consumerTokenSupplier) {
+        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, userTokenSupplier, consumerTokenSupplier, "");
     }
 
+    @SuppressWarnings("unused")
     public PdlAktorOppslagClient(String pdlUrl, Supplier<String> azureAdTokenSupplier) {
-        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, azureAdTokenSupplier, null);
+        this.pdlClient = new PdlClientImpl(pdlUrl, Tema.GEN, azureAdTokenSupplier, null, "");
     }
 
     public PdlAktorOppslagClient(PdlClient pdlClient) {
@@ -57,16 +55,16 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
     @Override
     public Fnr hentFnr(AktorId aktorId) {
         HentIdenterResponse response = pdlClient.request(
-                hentFnrRequestBuilder.buildRequest(new HentIdentVariables(aktorId.get())), HentIdenterResponse.class);
+            hentFnrRequestBuilder.buildRequest(new HentIdentVariables(aktorId.get())), HentIdenterResponse.class);
 
         validerGyldigIdentOrThrow(response);
 
         GraphqlUtils.throwIfErrorOrMissingData(response);
 
         return response.getData().hentIdenter.identer.stream()
-                .findFirst()
-                .map(identData -> Fnr.of(identData.ident))
-                .orElseThrow(IngenGjeldendeIdentException::new);
+            .findFirst()
+            .map(identData -> Fnr.of(identData.ident))
+            .orElseThrow(IngenGjeldendeIdentException::new);
     }
 
     private void validerGyldigIdentOrThrow(HentIdenterResponse response) {
@@ -74,8 +72,8 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
             return;
         }
         if (response.getErrors().stream()
-                .anyMatch(graphqlError -> graphqlError.getMessage().equals("Fant ikke person")
-                        || graphqlError.getMessage().equals("Ugyldig ident"))) {
+            .anyMatch(graphqlError -> graphqlError.getMessage().equals("Fant ikke person")
+                || graphqlError.getMessage().equals("Ugyldig ident"))) {
             throw new IngenGjeldendeIdentException();
         }
     }
@@ -83,93 +81,93 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
     @Override
     public AktorId hentAktorId(Fnr fnr) {
         HentIdenterResponse response = pdlClient.request(
-                hentAktorIdRequestBuilder.buildRequest(new HentIdentVariables(fnr.get())), HentIdenterResponse.class);
+            hentAktorIdRequestBuilder.buildRequest(new HentIdentVariables(fnr.get())), HentIdenterResponse.class);
 
         validerGyldigIdentOrThrow(response);
 
         GraphqlUtils.throwIfErrorOrMissingData(response);
 
         return response.getData().hentIdenter.identer.stream()
-                .findFirst()
-                .map(identData -> AktorId.of(identData.ident))
-                .orElseThrow();
+            .findFirst()
+            .map(identData -> AktorId.of(identData.ident))
+            .orElseThrow();
     }
 
     @Override
     public Map<AktorId, Fnr> hentFnrBolk(List<AktorId> aktorIdListe) {
         HentIdenterBolkResponse response = pdlClient.request(
-                hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables<>(aktorIdListe)),
-                HentIdenterBolkResponse.class);
+            hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables<>(aktorIdListe)),
+            HentIdenterBolkResponse.class);
 
         GraphqlUtils.throwIfErrorOrMissingData(response);
 
         return hentAlleIdentPairFraBolk(response.getData())
-                .collect(Collectors.toMap(IdentPair::getAktorId, IdentPair::getFnr));
+            .collect(Collectors.toMap(IdentPair::getAktorId, IdentPair::getFnr));
     }
 
     @Override
     public Map<Fnr, AktorId> hentAktorIdBolk(List<Fnr> fnrListe) {
         HentIdenterBolkResponse response = pdlClient.request(
-                hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables<>(fnrListe)),
-                HentIdenterBolkResponse.class);
+            hentIdentBolkRequestBuilder.buildRequest(new HentIdentBolkVariables<>(fnrListe)),
+            HentIdenterBolkResponse.class);
 
         GraphqlUtils.throwIfErrorOrMissingData(response);
 
         return hentAlleIdentPairFraBolk(response.getData())
-                .collect(Collectors.toMap(IdentPair::getFnr, IdentPair::getAktorId));
+            .collect(Collectors.toMap(IdentPair::getFnr, IdentPair::getAktorId));
     }
 
     @Override
     public BrukerIdenter hentIdenter(EksternBrukerId brukerId) {
         HentIdenterResponse response = pdlClient.request(
-                hentIdenterMedHistorikkRequestBuilder.buildRequest(new HentIdentVariables(brukerId.get())),
-                HentIdenterResponse.class);
+            hentIdenterMedHistorikkRequestBuilder.buildRequest(new HentIdentVariables(brukerId.get())),
+            HentIdenterResponse.class);
 
         GraphqlUtils.throwIfErrorOrMissingData(response);
 
         List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> identer =
-                response.getData().hentIdenter.identer;
+            response.getData().hentIdenter.identer;
 
         List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> folkeregisteridenter =
-                identer.stream()
-                        .filter(ident -> IDENT_GRUPPE_FOLKEREGISTERIDENT.equals(ident.gruppe))
-                        .toList();
-
-        List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> aktorIder = identer.stream()
-                .filter(ident -> IDENT_GRUPPE_AKTORID.equals(ident.gruppe))
+            identer.stream()
+                .filter(ident -> IDENT_GRUPPE_FOLKEREGISTERIDENT.equals(ident.gruppe))
                 .toList();
 
+        List<HentIdenterResponse.HentIdenterResponseData.IdenterResponseData.IdentData> aktorIder = identer.stream()
+            .filter(ident -> IDENT_GRUPPE_AKTORID.equals(ident.gruppe))
+            .toList();
+
         return new BrukerIdenter(
-                folkeregisteridenter.stream()
-                        .filter(ident -> !ident.historisk)
-                        .findFirst()
-                        .map(ident -> Fnr.of(ident.ident))
-                        .orElseThrow(),
-                aktorIder.stream()
-                        .filter(ident -> !ident.historisk)
-                        .findFirst()
-                        .map(ident -> AktorId.of(ident.ident))
-                        .orElseThrow(),
-                folkeregisteridenter.stream()
-                        .filter(ident -> ident.historisk)
-                        .map(ident -> Fnr.of(ident.ident))
-                        .toList(),
-                aktorIder.stream()
-                        .filter(ident -> ident.historisk)
-                        .map(ident -> AktorId.of(ident.ident))
-                        .toList());
+            folkeregisteridenter.stream()
+                .filter(ident -> !ident.historisk)
+                .findFirst()
+                .map(ident -> Fnr.of(ident.ident))
+                .orElseThrow(),
+            aktorIder.stream()
+                .filter(ident -> !ident.historisk)
+                .findFirst()
+                .map(ident -> AktorId.of(ident.ident))
+                .orElseThrow(),
+            folkeregisteridenter.stream()
+                .filter(ident -> ident.historisk)
+                .map(ident -> Fnr.of(ident.ident))
+                .toList(),
+            aktorIder.stream()
+                .filter(ident -> ident.historisk)
+                .map(ident -> AktorId.of(ident.ident))
+                .toList());
     }
 
     private static Stream<IdentPair> hentAlleIdentPairFraBolk(
-            HentIdenterBolkResponse.HentIdenterBolkResponseData bolkResponseData) {
+        HentIdenterBolkResponse.HentIdenterBolkResponseData bolkResponseData) {
         return bolkResponseData.hentIdenterBolk.stream()
-                .filter(identData -> identData.identer != null)
-                .map(identData -> mergeIdenterTilPair(identData.identer));
+            .filter(identData -> identData.identer != null)
+            .map(identData -> mergeIdenterTilPair(identData.identer));
     }
 
     private static IdentPair mergeIdenterTilPair(
-            List<HentIdenterBolkResponse.HentIdenterBolkResponseData.IdenterResponseData.IdentData> brukerIdenter) {
-        IdentPair identPair = new IdentPair();
+        List<HentIdenterBolkResponse.HentIdenterBolkResponseData.IdenterResponseData.IdentData> brukerIdenter) {
+        var identPair = new IdentPair();
 
         brukerIdenter.forEach(ident -> {
             switch (ident.gruppe) {
@@ -193,14 +191,10 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
         Fnr fnr;
     }
 
-    @Value
-    private static class HentIdentVariables {
-        String ident;
+    private record HentIdentVariables(String ident) {
     }
 
-    @Value
-    private static class HentIdentBolkVariables<T extends EksternBrukerId> {
-        List<T> identer;
+    private record HentIdentBolkVariables<T extends EksternBrukerId>(List<T> identer) {
     }
 
     protected static class HentIdenterResponse extends GraphqlResponse<HentIdenterResponse.HentIdenterResponseData> {
@@ -208,6 +202,7 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
             IdenterResponseData hentIdenter;
 
             private static class IdenterResponseData {
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Fylles av Jackson ved deserialisering.
                 List<IdenterResponseData.IdentData> identer;
 
                 private static class IdentData {
@@ -220,11 +215,13 @@ public class PdlAktorOppslagClient implements AktorOppslagClient {
     }
 
     protected static class HentIdenterBolkResponse
-            extends GraphqlResponse<HentIdenterBolkResponse.HentIdenterBolkResponseData> {
+        extends GraphqlResponse<HentIdenterBolkResponse.HentIdenterBolkResponseData> {
         private static class HentIdenterBolkResponseData {
+            @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Fylles av Jackson ved deserialisering.
             List<IdenterResponseData> hentIdenterBolk;
 
             private static class IdenterResponseData {
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") // Fylles av Jackson ved deserialisering.
                 List<IdentData> identer;
 
                 private static class IdentData {

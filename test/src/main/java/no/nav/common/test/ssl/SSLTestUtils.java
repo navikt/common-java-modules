@@ -11,11 +11,15 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
+
 import org.apache.cxf.transport.https.httpclient.DefaultHostnameVerifier;
 
 public class SSLTestUtils {
     public static final SSLContext sslContext = createSSLContext();
+
+    @SuppressWarnings("deprecation") // Adapteren legger vertsnavnkontroll til alle socket-overlastene.
     public static final SSLSocketFactory TEST_SSL_SOCKET_FACTORY = new TrustAllSSLSocketFactory();
+
     public static final HostnameVerifier TEST_HOSTNAME_VERIFIER = new DefaultHostnameVerifier();
 
     /**
@@ -34,7 +38,8 @@ public class SSLTestUtils {
     @Deprecated
     public static final HostnameVerifier ALLOW_ALL_HOSTNAME_VERIFIER = TEST_HOSTNAME_VERIFIER;
 
-    private SSLTestUtils() {}
+    private SSLTestUtils() {
+    }
 
     public static SSLContext createSSLContext() {
         return createSSLContext(fixtureTrustStore());
@@ -45,9 +50,9 @@ public class SSLTestUtils {
             throw new IllegalArgumentException("Et eksplisitt tillitslager er påkrevd");
         }
         try {
-            TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            var factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             factory.init(trustStore);
-            SSLContext context = SSLContext.getInstance("TLS");
+            var context = SSLContext.getInstance("TLS");
             context.init(null, factory.getTrustManagers(), null);
             return context;
         } catch (GeneralSecurityException e) {
@@ -59,7 +64,7 @@ public class SSLTestUtils {
      * Avviser forsøk på globale TLS-endringer.
      *
      * @deprecated Konfigurer TLS på testklienten med {@link #createSSLContext(KeyStore)}. Metoden kaster alltid
-     *     {@link UnsupportedOperationException}.
+     * {@link UnsupportedOperationException}.
      */
     @Deprecated
     public static void disableCertificateChecks() {
@@ -70,7 +75,7 @@ public class SSLTestUtils {
      * Avviser forsøk på å sette globale tillitslagre.
      *
      * @deprecated Konfigurer TLS på testklienten med {@link #createSSLContext(KeyStore)} og last testserverens keystore
-     *     direkte. Metoden kaster alltid {@link UnsupportedOperationException}.
+     * direkte. Metoden kaster alltid {@link UnsupportedOperationException}.
      */
     @Deprecated
     public static void setupKeyAndTrustStore() {
@@ -79,7 +84,7 @@ public class SSLTestUtils {
 
     static X509TrustManager fixtureTrustManager() {
         try {
-            TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            var factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             factory.init(fixtureTrustStore());
             for (TrustManager manager : factory.getTrustManagers()) {
                 if (manager instanceof X509TrustManager) {
@@ -97,10 +102,10 @@ public class SSLTestUtils {
             if (input == null) {
                 throw new IllegalStateException("Fant ikke testsertifikatet /dummy.crt");
             }
-            KeyStore trustStore = KeyStore.getInstance("JKS");
+            var trustStore = KeyStore.getInstance("JKS");
             trustStore.load(null, null);
             trustStore.setCertificateEntry(
-                    "localhost", CertificateFactory.getInstance("X.509").generateCertificate(input));
+                "localhost", CertificateFactory.getInstance("X.509").generateCertificate(input));
             return trustStore;
         } catch (GeneralSecurityException | IOException e) {
             throw new IllegalStateException("Kunne ikke laste tillitslageret for test", e);

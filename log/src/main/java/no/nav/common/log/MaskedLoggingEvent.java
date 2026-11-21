@@ -4,10 +4,12 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.LoggerContextVO;
+
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Marker;
 import org.slf4j.event.KeyValuePair;
 
@@ -82,7 +84,11 @@ public class MaskedLoggingEvent implements ILoggingEvent {
         return new MaskedMap(iLoggingEvent.getMDCPropertyMap());
     }
 
+    /**
+     * @deprecated Bruk {@link #getMDCPropertyMap()}.
+     */
     @Override
+    @Deprecated
     public Map<String, String> getMdc() {
         return new MaskedMap(iLoggingEvent.getMDCPropertyMap());
     }

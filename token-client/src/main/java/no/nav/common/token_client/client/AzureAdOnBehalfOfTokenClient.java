@@ -42,18 +42,17 @@ public class AzureAdOnBehalfOfTokenClient extends AbstractTokenClient implements
                 clientAssertionClaims(clientId, tokenEndpoint.toString()),
                 assertionSigner);
 
-        TokenRequest request = new TokenRequest(
-                tokenEndpoint,
-                signedJwt,
-                new JWTBearerGrant(SignedJWT.parse(accessToken)),
-                new Scope(tokenScope),
-                null,
-                additionalOboClaims(tokenScope, accessToken));
+        var requestBuilder = new TokenRequest.Builder(
+                        tokenEndpoint, signedJwt, new JWTBearerGrant(SignedJWT.parse(accessToken)))
+                .scope(new Scope(tokenScope));
 
+        additionalOboClaims(tokenScope, accessToken)
+                .forEach((name, values) -> requestBuilder.customParameter(name, values.toArray(String[]::new)));
+
+        TokenRequest request = requestBuilder.build();
         TokenResponse response = parseTokenResponse(request.toHTTPRequest().send(), "AzureAD OBO token request");
 
         AccessTokenResponse successResponse = response.toSuccessResponse();
-
         return successResponse.getTokens().getAccessToken().getValue();
     }
 

@@ -15,9 +15,10 @@ import static org.mockito.Mockito.when;
 
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
+
 import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.net.URL;
+import java.net.URI;
 import java.security.KeyStore;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -30,6 +31,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.Configurer;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -40,7 +42,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class SSLTestUtilsTest {
-
     private HttpsServer server;
 
     @After
@@ -52,83 +53,123 @@ public class SSLTestUtilsTest {
 
     @Test
     public void godtar_testsertifikatet_for_riktig_vertsnavn() throws Exception {
+        // Arrange
         startServer("/dummy.jks");
 
-        assertEquals(200, status("localhost", SSLTestUtils.TEST_SSL_SOCKET_FACTORY));
-        assertEquals(200, status("localhost", SSLTestUtils.createSSLContext().getSocketFactory()));
+        // Act
+        int factoryStatus = status("localhost", SSLTestUtils.TEST_SSL_SOCKET_FACTORY);
+
+        // Assert
+        assertEquals(200, factoryStatus);
+
+        // Act
+        int contextStatus = status("localhost", SSLTestUtils.createSSLContext().getSocketFactory());
+
+        // Assert
+        assertEquals(200, contextStatus);
     }
 
     @Test
     public void avviser_sertifikat_utenfor_tillitslageret() throws Exception {
+        // Arrange
         startServer("/untrusted.jks");
 
+        // Act & Assert
         assertThrows(SSLHandshakeException.class, () -> status("localhost", SSLTestUtils.TEST_SSL_SOCKET_FACTORY));
     }
 
     @Test
     public void avviser_feil_vertsnavn_selv_om_sertifikatet_er_betrodd() throws Exception {
+        // Arrange
         startServer("/dummy.jks");
 
+        // Act & Assert
         assertThrows(SSLHandshakeException.class, () -> status("127.0.0.1", SSLTestUtils.TEST_SSL_SOCKET_FACTORY));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // Tester den beholdte kompatibilitetsadapteren.
     public void den_gamle_socketfabrikken_validerer_vertsnavn_og_sertifikat() throws Exception {
+        // Arrange
         startServer("/dummy.jks");
         SSLSocketFactory factory = new TrustAllSSLSocketFactory();
 
+        // Act & Assert
         assertTrue(factory.getDefaultCipherSuites().length > 0);
         assertTrue(factory.getSupportedCipherSuites().length > 0);
-        try (SSLSocket socket = (SSLSocket)
-                factory.createSocket("localhost", server.getAddress().getPort())) {
+
+        // Act
+        try (var socket = (SSLSocket)
+            factory.createSocket("localhost", server.getAddress().getPort())) {
             socket.setSoTimeout(5000);
             socket.startHandshake();
+
+            // Assert
             assertEquals("HTTPS", socket.getSSLParameters().getEndpointIdentificationAlgorithm());
             assertTrue(SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER.verify("localhost", socket.getSession()));
             assertFalse(SSLTestUtils.ALLOW_ALL_HOSTNAME_VERIFIER.verify("127.0.0.1", socket.getSession()));
         }
-        try (SSLSocket socket = (SSLSocket)
-                factory.createSocket("127.0.0.1", server.getAddress().getPort())) {
+        // Act & Assert
+        try (var socket = (SSLSocket)
+            factory.createSocket("127.0.0.1", server.getAddress().getPort())) {
             socket.setSoTimeout(5000);
             assertThrows(SSLHandshakeException.class, socket::startHandshake);
         }
     }
 
     @Test
+    @SuppressWarnings("deprecation") // Tester den beholdte kompatibilitetsadapteren.
     public void den_gamle_tillitsbehandleren_avviser_ukjente_klienter_og_servere() throws Exception {
-        TrustAllX509TrustManager manager = new TrustAllX509TrustManager();
+        // Arrange
+        var manager = new TrustAllX509TrustManager();
         X509Certificate[] trusted = certificateChain("/dummy.jks");
         X509Certificate[] untrusted = certificateChain("/untrusted.jks");
 
+        // Act
         manager.checkServerTrusted(trusted, "RSA");
         manager.checkClientTrusted(trusted, "RSA");
+
+        // Assert
         assertTrue(manager.getAcceptedIssuers().length > 0);
+
+        // Act & Assert
         assertThrows(CertificateException.class, () -> manager.checkServerTrusted(untrusted, "RSA"));
         assertThrows(CertificateException.class, () -> manager.checkClientTrusted(untrusted, "RSA"));
     }
 
     @Test
     public void bruker_kun_det_eksplisitte_tillitslageret() throws Exception {
+        // Arrange
         startServer("/untrusted.jks");
-        KeyStore trustStore = KeyStore.getInstance("JKS");
+        var trustStore = KeyStore.getInstance("JKS");
         trustStore.load(null, null);
         trustStore.setCertificateEntry("annen-testserver", certificateChain("/untrusted.jks")[0]);
 
-        assertEquals(
-                200,
-                status("localhost", SSLTestUtils.createSSLContext(trustStore).getSocketFactory()));
+        // Act
+        int responseStatus =
+            status("localhost", SSLTestUtils.createSSLContext(trustStore).getSocketFactory());
+
+        // Assert
+        assertEquals(200, responseStatus);
+
+        // Act & Assert
+        //noinspection DataFlowIssue
         assertThrows(IllegalArgumentException.class, () -> SSLTestUtils.createSSLContext(null));
     }
 
     @Test
+    @SuppressWarnings("deprecation") // Tester den beholdte kompatibilitetsadapteren.
     public void cxf_beholder_sertifikatkontroll_og_vertsnavnkontroll() {
+        // Arrange
         Client client = mock(Client.class);
-        HTTPConduit conduit = mock(HTTPConduit.class);
+        var conduit = mock(HTTPConduit.class);
         when(client.getConduit()).thenReturn(conduit);
 
+        // Act
         new CxfCertificateValidationDisabler().initialize(client, mock(Bus.class));
 
-        ArgumentCaptor<TLSClientParameters> parameters = ArgumentCaptor.forClass(TLSClientParameters.class);
+        // Assert
+        var parameters = ArgumentCaptor.forClass(TLSClientParameters.class);
         verify(conduit).setTlsClientParameters(parameters.capture());
         assertFalse(parameters.getValue().isDisableCNCheck());
         assertFalse(parameters.getValue().isUseHttpsURLConnectionDefaultHostnameVerifier());
@@ -138,41 +179,57 @@ public class SSLTestUtilsTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // Tester den beholdte kompatibilitetsadapteren.
     public void cxf_konfigurerer_kun_den_angitte_bussen_uten_saml_omgaaelse() {
+        // Arrange
         Bus bus = mock(Bus.class);
         Configurer original = mock(Configurer.class);
         when(bus.getExtension(Configurer.class)).thenReturn(original);
+
+        // Act
         new CxfCertificateValidationDisabler().initialize(bus);
 
-        ArgumentCaptor<Configurer> configurer = ArgumentCaptor.forClass(Configurer.class);
+        // Assert
+        var configurer = ArgumentCaptor.forClass(Configurer.class);
         verify(bus).setExtension(configurer.capture(), any());
-        HTTPConduit conduit = mock(HTTPConduit.class);
+
+        // Arrange
+        var conduit = mock(HTTPConduit.class);
+
+        // Act
         configurer.getValue().configureBean("test", conduit);
 
+        // Assert
         verify(original).configureBean("test", conduit);
         verify(conduit).setTlsClientParameters(any());
         verify(bus, never()).setProperty(anyString(), any());
     }
 
     @Test
+    @SuppressWarnings("deprecation") // Verifiserer at gamle API-er ikke endrer globale TLS-innstillinger.
     public void endrer_ikke_globale_tls_innstillinger() throws Exception {
-        SSLContext defaultContext = SSLContext.getDefault();
+        // Arrange
+        var defaultContext = SSLContext.getDefault();
         SSLSocketFactory defaultFactory = HttpsURLConnection.getDefaultSSLSocketFactory();
         HostnameVerifier defaultVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
         String provider = Security.getProperty("ssl.SocketFactory.provider");
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.putAll(System.getProperties());
 
+        // Act
         SSLTestUtils.createSSLContext();
         new TrustAllX509TrustManager();
         new TrustAllSSLSocketFactory();
         new CxfCertificateValidationDisabler().initialize(mock(Bus.class));
+
+        // Act & Assert
         assertThrows(UnsupportedOperationException.class, SSLTestUtils::disableCertificateChecks);
         assertThrows(UnsupportedOperationException.class, SSLTestUtils::setupKeyAndTrustStore);
         assertThrows(UnsupportedOperationException.class, CxfCertificateValidationDisabler::init);
         assertThrows(
-                UnsupportedOperationException.class, () -> new CertificateCheckDisabler().contextInitialized(null));
+            UnsupportedOperationException.class, () -> new CertificateCheckDisabler().contextInitialized(null));
 
+        // Assert
         assertSame(defaultContext, SSLContext.getDefault());
         assertSame(defaultFactory, HttpsURLConnection.getDefaultSSLSocketFactory());
         assertSame(defaultVerifier, HttpsURLConnection.getDefaultHostnameVerifier());
@@ -181,25 +238,25 @@ public class SSLTestUtilsTest {
     }
 
     private void startServer(String resource) throws Exception {
-        KeyManagerFactory keys = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        var keys = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keys.init(keyStore(resource), "password".toCharArray());
-        SSLContext context = SSLContext.getInstance("TLS");
+        var context = SSLContext.getInstance("TLS");
         context.init(keys.getKeyManagers(), null, null);
         server = HttpsServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.setHttpsConfigurator(new HttpsConfigurator(context));
         server.createContext("/", exchange -> {
-            try {
+            try (exchange) {
                 exchange.sendResponseHeaders(200, -1);
-            } finally {
-                exchange.close();
             }
         });
         server.start();
     }
 
     private int status(String hostname, SSLSocketFactory factory) throws Exception {
-        HttpsURLConnection connection = (HttpsURLConnection)
-                new URL("https://" + hostname + ":" + server.getAddress().getPort() + "/").openConnection();
+        var connection = (HttpsURLConnection)
+            URI.create("https://" + hostname + ":" + server.getAddress().getPort() + "/")
+                .toURL()
+                .openConnection();
         connection.setSSLSocketFactory(factory);
         connection.setConnectTimeout(5000);
         connection.setReadTimeout(5000);
@@ -211,13 +268,13 @@ public class SSLTestUtilsTest {
     }
 
     private X509Certificate[] certificateChain(String resource) throws Exception {
-        return new X509Certificate[] {(X509Certificate) keyStore(resource).getCertificate("selfsigned")};
+        return new X509Certificate[]{(X509Certificate) keyStore(resource).getCertificate("selfsigned")};
     }
 
     private KeyStore keyStore(String resource) throws Exception {
         try (InputStream input = SSLTestUtilsTest.class.getResourceAsStream(resource)) {
             assertNotNull(input);
-            KeyStore store = KeyStore.getInstance("JKS");
+            var store = KeyStore.getInstance("JKS");
             store.load(input, "password".toCharArray());
             return store;
         }

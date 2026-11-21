@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import lombok.Data;
 import lombok.SneakyThrows;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.client.utils.graphql.GraphqlRequestBuilder;
@@ -36,16 +36,13 @@ import org.slf4j.MDC;
 
 @Slf4j
 public class NomClientImpl implements NomClient {
-
     private static final int NOM_MAX_BATCH_SIZE = 100;
 
     private final GraphqlRequestBuilder<RessursQuery.Variables> ressurserQueryRequestBuilder =
-            new GraphqlRequestBuilder<>("nom/ressurser.graphql");
+        new GraphqlRequestBuilder<>("nom/ressurser.graphql");
 
     private final String nomApiUrl;
-
     private final OkHttpClient client;
-
     private final Supplier<String> serviceTokenSupplier;
 
     public NomClientImpl(String nomApiUrl, Supplier<String> serviceTokenSupplier) {
@@ -54,6 +51,7 @@ public class NomClientImpl implements NomClient {
         this.client = RestClient.baseClient();
     }
 
+    @SuppressWarnings("unused")
     public NomClientImpl(String nomApiUrl, Supplier<String> serviceTokenSupplier, OkHttpClient client) {
         this.nomApiUrl = nomApiUrl;
         this.serviceTokenSupplier = serviceTokenSupplier;
@@ -68,7 +66,7 @@ public class NomClientImpl implements NomClient {
             throw new IllegalStateException("Fant ikke navn for NAV-ident: " + navIdent);
         }
 
-        return veilederNavn.get(0);
+        return veilederNavn.getFirst();
     }
 
     @Override
@@ -76,27 +74,27 @@ public class NomClientImpl implements NomClient {
         Map<String, String> contextMap = MDC.getCopyOfContextMap();
 
         return CollectionUtils.partition(navIdenter, NOM_MAX_BATCH_SIZE).parallelStream()
-                .flatMap((identBatch) -> runWithMDCContext(contextMap, () -> hentNavnTilIdenter(identBatch).stream()))
-                .collect(Collectors.toList());
+            .flatMap((identBatch) -> runWithMDCContext(contextMap, () -> hentNavnTilIdenter(identBatch).stream()))
+            .collect(Collectors.toList());
     }
 
     @SneakyThrows
     private List<VeilederNavn> hentNavnTilIdenter(List<NavIdent> navIdenter) {
         GraphqlRequest<RessursQuery.Variables> gqlRequest =
-                ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
+            ressurserQueryRequestBuilder.buildRequest(new RessursQuery.Variables(navIdenter));
 
-        Request request = new Request.Builder()
-                .url(joinPaths(nomApiUrl, "/graphql"))
-                .header(ACCEPT, MEDIA_TYPE_JSON.toString())
-                .header(AUTHORIZATION, createBearerToken(serviceTokenSupplier.get()))
-                .post(RequestBody.create(MEDIA_TYPE_JSON, JsonUtils.toJson(gqlRequest)))
-                .build();
+        var request = new Request.Builder()
+            .url(joinPaths(nomApiUrl, "/graphql"))
+            .header(ACCEPT, MEDIA_TYPE_JSON.toString())
+            .header(AUTHORIZATION, createBearerToken(serviceTokenSupplier.get()))
+            .post(RequestBody.create(JsonUtils.toJson(gqlRequest), MEDIA_TYPE_JSON))
+            .build();
 
         try (Response response = client.newCall(request).execute()) {
             RestUtils.throwIfNotSuccessful(response);
 
             String gqlJsonResponse = RestUtils.getBodyStr(response)
-                    .orElseThrow(() -> new IllegalStateException("Body is missing from NOM response"));
+                .orElseThrow(() -> new IllegalStateException("Body is missing from NOM response"));
 
             RessursQuery.Response graphqlResponse = JsonUtils.fromJson(gqlJsonResponse, RessursQuery.Response.class);
 
@@ -115,18 +113,18 @@ public class NomClientImpl implements NomClient {
             RessursQuery.ResponseData.RessurserItem.Ressurs ressurs = ressursItem.ressurs;
 
             if (ressurs == null
-                    || ressurs.visningsNavn == null
-                    || ressurs.fornavn == null
-                    || ressurs.etternavn == null) {
+                || ressurs.visningsNavn == null
+                || ressurs.fornavn == null
+                || ressurs.etternavn == null) {
                 log.warn("Fant ikke navn til veileder med ident: {}", ressursItem.id);
                 return;
             }
 
-            VeilederNavn veilederNavn = new VeilederNavn()
-                    .setNavIdent(ressurs.navIdent)
-                    .setVisningsNavn(ressurs.visningsNavn)
-                    .setFornavn(ressurs.fornavn)
-                    .setEtternavn(ressurs.etternavn);
+            var veilederNavn = new VeilederNavn()
+                .setNavIdent(ressurs.navIdent)
+                .setVisningsNavn(ressurs.visningsNavn)
+                .setFornavn(ressurs.fornavn)
+                .setEtternavn(ressurs.etternavn);
 
             veilederNavnListe.add(veilederNavn);
         });
@@ -141,12 +139,11 @@ public class NomClientImpl implements NomClient {
 
     @Data
     static class RessursQuery {
-        @Value
-        static class Variables {
-            List<NavIdent> identer;
+        record Variables(List<NavIdent> identer) {
         }
 
-        static class Response extends GraphqlResponse<ResponseData> {}
+        static class Response extends GraphqlResponse<ResponseData> {
+        }
 
         @Data
         static class ResponseData {
