@@ -30,7 +30,7 @@ public class CachedNomClientTest {
         VeilederNavn funnetNavn = cachedNomClient.finnNavn(veilederNavn1.navIdent);
         assertEquals(veilederNavn1, funnetNavn);
 
-        ArgumentCaptor<List<NavIdent>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<NavIdent>> captor = ArgumentCaptor.captor();
 
         // Create mutable list instead of using List.of()
         List<VeilederNavn> navn = new ArrayList<>() {
@@ -45,7 +45,7 @@ public class CachedNomClientTest {
         cachedNomClient.finnNavn(List.of(veilederNavn1.navIdent, veilederNavn2.navIdent));
 
         assertEquals(1, captor.getValue().size());
-        assertEquals(veilederNavn2.navIdent, captor.getValue().get(0));
+        assertEquals(veilederNavn2.navIdent, captor.getValue().getFirst());
     }
 
     @Test

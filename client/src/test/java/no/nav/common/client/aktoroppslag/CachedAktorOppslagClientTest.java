@@ -81,7 +81,7 @@ public class CachedAktorOppslagClientTest {
 
         CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
 
-        ArgumentCaptor<List<AktorId>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<AktorId>> captor = ArgumentCaptor.captor();
 
         Map<AktorId, Fnr> mapping1 = new HashMap<>();
         mapping1.put(aktorId1, fnr1);
@@ -128,7 +128,7 @@ public class CachedAktorOppslagClientTest {
 
         CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
 
-        ArgumentCaptor<List<AktorId>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<AktorId>> captor = ArgumentCaptor.captor();
 
         Map<AktorId, Fnr> mapping1 = new HashMap<>();
         mapping1.put(aktorId1, fnr1);
@@ -160,7 +160,7 @@ public class CachedAktorOppslagClientTest {
 
         CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
 
-        ArgumentCaptor<List<Fnr>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Fnr>> captor = ArgumentCaptor.captor();
 
         Map<Fnr, AktorId> mapping1 = new HashMap<>();
         mapping1.put(fnr1, aktorId1);
@@ -208,7 +208,7 @@ public class CachedAktorOppslagClientTest {
 
         CachedAktorOppslagClient cachedClient = new CachedAktorOppslagClient(mockedClient);
 
-        ArgumentCaptor<List<Fnr>> captor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Fnr>> captor = ArgumentCaptor.captor();
 
         Map<Fnr, AktorId> mapping1 = new HashMap<>();
         mapping1.put(fnr1, aktorId1);
@@ -232,7 +232,7 @@ public class CachedAktorOppslagClientTest {
                 brukerId1,
                 AktorId.of("aktorId1"),
                 asList(Fnr.of("fnr12"), Fnr.of("fnr13")),
-                asList(AktorId.of("aktorId12")));
+                List.of(AktorId.of("aktorId12")));
         BrukerIdenter brukerIdenter2 = new BrukerIdenter(
                 Fnr.of("fnr2"),
                 brukerId2,

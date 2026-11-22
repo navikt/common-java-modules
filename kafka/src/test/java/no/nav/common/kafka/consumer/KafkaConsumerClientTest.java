@@ -43,6 +43,8 @@ public class KafkaConsumerClientTest {
     private KafkaProducer<String, String> producer;
 
     private KafkaConsumer<String, String> commitChecker;
+    private KafkaConsumerClient consumerClient;
+    private KafkaConsumerClient consumerClient2;
     private static ConfluentKafkaContainer kafka;
 
     @BeforeClass
@@ -64,17 +66,36 @@ public class KafkaConsumerClientTest {
         producer = new KafkaProducer<>(kafkaTestProducerProperties(brokerUrl));
         commitChecker = new KafkaConsumer<>(kafkaTestConsumerProperties(brokerUrl, consumerGroupId));
 
-        AdminClient admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
-        testTopicA = UUID.randomUUID().toString();
-        testTopicB = UUID.randomUUID().toString();
-
-        admin.close(); // Apply changes
+        try (AdminClient ignored =
+                KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl))) {
+            testTopicA = UUID.randomUUID().toString();
+            testTopicB = UUID.randomUUID().toString();
+        }
     }
 
     @After
     public void cleanup() {
-        producer.close();
-        commitChecker.close();
+        try {
+            if (consumerClient2 != null) {
+                consumerClient2.stop();
+            }
+        } finally {
+            try {
+                if (consumerClient != null) {
+                    consumerClient.stop();
+                }
+            } finally {
+                try {
+                    if (commitChecker != null) {
+                        commitChecker.close();
+                    }
+                } finally {
+                    if (producer != null) {
+                        producer.close();
+                    }
+                }
+            }
+        }
     }
 
     @Test
@@ -94,7 +115,7 @@ public class KafkaConsumerClientTest {
 
         producer.flush();
 
-        var consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
         consumerClient.start();
 
@@ -143,7 +164,7 @@ public class KafkaConsumerClientTest {
                 Map.of(testTopicA, consumerWithCounterAndSleep(counter, 100)),
                 10);
 
-        var consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
         consumerClient.start();
         await().until(() -> counter.get() >= 4);
@@ -164,10 +185,10 @@ public class KafkaConsumerClientTest {
         // Arrange
         String multiPartitionTopic = "multi-partition-topic";
 
-        AdminClient admin = KafkaAdminClient.create(
-                Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()));
-        admin.createTopics(List.of(new NewTopic(multiPartitionTopic, 2, (short) 1)));
-        admin.close(); // Apply changes
+        try (AdminClient admin = KafkaAdminClient.create(
+                Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers()))) {
+            admin.createTopics(List.of(new NewTopic(multiPartitionTopic, 2, (short) 1)));
+        }
 
         var counter = new AtomicInteger();
 
@@ -186,7 +207,7 @@ public class KafkaConsumerClientTest {
 
         producer.flush();
 
-        var consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
         consumerClient.start();
 
@@ -219,7 +240,7 @@ public class KafkaConsumerClientTest {
                         testTopicB,
                         failOnOffsetConsumer));
 
-        var consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
         consumerClient.start();
 
@@ -255,7 +276,7 @@ public class KafkaConsumerClientTest {
         properties.setProperty(MAX_POLL_RECORDS_CONFIG, "4");
         var config = new KafkaConsumerClientConfig<>(properties, Map.of(testTopicA, failOnMessage));
 
-        var consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
         consumerClient.start();
 
@@ -296,17 +317,17 @@ public class KafkaConsumerClientTest {
                 Map.of(testTopicA, consumerWithCounterAndSleep(counter2, 0)),
                 pollDurationMillis);
 
-        var consumerClient1 = new KafkaConsumerClientImpl<>(config1);
-        var consumerClient2 = new KafkaConsumerClientImpl<>(config2);
+        consumerClient = new KafkaConsumerClientImpl<>(config1);
+        consumerClient2 = new KafkaConsumerClientImpl<>(config2);
 
         for (int i = 0; i < 100; i++) {
             producer.send(new ProducerRecord<>(testTopicA, "key1", "value" + i));
         }
         producer.flush();
         // Act
-        consumerClient1.start();
+        consumerClient.start();
         await().atMost(Duration.ofSeconds(5)).until(() -> counter1.get() >= 5);
-        consumerClient1.stop();
+        consumerClient.stop();
         consumerClient2.start();
 
         // Assert
@@ -340,7 +361,7 @@ public class KafkaConsumerClientTest {
 
         producer.flush();
 
-        var consumerClient = new KafkaConsumerClientImpl<>(config);
+        consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
         consumerClient.start();
 

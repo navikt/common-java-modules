@@ -41,6 +41,7 @@ public class KafkaProducerClientImplIntegrationTest {
     private static AdminClient admin;
 
     private KafkaProducerClientImpl<String, String> producerClient;
+    private KafkaConsumerClientImpl<String, String> consumerClient;
     private String testTopic;
 
     @BeforeClass
@@ -55,8 +56,13 @@ public class KafkaProducerClientImplIntegrationTest {
 
     @AfterClass
     public static void tearDown() {
-        admin.close();
-        kafka.stop();
+        try {
+            if (admin != null) {
+                admin.close();
+            }
+        } finally {
+            kafka.stop();
+        }
     }
 
     @Before
@@ -68,7 +74,15 @@ public class KafkaProducerClientImplIntegrationTest {
 
     @After
     public void afterEach() {
-        producerClient.close();
+        try {
+            if (consumerClient != null) {
+                consumerClient.stop();
+            }
+        } finally {
+            if (producerClient != null) {
+                producerClient.close();
+            }
+        }
     }
 
     @Test
@@ -76,7 +90,7 @@ public class KafkaProducerClientImplIntegrationTest {
         // Arrange
         AtomicReference<ConsumerRecord<String, String>> recordRef = new AtomicReference<>();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
+        consumerClient = new KafkaConsumerClientImpl<>(
                 new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
                     recordRef.set(record);
                     return ConsumeStatus.OK;
@@ -101,7 +115,7 @@ public class KafkaProducerClientImplIntegrationTest {
         // Arrange
         var counter = new AtomicInteger();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
+        consumerClient = new KafkaConsumerClientImpl<>(
                 new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
                     counter.incrementAndGet();
                     return ConsumeStatus.OK;
@@ -126,7 +140,7 @@ public class KafkaProducerClientImplIntegrationTest {
         // Arrange
         var counter = new AtomicInteger();
 
-        KafkaConsumerClientImpl<String, String> consumerClient = new KafkaConsumerClientImpl<>(
+        consumerClient = new KafkaConsumerClientImpl<>(
                 new KafkaConsumerClientConfig<>(kafkaTestConsumerProperties(brokerUrl), Map.of(testTopic, (record) -> {
                     counter.incrementAndGet();
                     return ConsumeStatus.OK;

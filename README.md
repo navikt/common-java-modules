@@ -235,13 +235,16 @@ registration.
   fixed sleeps with bounded waits for observable results.
 - [x] Close the producer on failure in `KafkaProducerWithClientMetricsTest` and
   replace its fixed sleep with a bounded wait for completed metric callbacks.
-- [ ] Make Kafka client/processor cleanup run after failed assertions and waits.
-  Review worker completion and disposal of owning executors separately from
-  `stop()` semantics before changing production lifecycle APIs.
-- [ ] Await callback counts and database state together in
+- [x] Make Kafka client/processor cleanup run after failed assertions and waits.
+- [ ] Review worker completion and disposal of owning executors separately from
+  `stop()` semantics before changing production lifecycle APIs. Consumer processor
+  termination and client executor disposal are not guaranteed by the current
+  public APIs. Producer tests await publisher-owned client closure before database
+  cleanup.
+- [x] Await callback counts and database state together in
   `KafkaConsumerRecordProcessorIntegrationTest`; a callback count alone does not
   prove that database deletion has completed.
-- [ ] In `FeatureToggledKafkaConsumerClientTest`, observe a scheduled poll after
+- [x] In `FeatureToggledKafkaConsumerClientTest`, observe a scheduled poll after
   the feature changes before asserting that `stop()` was not called. Dispose of
   the scheduler after the test.
 - [x] Use a thread-safe collection and bounded completion in
@@ -249,13 +252,13 @@ registration.
 - [ ] Change `SystemPropertiesRule` to restore the state captured before each
   evaluation rather than a static class-loading snapshot. Add regression tests
   and assess compatibility for consumers of the published test helper.
-- [ ] Assert that the filter chain is untouched in the four rejection tests in
+- [x] Assert that the filter chain is untouched in the four rejection tests in
   `OidcAuthenticationFilterTest`, in addition to checking HTTP 401.
-- [ ] Compare the actual serialized JSON body in `RestUtilsTest`, not only its
+- [x] Compare the actual serialized JSON body in `RestUtilsTest`, not only its
   length. Cover empty HTTP 200 separately from the duplicated HTTP 204 case.
 - [ ] Remove the port-probe/bind race in `OidcProviderTestRule` and `PortUtils`.
   Preserve or explicitly migrate helper APIs that expose ports before startup.
-- [ ] Strengthen `CollectionUtilsTest` partition assertions to cover contents,
+- [x] Strengthen `CollectionUtilsTest` partition assertions to cover contents,
   chunk sizes, and ordering. Replace the remaining unchecked list captors with
   typed `ArgumentCaptor.captor()` where supported.
 
