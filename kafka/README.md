@@ -263,7 +263,7 @@ List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs = List.of(
                  "topic2",
                  stringDeserializer(),
                  stringDeserializer(),
-                 (record) -> System.out.println(record)
+                 (record) -> { System.out.println(record); }
          )
 );
 
