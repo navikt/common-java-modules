@@ -229,11 +229,11 @@ registration.
 - [x] Detach and stop test appenders in `LogRequestFilterTest` and the MDC test in
   `JobRunnerTest`. Close the session returned by `MockitoAnnotations.openMocks()`
   in `LogRequestFilterTest`.
-- [ ] Close accepted sockets/readers and server sockets in the metrics fixtures.
+- [x] Close accepted sockets/readers and server sockets in the metrics fixtures.
   Call `SensuHandler.shutdown()` and shut down test executors in
   `SensuHandlerTest` and `SocketIntegrasjonTest`. Assert retry results and replace
   fixed sleeps with bounded waits for observable results.
-- [ ] Close the producer on failure in `KafkaProducerWithClientMetricsTest` and
+- [x] Close the producer on failure in `KafkaProducerWithClientMetricsTest` and
   replace its fixed sleep with a bounded wait for completed metric callbacks.
 - [ ] Make Kafka client/processor cleanup run after failed assertions and waits.
   Review worker completion and disposal of owning executors separately from
@@ -244,7 +244,7 @@ registration.
 - [ ] In `FeatureToggledKafkaConsumerClientTest`, observe a scheduled poll after
   the feature changes before asserting that `stop()` was not called. Dispose of
   the scheduler after the test.
-- [ ] Use a thread-safe collection and bounded completion in
+- [x] Use a thread-safe collection and bounded completion in
   `AuthContextHolderTest`. Propagate interrupted waits instead of ignoring them.
 - [ ] Change `SystemPropertiesRule` to restore the state captured before each
   evaluation rather than a static class-loading snapshot. Add regression tests

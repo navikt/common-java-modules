@@ -11,42 +11,49 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.json.JSONObject;
 
 public class TestUtil {
 
-    public static List<String> lesUtAlleMeldingerSendtPaSocket(ServerSocket serverSocket) throws IOException {
+    public static List<String> lesUtAlleMeldingerSendtPaSocket(ServerSocket serverSocket, int antallMeldinger)
+            throws IOException {
         List<String> meldinger = new ArrayList<>();
-
-        String linje = lesLinjeFraSocket(serverSocket);
-        while (linje != null) {
-            meldinger.addAll(splitStringsFraMelding(linje));
-            linje = lesLinjeFraSocket(serverSocket);
+        long frist = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (meldinger.size() < antallMeldinger) {
+            meldinger.addAll(splitStringsFraMelding(lesLinjeFraSocket(serverSocket, frist)));
         }
-
         return meldinger;
     }
 
     public static String lesLinjeFraSocket(ServerSocket serverSocket) throws IOException {
-        try {
-            serverSocket.setSoTimeout(2000);
-            Socket socket = serverSocket.accept();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            return bufferedReader.readLine();
-        } catch (SocketTimeoutException e) {
-            return null;
+        return lesLinjeFraSocket(serverSocket, System.nanoTime() + TimeUnit.SECONDS.toNanos(5));
+    }
+
+    private static String lesLinjeFraSocket(ServerSocket serverSocket, long frist) throws IOException {
+        serverSocket.setSoTimeout(gjenstaendeMillis(frist));
+        try (Socket socket = serverSocket.accept();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+            socket.setSoTimeout(gjenstaendeMillis(frist));
+            String linje = reader.readLine();
+            if (linje == null) {
+                throw new IOException("Socketen ble lukket uten en melding");
+            }
+            return linje;
         }
     }
 
+    private static int gjenstaendeMillis(long frist) throws SocketTimeoutException {
+        long gjenstaende = frist - System.nanoTime();
+        if (gjenstaende <= 0) {
+            throw new SocketTimeoutException("Mottok ikke forventede meldinger innen fem sekunder");
+        }
+        return (int) Math.max(1, TimeUnit.NANOSECONDS.toMillis(gjenstaende));
+    }
+
     public static List<String> splitStringsFraMelding(String melding) {
-
-        int start = melding.indexOf("output\":\"") + 9;
-        int end = melding.indexOf("\"", start + 1);
-
-        String output = melding.substring(start, end);
-
-        return Arrays.asList(output.split("\\\\n"));
+        return List.of(new JSONObject(melding).getString("output").split("\n"));
     }
 
     public static SensuHandler sensuHandlerForTest(int port) {
@@ -66,7 +73,7 @@ public class TestUtil {
                 .queueSize(DEFAULT_SENSU_QUEUE_SIZE)
                 .maxBatchTime(200)
                 .batchSize(DEFAULT_SENSU_BATCH_SIZE)
-                .cleanupOnShutdown(true)
+                .cleanupOnShutdown(false)
                 .build();
     }
 }
