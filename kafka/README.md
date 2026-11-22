@@ -167,7 +167,7 @@ List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs = List.of(
                                 "topic1",
                                 stringDeserializer(),
                                 stringDeserializer(),
-                                (record) -> System.out.println(record)
+                                (record) -> { System.out.println(record); }
                         ),
                 new KafkaConsumerClientBuilder.TopicConfig<String, String>()
                         .withConsumerConfig(
@@ -256,7 +256,7 @@ List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs = List.of(
                  "topic1",
                  stringDeserializer(),
                  stringDeserializer(),
-                 (record) -> System.out.println(record)
+                 (record) -> { System.out.println(record); }
          ),
     new KafkaConsumerClientBuilder.TopicConfig<String, String>()
          .withConsumerConfig(
