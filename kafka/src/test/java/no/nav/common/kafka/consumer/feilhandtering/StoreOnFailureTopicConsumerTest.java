@@ -19,7 +19,7 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_not_store_when_key_is_not_stored_and_consumption_succeeded() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock();
 
         StoreOnFailureTopicConsumer storeOnFailureConsumer =
                 new StoreOnFailureTopicConsumer(consumer, consumerRepository);
@@ -39,7 +39,7 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_not_store_when_key_is_null_and_key_with_null_is_stored() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock();
 
         StoreOnFailureTopicConsumer storeOnFailureConsumer =
                 new StoreOnFailureTopicConsumer(consumer, consumerRepository);
@@ -57,7 +57,7 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_store_when_has_key_in_database() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock();
 
         StoreOnFailureTopicConsumer storeOnFailureConsumer =
                 new StoreOnFailureTopicConsumer(consumer, consumerRepository);
@@ -77,7 +77,7 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_store_when_consumer_returns_failed_status() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock();
 
         StoreOnFailureTopicConsumer storeOnFailureConsumer =
                 new StoreOnFailureTopicConsumer(consumer, consumerRepository);
@@ -97,7 +97,7 @@ public class StoreOnFailureTopicConsumerTest {
     @Test
     public void should_store_when_consumer_throws_exception() {
         KafkaConsumerRepository consumerRepository = mock(KafkaConsumerRepository.class);
-        TopicConsumer<byte[], byte[]> consumer = mock(TopicConsumer.class);
+        TopicConsumer<byte[], byte[]> consumer = mock();
 
         StoreOnFailureTopicConsumer storeOnFailureConsumer =
                 new StoreOnFailureTopicConsumer(consumer, consumerRepository);
