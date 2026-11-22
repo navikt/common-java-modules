@@ -39,6 +39,7 @@ public class LogRequestInterceptorTest {
     @Before
     public void setUp() {
         previousContextMap = MDC.getCopyOfContextMap();
+        MDC.clear();
         filterAppender = new ListAppender<>();
         filterAppender.start();
         filterLogger.addAppender(filterAppender);

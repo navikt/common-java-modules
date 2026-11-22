@@ -223,10 +223,10 @@ The remaining test cleanup is tracked separately from the exception assertions,
 Kafka offset/order assertions, secure-log isolation, and instance-bound WireMock
 registration.
 
-- [ ] Restore `System.out` on failure in `LogbackStdoutJsonTest`. Restore original
+- [x] Restore `System.out` on failure in `LogbackStdoutJsonTest`. Restore original
   MDC and system property values in the REST, feature-toggle, environment, and
   `InstanceSwitcherTest` fixtures, including expected-exception paths.
-- [ ] Detach and stop test appenders in `LogRequestFilterTest` and the MDC test in
+- [x] Detach and stop test appenders in `LogRequestFilterTest` and the MDC test in
   `JobRunnerTest`. Close the session returned by `MockitoAnnotations.openMocks()`
   in `LogRequestFilterTest`.
 - [ ] Close accepted sockets/readers and server sockets in the metrics fixtures.

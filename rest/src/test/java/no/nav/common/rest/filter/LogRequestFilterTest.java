@@ -15,12 +15,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 import no.nav.common.log.MDCConstants;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class LogRequestFilterTest {
     @Mock
@@ -35,12 +38,17 @@ public class LogRequestFilterTest {
     private LogRequestFilter logRequestFilter;
 
     private ListAppender<ILoggingEvent> filterAppender;
+    private AutoCloseable mocksSession;
+    private Map<String, String> originalContextMap;
 
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
     private final Logger filterLogger = (Logger) LoggerFactory.getLogger(LogRequestFilter.class);
 
     @Before
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
+        originalContextMap = MDC.getCopyOfContextMap();
+        MDC.clear();
+        mocksSession = MockitoAnnotations.openMocks(this);
 
         filterAppender = new ListAppender<>();
         filterAppender.start();
@@ -51,6 +59,28 @@ public class LogRequestFilterTest {
         when(request.getRequestURL()).thenReturn(new StringBuffer("/api/endpoint1"));
         when(request.getHeader(NAV_CONSUMER_ID_HEADER_NAME)).thenReturn("callingApp");
         when(request.getHeader(NAV_CALL_ID_HEADER_NAME)).thenReturn("some_call_id");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        try {
+            if (filterAppender != null) {
+                filterLogger.detachAppender(filterAppender);
+                filterAppender.stop();
+            }
+        } finally {
+            try {
+                if (mocksSession != null) {
+                    mocksSession.close();
+                }
+            } finally {
+                if (originalContextMap == null) {
+                    MDC.clear();
+                } else {
+                    MDC.setContextMap(originalContextMap);
+                }
+            }
+        }
     }
 
     @Test

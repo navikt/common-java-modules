@@ -6,18 +6,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.getunleash.UnleashContext;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ByClusterStrategyTest {
 
     private static final UnleashContext EMPTY_CONTEXT = UnleashContext.builder().build();
 
-    private ByClusterStrategy byClusterStrategy = new ByClusterStrategy();
+    private final ByClusterStrategy byClusterStrategy = new ByClusterStrategy();
+    private Properties originalProperties;
+
+    @Before
+    public void setUp() {
+        originalProperties = (Properties) System.getProperties().clone();
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperties(originalProperties);
+    }
 
     @Test
-    public void smoketest() {
+    @SuppressWarnings("DataFlowIssue") // Tester defensiv null-input utenfor SDK-kontrakten.
+    public void skal_returnere_false_naar_parameterkart_er_null() {
         assertThat(byClusterStrategy.isEnabled(null, EMPTY_CONTEXT)).isFalse();
+    }
 
+    @Test
+    public void smokeTest() {
         assertDisabled(null, "preprod-fss");
         assertDisabled(null, "");
         assertDisabled("preprod-fss", null);

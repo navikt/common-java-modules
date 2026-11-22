@@ -18,9 +18,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Properties;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class UrlUtilsTest {
+
+    private Properties originalProperties;
+
+    @Before
+    public void setUp() {
+        originalProperties = (Properties) System.getProperties().clone();
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperties(originalProperties);
+    }
 
     @Test
     public void createServiceUrl__should_create_correct_urls() {
@@ -117,6 +132,7 @@ public class UrlUtilsTest {
         assertThat(startMedSlash("/abc")).isEqualTo("/abc");
     }
 
+    @SuppressWarnings("HttpUrlsUsage")
     @Test
     public void test_joinPaths() {
         assertThat(joinPaths((String[]) null)).isEqualTo("/");

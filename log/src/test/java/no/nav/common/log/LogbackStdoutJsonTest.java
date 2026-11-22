@@ -6,19 +6,47 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.MDC;
 
 @Slf4j
 public class LogbackStdoutJsonTest {
 
+    private PrintStream originalOut;
+    private PrintStream capturedOut;
+    private Map<String, String> originalContextMap;
+
+    @Before
+    public void setUp() {
+        originalOut = System.out;
+        originalContextMap = MDC.getCopyOfContextMap();
+        MDC.clear();
+    }
+
+    @After
+    public void tearDown() {
+        try {
+            System.setOut(originalOut);
+            if (capturedOut != null) {
+                capturedOut.close();
+            }
+        } finally {
+            if (originalContextMap == null) {
+                MDC.clear();
+            } else {
+                MDC.setContextMap(originalContextMap);
+            }
+        }
+    }
+
     @Test
     public void fodselsnummerSkalMaskerer() throws JoranException {
-        PrintStream out = System.out;
-
         LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
 
@@ -43,14 +71,10 @@ public class LogbackStdoutJsonTest {
 
         LogLinje skalIkkeBliMaskert = logLinjes.get(1);
         Assert.assertEquals(skalIkkeMaskeres, skalIkkeBliMaskert.message);
-
-        System.setOut(out);
     }
 
     @Test
     public void loglinjeSkalInkludereMDCFelter() throws JoranException {
-        PrintStream out = System.out;
-
         LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
 
@@ -67,14 +91,10 @@ public class LogbackStdoutJsonTest {
         var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
         Assert.assertEquals("skal bare vere 1 log lingjer", 1, logLinjes.size());
         Assert.assertTrue(logtext.contains(mdcKey));
-
-        System.setOut(out);
     }
 
     @Test
     public void skal_logge_json_med_logbackStdoutJson() throws JoranException {
-        PrintStream out = System.out;
-
         LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
 
@@ -117,8 +137,6 @@ public class LogbackStdoutJsonTest {
             Assert.assertNotNull(l.level);
             Assert.assertNotEquals(0, l.level_value);
         });
-
-        System.setOut(out);
     }
 
     private static List<LogLinje> hentLinjerSomStarterMedCurlyBraces(String logtext) {
@@ -129,9 +147,10 @@ public class LogbackStdoutJsonTest {
                 .toList();
     }
 
-    private static ByteArrayOutputStream captureSystemOut() {
+    private ByteArrayOutputStream captureSystemOut() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStream));
+        capturedOut = new PrintStream(outputStream);
+        System.setOut(capturedOut);
         return outputStream;
     }
 }

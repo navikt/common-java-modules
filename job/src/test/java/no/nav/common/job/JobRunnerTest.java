@@ -13,10 +13,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 @Slf4j
 public class JobRunnerTest {
     private ListAppender<ILoggingEvent> jobAppender;
+    private Map<String, String> originalContextMap;
 
     // Testen skal fange loggmeldinger fra produksjonsklassen.
     @SuppressWarnings("LoggerInitializedWithForeignClass")
@@ -24,6 +26,8 @@ public class JobRunnerTest {
 
     @Before
     public void setUp() {
+        originalContextMap = MDC.getCopyOfContextMap();
+        MDC.clear();
         jobAppender = new ListAppender<>();
         jobAppender.start();
         jobLogger.addAppender(jobAppender);
@@ -31,7 +35,18 @@ public class JobRunnerTest {
 
     @After
     public void tearDown() {
-        jobLogger.detachAppender(jobAppender);
+        try {
+            if (jobAppender != null) {
+                jobLogger.detachAppender(jobAppender);
+                jobAppender.stop();
+            }
+        } finally {
+            if (originalContextMap == null) {
+                MDC.clear();
+            } else {
+                MDC.setContextMap(originalContextMap);
+            }
+        }
     }
 
     @Test
@@ -71,11 +86,16 @@ public class JobRunnerTest {
             testAppender.start();
             testLogger.addAppender(testAppender);
 
-            testLogger.info("test");
+            try {
+                testLogger.info("test");
 
-            assertEquals(
-                    Map.of("jobName", "test", "jobId", "id"),
-                    testAppender.list.getFirst().getMDCPropertyMap());
+                assertEquals(
+                        Map.of("jobName", "test", "jobId", "id"),
+                        testAppender.list.getFirst().getMDCPropertyMap());
+            } finally {
+                testLogger.detachAppender(testAppender);
+                testAppender.stop();
+            }
         });
     }
 }
