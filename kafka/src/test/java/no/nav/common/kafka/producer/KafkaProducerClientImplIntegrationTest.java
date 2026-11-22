@@ -76,7 +76,7 @@ public class KafkaProducerClientImplIntegrationTest {
     public void afterEach() {
         try {
             if (consumerClient != null) {
-                consumerClient.stop();
+                consumerClient.close();
             }
         } finally {
             if (producerClient != null) {

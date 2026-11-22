@@ -25,6 +25,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
 
+@SuppressWarnings("unused")
 @Slf4j
 public class KafkaConsumerClientBuilder {
 
@@ -33,6 +34,8 @@ public class KafkaConsumerClientBuilder {
     private Properties properties;
 
     private long pollDurationMs = -1;
+
+    private boolean registerShutdownHook = true;
 
     private Supplier<Boolean> isConsumerToggledOffSupplier;
 
@@ -67,6 +70,20 @@ public class KafkaConsumerClientBuilder {
         return this;
     }
 
+    /**
+     * Velger om klienten skal registrere en JVM-shutdown-hook. Standardverdien er true.
+     *
+     * <p>Ved false må applikasjonen kalle close før delte ressurser avvikles.
+     * Valget gjelder også den underliggende klienten ved bruk av withToggle.
+     *
+     * @param registerShutdownHook true for automatisk lukking ved JVM-shutdown
+     * @return denne builderen
+     */
+    public KafkaConsumerClientBuilder withShutdownHookEnabled(boolean registerShutdownHook) {
+        this.registerShutdownHook = registerShutdownHook;
+        return this;
+    }
+
     public KafkaConsumerClient build() {
         if (properties == null) {
             throw new IllegalStateException("Cannot build kafka consumer without properties");
@@ -89,7 +106,7 @@ public class KafkaConsumerClientBuilder {
             config.setPollDurationMs(pollDurationMs);
         }
 
-        var client = new KafkaConsumerClientImpl<>(config);
+        var client = new KafkaConsumerClientImpl<>(config, registerShutdownHook);
 
         if (isConsumerToggledOffSupplier != null) {
             return new FeatureToggledKafkaConsumerClient(client, isConsumerToggledOffSupplier);
@@ -166,6 +183,7 @@ public class KafkaConsumerClientBuilder {
         }
     }
 
+    @SuppressWarnings({"unused", "LombokGetterMayBeUsed"})
     public static class TopicConfig<K, V> {
 
         private final List<TopicConsumerListener<K, V>> listeners = new ArrayList<>();

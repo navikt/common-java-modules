@@ -15,6 +15,7 @@ import no.nav.common.kafka.consumer.feilhandtering.backoff.LinearBackoffStrategy
 import no.nav.common.kafka.consumer.util.KafkaConsumerClientBuilder;
 import no.nav.common.kafka.consumer.util.TopicConsumerConfig;
 
+@SuppressWarnings("unused")
 public class KafkaConsumerRecordProcessorBuilder {
 
     private static final Duration DEFAULT_ERROR_TIMEOUT = Duration.ofMinutes(5);
@@ -35,6 +36,8 @@ public class KafkaConsumerRecordProcessorBuilder {
     private List<TopicConsumerConfig<?, ?>> topicConsumerConfigs;
 
     private MeterRegistry meterRegistry;
+
+    private boolean registerShutdownHook = true;
 
     private final KafkaConsumerRecordProcessorConfig config = new KafkaConsumerRecordProcessorConfig(
             DEFAULT_ERROR_TIMEOUT, DEFAULT_POLL_TIMEOUT, DEFAULT_RECORDS_BATCH_SIZE, DEFAULT_RETRY_BACKOFF_STRATEGY);
@@ -91,6 +94,19 @@ public class KafkaConsumerRecordProcessorBuilder {
         return this;
     }
 
+    /**
+     * Velger om prosessoren skal registrere en JVM-shutdown-hook. Standardverdien er true.
+     *
+     * <p>Ved false må applikasjonen kalle close før repositoryet og andre delte ressurser avvikles.
+     *
+     * @param registerShutdownHook true for automatisk lukking ved JVM-shutdown
+     * @return denne builderen
+     */
+    public KafkaConsumerRecordProcessorBuilder withShutdownHookEnabled(boolean registerShutdownHook) {
+        this.registerShutdownHook = registerShutdownHook;
+        return this;
+    }
+
     public KafkaConsumerRecordProcessor build() {
         if (lockProvider == null) {
             throw new IllegalStateException("Cannot build kafka consumer record processor without lockProvider");
@@ -123,6 +139,7 @@ public class KafkaConsumerRecordProcessorBuilder {
                 kafkaConsumerRepository,
                 createTopicConsumers(topicConsumerConfigs),
                 config,
-                meterRegistry);
+                meterRegistry,
+                registerShutdownHook);
     }
 }
