@@ -5,11 +5,11 @@ import static no.nav.common.utils.NaisUtils.SECRETS_BASE_PATH_PROPERTY_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
-import lombok.SneakyThrows;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,8 +26,7 @@ public class NaisUtilsTest {
     }
 
     @Test
-    @SneakyThrows
-    public void readFileContent() {
+    public void readFileContent() throws IOException {
         createFolder("foo", "bar");
         writeFile("foo/bar/baz", "the content");
         String fileContent = NaisUtils.getFileContent(tempPath("foo/bar/baz"));
@@ -35,7 +34,7 @@ public class NaisUtilsTest {
     }
 
     @Test
-    public void readCredentialsWithDefaultFileNames() {
+    public void readCredentialsWithDefaultFileNames() throws IOException {
         createFolder("creds");
         writeFile("creds/username", "the username");
         writeFile("creds/password", "the password");
@@ -45,7 +44,7 @@ public class NaisUtilsTest {
     }
 
     @Test
-    public void readCredentialsWithCustomFileNames() {
+    public void readCredentialsWithCustomFileNames() throws IOException {
         createFolder("creds");
         writeFile("creds/un", "the username");
         writeFile("creds/pw", "the password");
@@ -55,7 +54,7 @@ public class NaisUtilsTest {
     }
 
     @Test
-    public void readConfigMap() {
+    public void readConfigMap() throws IOException {
         createFolder("configMaps", "configMap");
         System.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
@@ -72,7 +71,7 @@ public class NaisUtilsTest {
     }
 
     @Test
-    public void cherryPickFromConfigMap() {
+    public void cherryPickFromConfigMap() throws IOException {
         createFolder("configMaps", "configMap");
         System.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
@@ -88,7 +87,7 @@ public class NaisUtilsTest {
     }
 
     @Test
-    public void cherryPickFromConfigMapFailsWhenKeyIsNotFound() {
+    public void cherryPickFromConfigMapFailsWhenKeyIsNotFound() throws IOException {
         createFolder("configMaps", "configMap");
         System.setProperty(CONFIG_MAPS_BASE_PATH_PROPERTY_NAME, tempPath("configMaps"));
 
@@ -100,13 +99,11 @@ public class NaisUtilsTest {
                 .hasMessage("Fant ikke key KEY_4 i config map configMap");
     }
 
-    @SneakyThrows
-    private void createFolder(String... folderNames) {
+    private void createFolder(String... folderNames) throws IOException {
         tmp.newFolder(folderNames);
     }
 
-    @SneakyThrows
-    private void writeFile(String path, String content) {
+    private void writeFile(String path, String content) throws IOException {
         Files.write(Paths.get(tempPath(path)), Collections.singletonList(content));
     }
 

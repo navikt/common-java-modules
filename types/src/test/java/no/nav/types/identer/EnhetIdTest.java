@@ -31,7 +31,7 @@ public class EnhetIdTest {
 
         EnhetIdWrapper wrapper = mapper.readValue(wrapperJson, EnhetIdWrapper.class);
 
-        assertEquals(wrapper.getEnhetId().get(), "1234");
+        assertEquals("1234", wrapper.getEnhetId().get());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class EnhetIdTest {
 
         EnhetIdWrapper wrapper = JsonUtils.fromJson(wrapperJson, EnhetIdWrapper.class);
 
-        assertEquals(wrapper.getEnhetId().get(), "1234");
+        assertEquals("1234", wrapper.getEnhetId().get());
     }
 
     @Test
@@ -73,9 +73,9 @@ public class EnhetIdTest {
     private static class EnhetIdWrapper {
         public EnhetId enhetId;
 
-        public EnhetIdWrapper() {
-            enhetId = null;
-        }
+        // Brukes av Jackson ved deserialisering.
+        @SuppressWarnings("unused")
+        public EnhetIdWrapper() {}
 
         public EnhetIdWrapper(EnhetId enhetId) {
             this.enhetId = enhetId;

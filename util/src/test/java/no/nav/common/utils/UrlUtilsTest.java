@@ -60,45 +60,45 @@ public class UrlUtilsTest {
 
     @Test
     public void createAppAdeoPreprodIngressUrl__should_create_ingress_with_context_path() {
-        assertEquals(createAppAdeoPreprodIngressUrl("veilarbtest", "q1"), "https://app-q1.adeo.no/veilarbtest");
+        assertEquals("https://app-q1.adeo.no/veilarbtest", createAppAdeoPreprodIngressUrl("veilarbtest", "q1"));
     }
 
     @Test
     public void createAppAdeoProdIngressUrl__should_create_ingress_with_context_path() {
-        assertEquals(createAppAdeoProdIngressUrl("veilarbtest"), "https://app.adeo.no/veilarbtest");
+        assertEquals("https://app.adeo.no/veilarbtest", createAppAdeoProdIngressUrl("veilarbtest"));
     }
 
     @Test
     public void createNaisAdeoIngressUrl__should_create_ingress_with_context_path() {
-        assertEquals(createNaisAdeoIngressUrl("veilarbtest", true), "https://veilarbtest.nais.adeo.no/veilarbtest");
+        assertEquals("https://veilarbtest.nais.adeo.no/veilarbtest", createNaisAdeoIngressUrl("veilarbtest", true));
     }
 
     @Test
     public void createNaisAdeoIngressUrl__should_create_ingress_without_context_path() {
-        assertEquals(createNaisAdeoIngressUrl("veilarbtest", false), "https://veilarbtest.nais.adeo.no");
+        assertEquals("https://veilarbtest.nais.adeo.no", createNaisAdeoIngressUrl("veilarbtest", false));
     }
 
     @Test
     public void createDevAdeoIngressUrl__should_create_ingress_with_context_path() {
-        assertEquals(createDevAdeoIngressUrl("veilarbtest", true), "https://veilarbtest.dev.adeo.no/veilarbtest");
+        assertEquals("https://veilarbtest.dev.adeo.no/veilarbtest", createDevAdeoIngressUrl("veilarbtest", true));
     }
 
     @Test
     public void createDevAdeoIngressUrl__should_create_ingress_without_context_path() {
-        assertEquals(createDevAdeoIngressUrl("veilarbtest", false), "https://veilarbtest.dev.adeo.no");
+        assertEquals("https://veilarbtest.dev.adeo.no", createDevAdeoIngressUrl("veilarbtest", false));
     }
 
     @Test
     public void createNaisPreprodIngressUrl__should_create_ingress_with_context_path() {
         assertEquals(
-                createNaisPreprodIngressUrl("veilarbtest", "q1", true),
-                "https://veilarbtest-q1.nais.preprod.local/veilarbtest");
+                "https://veilarbtest-q1.nais.preprod.local/veilarbtest",
+                createNaisPreprodIngressUrl("veilarbtest", "q1", true));
     }
 
     @Test
     public void createNaisPreprodIngressUrl__should_create_ingress_without_context_path() {
         assertEquals(
-                createNaisPreprodIngressUrl("veilarbtest", "q1", false), "https://veilarbtest-q1.nais.preprod.local");
+                "https://veilarbtest-q1.nais.preprod.local", createNaisPreprodIngressUrl("veilarbtest", "q1", false));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class UrlUtilsTest {
 
     @Test
     public void test_joinPaths() {
-        assertThat(joinPaths(null)).isEqualTo("/");
+        assertThat(joinPaths((String[]) null)).isEqualTo("/");
         assertThat(joinPaths(null, null, null)).isEqualTo("/");
         assertThat(joinPaths("/", "", "/", "/")).isEqualTo("/");
         assertThat(joinPaths("abc", "def")).isEqualTo("/abc/def");

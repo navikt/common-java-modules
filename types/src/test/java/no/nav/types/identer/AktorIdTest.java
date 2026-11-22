@@ -31,7 +31,7 @@ public class AktorIdTest {
 
         AktorIdWrapper wrapper = mapper.readValue(wrapperJson, AktorIdWrapper.class);
 
-        assertEquals(wrapper.getAktorId().get(), "123534252");
+        assertEquals("123534252", wrapper.getAktorId().get());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class AktorIdTest {
 
         AktorIdWrapper wrapper = JsonUtils.fromJson(wrapperJson, AktorIdWrapper.class);
 
-        assertEquals(wrapper.getAktorId().get(), "123534252");
+        assertEquals("123534252", wrapper.getAktorId().get());
     }
 
     @Test
@@ -73,9 +73,9 @@ public class AktorIdTest {
     private static class AktorIdWrapper {
         public AktorId aktorId;
 
-        public AktorIdWrapper() {
-            aktorId = null;
-        }
+        // Brukes av Jackson ved deserialisering.
+        @SuppressWarnings("unused")
+        public AktorIdWrapper() {}
 
         public AktorIdWrapper(AktorId aktorId) {
             this.aktorId = aktorId;

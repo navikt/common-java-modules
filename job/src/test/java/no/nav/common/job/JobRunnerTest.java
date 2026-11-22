@@ -1,20 +1,26 @@
 package no.nav.common.job;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThrows;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class JobRunnerTest {
-
     private ListAppender<ILoggingEvent> jobAppender;
-    private Logger jobLogger = (Logger) LoggerFactory.getLogger(JobRunner.class);
+
+    // Testen skal fange loggmeldinger fra produksjonsklassen.
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
+    private final Logger jobLogger = (Logger) LoggerFactory.getLogger(JobRunner.class);
 
     @Before
     public void setUp() {
@@ -40,12 +46,14 @@ public class JobRunnerTest {
 
     @Test
     public void should_log_job_start_and_failure() {
-        try {
-            JobRunner.run("test", "id", () -> {
-                throw new RuntimeException();
-            });
-        } catch (Exception e) {
-        }
+        RuntimeException expectedException = new RuntimeException();
+        RuntimeException actualException = assertThrows(
+                RuntimeException.class,
+                () -> JobRunner.run("test", "id", () -> {
+                    throw expectedException;
+                }));
+
+        assertSame(expectedException, actualException);
 
         assertEquals(2, jobAppender.list.size());
         assertEquals(
@@ -57,7 +65,7 @@ public class JobRunnerTest {
     @Test
     public void should_add_mdc_properties() {
         JobRunner.run("test", "id", () -> {
-            Logger testLogger = (Logger) LoggerFactory.getLogger(JobRunnerTest.class);
+            Logger testLogger = (Logger) log;
             ListAppender<ILoggingEvent> testAppender = new ListAppender<>();
 
             testAppender.start();

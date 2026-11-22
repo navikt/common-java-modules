@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
 import no.nav.common.kafka.consumer.KafkaConsumerClientImpl;
@@ -44,7 +43,6 @@ public class KafkaProducerClientImplIntegrationTest {
     private KafkaProducerClientImpl<String, String> producerClient;
     private String testTopic;
 
-    @SneakyThrows
     @BeforeClass
     public static void setup() {
         kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));

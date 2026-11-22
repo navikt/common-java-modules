@@ -1,12 +1,13 @@
 package no.nav.common.kafka.utils;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.UUID;
-import lombok.SneakyThrows;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -18,8 +19,7 @@ public class TestUtils {
 
     public static final String KAFKA_IMAGE = "confluentinc/cp-kafka:7.5.1";
 
-    @SneakyThrows
-    public static String readTestResourceFile(String fileName) {
+    public static String readTestResourceFile(String fileName) throws URISyntaxException, IOException {
         URL fileUrl = TestUtils.class.getClassLoader().getResource(fileName);
         Path resPath = Paths.get(fileUrl.toURI());
         return Files.readString(resPath);

@@ -191,8 +191,9 @@ public class KafkaConsumerClientTest {
         consumerClient.start();
 
         // Assert
-        assertCommittedOffsetEquals(multiPartitionTopic, 3, 0);
-        assertCommittedOffsetEquals(multiPartitionTopic, 4, 1);
+        await().atMost(Duration.ofSeconds(5))
+                .until(() -> assertCommittedOffsetEquals(multiPartitionTopic, 3, 0)
+                        && assertCommittedOffsetEquals(multiPartitionTopic, 4, 1));
 
         await().atMost(Duration.ofSeconds(5)).until(() -> counter.get() == 7);
         consumerClient.stop();
@@ -204,12 +205,19 @@ public class KafkaConsumerClientTest {
         var messagesReadCounterA = new AtomicInteger();
         var messagesReadCounterB = new AtomicInteger();
         var maxRecordOffsetB = new AtomicLong(-1);
+        TopicConsumer<String, String> failOnOffsetConsumer = consumerRecord -> {
+            messagesReadCounterB.incrementAndGet();
+            maxRecordOffsetB.set(Math.max(maxRecordOffsetB.get(), consumerRecord.offset()));
+            return consumerRecord.offset() == 2 ? ConsumeStatus.FAILED : ConsumeStatus.OK;
+        };
 
         var config = new KafkaConsumerClientConfig<>(
                 kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId),
                 Map.of(
-                        testTopicA, consumerWithCounterAndSleep(messagesReadCounterA, 0),
-                        testTopicB, failOnOffsetConsumer(maxRecordOffsetB, messagesReadCounterB, 2)));
+                        testTopicA,
+                        consumerWithCounterAndSleep(messagesReadCounterA, 0),
+                        testTopicB,
+                        failOnOffsetConsumer));
 
         var consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
@@ -237,9 +245,15 @@ public class KafkaConsumerClientTest {
     public void should_stop_consumption_of_topic_on_and_seek_back_to_retry_until_it_succeeds() {
         // Arrange
         var doFail = new AtomicBoolean(true);
+        TopicConsumer<String, String> failOnMessage = consumerRecord -> {
+            if (consumerRecord.value().equals("value3") && doFail.get()) {
+                return ConsumeStatus.FAILED;
+            }
+            return ConsumeStatus.OK;
+        };
         Properties properties = kafkaTestConsumerProperties(kafka.getBootstrapServers(), consumerGroupId);
         properties.setProperty(MAX_POLL_RECORDS_CONFIG, "4");
-        var config = new KafkaConsumerClientConfig<>(properties, Map.of(testTopicA, failOnMessage("value3", doFail)));
+        var config = new KafkaConsumerClientConfig<>(properties, Map.of(testTopicA, failOnMessage));
 
         var consumerClient = new KafkaConsumerClientImpl<>(config);
         // Act
@@ -357,25 +371,6 @@ public class KafkaConsumerClientTest {
                 Thread.sleep(sleep);
                 counter.incrementAndGet();
             } catch (Exception ignored) {
-            }
-            return ConsumeStatus.OK;
-        };
-    }
-
-    private TopicConsumer<String, String> failOnOffsetConsumer(
-            AtomicLong maxRecord, AtomicInteger counter, int offset) {
-        return record -> {
-            counter.incrementAndGet();
-            maxRecord.set(Math.max(maxRecord.get(), record.offset()));
-
-            return record.offset() == offset ? ConsumeStatus.FAILED : ConsumeStatus.OK;
-        };
-    }
-
-    private TopicConsumer<String, String> failOnMessage(String message, AtomicBoolean doFail) {
-        return record -> {
-            if (record.value().equals(message) && doFail.get()) {
-                return ConsumeStatus.FAILED;
             }
             return ConsumeStatus.OK;
         };

@@ -54,7 +54,7 @@ public class UserTokenFinderTest {
         HttpServletRequest servletRequest = mock(HttpServletRequest.class);
         when(servletRequest.getHeader("Authorization")).thenReturn(null);
 
-        Optional<String> maybeToken = new ServiceUserTokenFinder().findToken(servletRequest);
+        Optional<String> maybeToken = new UserTokenFinder().findToken(servletRequest);
 
         assertTrue(maybeToken.isEmpty());
     }

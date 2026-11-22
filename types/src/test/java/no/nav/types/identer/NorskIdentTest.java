@@ -32,7 +32,7 @@ public class NorskIdentTest {
 
         NorskIdentWrapper wrapper = mapper.readValue(wrapperJson, NorskIdentWrapper.class);
 
-        assertEquals(wrapper.getNorskIdent().get(), "123534252");
+        assertEquals("123534252", wrapper.getNorskIdent().get());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class NorskIdentTest {
 
         NorskIdentWrapper wrapper = JsonUtils.fromJson(wrapperJson, NorskIdentWrapper.class);
 
-        assertEquals(wrapper.getNorskIdent().get(), "123534252");
+        assertEquals("123534252", wrapper.getNorskIdent().get());
     }
 
     @Test
@@ -74,9 +74,9 @@ public class NorskIdentTest {
     private static class NorskIdentWrapper {
         public NorskIdent norskIdent;
 
-        public NorskIdentWrapper() {
-            norskIdent = null;
-        }
+        // Brukes av Jackson ved deserialisering.
+        @SuppressWarnings("unused")
+        public NorskIdentWrapper() {}
 
         public NorskIdentWrapper(NorskIdent norskIdent) {
             this.norskIdent = norskIdent;

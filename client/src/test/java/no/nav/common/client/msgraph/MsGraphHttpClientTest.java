@@ -5,10 +5,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -21,7 +19,6 @@ import no.nav.common.types.identer.AzureObjectId;
 import no.nav.common.types.identer.EnhetId;
 import org.junit.Rule;
 import org.junit.Test;
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -34,14 +31,14 @@ public class MsGraphHttpClientTest {
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/msgraph/";
 
     @Test
-    public void hentUserData_skal_hente_data() {
+    public void hentUserData_skal_hente_data() throws Exception {
         // Arrange
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data.json");
         UserData expectedData = JsonUtils.fromJson(json, UserData.class);
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/me"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/me"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
                 .willReturn(aResponse().withStatus(200).withBody(json)));
@@ -56,14 +53,14 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentOnPremisesSamAccountName_skal_hente_OnPremisesSamAccountName() {
+    public void hentOnPremisesSamAccountName_skal_hente_OnPremisesSamAccountName() throws Exception {
         // Arrange
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "on-prem-sam-account-name.json");
         OnPremisesSamAccountName expectedData = JsonUtils.fromJson(json, OnPremisesSamAccountName.class);
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/me"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/me"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .withQueryParam("$select", equalTo("onPremisesSamAccountName"))
                 .willReturn(aResponse().withStatus(200).withBody(json)));
@@ -78,7 +75,7 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentUserDataForGroup_skal_hente_data_for_gruppe() throws JacksonException {
+    public void hentUserDataForGroup_skal_hente_data_for_gruppe() throws Exception {
         // Arrange
         var mapper = new ObjectMapper();
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data-for-group.json");
@@ -89,7 +86,7 @@ public class MsGraphHttpClientTest {
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups/1234/members"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/groups/1234/members"))
                 .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(json)));
@@ -104,7 +101,7 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentUserDataForGroup_skal_hente_data_for_enhet() throws JacksonException {
+    public void hentUserDataForGroup_skal_hente_data_for_enhet() throws Exception {
         // Arrange
         var mapper = new ObjectMapper();
         String groupIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "group-id.json");
@@ -118,13 +115,13 @@ public class MsGraphHttpClientTest {
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/groups"))
                 .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("displayName eq '0000-GA-ENHET_0123'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(groupIdJson)));
 
-        givenThat(get(urlPathEqualTo("/groups/group-123-id/members"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/groups/group-123-id/members"))
                 .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(userDataForGroupJson)));
@@ -137,9 +134,9 @@ public class MsGraphHttpClientTest {
         // Assert
         assertEquals(expectedData, result);
 
-        verify(getRequestedFor(urlPathEqualTo("/groups"))
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/groups"))
                 .withQueryParam("$filter", equalTo("displayName eq '0000-GA-ENHET_0123'")));
-        verify(getRequestedFor(urlPathEqualTo("/groups/group-123-id/members")));
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/groups/group-123-id/members")));
     }
 
     @Test(expected = StreamReadException.class)
@@ -147,7 +144,7 @@ public class MsGraphHttpClientTest {
         // Arrange
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups/1234/members"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/groups/1234/members"))
                 .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody("{invalid json content}")));
@@ -163,7 +160,7 @@ public class MsGraphHttpClientTest {
         // Arrange
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/groups/1234/members"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/groups/1234/members"))
                 .willReturn(aResponse().withStatus(200).withBody("")));
 
         var klient = new MsGraphHttpClient(baseUrl);
@@ -176,7 +173,7 @@ public class MsGraphHttpClientTest {
     public void skal_pinge_riktig_url() {
         // Arrange
         String baseUrl = "http://localhost:" + wireMockRule.port();
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         var client = new MsGraphHttpClient(baseUrl);
 
@@ -185,18 +182,18 @@ public class MsGraphHttpClientTest {
 
         // Assert
         assertTrue(healthy);
-        verify(getRequestedFor(urlEqualTo("/")));
+        wireMockRule.verify(getRequestedFor(urlEqualTo("/")));
     }
 
     @Test
-    public void hentAzureGroupId_skal_hente_id_for_enhet() {
+    public void hentAzureGroupId_skal_hente_id_for_enhet() throws Exception {
         // Arrange
         String groupIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "group-id.json");
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
         var enhetId = new EnhetId("0123");
 
-        givenThat(get(urlPathEqualTo("/groups"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/groups"))
                 .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("displayName eq '0000-GA-ENHET_0123'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
@@ -212,14 +209,14 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentAzureIdMedNavIdent_skal_hente_id_for_nav_ident() {
+    public void hentAzureIdMedNavIdent_skal_hente_id_for_nav_ident() throws Exception {
         // Arrange
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String navIdent = "A123456";
 
-        givenThat(get(urlPathEqualTo("/users"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users"))
                 .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'A123456'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
@@ -242,7 +239,7 @@ public class MsGraphHttpClientTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String navIdent = "FINNES_IKKE";
 
-        givenThat(get(urlPathEqualTo("/users"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'FINNES_IKKE'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(json)));
@@ -261,7 +258,7 @@ public class MsGraphHttpClientTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String navIdent = "DUPLICATE";
 
-        givenThat(get(urlPathEqualTo("/users"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'DUPLICATE'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(json)));
@@ -276,7 +273,7 @@ public class MsGraphHttpClientTest {
     }
 
     @Test
-    public void hentAdGroupsForUser_skal_hente_grupper() throws JacksonException {
+    public void hentAdGroupsForUser_skal_hente_grupper() throws Exception {
         // Arrange
         var mapper = new ObjectMapper();
         String userIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
@@ -291,14 +288,14 @@ public class MsGraphHttpClientTest {
         String azureId = "azure-user-id-123";
 
         // Mock the first call to get Azure ID from NAV ident
-        givenThat(get(urlPathEqualTo("/users"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users"))
                 .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq '" + navIdent + "'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(userIdJson)));
 
         // Mock the second call to get AD groups
-        givenThat(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
                 .withQueryParam("$select", equalTo("id,displayName"))
                 .withQueryParam("$top", equalTo("999"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
@@ -311,11 +308,11 @@ public class MsGraphHttpClientTest {
 
         // Assert
         assertEquals(expectedGroups, result);
-        verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
     }
 
     @Test
-    public void hentAdGroupsForUser_med_enhet_filter_skal_hente_grupper_med_enhet_prefiks() {
+    public void hentAdGroupsForUser_med_enhet_filter_skal_hente_grupper_med_enhet_prefiks() throws Exception {
         // Arrange
         String userIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
         String adGroupsJson = TestUtils.readTestResourceFile(
@@ -325,13 +322,13 @@ public class MsGraphHttpClientTest {
         String navIdent = "A123456";
         String azureId = "azure-user-id-123";
 
-        givenThat(get(urlPathEqualTo("/users"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users"))
                 .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq '" + navIdent + "'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(userIdJson)));
 
-        givenThat(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
                 .withQueryParam("$select", equalTo("id,displayName"))
                 .withQueryParam("$top", equalTo("999"))
                 .withQueryParam("$filter", equalTo("startswith(displayName,'0000-GA-ENHET_')"))
@@ -350,18 +347,18 @@ public class MsGraphHttpClientTest {
 
         // Assert
         assertEquals(expectedResponse, actualResponse);
-        verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
     }
 
     @Test
-    public void hentAdGroupsForUser_med_enhet_filter_skal_hente_grupper_med_enhet_prefiks_me() {
+    public void hentAdGroupsForUser_med_enhet_filter_skal_hente_grupper_med_enhet_prefiks_me() throws Exception {
         // Arrange
         String adGroupsJson = TestUtils.readTestResourceFile(
                 TEST_RESOURCE_BASE_PATH + "ad-groups-filtered-by-enhet-prefix-response.json");
 
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(urlPathEqualTo("/me/memberOf"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/me/memberOf"))
                 .withQueryParam("$select", equalTo("id,displayName"))
                 .withQueryParam("$top", equalTo("999"))
                 .withQueryParam("$filter", equalTo("startswith(displayName,'0000-GA-ENHET_')"))
@@ -380,11 +377,11 @@ public class MsGraphHttpClientTest {
 
         // Assert
         assertEquals(expectedResponse, actualResponse);
-        verify(getRequestedFor(urlPathEqualTo("/me/memberOf")));
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/me/memberOf")));
     }
 
     @Test
-    public void hentAdGroupsForUser_med_tema_filter_skal_hente_grupper_med_tema_prefiks() {
+    public void hentAdGroupsForUser_med_tema_filter_skal_hente_grupper_med_tema_prefiks() throws Exception {
         // Arrange
         String userIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
         String adGroupsJson = TestUtils.readTestResourceFile(
@@ -394,13 +391,13 @@ public class MsGraphHttpClientTest {
         String navIdent = "A123456";
         String azureId = "azure-user-id-123";
 
-        givenThat(get(urlPathEqualTo("/users"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users"))
                 .withQueryParam("$select", equalTo("id"))
                 .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq '" + navIdent + "'"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
                 .willReturn(aResponse().withStatus(200).withBody(userIdJson)));
 
-        givenThat(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
+        wireMockRule.stubFor(get(urlPathEqualTo("/users/" + azureId + "/memberOf"))
                 .withQueryParam("$select", equalTo("id,displayName"))
                 .withQueryParam("$top", equalTo("999"))
                 .withQueryParam("$filter", equalTo("startswith(displayName,'0000-GA-TEMA_')"))
@@ -420,6 +417,6 @@ public class MsGraphHttpClientTest {
 
         // Assert
         assertEquals(expectedResponse, actualResponse);
-        verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/users/" + azureId + "/memberOf")));
     }
 }

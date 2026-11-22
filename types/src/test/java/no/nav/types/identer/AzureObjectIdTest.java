@@ -32,7 +32,7 @@ public class AzureObjectIdTest {
 
         AzureObjectIdWrapper wrapper = mapper.readValue(wrapperJson, AzureObjectIdWrapper.class);
 
-        assertEquals(wrapper.getAzureObjectId().get(), "123534252");
+        assertEquals("123534252", wrapper.getAzureObjectId().get());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class AzureObjectIdTest {
 
         AzureObjectIdWrapper wrapper = JsonUtils.fromJson(wrapperJson, AzureObjectIdWrapper.class);
 
-        assertEquals(wrapper.getAzureObjectId().get(), "123534252");
+        assertEquals("123534252", wrapper.getAzureObjectId().get());
     }
 
     @Test
@@ -74,9 +74,9 @@ public class AzureObjectIdTest {
     private static class AzureObjectIdWrapper {
         public AzureObjectId azureObjectId;
 
-        public AzureObjectIdWrapper() {
-            azureObjectId = null;
-        }
+        // Brukes av Jackson ved deserialisering.
+        @SuppressWarnings("unused")
+        public AzureObjectIdWrapper() {}
 
         public AzureObjectIdWrapper(AzureObjectId azureObjectId) {
             this.azureObjectId = azureObjectId;

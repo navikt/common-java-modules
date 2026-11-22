@@ -1,14 +1,16 @@
 package no.nav.common.kafka.utils;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import javax.sql.DataSource;
-import lombok.SneakyThrows;
 
 public class DbUtils {
 
-    @SneakyThrows
-    public static void runScript(DataSource dataSource, String resourceFile) {
+    public static void runScript(DataSource dataSource, String resourceFile)
+            throws SQLException, URISyntaxException, IOException {
         try (Connection connection = dataSource.getConnection();
                 Statement statement = connection.createStatement()) {
             String sql = TestUtils.readTestResourceFile(resourceFile);
@@ -16,8 +18,7 @@ public class DbUtils {
         }
     }
 
-    @SneakyThrows
-    public static void cleanupConsumer(DataSource dataSource) {
+    public static void cleanupConsumer(DataSource dataSource) throws SQLException {
         try (Connection connection = dataSource.getConnection();
                 Statement statement = connection.createStatement()) {
             statement.execute("ALTER SEQUENCE KAFKA_CONSUMER_RECORD_ID_SEQ RESTART WITH 1");
@@ -25,8 +26,7 @@ public class DbUtils {
         }
     }
 
-    @SneakyThrows
-    public static void cleanupProducer(DataSource dataSource) {
+    public static void cleanupProducer(DataSource dataSource) throws SQLException {
         try (Connection connection = dataSource.getConnection();
                 Statement statement = connection.createStatement()) {
             statement.execute("ALTER SEQUENCE KAFKA_PRODUCER_RECORD_ID_SEQ RESTART WITH 1");

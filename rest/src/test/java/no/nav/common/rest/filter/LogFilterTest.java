@@ -8,7 +8,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,20 +17,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
 import org.slf4j.MDC;
 
+@Slf4j
 public class LogFilterTest {
 
-    private static final Logger LOG = getLogger(LogFilterTest.class);
-
-    private HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
-    private HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
-
-    private LogRequestFilter logRequestFilter = new LogRequestFilter("test");
+    private final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
+    private final HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
+    private final LogRequestFilter logRequestFilter = new LogRequestFilter("test");
 
     @Before
     public void setup() {
@@ -42,11 +39,11 @@ public class LogFilterTest {
     @Test
     public void smoketest() throws ServletException, IOException {
         logRequestFilter.doFilter(
-                httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 1"));
+                httpServletRequest, httpServletResponse, (request, response) -> log.info("testing logging 1"));
         logRequestFilter.doFilter(
-                httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 2"));
+                httpServletRequest, httpServletResponse, (request, response) -> log.info("testing logging 2"));
         logRequestFilter.doFilter(
-                httpServletRequest, httpServletResponse, (request, response) -> LOG.info("testing logging 3"));
+                httpServletRequest, httpServletResponse, (request, response) -> log.info("testing logging 3"));
     }
 
     @Test

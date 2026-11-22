@@ -3,6 +3,7 @@ package no.nav.common.cxf;
 import static no.nav.common.cxf.jetty.JettyTestServer.findFreePort;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.context.UserRole;
@@ -30,7 +31,7 @@ public class NAVOidcSTSClientIntegrationTest {
 
     @Before
     @SuppressWarnings("deprecation") // STS-integrasjonen bruker den beholdte CXF-bussadapteren.
-    public void setup() {
+    public void setup() throws IOException {
         testBus = BusFactory.newInstance().createBus();
         new CxfCertificateValidationDisabler().initialize(testBus);
         int port = findFreePort();

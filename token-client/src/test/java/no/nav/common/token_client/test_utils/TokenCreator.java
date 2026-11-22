@@ -1,5 +1,6 @@
 package no.nav.common.token_client.test_utils;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -20,19 +21,20 @@ public class TokenCreator {
 
     private final JWSSigner signer;
 
-    @SneakyThrows
+    // Opprettelse skjer via instance(), som brukes i Supplier-callbacker.
+    @SneakyThrows(JOSEException.class)
     private TokenCreator() {
         rsaJWK = new RSAKeyGenerator(2048).keyID(UUID.randomUUID().toString()).generate();
 
         signer = new RSASSASigner(rsaJWK);
     }
 
-    @SneakyThrows
     public String createToken(String subject) {
         return createToken(subject, 60 * 1000);
     }
 
-    @SneakyThrows
+    // Supplier-callbackene som bruker metoden, tillater ikke checked exceptions.
+    @SneakyThrows(JOSEException.class)
     public String createToken(String subject, int expireFromNowMs) {
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(subject)

@@ -2,7 +2,6 @@ package no.nav.common.featuretoggle;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
@@ -10,14 +9,15 @@ import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.getunleash.util.UnleashConfig;
 import io.getunleash.util.UnleashScheduledExecutor;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledFuture;
+import org.jspecify.annotations.NonNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class UnleashClientImplTest {
 
     @Before
     public void setup() {
-        givenThat(post(urlEqualTo("/client/register"))
+        wireMockRule.stubFor(post(urlEqualTo("/client/register"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
@@ -55,7 +55,7 @@ public class UnleashClientImplTest {
 
     @Test
     public void ping_ok() {
-        givenThat(get(urlEqualTo("/client/features"))
+        wireMockRule.stubFor(get(urlEqualTo("/client/features"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
@@ -69,7 +69,8 @@ public class UnleashClientImplTest {
         UnleashClientImpl unleashClientImpl = createService();
 
         asList(404, 500).forEach(errorStatus -> {
-            givenThat(get(urlEqualTo("/client/features")).willReturn(aResponse().withStatus(errorStatus)));
+            wireMockRule.stubFor(
+                    get(urlEqualTo("/client/features")).willReturn(aResponse().withStatus(errorStatus)));
             assertThat(unleashClientImpl.checkHealth().isHealthy()).isFalse();
         });
 
@@ -79,14 +80,14 @@ public class UnleashClientImplTest {
 
     private static class TestExecutor implements UnleashScheduledExecutor {
         @Override
-        public void setInterval(Runnable runnable, long l, long l1) throws RejectedExecutionException {
+        public void setInterval(@NonNull Runnable runnable, long l, long l1) throws RejectedExecutionException {
             scheduleOnce(runnable);
         }
 
         @Override
-        public ScheduledFuture scheduleOnce(Runnable runnable) {
+        public @NonNull Future<Void> scheduleOnce(@NonNull Runnable runnable) {
             runnable.run();
-            return mock(ScheduledFuture.class);
+            return CompletableFuture.completedFuture(null);
         }
     }
 }

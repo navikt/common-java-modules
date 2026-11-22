@@ -1,7 +1,6 @@
 package no.nav.common.test.junit;
 
 import java.util.Properties;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
@@ -17,7 +16,6 @@ public class SystemPropertiesRule implements MethodRule {
     }
 
     @Override
-    @SneakyThrows
     public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
         return new Statement() {
             @Override

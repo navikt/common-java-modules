@@ -11,13 +11,27 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
+import java.util.Properties;
 import no.nav.common.test.SystemProperties.NotFound;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class SystemPropertiesTest {
-
     public static final String TEST_PROP = "test-prop";
+
+    private Properties originalProperties;
+
+    @Before
+    public void setUp() {
+        originalProperties = (Properties) System.getProperties().clone();
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperties(originalProperties);
+    }
 
     @Test
     public void setsProperties() {
@@ -55,13 +69,11 @@ public class SystemPropertiesTest {
                 assertThat(getProperty(TEST_PROP), equalTo("b"));
             });
 
-            assertThatThrownBy(() -> {
-                        setTemporaryProperty(TEST_PROP, "c", () -> {
-                            c.run();
-                            assertThat(getProperty(TEST_PROP), equalTo("c"));
-                            throw new TestException();
-                        });
-                    })
+            assertThatThrownBy(() -> setTemporaryProperty(TEST_PROP, "c", () -> {
+                        c.run();
+                        assertThat(getProperty(TEST_PROP), equalTo("c"));
+                        throw new TestException();
+                    }))
                     .isInstanceOf(TestException.class);
 
             assertThat(getProperty(TEST_PROP), equalTo("a"));
@@ -75,11 +87,29 @@ public class SystemPropertiesTest {
 
     @Test
     public void setTemporaryProperty_handle_null_values() {
-        System.clearProperty(TEST_PROP);
-        assertThat(getProperty(TEST_PROP), nullValue());
+        System.setProperty(TEST_PROP, "original-value");
+        Runnable callback = Mockito.mock(Runnable.class);
+
         setTemporaryProperty(TEST_PROP, null, () -> {
-            // noop
+            callback.run();
+            assertThat(getProperty(TEST_PROP), nullValue());
         });
+
+        verify(callback).run();
+        assertThat(getProperty(TEST_PROP), equalTo("original-value"));
+    }
+
+    @Test
+    public void skal_beholde_manglende_property_etter_midlertidig_null_verdi() {
+        System.clearProperty(TEST_PROP);
+        Runnable callback = Mockito.mock(Runnable.class);
+
+        setTemporaryProperty(TEST_PROP, null, () -> {
+            callback.run();
+            assertThat(getProperty(TEST_PROP), nullValue());
+        });
+
+        verify(callback).run();
         assertThat(getProperty(TEST_PROP), nullValue());
     }
 }

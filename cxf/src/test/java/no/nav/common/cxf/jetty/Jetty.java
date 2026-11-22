@@ -2,15 +2,11 @@ package no.nav.common.cxf.jetty;
 
 import static jakarta.servlet.DispatcherType.REQUEST;
 import static java.lang.System.setProperty;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 import static org.apache.commons.io.FilenameUtils.getBaseName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import jakarta.servlet.Filter;
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,19 +14,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import javax.sql.DataSource;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.ee11.servlet.FilterHolder;
-import org.eclipse.jetty.ee11.webapp.FragmentConfiguration;
-import org.eclipse.jetty.ee11.webapp.JettyWebXmlConfiguration;
-import org.eclipse.jetty.ee11.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.ee11.webapp.WebAppContext;
-import org.eclipse.jetty.ee11.webapp.WebInfConfiguration;
-import org.eclipse.jetty.ee11.webapp.WebXmlConfiguration;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -38,15 +28,14 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Brukes til å starte opp en embedded Jetty-server, både synkront og asynkront.
+ * Starter en embedded Jetty-server for CXF-testene.
  */
+@SuppressWarnings("unused")
+@Slf4j
 public final class Jetty {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Jetty.class);
     static final String CLASSPATH_PATTERN = ".*(\\.jar|/(test-)?classes/?)";
 
     public static JettyBuilder usingWar(File file) {
@@ -64,16 +53,12 @@ public final class Jetty {
         private File war;
         private String contextPath;
         private int port = 35000;
-        private Optional<Integer> sslPort = empty();
+        private Integer sslPort;
         private WebAppContext context;
         private File overridewebXmlFile;
-        private boolean developmentMode;
-        private List<Class<?>> websocketEndpoints = new ArrayList<>();
-        private Map<String, DataSource> dataSources = new HashMap<>();
         private String extraClasspath;
-        private List<Filter> filters = new ArrayList<>();
-        private List<JettyCustomizer> customizers = new ArrayList<>();
-        private boolean disableAnnotationScanning;
+        private final List<Filter> filters = new ArrayList<>();
+        private final List<JettyCustomizer> customizers = new ArrayList<>();
         private boolean disableStatistics;
 
         public final JettyBuilder war(File warPath) {
@@ -92,7 +77,7 @@ public final class Jetty {
         }
 
         public final JettyBuilder sslPort(int sslPort) {
-            this.sslPort = of(sslPort);
+            this.sslPort = sslPort;
             return this;
         }
 
@@ -110,19 +95,17 @@ public final class Jetty {
             try {
                 loadPropertiesFile(propertyFile);
             } catch (IOException e) {
-                LOG.error("Kunne ikke laste {}", propertyFile, e);
+                log.error("Kunne ikke laste {}", propertyFile, e);
             }
             return this;
         }
 
+        @SuppressWarnings("java:S1172") // Beholdt for kompatibilitet; registreringen hadde ingen effekt.
         public final JettyBuilder websocketEndpoint(Class<?> endpointClass) {
-            this.websocketEndpoints.add(endpointClass);
             return this;
         }
 
-        // To enable CSRF etc.
         public final JettyBuilder setDeploymentMode() {
-            this.developmentMode = false;
             return this;
         }
 
@@ -131,8 +114,8 @@ public final class Jetty {
             return this;
         }
 
+        @SuppressWarnings("java:S1172") // Beholdt for kompatibilitet; datakildene ble ikke brukt.
         public final JettyBuilder addDatasource(DataSource dataSource, String jndiName) {
-            dataSources.put(jndiName, dataSource);
             return this;
         }
 
@@ -149,12 +132,6 @@ public final class Jetty {
         public JettyBuilder addCustomizer(JettyCustomizer jettyCustomizer) {
             this.customizers.add(jettyCustomizer);
             return this;
-        }
-
-        private static Properties readProperties(String propertyFile) throws IOException {
-            Properties env = new Properties();
-            env.load(System.class.getResourceAsStream(propertyFile));
-            return env;
         }
 
         public final Jetty buildJetty() {
@@ -182,23 +159,17 @@ public final class Jetty {
         }
 
         public JettyBuilder disableAnnotationScanning() {
-            this.disableAnnotationScanning = true;
             return this;
         }
     }
 
     private final int port;
-    private final Optional<Integer> sslPort;
+    private final Integer sslPort;
     private final File overrideWebXmlFile;
     private final String warPath;
     private final String contextPath;
     public final Server server;
     public final WebAppContext context;
-    private final Map<String, DataSource> dataSources;
-    private final List<Class<?>> websocketEndpoints;
-    private final boolean developmentMode;
-    private final String extraClasspath;
-    private final List<Filter> filters;
 
     public final Runnable stop = new Runnable() {
         @Override
@@ -206,37 +177,24 @@ public final class Jetty {
             try {
                 server.stop();
                 server.join();
-                LOG.info("JETTY STOPPED");
+                log.info("JETTY STOPPED");
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage(), e);
             }
         }
     };
 
-    private static final String[] CONFIGURATION_CLASSES = {
-        WebInfConfiguration.class.getName(),
-        WebXmlConfiguration.class.getName(),
-        MetaInfConfiguration.class.getName(),
-        FragmentConfiguration.class.getName(),
-        JettyWebXmlConfiguration.class.getName(),
-    };
-
-    private Jetty(String warPath, JettyBuilder builder) throws IOException {
+    private Jetty(String warPath, JettyBuilder builder) {
         this.warPath = warPath;
         this.overrideWebXmlFile = builder.overridewebXmlFile;
-        this.dataSources = builder.dataSources;
-        this.websocketEndpoints = builder.websocketEndpoints;
         this.port = builder.port;
         this.sslPort = builder.sslPort;
         this.contextPath = (builder.contextPath.startsWith("/") ? "" : "/") + builder.contextPath;
-        this.filters = builder.filters;
-        this.extraClasspath = builder.extraClasspath;
         this.context = setupWebapp(builder);
         this.server = setupJetty(new Server(), builder);
-        this.developmentMode = builder.developmentMode;
     }
 
-    private WebAppContext setupWebapp(JettyBuilder builder) throws IOException {
+    private WebAppContext setupWebapp(JettyBuilder builder) {
         WebAppContext webAppContext = builder.context;
         if (isNotBlank(contextPath)) {
             webAppContext.setContextPath(contextPath);
@@ -244,23 +202,18 @@ public final class Jetty {
         if (isNotBlank(warPath)) {
             webAppContext.setWar(warPath);
         }
-        if (isNotBlank(extraClasspath)) {
-            webAppContext.setExtraClasspath(extraClasspath);
+        if (isNotBlank(builder.extraClasspath)) {
+            webAppContext.setExtraClasspath(builder.extraClasspath);
         }
         if (overrideWebXmlFile != null) {
             webAppContext.setOverrideDescriptor(overrideWebXmlFile.getAbsolutePath());
         }
 
-        for (Filter filter : filters) {
+        for (Filter filter : builder.filters) {
             webAppContext.addFilter(new FilterHolder(filter), "/*", EnumSet.of(REQUEST));
         }
 
         Map<String, String> initParams = webAppContext.getInitParams();
-        if (developmentMode) {
-            initParams.put(
-                    "org.eclipse.jetty.servlet.Default.useFileMappedBuffer",
-                    "false"); // ikke hold filer i minne slik at de låses i windoze
-        }
         initParams.put("org.eclipse.jetty.servlet.Default.etags", "true");
         initParams.put(
                 "org.eclipse.jetty.servlet.SessionIdPathParameterName", "none"); // Forhindre url rewriting av sessionid
@@ -268,12 +221,7 @@ public final class Jetty {
         return webAppContext;
     }
 
-    private Server setupJetty(final Server jetty, JettyBuilder jettyBuilder) {
-        if (developmentMode) {
-            // Jetty 12 fjernet Resource.setDefaultUseCaches; vi setter det direkte på JDK-nivå (samme effekt)
-            java.net.URLConnection.setDefaultUseCaches("file", false);
-        }
-
+    private Server setupJetty(final Server jetty, JettyBuilder builder) {
         HttpConfiguration configuration = new HttpConfiguration();
         // Increase default buffer sizes to prevent failures due to large requests or responses
         // This increases memory usage but seems to be necessary to handle current heavy usage of cookies (!)
@@ -284,28 +232,29 @@ public final class Jetty {
         // Add support for X-Forwarded headers
         configuration.addCustomizer(new ForwardedRequestCustomizer());
 
-        jettyBuilder.customizers.forEach(customizer -> customizer.customize(configuration));
+        builder.customizers.forEach(customizer -> customizer.customize(configuration));
 
         ServerConnector httpConnector = new ServerConnector(jetty, new HttpConnectionFactory(configuration));
         httpConnector.setPort(port);
 
-        Optional<ServerConnector> sslConnector = sslPort.map(new CreateSslConnector(jetty, configuration));
         List<Connector> liste = new ArrayList<>();
         liste.add(httpConnector);
 
-        sslConnector.ifPresent(liste::add);
+        if (sslPort != null) {
+            liste.add(new CreateSslConnector(jetty, configuration).apply(sslPort));
+        }
 
-        Connector[] connectors = liste.toArray(new Connector[liste.size()]);
+        Connector[] connectors = liste.toArray(new Connector[0]);
         jetty.setConnectors(connectors);
         context.setServer(jetty);
 
-        jettyBuilder.customizers.forEach(customizer -> customizer.customize(context));
+        builder.customizers.forEach(customizer -> customizer.customize(context));
         jetty.setHandler(context);
 
-        if (!jettyBuilder.disableStatistics) {
+        if (!builder.disableStatistics) {
             addStatisticsHandler(jetty);
         }
-        jettyBuilder.customizers.forEach(customizer -> customizer.customize(jetty));
+        builder.customizers.forEach(customizer -> customizer.customize(jetty));
 
         return jetty;
     }
@@ -314,40 +263,26 @@ public final class Jetty {
         StatisticsHandler statisticsHandler = new StatisticsHandler();
         statisticsHandler.setHandler(server.getHandler());
         server.setHandler(statisticsHandler);
-
-        //        CollectorRegistry collectorRegistry = CollectorRegistry.defaultRegistry;
-        //        JettyStatisticsCollector jettyStatisticsCollector = new JettyStatisticsCollector(statisticsHandler);
-        //        server.addLifeCycleListener(new AbstractLifeCycle.AbstractLifeCycleListener() {
-        //
-        //            @Override
-        //            public void lifeCycleStarting(LifeCycle event) {
-        //                jettyStatisticsCollector.register(collectorRegistry);
-        //            }
-        //
-        //            @Override
-        //            public void lifeCycleStopped(LifeCycle event) {
-        //                collectorRegistry.unregister(jettyStatisticsCollector);
-        //            }
-        //        });
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Jetty start() {
         return startAnd(() -> {});
     }
 
     public Jetty startAnd(Runnable doWhenStarted) {
         try {
-            disableSecureCookies();
-
-            setRunMode();
+            setProperty("wicket.configuration", "deployment");
             server.start();
-            LOG.info("STARTED JETTY");
-            LOG.info(" * WAR: " + warPath);
-            LOG.info(" * Context path: " + contextPath);
-            LOG.info(" * Http port: " + port);
-            sslPort.ifPresent(integer -> LOG.info(" * Https port: " + integer));
+            log.info("STARTED JETTY");
+            log.info(" * WAR: {}", warPath);
+            log.info(" * Context path: {}", contextPath);
+            log.info(" * Http port: {}", port);
+            if (sslPort != null) {
+                log.info(" * Https port: {}", sslPort);
+            }
             for (URL url : getBaseUrls()) {
-                LOG.info(" * " + url);
+                log.info(" * {}", url);
             }
             doWhenStarted.run();
         } catch (Exception e) {
@@ -359,7 +294,9 @@ public final class Jetty {
     public List<URL> getBaseUrls() {
         List<URL> urls = new ArrayList<>();
         urls.add(new ToUrl("http", contextPath).apply(port));
-        sslPort.ifPresent(integer -> urls.add(new ToUrl("https", contextPath).apply(integer)));
+        if (sslPort != null) {
+            urls.add(new ToUrl("https", contextPath).apply(sslPort));
+        }
         return urls;
     }
 
@@ -388,36 +325,12 @@ public final class Jetty {
 
     private static void loadPropertiesFile(String propertyFile) throws IOException {
         Properties properties = new Properties();
-        InputStream inputStream = System.class.getResourceAsStream(propertyFile);
-        properties.load(inputStream);
+        try (InputStream inputStream = System.class.getResourceAsStream(propertyFile)) {
+            properties.load(inputStream);
+        }
 
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             setProperty((String) entry.getKey(), (String) entry.getValue());
-        }
-    }
-
-    private void disableSecureCookies() {
-        if (developmentMode) {
-            LOG.warn("Forcing session cookies to be insecure. DO NOT USE IN PRODUCTION!");
-            context.addEventListener(new ServletContextListener() {
-                @Override
-                public void contextInitialized(ServletContextEvent sce) {
-                    sce.getServletContext().getSessionCookieConfig().setSecure(false);
-                }
-
-                @Override
-                public void contextDestroyed(ServletContextEvent sce) {}
-            });
-        }
-    }
-
-    private void setRunMode() {
-        if (developmentMode) {
-            LOG.warn("Setting development mode. DO NOT USE IN PRODUCTION!");
-            LOG.warn("Override development mode by setting System property wicket.configuration to deployment");
-            setProperty("wicket.configuration", "development");
-        } else {
-            setProperty("wicket.configuration", "deployment");
         }
     }
 }
