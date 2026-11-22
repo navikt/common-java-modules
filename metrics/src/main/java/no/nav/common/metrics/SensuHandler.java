@@ -1,6 +1,5 @@
 package no.nav.common.metrics;
 
-import static java.lang.String.format;
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_BATCH_TIME;
 import static no.nav.common.metrics.SensuConfig.SENSU_MIN_QUEUE_SIZE;
 
@@ -67,10 +66,12 @@ public class SensuHandler {
 
                 try (Socket socket = new Socket()) {
                     writeToSensu(jsonObject, socket);
-                    log.info("Successfully flushed metrics after shutdown. Metrics sent: " + reports.size());
+                    log.info("Successfully flushed metrics after shutdown. Metrics sent: {}", reports.size());
                 } catch (Exception e) {
                     log.error(
-                            "Failed to flush metrics after shutdown. Metrics that were not sent: " + reports.size(), e);
+                            "Failed to flush metrics after shutdown. Metrics that were not sent: {}",
+                            reports.size(),
+                            e);
                 }
             }
         }));
@@ -78,10 +79,14 @@ public class SensuHandler {
 
     public void shutdown() {
         isShutDown = true;
+        scheduledExecutorService.shutdown();
         try {
-            scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+            if (!scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                log.warn("Sensu-reporteren avsluttet ikke innen fem sekunder");
+            }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            log.warn("Ventingen på avslutning av Sensu-reporteren ble avbrutt", e);
         }
     }
 
@@ -98,16 +103,12 @@ public class SensuHandler {
                         reports.clear();
 
                         reportQueue.drainTo(reports, sensuConfig.getBatchSize() - 1);
-                        float percentFull = (reportQueue.size() / (float) sensuConfig.getQueueSize()) * 100;
-                        log.info(format(
-                                "Metrics still in queue: %d \tQueue full: %.2f%% \tMetrics sent: %d",
-                                reportQueue.size(), percentFull, reports.size()));
-
                         String influxOutput = StringUtils.join(reports, "\n");
                         JSONObject jsonObject = createJSON(influxOutput);
 
                         try (Socket socket = new Socket()) {
                             writeToSensu(jsonObject, socket);
+                            logSentMetrics(reports.size());
                         } catch (IOException e) {
                             reportQueue.addAll(reports); // Legger tilbake i køen
                             log.warn(
@@ -115,6 +116,7 @@ public class SensuHandler {
                                     e.getClass().getSimpleName(),
                                     e.getMessage());
                             if (!isShutDown) {
+                                //noinspection BusyWait
                                 Thread.sleep(
                                         sensuConfig.getRetryInterval()); // Unngår å spamme connections (og loggen med
                                 // feilmeldinger) om noe ikke virker
@@ -128,11 +130,22 @@ public class SensuHandler {
                                 sensuConfig.getQueueSize(),
                                 SENSU_MIN_BATCH_TIME,
                                 sensuConfig.getMaxBatchTime());
+                        //noinspection BusyWait
                         Thread.sleep(batchTime);
                     }
                 } catch (InterruptedException e) {
                     log.error("Å vente på neste objekt ble avbrutt, bør ikke kunne skje", e);
                 }
+            }
+        }
+
+        private void logSentMetrics(int sentCount) {
+            if (log.isInfoEnabled()) {
+                int remainingQueueSize = reportQueue.size();
+                float percentFull = (remainingQueueSize / (float) sensuConfig.getQueueSize()) * 100;
+                log.info(
+                        "Metrics still in queue: {} \tQueue full: {}% \tMetrics sent: {}",
+                        remainingQueueSize, String.format("%.2f", percentFull), sentCount);
             }
         }
     }

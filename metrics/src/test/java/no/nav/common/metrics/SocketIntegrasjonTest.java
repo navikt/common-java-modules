@@ -5,13 +5,21 @@ import static no.nav.common.metrics.TestUtil.lesUtAlleMeldingerSendtPaSocket;
 import static no.nav.common.metrics.TestUtil.sensuHandlerForTest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,23 +37,18 @@ public class SocketIntegrasjonTest {
 
     @After
     public void cleanup() throws IOException {
-        serverSocket.close();
+        try {
+            if (sensuHandler != null) {
+                sensuHandler.shutdown();
+            }
+        } finally {
+            serverSocket.close();
+        }
     }
 
     @Test
     public void senderJsonOverSocket() throws Exception {
-        new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(50); // Vente på socketen er klar
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        sensuHandler.report("data123");
-                    }
-                })
-                .start();
+        sensuHandler.report("data123");
 
         String linje = lesLinjeFraSocket(serverSocket);
 
@@ -54,43 +57,52 @@ public class SocketIntegrasjonTest {
 
     @Test
     public void proverPaNyttOmFeiler() throws Exception {
+        sensuHandler.shutdown();
+        AtomicInteger forsok = new AtomicInteger();
+        sensuHandler = new SensuHandler(TestUtil.testConfig(serverSocket.getLocalPort())) {
+            @Override
+            void writeToSensu(JSONObject jsonObject, Socket socket) throws IOException {
+                if (forsok.incrementAndGet() == 1) {
+                    throw new IOException("Fremprovosert tilkoblingsfeil");
+                }
+                super.writeToSensu(jsonObject, socket);
+            }
+        };
         sensuHandler.report("data567");
 
-        Thread.sleep(600); // Venter med å lage socket en stund
-
         String linje = lesLinjeFraSocket(serverSocket);
-
-        if (linje == null) {
-            System.out.println("Måtte prøve på nytt");
-            lesLinjeFraSocket(serverSocket);
-        }
-
         assertThat(linje, containsString("data567"));
+        assertEquals(2, forsok.get());
     }
 
     @Test
     public void taklerMyeLast() throws Exception {
+        @SuppressWarnings("resource")
         ExecutorService ex = Executors.newFixedThreadPool(4);
         int antallTester = 500;
 
-        for (int i = 0; i < antallTester; i++) {
-            final int finalI = i;
-            ex.execute(new Runnable() {
-                @Override
-                public void run() {
-                    sensuHandler.report("nr" + finalI);
-                }
-            });
-        }
-
-        // Kan lese ut alle meldingene igjen
-        List<String> meldinger = lesUtAlleMeldingerSendtPaSocket(serverSocket);
-
-        for (int i = 0; i < antallTester; i++) {
-            boolean contains = meldinger.contains("nr" + i);
-            if (!contains) {
-                fail("Fant ikke melding nr" + i);
+        try {
+            List<Future<?>> oppgaver = new ArrayList<>();
+            for (int i = 0; i < antallTester; i++) {
+                final int finalI = i;
+                oppgaver.add(ex.submit(() -> sensuHandler.report("nr" + finalI)));
             }
+            ex.shutdown();
+            assertTrue("Rapportering ble ikke ferdig", ex.awaitTermination(5, TimeUnit.SECONDS));
+            for (Future<?> oppgave : oppgaver) {
+                oppgave.get(5, TimeUnit.SECONDS);
+            }
+
+            List<String> meldinger = lesUtAlleMeldingerSendtPaSocket(serverSocket, antallTester);
+            assertEquals(antallTester, meldinger.size());
+            for (int i = 0; i < antallTester; i++) {
+                if (!meldinger.contains("nr" + i)) {
+                    fail("Fant ikke melding nr" + i);
+                }
+            }
+        } finally {
+            ex.shutdownNow();
+            assertTrue("Test-executor er ikke avsluttet", ex.awaitTermination(5, TimeUnit.SECONDS));
         }
     }
 }
