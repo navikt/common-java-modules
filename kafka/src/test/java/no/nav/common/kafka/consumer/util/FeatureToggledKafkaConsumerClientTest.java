@@ -77,9 +77,11 @@ public class FeatureToggledKafkaConsumerClientTest {
 
         try {
             toggledClient.start();
-            when(consumerClient.isRunning()).thenReturn(true);
             toggleForStoppingConsumers.set(false);
             await().atMost(Duration.ofSeconds(1)).until(() -> pollsWithToggleOff.get() > 0);
+            when(consumerClient.isRunning()).thenReturn(true);
+            int pollsBeforeRunning = pollsWithToggleOff.get();
+            await().atMost(Duration.ofSeconds(1)).until(() -> pollsWithToggleOff.get() > pollsBeforeRunning);
             await().during(Duration.ofMillis(50))
                     .atMost(Duration.ofSeconds(1))
                     .untilAsserted(() -> verify(consumerClient, never()).stop());

@@ -5,7 +5,10 @@ import static no.nav.common.kafka.utils.TestUtils.kafkaTestByteProducerPropertie
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestConsumerProperties;
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -61,6 +64,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     private TestKafkaProducerClient producerClient;
     private KafkaProducerRecordProcessor recordProcessor;
+    private boolean recordProcessorStarted;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -119,8 +123,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         try {
             if (recordProcessor != null) {
                 recordProcessor.close();
-                await().atMost(Duration.ofSeconds(15)).until(producerClient::isClosed);
-            } else if (producerClient != null) {
+                if (recordProcessorStarted) {
+                    await().atMost(Duration.ofSeconds(15)).until(producerClient::isClosed);
+                }
+            }
+            if (!recordProcessorStarted && producerClient != null) {
                 producerClient.close();
             }
         } finally {
@@ -129,6 +136,30 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             }
         }
         DbUtils.cleanupProducer(dataSource);
+    }
+
+    @Test
+    public void skal_lukke_producer_og_rydde_databasen_nar_consumer_oppstart_feiler() throws Exception {
+        producerRepository.storeRecord(storedRecord(testTopicA, "key1", "value1"));
+        recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+                .withProducerRepository(producerRepository)
+                .withLeaderElectionClient(() -> true)
+                .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
+                .withPollTimeoutMs(POLL_TIMEOUT)
+                .build();
+        consumerClient = mock(KafkaConsumerClient.class);
+        doThrow(new IllegalStateException("Simulert oppstartsfeil"))
+                .when(consumerClient)
+                .start();
+
+        assertThrows(IllegalStateException.class, () -> {
+            consumerClient.start();
+            startRecordProcessor();
+        });
+        afterEach();
+
+        assertTrue(producerClient.isClosed());
+        assertTrue(producerRepository.getRecords(10).isEmpty());
     }
 
     @Test
@@ -147,7 +178,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
 
-        recordProcessor.start();
+        startRecordProcessor();
         consumerClient.start();
         await().atMost(Duration.ofSeconds(5))
                 .until(() -> sentOnTopicA.size() == 3
@@ -182,7 +213,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
 
-        recordProcessor.start();
+        startRecordProcessor();
         consumerClient.start();
         try {
             await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
@@ -223,7 +254,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
         recordProcessor = new KafkaProducerRecordProcessor(producerRepository, producerClient, () -> true);
 
-        recordProcessor.start();
+        startRecordProcessor();
         consumerClient.start();
         try {
             await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
@@ -270,7 +301,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
 
-        recordProcessor.start();
+        startRecordProcessor();
         consumerClient.start();
 
         // Wait for all messages before the failed records to be consumed
@@ -307,7 +338,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .build();
 
         consumerClient.start();
-        recordProcessor.start();
+        startRecordProcessor();
 
         transactionTemplate.execute(status -> {
             producerRepository.storeRecord(storedRecord(testTopicA, "value1", "key1"));
@@ -323,6 +354,11 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         recordProcessor.close();
         consumerClient.stop();
         assertEquals(0, sentOnTopicA.size());
+    }
+
+    private void startRecordProcessor() {
+        recordProcessor.start();
+        recordProcessorStarted = true;
     }
 
     private StoredProducerRecord storedRecord(String topic, String key, String value) {
