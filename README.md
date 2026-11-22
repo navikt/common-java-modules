@@ -249,18 +249,37 @@ registration.
   the scheduler after the test.
 - [x] Use a thread-safe collection and bounded completion in
   `AuthContextHolderTest`. Propagate interrupted waits instead of ignoring them.
-- [ ] Change `SystemPropertiesRule` to restore the state captured before each
+- [x] Change `SystemPropertiesRule` to restore the state captured before each
   evaluation rather than a static class-loading snapshot. Add regression tests
   and assess compatibility for consumers of the published test helper.
 - [x] Assert that the filter chain is untouched in the four rejection tests in
   `OidcAuthenticationFilterTest`, in addition to checking HTTP 401.
 - [x] Compare the actual serialized JSON body in `RestUtilsTest`, not only its
   length. Cover empty HTTP 200 separately from the duplicated HTTP 204 case.
-- [ ] Remove the port-probe/bind race in `OidcProviderTestRule` and `PortUtils`.
+- [x] Remove the port-probe/bind race in `OidcProviderTestRule` and `PortUtils`.
   Preserve or explicitly migrate helper APIs that expose ports before startup.
 - [x] Strengthen `CollectionUtilsTest` partition assertions to cover contents,
   chunk sizes, and ordering. Replace the remaining unchecked list captors with
   typed `ArgumentCaptor.captor()` where supported.
+
+### Test-helper compatibility
+
+`SystemPropertiesRule` now captures system properties immediately before each
+evaluation and restores them even when the test fails. `setProperty(name, value)`
+retains its signature and fluent return type, but applies the configured values
+only during evaluation. Calls from `@Before` or the test body still take effect
+immediately and are restored afterward. Code that reads values while constructing
+a test must move that work into `@Before` or the test body. Property values are no longer
+logged. The rule does not isolate tests that modify system properties concurrently.
+
+`OidcProviderTestRule` now lets WireMock bind an OS-assigned port during startup.
+Its constructor and URL getter signatures are unchanged, but URL getters require
+a running server. Move URL-dependent initialization into `@Before` or the test
+body, after the rule starts. `PortUtils.findAvailablePort()` and its class have
+been removed: probing and closing a socket cannot reserve a port for a later
+bind. Consumers must use dynamic ports on their server and read the port after
+startup. Removing `PortUtils` breaks source and binary compatibility for its
+callers in the published `auth` test artifact.
 
 ## CI follow-up
 
