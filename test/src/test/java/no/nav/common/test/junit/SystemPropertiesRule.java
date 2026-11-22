@@ -1,15 +1,14 @@
 package no.nav.common.test.junit;
 
 import java.util.Properties;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 
-@Slf4j
 public class SystemPropertiesRule implements MethodRule {
 
-    private static final Properties INITIAL_SYSTEM_PROPERTIES = copy(System.getProperties());
+    private final Properties configuredProperties = new Properties();
+    private boolean evaluating;
 
     private static Properties copy(Properties properties) {
         return (Properties) properties.clone();
@@ -20,19 +19,25 @@ public class SystemPropertiesRule implements MethodRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                Properties initialSystemProperties = copy(System.getProperties());
                 try {
+                    evaluating = true;
+                    System.getProperties().putAll(configuredProperties);
                     statement.evaluate();
                 } finally {
-                    System.getProperties().clear();
-                    System.setProperties(copy(INITIAL_SYSTEM_PROPERTIES));
+                    evaluating = false;
+                    System.setProperties(initialSystemProperties);
                 }
             }
         };
     }
 
     public SystemPropertiesRule setProperty(String name, String value) {
-        log.info("{} = {}", name, value);
-        System.setProperty(name, value);
+        if (evaluating) {
+            System.setProperty(name, value);
+        } else {
+            configuredProperties.setProperty(name, value);
+        }
         return this;
     }
 }

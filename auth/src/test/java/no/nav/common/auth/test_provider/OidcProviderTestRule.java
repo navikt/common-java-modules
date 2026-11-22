@@ -15,20 +15,29 @@ import no.nav.common.json.JsonUtils;
 import org.junit.rules.ExternalResource;
 
 public class OidcProviderTestRule extends ExternalResource {
-    private final int port;
     private final WireMockServer httpServer;
     private final JwtTestTokenIssuerConfig issuerConfig;
     private final JwtTestTokenIssuer issuer;
 
     public OidcProviderTestRule(JwtTestTokenIssuerConfig issuerConfig) {
-        this.port = PortUtils.findAvailablePort();
         this.issuerConfig = issuerConfig;
         this.issuer = JwtTestTokenUtil.testTokenIssuer(issuerConfig);
-        this.httpServer = new WireMockServer(wireMockConfig().port(port).extensions(new RefreshResponseTransformer()));
+        this.httpServer =
+                new WireMockServer(wireMockConfig().dynamicPort().extensions(new RefreshResponseTransformer()));
     }
 
     @Override
     protected void before() {
+        httpServer.start();
+        try {
+            configureStubs();
+        } catch (RuntimeException | Error failure) {
+            httpServer.stop();
+            throw failure;
+        }
+    }
+
+    private void configureStubs() {
         httpServer.stubFor(get(urlPathEqualTo("/discovery"))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", "application/json")
@@ -41,8 +50,6 @@ public class OidcProviderTestRule extends ExternalResource {
 
         httpServer.stubFor(
                 post(urlPathEqualTo("/refresh")).willReturn(aResponse().withTransformers("oidc-refresh")));
-
-        httpServer.start();
     }
 
     @Override
@@ -71,7 +78,7 @@ public class OidcProviderTestRule extends ExternalResource {
     }
 
     private String basePath() {
-        return "http://localhost:" + port;
+        return "http://localhost:" + httpServer.port();
     }
 
     private class RefreshResponseTransformer implements ResponseDefinitionTransformerV2 {
