@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,9 +22,17 @@ public class NaisUtilsTest {
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
 
+    private Properties originalProperties;
+
     @Before
     public void setup() {
+        originalProperties = (Properties) System.getProperties().clone();
         System.setProperty(SECRETS_BASE_PATH_PROPERTY_NAME, tmp.getRoot().getAbsolutePath());
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperties(originalProperties);
     }
 
     @Test

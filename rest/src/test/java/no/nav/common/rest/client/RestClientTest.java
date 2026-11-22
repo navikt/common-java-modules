@@ -12,10 +12,14 @@ import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 import no.nav.common.log.MDCConstants;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.MDC;
@@ -24,6 +28,29 @@ public class RestClientTest {
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
+
+    private Properties originalProperties;
+    private Map<String, String> originalContextMap;
+
+    @Before
+    public void setUp() {
+        originalProperties = (Properties) System.getProperties().clone();
+        originalContextMap = MDC.getCopyOfContextMap();
+        MDC.clear();
+    }
+
+    @After
+    public void tearDown() {
+        try {
+            System.setProperties(originalProperties);
+        } finally {
+            if (originalContextMap == null) {
+                MDC.clear();
+            } else {
+                MDC.setContextMap(originalContextMap);
+            }
+        }
+    }
 
     @Test
     public void client_skal_legge_pa_headers() throws IOException {
@@ -43,8 +70,6 @@ public class RestClientTest {
                     .withHeader(NAV_CALL_ID_HEADER_NAME, equalTo("CALL_ID"))
                     .withHeader(NAV_CONSUMER_ID_HEADER_NAME, equalTo("test")));
         }
-
-        MDC.remove(MDCConstants.MDC_CALL_ID);
     }
 
     @Test
@@ -63,8 +88,6 @@ public class RestClientTest {
         try (Response ignored = client.newCall(request).execute()) {
             wireMockRule.verify(getRequestedFor(anyUrl()).withHeader(NAV_CALL_ID_HEADER_NAME, equalTo("JOB_ID")));
         }
-
-        MDC.remove(MDCConstants.MDC_JOB_ID);
     }
 
     @Test

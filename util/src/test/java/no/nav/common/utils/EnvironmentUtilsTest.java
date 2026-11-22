@@ -9,67 +9,77 @@ import static no.nav.common.utils.EnvironmentUtils.getOptionalProperty;
 import static no.nav.common.utils.EnvironmentUtils.getRequiredProperty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
+import java.util.Properties;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class EnvironmentUtilsTest {
 
     private static final String PROPERTY_NAME = EnvironmentUtilsTest.class.getName();
+    private Properties originalProperties;
 
     @Before
     public void setup() {
+        originalProperties = (Properties) System.getProperties().clone();
         System.clearProperty(PROPERTY_NAME);
+        for (String property : new String[] {"a", "b", "c", "d", "e", "asdfasdfasdf", "SOMETHING_SOMETHING"}) {
+            System.clearProperty(property);
+        }
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperties(originalProperties);
     }
 
     @Test
     public void isDevelopment_should_return_true_for_dev_env() {
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-fss");
-        assertTrue(EnvironmentUtils.isDevelopment().get());
+        assertThat(EnvironmentUtils.isDevelopment()).hasValue(true);
 
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-sbs");
-        assertTrue(EnvironmentUtils.isDevelopment().get());
+        assertThat(EnvironmentUtils.isDevelopment()).hasValue(true);
 
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-gcp");
-        assertTrue(EnvironmentUtils.isDevelopment().get());
+        assertThat(EnvironmentUtils.isDevelopment()).hasValue(true);
     }
 
     @Test
     public void isDevelopment_should_return_false_for_not_dev_env() {
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-fss");
-        assertFalse(EnvironmentUtils.isDevelopment().get());
+        assertThat(EnvironmentUtils.isDevelopment()).hasValue(false);
     }
 
     @Test
     public void isDevelopment_should_return_empty_if_missing() {
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "");
-        assertTrue(EnvironmentUtils.isDevelopment().isEmpty());
+        assertThat(EnvironmentUtils.isDevelopment()).isEmpty();
     }
 
     @Test
     public void isProduction_should_check_correct_envs() {
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-fss");
-        assertTrue(EnvironmentUtils.isProduction().get());
+        assertThat(EnvironmentUtils.isProduction()).hasValue(true);
 
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-sbs");
-        assertTrue(EnvironmentUtils.isProduction().get());
+        assertThat(EnvironmentUtils.isProduction()).hasValue(true);
 
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "prod-gcp");
-        assertTrue(EnvironmentUtils.isProduction().get());
+        assertThat(EnvironmentUtils.isProduction()).hasValue(true);
     }
 
     @Test
     public void isProduction_should_return_false_for_not_prod_env() {
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "dev-fss");
-        assertFalse(EnvironmentUtils.isProduction().get());
+        assertThat(EnvironmentUtils.isProduction()).hasValue(false);
     }
 
     @Test
     public void isProduction_should_return_empty_if_missing() {
         System.setProperty(NAIS_CLUSTER_NAME_PROPERTY_NAME, "");
-        assertTrue(EnvironmentUtils.isProduction().isEmpty());
+        assertThat(EnvironmentUtils.isProduction()).isEmpty();
     }
 
     @Test

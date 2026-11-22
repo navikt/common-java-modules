@@ -6,12 +6,30 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Properties;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class InstanceSwitcherTest {
 
+    private Properties originalProperties;
+
+    @Before
+    public void setUp() {
+        originalProperties = (Properties) System.getProperties().clone();
+        clearProperty("mock");
+        clearProperty("mock.simulate.error");
+        clearProperty("tillatmock");
+    }
+
+    @After
+    public void tearDown() {
+        System.setProperties(originalProperties);
+    }
+
     @Test
-    public void normalUtforelse() throws InvocationTargetException {
+    public void normalUtforelse() {
         String nokkel = "mock";
         setProperty(nokkel, "false");
 
@@ -20,12 +38,10 @@ public class InstanceSwitcherTest {
         ClassV1 switcher = InstanceSwitcher.createSwitcher(test, mock, nokkel, ClassV1.class);
 
         assertThat(switcher.doSomething(), is("originalklasse"));
-
-        clearProperty(nokkel);
     }
 
     @Test
-    public void normalMockSkalKjoreNormalt() throws InvocationTargetException {
+    public void normalMockSkalKjoreNormalt() {
         String nokkel = "mock";
 
         setProperty("tillatmock", "true");
@@ -36,12 +52,10 @@ public class InstanceSwitcherTest {
         ClassV1 switcher = InstanceSwitcher.createSwitcher(test, mock, nokkel, ClassV1.class);
 
         assertThat(switcher.doSomething(), is("mockklasse"));
-
-        clearProperty(nokkel);
     }
 
     @Test(expected = RuntimeException.class)
-    public void normalMockSkalSimulereFeil() throws InvocationTargetException {
+    public void normalMockSkalSimulereFeil() {
 
         String nokkel = "mock";
 
@@ -54,9 +68,6 @@ public class InstanceSwitcherTest {
         ClassV1 switcher = InstanceSwitcher.createSwitcher(test, mock, nokkel, ClassV1.class);
 
         switcher.doSomething();
-
-        clearProperty(nokkel);
-        clearProperty(nokkel + ".simulate.error");
     }
 
     @Test(expected = InvocationTargetException.class)
@@ -72,8 +83,6 @@ public class InstanceSwitcherTest {
         ClassV1 switcher = InstanceSwitcher.createSwitcher(test, mock, nokkel, ClassV1.class);
 
         switcher.simulererInvokationTargetException();
-
-        clearProperty(nokkel);
     }
 
     private ClassV1 createClassV1() {
@@ -87,11 +96,6 @@ public class InstanceSwitcherTest {
             public void simulererInvokationTargetException() throws InvocationTargetException {
                 throw new InvocationTargetException(new Throwable("message"));
             }
-
-            @Override
-            public void simulererIllegalAccessException() throws IllegalAccessException {
-                throw new IllegalAccessException("message");
-            }
         };
     }
 
@@ -104,9 +108,6 @@ public class InstanceSwitcherTest {
 
             @Override
             public void simulererInvokationTargetException() {}
-
-            @Override
-            public void simulererIllegalAccessException() {}
         };
     }
 
@@ -114,7 +115,5 @@ public class InstanceSwitcherTest {
         String doSomething();
 
         void simulererInvokationTargetException() throws InvocationTargetException;
-
-        void simulererIllegalAccessException() throws IllegalAccessException;
     }
 }

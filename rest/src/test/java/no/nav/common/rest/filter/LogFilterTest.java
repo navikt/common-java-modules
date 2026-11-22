@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,15 +30,27 @@ public class LogFilterTest {
     private final HttpServletRequest httpServletRequest = mock(HttpServletRequest.class);
     private final HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
     private final LogRequestFilter logRequestFilter = new LogRequestFilter("test");
+    private Map<String, String> originalContextMap;
 
     @Before
     public void setup() {
+        originalContextMap = MDC.getCopyOfContextMap();
+        MDC.clear();
         when(httpServletRequest.getMethod()).thenReturn("GET");
         when(httpServletRequest.getRequestURI()).thenReturn("/test/path");
     }
 
+    @After
+    public void tearDown() {
+        if (originalContextMap == null) {
+            MDC.clear();
+        } else {
+            MDC.setContextMap(originalContextMap);
+        }
+    }
+
     @Test
-    public void smoketest() throws ServletException, IOException {
+    public void smokeTest() throws ServletException, IOException {
         logRequestFilter.doFilter(
                 httpServletRequest, httpServletResponse, (request, response) -> log.info("testing logging 1"));
         logRequestFilter.doFilter(

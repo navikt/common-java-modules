@@ -13,11 +13,10 @@ public class MaskedThrowableProxyTest {
     private static final String FNR = "12345678901";
 
     @Test
-    public void smoketest() {
+    public void smokeTest() {
         RuntimeException sensitiveException =
                 new RuntimeException(FNR, new IllegalArgumentException(FNR, new Exception(FNR)));
         sensitiveException.addSuppressed(new IllegalStateException(FNR, new IOException(FNR)));
-        sensitiveException.printStackTrace();
 
         ThrowableProxy sensitiveThrowableProxy = new ThrowableProxy(sensitiveException);
         IThrowableProxy maskedThrowableProxy = MaskedThrowableProxy.mask(sensitiveThrowableProxy);
