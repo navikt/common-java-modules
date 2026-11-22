@@ -17,6 +17,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 class TestKafkaProducerClient implements KafkaProducerClient<byte[], byte[]> {
 
     private final Producer<byte[], byte[]> producer;
+    private volatile boolean closed;
 
     @Setter
     private Consumer<ProducerRecord<byte[], byte[]>> onSend;
@@ -28,6 +29,11 @@ class TestKafkaProducerClient implements KafkaProducerClient<byte[], byte[]> {
     @Override
     public void close() {
         producer.close();
+        closed = true;
+    }
+
+    boolean isClosed() {
+        return closed;
     }
 
     // KafkaProducerClient tillater ikke checked exceptions i denne metoden.
@@ -52,6 +58,9 @@ class TestKafkaProducerClient implements KafkaProducerClient<byte[], byte[]> {
             }
             return producer.send(record, callback);
         } catch (Exception e) {
+            if (callback != null) {
+                callback.onCompletion(null, e);
+            }
             return CompletableFuture.failedFuture(e);
         }
     }

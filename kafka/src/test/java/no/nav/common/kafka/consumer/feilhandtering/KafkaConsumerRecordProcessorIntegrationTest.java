@@ -129,14 +129,18 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_B, 1, 2, "key2", "value"));
 
         // Act
-        consumerRecordProcessor.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicA.get() == 3 && counterTopicB.get() == 2);
-        consumerRecordProcessor.stop();
-
-        // Assert
-        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
-        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
-        assertTrue(consumerRepository.getRecords(TEST_TOPIC_B, 1, 5).isEmpty());
+        try {
+            consumerRecordProcessor.start();
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+                assertEquals(3, counterTopicA.get());
+                assertEquals(2, counterTopicB.get());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_B, 1, 5).isEmpty());
+            });
+        } finally {
+            consumerRecordProcessor.stop();
+        }
     }
 
     @Test
@@ -168,13 +172,17 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 2, "key1", "value3"));
 
         // Act
-        consumerRecordProcessor.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> counterConsumer1.get() == 3 && counterConsumer2.get() == 3);
-        consumerRecordProcessor.stop();
-
-        // Assert
-        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
-        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
+        try {
+            consumerRecordProcessor.start();
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+                assertEquals(3, counterConsumer1.get());
+                assertEquals(3, counterConsumer2.get());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
+            });
+        } finally {
+            consumerRecordProcessor.stop();
+        }
     }
 
     @Test
@@ -215,16 +223,20 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_B, 1, 2, "key2", "value"));
 
         // Act
-        consumerRecordProcessor.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicB.get() == 2);
-        consumerRecordProcessor.stop();
-
-        // Assert
-        assertEquals(0, counterTopicA.get());
-
-        assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
-        assertEquals(1, consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).size());
-        assertTrue(consumerRepository.getRecords(TEST_TOPIC_B, 1, 5).isEmpty());
+        try {
+            consumerRecordProcessor.start();
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+                assertEquals(0, counterTopicA.get());
+                assertEquals(2, counterTopicB.get());
+                assertEquals(
+                        2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
+                assertEquals(
+                        1, consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).size());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_B, 1, 5).isEmpty());
+            });
+        } finally {
+            consumerRecordProcessor.stop();
+        }
     }
 
     @Test
@@ -251,11 +263,15 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         consumerRepository.storeRecord(storedRecord(TEST_TOPIC_A, 1, 3, null, "value3"));
 
         // Act
-        consumerRecordProcessor.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicA.get() == 3);
-        consumerRecordProcessor.stop();
-        // Assert
-        assertEquals(3, counterTopicA.get());
+        try {
+            consumerRecordProcessor.start();
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+                assertEquals(3, counterTopicA.get());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
+            });
+        } finally {
+            consumerRecordProcessor.stop();
+        }
     }
 
     @Test
@@ -284,12 +300,15 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         records.forEach(record -> consumerRepository.incrementRetries(record.getId()));
 
         // Act
-        consumerRecordProcessor.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> counterTopicA.get() == 2);
-        consumerRecordProcessor.stop();
-
-        // Assert
-        assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
+        try {
+            consumerRecordProcessor.start();
+            await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
+                assertEquals(2, counterTopicA.get());
+                assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
+            });
+        } finally {
+            consumerRecordProcessor.stop();
+        }
     }
 
     @Test
@@ -318,13 +337,14 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         records.forEach(record -> consumerRepository.incrementRetries(record.getId()));
 
         // Act
-        consumerRecordProcessor.start();
-        Thread.sleep(1000);
-        consumerRecordProcessor.stop();
-
-        // Assert
-        assertEquals(0, counterTopicA.get());
-        assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
+        try {
+            consumerRecordProcessor.start();
+            Thread.sleep(1000);
+            assertEquals(0, counterTopicA.get());
+            assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
+        } finally {
+            consumerRecordProcessor.stop();
+        }
     }
 
     private StoredConsumerRecord storedRecord(String topic, int partition, long offset, String key, String value) {

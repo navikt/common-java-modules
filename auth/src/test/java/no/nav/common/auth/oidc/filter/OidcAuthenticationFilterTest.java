@@ -7,19 +7,18 @@ import static no.nav.common.auth.Constants.REFRESH_TOKEN_COOKIE_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -124,17 +123,18 @@ public class OidcAuthenticationFilterTest {
         HttpServletRequest servletRequest = request("/hello");
         HttpServletResponse servletResponse = mock(HttpServletResponse.class);
 
-        // Cannot spy on lambdas
-        FilterChain filterChain = spy(new FilterChain() {
-            @Override
-            public void doFilter(ServletRequest request, ServletResponse response) {
-                assertEquals(
-                        srvveilarbtestToken,
-                        AuthContextHolderThreadLocal.instance().requireIdTokenString());
-                assertEquals(
-                        UserRole.SYSTEM, AuthContextHolderThreadLocal.instance().requireRole());
-            }
-        });
+        FilterChain filterChain = mock(FilterChain.class);
+        doAnswer(invocation -> {
+                    assertEquals(
+                            srvveilarbtestToken,
+                            AuthContextHolderThreadLocal.instance().requireIdTokenString());
+                    assertEquals(
+                            UserRole.SYSTEM,
+                            AuthContextHolderThreadLocal.instance().requireRole());
+                    return null;
+                })
+                .when(filterChain)
+                .doFilter(servletRequest, servletResponse);
 
         when(servletRequest.getHeader("Authorization")).thenReturn("Bearer " + srvveilarbtestToken);
         when(servletRequest.getCookies()).thenReturn(new Cookie[] {});
@@ -211,6 +211,7 @@ public class OidcAuthenticationFilterTest {
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verifyNoInteractions(filterChain);
     }
 
     @Test
@@ -229,6 +230,7 @@ public class OidcAuthenticationFilterTest {
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verifyNoInteractions(filterChain);
     }
 
     @Test
@@ -250,6 +252,7 @@ public class OidcAuthenticationFilterTest {
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        verifyNoInteractions(filterChain);
     }
 
     @Test
@@ -423,7 +426,7 @@ public class OidcAuthenticationFilterTest {
     }
 
     @Test
-    public void userRoleIsNull_returnsUnauthorized() throws IOException, ServletException {
+    public void userRoleIsNull_returnsUnauthorized() {
         OidcAuthenticatorConfig config = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(azureAdAuthenticatorConfig.discoveryUrl)
                 .withClientIds(azureAdAuthenticatorConfig.clientIds)
@@ -449,7 +452,7 @@ public class OidcAuthenticationFilterTest {
         authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
         verify(servletResponse, times(1)).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        verify(filterChain, never()).doFilter(servletRequest, servletResponse);
+        verifyNoInteractions(filterChain);
     }
 
     private HttpServletRequest request(String requestPath) {

@@ -60,6 +60,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     private KafkaConsumerClient consumerClient;
 
     private TestKafkaProducerClient producerClient;
+    private KafkaProducerRecordProcessor recordProcessor;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -78,8 +79,13 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     @AfterClass
     public static void tearDown() {
-        admin.close();
-        kafka.stop();
+        try {
+            if (admin != null) {
+                admin.close();
+            }
+        } finally {
+            kafka.stop();
+        }
     }
 
     @Before
@@ -110,8 +116,19 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     @After
     public void afterEach() throws Exception {
+        try {
+            if (recordProcessor != null) {
+                recordProcessor.close();
+                await().atMost(Duration.ofSeconds(15)).until(producerClient::isClosed);
+            } else if (producerClient != null) {
+                producerClient.close();
+            }
+        } finally {
+            if (consumerClient != null) {
+                consumerClient.stop();
+            }
+        }
         DbUtils.cleanupProducer(dataSource);
-        producerClient.close();
     }
 
     @Test
@@ -123,7 +140,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         producerRepository.storeRecord(storedRecord(testTopicB, "key1", "value1"));
         producerRepository.storeRecord(storedRecord(testTopicB, "key2", "value2"));
 
-        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+        recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
@@ -132,7 +149,10 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
         recordProcessor.start();
         consumerClient.start();
-        await().atMost(Duration.ofSeconds(5)).until(() -> sentOnTopicA.size() == 3 && sentOnTopicB.size() == 2);
+        await().atMost(Duration.ofSeconds(5))
+                .until(() -> sentOnTopicA.size() == 3
+                        && sentOnTopicB.size() == 2
+                        && producerRepository.getRecords(10).isEmpty());
         recordProcessor.close();
         consumerClient.stop();
 
@@ -155,7 +175,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             }
         });
 
-        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+        recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
@@ -168,6 +188,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
                 assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
                 assertEquals(Set.of("b-1", "b-2"), Set.copyOf(sentOnTopicB));
+                assertEquals(1, producerRepository.getRecords(10).size());
             });
         } finally {
             recordProcessor.close();
@@ -178,9 +199,10 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
         assertEquals(Set.of("b-1", "b-2"), Set.copyOf(sentOnTopicB));
 
-        // But the batch of messages is still available in the repository since of the messages failed
+        // Den feilede meldingen blir liggende, mens vellykkede meldinger slettes.
         List<StoredProducerRecord> records = producerRepository.getRecords(10);
-        assertEquals(5, records.size());
+        assertEquals(1, records.size());
+        assertEquals("a-2", new String(records.getFirst().getValue(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -199,7 +221,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             }
         });
 
-        var recordProcessor = new KafkaProducerRecordProcessor(producerRepository, producerClient, () -> true);
+        recordProcessor = new KafkaProducerRecordProcessor(producerRepository, producerClient, () -> true);
 
         recordProcessor.start();
         consumerClient.start();
@@ -207,6 +229,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> {
                 assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
                 assertEquals(Set.of("b-1", "b-2"), Set.copyOf(sentOnTopicB));
+                assertEquals(1, producerRepository.getRecords(10).size());
             });
         } finally {
             recordProcessor.close();
@@ -217,9 +240,10 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         assertEquals(Set.of("a-1", "a-3"), Set.copyOf(sentOnTopicA));
         assertEquals(Set.of("b-1", "b-2"), Set.copyOf(sentOnTopicB));
 
-        // But the batch of messages is still available in the repository since of the messages failed
+        // Den feilede meldingen blir liggende, mens vellykkede meldinger slettes.
         List<StoredProducerRecord> records = producerRepository.getRecords(10);
-        assertEquals(5, records.size());
+        assertEquals(1, records.size());
+        assertEquals("a-2", new String(records.getFirst().getValue(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -239,7 +263,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             }
         });
 
-        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+        recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new QueuedKafkaProducerRecordPublisher(producerClient))
@@ -250,7 +274,10 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         consumerClient.start();
 
         // Wait for all messages before the failed records to be consumed
-        await().atMost(Duration.ofSeconds(10)).until(() -> sentOnTopicA.size() == 2 && sentOnTopicB.size() == 1);
+        await().atMost(Duration.ofSeconds(10))
+                .until(() -> sentOnTopicA.size() == 2
+                        && sentOnTopicB.size() == 1
+                        && producerRepository.getRecords(10).size() == 3);
 
         recordProcessor.close();
         consumerClient.stop();
@@ -272,7 +299,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
             throws InterruptedException {
         TransactionTemplate transactionTemplate = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
 
-        var recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
+        recordProcessor = KafkaProducerRecordProcessorBuilder.builder()
                 .withProducerRepository(producerRepository)
                 .withLeaderElectionClient(() -> true)
                 .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))

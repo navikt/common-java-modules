@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okio.Buffer;
 import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
@@ -170,13 +171,13 @@ public class RestUtilsTest {
     }
 
     @Test
-    public void getBodyStr__skal_returnere_empty_body_for_tom_body() throws IOException {
+    public void getBodyStr__skal_returnere_empty_body_for_tom_body_ved_200() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
         wireMockRule.stubFor(
-                get(anyUrl()).willReturn(aResponse().withStatus(204).withBody("")));
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody("")));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -218,7 +219,9 @@ public class RestUtilsTest {
         RequestBody jsonRequestBody = RestUtils.toJsonRequestBody(payload);
 
         // Assert
-        Assertions.assertThat(jsonRequestBody.contentLength()).isEqualTo(expected.length());
+        Buffer body = new Buffer();
+        jsonRequestBody.writeTo(body);
+        Assertions.assertThat(body.readUtf8()).isEqualTo(expected);
     }
 
     @Test
