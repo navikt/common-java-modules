@@ -2,6 +2,7 @@ package no.nav.common.cxf;
 
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import no.nav.common.auth.context.UserRole;
 import no.nav.common.cxf.jetty.JettyTestServer;
@@ -25,7 +26,7 @@ public class MetricsIntegrationTest extends JettyTestServer {
 
     @Test
     @Ignore // TODO: Ignore this until we add prometheus metrics
-    public void client_generates_micrometer_metrics() {
+    public void client_generates_micrometer_metrics() throws IOException {
         StsConfig stsConfig = StsConfig.builder()
                 .url("https://test-sts")
                 .username("test-user")

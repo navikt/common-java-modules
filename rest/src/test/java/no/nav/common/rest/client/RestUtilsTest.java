@@ -3,7 +3,6 @@ package no.nav.common.rest.client;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static java.util.function.Predicate.isEqual;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
 import static org.junit.Assert.assertThrows;
@@ -16,7 +15,6 @@ import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -37,15 +35,15 @@ public class RestUtilsTest {
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(0);
 
-    @SneakyThrows
     @Test
-    public void getBodyStr__skal_returnere_body() {
+    public void getBodyStr__skal_returnere_body() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "{ \"hello\": \"world\" }";
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -58,9 +56,8 @@ public class RestUtilsTest {
         }
     }
 
-    @SneakyThrows
     @Test
-    public void parseJsonResponse__skal_deserialisere_body() {
+    public void parseJsonResponse__skal_deserialisere_body() throws IOException {
         // Arrange
         var expected = new HelloWorldPayload();
         expected.hello = "world";
@@ -69,7 +66,8 @@ public class RestUtilsTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "{ \"hello\": \"world\" }";
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -82,15 +80,15 @@ public class RestUtilsTest {
         }
     }
 
-    @SneakyThrows
     @Test
-    public void parseJsonResponseOrThrow__kaster_exception_ved_tom_json_body() {
+    public void parseJsonResponseOrThrow__kaster_exception_ved_tom_json_body() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "";
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -102,9 +100,8 @@ public class RestUtilsTest {
         }
     }
 
-    @SneakyThrows
     @Test
-    public void parseJsonArrayResponse__skal_deserialisere_body() {
+    public void parseJsonArrayResponse__skal_deserialisere_body() throws IOException {
         // Arrange
         var expected = new HelloWorldPayload();
         expected.hello = "world";
@@ -113,7 +110,8 @@ public class RestUtilsTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "[{\"hello\": \"world\"}, {\"hello\": \"world\"}]";
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -132,15 +130,15 @@ public class RestUtilsTest {
         }
     }
 
-    @SneakyThrows
     @Test
-    public void parseJsonArrayResponse__kaster_exception_ved_tom_body() {
+    public void parseJsonArrayResponse__kaster_exception_ved_tom_body() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = "";
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -152,14 +150,13 @@ public class RestUtilsTest {
         }
     }
 
-    @SneakyThrows
     @Test
-    public void getBodyStr__skal_returnere_empty_body_ved_204() {
+    public void getBodyStr__skal_returnere_empty_body_ved_204() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(204)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(204)));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -172,14 +169,14 @@ public class RestUtilsTest {
         }
     }
 
-    @SneakyThrows
     @Test
-    public void getBodyStr__skal_returnere_empty_body_for_tom_body() {
+    public void getBodyStr__skal_returnere_empty_body_for_tom_body() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(204).withBody("")));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(204).withBody("")));
 
         var request = new Request.Builder().url(baseUrl).build();
 
@@ -192,14 +189,14 @@ public class RestUtilsTest {
         }
     }
 
-    @SneakyThrows
     @Test
-    public void throwIfNotSuccessful__skal_kaste_exception_ved_feil() {
+    public void throwIfNotSuccessful__skal_kaste_exception_ved_feil() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
         String baseUrl = "http://localhost:" + wireMockRule.port();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(404).withBody("")));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(404).withBody("")));
 
         var request = new Request.Builder().url(baseUrl).build();
 

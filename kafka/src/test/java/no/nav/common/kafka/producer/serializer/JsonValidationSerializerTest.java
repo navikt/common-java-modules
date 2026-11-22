@@ -23,11 +23,12 @@ public class JsonValidationSerializerTest {
         TestData testData = new TestData("Test data");
         byte[] testDataBytes = JsonUtils.toJson(testData).getBytes();
 
-        JsonValidationSerializer<TestData> serializer = new JsonValidationSerializer<>(schema);
-        byte[] serializedBytes = serializer.serialize("topic", testData);
+        try (JsonValidationSerializer<TestData> serializer = new JsonValidationSerializer<>(schema)) {
+            byte[] serializedBytes = serializer.serialize("topic", testData);
 
-        verify(schema, times(1)).validate(any());
-        assertEquals(new Bytes(serializedBytes), new Bytes(testDataBytes));
+            verify(schema, times(1)).validate(any());
+            assertEquals(new Bytes(testDataBytes), new Bytes(serializedBytes));
+        }
     }
 
     @Data

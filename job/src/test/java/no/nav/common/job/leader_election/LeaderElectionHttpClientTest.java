@@ -2,7 +2,6 @@ package no.nav.common.job.leader_election;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -52,7 +51,7 @@ public class LeaderElectionHttpClientTest {
     private void isLeader(boolean value) {
         String name = value ? hostName : "not leader";
 
-        givenThat(
+        wireMockRule.stubFor(
                 get(urlEqualTo("/")).willReturn(aResponse().withStatus(200).withBody("{\"name\": \"" + name + "\"}")));
     }
 }

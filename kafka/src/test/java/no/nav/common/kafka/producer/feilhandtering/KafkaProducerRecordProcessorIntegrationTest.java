@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.sql.DataSource;
-import lombok.SneakyThrows;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
 import no.nav.common.kafka.consumer.KafkaConsumerClientConfig;
@@ -62,9 +61,8 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     private TestKafkaProducerClient producerClient;
 
-    @SneakyThrows
     @BeforeClass
-    public static void setup() {
+    public static void setup() throws Exception {
         kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
         kafka.waitingFor(new HostPortWaitStrategy());
         kafka.start();
@@ -98,20 +96,20 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 kafkaTestConsumerProperties(kafka.getBootstrapServers()),
                 Map.of(
                         testTopicA,
-                                r -> {
-                                    sentOnTopicA.add(r.value());
-                                    return ConsumeStatus.OK;
-                                },
+                        r -> {
+                            sentOnTopicA.add(r.value());
+                            return ConsumeStatus.OK;
+                        },
                         testTopicB,
-                                r -> {
-                                    sentOnTopicB.add(r.value());
-                                    return ConsumeStatus.OK;
-                                }));
+                        r -> {
+                            sentOnTopicB.add(r.value());
+                            return ConsumeStatus.OK;
+                        }));
         consumerClient = new KafkaConsumerClientImpl<>(config);
     }
 
     @After
-    public void afterEach() {
+    public void afterEach() throws Exception {
         DbUtils.cleanupProducer(dataSource);
         producerClient.close();
     }

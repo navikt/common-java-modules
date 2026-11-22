@@ -3,8 +3,8 @@ package no.nav.common.rest.client;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -13,6 +13,7 @@ import ch.qos.logback.core.read.ListAppender;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Map;
 import no.nav.common.log.MDCConstants;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -29,10 +30,15 @@ public class LogRequestInterceptorTest {
     public WireMockRule wireMockRule = new WireMockRule(0);
 
     private ListAppender<ILoggingEvent> filterAppender;
+
+    @SuppressWarnings("LoggerInitializedWithForeignClass")
     private final Logger filterLogger = (Logger) LoggerFactory.getLogger(LogRequestInterceptor.class);
+
+    private Map<String, String> previousContextMap;
 
     @Before
     public void setUp() {
+        previousContextMap = MDC.getCopyOfContextMap();
         filterAppender = new ListAppender<>();
         filterAppender.start();
         filterLogger.addAppender(filterAppender);
@@ -41,6 +47,12 @@ public class LogRequestInterceptorTest {
     @After
     public void tearDown() {
         filterLogger.detachAppender(filterAppender);
+        filterAppender.stop();
+        if (previousContextMap == null) {
+            MDC.clear();
+        } else {
+            MDC.setContextMap(previousContextMap);
+        }
     }
 
     @Test
@@ -52,7 +64,7 @@ public class LogRequestInterceptorTest {
                 .url("http://localhost:" + wireMockRule.port())
                 .build();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         try (Response response = client.newCall(request).execute()) {
             assertThat(response.code()).isEqualTo(200);
@@ -72,7 +84,7 @@ public class LogRequestInterceptorTest {
                 .url("http://localhost:" + wireMockRule.port())
                 .build();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(500)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(500)));
 
         try (Response response = client.newCall(request).execute()) {
             assertThat(response.code()).isEqualTo(500);
@@ -84,20 +96,25 @@ public class LogRequestInterceptorTest {
     }
 
     @Test
-    public void filter_skal_logge_error_ved_exception() throws IOException {
-        OkHttpClient client = RestClient.baseClient();
+    public void filter_skal_logge_error_ved_exception() {
+        OkHttpClient client = RestClient.baseClientBuilder()
+                .addInterceptor(chain -> {
+                    throw new UnknownHostException("Syntetisk nettverksfeil");
+                })
+                .build();
         MDC.put(MDCConstants.MDC_CALL_ID, "CALL_ID");
 
-        Request request = new Request.Builder().url("http://illegalurl:9999").build();
+        Request request = new Request.Builder()
+                .url("http://localhost:" + wireMockRule.port())
+                .build();
 
-        //noinspection EmptyTryBlock
-        try (Response ignored = client.newCall(request).execute()) {
-        } catch (UnknownHostException e) {
-            assertThat(filterAppender.list).hasSize(1);
-            assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getLevel() == Level.ERROR);
-            assertThat(filterAppender.list)
-                    .allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
-        }
+        assertThrows(
+                UnknownHostException.class,
+                () -> client.newCall(request).execute().close());
+        assertThat(filterAppender.list).hasSize(1);
+        assertThat(filterAppender.list).allMatch(iLoggingEvent -> iLoggingEvent.getLevel() == Level.ERROR);
+        assertThat(filterAppender.list)
+                .allMatch(iLoggingEvent -> iLoggingEvent.getMDCPropertyMap().containsKey(MDCConstants.MDC_CALL_ID));
     }
 
     @Test
@@ -109,7 +126,7 @@ public class LogRequestInterceptorTest {
                 .url("http://localhost:" + wireMockRule.port() + "?queryparm=ignored")
                 .build();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         try (Response response = client.newCall(request).execute()) {
             assertThat(response.code()).isEqualTo(200);

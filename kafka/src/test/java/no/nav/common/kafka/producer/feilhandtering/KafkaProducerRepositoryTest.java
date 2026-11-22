@@ -33,7 +33,7 @@ public class KafkaProducerRepositoryTest {
     private static HikariDataSource postgresDataSource;
 
     @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    public static Collection<Object[]> data() throws Exception {
         postgreSQLContainer.start();
         postgresDataSource = createPostgresDataSource(postgreSQLContainer);
         DataSource postgres = postgresDataSource;
@@ -75,7 +75,7 @@ public class KafkaProducerRepositoryTest {
     }
 
     @After
-    public void cleanup() {
+    public void cleanup() throws Exception {
         DbUtils.cleanupProducer(dataSource);
     }
 
@@ -142,13 +142,10 @@ public class KafkaProducerRepositoryTest {
         List<StoredProducerRecord> records = kafkaProducerRepository.getRecords(10);
 
         // Assert
-        List<StoredProducerRecord> sortedRecords = records.stream()
-                .sorted((r1, r2) -> (int) (r1.getId() - r2.getId())) // Sort id ascending
-                .toList();
-
-        for (int i = 0; i < records.size(); i++) {
-            assertEquals(records.get(i), sortedRecords.get(i));
-        }
+        assertEquals(5, records.size());
+        assertEquals(
+                List.of(1L, 2L, 3L, 4L, 5L),
+                records.stream().map(StoredProducerRecord::getId).toList());
     }
 
     @Test

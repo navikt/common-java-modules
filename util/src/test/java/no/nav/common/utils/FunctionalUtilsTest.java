@@ -5,7 +5,6 @@ import static java.util.Optional.of;
 import static no.nav.common.utils.FunctionalUtils.combineOptional;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.Value;
@@ -31,33 +30,10 @@ public class FunctionalUtilsTest {
                 .isEmpty();
     }
 
-    @SuppressWarnings("unused")
-    private void biConsumerMedCheckedException(String a, String b) throws IOException {
-        throw new IOException();
-    }
-
-    private void consumerMedCheckedException(Object a) throws IOException {
-        throw new IOException();
-    }
-
-    @SuppressWarnings("unused")
-    private String functionMedCheckedException(String s) throws IOException {
-        throw new IOException();
-    }
-
-    @SuppressWarnings("unused")
-    private String supplierMedCheckedException() throws IOException {
-        throw new IOException();
-    }
-
-    private <T> T alltidNull(T t) {
-        return null;
-    }
-
     @Value
     @Builder
     private static class TestObject {
-        private boolean aBoolean;
-        private String string;
+        boolean aBoolean;
+        String string;
     }
 }

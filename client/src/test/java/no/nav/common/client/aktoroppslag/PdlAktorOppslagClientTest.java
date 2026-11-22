@@ -30,12 +30,12 @@ public class PdlAktorOppslagClientTest {
     PdlAktorOppslagClient pdlAktorOppslagClient = new PdlAktorOppslagClient(pdlClient);
 
     @Test
-    public void hentAktorId__skal_lage_riktig_request_og_hente_aktorid() {
+    public void hentAktorId__skal_lage_riktig_request_og_hente_aktorid() throws Exception {
         String graphqlJsonRequest =
                 readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-request.json");
         String graphqlJsonResponse = readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-aktorid-response.json");
 
-        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        ArgumentCaptor<GraphqlRequest<?>> requestCaptor = ArgumentCaptor.captor();
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
                 .when(pdlClient)
@@ -48,13 +48,13 @@ public class PdlAktorOppslagClientTest {
     }
 
     @Test
-    public void hentAktorId__skal_kaste_IngenGjeldendeIdentException_naar_ident_ikke_funnet() {
+    public void hentAktorId__skal_kaste_IngenGjeldendeIdentException_naar_ident_ikke_funnet() throws Exception {
         String graphqlJsonRequest =
                 readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-request.json");
         String graphqlJsonResponse =
                 readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-aktorid-ikke-funnet-response.json");
 
-        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        ArgumentCaptor<GraphqlRequest<?>> requestCaptor = ArgumentCaptor.captor();
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
                 .when(pdlClient)
@@ -67,13 +67,13 @@ public class PdlAktorOppslagClientTest {
     }
 
     @Test
-    public void hentAktorId__skal_kaste_IngenGjeldendeIdentException_naar_ugyldig_ident() {
+    public void hentAktorId__skal_kaste_IngenGjeldendeIdentException_naar_ugyldig_ident() throws Exception {
         String graphqlJsonRequest =
                 readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-request.json");
         String graphqlJsonResponse =
                 readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-aktorid-ugyldig-ident-response.json");
 
-        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        ArgumentCaptor<GraphqlRequest<?>> requestCaptor = ArgumentCaptor.captor();
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
                 .when(pdlClient)
@@ -86,12 +86,12 @@ public class PdlAktorOppslagClientTest {
     }
 
     @Test
-    public void hentFnr__skal_lage_riktig_request_og_hente_fnr() {
+    public void hentFnr__skal_lage_riktig_request_og_hente_fnr() throws Exception {
         String graphqlJsonRequest =
                 readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-fnr-request.json");
         String graphqlJsonResponse = readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-fnr-response.json");
 
-        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        ArgumentCaptor<GraphqlRequest<?>> requestCaptor = ArgumentCaptor.captor();
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
                 .when(pdlClient)
@@ -104,12 +104,12 @@ public class PdlAktorOppslagClientTest {
     }
 
     @Test
-    public void hentAktorIdBolk__skal_lage_riktig_request_og_hente_aktorid_bolk() {
+    public void hentAktorIdBolk__skal_lage_riktig_request_og_hente_aktorid_bolk() throws Exception {
         String graphqlJsonRequest =
                 readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-aktorid-bolk-request.json");
         String graphqlJsonResponse = readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-ident-bolk-response.json");
 
-        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        ArgumentCaptor<GraphqlRequest<?>> requestCaptor = ArgumentCaptor.captor();
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterBolkResponse.class))
                 .when(pdlClient)
@@ -130,12 +130,12 @@ public class PdlAktorOppslagClientTest {
     }
 
     @Test
-    public void hentFnrBolk__skal_lage_riktig_request_og_hente_fnr_bolk() {
+    public void hentFnrBolk__skal_lage_riktig_request_og_hente_fnr_bolk() throws Exception {
         String graphqlJsonRequest =
                 readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-fnr-bolk-request.json");
         String graphqlJsonResponse = readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-ident-bolk-response.json");
 
-        ArgumentCaptor<GraphqlRequest> requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        ArgumentCaptor<GraphqlRequest<?>> requestCaptor = ArgumentCaptor.captor();
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterBolkResponse.class))
                 .when(pdlClient)
@@ -156,12 +156,12 @@ public class PdlAktorOppslagClientTest {
     }
 
     @Test
-    public void hentIdenter__skal_lage_riktig_request_og_hente_gjeldende_og_historiske_identer() {
+    public void hentIdenter__skal_lage_riktig_request_og_hente_gjeldende_og_historiske_identer() throws Exception {
         String graphqlJsonRequest =
                 readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-identer-request.json");
         String graphqlJsonResponse = readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-identer-response.json");
 
-        var requestCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        ArgumentCaptor<GraphqlRequest<?>> requestCaptor = ArgumentCaptor.captor();
 
         doReturn(JsonUtils.fromJson(graphqlJsonResponse, PdlAktorOppslagClient.HentIdenterResponse.class))
                 .when(pdlClient)
@@ -177,7 +177,7 @@ public class PdlAktorOppslagClientTest {
                 Fnr.of("33333"),
                 AktorId.of("55555"),
                 asList(Fnr.of("22222"), Fnr.of("44444")),
-                asList(AktorId.of("11111")));
+                List.of(AktorId.of("11111")));
 
         assertEquals(forventet, hentIdenter);
     }

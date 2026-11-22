@@ -37,13 +37,12 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 @RunWith(Parameterized.class)
 public class KafkaConsumerRepositoryTest {
-
     public static final PostgreSQLContainer postgreSQLContainer = createPostgresTestContainer();
 
     private static HikariDataSource postgresDataSource;
 
     @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    public static Collection<Object[]> data() throws Exception {
         postgreSQLContainer.start();
         Awaitility.await()
                 .atMost(Duration.ofSeconds(60))
@@ -89,7 +88,7 @@ public class KafkaConsumerRepositoryTest {
     }
 
     @After
-    public void cleanup() {
+    public void cleanup() throws Exception {
         DbUtils.cleanupConsumer(dataSource);
     }
 
@@ -184,13 +183,10 @@ public class KafkaConsumerRepositoryTest {
         List<StoredConsumerRecord> records = kafkaConsumerRepository.getRecords("topic1", 1, 5);
 
         // Assert
-        List<StoredConsumerRecord> sortedRecords = records.stream()
-                .sorted((r1, r2) -> (int) (r1.getOffset() - r2.getOffset())) // Sort offset ascending
-                .toList();
-
-        for (int i = 0; i < records.size(); i++) {
-            assertEquals(records.get(i), sortedRecords.get(i));
-        }
+        assertEquals(4, records.size());
+        assertEquals(
+                List.of(1L, 2L, 3L, 4L),
+                records.stream().map(StoredConsumerRecord::getOffset).toList());
     }
 
     @Test

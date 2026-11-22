@@ -2,8 +2,10 @@ package no.nav.common.kafka.producer.feilhandtering;
 
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import no.nav.common.kafka.producer.GracefulKafkaProducer;
 import no.nav.common.kafka.producer.KafkaProducerClient;
@@ -15,14 +17,12 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 class TestKafkaProducerClient implements KafkaProducerClient<byte[], byte[]> {
 
     private final Producer<byte[], byte[]> producer;
+
+    @Setter
     private Consumer<ProducerRecord<byte[], byte[]>> onSend;
 
     public TestKafkaProducerClient(Properties properties) {
         this.producer = new GracefulKafkaProducer<>(properties);
-    }
-
-    public void setOnSend(Consumer<ProducerRecord<byte[], byte[]>> onSend) {
-        this.onSend = onSend;
     }
 
     @Override
@@ -30,7 +30,8 @@ class TestKafkaProducerClient implements KafkaProducerClient<byte[], byte[]> {
         producer.close();
     }
 
-    @SneakyThrows
+    // KafkaProducerClient tillater ikke checked exceptions i denne metoden.
+    @SneakyThrows({InterruptedException.class, ExecutionException.class})
     @Override
     public RecordMetadata sendSync(ProducerRecord<byte[], byte[]> record) {
         Future<RecordMetadata> future = send(record, null);

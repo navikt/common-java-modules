@@ -3,7 +3,6 @@ package no.nav.common.client.pdl;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
@@ -14,7 +13,6 @@ import static org.junit.Assert.assertTrue;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import java.util.List;
-import lombok.Value;
 import no.nav.common.client.TestUtils;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.client.utils.graphql.GraphqlResponse;
@@ -30,7 +28,7 @@ public class PdlClientImplTest {
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/pdl/client/";
 
     @Test
-    public void rawRequest__skal_lage_riktig_request_og_forwarde_respons() {
+    public void rawRequest__skal_lage_riktig_request_og_forwarde_respons() throws Exception {
         // Arrange
         String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-request.json");
         String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response.json");
@@ -40,7 +38,7 @@ public class PdlClientImplTest {
         String consumerToken = "CONSUMER_TOKEN";
         String behandlingsnummer = "B123";
 
-        givenThat(post(urlEqualTo("/graphql"))
+        wireMockRule.stubFor(post(urlEqualTo("/graphql"))
                 .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
                 .withHeader("Authorization", equalTo("Bearer " + userToken))
                 .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
@@ -59,7 +57,7 @@ public class PdlClientImplTest {
     }
 
     @Test
-    public void request__skal_lage_request_og_parse_response() {
+    public void request__skal_lage_request_og_parse_response() throws Exception {
         // Arrange
         String graphqlQuery =
                 TestUtils.readTestResourceFileWithoutWhitespace(TEST_RESOURCE_BASE_PATH + "hent-identer-query.graphql");
@@ -72,7 +70,7 @@ public class PdlClientImplTest {
         String userToken = "USER_TOKEN";
         String consumerToken = "CONSUMER_TOKEN";
 
-        givenThat(post(urlEqualTo("/graphql"))
+        wireMockRule.stubFor(post(urlEqualTo("/graphql"))
                 .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
                 .withHeader("Authorization", equalTo("Bearer " + userToken))
                 .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
@@ -98,7 +96,7 @@ public class PdlClientImplTest {
     }
 
     @Test
-    public void request__skal_parse_error_response() {
+    public void request__skal_parse_error_response() throws Exception {
         // Arrange
         String graphqlErrorJsonResponse =
                 TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response-error.json");
@@ -107,7 +105,7 @@ public class PdlClientImplTest {
         String userToken = "USER_TOKEN";
         String consumerToken = "CONSUMER_TOKEN";
 
-        givenThat(post(urlEqualTo("/graphql"))
+        wireMockRule.stubFor(post(urlEqualTo("/graphql"))
                 .withHeader(ACCEPT, equalTo(MEDIA_TYPE_JSON.toString()))
                 .withHeader("Authorization", equalTo("Bearer " + userToken))
                 .withHeader("Nav-Consumer-Token", equalTo("Bearer " + consumerToken))
@@ -128,10 +126,7 @@ public class PdlClientImplTest {
         assertTrue(isErrorEqualPattern.match(JsonUtils.toJson(graphqlResponse)).isExactMatch());
     }
 
-    @Value
-    private static class HentIdentVariables {
-        String ident;
-    }
+    private record HentIdentVariables(String ident) {}
 
     private static class HentIdenterResponse extends GraphqlResponse<HentIdenterResponse.HentIdenterResponseData> {
 

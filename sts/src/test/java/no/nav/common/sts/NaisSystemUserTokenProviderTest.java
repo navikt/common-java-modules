@@ -2,7 +2,6 @@ package no.nav.common.sts;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
 
@@ -24,11 +23,11 @@ public class NaisSystemUserTokenProviderTest {
         String baseUrl = "http://localhost:" + wireMockRule.port();
         String json = format("{ \"access_token\": \"%s\", \"expires\": 3600 }", ACCESS_TOKEN);
 
-        givenThat(get("/?grant_type=client_credentials&scope=openid")
+        wireMockRule.stubFor(get("/?grant_type=client_credentials&scope=openid")
                 .willReturn(aResponse().withStatus(200).withBody(json)));
 
         NaisSystemUserTokenProvider provider =
                 new NaisSystemUserTokenProvider(baseUrl, "username", "password", RestClient.baseClient());
-        assertEquals(provider.getSystemUserToken(), ACCESS_TOKEN);
+        assertEquals(ACCESS_TOKEN, provider.getSystemUserToken());
     }
 }

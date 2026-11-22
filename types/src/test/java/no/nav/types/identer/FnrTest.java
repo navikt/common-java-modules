@@ -32,7 +32,7 @@ public class FnrTest {
 
         FnrWrapper wrapper = mapper.readValue(FnrWrapperJson, FnrWrapper.class);
 
-        assertEquals(wrapper.getFnr().get(), "123534252");
+        assertEquals("123534252", wrapper.getFnr().get());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class FnrTest {
 
         FnrWrapper wrapper = JsonUtils.fromJson(FnrWrapperJson, FnrWrapper.class);
 
-        assertEquals(wrapper.getFnr().get(), "123534252");
+        assertEquals("123534252", wrapper.getFnr().get());
     }
 
     @Test
@@ -85,9 +85,9 @@ public class FnrTest {
     private static class FnrWrapper {
         public Fnr fnr;
 
-        public FnrWrapper() {
-            fnr = null;
-        }
+        // Brukes av Jackson ved deserialisering.
+        @SuppressWarnings("unused")
+        public FnrWrapper() {}
 
         public FnrWrapper(Fnr fnr) {
             this.fnr = fnr;

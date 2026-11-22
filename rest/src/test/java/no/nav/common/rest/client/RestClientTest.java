@@ -5,9 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;
 import static no.nav.common.rest.filter.LogRequestFilter.NAV_CONSUMER_ID_HEADER_NAME;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
@@ -38,10 +36,10 @@ public class RestClientTest {
                 .url("http://localhost:" + wireMockRule.port())
                 .build();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         try (Response ignored = client.newCall(request).execute()) {
-            verify(getRequestedFor(anyUrl())
+            wireMockRule.verify(getRequestedFor(anyUrl())
                     .withHeader(NAV_CALL_ID_HEADER_NAME, equalTo("CALL_ID"))
                     .withHeader(NAV_CONSUMER_ID_HEADER_NAME, equalTo("test")));
         }
@@ -60,10 +58,10 @@ public class RestClientTest {
                 .url("http://localhost:" + wireMockRule.port())
                 .build();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         try (Response ignored = client.newCall(request).execute()) {
-            verify(getRequestedFor(anyUrl()).withHeader(NAV_CALL_ID_HEADER_NAME, equalTo("JOB_ID")));
+            wireMockRule.verify(getRequestedFor(anyUrl()).withHeader(NAV_CALL_ID_HEADER_NAME, equalTo("JOB_ID")));
         }
 
         MDC.remove(MDCConstants.MDC_JOB_ID);
@@ -80,12 +78,12 @@ public class RestClientTest {
                 .url("http://localhost:" + wireMockRule.port())
                 .build();
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         var idPattern = matching("^[a-z0-9]{30}(\\w*)$");
 
         try (Response ignored = client.newCall(request).execute()) {
-            verify(getRequestedFor(anyUrl()).withHeader(NAV_CALL_ID_HEADER_NAME, idPattern));
+            wireMockRule.verify(getRequestedFor(anyUrl()).withHeader(NAV_CALL_ID_HEADER_NAME, idPattern));
         }
     }
 }

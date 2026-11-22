@@ -31,7 +31,7 @@ public class NavIdentTest {
 
         NavIdentWrapper wrapper = mapper.readValue(wrapperJson, NavIdentWrapper.class);
 
-        assertEquals(wrapper.getNavIdent().get(), "Z123456");
+        assertEquals("Z123456", wrapper.getNavIdent().get());
     }
 
     @Test
@@ -40,7 +40,7 @@ public class NavIdentTest {
 
         NavIdentWrapper wrapper = JsonUtils.fromJson(wrapperJson, NavIdentWrapper.class);
 
-        assertEquals(wrapper.getNavIdent().get(), "Z123456");
+        assertEquals("Z123456", wrapper.getNavIdent().get());
     }
 
     @Test
@@ -73,9 +73,9 @@ public class NavIdentTest {
     private static class NavIdentWrapper {
         public NavIdent navIdent;
 
-        public NavIdentWrapper() {
-            navIdent = null;
-        }
+        // Brukes av Jackson ved deserialisering.
+        @SuppressWarnings("unused")
+        public NavIdentWrapper() {}
 
         public NavIdentWrapper(NavIdent navIdent) {
             this.navIdent = navIdent;

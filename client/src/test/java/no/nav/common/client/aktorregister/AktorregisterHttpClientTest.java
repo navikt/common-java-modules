@@ -4,10 +4,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.givenThat;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -58,96 +56,103 @@ public class AktorregisterHttpClientTest {
     }
 
     @Test
-    public void hentAktorId__skal_hente_aktor_id_for_fnr() {
+    public void hentAktorId__skal_hente_aktor_id_for_fnr() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
-        assertEquals(klient.hentAktorId(FNR_1), AKTOR_ID_1);
+        assertEquals(AKTOR_ID_1, klient.hentAktorId(FNR_1));
     }
 
     @Test
-    public void hentAktorIdBolk__skal_hente_flere_aktor_id_for_fnr() {
+    public void hentAktorIdBolk__skal_hente_flere_aktor_id_for_fnr() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-multiple.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Map<Fnr, AktorId> identOppslag = klient.hentAktorIdBolk(Arrays.asList(FNR_1, FNR_2, FNR_3));
 
-        assertEquals(identOppslag.size(), 2);
+        assertEquals(2, identOppslag.size());
         assertEquals(AKTOR_ID_1, identOppslag.get(FNR_1));
         assertEquals(AKTOR_ID_2, identOppslag.get(FNR_2));
         assertNull(identOppslag.get(FNR_3));
     }
 
     @Test
-    public void hentFnr__skal_hente_fnr_for_aktor_id() {
+    public void hentFnr__skal_hente_fnr_for_aktor_id() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-single.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
-        assertEquals(klient.hentFnr(AKTOR_ID_1), FNR_1);
+        assertEquals(FNR_1, klient.hentFnr(AKTOR_ID_1));
     }
 
     @Test
-    public void hentAktorIder__skal_hente_flere_fnr_for_aktor_id() {
+    public void hentAktorIder__skal_hente_flere_fnr_for_aktor_id() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-multiple-aktorid.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         List<AktorId> identOppslag = klient.hentAktorIder(FNR_1);
 
-        assertEquals(identOppslag.size(), 2);
-        assertEquals(identOppslag.get(0), AKTOR_ID_1);
-        assertEquals(identOppslag.get(1), AKTOR_ID_2);
+        assertEquals(2, identOppslag.size());
+        assertEquals(AKTOR_ID_1, identOppslag.get(0));
+        assertEquals(AKTOR_ID_2, identOppslag.get(1));
     }
 
     @Test
-    public void hentFnrBolk__skal_hente_flere_fnr_for_aktor_ider() {
+    public void hentFnrBolk__skal_hente_flere_fnr_for_aktor_ider() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-multiple.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         Map<AktorId, Fnr> identOppslag = klient.hentFnrBolk(Arrays.asList(AKTOR_ID_1, AKTOR_ID_2, AKTOR_ID_3));
 
-        assertEquals(identOppslag.size(), 2);
+        assertEquals(2, identOppslag.size());
         assertEquals(FNR_1, identOppslag.get(AKTOR_ID_1));
         assertEquals(FNR_2, identOppslag.get(AKTOR_ID_2));
         assertNull(identOppslag.get(AKTOR_ID_3));
     }
 
     @Test
-    public void hentAktorId__skal_bruke_korrekt_url_for_aktor_id() {
+    public void hentAktorId__skal_bruke_korrekt_url_for_aktor_id() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "fnr-to-aktorid-single.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         klient.hentAktorId(FNR_1);
 
-        verify(getRequestedFor(urlPathEqualTo("/identer"))
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/identer"))
                 .withQueryParam("gjeldende", new EqualToPattern("true"))
                 .withQueryParam("identgruppe", new EqualToPattern("AktoerId")));
     }
 
     @Test
-    public void hentFnr__skal_bruke_korrekt_url_for_fnr() {
+    public void hentFnr__skal_bruke_korrekt_url_for_fnr() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         klient.hentFnr(AKTOR_ID_1);
 
-        verify(getRequestedFor(urlPathEqualTo("/identer"))
+        wireMockRule.verify(getRequestedFor(urlPathEqualTo("/identer"))
                 .withQueryParam("gjeldende", new EqualToPattern("true"))
                 .withQueryParam("identgruppe", new EqualToPattern("NorskIdent")));
     }
 
     @Test
-    public void hentIdenter__skal_lage_riktig_request_og_hente_gjeldende_og_historiske_identer() {
+    public void hentIdenter__skal_lage_riktig_request_og_hente_gjeldende_og_historiske_identer() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "hent-identer-med-historikk.json");
         Fnr fnr = Fnr.of("22222");
 
-        givenThat(get(urlEqualTo("/identer"))
+        wireMockRule.stubFor(get(urlEqualTo("/identer"))
                 .withHeader("Authorization", new EqualToPattern("Bearer " + dummyAuthToken))
                 .withHeader("Nav-Call-Id", new AnythingPattern())
                 .withHeader("Nav-Consumer-Id", new EqualToPattern(testApplication))
@@ -160,20 +165,21 @@ public class AktorregisterHttpClientTest {
                 Fnr.of("33333"),
                 AktorId.of("55555"),
                 asList(Fnr.of("22222"), Fnr.of("44444")),
-                asList(AktorId.of("11111")));
+                List.of(AktorId.of("11111")));
 
         assertEquals(forventet, brukerIdenter);
     }
 
     @Test
-    public void skal_legge_til_headers() {
+    public void skal_legge_til_headers() throws Exception {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "aktorid-to-fnr-single.json");
 
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
+        wireMockRule.stubFor(
+                get(anyUrl()).willReturn(aResponse().withStatus(200).withBody(json)));
 
         klient.hentFnr(AKTOR_ID_1);
 
-        verify(getRequestedFor(anyUrl())
+        wireMockRule.verify(getRequestedFor(anyUrl())
                 .withHeader("Authorization", new EqualToPattern("Bearer " + dummyAuthToken))
                 .withHeader("Nav-Call-Id", new AnythingPattern())
                 .withHeader("Nav-Consumer-Id", new EqualToPattern(testApplication))
@@ -182,9 +188,9 @@ public class AktorregisterHttpClientTest {
 
     @Test
     public void skal_pinge_riktig_url() {
-        givenThat(get(anyUrl()).willReturn(aResponse().withStatus(200)));
+        wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         assertTrue(klient.checkHealth().isHealthy());
-        verify(getRequestedFor(urlEqualTo("/internal/isAlive")));
+        wireMockRule.verify(getRequestedFor(urlEqualTo("/internal/isAlive")));
     }
 }

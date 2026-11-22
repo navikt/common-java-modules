@@ -13,6 +13,7 @@ import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.ReservedClaimNames;
+import org.jose4j.lang.JoseException;
 
 public class JwtTestTokenIssuer {
 
@@ -25,7 +26,8 @@ public class JwtTestTokenIssuer {
         key = generateKey(config);
     }
 
-    @SneakyThrows
+    // Tokenutstederen opprettes i JUnit-feltinitialisering uten checked exceptions.
+    @SneakyThrows(JoseException.class)
     private static RsaJsonWebKey generateKey(JwtTestTokenIssuerConfig config) {
         RsaJsonWebKey rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
         rsaJsonWebKey.setKeyId(config.id);
@@ -39,7 +41,8 @@ public class JwtTestTokenIssuer {
         return new JsonWebKeySet(Collections.singletonList(key)).toJson();
     }
 
-    @SneakyThrows
+    // Kalles fra WireMock-transformeren, som ikke tillater checked exceptions.
+    @SneakyThrows(JoseException.class)
     public String issueTestToken(Claims claims) {
         // https://bitbucket.org/b_c/jose4j/wiki/JWT%20Examples
 

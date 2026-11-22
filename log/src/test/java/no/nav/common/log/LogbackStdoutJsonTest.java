@@ -1,29 +1,26 @@
 package no.nav.common.log;
 
+import ch.qos.logback.core.joran.spi.JoranException;
 import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+@Slf4j
 public class LogbackStdoutJsonTest {
 
     @Test
-    @SneakyThrows
-    public void fodselsnummerSkalMaskerer() {
+    public void fodselsnummerSkalMaskerer() throws JoranException {
         PrintStream out = System.out;
 
         LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
-
-        Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
 
         String skalMaskeres = "dette er en test av maskereren 12345678910 kanskje den virker";
         String maskert = "dette er en test av maskereren *********** kanskje den virker";
@@ -51,14 +48,11 @@ public class LogbackStdoutJsonTest {
     }
 
     @Test
-    @SneakyThrows
-    public void loglinjeSkalInkludereMDCFelter() {
+    public void loglinjeSkalInkludereMDCFelter() throws JoranException {
         PrintStream out = System.out;
 
         LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
-
-        Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
 
         String mdcKey = UUID.randomUUID().toString();
         MDC.put(mdcKey, "value");
@@ -78,14 +72,11 @@ public class LogbackStdoutJsonTest {
     }
 
     @Test
-    @SneakyThrows
-    public void skal_logge_json_med_logbackStdoutJson() {
+    public void skal_logge_json_med_logbackStdoutJson() throws JoranException {
         PrintStream out = System.out;
 
         LogTestHelpers.loadLogbackConfig("/logback-test.xml");
         ByteArrayOutputStream outputStream = captureSystemOut();
-
-        Logger log = LoggerFactory.getLogger(LogbackStdoutJsonTest.class);
 
         log.debug("Debug-melding");
         String infoMelding = "Info-melding";

@@ -50,7 +50,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     private static HikariDataSource postgresDataSource;
 
     @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    public static Collection<Object[]> data() throws Exception {
         postgreSQLContainer.start();
         Awaitility.await()
                 .atMost(Duration.ofSeconds(60))
@@ -82,7 +82,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     }
 
     @After
-    public void after() {
+    public void after() throws Exception {
         DbUtils.cleanupConsumer(dataSource);
     }
 

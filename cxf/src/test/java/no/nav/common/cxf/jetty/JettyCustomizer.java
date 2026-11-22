@@ -4,6 +4,7 @@ import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.Server;
 
+@SuppressWarnings("unused")
 public interface JettyCustomizer {
 
     default void customize(HttpConfiguration httpConfiguration) {}
