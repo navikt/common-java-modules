@@ -33,10 +33,10 @@ import org.apache.kafka.common.errors.WakeupException;
  * partisjon. Når behandlingen feiler, utsettes de neste meldingene fra samme partisjon til senere poll.
  * Klienten committer bare fremdrift for meldinger som er behandlet med OK.
  *
- * <p>Stop venter på kjøringen og lar klienten startes igjen. Close setter i gang endelig lukking,
+ * <p>Stop forsøker å vente på kjøringen og lar klienten startes igjen. Close setter i gang endelig lukking,
  * venter på bakgrunnsarbeidet og frigjør executorene. Etter close kan klienten ikke startes igjen.
- * Hvis ventetiden overskrides, får kalleren en feil, men callbacks og lukking fortsetter.
- * Et nytt close-kall kan bekrefte at alt er avsluttet.
+ * Vanlig stop logger tidsavbrudd og avbrutt venting. Stop(Duration) og close melder slike feil til kalleren.
+ * Callbacks og lukking fortsetter etter tidsavbrudd. Et nytt close-kall kan bekrefte at alt er avsluttet.
  *
  * <p>Metoder som venter, kan ikke kalles fra klientens egen initialisering eller behandling.
  * Da får kalleren en feil i stedet for å vente på arbeidet den selv utfører.

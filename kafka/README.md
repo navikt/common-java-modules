@@ -152,7 +152,7 @@ Javadoc-sidene nedenfor identifiserer denne versjonen i sidetittelen.
   send-callback bruker null sekunders ventetid og sikrer ikke at sendte meldinger
   blir bekreftet. Prosessoren lukker derfor publisheren på sin egen executor,
   etter at publisering og databasesletting er ferdig. Ikke kall prosessorens
-  blokkerende `close()` fra en send-callback.
+  blokkerende `closeAndAwait()` fra en send-callback.
 - Fjerning av shutdown hooks følger
   [Java 21 `Runtime.removeShutdownHook(Thread)`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runtime.html#removeShutdownHook(java.lang.Thread)).
   Hooken fjernes ved endelig lukking, unntatt når JVM-avslutningen
@@ -181,8 +181,8 @@ List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs = List.of(
                         )
         );
 
-KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-        .withProps(KafkaPropertiesPreset.aivenDefaultConsumerProperties("<your-app>"))
+KafkaConsumerClient consumerClient = KafkaConsumerClientBuilder.builder()
+        .withProperties(KafkaPropertiesPreset.aivenDefaultConsumerProperties("<your-app>"))
         .withTopicConfigs(topicConfigs)
         .build();
 
@@ -249,7 +249,7 @@ JdbcTemplate jdbcTemplate = // Construct from DataSource or inject from bean
 
 KafkaConsumerRepository kafkaConsumerRepository = new PostgresJdbcTemplateConsumerRepository(jdbcTemplate);
 
-var topicConfigs = List.of(
+List<KafkaConsumerClientBuilder.TopicConfig<?, ?>> topicConfigs = List.of(
     new KafkaConsumerClientBuilder.TopicConfig<String, String>()
          .withStoreOnFailure(kafkaConsumerRepository) // Enable store on failure for topic1
          .withConsumerConfig(
@@ -257,19 +257,19 @@ var topicConfigs = List.of(
                  stringDeserializer(),
                  stringDeserializer(),
                  (record) -> System.out.println(record)
-         )
+         ),
     new KafkaConsumerClientBuilder.TopicConfig<String, String>()
          .withConsumerConfig(
                  "topic2",
                  stringDeserializer(),
                  stringDeserializer(),
-                 (record) -> { System.out.println(record); }
+                 (record) -> System.out.println(record)
          )
 );
 
 
-KafkaConsumerClient<String, String> consumerClient = KafkaConsumerClientBuilder.<String, String>builder()
-                .withProps(KafkaPropertiesPreset.aivenDefaultConsumerProperties("<your-app>"))
+KafkaConsumerClient consumerClient = KafkaConsumerClientBuilder.builder()
+                .withProperties(KafkaPropertiesPreset.aivenDefaultConsumerProperties("<your-app>"))
                 .withTopicConfigs(topicConfigs)
                 .build();
 
@@ -281,7 +281,7 @@ LockProvider lockProvider = new JdbcTemplateLockProvider(jdbcTemplate);
 KafkaConsumerRecordProcessor consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder
                 .builder()
                 .withLockProvider(lockProvider)
-                .withKafkaConsumerRepository(consumerRepository)
+                .withKafkaConsumerRepository(kafkaConsumerRepository)
                 .withTopicConfigs(topicConfigs)
                 .build();
 
