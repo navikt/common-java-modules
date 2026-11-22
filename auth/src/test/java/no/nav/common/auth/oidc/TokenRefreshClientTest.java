@@ -1,7 +1,10 @@
 package no.nav.common.auth.oidc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.nimbusds.jwt.JWTParser;
+import java.text.ParseException;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
 import org.junit.Rule;
@@ -20,14 +23,37 @@ public class TokenRefreshClientTest {
 
     @Test
     public void shouldRefreshToken() {
-        TokenRefreshClient refreshClient = new TokenRefreshClient();
+        // Arrange
+        var refreshClient = new TokenRefreshClient();
+
+        // Act & Assert
         assertThatCode(() -> refreshClient.refreshIdToken(oidcProviderRule.getRefreshUri(), "refresh-token"))
                 .doesNotThrowAnyException();
     }
 
+    @Test
+    public void skal_utstede_et_nytt_token_for_hver_refresh() throws ParseException {
+        // Arrange
+        var refreshClient = new TokenRefreshClient();
+
+        // Act
+        String firstToken = refreshClient.refreshIdToken(oidcProviderRule.getRefreshUri(), "refresh-token");
+        String secondToken = refreshClient.refreshIdToken(oidcProviderRule.getRefreshUri(), "refresh-token");
+
+        // Assert
+        assertThat(secondToken).isNotEqualTo(firstToken);
+        var claims = JWTParser.parse(secondToken).getJWTClaimsSet();
+        assertThat(claims.getSubject()).isEqualTo("subject");
+        assertThat(claims.getIssuer()).isEqualTo(issuerConfig.issuer);
+        assertThat(claims.getAudience()).containsExactly(issuerConfig.audience);
+    }
+
     @Test(expected = Exception.class)
     public void shouldThrowIfWrongUrl() {
-        TokenRefreshClient refreshClient = new TokenRefreshClient();
+        // Arrange
+        var refreshClient = new TokenRefreshClient();
+
+        // Act & Assert
         refreshClient.refreshIdToken("http://not-a-real-host.test/refresh", "refresh-token");
     }
 }

@@ -15,7 +15,6 @@ cxf-core = "4.2.4"
 jakarta-servlet = "6.1.0"
 jakarta-ws-rs-api = "4.0.0"
 spring = "7.0.10"
-jersey = "4.0.2"
 jetty = "12.1.15"
 
 # JSON og serialisering
@@ -94,9 +93,6 @@ jacoco-core = { module = "org.jacoco:org.jacoco.core", version.ref = "jacoco" }
 # Web og applikasjonsrammeverk
 jakarta-servlet = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "jakarta-servlet" }
 jakarta-ws-rs-api = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "jakarta-ws-rs-api" }
-jersey-container-servlet = { module = "org.glassfish.jersey.containers:jersey-container-servlet", version.ref = "jersey" }
-jersey-hk2 = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref = "jersey" }
-jersey-server = { module = "org.glassfish.jersey.core:jersey-server", version.ref = "jersey" }
 spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "spring" }
 spring-test = { module = "org.springframework:spring-test", version.ref = "spring" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring" }
@@ -114,8 +110,6 @@ jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations
 jackson-core = { module = "tools.jackson.core:jackson-core", version.ref = "jackson" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-kotlin = { module = "tools.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
-jackson-provider = { module = "tools.jackson.jakarta.rs:jackson-jakarta-rs-json-provider", version.ref = "jackson" }
-jackson-xmlbind = { module = "tools.jackson.module:jackson-module-jakarta-xmlbind-annotations", version.ref = "jackson" }
 jackson-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 json-schema = { module = "com.github.erosb:everit-json-schema", version.ref = "json-schema-validation" }
 # Holdes også som managed constraint for transitiv oppløsning i Kafka-relaterte grafer.
@@ -141,7 +135,6 @@ testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", ver
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
 
 # CXF og Jetty
-jetty-annotations = { module = "org.eclipse.jetty.ee11:jetty-ee11-annotations", version.ref = "jetty" }
 jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "jetty" }
 jetty-servlet = { module = "org.eclipse.jetty.ee11:jetty-ee11-servlet", version.ref = "jetty" }
 jetty-webapp = { module = "org.eclipse.jetty.ee11:jetty-ee11-webapp", version.ref = "jetty" }
