@@ -3,7 +3,7 @@ java-version = "21"
 
 # Logging og observability
 slf4j = "2.0.20"
-logback = "1.6.6"
+logback = "1.6.7"
 logback-syslog4j = "1.0.0"
 logstash-logback = "9.0"
 micrometer = "1.17.2"
@@ -15,7 +15,7 @@ cxf-core = "4.2.4"
 jakarta-servlet = "6.1.0"
 jakarta-ws-rs-api = "4.0.0"
 spring = "7.0.10"
-jersey = "4.0.2"
+jersey = "4.0.3"
 jetty = "12.1.15"
 
 # JSON og serialisering
