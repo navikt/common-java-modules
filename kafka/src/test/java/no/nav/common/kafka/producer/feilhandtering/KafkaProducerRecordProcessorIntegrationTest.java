@@ -64,7 +64,6 @@ public class KafkaProducerRecordProcessorIntegrationTest {
 
     private TestKafkaProducerClient producerClient;
     private KafkaProducerRecordProcessor recordProcessor;
-    private boolean recordProcessorStarted;
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -122,17 +121,13 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     public void afterEach() throws Exception {
         try {
             if (recordProcessor != null) {
-                recordProcessor.close();
-                if (recordProcessorStarted) {
-                    await().atMost(Duration.ofSeconds(15)).until(producerClient::isClosed);
-                }
-            }
-            if (!recordProcessorStarted && producerClient != null) {
+                recordProcessor.closeAndAwait();
+            } else if (producerClient != null) {
                 producerClient.close();
             }
         } finally {
             if (consumerClient != null) {
-                consumerClient.stop();
+                consumerClient.close();
             }
         }
         DbUtils.cleanupProducer(dataSource);
@@ -147,6 +142,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .withRecordPublisher(new BatchedKafkaProducerRecordPublisher(producerClient))
                 .withPollTimeoutMs(POLL_TIMEOUT)
                 .build();
+        consumerClient.close();
         consumerClient = mock(KafkaConsumerClient.class);
         doThrow(new IllegalStateException("Simulert oppstartsfeil"))
                 .when(consumerClient)
@@ -184,7 +180,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 .until(() -> sentOnTopicA.size() == 3
                         && sentOnTopicB.size() == 2
                         && producerRepository.getRecords(10).isEmpty());
-        recordProcessor.close();
+        recordProcessor.closeAndAwait();
         consumerClient.stop();
 
         assertTrue(producerRepository.getRecords(10).isEmpty());
@@ -222,7 +218,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 assertEquals(1, producerRepository.getRecords(10).size());
             });
         } finally {
-            recordProcessor.close();
+            recordProcessor.closeAndAwait();
             consumerClient.stop();
         }
 
@@ -263,7 +259,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                 assertEquals(1, producerRepository.getRecords(10).size());
             });
         } finally {
-            recordProcessor.close();
+            recordProcessor.closeAndAwait();
             consumerClient.stop();
         }
 
@@ -310,7 +306,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
                         && sentOnTopicB.size() == 1
                         && producerRepository.getRecords(10).size() == 3);
 
-        recordProcessor.close();
+        recordProcessor.closeAndAwait();
         consumerClient.stop();
 
         // We expect all messages before the failed record to have been sent and consumed
@@ -351,14 +347,13 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         });
         Thread.sleep(WAIT_TIMEOUT);
 
-        recordProcessor.close();
+        recordProcessor.closeAndAwait();
         consumerClient.stop();
         assertEquals(0, sentOnTopicA.size());
     }
 
     private void startRecordProcessor() {
         recordProcessor.start();
-        recordProcessorStarted = true;
     }
 
     private StoredProducerRecord storedRecord(String topic, String key, String value) {

@@ -2,7 +2,7 @@
 
 [![Build status](https://github.com/navikt/common-java-modules/actions/workflows/main.yml/badge.svg)](https://github.com/navikt/common-java-modules/actions/workflows/main.yml)
 
-Felles Java moduler som løser vanlige problemer som f.eks kafka, token exchange, logging, observability etc...
+Felles Java moduler som løser vanlige problemer som f.eks. Kafka, token exchange, logging, observability etc...
 
 Hver av modulene er laget for å løse et spesifikt behov og man kan plukke og mikse de modulene man trenger etter behov.
 
@@ -62,7 +62,7 @@ Audit logging on NAIS. Contains code and logback config to make it easy to write
 [Read more here](audit-log/README.md)
 
 ### Kafka
-High-level abstractions built on-top of `org.apache.kafka.kafka-clients` to prevent common mistakes when dealing with kafka.
+High-level abstractions built on-top of `org.apache.kafka.kafka-clients` to prevent common mistakes when dealing with Kafka.
 
 [Read more here](kafka/README.md)
 
@@ -240,11 +240,15 @@ registration.
 - [x] Close the producer on failure in `KafkaProducerWithClientMetricsTest` and
   replace its fixed sleep with a bounded wait for completed metric callbacks.
 - [x] Make Kafka client/processor cleanup run after failed assertions and waits.
-- [ ] Review worker completion and disposal of owning executors separately from
-  `stop()` semantics before changing production lifecycle APIs. Consumer processor
-  termination and client executor disposal are not guaranteed by the current
-  public APIs. Producer tests await publisher-owned client closure before database
-  cleanup.
+- [x] Separate restartable Kafka `stop()` from terminal, bounded shutdown.
+  Final test cleanup waits for active callbacks, publication, database deletion,
+  publisher closure and owned executor termination. Consumer processor `stop()`
+  remains nonblocking. Restart cannot overlap a draining worker. Plain consumer
+  `stop()` logs timeouts and interruption; `stop(Duration)`, consumer `close()`
+  and producer `closeAndAwait()` fail explicitly without interrupting active work.
+  Legacy producer `close()` remains nonblocking and is deprecated for removal. See the
+  [Kafka lifecycle and cleanup contract](kafka/README.md#livssyklus-og-opprydding)
+  for compatibility and migration details.
 - [x] Await callback counts and database state together in
   `KafkaConsumerRecordProcessorIntegrationTest`; a callback count alone does not
   prove that database deletion has completed.
