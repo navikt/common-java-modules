@@ -6,6 +6,7 @@ dependencies {
     api(project(":util"))
     api(project(":log"))
     api(project(":json"))
+    runtimeOnly(libs.jakarta.ws.rs.api)
     implementation(libs.slf4j.api)
     api(libs.jakarta.servlet)
     testImplementation(libs.junit.vintage)
