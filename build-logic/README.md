@@ -45,6 +45,10 @@ Beta-versjonen har suffikset `-beta`, og GitHub-releasen markeres som prerelease
 Ordinære releaser publiseres bare ved push til `main`. Pull requests kjører bygget
 uten ekstern publisering.
 
+Begge Gradle-kjøringene bruker `--profile`. Rapportene lastes opp som
+`build-profile-<forsøk>` og `publication-profile-<forsøk>` og beholdes i sju dager.
+Rapportopplasting forsøkes også når en jobb feiler.
+
 ## Oppbygging
 
 Rotens `settings.gradle.kts` kobler inn `build-logic` med `pluginManagement { includeBuild("build-logic") }`.
