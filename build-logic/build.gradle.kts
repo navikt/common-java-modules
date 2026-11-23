@@ -16,7 +16,11 @@ dependencies {
 }
 
 tasks.named<Test>("test") {
+    // Behold isolerte fixture-bygg, men la CI gjenbruke TestKits avhengighets- og skriptcache.
+    systemProperty("org.gradle.testkit.dir", gradle.gradleUserHomeDir.resolve("common-java-modules-testkit").absolutePath)
     inputs.file("../gradle/libs.versions.toml").withPathSensitivity(PathSensitivity.RELATIVE)
+    // POM-testene kopierer modulenes byggskript, så endringer i dem må utløse ny testkjøring.
+    inputs.files(fileTree("..") { include("*/build.gradle.kts") }).withPathSensitivity(PathSensitivity.RELATIVE)
     // Publiseringstesten kopierer skriptene, så endringer i dem må utløse ny testkjøring.
     inputs.files(fileTree("../scripts/publish-artifacts") { include("*.gradle.kts") }).withPathSensitivity(PathSensitivity.RELATIVE)
     useJUnitPlatform()

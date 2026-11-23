@@ -20,11 +20,6 @@ import java.util.Map;
 import lombok.SneakyThrows;
 import no.nav.common.token_client.cache.TokenCache;
 
-/**
- * @deprecated Bruk Texas via {@code NAIS_TOKEN_EXCHANGE_ENDPOINT} for TokenX-utveksling i Nais.
- *     Se <a href="https://docs.nais.io/auth/tokenx/how-to/consume/">TokenX-veiledningen</a>.
- */
-@Deprecated(forRemoval = true)
 public class TokenXOnBehalfOfTokenClient extends AbstractTokenClient implements OnBehalfOfTokenClient {
 
     public TokenXOnBehalfOfTokenClient(

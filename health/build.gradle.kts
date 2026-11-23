@@ -6,6 +6,7 @@ dependencies {
     api(libs.jakarta.servlet)
     api(project(":util"))
     api(libs.okhttp)
+    runtimeOnly(libs.kotlin.stdlib)
     compileOnly(libs.lombok)
     compileOnly(libs.micrometer) { mavenOptional() }
     testImplementation(libs.junit.vintage)

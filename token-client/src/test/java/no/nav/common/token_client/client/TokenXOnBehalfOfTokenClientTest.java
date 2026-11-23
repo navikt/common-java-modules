@@ -5,6 +5,7 @@ import static no.nav.common.token_client.test_utils.Constants.TEST_JWK;
 import static no.nav.common.token_client.test_utils.RequestUtils.parseFormData;
 import static no.nav.common.token_client.test_utils.RequestUtils.tokenMockResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
+import no.nav.common.token_client.builder.TokenXTokenClientBuilder;
 import no.nav.common.token_client.cache.CaffeineTokenCache;
 import no.nav.common.token_client.test_utils.TokenCreator;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +33,12 @@ public class TokenXOnBehalfOfTokenClientTest {
     @AfterEach
     public void shutdown() {
         server.close();
+    }
+
+    @Test
+    public void skal_tilby_tokenx_uten_deprekeringsmarkering() {
+        assertFalse(TokenXOnBehalfOfTokenClient.class.isAnnotationPresent(Deprecated.class));
+        assertFalse(TokenXTokenClientBuilder.class.isAnnotationPresent(Deprecated.class));
     }
 
     @Test

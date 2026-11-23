@@ -10,11 +10,7 @@ import no.nav.common.token_client.cache.TokenCache;
 import no.nav.common.token_client.client.TokenXOnBehalfOfTokenClient;
 import no.nav.common.token_client.utils.OidcDiscoveryClient;
 
-/**
- * @deprecated Bruk Texas via {@code NAIS_TOKEN_EXCHANGE_ENDPOINT} for TokenX-utveksling i Nais.
- *     Se <a href="https://docs.nais.io/auth/tokenx/how-to/consume/">TokenX-veiledningen</a>.
- */
-@Deprecated(forRemoval = true)
+@SuppressWarnings("unused")
 public class TokenXTokenClientBuilder {
 
     private String clientId;
@@ -59,7 +55,6 @@ public class TokenXTokenClientBuilder {
         return this;
     }
 
-    @SuppressWarnings("removal")
     public TokenXOnBehalfOfTokenClient buildOnBehalfOfTokenClient() {
         validate();
 

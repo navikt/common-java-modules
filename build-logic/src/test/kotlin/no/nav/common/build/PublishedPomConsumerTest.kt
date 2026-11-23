@@ -2,6 +2,7 @@ package no.nav.common.build
 
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.w3c.dom.Element
@@ -11,6 +12,89 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 /** Tester avhengigheter slik en ekstern Gradle-konsument leser dem fra publiserte POM-er. */
 class PublishedPomConsumerTest {
+    @Test
+    fun `modulenes POM-er publiserer runtime-versjoner uten å gjøre Avro obligatorisk`() {
+        val directory = File("build/publication-tests/${UUID.randomUUID()}").absoluteFile.apply { mkdirs() }
+        try {
+            val modules = File("..")
+                .listFiles()
+                .orEmpty()
+                .filter { it.name != "build-logic" && File(it, "build.gradle.kts").isFile }
+            File(directory, "settings.gradle.kts").writeText(
+                """
+                rootProject.name = "fixture"
+                include(${modules.joinToString { "\"${it.name}\"" }})
+                """.trimIndent(),
+            )
+            File(directory, "gradle").mkdirs()
+            val catalog = File("../gradle/libs.versions.toml")
+            catalog.copyTo(File(directory, "gradle/libs.versions.toml"))
+            File(directory, "build.gradle.kts").writeText("""plugins { id("nav.common-root") }""")
+            modules.forEach { module ->
+                File(directory, module.name).mkdirs()
+                File(module, "build.gradle.kts").copyTo(File(directory, "${module.name}/build.gradle.kts"))
+            }
+
+            GradleRunner
+                .create()
+                .withProjectDir(directory)
+                .withPluginClasspath()
+                .withArguments("generatePomFileForMavenJavaPublication", "-Prevision=4.test")
+                .build()
+
+            val expected = mapOf(
+                "audit-log" to mapOf("ch.qos.logback:logback-classic" to "logback", "ch.qos.logback:logback-core" to "logback"),
+                "kafka" to mapOf("org.json:json" to "org-json"),
+                "health" to mapOf("org.jetbrains.kotlin:kotlin-stdlib" to "kotlin"),
+                "json" to mapOf("org.jetbrains.kotlin:kotlin-stdlib" to "kotlin", "org.jetbrains.kotlin:kotlin-reflect" to "kotlin"),
+                "cxf" to mapOf("com.sun.istack:istack-commons-runtime" to "istack"),
+                "test" to mapOf("com.sun.istack:istack-commons-runtime" to "istack"),
+            )
+            expected.forEach { (module, artifacts) ->
+                val pom = DocumentBuilderFactory
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(File(directory, "$module/build/publications/mavenJava/pom-default.xml"))
+                    .documentElement
+                val dependencies = (0 until pom.childNodes.length)
+                    .mapNotNull { pom.childNodes.item(it) as? Element }
+                    .single { it.tagName == "dependencies" }
+                val entries = (0 until dependencies.childNodes.length)
+                    .mapNotNull { dependencies.childNodes.item(it) as? Element }
+                artifacts.forEach { (artifact, versionKey) ->
+                    val entry = entries.single {
+                        "${it.getElementsByTagName("groupId").item(0).textContent}:" +
+                            it.getElementsByTagName("artifactId").item(0).textContent == artifact
+                    }
+                    assertEquals("runtime", entry.getElementsByTagName("scope").item(0).textContent, "$module:$artifact")
+                    assertEquals(
+                        catalog.fixtureCatalogVersion(versionKey),
+                        entry.getElementsByTagName("version").item(0).textContent,
+                        "$module:$artifact",
+                    )
+                    assertEquals(0, entry.getElementsByTagName("optional").length, "$module:$artifact")
+                }
+                if (module == "kafka") {
+                    listOf("avro", "kafka-avro-serializer").forEach { artifact ->
+                        val entry = entries.single { it.getElementsByTagName("artifactId").item(0).textContent == artifact }
+                        assertEquals("true", entry.getElementsByTagName("optional").item(0).textContent)
+                    }
+                    assertFalse(
+                        entries.any {
+                            it
+                                .getElementsByTagName("groupId")
+                                .item(0)
+                                .textContent
+                                .startsWith("com.fasterxml.jackson")
+                        },
+                    )
+                }
+            }
+        } finally {
+            directory.deleteRecursively()
+        }
+    }
+
     @Test
     fun `publisert Java-komponent skiller api fra interne og valgfrie avhengigheter`() {
         // Arrange
@@ -71,7 +155,6 @@ class PublishedPomConsumerTest {
             val publisher = GradleRunner
                 .create()
                 .withProjectDir(directory)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withPluginClasspath()
                 .withArguments(
                     ":producer:publishMavenJavaPublicationToFixtureRepository",
@@ -132,7 +215,6 @@ class PublishedPomConsumerTest {
             GradleRunner
                 .create()
                 .withProjectDir(consumer)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withArguments("compileJava", "runConsumer", "copyCompile", "copyRuntime", "copyTests", "--offline")
                 .build()
 

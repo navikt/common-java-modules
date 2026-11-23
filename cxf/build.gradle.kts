@@ -19,6 +19,7 @@ dependencies {
     api(libs.cxf.features.logging)
     implementation(libs.jsoup) { exclude(group = "commons-logging", module = "commons-logging") }
     runtimeOnly(libs.jakarta.servlet)
+    runtimeOnly(libs.istack)
     implementation(libs.slf4j.api)
     compileOnly(libs.lombok)
     testImplementation(libs.junit.vintage)

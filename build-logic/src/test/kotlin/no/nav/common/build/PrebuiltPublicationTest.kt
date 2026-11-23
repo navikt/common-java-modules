@@ -51,7 +51,6 @@ class PrebuiltPublicationTest {
             GradleRunner
                 .create()
                 .withProjectDir(directory)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withPluginClasspath()
                 .withArguments(
                     "publicationArtifacts",
@@ -78,7 +77,6 @@ class PrebuiltPublicationTest {
             val runner = GradleRunner
                 .create()
                 .withProjectDir(publisher)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
             val buildScript = File(publisher, "build.gradle.kts")
             val originalScript = buildScript.readText()
             // Begge publiseringene må starte før noen av dem kan fortsette.

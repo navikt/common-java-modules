@@ -53,6 +53,7 @@ class NativePublicationTest {
                 plugins { id("nav.common-library") }
                 dependencies {
                     api(project(":producer"))
+                    testImplementation(libs.mockito)
                     testImplementation(project(path = ":producer", configuration = "testArtifacts"))
                 }
                 tasks.register<Copy>("copyCompileDependencies") {
@@ -99,6 +100,14 @@ class NativePublicationTest {
                 }
                 check(configurations["apiElements"].allDependencies.none { it.name == "micrometer-core" })
                 check(configurations["runtimeElements"].allDependencies.none { it.name == "micrometer-core" })
+                listOf("apiElements", "runtimeElements", "compileClasspath", "runtimeClasspath").forEach { name ->
+                    check(configurations[name].allDependencyConstraints.none { it.name == "byte-buddy" })
+                }
+                listOf("testCompileClasspath", "testRuntimeClasspath").forEach { name ->
+                    check(configurations[name].allDependencyConstraints.single { it.name == "byte-buddy" }.version ==
+                        libs.versions.bytebuddy.get())
+                    check(configurations[name].allDependencies.none { it.name == "byte-buddy" })
+                }
                 check(configurations["testCompileClasspath"].allDependencies.any { it.name == "apiguardian-api" })
                 listOf("compileClasspath", "runtimeClasspath", "testRuntimeClasspath", "apiElements", "runtimeElements")
                     .forEach { name ->
@@ -119,7 +128,6 @@ class NativePublicationTest {
             val runner = GradleRunner
                 .create()
                 .withProjectDir(directory)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withPluginClasspath()
                 .withArguments(
                     ":consumer:generatePomFileForMavenJavaPublication",
@@ -159,6 +167,11 @@ class NativePublicationTest {
             assertFalse(File(compile, commonsIoJar).exists())
             assertTrue(File(testCompile, commonsIoJar).isFile)
             assertTrue(File(tests, commonsIoJar).isFile)
+            val byteBuddyVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("bytebuddy")
+            val byteBuddyJar = "byte-buddy-$byteBuddyVersion.jar"
+            assertTrue(File(testCompile, byteBuddyJar).isFile)
+            assertTrue(File(tests, byteBuddyJar).isFile)
+            assertFalse(File(compile, byteBuddyJar).exists())
             val apiGuardianVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("apiguardian")
             val apiGuardianJar = "apiguardian-api-$apiGuardianVersion.jar"
             assertTrue(File(testCompile, apiGuardianJar).isFile)
@@ -203,18 +216,17 @@ class NativePublicationTest {
                 .single()
                 .direct("dependency")
             val managedCoordinates = managed.map { "${it.text("groupId")}:${it.text("artifactId")}" }.toSet()
-            assertFalse(managedCoordinates.contains("javax.xml.bind:jaxb-api"))
-            assertTrue(
-                managedCoordinates.containsAll(
-                    setOf(
-                        "example:transitive",
-                        "ch.qos.logback:logback-classic",
-                        "org.json:json",
-                        "org.glassfish.jaxb:jaxb-runtime",
-                        "com.fasterxml.jackson.core:jackson-databind",
-                        "net.bytebuddy:byte-buddy",
-                    ),
+            assertEquals(
+                setOf(
+                    "example:transitive",
+                    "ch.qos.logback:logback-classic",
+                    "org.json:json",
+                    "com.sun.istack:istack-commons-runtime",
+                    "com.fasterxml.jackson.core:jackson-databind",
+                    "org.jetbrains.kotlin:kotlin-stdlib",
+                    "org.jetbrains.kotlin:kotlin-reflect",
                 ),
+                managedCoordinates,
             )
             assertEquals(
                 "1.0",
@@ -225,10 +237,7 @@ class NativePublicationTest {
                 fixtureCatalog.fixtureCatalogVersion("jackson2"),
                 managed.single { it.text("artifactId") == "jackson-databind" }.text("version"),
             )
-            assertEquals(
-                fixtureCatalog.fixtureCatalogVersion("bytebuddy"),
-                managed.single { it.text("artifactId") == "byte-buddy" }.text("version"),
-            )
+            assertFalse(pomFile.readText().contains("byte-buddy"))
             val dependencies = pom.direct("dependencies").single().direct("dependency")
             assertTrue(dependencies.size >= 6)
 

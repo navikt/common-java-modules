@@ -38,12 +38,18 @@ som en workflow-artefakt først når hele bygget har lykkes.
 `scripts/publish-artifacts` er et separat Gradle-bygg uten kompilering eller tester.
 Det publiserer de overførte POM- og JAR-filene uendret, inkludert klassifikatorene
 `sources`, `tests` og `test-sources`. Testjobben har bare lesetilgang;
-publiseringsjobben har skrivetilgang. Testrapporter lastes opp ved feil.
+publiseringsjobben har skrivetilgang. Testrapporter lastes alltid opp som
+`test-reports-<forsøk>`, slik at tidsbruk per test kan undersøkes også etter vellykkede bygg.
 Hver modul har et eget publiseringsprosjekt. Workflowene bruker
 `--parallel --max-workers=4` for å tillate opptil fire samtidige publiseringer.
 Beta-versjonen har suffikset `-beta`, og GitHub-releasen markeres som prerelease.
 Ordinære releaser publiseres bare ved push til `main`. Pull requests kjører bygget
 uten ekstern publisering.
+
+TestKit bruker `common-java-modules-testkit` under Gradle User Home. Fixture-prosjektene
+er fortsatt isolerte, mens avhengigheter og kompilerte byggskript kan gjenbrukes.
+Testjobben tar med TestKits `caches`-katalog i CI-cachen. Pull requests leser cache
+uten å skrive; manuelle beta-bygg og bygg på `main` kan oppdatere den.
 
 ## Oppbygging
 
@@ -123,6 +129,19 @@ når en modul slutter å eksportere dem som API.
 `../gradle/libs.versions.toml` har koordinater og versjoner, men en katalogoppføring
 styrer **ikke** avhengigheter automatisk. `CommonJavaPlugin.kt` velger hvilke aliaser
 som blir Gradle-constraints og modulens `dependencyManagement`.
+
+Seks `api`-constraints samordner Logback classic, org.json, istack, Jackson 2
+databind, Kotlin stdlib og Kotlin reflect. Jackson 2 samordnes gjennom transitiv
+BOM-alignment i Gradle. Byte Buddy har bare en `testImplementation`-constraint
+og publiseres ikke som versjonsstyring for konsumenter.
+
+En vanlig Maven-dependency arver ikke bibliotekets `dependencyManagement`.
+Derfor deklarerer `audit-log` Logback classic og core direkte, `kafka` deklarerer
+org.json, `health` deklarerer Kotlin stdlib, `json` deklarerer Kotlin stdlib og
+reflect, og `cxf` og `test` deklarerer istack. Alle publiseres med `runtime`-scope.
+Konsumentens egen dependency management kan fortsatt overstyre versjonene.
+Avro forblir valgfri; Jackson 2 legges ikke til som en obligatorisk Kafka-avhengighet.
+Modul-POM-ene er ikke en felles BOM for valgfrie integrasjoner.
 
 Ved ny eller endret managed avhengighet: sjekk katalogen og modulens constraints.
 Når `withXml` bygger POM-en, må alle verdier allerede være samlet inn ved

@@ -59,10 +59,7 @@ awaitility = "4.3.0"
 system-rules = "1.19.0"
 
 # Disse slås opp dynamisk av build-logic for Maven-POM-er eller verktøyversjoner.
-commons-collections4 = "4.6.0"
-fastinfoset = "2.1.1"
 istack = "4.2.0"
-jaxb-runtime = "4.0.9"
 bytebuddy = "1.18.17"
 jacoco = "0.8.16"
 
@@ -72,19 +69,12 @@ spotless = "8.11.0"
 
 [libraries]
 
-# Versjoner som build-logic bruker uten avhengighetsdeklarasjoner i modulene.
-# Aliasene under brukes også som managed constraints i nav.common-library for å speile Maven dependencyManagement.
+# Versjoner for direkte runtime-avhengigheter og constraints i build-logic.
 # Vedlikehold gjøres her: oppdater versjonene i [versions], behold aliasene stabile.
-commons-collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "commons-collections4" }
-fastinfoset = { module = "com.sun.xml.fastinfoset:FastInfoset", version.ref = "fastinfoset" }
 istack = { module = "com.sun.istack:istack-commons-runtime", version.ref = "istack" }
-jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-runtime" }
-# Jackson 2 holdes styrt for konsumenter som fortsatt har transitive avhengigheter på com.fasterxml.jackson.
+# Jackson 2 samordnes via databind og transitiv BOM-alignment i Gradle-bygget.
 jackson2-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson2" }
-jackson2-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson2" }
-jackson2-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv", version.ref = "jackson2" }
-jackson2-jdk8 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jdk8", version.ref = "jackson2" }
-# Kotlin-/Byte Buddy-pins og logback klassisk provider brukes som managed constraints.
+# Kotlin styres for runtime; Byte Buddy styres bare for tester.
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 bytebuddy = { module = "net.bytebuddy:byte-buddy", version.ref = "bytebuddy" }
