@@ -30,6 +30,16 @@ publisere dem.
 ./gradlew publish --dry-run -Prevision=4.test
 ```
 
+Beta-workflowen beregner versjonen før `build` og bygger alle publiseringsartefakter
+med samme versjon. `-PstagingRepository=<katalog>` legger til et lokalt Maven-repository
+som fylles med `publishAllPublicationsToStagingRepository`. Repositoryet overføres
+som en workflow-artefakt først når hele bygget har lykkes.
+
+`scripts/publish-beta` er et separat Gradle-bygg uten kompilering eller tester.
+Det publiserer de overførte POM- og JAR-filene uendret, inkludert klassifikatorene
+`sources`, `tests` og `test-sources`. Testjobben har bare lesetilgang;
+publiseringsjobben har skrivetilgang. Testrapporter lastes opp ved feil.
+
 ## Oppbygging
 
 Rotens `settings.gradle.kts` kobler inn `build-logic` med `pluginManagement { includeBuild("build-logic") }`.

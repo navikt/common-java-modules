@@ -2,7 +2,9 @@ package no.nav.common.build
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.tasks.GenerateModuleMetadata
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 
 /** Setter opp Maven-publisering og kompatibilitetsmetadata for prosjektets artifakter. */
@@ -21,6 +23,14 @@ class CommonPublishingPlugin : Plugin<Project> {
         project.configureCommonPublicationPom(publication)
 
         project.configureGitHubPackagesRepository()
+        project.providers.gradleProperty("stagingRepository").orNull?.let { directory ->
+            project.extensions.configure<PublishingExtension> {
+                repositories.maven {
+                    name = "Staging"
+                    url = project.uri(directory)
+                }
+            }
+        }
         project.embedMavenPublicationMetadata()
     }
 }

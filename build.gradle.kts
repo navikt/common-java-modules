@@ -23,7 +23,12 @@ spotless {
     }
 
     kotlinGradle {
-        target("*.gradle.kts", "*/build.gradle.kts", "build-logic/settings.gradle.kts")
+        target(
+            "*.gradle.kts",
+            "*/build.gradle.kts",
+            "build-logic/settings.gradle.kts",
+            "scripts/publish-beta/*.gradle.kts",
+        )
         ktlint().setEditorConfigPath(file("build-logic/.editorconfig").path)
     }
 }
