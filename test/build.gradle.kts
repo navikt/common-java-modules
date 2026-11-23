@@ -9,6 +9,7 @@ dependencies {
     compileOnly(libs.lombok)
     api(libs.cxf.core)
     runtimeOnly(libs.cxf.ws.security)
+    runtimeOnly(libs.istack)
     implementation(libs.cxf.transports.http)
     api(libs.jakarta.servlet)
     testImplementation(libs.hamcrest.core)

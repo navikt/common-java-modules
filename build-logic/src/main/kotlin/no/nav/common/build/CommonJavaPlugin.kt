@@ -30,17 +30,10 @@ class CommonJavaPlugin : Plugin<Project> {
 private val MANAGED_CONSTRAINT_ALIASES = listOf(
     "logback-classic",
     "org-json",
-    "commons-collections4",
-    "fastinfoset",
     "istack",
-    "jaxb-runtime",
-    "jackson2-core",
     "jackson2-databind",
-    "jackson2-csv",
-    "jackson2-jdk8",
     "kotlin-stdlib",
     "kotlin-reflect",
-    "bytebuddy",
 )
 
 private fun Project.configureManagedDependencyConstraints() {
@@ -51,7 +44,10 @@ private fun Project.configureManagedDependencyConstraints() {
                 "Mangler libs.$alias for managed constraint"
             }
         dependencies.constraints.add("api", dependency) {
-            because("Behold styrte transitive versjoner fra Maven dependencyManagement.")
+            because("Samordne transitive versjoner i Gradle-bygget.")
         }
+    }
+    dependencies.constraints.add("testImplementation", libs.findLibrary("bytebuddy").get()) {
+        because("Samordne Byte Buddy for Mockito og AssertJ uten å styre konsumentenes runtime.")
     }
 }

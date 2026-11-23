@@ -109,6 +109,19 @@ når en modul slutter å eksportere dem som API.
 styrer **ikke** avhengigheter automatisk. `CommonJavaPlugin.kt` velger hvilke aliaser
 som blir Gradle-constraints og modulens `dependencyManagement`.
 
+Seks `api`-constraints samordner Logback classic, org.json, istack, Jackson 2
+databind, Kotlin stdlib og Kotlin reflect. Jackson 2 samordnes gjennom transitiv
+BOM-alignment i Gradle. Byte Buddy har bare en `testImplementation`-constraint
+og publiseres ikke som versjonsstyring for konsumenter.
+
+En vanlig Maven-dependency arver ikke bibliotekets `dependencyManagement`.
+Derfor deklarerer `audit-log` Logback classic og core direkte, `kafka` deklarerer
+org.json, `health` deklarerer Kotlin stdlib, `json` deklarerer Kotlin stdlib og
+reflect, og `cxf` og `test` deklarerer istack. Alle publiseres med `runtime`-scope.
+Konsumentens egen dependency management kan fortsatt overstyre versjonene.
+Avro forblir valgfri; Jackson 2 legges ikke til som en obligatorisk Kafka-avhengighet.
+Modul-POM-ene er ikke en felles BOM for valgfrie integrasjoner.
+
 Ved ny eller endret managed avhengighet: sjekk katalogen og modulens constraints.
 Når `withXml` bygger POM-en, må alle verdier allerede være samlet inn ved
 konfigurering; lesing av `Project` under oppgavekjøring bryter
