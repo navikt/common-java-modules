@@ -27,7 +27,7 @@ spotless {
             "*.gradle.kts",
             "*/build.gradle.kts",
             "build-logic/settings.gradle.kts",
-            "scripts/publish-beta/*.gradle.kts",
+            "scripts/publish-artifacts/*.gradle.kts",
         )
         ktlint().setEditorConfigPath(file("build-logic/.editorconfig").path)
     }

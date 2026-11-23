@@ -5,13 +5,15 @@ import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 import java.util.UUID
 
 class PrebuiltPublicationTest {
-    @Test
-    fun `beta publiserer testede POM-er og alle JAR-varianter uten ny kompilering`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["4.test-beta", "4.test"])
+    fun `publiserer testede POM-er og alle JAR-varianter uten ny kompilering`(revision: String) {
         val directory = File("build/publication-tests/${UUID.randomUUID()}").absoluteFile.apply { mkdirs() }
         try {
             File(directory, "settings.gradle.kts").writeText(
@@ -45,7 +47,6 @@ class PrebuiltPublicationTest {
                 source.parentFile.mkdirs()
                 source.writeText("package fixture; public class Marker {}")
             }
-            val revision = "4.test-beta"
             val staged = File(directory, "staged")
             GradleRunner
                 .create()
@@ -62,21 +63,49 @@ class PrebuiltPublicationTest {
 
             val publisher = File(directory, "publisher").apply { mkdirs() }
             listOf("settings.gradle.kts", "build.gradle.kts").forEach { name ->
-                File("../scripts/publish-beta/$name").copyTo(File(publisher, name))
+                File("../scripts/publish-artifacts/$name").copyTo(File(publisher, name))
             }
             val published = File(directory, "published")
+            val arguments = listOf(
+                "publish",
+                "-Prevision=$revision",
+                "-PstagingRepository=$staged",
+                "-PpublicationRepository=${published.toURI()}",
+                "--parallel",
+                "--max-workers=2",
+                "--offline",
+            )
             val runner = GradleRunner
                 .create()
                 .withProjectDir(publisher)
                 .withTestKitDir(File("build/test-kit").absoluteFile)
-                .withArguments(
-                    "publish",
-                    "-Prevision=$revision",
-                    "-PstagingRepository=$staged",
-                    "-PpublicationRepository=${published.toURI()}",
-                    "--configuration-cache",
-                    "--offline",
-                )
+            val buildScript = File(publisher, "build.gradle.kts")
+            val originalScript = buildScript.readText()
+            // Begge publiseringene må starte før noen av dem kan fortsette.
+            buildScript.appendText(
+                """
+
+                val barrier = java.util.concurrent.CyclicBarrier(2)
+                subprojects {
+                    tasks.withType<org.gradle.api.publish.maven.tasks.PublishToMavenRepository>().configureEach {
+                        doFirst { barrier.await(30, java.util.concurrent.TimeUnit.SECONDS) }
+                    }
+                }
+                """.trimIndent(),
+            )
+            val parallelResult = runner.withArguments(arguments + "--no-configuration-cache").build()
+            assertEquals(
+                setOf(
+                    ":producer:publishMavenJavaPublicationToGitHubPackagesRepository",
+                    ":dependency:publishMavenJavaPublicationToGitHubPackagesRepository",
+                ),
+                parallelResult.tasks
+                    .filter { it.path.endsWith(":publishMavenJavaPublicationToGitHubPackagesRepository") }
+                    .map { it.path }
+                    .toSet(),
+            )
+            buildScript.writeText(originalScript)
+            runner.withArguments(arguments + "--configuration-cache")
             val result = runner.build()
             assertTrue(runner.build().output.contains("Reusing configuration cache."))
             assertFalse(result.tasks.any { it.path.contains("compile") || it.path.endsWith(":test") || it.path.endsWith(":jar") })
