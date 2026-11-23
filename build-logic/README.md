@@ -46,10 +46,6 @@ Beta-versjonen har suffikset `-beta`, og GitHub-releasen markeres som prerelease
 Ordinære releaser publiseres bare ved push til `main`. Pull requests kjører bygget
 uten ekstern publisering.
 
-Begge Gradle-kjøringene bruker `--profile`. Rapportene lastes opp som
-`build-profile-<forsøk>` og `publication-profile-<forsøk>` og beholdes i sju dager.
-Rapportopplasting forsøkes også når en jobb feiler.
-
 TestKit bruker `common-java-modules-testkit` under Gradle User Home. Fixture-prosjektene
 er fortsatt isolerte, mens avhengigheter og kompilerte byggskript kan gjenbrukes.
 Testjobben tar med TestKits `caches`-katalog i CI-cachen. Pull requests leser cache
