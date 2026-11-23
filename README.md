@@ -70,7 +70,7 @@ High-level abstractions built on-top of `org.apache.kafka.kafka-clients` to prev
 OAuth2 token clients which can be used with Azure AD and TokenX for machine-to-machine and on-behalf-of flows when sending requests between applications. 
 Provides easy-to-use clients which requires minimal configuration for applications running on NAIS.
 
-The TokenX client and builder are deprecated. For Nais applications, migrate to
+For TokenX token exchange through Texas in Nais, see
 [Texas token exchange](token-client/README.md#exchanging-tokenx-on-behalf-of-token).
 
 [Read more here](token-client/README.md)
