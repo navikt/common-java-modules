@@ -17,6 +17,8 @@ dependencies {
 
 tasks.named<Test>("test") {
     inputs.file("../gradle/libs.versions.toml").withPathSensitivity(PathSensitivity.RELATIVE)
+    // Beta-testen kopierer publiseringsskriptene, så endringer i dem må utløse ny testkjøring.
+    inputs.files(fileTree("../scripts/publish-beta") { include("*.gradle.kts") }).withPathSensitivity(PathSensitivity.RELATIVE)
     useJUnitPlatform()
 }
 

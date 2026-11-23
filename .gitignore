@@ -13,6 +13,7 @@
 # Keep source packages named build visible.
 /build/
 /*/build/
+/scripts/publish-beta/build/
 /target/
 /*/target/
 .flattened-pom.xml
