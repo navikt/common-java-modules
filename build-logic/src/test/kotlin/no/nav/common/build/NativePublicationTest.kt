@@ -128,7 +128,6 @@ class NativePublicationTest {
             val runner = GradleRunner
                 .create()
                 .withProjectDir(directory)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withPluginClasspath()
                 .withArguments(
                     ":consumer:generatePomFileForMavenJavaPublication",

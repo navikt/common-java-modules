@@ -38,7 +38,6 @@ class PublishedPomConsumerTest {
             GradleRunner
                 .create()
                 .withProjectDir(directory)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withPluginClasspath()
                 .withArguments("generatePomFileForMavenJavaPublication", "-Prevision=4.test")
                 .build()
@@ -156,7 +155,6 @@ class PublishedPomConsumerTest {
             val publisher = GradleRunner
                 .create()
                 .withProjectDir(directory)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withPluginClasspath()
                 .withArguments(
                     ":producer:publishMavenJavaPublicationToFixtureRepository",
@@ -217,7 +215,6 @@ class PublishedPomConsumerTest {
             GradleRunner
                 .create()
                 .withProjectDir(consumer)
-                .withTestKitDir(File("build/test-kit").absoluteFile)
                 .withArguments("compileJava", "runConsumer", "copyCompile", "copyRuntime", "copyTests", "--offline")
                 .build()
 

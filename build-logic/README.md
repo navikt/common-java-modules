@@ -38,7 +38,8 @@ som en workflow-artefakt først når hele bygget har lykkes.
 `scripts/publish-artifacts` er et separat Gradle-bygg uten kompilering eller tester.
 Det publiserer de overførte POM- og JAR-filene uendret, inkludert klassifikatorene
 `sources`, `tests` og `test-sources`. Testjobben har bare lesetilgang;
-publiseringsjobben har skrivetilgang. Testrapporter lastes opp ved feil.
+publiseringsjobben har skrivetilgang. Testrapporter lastes alltid opp som
+`test-reports-<forsøk>`, slik at tidsbruk per test kan undersøkes også etter vellykkede bygg.
 Hver modul har et eget publiseringsprosjekt. Workflowene bruker
 `--parallel --max-workers=4` for å tillate opptil fire samtidige publiseringer.
 Beta-versjonen har suffikset `-beta`, og GitHub-releasen markeres som prerelease.
@@ -48,6 +49,11 @@ uten ekstern publisering.
 Begge Gradle-kjøringene bruker `--profile`. Rapportene lastes opp som
 `build-profile-<forsøk>` og `publication-profile-<forsøk>` og beholdes i sju dager.
 Rapportopplasting forsøkes også når en jobb feiler.
+
+TestKit bruker `common-java-modules-testkit` under Gradle User Home. Fixture-prosjektene
+er fortsatt isolerte, mens avhengigheter og kompilerte byggskript kan gjenbrukes.
+Testjobben tar med TestKits `caches`-katalog i CI-cachen. Pull requests leser cache
+uten å skrive; manuelle beta-bygg og bygg på `main` kan oppdatere den.
 
 ## Oppbygging
 
