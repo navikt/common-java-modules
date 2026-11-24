@@ -4,8 +4,8 @@ import static no.nav.common.kafka.consumer.util.deserializer.Deserializers.strin
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresTestContainer;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.time.Duration;
@@ -26,15 +26,16 @@ import no.nav.common.kafka.spring.PostgresJdbcTemplateConsumerRepository;
 import no.nav.common.kafka.utils.DbUtils;
 import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "{0}")
+@MethodSource("data")
 public class KafkaConsumerRecordProcessorIntegrationTest {
     private static final String TEST_TOPIC_A = "test-topic-a";
     private static final String TEST_TOPIC_B = "test-topic-b";
@@ -49,7 +50,6 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
     public static final PostgreSQLContainer postgreSQLContainer = createPostgresTestContainer();
     private static HikariDataSource postgresDataSource;
 
-    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() throws Exception {
         postgreSQLContainer.start();
         Awaitility.await()
@@ -81,12 +81,12 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
         this.consumerRepository = consumerRepository;
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception {
         DbUtils.cleanupConsumer(dataSource);
     }
 
-    @AfterClass
+    @AfterAll
     public static void stopp_database() {
         try {
             if (postgresDataSource != null) {

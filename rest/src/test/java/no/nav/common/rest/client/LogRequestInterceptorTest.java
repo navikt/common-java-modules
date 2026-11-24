@@ -3,14 +3,15 @@ package no.nav.common.rest.client;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static no.nav.common.test.wiremock.WireMockTestUtils.createWireMockExtension;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -18,16 +19,16 @@ import no.nav.common.log.MDCConstants;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 public class LogRequestInterceptorTest {
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(0);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = createWireMockExtension();
 
     private ListAppender<ILoggingEvent> filterAppender;
 
@@ -36,7 +37,7 @@ public class LogRequestInterceptorTest {
 
     private Map<String, String> previousContextMap;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         previousContextMap = MDC.getCopyOfContextMap();
         MDC.clear();
@@ -45,7 +46,7 @@ public class LogRequestInterceptorTest {
         filterLogger.addAppender(filterAppender);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         filterLogger.detachAppender(filterAppender);
         filterAppender.stop();
@@ -62,7 +63,7 @@ public class LogRequestInterceptorTest {
         MDC.put(MDCConstants.MDC_CALL_ID, "CALL_ID");
 
         Request request = new Request.Builder()
-                .url("http://localhost:" + wireMockRule.port())
+                .url("http://localhost:" + wireMockRule.getPort())
                 .build();
 
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
@@ -82,7 +83,7 @@ public class LogRequestInterceptorTest {
         MDC.put(MDCConstants.MDC_CALL_ID, "CALL_ID");
 
         Request request = new Request.Builder()
-                .url("http://localhost:" + wireMockRule.port())
+                .url("http://localhost:" + wireMockRule.getPort())
                 .build();
 
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(500)));
@@ -106,7 +107,7 @@ public class LogRequestInterceptorTest {
         MDC.put(MDCConstants.MDC_CALL_ID, "CALL_ID");
 
         Request request = new Request.Builder()
-                .url("http://localhost:" + wireMockRule.port())
+                .url("http://localhost:" + wireMockRule.getPort())
                 .build();
 
         assertThrows(
@@ -124,7 +125,7 @@ public class LogRequestInterceptorTest {
         MDC.put(MDCConstants.MDC_CALL_ID, "CALL_ID");
 
         Request request = new Request.Builder()
-                .url("http://localhost:" + wireMockRule.port() + "?queryparm=ignored")
+                .url("http://localhost:" + wireMockRule.getPort() + "?queryparm=ignored")
                 .build();
 
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));

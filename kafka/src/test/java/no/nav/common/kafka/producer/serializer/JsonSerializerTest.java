@@ -1,14 +1,14 @@
 package no.nav.common.kafka.producer.serializer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import no.nav.common.json.JsonUtils;
 import org.apache.kafka.common.utils.Bytes;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JsonSerializerTest {
 

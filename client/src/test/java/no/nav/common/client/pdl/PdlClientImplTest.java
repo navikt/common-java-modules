@@ -7,23 +7,24 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static no.nav.common.test.wiremock.WireMockTestUtils.createWireMockExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import java.util.List;
 import no.nav.common.client.TestUtils;
 import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.client.utils.graphql.GraphqlResponse;
 import no.nav.common.json.JsonUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class PdlClientImplTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(0);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = createWireMockExtension();
 
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/pdl/client/";
 
@@ -33,7 +34,7 @@ public class PdlClientImplTest {
         String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-request.json");
         String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response.json");
 
-        String apiUrl = "http://localhost:" + wireMockRule.port();
+        String apiUrl = "http://localhost:" + wireMockRule.getPort();
         String userToken = "USER_TOKEN";
         String consumerToken = "CONSUMER_TOKEN";
         String behandlingsnummer = "B123";
@@ -66,7 +67,7 @@ public class PdlClientImplTest {
 
         String graphqlJsonResponse = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response.json");
 
-        String apiUrl = "http://localhost:" + wireMockRule.port();
+        String apiUrl = "http://localhost:" + wireMockRule.getPort();
         String userToken = "USER_TOKEN";
         String consumerToken = "CONSUMER_TOKEN";
 
@@ -101,7 +102,7 @@ public class PdlClientImplTest {
         String graphqlErrorJsonResponse =
                 TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "graphql-response-error.json");
 
-        String apiUrl = "http://localhost:" + wireMockRule.port();
+        String apiUrl = "http://localhost:" + wireMockRule.getPort();
         String userToken = "USER_TOKEN";
         String consumerToken = "CONSUMER_TOKEN";
 

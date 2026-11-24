@@ -10,8 +10,5 @@ dependencies {
     runtimeOnly(libs.logback.syslog4j)
     runtimeOnly(libs.logstash.logback)
     runtimeOnly(libs.prometheus.logback)
-    testImplementation(libs.junit.vintage)
-    testImplementation(libs.assertj)
     testImplementation(libs.gson)
-    testImplementation(libs.system.rules)
 }

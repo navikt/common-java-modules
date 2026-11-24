@@ -1,11 +1,12 @@
 package no.nav.common.auth.oidc.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class OidcDiscoveryConfigurationClientTest {
 
@@ -15,7 +16,7 @@ public class OidcDiscoveryConfigurationClientTest {
             .audience("oidc-provider-test-rule")
             .build();
 
-    @Rule
+    @RegisterExtension
     public OidcProviderTestRule oidcProviderRule = new OidcProviderTestRule(issuerConfig);
 
     @Test
@@ -27,9 +28,10 @@ public class OidcDiscoveryConfigurationClientTest {
         assertThat(config.jwksUri).matches(oidcProviderRule.getJwksUri());
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldThrowIfWrongUrl() {
         OidcDiscoveryConfigurationClient client = new OidcDiscoveryConfigurationClient();
-        client.fetchDiscoveryConfiguration("http://not-a-real-host.test/discovery");
+        assertThrows(
+                Exception.class, () -> client.fetchDiscoveryConfiguration("http://not-a-real-host.test/discovery"));
     }
 }

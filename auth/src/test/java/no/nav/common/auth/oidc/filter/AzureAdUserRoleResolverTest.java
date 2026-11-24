@@ -1,11 +1,11 @@
 package no.nav.common.auth.oidc.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import no.nav.common.auth.context.UserRole;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AzureAdUserRoleResolverTest {
 

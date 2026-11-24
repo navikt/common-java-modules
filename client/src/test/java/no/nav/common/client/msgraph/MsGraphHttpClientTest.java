@@ -7,26 +7,27 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static no.nav.common.test.wiremock.WireMockTestUtils.createWireMockExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.util.List;
 import no.nav.common.client.TestUtils;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AzureObjectId;
 import no.nav.common.types.identer.EnhetId;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 public class MsGraphHttpClientTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(0);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = createWireMockExtension();
 
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/msgraph/";
 
@@ -36,7 +37,7 @@ public class MsGraphHttpClientTest {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-data.json");
         UserData expectedData = JsonUtils.fromJson(json, UserData.class);
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(get(urlPathEqualTo("/me"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
@@ -58,7 +59,7 @@ public class MsGraphHttpClientTest {
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "on-prem-sam-account-name.json");
         OnPremisesSamAccountName expectedData = JsonUtils.fromJson(json, OnPremisesSamAccountName.class);
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(get(urlPathEqualTo("/me"))
                 .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
@@ -84,7 +85,7 @@ public class MsGraphHttpClientTest {
                 root.get("value").toString(),
                 mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(get(urlPathEqualTo("/groups/1234/members"))
                 .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
@@ -113,7 +114,7 @@ public class MsGraphHttpClientTest {
                 mapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
         var enhetId = new EnhetId("0123");
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(get(urlPathEqualTo("/groups"))
                 .withQueryParam("$select", equalTo("id"))
@@ -139,26 +140,29 @@ public class MsGraphHttpClientTest {
         wireMockRule.verify(getRequestedFor(urlPathEqualTo("/groups/group-123-id/members")));
     }
 
-    @Test(expected = StreamReadException.class)
+    @Test
     public void hentUserDataForGroup_skal_kaste_exception_ved_ugyldig_json() {
-        // Arrange
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        assertThrows(StreamReadException.class, () -> {
+            // Arrange
+            String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
-        wireMockRule.stubFor(get(urlPathEqualTo("/groups/1234/members"))
-                .withQueryParam("$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
-                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
-                .willReturn(aResponse().withStatus(200).withBody("{invalid json content}")));
+            wireMockRule.stubFor(get(urlPathEqualTo("/groups/1234/members"))
+                    .withQueryParam(
+                            "$select", equalTo("givenName,surname,displayName,mail,onPremisesSamAccountName,id"))
+                    .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                    .willReturn(aResponse().withStatus(200).withBody("{invalid json content}")));
 
-        var klient = new MsGraphHttpClient(baseUrl);
+            var klient = new MsGraphHttpClient(baseUrl);
 
-        // Act & Assert
-        klient.hentUserDataForGroup("ACCESS_TOKEN", "1234");
+            // Act & Assert
+            klient.hentUserDataForGroup("ACCESS_TOKEN", "1234");
+        });
     }
 
     @Test
     public void hentUserDataForGroup_skal_kaste_exception_naar_response_body_er_tom() {
         // Arrange
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(get(urlPathEqualTo("/groups/1234/members"))
                 .willReturn(aResponse().withStatus(200).withBody("")));
@@ -172,7 +176,7 @@ public class MsGraphHttpClientTest {
     @Test
     public void skal_pinge_riktig_url() {
         // Arrange
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
 
         var client = new MsGraphHttpClient(baseUrl);
@@ -190,7 +194,7 @@ public class MsGraphHttpClientTest {
         // Arrange
         String groupIdJson = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "group-id.json");
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         var enhetId = new EnhetId("0123");
 
         wireMockRule.stubFor(get(urlPathEqualTo("/groups"))
@@ -213,7 +217,7 @@ public class MsGraphHttpClientTest {
         // Arrange
         String json = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "user-id-response.json");
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String navIdent = "A123456";
 
         wireMockRule.stubFor(get(urlPathEqualTo("/users"))
@@ -231,23 +235,25 @@ public class MsGraphHttpClientTest {
         assertEquals("azure-user-id-123", result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void hentAzureIdMedNavIdent_skal_kaste_exception_naar_bruker_ikke_finnes() {
-        // Arrange
-        String json = "{\"value\": []}";
+        assertThrows(IllegalArgumentException.class, () -> {
+            // Arrange
+            String json = "{\"value\": []}";
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
-        String navIdent = "FINNES_IKKE";
+            String baseUrl = "http://localhost:" + wireMockRule.getPort();
+            String navIdent = "FINNES_IKKE";
 
-        wireMockRule.stubFor(get(urlPathEqualTo("/users"))
-                .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'FINNES_IKKE'"))
-                .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
-                .willReturn(aResponse().withStatus(200).withBody(json)));
+            wireMockRule.stubFor(get(urlPathEqualTo("/users"))
+                    .withQueryParam("$filter", equalTo("onPremisesSamAccountName eq 'FINNES_IKKE'"))
+                    .withHeader("Authorization", equalTo("Bearer ACCESS_TOKEN"))
+                    .willReturn(aResponse().withStatus(200).withBody(json)));
 
-        var client = new MsGraphHttpClient(baseUrl);
+            var client = new MsGraphHttpClient(baseUrl);
 
-        // Act & Assert
-        client.hentAzureIdMedNavIdent("ACCESS_TOKEN", navIdent);
+            // Act & Assert
+            client.hentAzureIdMedNavIdent("ACCESS_TOKEN", navIdent);
+        });
     }
 
     @Test
@@ -255,7 +261,7 @@ public class MsGraphHttpClientTest {
         // Arrange
         String json = "{\"value\": [{\"id\": \"first-user-id\"}, {\"id\": \"second-user-id\"}]}";
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String navIdent = "DUPLICATE";
 
         wireMockRule.stubFor(get(urlPathEqualTo("/users"))
@@ -283,7 +289,7 @@ public class MsGraphHttpClientTest {
                 root.get("value").toString(),
                 mapper.getTypeFactory().constructCollectionType(List.class, AdGroupData.class));
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String navIdent = "A123456";
         String azureId = "azure-user-id-123";
 
@@ -318,7 +324,7 @@ public class MsGraphHttpClientTest {
         String adGroupsJson = TestUtils.readTestResourceFile(
                 TEST_RESOURCE_BASE_PATH + "ad-groups-filtered-by-enhet-prefix-response.json");
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String navIdent = "A123456";
         String azureId = "azure-user-id-123";
 
@@ -356,7 +362,7 @@ public class MsGraphHttpClientTest {
         String adGroupsJson = TestUtils.readTestResourceFile(
                 TEST_RESOURCE_BASE_PATH + "ad-groups-filtered-by-enhet-prefix-response.json");
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(get(urlPathEqualTo("/me/memberOf"))
                 .withQueryParam("$select", equalTo("id,displayName"))
@@ -387,7 +393,7 @@ public class MsGraphHttpClientTest {
         String adGroupsJson = TestUtils.readTestResourceFile(
                 TEST_RESOURCE_BASE_PATH + "ad-groups-filtered-by-tema-prefix-response.json");
 
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String navIdent = "A123456";
         String azureId = "azure-user-id-123";
 

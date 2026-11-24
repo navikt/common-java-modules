@@ -1,7 +1,7 @@
 package no.nav.common.metrics;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -11,21 +11,21 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SensuHandlerTest {
 
     private ServerSocket serverSocket;
     private SensuHandler sensuHandler;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         serverSocket = new ServerSocket(0);
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws IOException {
         try {
             if (sensuHandler != null) {
@@ -65,7 +65,7 @@ public class SensuHandlerTest {
 
         sensuHandler.report("testOutput");
         JSONObject mottatt = new JSONObject(TestUtil.lesLinjeFraSocket(serverSocket));
-        assertTrue("Retry fullforte ikke socket-skrivingen", sendt.await(5, TimeUnit.SECONDS));
+        assertTrue(sendt.await(5, TimeUnit.SECONDS), "Retry fullforte ikke socket-skrivingen");
 
         final JSONObject forventet = new JSONObject(
                 "{\"status\":0,\"name\":\"testApp\",\"output\":\"testOutput\",\"type\":\"metric\",\"handlers\":[\"events_nano\"]}");
@@ -81,7 +81,7 @@ public class SensuHandlerTest {
 
         sensuHandler.shutdown();
 
-        assertTrue("Executor er ikke avsluttet", executor.isTerminated());
+        assertTrue(executor.isTerminated(), "Executor er ikke avsluttet");
     }
 
     @Test
@@ -95,12 +95,12 @@ public class SensuHandlerTest {
         try {
             sensuHandler.shutdown();
 
-            assertTrue("Executor tar fortsatt imot oppgaver", executor.isShutdown());
+            assertTrue(executor.isShutdown(), "Executor tar fortsatt imot oppgaver");
         } finally {
             avbrutt = Thread.interrupted();
         }
-        assertTrue("Avbruddsflagget ble fjernet", avbrutt);
-        assertTrue("Executor er ikke avsluttet", executor.awaitTermination(5, TimeUnit.SECONDS));
+        assertTrue(avbrutt, "Avbruddsflagget ble fjernet");
+        assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS), "Executor er ikke avsluttet");
     }
 
     private ScheduledExecutorService reporterExecutor() throws ReflectiveOperationException {

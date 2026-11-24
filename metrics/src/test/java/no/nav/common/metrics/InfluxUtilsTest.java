@@ -1,11 +1,11 @@
 package no.nav.common.metrics;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InfluxUtilsTest {
     private String metricName;
@@ -13,7 +13,7 @@ public class InfluxUtilsTest {
     private Map<String, Object> values;
     private long timeStamp;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // LinkedHashMap to preserve the order of the values when testing. We want this, so that
         // the strings created by createLineProtocolPayload always have the values in a constistent order.

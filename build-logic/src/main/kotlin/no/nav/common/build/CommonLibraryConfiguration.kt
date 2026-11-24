@@ -3,6 +3,7 @@ package no.nav.common.build
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.JavaPluginExtension
@@ -109,6 +110,10 @@ internal fun Project.configureLibraryTests() {
         testCompileAnnotations.name,
         "org.apiguardian:apiguardian-api:${libraryVersion("apiguardian")}",
     )
+    val libs = the<VersionCatalogsExtension>().named("libs")
+    dependencies.add("testImplementation", libs.findLibrary("junit-api").get())
+    dependencies.add("testRuntimeOnly", libs.findLibrary("junit-engine").get())
+    dependencies.add("testImplementation", libs.findLibrary("assertj").get())
     dependencies.add(
         "testRuntimeOnly",
         "org.junit.platform:junit-platform-launcher:${libraryVersion("junit.jupiter")}",

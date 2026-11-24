@@ -2,8 +2,8 @@ package no.nav.common.kafka.producer.feilhandtering;
 
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresTestContainer;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.Arrays;
@@ -18,21 +18,21 @@ import no.nav.common.kafka.utils.LocalOracleH2Database;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "{0}")
+@MethodSource("data")
 public class KafkaProducerRepositoryTest {
 
     public static final PostgreSQLContainer postgreSQLContainer = createPostgresTestContainer();
     private static HikariDataSource postgresDataSource;
 
-    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() throws Exception {
         postgreSQLContainer.start();
         postgresDataSource = createPostgresDataSource(postgreSQLContainer);
@@ -50,7 +50,7 @@ public class KafkaProducerRepositoryTest {
                 new Object[] {"ORACLE", oracle, oracleProducerRepository});
     }
 
-    @AfterClass
+    @AfterAll
     public static void stop() {
         try {
             if (postgresDataSource != null) {
@@ -74,7 +74,7 @@ public class KafkaProducerRepositoryTest {
         this.kafkaProducerRepository = kafkaProducerRepository;
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         DbUtils.cleanupProducer(dataSource);
     }

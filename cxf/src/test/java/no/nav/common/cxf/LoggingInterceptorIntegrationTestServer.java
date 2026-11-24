@@ -17,10 +17,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.servicemix.examples.cxf.HelloWorld;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
@@ -28,7 +28,7 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
     final StringBuilder builder = new StringBuilder();
     AppenderBase<ILoggingEvent> appender;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         LoggerContext iLoggerFactory = (LoggerContext) LoggerFactory.getILoggerFactory();
         ch.qos.logback.classic.Logger rootLogger = iLoggerFactory.getLogger("ROOT");
@@ -44,12 +44,12 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
         rootLogger.addAppender(appender);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         appender.stop();
     }
 
-    @Ignore("Maskeringen funker som den skal, men av en eller annen grunn havner ikke loggen i rootloggeren")
+    @Disabled("Maskeringen funker som den skal, men av en eller annen grunn havner ikke loggen i rootloggeren")
     @Test
     public void skal_fjerne_cookie_i_header() throws Exception {
         setProperty("no.nav.common.cxf.cxfendpoint.logging.logg-tokeninheader", "false");
@@ -60,7 +60,7 @@ public class LoggingInterceptorIntegrationTestServer extends JettyTestServer {
         assertThat(logline).contains("LoggeTest");
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void skal_logge_cookie_i_header() throws Exception {
         setProperty("no.nav.common.cxf.cxfendpoint.logging.logg-tokeninheader", "true");

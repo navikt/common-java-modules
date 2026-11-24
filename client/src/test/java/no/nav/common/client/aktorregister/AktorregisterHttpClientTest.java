@@ -7,11 +7,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static no.nav.common.test.wiremock.WireMockTestUtils.createWireMockExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import com.github.tomakehurst.wiremock.matching.AnythingPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import java.util.Arrays;
@@ -23,14 +24,14 @@ import no.nav.common.client.aktoroppslag.AktorregisterHttpClient;
 import no.nav.common.client.aktoroppslag.BrukerIdenter;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.Fnr;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class AktorregisterHttpClientTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(0);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = createWireMockExtension();
 
     private static final String testApplication = "my-test-app";
     private static final String dummyAuthToken = "489h03n7092njkdsdsad";
@@ -49,9 +50,9 @@ public class AktorregisterHttpClientTest {
 
     AktorregisterHttpClient klient;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         klient = new AktorregisterHttpClient(baseUrl, testApplication, dummyTokenSupplier);
     }
 

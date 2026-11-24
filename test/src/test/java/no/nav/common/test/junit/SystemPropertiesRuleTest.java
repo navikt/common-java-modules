@@ -4,22 +4,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class SystemPropertiesRuleTest {
     private static final String PROPERTY = "common.test.system-properties-rule";
     private static final String ADDED_PROPERTY = PROPERTY + ".added";
     private Properties originalProperties;
 
-    @Before
+    @BeforeEach
     public void before() {
         originalProperties = (Properties) System.getProperties().clone();
     }
 
-    @After
+    @AfterEach
     public void after() {
         System.setProperties(originalProperties);
     }
@@ -30,19 +30,16 @@ public class SystemPropertiesRuleTest {
         SystemPropertiesRule rule = new SystemPropertiesRule();
         System.setProperty(PROPERTY, "first");
         System.clearProperty(ADDED_PROPERTY);
-        Statement evaluation = rule.apply(
-                statement(() -> {
-                    System.clearProperty(PROPERTY);
-                    System.setProperty(ADDED_PROPERTY, "added");
-                }),
-                null,
-                this);
+        Executable evaluation = () -> rule.evaluate(() -> {
+            System.clearProperty(PROPERTY);
+            System.setProperty(ADDED_PROPERTY, "added");
+        });
 
         // Act
-        evaluation.evaluate();
+        evaluation.execute();
         Properties firstResult = (Properties) System.getProperties().clone();
         System.setProperty(PROPERTY, "second");
-        evaluation.evaluate();
+        evaluation.execute();
 
         // Assert
         assertThat(firstResult.getProperty(PROPERTY)).isEqualTo("first");
@@ -57,16 +54,13 @@ public class SystemPropertiesRuleTest {
         System.setProperty(PROPERTY, "original");
         AssertionError failure = new AssertionError("expected failure");
         SystemPropertiesRule rule = new SystemPropertiesRule();
-        Statement evaluation = rule.apply(
-                statement(() -> {
-                    System.setProperties(new Properties());
-                    throw failure;
-                }),
-                null,
-                this);
+        Executable evaluation = () -> rule.evaluate(() -> {
+            System.setProperties(new Properties());
+            throw failure;
+        });
 
         // Act
-        Throwable result = catchThrowable(evaluation::evaluate);
+        Throwable result = catchThrowable(evaluation::execute);
 
         // Assert
         assertThat(result).isSameAs(failure);
@@ -80,11 +74,10 @@ public class SystemPropertiesRuleTest {
         SystemPropertiesRule rule = new SystemPropertiesRule().setProperty(PROPERTY, "configured");
         String beforeEvaluation = System.getProperty(PROPERTY);
         String[] duringEvaluation = new String[1];
-        Statement evaluation =
-                rule.apply(statement(() -> duringEvaluation[0] = System.getProperty(PROPERTY)), null, this);
+        Executable evaluation = () -> rule.evaluate(() -> duringEvaluation[0] = System.getProperty(PROPERTY));
 
         // Act
-        evaluation.evaluate();
+        evaluation.execute();
 
         // Assert
         assertThat(beforeEvaluation).isEqualTo("original");
@@ -100,18 +93,14 @@ public class SystemPropertiesRuleTest {
         String[] duringEvaluation = new String[1];
         String[] nextEvaluation = new String[1];
         SystemPropertiesRule[] returnedRule = new SystemPropertiesRule[1];
-        Statement evaluation = rule.apply(
-                statement(() -> {
-                    returnedRule[0] = rule.setProperty(PROPERTY, "configured");
-                    duringEvaluation[0] = System.getProperty(PROPERTY);
-                }),
-                null,
-                this);
+        Executable evaluation = () -> rule.evaluate(() -> {
+            returnedRule[0] = rule.setProperty(PROPERTY, "configured");
+            duringEvaluation[0] = System.getProperty(PROPERTY);
+        });
 
         // Act
-        evaluation.evaluate();
-        rule.apply(statement(() -> nextEvaluation[0] = System.getProperty(PROPERTY)), null, this)
-                .evaluate();
+        evaluation.execute();
+        rule.evaluate(() -> nextEvaluation[0] = System.getProperty(PROPERTY));
 
         // Assert
         assertThat(returnedRule[0]).isSameAs(rule);
@@ -126,11 +115,10 @@ public class SystemPropertiesRuleTest {
         System.clearProperty(PROPERTY);
         SystemPropertiesRule rule = new SystemPropertiesRule().setProperty(PROPERTY, "configured");
         String[] duringEvaluation = new String[1];
-        Statement evaluation =
-                rule.apply(statement(() -> duringEvaluation[0] = System.getProperty(PROPERTY)), null, this);
+        Executable evaluation = () -> rule.evaluate(() -> duringEvaluation[0] = System.getProperty(PROPERTY));
 
         // Act
-        evaluation.evaluate();
+        evaluation.execute();
 
         // Assert
         assertThat(duringEvaluation[0]).isEqualTo("configured");
@@ -144,33 +132,17 @@ public class SystemPropertiesRuleTest {
         AssertionError failure = new AssertionError("expected failure");
         SystemPropertiesRule rule = new SystemPropertiesRule().setProperty(PROPERTY, "configured");
         String[] duringEvaluation = new String[1];
-        Statement evaluation = rule.apply(
-                statement(() -> {
-                    duringEvaluation[0] = System.getProperty(PROPERTY);
-                    throw failure;
-                }),
-                null,
-                this);
+        Executable evaluation = () -> rule.evaluate(() -> {
+            duringEvaluation[0] = System.getProperty(PROPERTY);
+            throw failure;
+        });
 
         // Act
-        Throwable result = catchThrowable(evaluation::evaluate);
+        Throwable result = catchThrowable(evaluation::execute);
 
         // Assert
         assertThat(result).isSameAs(failure);
         assertThat(duringEvaluation[0]).isEqualTo("configured");
         assertThat(System.getProperty(PROPERTY)).isEqualTo("original");
-    }
-
-    private static Statement statement(ThrowingAction action) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                action.run();
-            }
-        };
-    }
-
-    private interface ThrowingAction {
-        void run() throws Throwable;
     }
 }

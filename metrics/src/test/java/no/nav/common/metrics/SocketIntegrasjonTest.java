@@ -5,9 +5,9 @@ import static no.nav.common.metrics.TestUtil.lesUtAlleMeldingerSendtPaSocket;
 import static no.nav.common.metrics.TestUtil.sensuHandlerForTest;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -20,22 +20,22 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SocketIntegrasjonTest {
 
     private ServerSocket serverSocket;
     private SensuHandler sensuHandler;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         serverSocket = new ServerSocket(0);
         sensuHandler = sensuHandlerForTest(serverSocket.getLocalPort());
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws IOException {
         try {
             if (sensuHandler != null) {
@@ -88,7 +88,7 @@ public class SocketIntegrasjonTest {
                 oppgaver.add(ex.submit(() -> sensuHandler.report("nr" + finalI)));
             }
             ex.shutdown();
-            assertTrue("Rapportering ble ikke ferdig", ex.awaitTermination(5, TimeUnit.SECONDS));
+            assertTrue(ex.awaitTermination(5, TimeUnit.SECONDS), "Rapportering ble ikke ferdig");
             for (Future<?> oppgave : oppgaver) {
                 oppgave.get(5, TimeUnit.SECONDS);
             }
@@ -102,7 +102,7 @@ public class SocketIntegrasjonTest {
             }
         } finally {
             ex.shutdownNow();
-            assertTrue("Test-executor er ikke avsluttet", ex.awaitTermination(5, TimeUnit.SECONDS));
+            assertTrue(ex.awaitTermination(5, TimeUnit.SECONDS), "Test-executor er ikke avsluttet");
         }
     }
 }

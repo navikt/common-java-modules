@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import java.util.Date;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CachedScopedTokenProviderTest {
 

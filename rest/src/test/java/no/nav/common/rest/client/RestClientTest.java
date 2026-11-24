@@ -8,9 +8,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static no.nav.common.rest.filter.LogRequestFilter.NAV_CALL_ID_HEADER_NAME;
 import static no.nav.common.rest.filter.LogRequestFilter.NAV_CONSUMER_ID_HEADER_NAME;
+import static no.nav.common.test.wiremock.WireMockTestUtils.createWireMockExtension;
 import static no.nav.common.utils.EnvironmentUtils.NAIS_APP_NAME_PROPERTY_NAME;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
@@ -18,28 +19,28 @@ import no.nav.common.log.MDCConstants;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.MDC;
 
 public class RestClientTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(0);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = createWireMockExtension();
 
     private Properties originalProperties;
     private Map<String, String> originalContextMap;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalProperties = (Properties) System.getProperties().clone();
         originalContextMap = MDC.getCopyOfContextMap();
         MDC.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         try {
             System.setProperties(originalProperties);
@@ -60,7 +61,7 @@ public class RestClientTest {
         System.setProperty(NAIS_APP_NAME_PROPERTY_NAME, "test");
 
         Request request = new Request.Builder()
-                .url("http://localhost:" + wireMockRule.port())
+                .url("http://localhost:" + wireMockRule.getPort())
                 .build();
 
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
@@ -80,7 +81,7 @@ public class RestClientTest {
         System.setProperty(NAIS_APP_NAME_PROPERTY_NAME, "test");
 
         Request request = new Request.Builder()
-                .url("http://localhost:" + wireMockRule.port())
+                .url("http://localhost:" + wireMockRule.getPort())
                 .build();
 
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));
@@ -98,7 +99,7 @@ public class RestClientTest {
         System.setProperty(NAIS_APP_NAME_PROPERTY_NAME, "test");
 
         Request request = new Request.Builder()
-                .url("http://localhost:" + wireMockRule.port())
+                .url("http://localhost:" + wireMockRule.getPort())
                 .build();
 
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(200)));

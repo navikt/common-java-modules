@@ -11,10 +11,8 @@ dependencies {
     runtimeOnly(libs.jakarta.ws.rs.api)
     implementation(libs.slf4j.api)
     compileOnly(libs.lombok)
-    testImplementation(libs.junit.vintage)
     testImplementation(libs.wiremock)
     testImplementation(libs.mockito)
-    testImplementation(libs.assertj)
     testImplementation(libs.okhttp)
     testImplementation(libs.mockwebserver)
 }

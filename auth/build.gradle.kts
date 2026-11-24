@@ -10,8 +10,6 @@ dependencies {
     compileOnly(libs.lombok)
     implementation(libs.slf4j.api)
     api(libs.jakarta.servlet)
-    testImplementation(libs.junit.vintage)
-    testImplementation(libs.assertj)
     testImplementation(libs.mockito)
     testImplementation(libs.wiremock)
     testImplementation(libs.jose4j)

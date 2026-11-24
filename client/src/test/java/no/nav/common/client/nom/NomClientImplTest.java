@@ -9,26 +9,27 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static jakarta.ws.rs.core.HttpHeaders.ACCEPT;
 import static no.nav.common.rest.client.RestUtils.MEDIA_TYPE_JSON;
-import static org.junit.Assert.assertEquals;
+import static no.nav.common.test.wiremock.WireMockTestUtils.createWireMockExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.util.ArrayList;
 import java.util.List;
 import no.nav.common.client.TestUtils;
 import no.nav.common.types.identer.NavIdent;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class NomClientImplTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(0);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = createWireMockExtension();
 
     private static final String TEST_RESOURCE_BASE_PATH = "no/nav/common/client/nom/";
 
     @Test
     public void skal_lage_riktig_request_og_parse_response() throws Exception {
-        String apiUrl = "http://localhost:" + wireMockRule.port();
+        String apiUrl = "http://localhost:" + wireMockRule.getPort();
         String graphqlJsonRequest = TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-request.json");
         String graphqlJsonResponse =
                 TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
@@ -65,7 +66,7 @@ public class NomClientImplTest {
 
     @Test
     public void skal_batche_requests_mot_nom() throws Exception {
-        String apiUrl = "http://localhost:" + wireMockRule.port();
+        String apiUrl = "http://localhost:" + wireMockRule.getPort();
         String graphqlJsonResponse =
                 TestUtils.readTestResourceFile(TEST_RESOURCE_BASE_PATH + "ressurser-response.json");
 

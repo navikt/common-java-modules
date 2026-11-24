@@ -1,12 +1,13 @@
 package no.nav.types.identer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.Fnr;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
@@ -77,9 +78,9 @@ public class FnrTest {
         assertNotNull(fnr);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void should_throw_on_invalid_fnr() {
-        Fnr.ofValidFnr("aaaaaaaaaa");
+        assertThrows(IllegalArgumentException.class, () -> Fnr.ofValidFnr("aaaaaaaaaa"));
     }
 
     private static class FnrWrapper {

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class MaskedLoggingEventTest {

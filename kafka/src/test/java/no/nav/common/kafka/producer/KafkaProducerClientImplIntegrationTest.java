@@ -4,8 +4,8 @@ import static no.nav.common.kafka.utils.TestUtils.KAFKA_IMAGE;
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestConsumerProperties;
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestProducerProperties;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
 import java.util.List;
@@ -25,11 +25,11 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TimeoutException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -44,7 +44,7 @@ public class KafkaProducerClientImplIntegrationTest {
     private KafkaConsumerClientImpl<String, String> consumerClient;
     private String testTopic;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
         kafka.waitingFor(new HostPortWaitStrategy());
@@ -54,7 +54,7 @@ public class KafkaProducerClientImplIntegrationTest {
         admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         try {
             if (admin != null) {
@@ -65,14 +65,14 @@ public class KafkaProducerClientImplIntegrationTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         producerClient = new KafkaProducerClientImpl<>(kafkaTestProducerProperties(brokerUrl));
         testTopic = UUID.randomUUID().toString();
         admin.createTopics(List.of(new NewTopic(testTopic, 1, (short) 1)));
     }
 
-    @After
+    @AfterEach
     public void afterEach() {
         try {
             if (consumerClient != null) {

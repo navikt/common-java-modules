@@ -10,7 +10,7 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import io.getunleash.util.UnleashConfig;
 import io.getunleash.util.UnleashScheduledExecutor;
 import java.util.Collections;
@@ -18,17 +18,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import org.jspecify.annotations.NonNull;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class UnleashClientImplTest {
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort(), false);
+    public WireMockServer wireMockRule = new WireMockServer(wireMockConfig().dynamicPort());
 
-    @Before
+    @BeforeEach
     public void setup() {
+        wireMockRule.start();
         wireMockRule.stubFor(post(urlEqualTo("/client/register"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -36,6 +36,11 @@ public class UnleashClientImplTest {
                         .withBody("{}")));
 
         createService();
+    }
+
+    @AfterEach
+    public void stopp_server() {
+        wireMockRule.stop();
     }
 
     private UnleashClientImpl createService() {

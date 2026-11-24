@@ -13,11 +13,11 @@ import no.nav.common.test.ssl.CxfCertificateValidationDisabler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.servicemix.examples.cxf.HelloWorld;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Slf4j
 public class NAVOidcSTSClientIntegrationTest {
@@ -26,10 +26,10 @@ public class NAVOidcSTSClientIntegrationTest {
     private String stsUrl;
     private Bus testBus;
 
-    @Rule
+    @RegisterExtension
     public AuthContextRule authContextRule = new AuthContextRule();
 
-    @Before
+    @BeforeEach
     @SuppressWarnings("deprecation") // STS-integrasjonen bruker den beholdte CXF-bussadapteren.
     public void setup() throws IOException {
         testBus = BusFactory.newInstance().createBus();
@@ -48,14 +48,14 @@ public class NAVOidcSTSClientIntegrationTest {
         log.info("sts-url: {}", stsUrl);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         stsMock.stop.run();
         testBus.shutdown(true);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void cache_sts_token_for_hver_bruker_og_stsType() {
         // Arrange
         var stsConfig = StsConfig.builder()

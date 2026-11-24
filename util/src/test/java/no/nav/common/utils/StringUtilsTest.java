@@ -4,7 +4,7 @@ import static no.nav.common.utils.StringUtils.notNullOrEmpty;
 import static no.nav.common.utils.StringUtils.nullOrEmpty;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StringUtilsTest {
 

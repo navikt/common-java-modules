@@ -3,9 +3,9 @@ package no.nav.common.client.aktoroppslag;
 import static java.util.Arrays.asList;
 import static no.nav.common.client.TestUtils.readTestResourceFile;
 import static no.nav.common.client.TestUtils.readTestResourceFileWithoutWhitespace;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -19,7 +19,7 @@ import no.nav.common.client.utils.graphql.GraphqlRequest;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.AktorId;
 import no.nav.common.types.identer.Fnr;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 public class PdlAktorOppslagClientTest {

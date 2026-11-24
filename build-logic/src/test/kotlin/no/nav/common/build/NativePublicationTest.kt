@@ -44,7 +44,12 @@ class NativePublicationTest {
                     """
                     package fixture;
                     @org.apiguardian.api.API(status = org.apiguardian.api.API.Status.STABLE)
-                    public class TestData {}
+                    public class TestData {
+                        @org.junit.jupiter.api.Test
+                        void skal_kjoere_med_felles_jupiteroppsett() {
+                            org.assertj.core.api.Assertions.assertThat(getClass().getName()).isEqualTo("fixture.TestData");
+                        }
+                    }
                     """.trimIndent(),
                 )
             File(directory, "gradleConsumer").mkdirs()
@@ -85,6 +90,7 @@ class NativePublicationTest {
                     testCompileOnly(libs.mockito)
                     testImplementation(libs.spring.web)
                     testImplementation(libs.cxf.jaxws.blueprint)
+                    testImplementation(libs.junit.params)
                     testImplementation(project(path = ":producer", configuration = "testArtifacts"))
                     testImplementation("example:classified:1.2:custom") {
                         exclude(group = "excluded", module = "library")
@@ -115,6 +121,22 @@ class NativePublicationTest {
                     }
                 check(!configurations["testCompileAnnotations"].isCanBeResolved)
                 check(!configurations["testCompileAnnotations"].isCanBeConsumed)
+                check(configurations["testImplementation"].dependencies.single {
+                    it.group == "org.junit.jupiter" && it.name == "junit-jupiter-api"
+                }.version == libs.versions.junit.jupiter.get())
+                check(configurations["testImplementation"].dependencies.single {
+                    it.group == "org.assertj" && it.name == "assertj-core"
+                }.version == libs.versions.assertj.get())
+                listOf("junit-jupiter-engine", "junit-platform-launcher").forEach { artifact ->
+                    check(configurations["testRuntimeOnly"].dependencies.single { it.name == artifact }.version ==
+                        libs.versions.junit.jupiter.get())
+                    check(configurations["testCompileClasspath"].allDependencies.none { it.name == artifact })
+                }
+                listOf("compileClasspath", "runtimeClasspath", "apiElements", "runtimeElements").forEach { name ->
+                    check(configurations[name].allDependencies.none {
+                        it.group?.startsWith("org.junit") == true || it.group == "org.assertj"
+                    })
+                }
                 listOf("annotationProcessor", "testAnnotationProcessor").forEach { name ->
                     check(configurations[name].dependencies.single().name == "lombok")
                 }
@@ -132,6 +154,7 @@ class NativePublicationTest {
                 .withArguments(
                     ":consumer:generatePomFileForMavenJavaPublication",
                     ":consumer:sourcesJar",
+                    ":producer:test",
                     ":gradleConsumer:copyCompileDependencies",
                     ":gradleConsumer:copyTestDependencies",
                     ":gradleConsumer:copyTestCompileDependencies",
@@ -172,6 +195,30 @@ class NativePublicationTest {
             assertTrue(File(testCompile, byteBuddyJar).isFile)
             assertTrue(File(tests, byteBuddyJar).isFile)
             assertFalse(File(compile, byteBuddyJar).exists())
+            val assertjVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("assertj")
+            val assertjJar = "assertj-core-$assertjVersion.jar"
+            assertTrue(File(testCompile, assertjJar).isFile)
+            assertTrue(File(tests, assertjJar).isFile)
+            assertFalse(File(compile, assertjJar).exists())
+            val junitVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("junit-jupiter")
+            val junitApiJar = "junit-jupiter-api-$junitVersion.jar"
+            val junitEngineJar = "junit-jupiter-engine-$junitVersion.jar"
+            assertTrue(File(testCompile, junitApiJar).isFile)
+            assertTrue(File(tests, junitApiJar).isFile)
+            assertFalse(File(compile, junitApiJar).exists())
+            assertFalse(File(testCompile, junitEngineJar).exists())
+            assertTrue(File(tests, junitEngineJar).isFile)
+            assertFalse(File(compile, junitEngineJar).exists())
+            assertFalse(File(testCompile, "junit-jupiter-params-$junitVersion.jar").exists())
+            assertFalse(File(tests, "junit-jupiter-params-$junitVersion.jar").exists())
+            val testResult = parse(File(directory, "producer/build/test-results/test/TEST-fixture.TestData.xml"))
+            assertEquals("1", testResult.getAttribute("tests"))
+            assertEquals("0", testResult.getAttribute("failures"))
+            assertEquals("0", testResult.getAttribute("skipped"))
+            assertEquals(
+                "skal_kjoere_med_felles_jupiteroppsett()",
+                testResult.direct("testcase").single().getAttribute("name"),
+            )
             val apiGuardianVersion = File(directory, "gradle/libs.versions.toml").fixtureCatalogVersion("apiguardian")
             val apiGuardianJar = "apiguardian-api-$apiGuardianVersion.jar"
             assertTrue(File(testCompile, apiGuardianJar).isFile)
@@ -265,6 +312,13 @@ class NativePublicationTest {
             assertEquals("4.test", dependency("producer", "test-jar").text("version"))
             assertEquals("provided", dependencyWithScope("lombok", "provided").text("scope"))
             assertEquals("test", dependencyWithScope("mockito-core", "test").text("scope"))
+            assertEquals("test", dependency("assertj-core").text("scope"))
+            assertEquals(assertjVersion, dependency("assertj-core").text("version"))
+            listOf("junit-jupiter-api", "junit-jupiter-engine", "junit-platform-launcher", "junit-jupiter-params")
+                .forEach { artifact ->
+                    assertEquals("test", dependency(artifact).text("scope"))
+                    assertEquals(junitVersion, dependency(artifact).text("version"))
+                }
             assertEquals(
                 "excluded",
                 dependencyWithScope("producer", "compile")

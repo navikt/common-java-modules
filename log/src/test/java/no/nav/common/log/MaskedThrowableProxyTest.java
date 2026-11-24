@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MaskedThrowableProxyTest {
 

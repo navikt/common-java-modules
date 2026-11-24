@@ -6,7 +6,5 @@ dependencies {
     api(libs.caffeine)
     implementation(libs.slf4j.api)
     runtimeOnly(libs.logback.classic)
-    testImplementation(libs.junit.engine)
-    testImplementation(libs.junit.api)
     testImplementation(libs.mockwebserver)
 }

@@ -8,14 +8,15 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
 import java.util.Properties;
 import no.nav.common.test.SystemProperties.NotFound;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class SystemPropertiesTest {
@@ -23,12 +24,12 @@ public class SystemPropertiesTest {
 
     private Properties originalProperties;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalProperties = (Properties) System.getProperties().clone();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setProperties(originalProperties);
     }
@@ -39,9 +40,9 @@ public class SystemPropertiesTest {
         assertThat(getProperty("prop01"), not(nullValue()));
     }
 
-    @Test(expected = NotFound.class)
+    @Test
     public void throwsExceptionWhenNotFindingResource() {
-        SystemProperties.setFrom("does-not-exist.properties");
+        assertThrows(NotFound.class, () -> SystemProperties.setFrom("does-not-exist.properties"));
     }
 
     @Test

@@ -1,15 +1,16 @@
 package no.nav.common.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ExceptionUtilsTest {
 
-    @Test(expected = IOException.class)
+    @Test
     public void throwUnchecked() {
-        ExceptionUtils.throwUnchecked(new IOException("checked"));
+        assertThrows(IOException.class, () -> ExceptionUtils.throwUnchecked(new IOException("checked")));
     }
 
     @Test

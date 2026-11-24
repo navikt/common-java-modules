@@ -41,7 +41,7 @@ dependencies {
     testImplementation(libs.testcontainers.core)
     testImplementation(libs.testcontainers.kafka)
     testImplementation(libs.testcontainers.postgresql)
-    testImplementation(libs.junit.vintage)
+    testImplementation(libs.junit.params)
     testImplementation(libs.mockito)
     testImplementation(libs.awaitility)
 }

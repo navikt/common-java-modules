@@ -6,28 +6,39 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.RestoreSystemProperties;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 @Slf4j(topic = "SecureLog")
 public class LogbackSecureLogsTest {
     public static final String HEMMELIG_MELDING = "Hemmelig melding med fnr: 10108000398";
 
-    @Rule
-    public final TemporaryFolder securelogsDir = new TemporaryFolder();
+    @TempDir
+    public Path securelogsDir;
 
-    @Rule
-    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
+    private Properties originalProperties;
+
+    @BeforeEach
+    public void lagre_systemegenskaper() {
+        originalProperties = (Properties) System.getProperties().clone();
+    }
+
+    @AfterEach
+    public void gjenopprett_systemegenskaper() {
+        System.setProperties(originalProperties);
+    }
 
     @Test
     public void skal_logge_json_til_securelogs() throws IOException, JoranException {
-        System.setProperty("SECURELOGS_DIR", securelogsDir.getRoot().getAbsolutePath());
+        System.setProperty("SECURELOGS_DIR", securelogsDir.toAbsolutePath().toString());
         LogTestHelpers.loadLogbackConfig("/logback-securelogs-test.xml");
 
         String melding = HEMMELIG_MELDING + " " + UUID.randomUUID();
@@ -35,7 +46,7 @@ public class LogbackSecureLogsTest {
 
         LogTestHelpers.flushLogs();
 
-        String logMessages = Files.readString(securelogsDir.getRoot().toPath().resolve("secure.log"));
+        String logMessages = Files.readString(securelogsDir.resolve("secure.log"));
 
         Gson gson = new Gson();
         Optional<LogLinje> lastSecurelogMessage = Arrays.stream(logMessages.split("\n"))

@@ -4,7 +4,7 @@ import static java.util.Collections.singletonList;
 import static no.nav.common.auth.Constants.AZURE_AD_ID_TOKEN_COOKIE_NAME;
 import static no.nav.common.auth.Constants.OPEN_AM_ID_TOKEN_COOKIE_NAME;
 import static no.nav.common.auth.Constants.REFRESH_TOKEN_COOKIE_NAME;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
@@ -31,9 +31,9 @@ import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
 import no.nav.common.auth.utils.CookieUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.ArgumentCaptor;
 
 public class OidcAuthenticationFilterTest {
@@ -60,13 +60,13 @@ public class OidcAuthenticationFilterTest {
             .audience(OPEN_AM_ID)
             .build();
 
-    @Rule
+    @RegisterExtension
     public OidcProviderTestRule naisStsOidcProviderRule = new OidcProviderTestRule(naisStsIssuerConfig);
 
-    @Rule
+    @RegisterExtension
     public OidcProviderTestRule azureAdOidcProviderRule = new OidcProviderTestRule(azureAdIssuerConfig);
 
-    @Rule
+    @RegisterExtension
     public OidcProviderTestRule openAMOidcProviderRule = new OidcProviderTestRule(openAMIssuerConfig);
 
     private OidcAuthenticatorConfig naisStsAuthenticatorConfig;
@@ -77,7 +77,7 @@ public class OidcAuthenticationFilterTest {
 
     private OidcAuthenticatorConfig openAMAuthenticatorConfig;
 
-    @Before
+    @BeforeEach
     public void before() {
         naisStsAuthenticatorConfig = new OidcAuthenticatorConfig()
                 .withDiscoveryUrl(naisStsOidcProviderRule.getDiscoveryUri())

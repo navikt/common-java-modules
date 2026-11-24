@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CXFMaskTokenLoggingInInterceptorTest {
 
