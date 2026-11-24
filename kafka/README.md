@@ -99,14 +99,20 @@ da kalle `close()` ved endelig lukking.
 
 #### Spring-styrt avslutning
 
-`KafkaConsumerClientBuilder` og `KafkaConsumerRecordProcessorBuilder` har
-`withShutdownHookEnabled(boolean)`, slik producer-prosessorens builder allerede har.
+`KafkaConsumerClientBuilder`, `KafkaConsumerRecordProcessorBuilder`,
+`KafkaProducerClientBuilder` og `KafkaProducerRecordProcessorBuilder` har
+`withShutdownHookEnabled(boolean)`.
 Standardverdien er `true`. Eksisterende konstruktører registrerer fortsatt en hook.
-Nye konstruktører på `KafkaConsumerClientImpl` og `KafkaConsumerRecordProcessor`
+Nye konstruktører på `KafkaConsumerClientImpl`, `KafkaConsumerRecordProcessor`,
+`GracefulKafkaProducer`, `KafkaProducerClientImpl` og `KafkaProducerClientWithMetrics`
 tar også imot valget som en ekstra boolean-parameter. For en feature-toggle-klient
 gjelder valget den underliggende consumer-klienten; wrapperen registrerer ikke en egen hook.
+Producer-builderens valg gjelder også med `withMetrics()`.
 
 Når Spring eier livssyklusen, sett `withShutdownHookEnabled(false)` på hver builder.
+Producer-prosessorens valg deaktiverer bare prosessorens egen hook, ikke hooken til
+produceren bak publisheren. Sett derfor valget til `false` også når producer-klienten opprettes.
+For en eksternt opprettet `Producer` må applikasjonen håndtere eventuelle hooks selv.
 Applikasjonen må da sørge for opprydding selv:
 
 - Bruk `SmartLifecycle.stop()` til å kalle consumer-komponentenes `close()` og

@@ -4,16 +4,14 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> {
-
-    private final Logger log = LoggerFactory.getLogger(KafkaProducerClientImpl.class);
 
     private final Producer<K, V> producer;
 
@@ -22,7 +20,17 @@ public class KafkaProducerClientImpl<K, V> implements KafkaProducerClient<K, V> 
     }
 
     public KafkaProducerClientImpl(Properties properties) {
-        this(new GracefulKafkaProducer<>(properties));
+        this(properties, true);
+    }
+
+    /**
+     * Oppretter en klient med valgfri JVM-shutdown-hook på produceren.
+     *
+     * @param properties           Kafka-konfigurasjon
+     * @param registerShutdownHook true for automatisk lukking; ved false må applikasjonen kalle close
+     */
+    public KafkaProducerClientImpl(Properties properties, boolean registerShutdownHook) {
+        this(new GracefulKafkaProducer<>(properties, registerShutdownHook));
     }
 
     @Override

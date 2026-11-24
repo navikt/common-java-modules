@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Adds graceful shutdown to {@link KafkaProducer}}
+ *
  * @param <K> topic key
  * @param <V> topic value
  */
@@ -15,9 +16,25 @@ public class GracefulKafkaProducer<K, V> extends KafkaProducer<K, V> {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @SuppressWarnings("FieldCanBeLocal")
+    private final Thread shutdownHook;
+
     public GracefulKafkaProducer(Properties properties) {
+        this(properties, true);
+    }
+
+    /**
+     * Oppretter en producer med valgfri JVM-shutdown-hook.
+     *
+     * @param properties           Kafka-konfigurasjon
+     * @param registerShutdownHook true for automatisk lukking; ved false må applikasjonen kalle close
+     */
+    public GracefulKafkaProducer(Properties properties, boolean registerShutdownHook) {
         super(properties);
-        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
+        shutdownHook = registerShutdownHook ? new Thread(this::shutdown) : null;
+        if (shutdownHook != null) {
+            Runtime.getRuntime().addShutdownHook(shutdownHook);
+        }
     }
 
     private void shutdown() {

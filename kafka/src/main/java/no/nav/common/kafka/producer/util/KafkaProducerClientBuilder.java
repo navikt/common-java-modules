@@ -6,6 +6,7 @@ import lombok.NonNull;
 import no.nav.common.kafka.producer.KafkaProducerClient;
 import no.nav.common.kafka.producer.KafkaProducerClientImpl;
 
+@SuppressWarnings("unused")
 public class KafkaProducerClientBuilder<K, V> {
 
     private Properties properties;
@@ -13,6 +14,8 @@ public class KafkaProducerClientBuilder<K, V> {
     private Properties additionalProperties;
 
     private MeterRegistry meterRegistry;
+
+    private boolean registerShutdownHook = true;
 
     private KafkaProducerClientBuilder() {}
 
@@ -54,8 +57,23 @@ public class KafkaProducerClientBuilder<K, V> {
         return this;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public KafkaProducerClientBuilder<K, V> withMetrics(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
+        return this;
+    }
+
+    /**
+     * Velger om produceren skal registrere en JVM-shutdown-hook. Standardverdien er true.
+     *
+     * <p>Ved false må applikasjonen kalle close, direkte eller gjennom publisheren som eier klienten.
+     * Valget gjelder også ved bruk av withMetrics.
+     *
+     * @param registerShutdownHook true for automatisk lukking ved JVM-shutdown
+     * @return denne builderen
+     */
+    public KafkaProducerClientBuilder<K, V> withShutdownHookEnabled(boolean registerShutdownHook) {
+        this.registerShutdownHook = registerShutdownHook;
         return this;
     }
 
@@ -72,7 +90,7 @@ public class KafkaProducerClientBuilder<K, V> {
     }
 
     private KafkaProducerClient<K, V> createClient(Properties properties, MeterRegistry meterRegistry) {
-        KafkaProducerClient<K, V> producerClient = new KafkaProducerClientImpl<>(properties);
+        KafkaProducerClient<K, V> producerClient = new KafkaProducerClientImpl<>(properties, registerShutdownHook);
 
         if (meterRegistry != null) {
             producerClient = new KafkaProducerClientWithMetrics<>(producerClient, meterRegistry);
