@@ -1,17 +1,17 @@
 package no.nav.common.job;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
@@ -24,7 +24,7 @@ public class JobRunnerTest {
     @SuppressWarnings("LoggerInitializedWithForeignClass")
     private final Logger jobLogger = (Logger) LoggerFactory.getLogger(JobRunner.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalContextMap = MDC.getCopyOfContextMap();
         MDC.clear();
@@ -33,7 +33,7 @@ public class JobRunnerTest {
         jobLogger.addAppender(jobAppender);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         try {
             if (jobAppender != null) {

@@ -9,23 +9,23 @@ import no.nav.common.cxf.jetty.JettyTestServer;
 import no.nav.common.test.auth.AuthTestUtils;
 import no.nav.common.test.junit.SystemPropertiesRule;
 import org.apache.servicemix.examples.cxf.HelloWorld;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 @Slf4j
 public class MetricsIntegrationTest extends JettyTestServer {
 
-    @Rule
+    @RegisterExtension
     public SystemPropertiesRule systemPropertiesRule =
             new SystemPropertiesRule().setProperty(NAIS_APP_NAME_PROPERTY_NAME, "cxf");
 
-    @Rule
+    @RegisterExtension
     public AuthContextRule authContextRule =
             new AuthContextRule(AuthTestUtils.createAuthContext(UserRole.EKSTERN, "test-subject"));
 
     @Test
-    @Ignore // TODO: Ignore this until we add prometheus metrics
+    @Disabled // TODO: Ignore this until we add prometheus metrics
     public void client_generates_micrometer_metrics() throws IOException {
         StsConfig stsConfig = StsConfig.builder()
                 .url("https://test-sts")

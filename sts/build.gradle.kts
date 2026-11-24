@@ -7,7 +7,7 @@ dependencies {
     api(libs.oauth2.oidc.sdk)
     compileOnly(libs.lombok)
     runtimeOnly(libs.jakarta.servlet)
-    testImplementation(libs.junit.vintage)
     testImplementation(libs.mockito)
     testImplementation(libs.wiremock)
+    testImplementation(project(path = ":test", configuration = "testArtifacts"))
 }

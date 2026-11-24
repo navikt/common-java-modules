@@ -12,8 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class LogbackCxfRoutingTest {
 
@@ -22,7 +22,7 @@ public class LogbackCxfRoutingTest {
     private final LoggerContext context = new LoggerContext();
     private final ByteArrayOutputStream stdout = new ByteArrayOutputStream();
 
-    @After
+    @AfterEach
     public void stoppLoggerkontekst() {
         context.stop();
     }

@@ -7,30 +7,30 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class NaisUtilsTest {
 
-    @Rule
-    public TemporaryFolder tmp = new TemporaryFolder();
+    @TempDir
+    public Path tmp;
 
     private Properties originalProperties;
 
-    @Before
+    @BeforeEach
     public void setup() {
         originalProperties = (Properties) System.getProperties().clone();
-        System.setProperty(SECRETS_BASE_PATH_PROPERTY_NAME, tmp.getRoot().getAbsolutePath());
+        System.setProperty(SECRETS_BASE_PATH_PROPERTY_NAME, tmp.toAbsolutePath().toString());
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setProperties(originalProperties);
     }
@@ -110,7 +110,11 @@ public class NaisUtilsTest {
     }
 
     private void createFolder(String... folderNames) throws IOException {
-        tmp.newFolder(folderNames);
+        Path directory = tmp;
+        for (String folderName : folderNames) {
+            directory = directory.resolve(folderName);
+        }
+        Files.createDirectories(directory);
     }
 
     private void writeFile(String path, String content) throws IOException {
@@ -118,6 +122,6 @@ public class NaisUtilsTest {
     }
 
     private String tempPath(String path) {
-        return tmp.getRoot().getAbsolutePath() + "/" + path;
+        return tmp.resolve(path).toAbsolutePath().toString();
     }
 }

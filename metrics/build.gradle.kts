@@ -7,6 +7,5 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.commons.lang)
     compileOnly(libs.lombok)
-    testImplementation(libs.junit.vintage)
     testImplementation(libs.hamcrest.core)
 }

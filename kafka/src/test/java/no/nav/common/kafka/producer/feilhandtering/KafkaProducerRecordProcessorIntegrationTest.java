@@ -4,9 +4,9 @@ import static no.nav.common.kafka.utils.TestUtils.KAFKA_IMAGE;
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestByteProducerProperties;
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestConsumerProperties;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
@@ -32,11 +32,11 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -66,7 +66,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
     private KafkaProducerRecordProcessor recordProcessor;
     private boolean recordProcessorStarted;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception {
         kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
         kafka.waitingFor(new HostPortWaitStrategy());
@@ -81,7 +81,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         admin = KafkaAdminClient.create(Map.of(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, brokerUrl));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         try {
             if (admin != null) {
@@ -92,7 +92,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void beforeEach() {
         producerClient = new TestKafkaProducerClient(kafkaTestByteProducerProperties(kafka.getBootstrapServers()));
         testTopicA = UUID.randomUUID().toString();
@@ -118,7 +118,7 @@ public class KafkaProducerRecordProcessorIntegrationTest {
         consumerClient = new KafkaConsumerClientImpl<>(config);
     }
 
-    @After
+    @AfterEach
     public void afterEach() throws Exception {
         try {
             if (recordProcessor != null) {

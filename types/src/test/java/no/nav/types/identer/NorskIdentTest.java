@@ -1,11 +1,11 @@
 package no.nav.types.identer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import no.nav.common.json.JsonUtils;
 import no.nav.common.types.identer.NorskIdent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 

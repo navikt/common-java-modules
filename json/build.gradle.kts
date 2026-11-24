@@ -9,7 +9,4 @@ dependencies {
     implementation(libs.jackson.annotations)
     runtimeOnly(libs.kotlin.stdlib)
     runtimeOnly(libs.kotlin.reflect)
-    testImplementation(libs.junit.api)
-    testImplementation(libs.junit.engine)
-    testImplementation(libs.assertj)
 }

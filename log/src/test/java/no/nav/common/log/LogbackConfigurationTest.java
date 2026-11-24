@@ -15,8 +15,8 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 public class LogbackConfigurationTest {
 
@@ -29,7 +29,7 @@ public class LogbackConfigurationTest {
             "prefix.no.nav.common.cxf.suffix");
     private final LoggerContext context = new LoggerContext();
 
-    @After
+    @AfterEach
     public void stoppLoggerkontekst() {
         context.stop();
     }

@@ -1,6 +1,6 @@
 package no.nav.common.auth.utils;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,8 +9,8 @@ import java.util.Optional;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuer;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ServiceUserTokenFinderTest {
 
@@ -22,7 +22,7 @@ public class ServiceUserTokenFinderTest {
             .audience(NAIS_STS_ID)
             .build();
 
-    @Rule
+    @RegisterExtension
     public OidcProviderTestRule naisStsOidcProviderRule = new OidcProviderTestRule(naisStsIssuerConfig);
 
     @Test

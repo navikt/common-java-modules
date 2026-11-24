@@ -2,11 +2,11 @@ package no.nav.common.kafka.consumer.feilhandtering;
 
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresDataSource;
 import static no.nav.common.kafka.utils.LocalPostgresDatabase.createPostgresTestContainer;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.zaxxer.hikari.HikariDataSource;
 import java.time.Duration;
@@ -27,21 +27,21 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.awaitility.Awaitility;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedClass;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-@RunWith(Parameterized.class)
+@ParameterizedClass(name = "{0}")
+@MethodSource("data")
 public class KafkaConsumerRepositoryTest {
     public static final PostgreSQLContainer postgreSQLContainer = createPostgresTestContainer();
 
     private static HikariDataSource postgresDataSource;
 
-    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() throws Exception {
         postgreSQLContainer.start();
         Awaitility.await()
@@ -76,7 +76,7 @@ public class KafkaConsumerRepositoryTest {
         this.kafkaConsumerRepository = kafkaConsumerRepository;
     }
 
-    @AfterClass
+    @AfterAll
     public static void stop() {
         try {
             if (postgresDataSource != null) {
@@ -87,7 +87,7 @@ public class KafkaConsumerRepositoryTest {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         DbUtils.cleanupConsumer(dataSource);
     }

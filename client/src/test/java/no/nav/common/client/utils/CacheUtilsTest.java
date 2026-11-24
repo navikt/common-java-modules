@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.function.Supplier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CacheUtilsTest {
 

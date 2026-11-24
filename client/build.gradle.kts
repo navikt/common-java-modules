@@ -12,7 +12,6 @@ dependencies {
     testImplementation(project(path = ":test", configuration = "testArtifacts"))
     implementation(libs.slf4j.api)
     api(libs.caffeine)
-    testImplementation(libs.junit.vintage)
     testImplementation(libs.mockito)
     testImplementation(libs.wiremock)
     testImplementation(libs.jakarta.servlet)

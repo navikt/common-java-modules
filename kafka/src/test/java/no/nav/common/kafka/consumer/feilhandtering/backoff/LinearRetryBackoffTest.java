@@ -1,10 +1,10 @@
 package no.nav.common.kafka.consumer.feilhandtering.backoff;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LinearRetryBackoffTest {
 

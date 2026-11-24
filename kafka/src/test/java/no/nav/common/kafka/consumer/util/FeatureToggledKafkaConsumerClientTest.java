@@ -11,7 +11,7 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import no.nav.common.kafka.consumer.KafkaConsumerClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class FeatureToggledKafkaConsumerClientTest {
 

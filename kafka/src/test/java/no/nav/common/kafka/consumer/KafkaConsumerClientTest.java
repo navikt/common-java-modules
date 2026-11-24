@@ -5,8 +5,8 @@ import static no.nav.common.kafka.utils.TestUtils.kafkaTestConsumerProperties;
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestProducerProperties;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.List;
@@ -26,11 +26,11 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -47,19 +47,19 @@ public class KafkaConsumerClientTest {
     private KafkaConsumerClient consumerClient2;
     private static ConfluentKafkaContainer kafka;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
         kafka.waitingFor(new HostPortWaitStrategy());
         kafka.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         kafka.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         consumerGroupId = UUID.randomUUID().toString();
         String brokerUrl = kafka.getBootstrapServers();
@@ -73,7 +73,7 @@ public class KafkaConsumerClientTest {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         try {
             if (consumerClient2 != null) {
@@ -257,7 +257,7 @@ public class KafkaConsumerClientTest {
 
         await().atMost(Duration.ofSeconds(5)).until(() -> messagesReadCounterA.get() == 5);
         await().atMost(Duration.ofSeconds(5)).until(() -> maxRecordOffsetB.get() == 2);
-        assertTrue("Should have been reading messages", messagesReadCounterB.get() >= 3);
+        assertTrue(messagesReadCounterB.get() >= 3, "Should have been reading messages");
 
         consumerClient.stop();
     }

@@ -1,9 +1,9 @@
 package no.nav.common.kafka.producer.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ProducerUtilsTest {
 

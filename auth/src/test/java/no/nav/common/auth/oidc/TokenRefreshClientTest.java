@@ -2,13 +2,14 @@ package no.nav.common.auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.nimbusds.jwt.JWTParser;
 import java.text.ParseException;
 import no.nav.common.auth.test_provider.JwtTestTokenIssuerConfig;
 import no.nav.common.auth.test_provider.OidcProviderTestRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class TokenRefreshClientTest {
 
@@ -18,7 +19,7 @@ public class TokenRefreshClientTest {
             .audience("oidc-provider-test-rule")
             .build();
 
-    @Rule
+    @RegisterExtension
     public OidcProviderTestRule oidcProviderRule = new OidcProviderTestRule(issuerConfig);
 
     @Test
@@ -48,12 +49,14 @@ public class TokenRefreshClientTest {
         assertThat(claims.getAudience()).containsExactly(issuerConfig.audience);
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldThrowIfWrongUrl() {
         // Arrange
         var refreshClient = new TokenRefreshClient();
 
         // Act & Assert
-        refreshClient.refreshIdToken("http://not-a-real-host.test/refresh", "refresh-token");
+        assertThrows(
+                Exception.class,
+                () -> refreshClient.refreshIdToken("http://not-a-real-host.test/refresh", "refresh-token"));
     }
 }

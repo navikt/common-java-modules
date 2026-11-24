@@ -7,7 +7,6 @@ dependencies {
     implementation(libs.okhttp)
     compileOnly(libs.lombok)
     api(libs.shedlock)
-    testImplementation(libs.junit.vintage)
     testImplementation(libs.wiremock)
     testImplementation(project(":test"))
     testImplementation(project(path = ":test", configuration = "testArtifacts"))

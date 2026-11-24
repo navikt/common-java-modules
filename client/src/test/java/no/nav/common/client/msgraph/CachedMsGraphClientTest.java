@@ -1,7 +1,7 @@
 package no.nav.common.client.msgraph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -14,7 +14,7 @@ import com.nimbusds.jwt.PlainJWT;
 import java.util.List;
 import no.nav.common.types.identer.AzureObjectId;
 import no.nav.common.types.identer.EnhetId;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CachedMsGraphClientTest {
 

@@ -15,7 +15,7 @@ import no.nav.common.cxf.CXFEndpoint;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
 @Slf4j
 public abstract class JettyTestServer {
@@ -54,7 +54,7 @@ public abstract class JettyTestServer {
         }
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         if (jetty != null) {
             jetty.server.stop();

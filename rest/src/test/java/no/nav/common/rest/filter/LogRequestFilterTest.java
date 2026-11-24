@@ -17,9 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 import no.nav.common.log.MDCConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class LogRequestFilterTest {
     @SuppressWarnings("LoggerInitializedWithForeignClass")
     private final Logger filterLogger = (Logger) LoggerFactory.getLogger(LogRequestFilter.class);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalContextMap = MDC.getCopyOfContextMap();
         MDC.clear();
@@ -61,7 +61,7 @@ public class LogRequestFilterTest {
         when(request.getHeader(NAV_CALL_ID_HEADER_NAME)).thenReturn("some_call_id");
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         try {
             if (filterAppender != null) {

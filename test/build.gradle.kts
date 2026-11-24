@@ -14,7 +14,6 @@ dependencies {
     api(libs.jakarta.servlet)
     testImplementation(libs.hamcrest.core)
     testImplementation(libs.hamcrest.library)
-    testImplementation(libs.junit.vintage)
-    testImplementation(libs.assertj)
     testImplementation(libs.mockito)
+    testImplementation(libs.wiremock)
 }

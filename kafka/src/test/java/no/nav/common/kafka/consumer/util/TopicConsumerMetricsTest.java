@@ -2,7 +2,7 @@ package no.nav.common.kafka.consumer.util;
 
 import static no.nav.common.kafka.consumer.util.TopicConsumerMetrics.KAFKA_CONSUMER_CONSUMED_OFFSET_GAUGE;
 import static no.nav.common.kafka.consumer.util.TopicConsumerMetrics.KAFKA_CONSUMER_STATUS_COUNTER;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import no.nav.common.kafka.consumer.ConsumeStatus;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TopicConsumerMetricsTest {
 

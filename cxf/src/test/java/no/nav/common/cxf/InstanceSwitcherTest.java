@@ -4,18 +4,19 @@ import static java.lang.System.clearProperty;
 import static java.lang.System.setProperty;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class InstanceSwitcherTest {
 
     private Properties originalProperties;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalProperties = (Properties) System.getProperties().clone();
         clearProperty("mock");
@@ -23,7 +24,7 @@ public class InstanceSwitcherTest {
         clearProperty("tillatmock");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setProperties(originalProperties);
     }
@@ -54,9 +55,8 @@ public class InstanceSwitcherTest {
         assertThat(switcher.doSomething(), is("mockklasse"));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void normalMockSkalSimulereFeil() {
-
         String nokkel = "mock";
 
         setProperty("tillatmock", "true");
@@ -67,12 +67,11 @@ public class InstanceSwitcherTest {
         ClassV1 mock = createClassV1Mock();
         ClassV1 switcher = InstanceSwitcher.createSwitcher(test, mock, nokkel, ClassV1.class);
 
-        switcher.doSomething();
+        assertThrows(RuntimeException.class, switcher::doSomething);
     }
 
-    @Test(expected = InvocationTargetException.class)
+    @Test
     public void skalSimulereInvocationTargetException() throws InvocationTargetException {
-
         String nokkel = "mock";
 
         setProperty("tillatmock", "true");
@@ -82,7 +81,7 @@ public class InstanceSwitcherTest {
         ClassV1 mock = createClassV1Mock();
         ClassV1 switcher = InstanceSwitcher.createSwitcher(test, mock, nokkel, ClassV1.class);
 
-        switcher.simulererInvokationTargetException();
+        assertThrows(InvocationTargetException.class, switcher::simulererInvokationTargetException);
     }
 
     private ClassV1 createClassV1() {

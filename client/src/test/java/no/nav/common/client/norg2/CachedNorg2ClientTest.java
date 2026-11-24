@@ -8,15 +8,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class CachedNorg2ClientTest {
 
     NorgHttp2Client client;
     CachedNorg2Client cachedClient;
 
-    @Before
+    @BeforeEach
     public void setup() {
         client = mock(NorgHttp2Client.class);
         cachedClient = new CachedNorg2Client(client);

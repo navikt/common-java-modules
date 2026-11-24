@@ -16,23 +16,23 @@ import static no.nav.common.utils.UrlUtils.sluttMedSlash;
 import static no.nav.common.utils.UrlUtils.startMedSlash;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class UrlUtilsTest {
 
     private Properties originalProperties;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalProperties = (Properties) System.getProperties().clone();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setProperties(originalProperties);
     }

@@ -9,6 +9,6 @@ dependencies {
     runtimeOnly(libs.kotlin.stdlib)
     compileOnly(libs.lombok)
     compileOnly(libs.micrometer) { mavenOptional() }
-    testImplementation(libs.junit.vintage)
     testImplementation(libs.wiremock)
+    testImplementation(project(path = ":test", configuration = "testArtifacts"))
 }

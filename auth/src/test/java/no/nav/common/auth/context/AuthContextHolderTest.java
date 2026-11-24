@@ -3,8 +3,8 @@ package no.nav.common.auth.context;
 import static no.nav.common.auth.Constants.AAD_NAV_IDENT_CLAIM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class AuthContextHolderTest {
 
@@ -89,14 +89,14 @@ public class AuthContextHolderTest {
                 }
                 executor.shutdown();
                 assertTrue(
-                        "Arbeidertradene avsluttet ikke innen fem sekunder",
-                        executor.awaitTermination(5, TimeUnit.SECONDS));
+                        executor.awaitTermination(5, TimeUnit.SECONDS),
+                        "Arbeidertradene avsluttet ikke innen fem sekunder");
                 for (Future<?> oppgave : oppgaver) {
                     oppgave.get(5, TimeUnit.SECONDS);
                 }
             } finally {
                 executor.shutdownNow();
-                assertTrue("Test-executor er ikke avsluttet", executor.awaitTermination(5, TimeUnit.SECONDS));
+                assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS), "Test-executor er ikke avsluttet");
             }
             assertThat(usedThreads).hasSize(2).doesNotContain(baseThread);
             assertEquals(authContext, AuthContextHolderThreadLocal.instance().requireContext());

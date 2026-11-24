@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.MDC;
 
@@ -32,7 +32,7 @@ public class LogFilterTest {
     private final LogRequestFilter logRequestFilter = new LogRequestFilter("test");
     private Map<String, String> originalContextMap;
 
-    @Before
+    @BeforeEach
     public void setup() {
         originalContextMap = MDC.getCopyOfContextMap();
         MDC.clear();
@@ -40,7 +40,7 @@ public class LogFilterTest {
         when(httpServletRequest.getRequestURI()).thenReturn("/test/path");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         if (originalContextMap == null) {
             MDC.clear();

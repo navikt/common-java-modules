@@ -7,9 +7,9 @@ import io.getunleash.UnleashContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ByClusterStrategyTest {
 
@@ -18,12 +18,12 @@ public class ByClusterStrategyTest {
     private final ByClusterStrategy byClusterStrategy = new ByClusterStrategy();
     private Properties originalProperties;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalProperties = (Properties) System.getProperties().clone();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setProperties(originalProperties);
     }

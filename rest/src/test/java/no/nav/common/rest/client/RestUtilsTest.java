@@ -4,11 +4,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static java.util.function.Predicate.isEqual;
+import static no.nav.common.test.wiremock.WireMockTestUtils.createWireMockExtension;
 import static org.assertj.core.api.InstanceOfAssertFactories.list;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +22,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okio.Buffer;
 import org.assertj.core.api.Assertions;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class RestUtilsTest {
 
@@ -33,14 +34,14 @@ public class RestUtilsTest {
         private String hello;
     }
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(0);
+    @RegisterExtension
+    public WireMockExtension wireMockRule = createWireMockExtension();
 
     @Test
     public void getBodyStr__skal_returnere_body() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String json = "{ \"hello\": \"world\" }";
 
         wireMockRule.stubFor(
@@ -64,7 +65,7 @@ public class RestUtilsTest {
         expected.hello = "world";
 
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String json = "{ \"hello\": \"world\" }";
 
         wireMockRule.stubFor(
@@ -85,7 +86,7 @@ public class RestUtilsTest {
     public void parseJsonResponseOrThrow__kaster_exception_ved_tom_json_body() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String json = "";
 
         wireMockRule.stubFor(
@@ -108,7 +109,7 @@ public class RestUtilsTest {
         expected.hello = "world";
 
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String json = "[{\"hello\": \"world\"}, {\"hello\": \"world\"}]";
 
         wireMockRule.stubFor(
@@ -135,7 +136,7 @@ public class RestUtilsTest {
     public void parseJsonArrayResponse__kaster_exception_ved_tom_body() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
         String json = "";
 
         wireMockRule.stubFor(
@@ -155,7 +156,7 @@ public class RestUtilsTest {
     public void getBodyStr__skal_returnere_empty_body_ved_204() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(get(anyUrl()).willReturn(aResponse().withStatus(204)));
 
@@ -174,7 +175,7 @@ public class RestUtilsTest {
     public void getBodyStr__skal_returnere_empty_body_for_tom_body_ved_200() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(
                 get(anyUrl()).willReturn(aResponse().withStatus(200).withBody("")));
@@ -194,7 +195,7 @@ public class RestUtilsTest {
     public void throwIfNotSuccessful__skal_kaste_exception_ved_feil() throws IOException {
         // Arrange
         var client = new OkHttpClient.Builder().build();
-        String baseUrl = "http://localhost:" + wireMockRule.port();
+        String baseUrl = "http://localhost:" + wireMockRule.getPort();
 
         wireMockRule.stubFor(
                 get(anyUrl()).willReturn(aResponse().withStatus(404).withBody("")));

@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
 @Slf4j
@@ -22,14 +22,14 @@ public class LogbackStdoutJsonTest {
     private PrintStream capturedOut;
     private Map<String, String> originalContextMap;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         originalOut = System.out;
         originalContextMap = MDC.getCopyOfContextMap();
         MDC.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         try {
             System.setOut(originalOut);
@@ -64,13 +64,13 @@ public class LogbackStdoutJsonTest {
         // da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
         var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
 
-        Assert.assertEquals("skal bare vere 2 log lingjer", 2, logLinjes.size());
+        Assertions.assertEquals(2, logLinjes.size(), "skal bare vere 2 log lingjer");
 
         LogLinje skalVereMaskert = logLinjes.get(0);
-        Assert.assertEquals(maskert, skalVereMaskert.message);
+        Assertions.assertEquals(maskert, skalVereMaskert.message);
 
         LogLinje skalIkkeBliMaskert = logLinjes.get(1);
-        Assert.assertEquals(skalIkkeMaskeres, skalIkkeBliMaskert.message);
+        Assertions.assertEquals(skalIkkeMaskeres, skalIkkeBliMaskert.message);
     }
 
     @Test
@@ -89,8 +89,8 @@ public class LogbackStdoutJsonTest {
 
         // da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
         var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
-        Assert.assertEquals("skal bare vere 1 log lingjer", 1, logLinjes.size());
-        Assert.assertTrue(logtext.contains(mdcKey));
+        Assertions.assertEquals(1, logLinjes.size(), "skal bare vere 1 log lingjer");
+        Assertions.assertTrue(logtext.contains(mdcKey));
     }
 
     @Test
@@ -113,29 +113,29 @@ public class LogbackStdoutJsonTest {
         // da andre ting også logger når vi kjører testen må vi fjerne alle lingjer som ikke er json
         var logLinjes = hentLinjerSomStarterMedCurlyBraces(logtext);
 
-        Assert.assertEquals("skal være 3 loglingjer (ikke debug)", 3, logLinjes.size());
+        Assertions.assertEquals(3, logLinjes.size(), "skal være 3 loglingjer (ikke debug)");
 
         LogLinje info = logLinjes.getFirst();
-        Assert.assertEquals(infoMelding, info.message);
-        Assert.assertEquals("INFO", info.level);
+        Assertions.assertEquals(infoMelding, info.message);
+        Assertions.assertEquals("INFO", info.level);
 
         LogLinje warn = logLinjes.get(1);
-        Assert.assertEquals(advarselMelding, warn.message);
-        Assert.assertEquals("WARN", warn.level);
+        Assertions.assertEquals(advarselMelding, warn.message);
+        Assertions.assertEquals("WARN", warn.level);
 
         LogLinje error = logLinjes.get(2);
-        Assert.assertEquals(errorMelding, error.message);
-        Assert.assertEquals("ERROR", error.level);
+        Assertions.assertEquals(errorMelding, error.message);
+        Assertions.assertEquals("ERROR", error.level);
 
         // verifiser at ingen av feltene i logLingje er null
         logLinjes.forEach(l -> {
-            Assert.assertNotNull(l.timestamp);
-            Assert.assertNotNull(l.version);
-            Assert.assertNotNull(l.message);
-            Assert.assertNotNull(l.logger_name);
-            Assert.assertNotNull(l.thread_name);
-            Assert.assertNotNull(l.level);
-            Assert.assertNotEquals(0, l.level_value);
+            Assertions.assertNotNull(l.timestamp);
+            Assertions.assertNotNull(l.version);
+            Assertions.assertNotNull(l.message);
+            Assertions.assertNotNull(l.logger_name);
+            Assertions.assertNotNull(l.thread_name);
+            Assertions.assertNotNull(l.level);
+            Assertions.assertNotEquals(0, l.level_value);
         });
     }
 

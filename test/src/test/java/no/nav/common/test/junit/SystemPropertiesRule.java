@@ -1,13 +1,15 @@
 package no.nav.common.test.junit;
 
 import java.util.Properties;
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.function.Executable;
 
-public class SystemPropertiesRule implements MethodRule {
+public class SystemPropertiesRule implements BeforeEachCallback, AfterEachCallback {
 
     private final Properties configuredProperties = new Properties();
+    private Properties initialSystemProperties;
     private boolean evaluating;
 
     private static Properties copy(Properties properties) {
@@ -15,21 +17,25 @@ public class SystemPropertiesRule implements MethodRule {
     }
 
     @Override
-    public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                Properties initialSystemProperties = copy(System.getProperties());
-                try {
-                    evaluating = true;
-                    System.getProperties().putAll(configuredProperties);
-                    statement.evaluate();
-                } finally {
-                    evaluating = false;
-                    System.setProperties(initialSystemProperties);
-                }
-            }
-        };
+    public void beforeEach(ExtensionContext context) {
+        initialSystemProperties = copy(System.getProperties());
+        evaluating = true;
+        System.getProperties().putAll(configuredProperties);
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
+        evaluating = false;
+        System.setProperties(initialSystemProperties);
+    }
+
+    public void evaluate(Executable executable) throws Throwable {
+        beforeEach(null);
+        try {
+            executable.execute();
+        } finally {
+            afterEach(null);
+        }
     }
 
     public SystemPropertiesRule setProperty(String name, String value) {

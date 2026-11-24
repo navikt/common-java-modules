@@ -1,6 +1,6 @@
 package no.nav.common.kafka.consumer.deserializer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import no.nav.common.json.JsonUtils;
 import no.nav.common.kafka.consumer.util.deserializer.JsonValidationDeserializer;
 import org.everit.json.schema.Schema;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class JsonValidationDeserializerTest {
 

@@ -12,9 +12,11 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import java.util.Map;
 import no.nav.common.json.JsonUtils;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class OidcProviderTestRule extends ExternalResource {
+public class OidcProviderTestRule implements BeforeEachCallback, AfterEachCallback {
     private final WireMockServer httpServer;
     private final JwtTestTokenIssuerConfig issuerConfig;
     private final JwtTestTokenIssuer issuer;
@@ -27,7 +29,7 @@ public class OidcProviderTestRule extends ExternalResource {
     }
 
     @Override
-    protected void before() {
+    public void beforeEach(ExtensionContext context) {
         httpServer.start();
         try {
             configureStubs();
@@ -53,7 +55,7 @@ public class OidcProviderTestRule extends ExternalResource {
     }
 
     @Override
-    protected void after() {
+    public void afterEach(ExtensionContext context) {
         httpServer.stop();
     }
 

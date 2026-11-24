@@ -8,9 +8,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import no.nav.common.json.JsonUtils;
-import org.junit.Test;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class OidcProviderTestRuleTest {
     private static final JwtTestTokenIssuerConfig CONFIG = JwtTestTokenIssuerConfig.builder()
@@ -43,8 +42,8 @@ public class OidcProviderTestRuleTest {
         try (HttpClient client = HttpClient.newHttpClient()) {
             try {
                 // Act
-                first.before();
-                second.before();
+                first.beforeEach(null);
+                second.beforeEach(null);
                 HttpResponse<String> discovery = get(client, first.getDiscoveryUri());
                 HttpResponse<String> jwks = get(client, first.getJwksUri());
                 HttpResponse<String> secondDiscovery = get(client, second.getDiscoveryUri());
@@ -86,8 +85,8 @@ public class OidcProviderTestRuleTest {
                                 .asString())
                         .isNotBlank();
             } finally {
-                second.after();
-                first.after();
+                second.afterEach(null);
+                first.afterEach(null);
             }
         }
     }
@@ -98,18 +97,18 @@ public class OidcProviderTestRuleTest {
         OidcProviderTestRule rule = new OidcProviderTestRule(CONFIG);
         AssertionError failure = new AssertionError("expected failure");
         String[] runningUri = new String[1];
-        Statement evaluation = rule.apply(
-                new Statement() {
-                    @Override
-                    public void evaluate() {
-                        runningUri[0] = rule.getDiscoveryUri();
-                        throw failure;
-                    }
-                },
-                Description.EMPTY);
+        Executable evaluation = () -> {
+            rule.beforeEach(null);
+            try {
+                runningUri[0] = rule.getDiscoveryUri();
+                throw failure;
+            } finally {
+                rule.afterEach(null);
+            }
+        };
 
         // Act
-        Throwable result = catchThrowable(evaluation::evaluate);
+        Throwable result = catchThrowable(evaluation::execute);
         Throwable stoppedFailure = catchThrowable(rule::getDiscoveryUri);
 
         // Assert
@@ -124,11 +123,11 @@ public class OidcProviderTestRuleTest {
         OidcProviderTestRule rule = new OidcProviderTestRule(CONFIG);
         try (HttpClient client = HttpClient.newHttpClient()) {
             try {
-                rule.before();
-                rule.after();
+                rule.beforeEach(null);
+                rule.afterEach(null);
 
                 // Act
-                rule.before();
+                rule.beforeEach(null);
                 HttpResponse<String> discovery = get(client, rule.getDiscoveryUri());
 
                 // Assert
@@ -139,7 +138,7 @@ public class OidcProviderTestRuleTest {
                                 .asString())
                         .isEqualTo(rule.getJwksUri());
             } finally {
-                rule.after();
+                rule.afterEach(null);
             }
         }
     }

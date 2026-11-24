@@ -11,16 +11,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Properties;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class EnvironmentUtilsTest {
 
     private static final String PROPERTY_NAME = EnvironmentUtilsTest.class.getName();
     private Properties originalProperties;
 
-    @Before
+    @BeforeEach
     public void setup() {
         originalProperties = (Properties) System.getProperties().clone();
         System.clearProperty(PROPERTY_NAME);
@@ -29,7 +29,7 @@ public class EnvironmentUtilsTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setProperties(originalProperties);
     }

@@ -5,8 +5,8 @@ import static no.nav.common.kafka.producer.util.KafkaProducerClientWithMetrics.K
 import static no.nav.common.kafka.utils.TestUtils.KAFKA_IMAGE;
 import static no.nav.common.kafka.utils.TestUtils.kafkaTestProducerProperties;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -21,11 +21,11 @@ import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.KafkaAdminClient;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy;
 import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -38,19 +38,19 @@ public class KafkaProducerWithClientMetricsTest {
     private MeterRegistry registry;
     private KafkaProducerClientWithMetrics<String, String> metricsClient;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         kafka = new ConfluentKafkaContainer(DockerImageName.parse(KAFKA_IMAGE));
         kafka.waitingFor(new HostPortWaitStrategy());
         kafka.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass() {
         kafka.stop();
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         String brokerUrl = kafka.getBootstrapServers();
 
@@ -73,7 +73,7 @@ public class KafkaProducerWithClientMetricsTest {
                 kafkaTestProducerProperties(kafka.getBootstrapServers()), registry);
     }
 
-    @After
+    @AfterEach
     public void cleanup() {
         try {
             if (metricsClient != null) {
@@ -132,8 +132,8 @@ public class KafkaProducerWithClientMetricsTest {
             Gauge gaugeB = registry.find(KAFKA_PRODUCER_CURRENT_OFFSET_GAUGE)
                     .tags("topic", TEST_TOPIC_B, "partition", "0")
                     .gauge();
-            assertNotNull("Offset-gauge mangler for topic A", gaugeA);
-            assertNotNull("Offset-gauge mangler for topic B", gaugeB);
+            assertNotNull(gaugeA, "Offset-gauge mangler for topic A");
+            assertNotNull(gaugeB, "Offset-gauge mangler for topic B");
             assertEquals(2, gaugeA.value(), 0);
             assertEquals(1, gaugeB.value(), 0);
         });
