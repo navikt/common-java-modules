@@ -31,8 +31,19 @@ public class KafkaProducerClientWithMetrics<K, V> implements KafkaProducerClient
     private final Map<String, Long> currentOffsetMap = new ConcurrentHashMap<>();
 
     public KafkaProducerClientWithMetrics(Properties properties, MeterRegistry meterRegistry) {
-        this.client = new KafkaProducerClientImpl<>(properties);
-        this.meterRegistry = meterRegistry;
+        this(properties, meterRegistry, true);
+    }
+
+    /**
+     * Oppretter en metrikk-klient med valgfri JVM-shutdown-hook på produceren.
+     *
+     * @param properties Kafka-konfigurasjon
+     * @param meterRegistry register for producer-metrikker
+     * @param registerShutdownHook true for automatisk lukking; ved false må applikasjonen kalle close
+     */
+    public KafkaProducerClientWithMetrics(
+            Properties properties, MeterRegistry meterRegistry, boolean registerShutdownHook) {
+        this(new KafkaProducerClientImpl<>(properties, registerShutdownHook), meterRegistry);
     }
 
     public KafkaProducerClientWithMetrics(KafkaProducerClient<K, V> client, MeterRegistry meterRegistry) {

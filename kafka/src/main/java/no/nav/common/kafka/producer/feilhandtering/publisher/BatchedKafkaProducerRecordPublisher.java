@@ -26,17 +26,16 @@ public class BatchedKafkaProducerRecordPublisher implements KafkaProducerRecordP
 
         CountDownLatch latch = new CountDownLatch(records.size());
 
-        records.forEach(record -> {
-            producerClient.send(ProducerUtils.mapFromStoredRecord(record), (metadata, exception) -> {
-                latch.countDown();
+        records.forEach(record ->
+                producerClient.send(ProducerUtils.mapFromStoredRecord(record), (metadata, exception) -> {
+                    latch.countDown();
 
-                if (exception != null) {
-                    log.warn("Failed to resend failed record to topic {}", record.getTopic(), exception);
-                } else {
-                    idsToDelete.add(record.getId());
-                }
-            });
-        });
+                    if (exception != null) {
+                        log.warn("Failed to resend failed record to topic {}", record.getTopic(), exception);
+                    } else {
+                        idsToDelete.add(record.getId());
+                    }
+                }));
 
         producerClient.getProducer().flush();
 

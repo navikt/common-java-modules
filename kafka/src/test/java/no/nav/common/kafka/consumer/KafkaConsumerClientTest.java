@@ -77,12 +77,12 @@ public class KafkaConsumerClientTest {
     public void cleanup() {
         try {
             if (consumerClient2 != null) {
-                consumerClient2.stop();
+                consumerClient2.close();
             }
         } finally {
             try {
                 if (consumerClient != null) {
-                    consumerClient.stop();
+                    consumerClient.close();
                 }
             } finally {
                 try {

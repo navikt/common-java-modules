@@ -6,6 +6,7 @@ import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRecordProcessor;
 import no.nav.common.kafka.producer.feilhandtering.KafkaProducerRepository;
 import no.nav.common.kafka.producer.feilhandtering.publisher.KafkaProducerRecordPublisher;
 
+@SuppressWarnings("unused")
 public class KafkaProducerRecordProcessorBuilder {
 
     public static final long DEFAULT_ERROR_TIMEOUT_MS = 5000;
@@ -72,6 +73,15 @@ public class KafkaProducerRecordProcessorBuilder {
         return this;
     }
 
+    /**
+     * Velger om prosessoren skal registrere en JVM-shutdown-hook. Standardverdien er true.
+     *
+     * <p>Valget endrer ikke hooken til produceren bak publisheren. Deaktiver også denne
+     * med KafkaProducerClientBuilder.withShutdownHookEnabled(false) når Spring eier livssyklusen.
+     *
+     * @param registerShutdownHook true for automatisk lukking ved JVM-shutdown
+     * @return denne builderen
+     */
     public KafkaProducerRecordProcessorBuilder withShutdownHookEnabled(boolean registerShutdownHook) {
         this.registerShutdownHook = registerShutdownHook;
         return this;

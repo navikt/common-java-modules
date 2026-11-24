@@ -42,6 +42,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
     private final DataSource dataSource;
     private final KafkaConsumerRepository consumerRepository;
+    private KafkaConsumerRecordProcessor consumerRecordProcessor;
 
     private static Optional<SimpleLock> lock(LockConfiguration lockConfiguration) {
         return Optional.of(() -> {});
@@ -83,6 +84,9 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
 
     @AfterEach
     public void after() throws Exception {
+        if (consumerRecordProcessor != null) {
+            consumerRecordProcessor.close();
+        }
         DbUtils.cleanupConsumer(dataSource);
     }
 
@@ -115,7 +119,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                     return ConsumeStatus.OK;
                 }));
 
-        var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
                 .withLockProvider(lockProvider)
                 .withKafkaConsumerRepository(consumerRepository)
                 .withConsumerConfigs(configs)
@@ -139,7 +143,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 assertTrue(consumerRepository.getRecords(TEST_TOPIC_B, 1, 5).isEmpty());
             });
         } finally {
-            consumerRecordProcessor.stop();
+            consumerRecordProcessor.close();
         }
     }
 
@@ -161,7 +165,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                     return ConsumeStatus.OK;
                 }));
 
-        var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
                 .withLockProvider(lockProvider)
                 .withKafkaConsumerRepository(consumerRepository)
                 .withConsumerConfigs(configs)
@@ -181,7 +185,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 2, 5).isEmpty());
             });
         } finally {
-            consumerRecordProcessor.stop();
+            consumerRecordProcessor.close();
         }
     }
 
@@ -209,7 +213,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                     return ConsumeStatus.OK;
                 }));
 
-        var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
                 .withLockProvider(lockProvider)
                 .withKafkaConsumerRepository(consumerRepository)
                 .withConsumerConfigs(configs)
@@ -235,7 +239,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 assertTrue(consumerRepository.getRecords(TEST_TOPIC_B, 1, 5).isEmpty());
             });
         } finally {
-            consumerRecordProcessor.stop();
+            consumerRecordProcessor.close();
         }
     }
 
@@ -252,7 +256,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                     return ConsumeStatus.OK;
                 }));
 
-        var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
                 .withLockProvider(lockProvider)
                 .withKafkaConsumerRepository(consumerRepository)
                 .withConsumerConfigs(configs)
@@ -270,7 +274,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
             });
         } finally {
-            consumerRecordProcessor.stop();
+            consumerRecordProcessor.close();
         }
     }
 
@@ -286,7 +290,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                     return ConsumeStatus.OK;
                 }));
 
-        var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
                 .withLockProvider(lockProvider)
                 .withKafkaConsumerRepository(consumerRepository)
                 .withConsumerConfigs(configs)
@@ -307,7 +311,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                 assertTrue(consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).isEmpty());
             });
         } finally {
-            consumerRecordProcessor.stop();
+            consumerRecordProcessor.close();
         }
     }
 
@@ -323,7 +327,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
                     return ConsumeStatus.OK;
                 }));
 
-        var consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
+        consumerRecordProcessor = KafkaConsumerRecordProcessorBuilder.builder()
                 .withLockProvider(lockProvider)
                 .withKafkaConsumerRepository(consumerRepository)
                 .withConsumerConfigs(configs)
@@ -343,7 +347,7 @@ public class KafkaConsumerRecordProcessorIntegrationTest {
             assertEquals(0, counterTopicA.get());
             assertEquals(2, consumerRepository.getRecords(TEST_TOPIC_A, 1, 5).size());
         } finally {
-            consumerRecordProcessor.stop();
+            consumerRecordProcessor.close();
         }
     }
 
